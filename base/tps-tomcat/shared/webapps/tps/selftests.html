@@ -31,7 +31,7 @@ $(function() {
         readonly: ["id", "enabledAtStartup", "criticalAtStartup", "enabledOnDemand", "criticalOnDemand"]
     });
 
-    new TableView({
+    new Table({
         el: $("table[name='selftests']"),
         collection: new SelfTestCollection({ size: 3 }),
         editDialog: editDialog
@@ -52,7 +52,7 @@ $(function() {
          </th>
     </tr>
     <tr>
-        <th class="checkbox"><input id="selftest_selectall" type="checkbox"><label for="selftest_selectall">&nbsp;</label></th>
+        <th><input id="selftest_selectall" type="checkbox"><label for="selftest_selectall">&nbsp;</label></th>
         <th>Self Test ID</th>
         <th>Enabled at Statup</th>
         <th>Critical at Startup</th>
@@ -62,7 +62,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
-        <td class="checkbox"><input id="selftest_select" type="checkbox"><label for="selftest_select">&nbsp;</label></td>
+        <td><input id="selftest_select" type="checkbox"><label for="selftest_select">&nbsp;</label></td>
         <td name="id">&nbsp;</td>
         <td name="enabledAtStartup">&nbsp;</td>
         <td name="criticalAtStartup">&nbsp;</td>

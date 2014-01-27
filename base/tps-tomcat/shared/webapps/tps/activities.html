@@ -32,7 +32,7 @@ $(function() {
             "operation", "result", "date"]
     });
 
-    new TableView({
+    new Table({
         el: $("table[name='activities']"),
         collection: new ActivityCollection({ size: 3 }),
         editDialog: editDialog
@@ -53,7 +53,7 @@ $(function() {
          </th>
     </tr>
     <tr>
-        <th class="checkbox"><input id="activity_selectall" type="checkbox"><label for="activity_selectall">&nbsp;</label></th>
+        <th><input id="activity_selectall" type="checkbox"><label for="activity_selectall">&nbsp;</label></th>
         <th>Activity ID</th>
         <th>Token ID</th>
         <th>User ID</th>
@@ -65,7 +65,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
-        <td class="checkbox"><input id="activity_select" type="checkbox"><label for="activity_select">&nbsp;</label></td>
+        <td><input id="activity_select" type="checkbox"><label for="activity_select">&nbsp;</label></td>
         <td name="id">&nbsp;</td>
         <td name="tokenID">&nbsp;</td>
         <td name="userID">&nbsp;</td>

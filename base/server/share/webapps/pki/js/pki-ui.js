@@ -107,6 +107,30 @@ var Collection = Backbone.Collection.extend({
     }
 });
 
+var Navigation = Backbone.View.extend({
+    initialize: function(options) {
+        var self = this;
+        Navigation.__super__.initialize.call(self, options);
+
+        self.content = options.content;
+        self.homeURL = options.homeURL;
+
+        $("li", self.$el).each(function(index) {
+            var li = $(this);
+            var link = $("a", li);
+            var url = link.attr("href");
+            link.click(function(e) {
+                if (url != "#") {
+                    self.content.load(url);
+                }
+                e.preventDefault();
+            });
+        });
+
+        if (self.homeURL) self.content.load(self.homeURL);
+    }
+});
+
 var Dialog = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
@@ -316,10 +340,10 @@ var BlankTableItem = Backbone.View.extend({
     }
 });
 
-var TableItemView = Backbone.View.extend({
+var TableItem = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
-        TableItemView.__super__.initialize.call(self, options);
+        TableItem.__super__.initialize.call(self, options);
         self.table = options.table;
     },
     render: function() {
@@ -366,11 +390,11 @@ var TableItemView = Backbone.View.extend({
     }
 });
 
-var TableView = Backbone.View.extend({
+var Table = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
 
-        TableView.__super__.initialize.call(self, options);
+        Table.__super__.initialize.call(self, options);
         self.addDialog = options.addDialog;
         self.editDialog = options.editDialog;
 
@@ -417,7 +441,7 @@ var TableView = Backbone.View.extend({
 
                 // display result page
                 _(self.collection.models).each(function(model) {
-                    var item = new TableItemView({
+                    var item = new TableItem({
                         el: self.template.clone(),
                         table: self,
                         model: model

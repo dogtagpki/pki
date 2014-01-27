@@ -39,7 +39,7 @@ $(function() {
         actions: ["cancel", "save"]
     });
 
-    new TableView({
+    new Table({
         el: $("table[name='users']"),
         collection: new UserCollection({ size: 3 }),
         addDialog: addDialog,
@@ -64,14 +64,14 @@ $(function() {
          </th>
     </tr>
     <tr>
-        <th class="checkbox"><input id="user_selectall" type="checkbox"><label for="user_selectall">&nbsp;</label></th>
+        <th><input id="user_selectall" type="checkbox"><label for="user_selectall">&nbsp;</label></th>
         <th>User ID</th>
         <th>Full Name</th>
     </tr>
 </thead>
 <tbody>
     <tr>
-        <td class="checkbox"><input id="user_select" type="checkbox"><label for="user_select">&nbsp;</label></td>
+        <td><input id="user_select" type="checkbox"><label for="user_select">&nbsp;</label></td>
         <td name="userID">&nbsp;</td>
         <td name="fullName">&nbsp;</td>
     </tr>

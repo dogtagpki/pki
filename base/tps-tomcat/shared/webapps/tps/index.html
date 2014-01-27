@@ -17,23 +17,77 @@
      --- END COPYRIGHT BLOCK --- -->
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/pki/css/rcue.css" rel="stylesheet" media="screen, print">
     <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
+    <script src="/pki/js/jquery.js"></script>
+    <script src="/pki/js/underscore.js"></script>
+    <script src="/pki/js/backbone.js"></script>
+    <script src="/pki/js/bootstrap.js"></script>
+    <script src="/pki/js/pki-ui.js"></script>
+    <script>
+$(function() {
+    new Navigation({
+        el: $("#navigation"),
+        content: $("#content"),
+        homeURL: "tokens.html"
+    });
+});
+    </script>
 </head>
 <body>
 
-<h1>Token Processing Service</h1>
+<nav id="navigation" class="navbar navbar-default navbar-rcue" role="navigation">
+<div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/tps">
+        <b>Token Processing Service</b>
+    </a>
+</div>
+<div class="collapse navbar-collapse navbar-collapse-1">
+    <ul class="nav navbar-nav navbar-utility">
+    <li><a href="#">Status</a></li>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <span class="rcueicon rcueicon-user"></span>
+        Administrator<b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+        <li><a href="settings.html">Settings</a></li>
+        <li class="divider"></li>
+        <li><a href="logout.html">Logout</a></li>
+        </ul>
+    </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-primary">
+    <li><a href="tokens.html">Tokens</a></li>
+    <li><a href="certs.html">Certificates</a></li>
+    <li><a href="activities.html">Activities</a></li>
+    <li><a href="profiles.html">Profiles</a></li>
+    <li><a href="selftests.html">SelfTests</a></li>
+    <li><a href="users.html">Users</a></li>
+    <li><a href="groups.html">Groups</a></li>
+    <li class="dropdown context">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Configuration
+        <b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="authenticators.html">Authenticators</a></li>
+        <li><a href="connections.html">Connections</a></li>
+      </ul>
+    </li>
+    </ul>
+</div>
+</nav>
 
-<ul>
-<li><a href="tokens.html">Tokens</a></li>
-<li><a href="certs.html">Certificates</a></li>
-<li><a href="activities.html">Activities</a></li>
-<li><a href="profiles.html">Profiles</a></li>
-<li><a href="selftests.html">Self Tests</a></li>
-<li><a href="users.html">Users</a></li>
-<li><a href="groups.html">Groups</a></li>
-<li><a href="authenticators.html">Authenticators</a></li>
-<li><a href="connections.html">Connections</a></li>
-</ul>
+<div id="content">
+</div>
 
 </body>
 </html>

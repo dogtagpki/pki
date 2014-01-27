@@ -32,7 +32,7 @@ $(function() {
             "keyType", "status", "createTime", "modifyTime"]
     });
 
-    new TableView({
+    new Table({
         el: $("table[name='certificates']"),
         collection: new CertificateCollection({ size: 3 }),
         editDialog: editDialog
@@ -53,7 +53,7 @@ $(function() {
          </th>
     </tr>
     <tr>
-        <th class="checkbox"><input id="cert_selectall" type="checkbox"><label for="cert_selectall">&nbsp;</label></tdh>
+        <th><input id="cert_selectall" type="checkbox"><label for="cert_selectall">&nbsp;</label></tdh>
         <th>Certificate ID</th>
         <th>Serial Number</th>
         <th>Subject</th>
@@ -67,7 +67,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
-        <td class="checkbox"><input id="cert_select" type="checkbox"><label for="cert_select">&nbsp;</label></td>
+        <td><input id="cert_select" type="checkbox"><label for="cert_select">&nbsp;</label></td>
         <td name="id">&nbsp;</td>
         <td name="serialNumber">&nbsp;</td>
         <td name="subject">&nbsp;</td>

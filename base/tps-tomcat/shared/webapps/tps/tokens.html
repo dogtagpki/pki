@@ -41,7 +41,7 @@ $(function() {
         actions: ["cancel", "save"]
     });
 
-    new TableView({
+    new Table({
         el: $("table[name='tokens']"),
         collection: new TokenCollection({ size: 3 }),
         addDialog: addDialog,
@@ -66,7 +66,7 @@ $(function() {
          </th>
     </tr>
     <tr>
-        <th class="checkbox"><input id="token_selectall" type="checkbox"><label for="token_selectall">&nbsp;</label></th>
+        <th><input id="token_selectall" type="checkbox"><label for="token_selectall">&nbsp;</label></th>
         <th>Token ID</th>
         <th>User ID</th>
         <th>Status</th>
@@ -79,7 +79,7 @@ $(function() {
 </thead>
 <tbody>
     <tr>
-        <td class="checkbox"><input id="token_select" type="checkbox"><label for="token_select">&nbsp;</label></td>
+        <td><input id="token_select" type="checkbox"><label for="token_select">&nbsp;</label></td>
         <td name="tokenID">&nbsp;</td>
         <td name="userID">&nbsp;</td>
         <td name="status">&nbsp;</td>
