@@ -2,28 +2,28 @@
   font-family: "Open Sans";
   font-style: normal;
   font-weight: normal;
-  src: url("/pki/font/OpenSans-Regular.ttf") format("truetype");
+  src: url("/pki/font/OpenSans-Regular-webfont.woff");
 }
 
 @font-face {
   font-family: "Open Sans";
   font-style: normal;
   font-weight: bold;
-  src: url("/pki/font/OpenSans-Bold.ttf") format("truetype");
+  src: url("/pki/font/OpenSans-Bold-webfont.woff");
 }
 
 @font-face {
   font-family: "Open Sans";
   font-style: italic;
   font-weight: normal;
-  src: url("/pki/font/OpenSans-Italic.ttf") format("truetype");
+  src: url("/pki/font/OpenSans-Italic-webfont.woff");
 }
 
 @font-face {
   font-family: "Open Sans";
   font-style: italic;
   font-weight: bold;
-  src: url("/pki/font/OpenSans-BoldItalic.ttf") format("truetype");
+  src: url("/pki/font/OpenSans-BoldItalic-webfont.woff");
 }
 
 

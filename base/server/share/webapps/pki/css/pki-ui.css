@@ -19,16 +19,11 @@
  * @author Endi S. Dewata
  */
 
-@import url("pki-base.css");
+@import url("pki-common.css");
 @import url("pki-tabs.css");
 @import url("pki-forms.css");
 @import url("pki-tables.css");
 @import url("pki-dialogs.css");
-
-body {
-  margin: 48px auto;
-  width: 850px;
-}
 
 .rcue-dialog-background {
   display: none;
@@ -74,11 +69,14 @@ table tfoot tr th {
   border-bottom: 1px #cedede solid;
 }
 
-table .checkbox {
+table tr th:first-child, table tr td:first-child {
   width: 13px;
 }
 
-table .checkbox input + label {
-  width: 13px;
-  padding: 0px;
+table input[type="checkbox"] + label {
+  padding: 0 0 0 13px;
+}
+
+#content {
+  margin: 20px;
 }
