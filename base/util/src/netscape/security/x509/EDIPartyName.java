@@ -131,8 +131,11 @@ public class EDIPartyName implements GeneralNameInterface {
             tagged.write(DerValue.createTag(DerValue.TAG_CONTEXT,
                                  false, TAG_ASSIGNER), tmp2);
         }
-        if (party == null)
+        if (party == null) {
+            tagged.close();
+            tmp.close();
             throw new IOException("Cannot have null partyName");
+        }
 
         // XXX - shd check is chars fit into PrintableString
         tmp.putPrintableString(party);

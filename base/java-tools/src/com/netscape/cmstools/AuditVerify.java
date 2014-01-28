@@ -164,6 +164,7 @@ public class AuditVerify {
                     logFiles.addElement(((String) tok.nextElement()).trim());
                 }
             }
+            r.close();
             if (logFiles.size() == 0) {
                 System.out.println("Error: no log files listed in " + logListFile);
                 System.exit(1);
@@ -297,7 +298,7 @@ public class AuditVerify {
                     sigStopLine = linenum;
                     sigStopFile = curfileName;
                 }
-
+                br.close();
             }
 
             // Make sure there were no unsigned log entries at the end.

@@ -150,7 +150,7 @@ public class CRLExtensions extends Vector<Extension> {
      */
     public void encode(OutputStream out, boolean isExplicit)
             throws CRLException {
-        try {
+        try (DerOutputStream tmp = new DerOutputStream()) {
             // #381559
             if (size() == 0)
                 return;
@@ -168,14 +168,13 @@ public class CRLExtensions extends Vector<Extension> {
             DerOutputStream seq = new DerOutputStream();
             seq.write(DerValue.tag_Sequence, extOut);
 
-            DerOutputStream tmp = new DerOutputStream();
-            if (isExplicit)
+            if (isExplicit) {
                 tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
                                              true, (byte) 0), seq);
-            else
-                tmp = seq;
-
-            out.write(tmp.toByteArray());
+                out.write(tmp.toByteArray());
+            } else {
+                out.write(seq.toByteArray());
+            }
         } catch (IOException e) {
             throw new CRLException("Encoding error: " + e.toString());
         } catch (CertificateException e) {
