@@ -25,7 +25,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.key.KeyDataInfo;
-import com.netscape.certsrv.key.KeyDataInfos;
+import com.netscape.certsrv.key.KeyDataInfoCollection;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -97,7 +97,7 @@ public class KeyFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        KeyDataInfos keys = keyCLI.keyClient.findKeys(clientID, status, maxResults, maxTime, start, size);
+        KeyDataInfoCollection keys = keyCLI.keyClient.findKeys(clientID, status, maxResults, maxTime, start, size);
 
         Collection<KeyDataInfo> entries = keys.getEntries();
 

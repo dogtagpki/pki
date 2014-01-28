@@ -14,10 +14,10 @@ import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyDataInfo;
-import com.netscape.certsrv.key.KeyDataInfos;
+import com.netscape.certsrv.key.KeyDataInfoCollection;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
-import com.netscape.certsrv.key.KeyRequestInfos;
+import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.logging.AuditClient;
@@ -60,7 +60,7 @@ public class KRAClient extends SubsystemClient {
     }
 
     public Collection<KeyRequestInfo> listRequests(String requestState, String requestType) {
-        KeyRequestInfos infos = keyRequestClient.listRequests(
+        KeyRequestInfoCollection infos = keyRequestClient.listRequests(
                 requestState, requestType, null, new RequestId(0), 100, 100, 10
                 );
         Collection<KeyRequestInfo> list = infos.getEntries();
@@ -83,7 +83,7 @@ public class KRAClient extends SubsystemClient {
     }
 
     public KeyDataInfo getKeyData(String clientId, String status) {
-        KeyDataInfos infos = keyClient.listKeys(clientId, status, null, null, null, null);
+        KeyDataInfoCollection infos = keyClient.listKeys(clientId, status, null, null, null, null);
         Collection<KeyDataInfo> list = infos.getEntries();
         Iterator<KeyDataInfo> iter = list.iterator();
 

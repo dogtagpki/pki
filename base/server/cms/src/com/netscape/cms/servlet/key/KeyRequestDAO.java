@@ -38,7 +38,7 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
-import com.netscape.certsrv.key.KeyRequestInfos;
+import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
@@ -86,10 +86,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      */
     @SuppressWarnings("unchecked")
-    public KeyRequestInfos listRequests(String filter, RequestId start, int pageSize, int maxResults, int maxTime,
+    public KeyRequestInfoCollection listRequests(String filter, RequestId start, int pageSize, int maxResults, int maxTime,
             UriInfo uriInfo) throws EBaseException {
 
-        KeyRequestInfos ret = new KeyRequestInfos();
+        KeyRequestInfoCollection ret = new KeyRequestInfoCollection();
 
         CMSRequestInfos cmsInfos = listCMSRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
 

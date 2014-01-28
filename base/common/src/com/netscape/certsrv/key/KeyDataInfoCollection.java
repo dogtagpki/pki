@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.netscape.certsrv.base.DataCollection;
 
 @XmlRootElement(name = "KeyDataInfos")
-public class KeyDataInfos extends DataCollection<KeyDataInfo> {
+public class KeyDataInfoCollection extends DataCollection<KeyDataInfo> {
 
     @XmlElementRef
     public Collection<KeyDataInfo> getEntries() {

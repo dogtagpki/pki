@@ -34,7 +34,7 @@ import com.netscape.certsrv.base.DataCollection;
 import com.netscape.certsrv.request.RequestStatus;
 
 @XmlRootElement(name = "KeyRequestInfos")
-public class KeyRequestInfos extends DataCollection<KeyRequestInfo> {
+public class KeyRequestInfoCollection extends DataCollection<KeyRequestInfo> {
 
     @XmlElementRef
     public Collection<KeyRequestInfo> getEntries() {
@@ -63,7 +63,7 @@ public class KeyRequestInfos extends DataCollection<KeyRequestInfo> {
     public String toString() {
         try {
             StringWriter sw = new StringWriter();
-            Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfos.class).createMarshaller();
+            Marshaller marshaller = JAXBContext.newInstance(KeyRequestInfoCollection.class).createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(this, sw);
             return sw.toString();
@@ -73,10 +73,10 @@ public class KeyRequestInfos extends DataCollection<KeyRequestInfo> {
         }
     }
 
-    public static KeyRequestInfos valueOf(String string) throws Exception {
+    public static KeyRequestInfoCollection valueOf(String string) throws Exception {
         try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestInfos.class).createUnmarshaller();
-            return (KeyRequestInfos)unmarshaller.unmarshal(new StringReader(string));
+            Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRequestInfoCollection.class).createUnmarshaller();
+            return (KeyRequestInfoCollection)unmarshaller.unmarshal(new StringReader(string));
         } catch (Exception e) {
             return null;
         }
@@ -84,7 +84,7 @@ public class KeyRequestInfos extends DataCollection<KeyRequestInfo> {
 
     public static void main(String args[]) throws Exception {
 
-        KeyRequestInfos before = new KeyRequestInfos();
+        KeyRequestInfoCollection before = new KeyRequestInfoCollection();
 
         KeyRequestInfo request = new KeyRequestInfo();
         request.setRequestType("securityDataEnrollment");
@@ -94,7 +94,7 @@ public class KeyRequestInfos extends DataCollection<KeyRequestInfo> {
         String string = before.toString();
         System.out.println(string);
 
-        KeyRequestInfos after = KeyRequestInfos.valueOf(string);
+        KeyRequestInfoCollection after = KeyRequestInfoCollection.valueOf(string);
         System.out.println(after);
 
         System.out.println(before.equals(after));

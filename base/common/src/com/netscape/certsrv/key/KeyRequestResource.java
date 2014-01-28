@@ -37,7 +37,7 @@ public interface KeyRequestResource {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyRequestInfos listRequests(@QueryParam("requestState") String requestState,
+    public KeyRequestInfoCollection listRequests(@QueryParam("requestState") String requestState,
                                             @QueryParam("requestType") String requestType,
                                             @QueryParam("clientID") String clientID,
                                             @QueryParam("start") RequestId start,

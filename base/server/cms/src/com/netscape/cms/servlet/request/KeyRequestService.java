@@ -43,7 +43,7 @@ import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
-import com.netscape.certsrv.key.KeyRequestInfos;
+import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -278,7 +278,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
      * Used to generate list of key requests based on the search parameters
      */
     @Override
-    public KeyRequestInfos listRequests(String requestState, String requestType, String clientID,
+    public KeyRequestInfoCollection listRequests(String requestState, String requestType, String clientID,
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
         // auth and authz
 
@@ -292,7 +292,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         maxTime = maxTime == null ? DEFAULT_MAXTIME : maxTime;
 
         KeyRequestDAO reqDAO = new KeyRequestDAO();
-        KeyRequestInfos requests;
+        KeyRequestInfoCollection requests;
         try {
             requests = reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {

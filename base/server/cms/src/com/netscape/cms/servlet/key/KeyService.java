@@ -48,7 +48,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyDataInfo;
-import com.netscape.certsrv.key.KeyDataInfos;
+import com.netscape.certsrv.key.KeyDataInfoCollection;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyResource;
@@ -312,7 +312,7 @@ public class KeyService extends PKIService implements KeyResource {
      * Used to generate list of key infos based on the search parameters
      */
     @Override
-    public KeyDataInfos listKeys(String clientID, String status, Integer maxResults, Integer maxTime,
+    public KeyDataInfoCollection listKeys(String clientID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size) {
 
         start = start == null ? 0 : start;
@@ -325,7 +325,7 @@ public class KeyService extends PKIService implements KeyResource {
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
         maxTime = maxTime == null ? DEFAULT_MAXTIME : maxTime;
 
-        KeyDataInfos infos = new KeyDataInfos();
+        KeyDataInfoCollection infos = new KeyDataInfoCollection();
         try {
             Enumeration<IKeyRecord> e = repo.searchKeys(filter, maxResults, maxTime);
             if (e == null) {
