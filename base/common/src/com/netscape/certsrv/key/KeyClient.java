@@ -19,6 +19,8 @@ package com.netscape.certsrv.key;
 
 import java.net.URISyntaxException;
 
+import org.jboss.resteasy.client.ClientResponse;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
@@ -66,5 +68,27 @@ public class KeyClient extends Client {
                 pageSize,
                 maxResults,
                 maxTime);
+    }
+
+    public KeyRequestInfo createRequest(KeyRequest data) {
+        @SuppressWarnings("unchecked")
+        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>) keyRequestClient.createRequest(data);
+        return response.getEntity();
+    }
+
+    public KeyRequestInfo getRequestInfo(RequestId id) {
+        return keyRequestClient.getRequestInfo(id);
+    }
+
+    public void approveRequest(RequestId id) {
+        keyRequestClient.approveRequest(id);
+    }
+
+    public void rejectRequest(RequestId id) {
+        keyRequestClient.rejectRequest(id);
+    }
+
+    public void cancelRequest(RequestId id) {
+        keyRequestClient.cancelRequest(id);
     }
 }

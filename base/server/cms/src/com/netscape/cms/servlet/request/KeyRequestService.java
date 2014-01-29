@@ -79,6 +79,9 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_4";
 
+    private static final String LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST =
+            "LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST_4";
+
     private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_4";
 
@@ -364,6 +367,16 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         auditor.log(msg);
     }
 
+    public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientId) {
+        String msg = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST,
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                requestId != null ? requestId.toString() : "null",
+                clientId);
+        auditor.log(msg);
+    }
+
     @Override
     public Response createRequest(MultivaluedMap<String, String> form) {
         KeyRequest data = new KeyRequest(form);
@@ -394,7 +407,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestInfo info;
         try {
             info = dao.submitRequest(data, uriInfo);
-            auditArchivalRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getClientId());
+            auditSymKeyGenRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getClientId());
 
             return Response
                     .created(new URI(info.getRequestURL()))

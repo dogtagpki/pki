@@ -3,6 +3,7 @@ package com.netscape.certsrv.kra;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.jboss.resteasy.client.ClientResponse;
 
@@ -20,6 +21,7 @@ import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyResource;
+import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.selftests.SelfTestClient;
@@ -147,7 +149,7 @@ public class KRAClient extends SubsystemClient {
         return keyRequestClient.getRequestInfo(id);
     }
 
-    public RequestId requestKeyRecovery(String keyId, String b64Certificate) {
+    public KeyRequestInfo requestKeyRecovery(String keyId, String b64Certificate) {
         // create key recovery request
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(new KeyId(keyId));
@@ -157,7 +159,7 @@ public class KRAClient extends SubsystemClient {
         @SuppressWarnings("unchecked")
         ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
                 keyRequestClient.createRequest(data);
-        return client.getEntity(response).getRequestId();
+        return client.getEntity(response);
     }
 
     public KeyData recoverKey(RequestId requestId, String passphrase) {
@@ -168,5 +170,18 @@ public class KRAClient extends SubsystemClient {
 
         KeyData key = keyClient.retrieveKey(data);
         return key;
+    }
+
+    public KeyRequestInfo generateKey(String clientId, String keyAlgorithm, int keySize, List<String> usages) {
+        SymKeyGenerationRequest data = new SymKeyGenerationRequest();
+        data.setClientId(clientId);
+        data.setKeyAlgorithm(keyAlgorithm);
+        data.setKeySize(keySize);
+        data.setRequestType(KeyRequestResource.KEY_GENERATION_REQUEST);
+        data.setUsages(usages);
+
+        @SuppressWarnings("unchecked")
+        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>) keyRequestClient.createRequest(data);
+        return response.getEntity();
     }
 }

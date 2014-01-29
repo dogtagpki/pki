@@ -2,7 +2,9 @@ package com.netscape.certsrv.key;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,6 +12,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
 
 /**
  * @author alee
@@ -24,13 +27,24 @@ public class SymKeyGenerationRequest extends KeyRequest {
     private static final String KEY_ALGORITHM = "keyAlgorithm";
     private static final String KEY_USAGE = "keyUsage";
 
-    // usages
-    public static final String ENCRYPT_USAGE = "encrypt";
-    public static final String DECRYPT_USAGE = "decrypt";
-    public static final String SIGN_USAGE = "sign";
-    public static final String VERIFY_USAGE = "verify";
-    public static final String WRAP_USAGE = "wrap";
+    /* Symmetric Key usages */
     public static final String UWRAP_USAGE = "unwrap";
+    public static final String WRAP_USAGE = "wrap";
+    public static final String VERIFY_USAGE = "verify";
+    public static final String SIGN_USAGE = "sign";
+    public static final String DECRYPT_USAGE = "decrypt";
+    public static final String ENCRYPT_USAGE = "encrypt";
+
+    public static final Map<String, KeyGenAlgorithm> KEYGEN_ALGORITHMS;
+    static {
+        KEYGEN_ALGORITHMS = new HashMap<String, KeyGenAlgorithm>();
+        KEYGEN_ALGORITHMS.put("DES", KeyGenAlgorithm.DES);
+        KEYGEN_ALGORITHMS.put("DESede", KeyGenAlgorithm.DESede);
+        KEYGEN_ALGORITHMS.put("DES3", KeyGenAlgorithm.DES3);
+        KEYGEN_ALGORITHMS.put("RC2", KeyGenAlgorithm.RC2);
+        KEYGEN_ALGORITHMS.put("RC4", KeyGenAlgorithm.RC4);
+        KEYGEN_ALGORITHMS.put("AES", KeyGenAlgorithm.AES);
+    }
 
     public List<String> getUsages() {
         String usageString = properties.get(KEY_USAGE);
@@ -131,7 +145,7 @@ public class SymKeyGenerationRequest extends KeyRequest {
 
         SymKeyGenerationRequest before = new SymKeyGenerationRequest();
         before.setClientId("vek 12345");
-        before.setKeyAlgorithm("aes");
+        before.setKeyAlgorithm("AES");
         before.setKeySize(128);
         before.setRequestType(KeyRequestResource.KEY_GENERATION_REQUEST);
         before.addUsage(SymKeyGenerationRequest.DECRYPT_USAGE);

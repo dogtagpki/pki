@@ -108,7 +108,10 @@ public class SymKeyGenService implements IService {
         }
 
         CryptoToken token = mStorageUnit.getToken();
-        KeyGenAlgorithm kgAlg = getKeyGenAlgorithm(algorithm);
+        KeyGenAlgorithm kgAlg = SymKeyGenerationRequest.KEYGEN_ALGORITHMS.get(algorithm);
+        if (kgAlg == null) {
+            throw new EBaseException("Invalid algorithm");
+        }
 
         SymmetricKey.Usage keyUsages[];
         if (usages.size() > 0) {
@@ -208,25 +211,6 @@ public class SymKeyGenService implements IService {
                 clientId, serialNo.toString(), "None");
 
         return true;
-    }
-
-    KeyGenAlgorithm getKeyGenAlgorithm(String algorithm) throws EBaseException {
-        switch (algorithm) {
-        case "DES":
-            return KeyGenAlgorithm.DES;
-        case "DESede":
-            return KeyGenAlgorithm.DESede;
-        case "DES3":
-            return KeyGenAlgorithm.DES3;
-        case "RC4":
-            return KeyGenAlgorithm.RC4;
-        case "AES":
-            return KeyGenAlgorithm.AES;
-        case "RC2":
-            return KeyGenAlgorithm.RC2;
-        default:
-            throw new EBaseException("Invalid algorithm");
-        }
     }
 
     //ToDo: return real owner with auth

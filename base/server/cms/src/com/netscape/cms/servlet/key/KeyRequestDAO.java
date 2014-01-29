@@ -218,31 +218,12 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
-        boolean isValid = true;
-        switch(algName) {
-        case "DES":
-            if (! KeyGenAlgorithm.DES.isValidStrength(size)) isValid = false;
-            break;
-        case "DESede":
-            if (! KeyGenAlgorithm.DESede.isValidStrength(size)) isValid = false;
-            break;
-        case "DES3":
-            if (! KeyGenAlgorithm.DES3.isValidStrength(size)) isValid = false;
-            break;
-        case "RC4":
-            if (! KeyGenAlgorithm.RC4.isValidStrength(size)) isValid = false;
-            break;
-        case "AES":
-            if (! KeyGenAlgorithm.AES.isValidStrength(size)) isValid = false;
-            break;
-        case "RC2":
-            if (! KeyGenAlgorithm.RC2.isValidStrength(size)) isValid = false;
-            break;
-        default:
-            throw new BadRequestException("Invalid algorithm");
+        KeyGenAlgorithm alg = SymKeyGenerationRequest.KEYGEN_ALGORITHMS.get(algName);
+        if (alg == null) {
+            throw new BadRequestException("Invalid Algorithm");
         }
 
-        if (!isValid) {
+        if (!alg.isValidStrength(size)) {
             throw new BadRequestException("Invalid key size for this algorithm");
         }
 
