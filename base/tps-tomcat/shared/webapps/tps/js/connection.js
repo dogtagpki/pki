@@ -23,8 +23,8 @@ var ConnectionModel = Model.extend({
     urlRoot: "/tps/rest/connections",
     parseResponse: function(response) {
         return {
-            id: response.Connection["@id"],
-            status: response.Connection.Status
+            id: response.id,
+            status: response.Status
         };
     },
     parseXML: function(data) {
@@ -38,10 +38,8 @@ var ConnectionModel = Model.extend({
     },
     createRequest: function(attributes) {
         return {
-            Connection: {
-                "@id": attributes.id,
-                Status: attributes.status
-            }
+            id: attributes.id,
+            Status: attributes.status
         };
     },
     enable: function(options) {
@@ -71,14 +69,14 @@ var ConnectionModel = Model.extend({
 var ConnectionCollection = Collection.extend({
     urlRoot: "/tps/rest/connections",
     getEntries: function(response) {
-        return response.Connections.Connection;
+        return response.entries;
     },
     getLinks: function(response) {
-        return response.Connections.Link;
+        return response.Link;
     },
     parseEntry: function(entry) {
         return new ConnectionModel({
-            id: entry["@id"],
+            id: entry.id,
             status: entry.Status
         });
     }

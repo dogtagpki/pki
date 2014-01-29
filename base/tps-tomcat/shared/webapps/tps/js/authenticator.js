@@ -23,8 +23,8 @@ var AuthenticatorModel = Model.extend({
     urlRoot: "/tps/rest/authenticators",
     parseResponse: function(response) {
         return {
-            id: response.Authenticator["@id"],
-            status: response.Authenticator.Status
+            id: response.id,
+            status: response.Status
         };
     },
     parseXML: function(data) {
@@ -38,10 +38,8 @@ var AuthenticatorModel = Model.extend({
     },
     createRequest: function(attributes) {
         return {
-            Authenticator: {
-                "@id": attributes.id,
-                Status: attributes.status
-            }
+            id: attributes.id,
+            Status: attributes.status
         };
     },
     enable: function(options) {
@@ -71,14 +69,14 @@ var AuthenticatorModel = Model.extend({
 var AuthenticatorCollection = Collection.extend({
     urlRoot: "/tps/rest/authenticators",
     getEntries: function(response) {
-        return response.Authenticators.Authenticator;
+        return response.entries;
     },
     getLinks: function(response) {
-        return response.Authenticators.Link;
+        return response.Link;
     },
     parseEntry: function(entry) {
         return new AuthenticatorModel({
-            id: entry["@id"],
+            id: entry.id,
             status: entry.Status
         });
     }

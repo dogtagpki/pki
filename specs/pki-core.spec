@@ -38,7 +38,7 @@ BuildRequires:    resteasy-base-atom-provider
 BuildRequires:    resteasy-base-jaxb-provider
 BuildRequires:    resteasy-base-jaxrs
 BuildRequires:    resteasy-base-jaxrs-api
-BuildRequires:    resteasy-base-jettison-provider
+BuildRequires:    resteasy-base-jackson-provider
 %else
 BuildRequires:    resteasy >= 3.0.1-3
 %endif
@@ -188,7 +188,7 @@ Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         java >= 1:1.7.0
 Requires:         javassist
-Requires:         jettison
+Requires:         jackson-jaxrs-json-provider
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-28
 Requires:         ldapjdk
@@ -200,7 +200,7 @@ Requires:    resteasy-base-atom-provider
 Requires:    resteasy-base-jaxb-provider
 Requires:    resteasy-base-jaxrs
 Requires:    resteasy-base-jaxrs-api
-Requires:    resteasy-base-jettison-provider
+Requires:    resteasy-base-jackson-provider
 %else
 Requires:         resteasy >= 3.0.1-3
 %endif
@@ -995,6 +995,7 @@ fi
 * Fri Nov 22 2013 Dogtag Team <pki-devel@redhat.com> 10.2.0-0.1
 - Updated version number to 10.2.0-0.1.
 - Added option to build without server packages.
+- Replaced Jettison with Jackson.
 
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files

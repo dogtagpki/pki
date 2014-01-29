@@ -32,13 +32,25 @@
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson-annotations.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-core-asl.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson-core.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson-databind.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-jaxrs.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-mapper-asl.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson-module-jaxb-annotations.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-mrbean.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-smile.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-xc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jaxb-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpcore.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/jaxrs-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxb-provider.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxrs.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jettison-provider.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jackson-provider.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/scannotation.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/velocity.jar"/>

@@ -23,27 +23,25 @@ var UserModel = Model.extend({
     urlRoot: "/tps/rest/admin/users",
     parseResponse: function(response) {
 
-        if (!response || !response.User) return {};
-
         var attrs = {};
-        if (response.User.Attributes) {
-            var attributes = response.User.Attributes.Attribute;
+        if (response.Attributes) {
+            var attributes = response.Attributes.Attribute;
             attributes = attributes == undefined ? [] : [].concat(attributes);
 
             _(attributes).each(function(attribute) {
-                var name = attribute["@name"];
-                var value = attribute["$"];
+                var name = attribute.name;
+                var value = attribute.value;
                 attrs[name] = value;
             });
         }
 
         return {
-            id: response.User["@id"],
-            userID: response.User.UserID,
-            fullName: response.User.FullName,
-            email: response.User.Email,
-            state: response.User.State,
-            type: response.User.Type,
+            id: response.id,
+            userID: response.UserID,
+            fullName: response.FullName,
+            email: response.Email,
+            state: response.State,
+            type: response.Type,
             attributes: attrs
         };
     },
@@ -51,22 +49,20 @@ var UserModel = Model.extend({
         var attrs = [];
         _(attributes.attributes).each(function(value, name) {
             attrs.push({
-                Attribute: {
-                    "@name": name,
-                    "$": value
-                }
+                name: name,
+                value: value
             });
         });
 
         return {
-            User: {
-                "@id": this.id,
-                UserID: attributes.userID,
-                FullName: attributes.fullName,
-                Email: attributes.email,
-                State: attributes.state,
-                Type: attributes.type,
-                Attributes: attrs
+            id: this.id,
+            UserID: attributes.userID,
+            FullName: attributes.fullName,
+            Email: attributes.email,
+            State: attributes.state,
+            Type: attributes.type,
+            Attributes: {
+                Attribute: attrs
             }
         };
     }
@@ -76,14 +72,14 @@ var UserCollection = Collection.extend({
     model: UserModel,
     urlRoot: "/tps/rest/admin/users",
     getEntries: function(response) {
-        return response.Users.User;
+        return response.entries;
     },
     getLinks: function(response) {
-        return response.Users.Link;
+        return response.Link;
     },
     parseEntry: function(entry) {
         return new UserModel({
-            id: entry["@id"],
+            id: entry.id,
             userID: entry.UserID,
             fullName: entry.FullName
         });

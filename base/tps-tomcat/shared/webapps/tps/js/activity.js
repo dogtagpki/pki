@@ -23,26 +23,24 @@ var ActivityModel = Model.extend({
     urlRoot: "/tps/rest/activities",
     parseResponse: function(response) {
         return {
-            id: response.Activity["@id"],
-            tokenID: response.Activity.TokenID,
-            userID: response.Activity.UserID,
-            ip: response.Activity.IP,
-            operation: response.Activity.Operation,
-            result: response.Activity.Result,
-            date: response.Activity.Date
+            id: response.id,
+            tokenID: response.TokenID,
+            userID: response.UserID,
+            ip: response.IP,
+            operation: response.Operation,
+            result: response.Result,
+            date: response.Date
         };
     },
     createRequest: function(attributes) {
         return {
-            Activity: {
-                "@id": attributes.id,
-                TokenID: attributes.tokenID,
-                UserID: attributes.userID,
-                IP: attributes.ip,
-                Operation: attributes.operation,
-                Result: attributes.result,
-                Date: attributes.date
-            }
+            id: attributes.id,
+            TokenID: attributes.tokenID,
+            UserID: attributes.userID,
+            IP: attributes.ip,
+            Operation: attributes.operation,
+            Result: attributes.result,
+            Date: attributes.date
         };
     }
 });
@@ -50,14 +48,14 @@ var ActivityModel = Model.extend({
 var ActivityCollection = Collection.extend({
     urlRoot: "/tps/rest/activities",
     getEntries: function(response) {
-        return response.Activities.Activity;
+        return response.entries;
     },
     getLinks: function(response) {
-        return response.Activities.Link;
+        return response.Link;
     },
     parseEntry: function(entry) {
         return new ActivityModel({
-            id: entry["@id"],
+            id: entry.id,
             tokenID: entry.TokenID,
             userID: entry.UserID,
             ip: entry.IP,

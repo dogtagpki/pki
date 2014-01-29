@@ -23,22 +23,20 @@ var SelfTestModel = Model.extend({
     urlRoot: "/tps/rest/selftests",
     parseResponse: function(response) {
         return {
-            id: response.SelfTest["@id"],
-            enabledAtStartup: response.SelfTest.EnabledAtStartup,
-            criticalAtStartup: response.SelfTest.CriticalAtStartup,
-            enabledOnDemand: response.SelfTest.EnabledOnDemand,
-            criticalOnDemand: response.SelfTest.CriticalOnDemand,
+            id: response.id,
+            enabledAtStartup: response.EnabledAtStartup,
+            criticalAtStartup: response.CriticalAtStartup,
+            enabledOnDemand: response.EnabledOnDemand,
+            criticalOnDemand: response.CriticalOnDemand,
         };
     },
     createRequest: function(attributes) {
         return {
-            SelfTest: {
-                "@id": attributes.id,
-                EnabledAtStartup: attributes.enabledAtStartup,
-                CriticalAtStartup: attributes.criticalAtStartup,
-                EnabledOnDemand: attributes.enabledOnDemand,
-                CriticalOnDemand: attributes.criticalOnDemand
-            }
+            id: attributes.id,
+            EnabledAtStartup: attributes.enabledAtStartup,
+            CriticalAtStartup: attributes.criticalAtStartup,
+            EnabledOnDemand: attributes.enabledOnDemand,
+            CriticalOnDemand: attributes.criticalOnDemand
         };
     }
 });
@@ -46,14 +44,14 @@ var SelfTestModel = Model.extend({
 var SelfTestCollection = Collection.extend({
     urlRoot: "/tps/rest/selftests",
     getEntries: function(response) {
-        return response.SelfTests.SelfTest;
+        return response.entries;
     },
     getLinks: function(response) {
-        return response.SelfTests.Link;
+        return response.Link;
     },
     parseEntry: function(entry) {
         return new SelfTestModel({
-            id: entry["@id"],
+            id: entry.id,
             enabledAtStartup: entry.EnabledAtStartup,
             criticalAtStartup: entry.CriticalAtStartup,
             enabledOnDemand: entry.EnabledOnDemand,

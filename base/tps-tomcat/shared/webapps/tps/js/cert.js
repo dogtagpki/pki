@@ -23,30 +23,28 @@ var CertificateModel = Model.extend({
     urlRoot: "/tps/rest/certs",
     parseResponse: function(response) {
         return {
-            id: response.Certificate["@id"],
-            serialNumber: response.Certificate.SerialNumber,
-            subject: response.Certificate.Subject,
-            tokenID: response.Certificate.TokenID,
-            userID: response.Certificate.UserID,
-            keyType: response.Certificate.KeyType,
-            status: response.Certificate.Status,
-            createTime: response.Certificate.CreateTime,
-            modifyTime: response.Certificate.ModifyTime
+            id: response.id,
+            serialNumber: response.SerialNumber,
+            subject: response.Subject,
+            tokenID: response.TokenID,
+            userID: response.UserID,
+            keyType: response.KeyType,
+            status: response.Status,
+            createTime: response.CreateTime,
+            modifyTime: response.ModifyTime
         };
     },
     createRequest: function(attributes) {
         return {
-            Certificate: {
-                "@id": attributes.id,
-                SerialNumber: attributes.serialNumber,
-                Subject: attributes.subject,
-                TokenID: attributes.tokenID,
-                UserID: attributes.userID,
-                KeyType: attributes.keyType,
-                Status: attributes.status,
-                CreateTime: CreateTimeattributes.createTime,
-                ModifyTime: attributes.modifyTime
-            }
+            id: attributes.id,
+            SerialNumber: attributes.serialNumber,
+            Subject: attributes.subject,
+            TokenID: attributes.tokenID,
+            UserID: attributes.userID,
+            KeyType: attributes.keyType,
+            Status: attributes.status,
+            CreateTime: attributes.createTime,
+            ModifyTime: attributes.modifyTime
         };
     }
 });
@@ -54,14 +52,14 @@ var CertificateModel = Model.extend({
 var CertificateCollection = Collection.extend({
     urlRoot: "/tps/rest/certs",
     getEntries: function(response) {
-        return response.Certificates.Certificate;
+        return response.entries;
     },
     getLinks: function(response) {
-        return response.Certificates.Link;
+        return response.Link;
     },
     parseEntry: function(entry) {
         return new CertificateModel({
-            id: entry["@id"],
+            id: entry.id,
             serialNumber: entry.SerialNumber,
             subject: entry.Subject,
             tokenID: entry.TokenID,

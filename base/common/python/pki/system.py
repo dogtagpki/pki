@@ -42,7 +42,7 @@ class SecurityDomainClient:
         j = r.json()
 
         info = SecurityDomainInfo()
-        info.name = j['DomainInfo']['@id']
+        info.name = j['id']
 
         return info
 
@@ -83,8 +83,7 @@ class SystemConfigClient:
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         r = self.connection.post('/rest/installer/configure', data, headers)
-        info = r.json()['ConfigurationResponse']
-        return info
+        return r.json()
 
 class SystemStatusClient:
 
@@ -97,6 +96,6 @@ class SystemStatusClient:
         return r.text
 
 
-encoder.TYPES['ConfigurationRequest'] = ConfigurationRequest
-encoder.TYPES['ConfigurationResponse'] = ConfigurationResponse
+encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
+encoder.NOTYPES['ConfigurationResponse'] = ConfigurationResponse
 encoder.NOTYPES['SystemCertData'] = SystemCertData

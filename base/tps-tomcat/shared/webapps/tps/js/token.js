@@ -22,32 +22,29 @@
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
-        if (!response || !response.Token) return {};
         return {
-            id: response.Token["@id"],
-            tokenID: response.Token.TokenID,
-            userID: response.Token.UserID,
-            status: response.Token.Status,
-            reason: response.Token.Reason,
-            appletID: response.Token.AppletID,
-            keyInfo: response.Token.KeyInfo,
-            createTimestamp: response.Token.CreateTimestamp,
-            modifyTimestamp: response.Token.ModifyTimestamp
+            id: response.id,
+            tokenID: response.TokenID,
+            userID: response.UserID,
+            status: response.Status,
+            reason: response.Reason,
+            appletID: response.AppletID,
+            keyInfo: response.KeyInfo,
+            createTimestamp: response.CreateTimestamp,
+            modifyTimestamp: response.ModifyTimestamp
         };
     },
     createRequest: function(attributes) {
         return {
-            Token: {
-                "@id": this.id,
-                TokenID: attributes.tokenID,
-                UserID: attributes.userID,
-                Status: attributes.status,
-                Reason: attributes.reason,
-                AppletID: attributes.appletID,
-                KeyInfo: attributes.keyInfo,
-                CreateTimestamp: attributes.createTimestamp,
-                ModifyTimestamp: attributes.modifyTimestamp
-            }
+            id: this.id,
+            TokenID: attributes.tokenID,
+            UserID: attributes.userID,
+            Status: attributes.status,
+            Reason: attributes.reason,
+            AppletID: attributes.appletID,
+            KeyInfo: attributes.keyInfo,
+            CreateTimestamp: attributes.createTimestamp,
+            ModifyTimestamp: attributes.modifyTimestamp
         };
     }
 });
@@ -56,14 +53,14 @@ var TokenCollection = Collection.extend({
     model: TokenModel,
     urlRoot: "/tps/rest/tokens",
     getEntries: function(response) {
-        return response.Tokens.Token;
+        return response.entries;
     },
     getLinks: function(response) {
-        return response.Tokens.Link;
+        return response.Link;
     },
     parseEntry: function(entry) {
         return new TokenModel({
-            id: entry["@id"],
+            id: entry.id,
             tokenID: entry.TokenID,
             userID: entry.UserID,
             status: entry.Status,

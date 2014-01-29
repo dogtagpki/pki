@@ -23,8 +23,8 @@ var ProfileModel = Model.extend({
     urlRoot: "/tps/rest/profiles",
     parseResponse: function(response) {
         return {
-            id: response.Profile["@id"],
-            status: response.Profile.Status
+            id: response.id,
+            status: response.Status
         };
     },
     parseXML: function(data) {
@@ -38,10 +38,8 @@ var ProfileModel = Model.extend({
     },
     createRequest: function(attributes) {
         return {
-            Profile: {
-                "@id": attributes.id,
-                Status: attributes.status
-            }
+            id: attributes.id,
+            Status: attributes.status
         };
     },
     enable: function(options) {
@@ -71,14 +69,14 @@ var ProfileModel = Model.extend({
 var ProfileCollection = Collection.extend({
     urlRoot: "/tps/rest/profiles",
     getEntries: function(response) {
-        return response.Profiles.Profile;
+        return response.entries;
     },
     getLinks: function(response) {
-        return response.Profiles.Link;
+        return response.Link;
     },
     parseEntry: function(entry) {
         return new ProfileModel({
-            id: entry["@id"],
+            id: entry.id,
             status: entry.Status
         });
     }

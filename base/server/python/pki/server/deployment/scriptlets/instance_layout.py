@@ -124,24 +124,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.master_dict['pki_httpcore_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_javassist_jar'],
                 deployer.master_dict['pki_javassist_jar_link'])
-            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxrs_api_jar'],
-                deployer.master_dict['pki_resteasy_jaxrs_api_jar_link'])
-            deployer.symlink.create(deployer.master_dict['pki_jettison_jar'],
-                deployer.master_dict['pki_jettison_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_jss_jar'],
                 deployer.master_dict['pki_jss_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_ldapjdk_jar'],
                 deployer.master_dict['pki_ldapjdk_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_tomcat_jar'],
                 deployer.master_dict['pki_tomcat_jar_link'])
-            deployer.symlink.create(deployer.master_dict['pki_resteasy_atom_provider_jar'],
-                deployer.master_dict['pki_resteasy_atom_provider_jar_link'])
-            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxb_provider_jar'],
-                deployer.master_dict['pki_resteasy_jaxb_provider_jar_link'])
-            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxrs_jar'],
-                deployer.master_dict['pki_resteasy_jaxrs_jar_link'])
-            deployer.symlink.create(deployer.master_dict['pki_resteasy_jettison_provider_jar'],
-                deployer.master_dict['pki_resteasy_jettison_provider_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_scannotation_jar'],
                 deployer.master_dict['pki_scannotation_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_tomcatjss_jar'],
@@ -154,6 +142,78 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.master_dict['pki_xml_commons_apis_jar_link'])
             deployer.symlink.create(deployer.master_dict['pki_xml_commons_resolver_jar'],
                 deployer.master_dict['pki_xml_commons_resolver_jar_link'])
+
+            # Jackson
+            deployer.symlink.create(deployer.master_dict['pki_jackson_annotations_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-annotations.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_core_asl_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-core-asl.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_core_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-core.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_databind_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-databind.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_jaxrs_base_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-jaxrs-base.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_jaxrs_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-jaxrs.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_jaxrs_json_provider_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-jaxrs-json-provider.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_mapper_asl_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-mapper-asl.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_module_jaxb_annotations_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-module-jaxb-annotations.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_mrbean_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-mrbean.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_smile_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-smile.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_jackson_xc_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jackson-xc.jar'))
+
+            # RESTEasy
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_atom_provider_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'resteasy-atom-provider.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxb_provider_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'resteasy-jaxb-provider.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxrs_api_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'jaxrs-api.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxrs_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'resteasy-jaxrs.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_jackson_provider_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'resteasy-jackson-provider.jar'))
 
             # establish shared NSS security databases for this instance
             deployer.directory.create(deployer.master_dict['pki_database_path'])
