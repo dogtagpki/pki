@@ -65,7 +65,7 @@ randsym=""
 run_pki-user-cli-user-mod-ca_tests(){
 
 ##### pki_user_cli_user_mod-configtest ####
-     rlPhaseStartTest "pki_user_cli_user_mod-configtest: pki user-mod configuration test"
+     rlPhaseStartTest "pki_user_cli_user_mod-configtest-001: pki user-mod configuration test"
         rlRun "pki user-mod > $TmpDir/pki_user_mod_cfg.out" \
                 1 \
                 "User modification configuration"
@@ -78,7 +78,7 @@ run_pki-user-cli-user-mod-ca_tests(){
 
 
      ##### Tests to modify CA users ####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-001: Modify a user's fullname in CA using CA_adminV"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-002: Modify a user's fullname in CA using CA_adminV"
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -90,15 +90,15 @@ run_pki-user-cli-user-mod-ca_tests(){
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1_mod_fullname\" $user1 > $TmpDir/pki-user-mod-ca-001.out" \
+                    user-mod --fullName=\"$user1_mod_fullname\" $user1 > $TmpDir/pki-user-mod-ca-002.out" \
 		    0 \
 		    "Modified $user1 fullname"
-        rlAssertGrep "Modified user \"$user1\"" "$TmpDir/pki-user-mod-ca-001.out"
-        rlAssertGrep "User ID: $user1" "$TmpDir/pki-user-mod-ca-001.out"
-        rlAssertGrep "Full name: $user1_mod_fullname" "$TmpDir/pki-user-mod-ca-001.out"
+        rlAssertGrep "Modified user \"$user1\"" "$TmpDir/pki-user-mod-ca-002.out"
+        rlAssertGrep "User ID: $user1" "$TmpDir/pki-user-mod-ca-002.out"
+        rlAssertGrep "Full name: $user1_mod_fullname" "$TmpDir/pki-user-mod-ca-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-002: Modify a user's email,phone,state,password in CA using CA_adminV"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-003: Modify a user's email,phone,state,password in CA using CA_adminV"
          rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -106,22 +106,22 @@ run_pki-user-cli-user-mod-ca_tests(){
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email $user1_mod_email --phone $user1_mod_phone --state $user1_mod_state --password $user1_mod_passwd $user1 > $TmpDir/pki-user-mod-ca-002.out" \
+                    user-mod --email $user1_mod_email --phone $user1_mod_phone --state $user1_mod_state --password $user1_mod_passwd $user1 > $TmpDir/pki-user-mod-ca-003.out" \
                     0 \
                     "Modified $user1 information"
-        rlAssertGrep "Modified user \"$user1\"" "$TmpDir/pki-user-mod-ca-002.out"
-        rlAssertGrep "User ID: $user1" "$TmpDir/pki-user-mod-ca-002.out"
-        rlAssertGrep "Email: $user1_mod_email" "$TmpDir/pki-user-mod-ca-002.out"
+        rlAssertGrep "Modified user \"$user1\"" "$TmpDir/pki-user-mod-ca-003.out"
+        rlAssertGrep "User ID: $user1" "$TmpDir/pki-user-mod-ca-003.out"
+        rlAssertGrep "Email: $user1_mod_email" "$TmpDir/pki-user-mod-ca-003.out"
 
-	rlAssertGrep "Phone: $user1_mod_phone" "$TmpDir/pki-user-mod-ca-002.out"
+	rlAssertGrep "Phone: $user1_mod_phone" "$TmpDir/pki-user-mod-ca-003.out"
 
-	rlAssertGrep "State: $user1_mod_state" "$TmpDir/pki-user-mod-ca-002.out"
+	rlAssertGrep "State: $user1_mod_state" "$TmpDir/pki-user-mod-ca-003.out"
 
-	rlAssertGrep "Email: $user1_mod_email" "$TmpDir/pki-user-mod-ca-002.out"
+	rlAssertGrep "Email: $user1_mod_email" "$TmpDir/pki-user-mod-ca-003.out"
 
 rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-003_1:--email with maximum length "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-004:--email with maximum length "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -133,16 +133,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-003_1:--email with maximum length "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email=abcdefghijklmnopqrstuvwxyx12345678 u1 > $TmpDir/pki-user-mod-ca-003_1.out" \
+                    user-mod --email=abcdefghijklmnopqrstuvwxyx12345678 u1 > $TmpDir/pki-user-mod-ca-004.out" \
                     0 \
                     "Modified user using CA_adminV with maximum --email length"
-        rlAssertGrep "Modified user \"u1\"" "$TmpDir/pki-user-mod-ca-003_1.out"
-        rlAssertGrep "User ID: u1" "$TmpDir/pki-user-mod-ca-003_1.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-003_1.out"
-        rlAssertGrep "Email: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-mod-ca-003_1.out"
+        rlAssertGrep "Modified user \"u1\"" "$TmpDir/pki-user-mod-ca-004.out"
+        rlAssertGrep "User ID: u1" "$TmpDir/pki-user-mod-ca-004.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-004.out"
+        rlAssertGrep "Email: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-mod-ca-004.out"
     rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_mod-CA-003_2:--email with maximum length and symbols "
+	rlPhaseStartTest "pki_user_cli_user_mod-CA-005:--email with maximum length and symbols "
         randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
 
         rlRun "pki -d $CERTDB_DIR \
@@ -156,14 +156,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-003_1:--email with maximum length "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email=\"$randsym\" u2 > $TmpDir/pki-user-mod-ca-003_2_2.out" \
+                    user-mod --email=\"$randsym\" u2 > $TmpDir/pki-user-mod-ca-005.out" \
                     0 \
                     "Modified user using CA_adminV with maximum --email length and character symbols in it"
-        actual_email_string=`cat $TmpDir/pki-user-mod-ca-003_2_2.out | grep "Email: " | xargs echo`
+        actual_email_string=`cat $TmpDir/pki-user-mod-ca-005.out | grep "Email: " | xargs echo`
         expected_email_string="Email: $randsym"
-        rlAssertGrep "Modified user \"u2\"" "$TmpDir/pki-user-mod-ca-003_2_2.out"
-        rlAssertGrep "User ID: u2" "$TmpDir/pki-user-mod-ca-003_2_2.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-003_2_2.out"
+        rlAssertGrep "Modified user \"u2\"" "$TmpDir/pki-user-mod-ca-005.out"
+        rlAssertGrep "User ID: u2" "$TmpDir/pki-user-mod-ca-005.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-005.out"
         if [[ $actual_email_string = $expected_email_string ]] ; then
                 rlPass "$expected_email_string found"
         else
@@ -172,7 +172,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-003_1:--email with maximum length "
     rlPhaseEnd
 
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-003_3:--email with # character "
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-006:--email with # character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -184,16 +184,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-003_1:--email with maximum length "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email=#  u3 > $TmpDir/pki-user-mod-ca-003_3.out" \
+                    user-mod --email=#  u3 > $TmpDir/pki-user-mod-ca-006.out" \
                     0 \
                     "Modified user using CA_adminV with --email # character"
-        rlAssertGrep "Modified user \"u3\"" "$TmpDir/pki-user-mod-ca-003_3.out"
-        rlAssertGrep "User ID: u3" "$TmpDir/pki-user-mod-ca-003_3.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-003_3.out"
-        rlAssertGrep "Email: #" "$TmpDir/pki-user-mod-ca-003_3.out"
+        rlAssertGrep "Modified user \"u3\"" "$TmpDir/pki-user-mod-ca-006.out"
+        rlAssertGrep "User ID: u3" "$TmpDir/pki-user-mod-ca-006.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-006.out"
+        rlAssertGrep "Email: #" "$TmpDir/pki-user-mod-ca-006.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-003_4:--email with * character "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-007:--email with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -205,16 +205,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-003_4:--email with * character "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email=*  u4 > $TmpDir/pki-user-mod-ca-003_4.out" \
+                    user-mod --email=*  u4 > $TmpDir/pki-user-mod-ca-007.out" \
                     0 \
                     "Modified user using CA_adminV with --email * character"
-        rlAssertGrep "Modified user \"u4\"" "$TmpDir/pki-user-mod-ca-003_4.out"
-        rlAssertGrep "User ID: u4" "$TmpDir/pki-user-mod-ca-003_4.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-003_4.out"
-        rlAssertGrep "Email: *" "$TmpDir/pki-user-mod-ca-003_4.out"
+        rlAssertGrep "Modified user \"u4\"" "$TmpDir/pki-user-mod-ca-007.out"
+        rlAssertGrep "User ID: u4" "$TmpDir/pki-user-mod-ca-007.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-007.out"
+        rlAssertGrep "Email: *" "$TmpDir/pki-user-mod-ca-007.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-003_5:--email with $ character "
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-008:--email with $ character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -226,16 +226,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-003_4:--email with * character "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email=$  u5 > $TmpDir/pki-user-mod-ca-003_5.out" \
+                    user-mod --email=$  u5 > $TmpDir/pki-user-mod-ca-008.out" \
                     0 \
                     "Modified user using CA_adminV with --email $ character"
-        rlAssertGrep "Modified user \"u5\"" "$TmpDir/pki-user-mod-ca-003_5.out"
-        rlAssertGrep "User ID: u5" "$TmpDir/pki-user-mod-ca-003_5.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-003_5.out"
-        rlAssertGrep "Email: \\$" "$TmpDir/pki-user-mod-ca-003_5.out"
+        rlAssertGrep "Modified user \"u5\"" "$TmpDir/pki-user-mod-ca-008.out"
+        rlAssertGrep "User ID: u5" "$TmpDir/pki-user-mod-ca-008.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-008.out"
+        rlAssertGrep "Email: \\$" "$TmpDir/pki-user-mod-ca-008.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-003_6:--email as number 0 "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-009:--email as number 0 "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -247,15 +247,15 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-003_6:--email as number 0 "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email=0  u6 > $TmpDir/pki-user-mod-ca-003_6.out " \
+                    user-mod --email=0  u6 > $TmpDir/pki-user-mod-ca-009.out " \
                     0 \
                     "Modified user using CA_adminV with --email 0"
-        rlAssertGrep "Modified user \"u6\"" "$TmpDir/pki-user-mod-ca-003_6.out"
-        rlAssertGrep "User ID: u6" "$TmpDir/pki-user-mod-ca-003_6.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-003_6.out"
-        rlAssertGrep "Email: 0" "$TmpDir/pki-user-mod-ca-003_6.out"
+        rlAssertGrep "Modified user \"u6\"" "$TmpDir/pki-user-mod-ca-009.out"
+        rlAssertGrep "User ID: u6" "$TmpDir/pki-user-mod-ca-009.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-009.out"
+        rlAssertGrep "Email: 0" "$TmpDir/pki-user-mod-ca-009.out"
     rlPhaseEnd
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-004_1:--state with maximum length "
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-010:--state with maximum length "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -267,16 +267,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-003_6:--email as number 0 "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --state=abcdefghijklmnopqrstuvwxyx12345678 u7 > $TmpDir/pki-user-mod-ca-004_1.out" \
+                    user-mod --state=abcdefghijklmnopqrstuvwxyx12345678 u7 > $TmpDir/pki-user-mod-ca-010.out" \
                     0 \
                     "Modified user using CA_adminV with maximum --state length"
-        rlAssertGrep "Modified user \"u7\"" "$TmpDir/pki-user-mod-ca-004_1.out"
-        rlAssertGrep "User ID: u7" "$TmpDir/pki-user-mod-ca-004_1.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-004_1.out"
-        rlAssertGrep "State: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-mod-ca-004_1.out"
+        rlAssertGrep "Modified user \"u7\"" "$TmpDir/pki-user-mod-ca-010.out"
+        rlAssertGrep "User ID: u7" "$TmpDir/pki-user-mod-ca-010.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-010.out"
+        rlAssertGrep "State: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-mod-ca-010.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-004_2:--state with maximum length and symbols "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-011:--state with maximum length and symbols "
 	randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
@@ -289,14 +289,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-004_2:--state with maximum length and
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --state=\"$randsym\" u8 > $TmpDir/pki-user-mod-ca-004_2.out" \
+                    user-mod --state=\"$randsym\" u8 > $TmpDir/pki-user-mod-ca-011.out" \
                     0 \
                     "Modified user using CA_adminV with maximum --state length and character symbols in it"
-	actual_state_string=`cat $TmpDir/pki-user-mod-ca-004_2.out | grep "State: " | xargs echo`
+	actual_state_string=`cat $TmpDir/pki-user-mod-ca-011.out | grep "State: " | xargs echo`
         expected_state_string="State: $randsym"
-        rlAssertGrep "Modified user \"u8\"" "$TmpDir/pki-user-mod-ca-004_2.out"
-        rlAssertGrep "User ID: u8" "$TmpDir/pki-user-mod-ca-004_2.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-004_2.out"
+        rlAssertGrep "Modified user \"u8\"" "$TmpDir/pki-user-mod-ca-011.out"
+        rlAssertGrep "User ID: u8" "$TmpDir/pki-user-mod-ca-011.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-011.out"
 	if [[ $actual_state_string = $expected_state_string ]] ; then
                 rlPass "$expected_state_string found"
         else
@@ -304,7 +304,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-004_2:--state with maximum length and
         fi
 	rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-004_3:--state with # character "
+    rlPhaseStartTest "pki_user_cli_user_add-CA-012:--state with # character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -316,16 +316,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-004_2:--state with maximum length and
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --state=#  u9 > $TmpDir/pki-user-mod-ca-004_3.out" \
+                    user-mod --state=#  u9 > $TmpDir/pki-user-mod-ca-012.out" \
                     0 \
                     "Modified user using CA_adminV with --state # character"
-        rlAssertGrep "Modified user \"u9\"" "$TmpDir/pki-user-mod-ca-004_3.out"
-        rlAssertGrep "User ID: u9" "$TmpDir/pki-user-mod-ca-004_3.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-004_3.out"
-        rlAssertGrep "State: #" "$TmpDir/pki-user-mod-ca-004_3.out"
+        rlAssertGrep "Modified user \"u9\"" "$TmpDir/pki-user-mod-ca-012.out"
+        rlAssertGrep "User ID: u9" "$TmpDir/pki-user-mod-ca-012.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-012.out"
+        rlAssertGrep "State: #" "$TmpDir/pki-user-mod-ca-012.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-004_4:--state with * character "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-013:--state with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -337,15 +337,15 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-004_4:--state with * character "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --state=*  u10 > $TmpDir/pki-user-mod-ca-004_4.out" \
+                    user-mod --state=*  u10 > $TmpDir/pki-user-mod-ca-013.out" \
                     0 \
                     "Modified user using CA_adminV with --state * character"
-        rlAssertGrep "Modified user \"u10\"" "$TmpDir/pki-user-mod-ca-004_4.out"
-        rlAssertGrep "User ID: u10" "$TmpDir/pki-user-mod-ca-004_4.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-004_4.out"
-        rlAssertGrep "State: *" "$TmpDir/pki-user-mod-ca-004_4.out"
+        rlAssertGrep "Modified user \"u10\"" "$TmpDir/pki-user-mod-ca-013.out"
+        rlAssertGrep "User ID: u10" "$TmpDir/pki-user-mod-ca-013.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-013.out"
+        rlAssertGrep "State: *" "$TmpDir/pki-user-mod-ca-013.out"
     rlPhaseEnd
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-004_5:--state with $ character "
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-014:--state with $ character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -357,15 +357,15 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-004_4:--state with * character "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --state=$  u11 > $TmpDir/pki-user-mod-ca-004_5.out" \
+                    user-mod --state=$  u11 > $TmpDir/pki-user-mod-ca-014.out" \
                     0 \
                     "Modified user using CA_adminV with --state $ character"
-        rlAssertGrep "Modified user \"u11\"" "$TmpDir/pki-user-mod-ca-004_5.out"
-        rlAssertGrep "User ID: u11" "$TmpDir/pki-user-mod-ca-004_5.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-004_5.out"
-        rlAssertGrep "State: \\$" "$TmpDir/pki-user-mod-ca-004_5.out"
+        rlAssertGrep "Modified user \"u11\"" "$TmpDir/pki-user-mod-ca-014.out"
+        rlAssertGrep "User ID: u11" "$TmpDir/pki-user-mod-ca-014.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-014.out"
+        rlAssertGrep "State: \\$" "$TmpDir/pki-user-mod-ca-014.out"
     rlPhaseEnd
-rlPhaseStartTest "pki_user_cli_user_mod-CA-004_6:--state as number 0 "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-015:--state as number 0 "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -377,16 +377,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-004_6:--state as number 0 "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --state=0  u12 > $TmpDir/pki-user-mod-ca-004_6.out " \
+                    user-mod --state=0  u12 > $TmpDir/pki-user-mod-ca-015.out " \
                     0 \
                     "Modified user using CA_adminV with --state 0"
-        rlAssertGrep "Modified user \"u12\"" "$TmpDir/pki-user-mod-ca-004_6.out"
-        rlAssertGrep "User ID: u12" "$TmpDir/pki-user-mod-ca-004_6.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-004_6.out"
-        rlAssertGrep "State: 0" "$TmpDir/pki-user-mod-ca-004_6.out"
+        rlAssertGrep "Modified user \"u12\"" "$TmpDir/pki-user-mod-ca-015.out"
+        rlAssertGrep "User ID: u12" "$TmpDir/pki-user-mod-ca-015.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-015.out"
+        rlAssertGrep "State: 0" "$TmpDir/pki-user-mod-ca-015.out"
     rlPhaseEnd
         
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-005_1:--phone with maximum length"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-016:--phone with maximum length"
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -398,16 +398,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-004_6:--state as number 0 "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --phone=abcdefghijklmnopqrstuvwxyx12345678 u13 > $TmpDir/pki-user-mod-ca-005_1.out" \
+                    user-mod --phone=abcdefghijklmnopqrstuvwxyx12345678 u13 > $TmpDir/pki-user-mod-ca-016.out" \
                     0 \
                     "Modified user using CA_adminV with maximum --phone length"
-        rlAssertGrep "Modified user \"u13\"" "$TmpDir/pki-user-mod-ca-005_1.out"
-        rlAssertGrep "User ID: u13" "$TmpDir/pki-user-mod-ca-005_1.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-005_1.out"
-        rlAssertGrep "Phone: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-mod-ca-005_1.out"
+        rlAssertGrep "Modified user \"u13\"" "$TmpDir/pki-user-mod-ca-016.out"
+        rlAssertGrep "User ID: u13" "$TmpDir/pki-user-mod-ca-016.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-016.out"
+        rlAssertGrep "Phone: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-user-mod-ca-016.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-005_2:--phone with maximum length and symbols "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-017:--phone with maximum length and symbols "
 	randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
@@ -420,13 +420,13 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-005_2:--phone with maximum length and
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --phone=\"$randsym\"  usr1 > $TmpDir/pki-user-mod-ca-005_2.out  2>&1"\
+                    user-mod --phone=\"$randsym\"  usr1 > $TmpDir/pki-user-mod-ca-017.out  2>&1"\
                     1 \
                     "Cannot modify user using CA_adminV with maximum --phone with character symbols in it"
-        rlAssertGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-mod-ca-005_2.out"
+        rlAssertGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-mod-ca-017.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-005_3:--phone with # character "
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-018:--phone with # character "
 	 rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -438,13 +438,13 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-005_2:--phone with maximum length and
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --phone=# usr2 > $TmpDir/pki-user-mod-ca-005_3.out  2>&1" \
+                    user-mod --phone=# usr2 > $TmpDir/pki-user-mod-ca-018.out  2>&1" \
                     1 \
                     "Cannot modify user using CA_adminV with maximum --phone with character symbols in it"
-        rlAssertGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-mod-ca-005_3.out"
+        rlAssertGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-mod-ca-018.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-005_4:--phone with * character "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-019:--phone with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -456,13 +456,13 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-005_4:--phone with * character "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --phone=*  usr3 > $TmpDir/pki-user-mod-ca-005_4.out 2>&1" \
+                    user-mod --phone=*  usr3 > $TmpDir/pki-user-mod-ca-019.out 2>&1" \
                     1 \
                     "Cannot modify user using CA_adminV with maximum --phone with character symbols in it"
-        rlAssertGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-mod-ca-005_4.out"
+        rlAssertGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-mod-ca-019.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-005_5:--phone with $ character "
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-020:--phone with $ character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -474,13 +474,13 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-005_4:--phone with * character "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --phone=$  usr4 > $TmpDir/pki-user-mod-ca-005_5.out 2>&1" \
+                    user-mod --phone=$  usr4 > $TmpDir/pki-user-mod-ca-020.out 2>&1" \
                     1 \
                     "Cannot modify user using CA_adminV --phone with character symbols in it"
-        rlAssertGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-mod-ca-005_5.out"
+        rlAssertGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-mod-ca-020.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-005_6:--phone as negative number -1230 "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-021:--phone as negative number -1230 "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -492,18 +492,18 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-005_6:--phone as negative number -123
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --phone=-1230  u14 > $TmpDir/pki-user-mod-ca-005_6.out " \
+                    user-mod --phone=-1230  u14 > $TmpDir/pki-user-mod-ca-021.out " \
                     0 \
                     "Modifying User --phone negative value"
-        rlAssertGrep "Modified user \"u14\"" "$TmpDir/pki-user-mod-ca-005_6.out"
-        rlAssertGrep "User ID: u14" "$TmpDir/pki-user-mod-ca-005_6.out"
-        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-005_6.out"
-        rlAssertGrep "Phone: -1230" "$TmpDir/pki-user-mod-ca-005_6.out"
+        rlAssertGrep "Modified user \"u14\"" "$TmpDir/pki-user-mod-ca-021.out"
+        rlAssertGrep "User ID: u14" "$TmpDir/pki-user-mod-ca-021.out"
+        rlAssertGrep "Full name: test" "$TmpDir/pki-user-mod-ca-021.out"
+        rlAssertGrep "Phone: -1230" "$TmpDir/pki-user-mod-ca-021.out"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/704"
     rlPhaseEnd
 #======https://fedorahosted.org/pki/ticket/704============#
 
- rlPhaseStartTest "pki_user_cli_user_mod-CA-006: Modify a user to CA with -t option"
+ rlPhaseStartTest "pki_user_cli_user_mod-CA-022: Modify a user to CA with -t option"
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -518,14 +518,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-005_6:--phone as negative number -123
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
-                    user-mod --fullName=\"$user1fullname\"  u15 > $TmpDir/pki-user-mod-ca-006.out" \
+                    user-mod --fullName=\"$user1fullname\"  u15 > $TmpDir/pki-user-mod-ca-022.out" \
                     0 \
                     "Modified user u15 to CA"
-        rlAssertGrep "Modified user \"u15\"" "$TmpDir/pki-user-mod-ca-006.out"
-        rlAssertGrep "User ID: u15" "$TmpDir/pki-user-mod-ca-006.out"
-        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-006.out"
+        rlAssertGrep "Modified user \"u15\"" "$TmpDir/pki-user-mod-ca-022.out"
+        rlAssertGrep "User ID: u15" "$TmpDir/pki-user-mod-ca-022.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-022.out"
     rlPhaseEnd
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-007:  Modify a user -- missing required option user id"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-023:  Modify a user -- missing required option user id"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -536,13 +536,13 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-005_6:--phone as negative number -123
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
-                    user-mod --fullName=\"$user1fullname\" > $TmpDir/pki-user-mod-ca-007.out" \
+                    user-mod --fullName=\"$user1fullname\" > $TmpDir/pki-user-mod-ca-023.out" \
                      1\
                     "Modify user -- missing required option user id"
-        rlAssertGrep "usage: user-mod <User ID> \[OPTIONS...\]" "$TmpDir/pki-user-mod-ca-007.out"
+        rlAssertGrep "usage: user-mod <User ID> \[OPTIONS...\]" "$TmpDir/pki-user-mod-ca-023.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-008:  Modify a user -- all options provided"
+rlPhaseStartTest "pki_user_cli_user_mod-CA-024:  Modify a user -- all options provided"
         email="ca_agent2@myemail.com"
         user_password="agent2Password"
         phone="1234567890"
@@ -571,18 +571,18 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-008:  Modify a user -- all options pr
                     --password $user_password \
                     --phone $phone \
                     --state $state \
-                     u16 >  $TmpDir/pki-user-mod-ca-008.out" \
+                     u16 >  $TmpDir/pki-user-mod-ca-024.out" \
                     0 \
                     "Modify user u16 to CA -- all options provided"
-        rlAssertGrep "Modified user \"u16\"" "$TmpDir/pki-user-mod-ca-008.out"
-        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-008.out"
-        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-008.out"
-        rlAssertGrep "Email: $email" "$TmpDir/pki-user-mod-ca-008.out"
-        rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-008.out"
-        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-008.out"
+        rlAssertGrep "Modified user \"u16\"" "$TmpDir/pki-user-mod-ca-024.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-024.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-024.out"
+        rlAssertGrep "Email: $email" "$TmpDir/pki-user-mod-ca-024.out"
+        rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-024.out"
+        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-024.out"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
+rlPhaseStartTest "pki_user_cli_user_mod-CA-025: Modify user with --password "
         userpw="pass"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
@@ -594,15 +594,15 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
-                    user-mod --fullName=\"$user1fullname\" --password=$userpw $user1 > $TmpDir/pki-user-mod-ca-009.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" --password=$userpw $user1 > $TmpDir/pki-user-mod-ca-025.out 2>&1" \
                     1 \
                     "Modify a user --must be at least 8 characters --password"
-        rlAssertGrep "$expmsg" "$TmpDir/pki-user-mod-ca-009.out"
+        rlAssertGrep "$expmsg" "$TmpDir/pki-user-mod-ca-025.out"
 
     rlPhaseEnd
 
 ##### Tests to modify users using revoked cert#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-010_1: Should not be able to modify user using a revoked cert CA_adminR"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-026: Should not be able to modify user using a revoked cert CA_adminR"
 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminR \
@@ -611,12 +611,12 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminR \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-010_1.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-026.out 2>&1" \
                     1 \
                     "Cannot modify user $user1 using a user having revoked cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-010_1.out"
+        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-026.out"
     rlPhaseEnd
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-010_2: Should not be able to modify user using an agent or a revoked cert CA_agentR"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-027: Should not be able to modify user using an agent or a revoked cert CA_agentR"
 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_agentR \
@@ -625,14 +625,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_agentR \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-010_2.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-027.out 2>&1" \
                     1 \
                     "Cannot modify user $user1 using a user having revoked cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-010_2.out"
+        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-027.out"
     rlPhaseEnd
 
 ##### Tests to modify users using an agent user#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-011_1: Should not be able to modify user using a CA_agentV user"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-028: Should not be able to modify user using a CA_agentV user"
 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_agentV \
@@ -641,13 +641,13 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_agentV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-011_1.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-028.out 2>&1" \
                     1 \
                     "Cannot modify user $user1 using a agent cert"
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-mod-ca-011_1.out"
+        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-mod-ca-028.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-011_2: Should not be able to modify user using a CA_agentR user"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-029: Should not be able to modify user using a CA_agentR user"
 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_agentR \
@@ -656,14 +656,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_agentR \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-011_2.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-029.out 2>&1" \
                     1 \
                     "Cannot modify user $user1 using a agent cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-011_2.out"
+        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-029.out"
     rlPhaseEnd
 
 ##### Tests to modify users using expired cert#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-012_1: Should not be able to modify user using a CA_adminE cert"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-030: Should not be able to modify user using a CA_adminE cert"
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
@@ -674,14 +674,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminE \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-012_1.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-030.out 2>&1" \
                     1 \
                     "Cannot modify user $user1 using an expired admin cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-012_1.out"
+        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-030.out"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-012_2: Should not be able to modify user using a CA_agentE cert"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-031: Should not be able to modify user using a CA_agentE cert"
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
@@ -692,15 +692,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_agentE \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-012_2.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-031.out 2>&1" \
                    1 \
-                    "https://fedorahosted.org/pki/ticket/821"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-012_2.out"
+                    "Modifying user as an agent user with expired cert"
+        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-031.out"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
+	rlLog "https://fedorahosted.org/pki/ticket/821"
     rlPhaseEnd
-#======https://fedorahosted.org/pki/ticket/821============#
+
  ##### Tests to modify users using audit users#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-013: Should not be able to modify user using a CA_auditV"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-032: Should not be able to modify user using a CA_auditV"
 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_auditV \
@@ -709,14 +710,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_auditV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-013.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-032.out 2>&1" \
                     1 \
                     "Cannot modify user $user1 using an audit cert"
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-mod-ca-013.out"
+        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-mod-ca-032.out"
     rlPhaseEnd
 
         ##### Tests to modify users using operator user###
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-014: Should not be able to modify user using a CA_operatorV"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-033: Should not be able to modify user using a CA_operatorV"
 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_operatorV \
@@ -725,14 +726,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_operatorV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-014.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-033.out 2>&1" \
                     1 \
                     "Cannot modify user $user1 using a operator cert"
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-mod-ca-014.out"
+        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-mod-ca-033.out"
     rlPhaseEnd
 
 ##### Tests to modify users using CA_adminUTCA and CA_agentUTCA  user's certificate will be issued by an untrusted CA users#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-015: Should not be able to modify user using a cert created from a untrusted CA CA_adminUTCA"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-034: Should not be able to modify user using a cert created from a untrusted CA CA_adminUTCA"
 
         rlLog "Executing: pki -d /tmp/untrusted_cert_db \
                    -n CA_adminUTCA \
@@ -741,14 +742,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009: Modify user with --password "
         rlRun "pki -d /tmp/untrusted_cert_db \
                    -n CA_adminUTCA \
                    -c Password \
-                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-015.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-mod-ca-034.out 2>&1" \
                     1 \
                     "Cannot modify user $user1 using a untrusted cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-015.out"
+        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-mod-ca-034.out"
     rlPhaseEnd
 
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-016:  Modify a user -- User ID does not exist"
+rlPhaseStartTest "pki_user_cli_user_mod-CA-035:  Modify a user -- User ID does not exist"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -759,16 +760,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-016:  Modify a user -- User ID does n
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
-                    user-mod --fullName=\"$user1fullname\"  u17 > $TmpDir/pki-user-mod-ca-016.out 2>&1" \
+                    user-mod --fullName=\"$user1fullname\"  u17 > $TmpDir/pki-user-mod-ca-035.out 2>&1" \
                     1 \
                     "Modifying a non existing user"
-        rlAssertGrep "ResourceNotFoundException: No such object." "$TmpDir/pki-user-mod-ca-016.out"
+        rlAssertGrep "ResourceNotFoundException: No such object." "$TmpDir/pki-user-mod-ca-035.out"
     rlPhaseEnd
 
 
 ##### Tests to modify CA users with empty parameters ####
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-017_1: Modify a user in CA using CA_adminV - fullname is empty"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-036: Modify a user in CA using CA_adminV - fullname is empty"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -776,24 +777,24 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-016:  Modify a user -- User ID does n
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"\" $user1 > $TmpDir/pki-user-mod-ca-017_1.out 2>&1" \
+                    user-mod --fullName=\"\" $user1 > $TmpDir/pki-user-mod-ca-036.out 2>&1" \
                     0 \
                     "Modifying User --fullname is empty"
-        rlAssertGrep "Fullname cannot be empty" "$TmpDir/pki-user-mod-ca-017_1.out"
+        rlAssertGrep "Fullname cannot be empty" "$TmpDir/pki-user-mod-ca-036.out"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/833"
     rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_mod-CA-017_2: Modify a user in CA using CA_adminV - email is empty"
+	rlPhaseStartTest "pki_user_cli_user_mod-CA-037: Modify a user in CA using CA_adminV - email is empty"
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u16 > $TmpDir/pki-user-mod-ca-017_2_1.out" 
-	rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-mod-ca-017_2_1.out"
-        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-017_2_1.out"
-        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-017_2_1.out"
-	rlAssertGrep "Email: $email" "$TmpDir/pki-user-mod-ca-017_2_1.out"
-        rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-017_2_1.out"
-        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-017_2_1.out"
+                    user-show u16 > $TmpDir/pki-user-mod-ca-037_1.out" 
+	rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-mod-ca-037_1.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-037_1.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-037_1.out"
+	rlAssertGrep "Email: $email" "$TmpDir/pki-user-mod-ca-037_1.out"
+        rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-037_1.out"
+        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-037_1.out"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -801,26 +802,26 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-016:  Modify a user -- User ID does n
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email=\"\" u16 > $TmpDir/pki-user-mod-ca-017_2_2.out" \
+                    user-mod --email=\"\" u16 > $TmpDir/pki-user-mod-ca-037_2.out" \
                     0 \
                     "Modifying $user1 with empty email"
-	rlAssertGrep "Modified user \"u16\"" "$TmpDir/pki-user-mod-ca-017_2_2.out"
-        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-017_2_2.out"
-        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-017_2_2.out"
-        rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-017_2_2.out"
-        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-017_2_2.out"
+	rlAssertGrep "Modified user \"u16\"" "$TmpDir/pki-user-mod-ca-037_2.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-037_2.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-037_2.out"
+        rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-037_2.out"
+        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-037_2.out"
     rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_mod-CA-017_3: Modify a user in CA using CA_adminV - phone is empty"
+	rlPhaseStartTest "pki_user_cli_user_mod-CA-038: Modify a user in CA using CA_adminV - phone is empty"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u16 > $TmpDir/pki-user-mod-ca-017_3_1.out"
-	rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-mod-ca-017_3_1.out"
-        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-017_3_1.out"
-        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-017_3_1.out"
-        rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-017_3_1.out"
-        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-017_3_1.out"
+                    user-show u16 > $TmpDir/pki-user-mod-ca-038_1.out"
+	rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-mod-ca-038_1.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-038_1.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-038_1.out"
+        rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-038_1.out"
+        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-038_1.out"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -828,22 +829,22 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-016:  Modify a user -- User ID does n
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --phone=\"\" u16 > $TmpDir/pki-user-mod-ca-017_3_2.out 2>&1" \
+                    user-mod --phone=\"\" u16 > $TmpDir/pki-user-mod-ca-038_2.out 2>&1" \
                     0 \
                     "Modifying User --phone is empty"
-        rlAssertGrep "BadRequestException: Invalid DN syntax." "$TmpDir/pki-user-mod-ca-017_3_2.out"
+        rlAssertGrep "BadRequestException: Invalid DN syntax." "$TmpDir/pki-user-mod-ca-038_2.out"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/836"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-017_4: Modify a user in CA using CA_adminV - state is empty"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-039: Modify a user in CA using CA_adminV - state is empty"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u16 > $TmpDir/pki-user-mod-ca-017_4_1.out"
-	rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-mod-ca-017_4_1.out"
-        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-017_4_1.out"
-        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-017_4_1.out"
-        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-017_4_1.out"
+                    user-show u16 > $TmpDir/pki-user-mod-ca-039_1.out"
+	rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-mod-ca-039_1.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-039_1.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-039_1.out"
+        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-039_1.out"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -851,23 +852,23 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-016:  Modify a user -- User ID does n
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --state=\"\" u16 > $TmpDir/pki-user-mod-ca-017_4_2.out 2>&1" \
+                    user-mod --state=\"\" u16 > $TmpDir/pki-user-mod-ca-039_2.out 2>&1" \
                     0 \
                     "Modify User --state is empty"
-        rlAssertGrep "BadRequestException: Invalid DN syntax." "$TmpDir/pki-user-mod-ca-017_4_2.out"
+        rlAssertGrep "BadRequestException: Invalid DN syntax." "$TmpDir/pki-user-mod-ca-039_2.out"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/836"
     rlPhaseEnd
 
 ##### Tests to modify CA users with the same value ####
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-018: Modify a user in CA using CA_adminV - fullname same old value"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-040: Modify a user in CA using CA_adminV - fullname same old value"
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show $user1 > $TmpDir/pki-user-mod-ca-018_1.out"
-	rlAssertGrep "User \"$user1\"" "$TmpDir/pki-user-mod-ca-018_1.out"
-	rlAssertGrep "User ID: $user1" "$TmpDir/pki-user-mod-ca-018_1.out"
-        rlAssertGrep "Full name: $user1_mod_fullname" "$TmpDir/pki-user-mod-ca-018_1.out"
+                    user-show $user1 > $TmpDir/pki-user-mod-ca-040_1.out"
+	rlAssertGrep "User \"$user1\"" "$TmpDir/pki-user-mod-ca-040_1.out"
+	rlAssertGrep "User ID: $user1" "$TmpDir/pki-user-mod-ca-040_1.out"
+        rlAssertGrep "Full name: $user1_mod_fullname" "$TmpDir/pki-user-mod-ca-040_1.out"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -875,25 +876,25 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-016:  Modify a user -- User ID does n
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --fullName=\"$user1_mod_fullname\" $user1 > $TmpDir/pki-user-mod-ca-018_2.out" \
+                    user-mod --fullName=\"$user1_mod_fullname\" $user1 > $TmpDir/pki-user-mod-ca-040_2.out" \
                     0 \
                     "Modifying $user1 with same old fullname"
-	rlAssertGrep "Modified user \"$user1\"" "$TmpDir/pki-user-mod-ca-018_2.out"
-        rlAssertGrep "User ID: $user1" "$TmpDir/pki-user-mod-ca-018_2.out"
-        rlAssertGrep "Full name: $user1_mod_fullname" "$TmpDir/pki-user-mod-ca-018_2.out"
+	rlAssertGrep "Modified user \"$user1\"" "$TmpDir/pki-user-mod-ca-040_2.out"
+        rlAssertGrep "User ID: $user1" "$TmpDir/pki-user-mod-ca-040_2.out"
+        rlAssertGrep "Full name: $user1_mod_fullname" "$TmpDir/pki-user-mod-ca-040_2.out"
     rlPhaseEnd
 
 ##### Tests to modify CA users adding values to params which were previously empty ####
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-019: Modify a user in CA using CA_adminV - adding values to params which were previously empty"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-041: Modify a user in CA using CA_adminV - adding values to params which were previously empty"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u16 > $TmpDir/pki-user-mod-ca-019_1.out"
-        rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-mod-ca-019_1.out"
-        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-019_1.out"
-        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-019_1.out"
-	rlAssertNotGrep "Email:" "$TmpDir/pki-user-mod-ca-019_1.out"
+                    user-show u16 > $TmpDir/pki-user-mod-ca-041_1.out"
+        rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-mod-ca-041_1.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-041_1.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-041_1.out"
+	rlAssertNotGrep "Email:" "$TmpDir/pki-user-mod-ca-041_1.out"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -901,13 +902,13 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-016:  Modify a user -- User ID does n
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-mod --email=\"$email\" u16 > $TmpDir/pki-user-mod-ca-019_2.out" \
+                    user-mod --email=\"$email\" u16 > $TmpDir/pki-user-mod-ca-041_2.out" \
                     0 \
                     "Modifying u16 with new value for phone which was previously empty"
-        rlAssertGrep "Modified user \"u16\"" "$TmpDir/pki-user-mod-ca-019_2.out"
-        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-019_2.out"
-        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-019_2.out"
-	rlAssertGrep "Email: $email" "$TmpDir/pki-user-mod-ca-019_2.out"
+        rlAssertGrep "Modified user \"u16\"" "$TmpDir/pki-user-mod-ca-041_2.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-041_2.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-041_2.out"
+	rlAssertGrep "Email: $email" "$TmpDir/pki-user-mod-ca-041_2.out"
     rlPhaseEnd
 
 #===Deleting users===#
