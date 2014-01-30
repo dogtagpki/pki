@@ -44,6 +44,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
 
+            # Copy /usr/share/pki/server/webapps/pki/admin
+            # to <instance>/webapps/<subsystem>/admin
+            # TODO: common templates should be deployed in common webapp
+            deployer.directory.create(deployer.master_dict['pki_tomcat_webapps_subsystem_path'])
+            deployer.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "server",
+                    "webapps",
+                    "pki",
+                    "admin"),
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_webapps_subsystem_path'],
+                    "admin"),
+                overwrite_flag=True)
+
             # Copy /usr/share/pki/<subsystem>/webapps/<subsystem>
             # to <instance>/webapps/<subsystem>
             deployer.directory.copy(
