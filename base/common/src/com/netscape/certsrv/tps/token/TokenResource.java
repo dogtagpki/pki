@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.token;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -46,7 +43,6 @@ public interface TokenResource {
 
     @GET
     @ClientResponseType(entityType=TokenCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findTokens(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -54,21 +50,16 @@ public interface TokenResource {
     @GET
     @Path("{tokenID}")
     @ClientResponseType(entityType=TokenData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getToken(@PathParam("tokenID") String tokenID);
 
     @POST
     @ClientResponseType(entityType=TokenData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("tokens.add")
     public Response addToken(TokenData tokenData);
 
     @PUT
     @Path("{tokenID}")
     @ClientResponseType(entityType=TokenData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("tokens.modify")
     public Response replaceToken(
             @PathParam("tokenID") String tokenID,
@@ -77,8 +68,6 @@ public interface TokenResource {
     @PATCH
     @Path("{tokenID}")
     @ClientResponseType(entityType=TokenData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("tokens.modify")
     public Response modifyToken(
             @PathParam("tokenID") String tokenID,
@@ -87,7 +76,6 @@ public interface TokenResource {
     @DELETE
     @Path("{tokenID}")
     @ClientResponseType(entityType=Void.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("tokens.remove")
     public Response removeToken(@PathParam("tokenID") String tokenID);
 }

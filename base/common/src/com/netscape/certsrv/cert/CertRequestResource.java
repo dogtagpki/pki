@@ -22,7 +22,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -42,15 +41,12 @@ public interface CertRequestResource {
     @POST
     @Path("certrequests")
     @ClientResponseType(entityType=CertRequestInfos.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
     public Response enrollCert(MultivaluedMap<String, String> form);
 
     @POST
     @Path("certrequests")
     @ClientResponseType(entityType=CertRequestInfos.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response enrollCert(CertEnrollmentRequest data);
 
     /**
@@ -59,7 +55,6 @@ public interface CertRequestResource {
     @GET
     @Path("certrequests/{id}")
     @ClientResponseType(entityType=CertRequestInfo.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getRequestInfo(@PathParam("id") RequestId id);
 
     /**
@@ -68,7 +63,6 @@ public interface CertRequestResource {
     @GET
     @Path("agent/certrequests")
     @ClientResponseType(entityType=CertRequestInfos.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response listRequests(@QueryParam("requestState") String requestState,
@@ -81,7 +75,6 @@ public interface CertRequestResource {
     @GET
     @Path("agent/certrequests/{id}")
     @ClientResponseType(entityType=CertReviewResponse.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response reviewRequest(@PathParam("id") RequestId id);
@@ -89,7 +82,6 @@ public interface CertRequestResource {
     @GET
     @Path("certrequests/profiles")
     @ClientResponseType(entityType=ProfileDataInfos.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response listEnrollmentTemplates(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -97,13 +89,11 @@ public interface CertRequestResource {
     @GET
     @Path("certrequests/profiles/{id}")
     @ClientResponseType(entityType=CertEnrollmentRequest.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getEnrollmentTemplate(@PathParam("id") String id);
 
     @POST
     @Path("agent/certrequests/{id}/approve")
     @ClientResponseType(entityType=Void.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response approveRequest(@PathParam("id") RequestId id, CertReviewResponse data);
@@ -111,7 +101,6 @@ public interface CertRequestResource {
     @POST
     @Path("agent/certrequests/{id}/reject")
     @ClientResponseType(entityType=Void.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response rejectRequest(@PathParam("id") RequestId id, CertReviewResponse data);
@@ -119,7 +108,6 @@ public interface CertRequestResource {
     @POST
     @Path("agent/certrequests/{id}/cancel")
     @ClientResponseType(entityType=Void.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response cancelRequest(@PathParam("id") RequestId id, CertReviewResponse data);
@@ -127,7 +115,6 @@ public interface CertRequestResource {
     @POST
     @Path("agent/certrequests/{id}/update")
     @ClientResponseType(entityType=Void.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response updateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
@@ -135,7 +122,6 @@ public interface CertRequestResource {
     @POST
     @Path("agent/certrequests/{id}/validate")
     @ClientResponseType(entityType=Void.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response validateRequest(@PathParam("id") RequestId id, CertReviewResponse data);
@@ -143,7 +129,6 @@ public interface CertRequestResource {
     @POST
     @Path("agent/certrequests/{id}/unassign")
     @ClientResponseType(entityType=Void.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response unassignRequest(@PathParam("id") RequestId id, CertReviewResponse data);
@@ -151,7 +136,6 @@ public interface CertRequestResource {
     @POST
     @Path("agent/certrequests/{id}/assign")
     @ClientResponseType(entityType=Void.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("certrequests")
     @AuthMethodMapping("certrequests")
     public Response assignRequest(@PathParam("id") RequestId id, CertReviewResponse data);

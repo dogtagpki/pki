@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.connection;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -45,7 +42,6 @@ public interface ConnectionResource {
 
     @GET
     @ClientResponseType(entityType=ConnectionCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findConnections(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -53,22 +49,17 @@ public interface ConnectionResource {
     @GET
     @Path("{connectionID}")
     @ClientResponseType(entityType=ConnectionData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getConnection(@PathParam("connectionID") String connectionID);
 
     @POST
     @ACLMapping("connections.add")
     @ClientResponseType(entityType=ConnectionData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response addConnection(ConnectionData connectionData);
 
     @PUT
     @Path("{connectionID}")
     @ACLMapping("connections.modify")
     @ClientResponseType(entityType=ConnectionData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response updateConnection(
             @PathParam("connectionID") String connectionID,
             ConnectionData connectionData);
@@ -77,8 +68,6 @@ public interface ConnectionResource {
     @Path("{connectionID}")
     @ACLMapping("connections.approve")
     @ClientResponseType(entityType=ConnectionData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response changeConnectionStatus(
             @PathParam("connectionID") String connectionID,
             @QueryParam("action") String action);
@@ -87,6 +76,5 @@ public interface ConnectionResource {
     @Path("{connectionID}")
     @ClientResponseType(entityType=Void.class)
     @ACLMapping("connections.remove")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response removeConnection(@PathParam("connectionID") String connectionID);
 }

@@ -20,9 +20,7 @@ package com.netscape.certsrv.logging;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -36,7 +34,6 @@ public interface ActivityResource {
 
     @GET
     @ClientResponseType(entityType=ActivityCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findActivities(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -44,6 +41,5 @@ public interface ActivityResource {
     @GET
     @Path("{activityID}")
     @ClientResponseType(entityType=ActivityData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getActivity(@PathParam("activityID") String activityID);
 }

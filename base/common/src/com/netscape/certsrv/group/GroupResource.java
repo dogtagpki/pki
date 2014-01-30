@@ -18,15 +18,12 @@
 
 package com.netscape.certsrv.group;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -45,7 +42,6 @@ public interface GroupResource {
 
     @GET
     @ClientResponseType(entityType=GroupCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findGroups(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
@@ -53,33 +49,26 @@ public interface GroupResource {
 
     @POST
     @ClientResponseType(entityType=GroupData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response addGroup(GroupData groupData);
 
     @GET
     @Path("{groupID}")
     @ClientResponseType(entityType=GroupData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getGroup(@PathParam("groupID") String groupID);
 
     @PATCH
     @Path("{groupID}")
     @ClientResponseType(entityType=GroupData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response modifyGroup(@PathParam("groupID") String groupID, GroupData groupData);
 
     @DELETE
     @Path("{groupID}")
     @ClientResponseType(entityType=Void.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response removeGroup(@PathParam("groupID") String groupID);
 
     @GET
     @Path("{groupID}/members")
     @ClientResponseType(entityType=GroupMemberCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findGroupMembers(
             @PathParam("groupID") String groupID,
             @QueryParam("start") Integer start,
@@ -88,19 +77,15 @@ public interface GroupResource {
     @POST
     @Path("{groupID}/members")
     @ClientResponseType(entityType=GroupMemberData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response addGroupMember(@PathParam("groupID") String groupID, String memberID);
 
     @GET
     @Path("{groupID}/members/{memberID}")
     @ClientResponseType(entityType=GroupMemberData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 
     @DELETE
     @Path("{groupID}/members/{memberID}")
     @ClientResponseType(entityType=Void.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response removeGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 }

@@ -5,7 +5,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -41,7 +40,6 @@ public interface KeyRequestResource {
      */
     @GET
     @ClientResponseType(entityType=KeyRequestInfoCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response listRequests(@QueryParam("requestState") String requestState,
                                             @QueryParam("requestType") String requestType,
                                             @QueryParam("clientKeyID") String clientKeyID,
@@ -52,14 +50,11 @@ public interface KeyRequestResource {
 
     @POST
     @ClientResponseType(entityType=KeyRequestResponse.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     public Response createRequest(MultivaluedMap<String, String> form);
 
     @POST
     @ClientResponseType(entityType=KeyRequestResponse.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response createRequest(ResourceMessage data);
 
     /**
@@ -68,7 +63,6 @@ public interface KeyRequestResource {
     @GET
     @Path("{id}")
     @ClientResponseType(entityType=KeyRequestInfo.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getRequestInfo(@PathParam("id") RequestId id);
 
     @POST

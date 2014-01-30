@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.profile;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -45,7 +42,6 @@ public interface ProfileMappingResource {
 
     @GET
     @ClientResponseType(entityType=ProfileMappingCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findProfileMappings(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -53,22 +49,17 @@ public interface ProfileMappingResource {
     @GET
     @Path("{profileMappingID}")
     @ClientResponseType(entityType=ProfileMappingData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 
     @POST
     @ACLMapping("profile-mappings.add")
     @ClientResponseType(entityType=ProfileMappingData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response addProfileMapping(ProfileMappingData profileMappingData);
 
     @PUT
     @Path("{profileMappingID}")
     @ACLMapping("profile-mappings.modify")
     @ClientResponseType(entityType=ProfileMappingData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response updateProfileMapping(
             @PathParam("profileMappingID") String profileMappingID,
             ProfileMappingData profileMappingData);
@@ -77,8 +68,6 @@ public interface ProfileMappingResource {
     @Path("{profileMappingID}")
     @ACLMapping("profiles-mappings.approve")
     @ClientResponseType(entityType=ProfileMappingData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response changeProfileMappingStatus(
             @PathParam("profileMappingID") String profileMappingID,
             @QueryParam("action") String action);
@@ -87,6 +76,5 @@ public interface ProfileMappingResource {
     @Path("{profileMappingID}")
     @ClientResponseType(entityType=Void.class)
     @ACLMapping("profile-mappings.remove")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response removeProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 }

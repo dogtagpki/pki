@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -43,7 +40,6 @@ import com.netscape.certsrv.key.KeyData;
 public interface TPSConnectorResource {
     @GET
     @ClientResponseType(entityType=TPSConnectorCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findConnectors(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -51,27 +47,22 @@ public interface TPSConnectorResource {
     @GET
     @Path("{id}")
     @ClientResponseType(entityType=TPSConnectorData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getConnector(@PathParam("id") String id);
 
     @GET
     @Path("search")
     @ClientResponseType(entityType=TPSConnectorData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
 
     @POST
     @ClientResponseType(entityType=TPSConnectorData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response createConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
 
     @POST
     @Path("{id}")
     @ClientResponseType(entityType=TPSConnectorData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response modifyConnector(@PathParam("id") String id, TPSConnectorData data);
 
     @DELETE
@@ -83,14 +74,12 @@ public interface TPSConnectorResource {
     @Path("{id}/shared-secret")
     @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response createSharedSecret(@PathParam("id") String id);
 
     @PUT
     @Path("{id}/shared-secret")
     @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response replaceSharedSecret(@PathParam("id") String id);
 
     @DELETE
@@ -101,7 +90,6 @@ public interface TPSConnectorResource {
 
     @DELETE
     @ClientResponseType(entityType=Void.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response deleteConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
 
@@ -109,6 +97,5 @@ public interface TPSConnectorResource {
     @Path("{id}/shared-secret")
     @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getSharedSecret(@PathParam("id") String id);
 }

@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tps.authenticator;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -45,7 +42,6 @@ public interface AuthenticatorResource {
 
     @GET
     @ClientResponseType(entityType=AuthenticatorCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findAuthenticators(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -53,22 +49,17 @@ public interface AuthenticatorResource {
     @GET
     @Path("{authenticatorID}")
     @ClientResponseType(entityType=AuthenticatorData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 
     @POST
     @ACLMapping("authenticators.add")
     @ClientResponseType(entityType=AuthenticatorData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response addAuthenticator(AuthenticatorData authenticatorData);
 
     @PUT
     @Path("{authenticatorID}")
     @ACLMapping("authenticators.modify")
     @ClientResponseType(entityType=AuthenticatorData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response updateAuthenticator(
             @PathParam("authenticatorID") String authenticatorID,
             AuthenticatorData authenticatorData);
@@ -77,8 +68,6 @@ public interface AuthenticatorResource {
     @Path("{authenticatorID}")
     @ACLMapping("authenticators.approve")
     @ClientResponseType(entityType=AuthenticatorData.class)
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response changeAuthenticatorStatus(
             @PathParam("authenticatorID") String authenticatorID,
             @QueryParam("action") String action);
@@ -87,6 +76,5 @@ public interface AuthenticatorResource {
     @Path("{authenticatorID}")
     @ClientResponseType(entityType=Void.class)
     @ACLMapping("authenticators.remove")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response removeAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 }

@@ -20,9 +20,7 @@ package com.netscape.certsrv.tps.cert;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -36,7 +34,6 @@ public interface TPSCertResource {
 
     @GET
     @ClientResponseType(entityType=TPSCertCollection.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response findCerts(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -44,6 +41,5 @@ public interface TPSCertResource {
     @GET
     @Path("{certID}")
     @ClientResponseType(entityType=TPSCertData.class)
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getCert(@PathParam("certID") String certID);
 }

@@ -19,9 +19,7 @@ package com.netscape.certsrv.system;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
@@ -34,7 +32,6 @@ public interface SecurityDomainResource {
 
     @GET
     @Path("installToken")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("securityDomain.installToken")
     @AuthMethodMapping("securityDomain.installToken")
     public InstallToken getInstallToken(
@@ -43,6 +40,5 @@ public interface SecurityDomainResource {
 
     @GET
     @Path("domainInfo")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public DomainInfo getDomainInfo();
 }
