@@ -47,3 +47,137 @@ generate_PKCS10()
         rlRun "$cmd" 0 "Creating PKCS10 request"
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+##############################
+#
+#Function Usage create_cert <Temporary NSS DB Directory> <NSS DB Directory Password> <pkcs10/crmf> <rsa/ec> <cn> <uid> <email> 
+#<organizationalUnit> <organization> <country> <profilename> <request status> <requestid>
+#
+#TODO: Currently we have implemented only for caUserCert profile, Need to extend for other profiles
+#CRMF Request needs to be generated
+#############################
+create_cert_request()
+{
+local dir=$1
+local password=$2
+local request_type=$3
+local algo=$4
+local key_size=$5
+local cn="$6"
+local uid="$7"
+local email="$8"
+local ou="$9"
+local organization="${10}"
+local country="${11}"
+local profilename="${12}"
+local request_status="${13}"
+local request_id="${14}"
+local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
+
+#### First we create  NSS Database
+
+	if [ -d "$dir" ]
+	then
+		rlLog "$dir Directory exists"
+	else
+		rlLog "Creating Security Database"
+		rlRun "pki -d $dir -c $password client-init" 0 "Initializing Security Database"
+
+		RETVAL=$?
+		if  [ $RETVAL != 0 ]; then
+		  rlLog "FAIL :: NSS Database was not created"
+		fi
+	fi
+
+### Construct Subject based on $6,$7,$8,$9,$10,$11
+
+	if [ "$cn" == "--" ]; then
+		cn="pkiuser$rand"
+	fi
+	if [ "$uid" == "--" ]; then
+	        uid=$cn
+	fi
+	if [ "$email" == "--" ]; then
+	        email="$cn@example.org"
+	fi
+	if [ "$ou" == "--" ]; then
+	        ou="Engineering"
+	fi
+	if [ "$organization" == "--" ]; then
+	        organization="Example.Inc"
+	fi
+	if [ "$country" == "--" ]; then
+	        country="US"
+	fi
+	if [ "$profilename" == "--" ]; then
+		profilename=caUserCert
+	fi
+#### Generate request
+
+	local cert_request_file="cert-request-$rand.pem"
+	local $cert_request_file-sumbit.out
+
+	subject="CN=$cn,UID=$uid,E=$email,OU=$ou,O=$organization,C=$country"
+
+	rlLog "Generating PKCS10 Request for $subject"
+	rlRun "PKCS10Client -p $password -d $dir -a $algo -l $key_size -o $dir/$cert_request_file -n \"$subject\""
+	RETVAL=$?
+	if [ $RETVAL != 0 ]; then
+        rlLog "Create of PKCS10 Request failed for $subject"
+	fi
+
+#### Strip  headers from request
+
+	rlLog "Stripping headers from the $cert_request_file"
+	rlRun "sed -e '/-----BEGIN NEW CERTIFICATE REQUEST-----/d' -i $dir/$cert_request_file"
+	rlRun "sed -e '/-----END NEW CERTIFICATE REQUEST-----/d' -i $dir/$cert_request_file"
+	
+### use dos2unix to convert the request to unix format 
+
+	rlLog "Converting $cert_request_file to unix format to strip CRLF lines"
+	rlRun "dos2unix $dir/$cert_request_file" 0 
+	RETVAL=$?
+	if [ $RETVAL != 0 ]; then
+		rlLog "FAIL :: Convert to UNIX format failed"
+	fi
+
+### Get the xml profile from the argument "profliename", in future, we have implement this with switch case. so that it can be extended to other profiles.
+	
+	local xml_profile_file=$dir/$cert_request_file_$profilename.xml
+
+	rlLog "Getting the $profilename XML file to submit the request"
+
+	rlRun "pki -d $dir -c $password cert-request-profile-show $profilename --output $xml_profile_file"
+	pid=$!
+	wait=$pid
+	if [ $? != 0 ]; then
+		rlLog "FAIL :: We have some problem getting $profile xml"
+	fi 
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v 'pkcs10' $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $dir/$cert_request_file)\" $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v $uid $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_e']/Value\" -v $email $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_cn']/Value\" -v \"$cn\" $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_ou']/Value\" -v $ou $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_o']/Value\" -v "$organization" $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_c']/Value\" -v "$country" $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$cn\" $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v $email $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
+
+#### submit the request to CA 
+
+	rlLog "Submit PKCS10 Request to CA"
+	rlRun "pki cert-request-submit $xml_profile_file >> $dir/$cert_request_file-sumbit.out" 0 "Submit Request"
+	RETVAL=$?
+        if [ $RETVAL != 0 ]; then
+                rlLog "We have some problem getting $profile xml"
+        fi
+
+	local REQUEST_SUBMIT_STATUS=`cat $dir/$cert_request_file-sumbit.out | grep "Operation Result" | awk -F ": " '{print $2}'`
+	eval $request_status="$REQUEST_SUBMIT_STATUS"
+	rlLog "Certificate Request was $request_status"
+	local REQUEST_ID=`cat $dir/$cert_request_file-sumbit.out  | grep "Request ID" | awk -F ": " '{print $2}'`
+	eval $request_id="$REQUEST_ID"		
+	rlLog "Request id : $request_id"
+}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
