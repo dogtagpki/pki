@@ -1,4 +1,4 @@
-package com.netscape.certsrv.key;
+package com.netscape.certsrv.base;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -15,6 +15,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -24,29 +25,30 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 /**
  * @author Ade Lee
  */
-public class KeyRequest {
+@XmlRootElement(name="ResourceMessage")
+public class ResourceMessage {
 
-    Map<String, String> properties = new LinkedHashMap<String, String>();
+    protected Map<String, String> properties = new LinkedHashMap<String, String>();
     Link link;
-    String requestType;
+    String className;
 
-    public KeyRequest() {
+    public ResourceMessage() {
         // required for jax-b
     }
 
-    public KeyRequest(MultivaluedMap<String, String> form) {
+    public ResourceMessage(MultivaluedMap<String, String> form) {
         for (Map.Entry<String, List<String>> entry: form.entrySet()) {
             properties.put(entry.getKey(), entry.getValue().get(0));
         }
     }
 
-    @XmlElement(name = "RequestType")
-    public String getRequestType() {
-        return requestType;
+    @XmlElement(name = "ClassName")
+    public String getClassName() {
+        return className;
     }
 
-    public void setRequestType(String requestType) {
-        this.requestType = requestType;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     @XmlElement(name = "Properties")
@@ -127,7 +129,7 @@ public class KeyRequest {
         int result = 1;
         result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-        result = prime * result + ((requestType == null) ? 0 : requestType.hashCode());
+        result = prime * result + ((className == null) ? 0 : className.hashCode());
         return result;
     }
 
@@ -139,7 +141,7 @@ public class KeyRequest {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        KeyRequest other = (KeyRequest) obj;
+        ResourceMessage other = (ResourceMessage) obj;
         if (link == null) {
             if (other.link != null)
                 return false;
@@ -150,10 +152,10 @@ public class KeyRequest {
                 return false;
         } else if (!properties.equals(other.properties))
             return false;
-        if (requestType == null) {
-            if (other.requestType != null)
+        if (className == null) {
+            if (other.className != null)
                 return false;
-        } else if (!requestType.equals(other.requestType))
+        } else if (!className.equals(other.className))
             return false;
         return true;
     }

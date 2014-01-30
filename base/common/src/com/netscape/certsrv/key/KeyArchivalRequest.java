@@ -26,13 +26,15 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.netscape.certsrv.base.ResourceMessage;
+
 /**
  * @author alee
  *
  */
 @XmlRootElement(name="KeyArchivalRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyArchivalRequest extends KeyRequest {
+public class KeyArchivalRequest extends ResourceMessage {
 
     private static final String CLIENT_ID = "clientID";
     private static final String DATA_TYPE = "dataType";
@@ -40,12 +42,19 @@ public class KeyArchivalRequest extends KeyRequest {
 
     public KeyArchivalRequest() {
         // required for JAXB (defaults)
+        setClassName(getClass().getName());
     }
 
     public KeyArchivalRequest(MultivaluedMap<String, String> form) {
-        this.properties.put(CLIENT_ID, form.getFirst(CLIENT_ID));
-        this.properties.put(DATA_TYPE, form.getFirst(DATA_TYPE));
-        this.properties.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
+        properties.put(CLIENT_ID, form.getFirst(CLIENT_ID));
+        properties.put(DATA_TYPE, form.getFirst(DATA_TYPE));
+        properties.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
+        setClassName(getClass().getName());
+    }
+
+    public KeyArchivalRequest(ResourceMessage data) {
+        properties.putAll(data.getProperties());
+        setClassName(getClass().getName());
     }
 
     /**
@@ -59,40 +68,40 @@ public class KeyArchivalRequest extends KeyRequest {
      * @param clientId the clientId to set
      */
     public void setClientId(String clientId) {
-        this.properties.put(CLIENT_ID, clientId);
+        properties.put(CLIENT_ID, clientId);
     }
 
     /**
      * @return the dataType
      */
     public String getDataType() {
-        return this.properties.get(DATA_TYPE);
+        return properties.get(DATA_TYPE);
     }
 
     /**
      * @param dataType the dataType to set
      */
     public void setDataType(String dataType) {
-        this.properties.put(DATA_TYPE, dataType);
+        properties.put(DATA_TYPE, dataType);
     }
 
     /**
      * @return the wrappedPrivateData
      */
     public String getWrappedPrivateData() {
-        return this.properties.get(WRAPPED_PRIVATE_DATA);
+        return properties.get(WRAPPED_PRIVATE_DATA);
     }
 
     /**
      * @param wrappedPrivateData the wrappedPrivateData to set
      */
     public void setWrappedPrivateData(String wrappedPrivateData) {
-        this.properties.put(WRAPPED_PRIVATE_DATA, wrappedPrivateData);
+        properties.put(WRAPPED_PRIVATE_DATA, wrappedPrivateData);
     }
 
     public String toString() {
         try {
-            return KeyRequest.marshal(this, KeyArchivalRequest.class);
+            return ResourceMessage.marshal(this, KeyArchivalRequest.class);
         } catch (Exception e) {
             return super.toString();
         }
@@ -100,7 +109,7 @@ public class KeyArchivalRequest extends KeyRequest {
 
     public static KeyArchivalRequest valueOf(String string) throws Exception {
         try {
-            return KeyRequest.unmarshal(string, KeyArchivalRequest.class);
+            return ResourceMessage.unmarshal(string, KeyArchivalRequest.class);
         } catch (Exception e) {
             return null;
         }
@@ -111,7 +120,6 @@ public class KeyArchivalRequest extends KeyRequest {
         KeyArchivalRequest before = new KeyArchivalRequest();
         before.setClientId("vek 12345");
         before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
-        before.setRequestType(KeyRequestResource.ARCHIVAL_REQUEST);
         before.setWrappedPrivateData("XXXXABCDEFXXX");
 
         String string = before.toString();

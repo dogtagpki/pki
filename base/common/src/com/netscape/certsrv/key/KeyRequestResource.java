@@ -15,6 +15,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.request.RequestId;
 
 @Path("agent/keyrequests")
@@ -26,11 +27,6 @@ public interface KeyRequestResource {
     public static final String SYMMETRIC_KEY_TYPE = "symmetricKey";
     public static final String PASS_PHRASE_TYPE = "passPhrase";
     public static final String ASYMMETRIC_KEY_TYPE = "asymmetricKey";
-
-    /* Request types */
-    public static final String ARCHIVAL_REQUEST = "archival";
-    public static final String KEY_GENERATION_REQUEST = "keygen";
-    public static final String RECOVERY_REQUEST = "recovery";
 
     /**
      * Used to generate list of key requests based on the search parameters
@@ -55,7 +51,7 @@ public interface KeyRequestResource {
     @ClientResponseType(entityType=KeyRequestInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Response createRequest(KeyRequest data);
+    public Response createRequest(ResourceMessage data);
 
     /**
      * Used to retrieve key request info for a specific request

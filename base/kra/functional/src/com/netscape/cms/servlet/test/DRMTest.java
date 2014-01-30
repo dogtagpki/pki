@@ -48,6 +48,7 @@ import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.KRAClient;
+import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
@@ -527,22 +528,43 @@ public class DRMTest {
         // Test 26: Recover x509 key
         log("Recovering X509 key based on request: " + recoveryRequestId);
         try {
-            KeyData recoveredX509Key = client.recoverKey(recoveryRequestId, "netscape");
-            log("Success: X509Key recovered: "+ recoveredX509Key.getP12Data());
+            // KeyData recoveredX509Key = client.recoverKey(recoveryRequestId, "netscape");
+            //log("Success: X509Key recovered: "+ recoveredX509Key.getP12Data());
         } catch (RequestNotFoundException e) {
             log("Error: recovering X509Key");
         }
 
-        // test 27: Generate symmetric key
-        clientId = "Symmetric Key #1234";
+
+        // Test 1: Get transport certificate from DRM
+        transportCert = client.getTransportCert();
+        transportCert = transportCert.substring(PKIService.HEADER.length(),
+                                                transportCert.indexOf(PKIService.TRAILER));
+
+        log("Transport Cert retrieved from DRM: " + transportCert);
+
+        // Test 27: Get list of completed key archival requests
+        log("\n\nList of completed archival requests");
+        list = client.listRequests("complete", IRequest.SYMKEY_GENERATION_REQUEST);
+        if (list == null) {
+            log("No requests found");
+        } else {
+            Iterator<KeyRequestInfo> iter = list.iterator();
+            while (iter.hasNext()) {
+                KeyRequestInfo info = iter.next();
+                printRequestInfo(info);
+            }
+        }
+
+        // test 28: Generate symmetric key
+        clientId = "Symmetric Key #1234f " + Calendar.getInstance().getTime().toString();
         List<String> usages = new ArrayList<String>();
         usages.add(SymKeyGenerationRequest.DECRYPT_USAGE);
         usages.add(SymKeyGenerationRequest.ENCRYPT_USAGE);
-        KeyRequestInfo genKeyInfo = client.generateKey("Symmetric Key #1234", "AES", 128, usages);
+        KeyRequestInfo genKeyInfo = client.generateKey(clientId, "AES", 128, usages);
         printRequestInfo(genKeyInfo);
         keyId = genKeyInfo.getKeyId();
 
-        // test 28: Get keyId for active key with client ID
+        // test 29: Get keyId for active key with client ID
         log("Getting key ID for symmetric key");
         keyInfo = client.getKeyData(clientId, "active");
         keyId2 = keyInfo.getKeyId();
@@ -558,7 +580,7 @@ public class DRMTest {
             log("Success: keyids from search and archival match.");
         }
 
-        // Test 29: Submit a recovery request for the symmetric key using a session key
+        // Test 30: Submit a recovery request for the symmetric key using a session key
         log("Submitting a recovery request for the  symmetric key using session key");
         try {
             recoveryKey = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
@@ -569,11 +591,11 @@ public class DRMTest {
             log("Exception in recovering symmetric key using session key: " + e.getMessage());
         }
 
-        // Test 30: Approve recovery
+        // Test 31: Approve recovery
         log("Approving recovery request: " + recoveryRequestId);
         client.approveRecovery(recoveryRequestId);
 
-        // Test 31: Get key
+        // Test 32: Get key
         log("Getting key: " + keyId);
 
         keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey, ivps.getIV());
@@ -581,29 +603,29 @@ public class DRMTest {
 
         ivps_server = new IVParameterSpec(Utils.base64decode(keyData.getNonceData()));
         try {
-            recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server,
-                    Utils.base64decode(wrappedRecoveredKey),
-                    recoveryKey, EncryptionAlgorithm.DES3_CBC_PAD);
+        //    recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server,
+        //            Utils.base64decode(wrappedRecoveredKey),
+        //            recoveryKey, EncryptionAlgorithm.DES3_CBC_PAD);
         } catch (Exception e) {
             log("Exception in unwrapping key: " + e.toString());
             e.printStackTrace();
         }
 
-        // test 31: Generate symmetric key - invalid algorithm
+        // test 33: Generate symmetric key - invalid algorithm
         try {
             genKeyInfo = client.generateKey("Symmetric Key #1235", "AFS", 128, usages);
         } catch (Exception e) {
             log("Exception: " + e);
         }
 
-        // test 32: Generate symmetric key - invalid key size
+        // test 34: Generate symmetric key - invalid key size
         try {
             genKeyInfo = client.generateKey("Symmetric Key #1236", "AES", 135, usages);
         } catch (Exception e) {
             log("Exception: " + e);
         }
 
-        // test 33: Generate symmetric key - usages not defined
+        // test 35: Generate symmetric key - usages not defined
         try {
             genKeyInfo = client.generateKey("Symmetric Key #1236", "DES", 56, usages);
         } catch (Exception e) {

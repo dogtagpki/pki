@@ -19,6 +19,7 @@ package com.netscape.kra;
 
 import java.io.CharConversionException;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +36,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
@@ -153,15 +155,19 @@ public class SymKeyGenService implements IService {
             KeyGenerator kg = token.getKeyGenerator(kgAlg);
             kg.setKeyUsages(keyUsages);
             kg.temporaryKeys(true);
+            if (kgAlg == KeyGenAlgorithm.AES || kgAlg == KeyGenAlgorithm.RC4
+                    || kgAlg == KeyGenAlgorithm.RC2) {
+                kg.initialize(keySize);
+            }
             sk = kg.generate();
             CMS.debug("SymKeyGenService:wrap() session key generated on slot: " + token.getName());
-        } catch (TokenException | IllegalStateException | CharConversionException | NoSuchAlgorithmException e) {
+        } catch (TokenException | IllegalStateException | CharConversionException | NoSuchAlgorithmException
+                | InvalidAlgorithmParameterException e) {
+            CMS.debugStackTrace();
             auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
                     clientId, null, "Failed to generate symmetric key");
             throw new EBaseException("Errors in generating symmetric key: " + e);
         }
-
-        String keyType = null;
 
         byte[] publicKey = null;
         byte privateSecurityData[] = null;
@@ -200,7 +206,7 @@ public class SymKeyGenService implements IService {
         }
 
         rec.set(KeyRecord.ATTR_ID, serialNo);
-        rec.set(KeyRecord.ATTR_DATA_TYPE, keyType);
+        rec.set(KeyRecord.ATTR_DATA_TYPE, KeyRequestResource.SYMMETRIC_KEY_TYPE);
         rec.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
         request.setExtData(ATTR_KEY_RECORD, serialNo);
 

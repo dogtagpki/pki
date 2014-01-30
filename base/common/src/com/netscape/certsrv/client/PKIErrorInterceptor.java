@@ -48,7 +48,7 @@ public class PKIErrorInterceptor implements ClientErrorInterceptor {
             // https://issues.jboss.org/browse/RESTEASY-652
             PKIException.Data data = response.getEntity(PKIException.Data.class);
 
-            Class<?> clazz = Class.forName(data.className);
+            Class<?> clazz = Class.forName(data.getClassName());
             exception = (PKIException) clazz.getConstructor(PKIException.Data.class).newInstance(data);
 
         } catch (Exception e) {

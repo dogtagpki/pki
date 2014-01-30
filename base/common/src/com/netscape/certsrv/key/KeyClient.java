@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
 
 import org.jboss.resteasy.client.ClientResponse;
 
+import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.request.RequestId;
@@ -70,7 +71,7 @@ public class KeyClient extends Client {
                 maxTime);
     }
 
-    public KeyRequestInfo createRequest(KeyRequest data) {
+    public KeyRequestInfo createRequest(ResourceMessage data) {
         @SuppressWarnings("unchecked")
         ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>) keyRequestClient.createRequest(data);
         return response.getEntity();

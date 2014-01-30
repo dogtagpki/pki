@@ -14,13 +14,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 
+import com.netscape.certsrv.base.ResourceMessage;
+
 /**
  * @author alee
  *
  */
 @XmlRootElement(name="SymKeyGenerationRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SymKeyGenerationRequest extends KeyRequest {
+public class SymKeyGenerationRequest extends ResourceMessage {
 
     private static final String CLIENT_ID = "clientID";
     private static final String KEY_SIZE = "keySize";
@@ -55,7 +57,7 @@ public class SymKeyGenerationRequest extends KeyRequest {
     }
 
     public void setUsages(List<String> usages) {
-        this.properties.put(KEY_USAGE, StringUtils.join(usages, ","));
+        properties.put(KEY_USAGE, StringUtils.join(usages, ","));
     }
 
     public void addUsage(String usage) {
@@ -69,18 +71,25 @@ public class SymKeyGenerationRequest extends KeyRequest {
 
     public SymKeyGenerationRequest() {
         // required for JAXB (defaults)
+        setClassName(getClass().getName());
     }
 
     public SymKeyGenerationRequest(MultivaluedMap<String, String> form) {
-        this.properties.put(CLIENT_ID, form.getFirst(CLIENT_ID));
-        this.properties.put(KEY_SIZE, form.getFirst(KEY_SIZE));
-        this.properties.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
-        this.properties.put(KEY_USAGE, form.getFirst(KEY_USAGE));
+        properties.put(CLIENT_ID, form.getFirst(CLIENT_ID));
+        properties.put(KEY_SIZE, form.getFirst(KEY_SIZE));
+        properties.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
+        properties.put(KEY_USAGE, form.getFirst(KEY_USAGE));
 
         String usageString = properties.get(KEY_USAGE);
         if (! StringUtils.isBlank(usageString)) {
             setUsages(new ArrayList<String>(Arrays.asList(usageString.split(","))));
         }
+        setClassName(getClass().getName());
+    }
+
+    public SymKeyGenerationRequest(ResourceMessage data) {
+        properties.putAll(data.getProperties());
+        setClassName(getClass().getName());
     }
 
     /**
@@ -94,40 +103,40 @@ public class SymKeyGenerationRequest extends KeyRequest {
      * @param clientId the clientId to set
      */
     public void setClientId(String clientId) {
-        this.properties.put(CLIENT_ID, clientId);
+        properties.put(CLIENT_ID, clientId);
     }
 
     /**
      * @return the keySize
      */
     public int getKeySize() {
-        return Integer.parseInt(this.properties.get(KEY_SIZE));
+        return Integer.parseInt(properties.get(KEY_SIZE));
     }
 
     /**
      * @param keySize the key size to set
      */
     public void setKeySize(int keySize) {
-        this.properties.put(KEY_SIZE, Integer.toString(keySize));
+        properties.put(KEY_SIZE, Integer.toString(keySize));
     }
 
     /**
      * @return the keyAlgorithm
      */
     public String getKeyAlgorithm() {
-        return this.properties.get(KEY_ALGORITHM);
+        return properties.get(KEY_ALGORITHM);
     }
 
     /**
      * @param keyAlgorithm the key algorithm to set
      */
     public void setKeyAlgorithm(String keyAlgorithm) {
-        this.properties.put(KEY_ALGORITHM, keyAlgorithm);
+        properties.put(KEY_ALGORITHM, keyAlgorithm);
     }
 
     public String toString() {
         try {
-            return KeyRequest.marshal(this, SymKeyGenerationRequest.class);
+            return ResourceMessage.marshal(this, SymKeyGenerationRequest.class);
         } catch (Exception e) {
             return super.toString();
         }
@@ -135,7 +144,7 @@ public class SymKeyGenerationRequest extends KeyRequest {
 
     public static SymKeyGenerationRequest valueOf(String string) throws Exception {
         try {
-            return KeyRequest.unmarshal(string, SymKeyGenerationRequest.class);
+            return ResourceMessage.unmarshal(string, SymKeyGenerationRequest.class);
         } catch (Exception e) {
             return null;
         }
@@ -147,7 +156,6 @@ public class SymKeyGenerationRequest extends KeyRequest {
         before.setClientId("vek 12345");
         before.setKeyAlgorithm("AES");
         before.setKeySize(128);
-        before.setRequestType(KeyRequestResource.KEY_GENERATION_REQUEST);
         before.addUsage(SymKeyGenerationRequest.DECRYPT_USAGE);
         before.addUsage(SymKeyGenerationRequest.ENCRYPT_USAGE);
         before.addUsage(SymKeyGenerationRequest.SIGN_USAGE);

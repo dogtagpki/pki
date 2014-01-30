@@ -18,6 +18,7 @@
 
 package com.netscape.cms.servlet.request;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,10 +39,10 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
-import com.netscape.certsrv.key.KeyRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -379,22 +380,29 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
     @Override
     public Response createRequest(MultivaluedMap<String, String> form) {
-        KeyRequest data = new KeyRequest(form);
+        ResourceMessage data = new ResourceMessage(form);
         return createRequest(data);
     }
 
     @Override
-    public Response createRequest(KeyRequest data) {
-        String requestType = data.getRequestType();
-        switch(requestType) {
-        case KeyRequestResource.ARCHIVAL_REQUEST:
-            return archiveKey((KeyArchivalRequest) data);
-        case KeyRequestResource.RECOVERY_REQUEST:
-            return recoverKey((KeyRecoveryRequest) data);
-        case KeyRequestResource.KEY_GENERATION_REQUEST:
-            return generateSymKey((SymKeyGenerationRequest) data);
-        default:
-            throw new BadRequestException("Invalid request");
+    public Response createRequest(ResourceMessage data) {
+        Object request = null;
+        try {
+            Class<?> requestClazz = Class.forName(data.getClassName());
+            request = requestClazz.getDeclaredConstructor(ResourceMessage.class).newInstance(data);
+        } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException
+                | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new BadRequestException("Invalid request class." + e);
+        }
+
+        if (request instanceof KeyArchivalRequest) {
+            return archiveKey(new KeyArchivalRequest(data));
+        } else if (request instanceof KeyRecoveryRequest) {
+            return recoverKey(new KeyRecoveryRequest(data));
+        } else if (request instanceof SymKeyGenerationRequest) {
+            return generateSymKey(new SymKeyGenerationRequest(data));
+        } else {
+            throw new BadRequestException("Invalid request class.");
         }
     }
 
@@ -419,5 +427,5 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
             throw new PKIException(e.toString());
         }
-    }
+ }
 }

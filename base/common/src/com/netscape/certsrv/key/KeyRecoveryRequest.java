@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
 
@@ -35,7 +36,7 @@ import com.netscape.certsrv.request.RequestId;
  */
 @XmlRootElement(name="KeyRecoveryRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyRecoveryRequest extends KeyRequest {
+public class KeyRecoveryRequest extends ResourceMessage {
 
     private static final String KEY_ID = "keyId";
     private static final String REQUEST_ID = "requestId";
@@ -47,77 +48,83 @@ public class KeyRecoveryRequest extends KeyRequest {
 
     public KeyRecoveryRequest() {
         // required for JAXB (defaults)
+        setClassName(getClass().getName());
     }
 
     public KeyRecoveryRequest(MultivaluedMap<String, String> form) {
         if (form.containsKey(KEY_ID)) {
-            this.properties.put(KEY_ID, form.getFirst(KEY_ID));
+            properties.put(KEY_ID, form.getFirst(KEY_ID));
         }
         if (form.containsKey(REQUEST_ID)) {
-            this.properties.put(REQUEST_ID, form.getFirst(REQUEST_ID));
+            properties.put(REQUEST_ID, form.getFirst(REQUEST_ID));
         }
-        this.properties.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
-        this.properties.put(SESSION_WRAPPED_PASSPHRASE, form.getFirst(SESSION_WRAPPED_PASSPHRASE));
-        this.properties.put(NONCE_DATA, form.getFirst(NONCE_DATA));
-        this.properties.put(CERTIFICATE, form.getFirst(CERTIFICATE));
-        this.properties.put(PASSPHRASE, form.getFirst(PASSPHRASE));
+        properties.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
+        properties.put(SESSION_WRAPPED_PASSPHRASE, form.getFirst(SESSION_WRAPPED_PASSPHRASE));
+        properties.put(NONCE_DATA, form.getFirst(NONCE_DATA));
+        properties.put(CERTIFICATE, form.getFirst(CERTIFICATE));
+        properties.put(PASSPHRASE, form.getFirst(PASSPHRASE));
+        setClassName(getClass().getName());
+    }
 
+    public KeyRecoveryRequest(ResourceMessage data) {
+        properties.putAll(data.getProperties());
+        setClassName(getClass().getName());
     }
 
     /**
      * @return the keyId
      */
     public KeyId getKeyId() {
-        return new KeyId(this.properties.get(KEY_ID));
+        return new KeyId(properties.get(KEY_ID));
     }
 
     /**
      * @param keyId the keyId to set
      */
     public void setKeyId(KeyId keyId) {
-        this.properties.put(KEY_ID, keyId.toString());
+        properties.put(KEY_ID, keyId.toString());
     }
 
     /**
      * @return the requestId
      */
     public RequestId getRequestId() {
-        return new RequestId(this.properties.get(REQUEST_ID));
+        return new RequestId(properties.get(REQUEST_ID));
     }
 
     /**
      * @param requestId the requestId to set
      */
     public void setRequestId(RequestId requestId) {
-        this.properties.put(REQUEST_ID, requestId.toString());
+        properties.put(REQUEST_ID, requestId.toString());
     }
 
     /**
      * @return the transWrappedSessionKey
      */
     public String getTransWrappedSessionKey() {
-        return this.properties.get(TRANS_WRAPPED_SESSION_KEY);
+        return properties.get(TRANS_WRAPPED_SESSION_KEY);
     }
 
     /**
      * @param transWrappedSessionKey the transWrappedSessionKey to set
      */
     public void setTransWrappedSessionKey(String transWrappedSessionKey) {
-        this.properties.put(TRANS_WRAPPED_SESSION_KEY, transWrappedSessionKey);
+        properties.put(TRANS_WRAPPED_SESSION_KEY, transWrappedSessionKey);
     }
 
     /**
      * @return the sessionWrappedPassphrase
      */
     public String getSessionWrappedPassphrase() {
-        return this.properties.get(SESSION_WRAPPED_PASSPHRASE);
+        return properties.get(SESSION_WRAPPED_PASSPHRASE);
     }
 
     /**
      * @param sessionWrappedPassphrase the sessionWrappedPassphrase to set
      */
     public void setSessionWrappedPassphrase(String sessionWrappedPassphrase) {
-        this.properties.put(SESSION_WRAPPED_PASSPHRASE, sessionWrappedPassphrase);
+        properties.put(SESSION_WRAPPED_PASSPHRASE, sessionWrappedPassphrase);
     }
 
     /**
@@ -125,7 +132,7 @@ public class KeyRecoveryRequest extends KeyRequest {
      */
 
     public String getNonceData() {
-        return this.properties.get(NONCE_DATA);
+        return properties.get(NONCE_DATA);
     }
 
     /**
@@ -133,41 +140,41 @@ public class KeyRecoveryRequest extends KeyRequest {
      */
 
     public void setNonceData(String nonceData) {
-        this.properties.put(NONCE_DATA, nonceData);
+        properties.put(NONCE_DATA, nonceData);
     }
 
     /**
      * @return the certificate
      */
     public String getCertificate() {
-        return this.properties.get(CERTIFICATE);
+        return properties.get(CERTIFICATE);
     }
 
     /**
      * @param certificate the certificate to set
      */
     public void setCertificate(String certificate) {
-        this.properties.put(CERTIFICATE, certificate);
+        properties.put(CERTIFICATE, certificate);
     }
 
     /**
      * @return the passphrase
      */
     public String getPassphrase() {
-        return this.properties.get(PASSPHRASE);
+        return properties.get(PASSPHRASE);
     }
 
     /**
      * @param passphrase the passphrase to set
      */
     public void setPassphrase(String passphrase) {
-        this.properties.put(PASSPHRASE, passphrase);
+        properties.put(PASSPHRASE, passphrase);
     }
 
 
     public static KeyRecoveryRequest valueOf(String string) throws Exception {
         try {
-            return KeyRequest.unmarshal(string, KeyRecoveryRequest.class);
+            return ResourceMessage.unmarshal(string, KeyRecoveryRequest.class);
         } catch (Exception e) {
             return null;
         }
@@ -175,7 +182,7 @@ public class KeyRecoveryRequest extends KeyRequest {
 
     public String toString() {
         try {
-            return KeyRequest.marshal(this, KeyRecoveryRequest.class);
+            return ResourceMessage.marshal(this, KeyRecoveryRequest.class);
         } catch (Exception e) {
             return super.toString();
         }
@@ -191,7 +198,6 @@ public class KeyRecoveryRequest extends KeyRequest {
         before.setCertificate("123ABCAAAA");
         before.setSessionWrappedPassphrase("XXXXXXXX1234");
         before.setTransWrappedSessionKey("124355AAA");
-        before.setRequestType(KeyRequestResource.RECOVERY_REQUEST);
 
         String string = before.toString();
         System.out.println(string);

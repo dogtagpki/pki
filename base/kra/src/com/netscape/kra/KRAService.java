@@ -49,6 +49,7 @@ public class KRAService implements IService {
     public final static String NETKEY_KEYRECOVERY = IRequest.NETKEY_KEYRECOVERY_REQUEST;
     public final static String SECURITY_DATA_ENROLLMENT = IRequest.SECURITY_DATA_ENROLLMENT_REQUEST;
     public final static String SECURITY_DATA_RECOVERY = IRequest.SECURITY_DATA_RECOVERY_REQUEST;
+    public final static String SYMKEY_GENERATION = IRequest.SYMKEY_GENERATION_REQUEST;
 
 
     // private variables
@@ -66,6 +67,7 @@ public class KRAService implements IService {
         mServices.put(NETKEY_KEYRECOVERY, new TokenKeyRecoveryService(kra));
         mServices.put(SECURITY_DATA_ENROLLMENT, new SecurityDataService(kra));
         mServices.put(SECURITY_DATA_RECOVERY, new SecurityDataRecoveryService(kra));
+        mServices.put(SYMKEY_GENERATION, new SymKeyGenService(kra));
     }
 
     /**

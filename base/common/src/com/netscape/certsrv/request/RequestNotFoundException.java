@@ -24,12 +24,12 @@ public class RequestNotFoundException extends ResourceNotFoundException {
 
     public RequestNotFoundException(Data data) {
         super(data);
-        requestId = new RequestId(data.getAttribute("requestId"));
+        requestId = new RequestId(data.getProperty("requestId"));
     }
 
     public Data getData() {
         Data data = super.getData();
-        data.setAttribute("requestId", requestId.toString());
+        data.setProperty("requestId", requestId.toString());
         return data;
     }
 

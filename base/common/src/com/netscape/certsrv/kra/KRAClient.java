@@ -76,7 +76,6 @@ public class KRAClient extends SubsystemClient {
         data.setWrappedPrivateData(req1);
         data.setClientId(clientId);
         data.setDataType(dataType);
-        data.setRequestType(KeyRequestResource.ARCHIVAL_REQUEST);
 
         @SuppressWarnings("unchecked")
         ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
@@ -113,7 +112,6 @@ public class KRAClient extends SubsystemClient {
         if (nonceData != null) {
             data.setNonceData(Utils.base64encode(nonceData));
         }
-        data.setRequestType(KeyRequestResource.RECOVERY_REQUEST);
 
         @SuppressWarnings("unchecked")
         ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
@@ -154,7 +152,6 @@ public class KRAClient extends SubsystemClient {
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(new KeyId(keyId));
         data.setCertificate(b64Certificate);
-        data.setRequestType(KeyRequestResource.RECOVERY_REQUEST);
 
         @SuppressWarnings("unchecked")
         ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
@@ -177,7 +174,6 @@ public class KRAClient extends SubsystemClient {
         data.setClientId(clientId);
         data.setKeyAlgorithm(keyAlgorithm);
         data.setKeySize(keySize);
-        data.setRequestType(KeyRequestResource.KEY_GENERATION_REQUEST);
         data.setUsages(usages);
 
         @SuppressWarnings("unchecked")

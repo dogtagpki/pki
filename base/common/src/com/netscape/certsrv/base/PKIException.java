@@ -17,23 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class PKIException extends RuntimeException {
 
@@ -93,64 +84,13 @@ public class PKIException extends RuntimeException {
     }
 
     @XmlRootElement(name="PKIException")
-    public static class Data {
-
-        @XmlElement(name="ClassName")
-        public String className;
+    public static class Data extends ResourceMessage{
 
         @XmlElement(name="Code")
         public int code;
 
         @XmlElement(name="Message")
         public String message;
-
-        @XmlElement(name="Attributes")
-        @XmlJavaTypeAdapter(MapAdapter.class)
-        public Map<String, String> attributes = new LinkedHashMap<String, String>();
-
-        public String getAttribute(String name) {
-            return attributes.get(name);
-        }
-
-        public void setAttribute(String name, String value) {
-            attributes.put(name, value);
-        }
-    }
-
-    public static class MapAdapter extends XmlAdapter<AttributeList, Map<String, String>> {
-
-        public AttributeList marshal(Map<String, String> map) {
-            AttributeList list = new AttributeList();
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                Attribute attribute = new Attribute();
-                attribute.name = entry.getKey();
-                attribute.value = entry.getValue();
-                list.attributes.add(attribute);
-            }
-            return list;
-        }
-
-        public Map<String, String> unmarshal(AttributeList list) {
-            Map<String, String> map = new LinkedHashMap<String, String>();
-            for (Attribute attribute : list.attributes) {
-                map.put(attribute.name, attribute.value);
-            }
-            return map;
-        }
-    }
-
-    public static class AttributeList {
-        @XmlElement(name="Attribute")
-        public List<Attribute> attributes = new ArrayList<Attribute>();
-    }
-
-    public static class Attribute {
-
-        @XmlAttribute
-        public String name;
-
-        @XmlValue
-        public String value;
     }
 
     @Provider
@@ -171,8 +111,8 @@ public class PKIException extends RuntimeException {
         data.className = PKIException.class.getName();
         data.code = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
         data.message = "An error has occured";
-        data.setAttribute("attr1", "value1");
-        data.setAttribute("attr2", "value2");
+        data.setProperty("attr1", "value1");
+        data.setProperty("attr2", "value2");
 
         JAXBContext context = JAXBContext.newInstance(Data.class);
         Marshaller marshaller = context.createMarshaller();
