@@ -424,3 +424,28 @@ makereport()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+#################################################################################
+#This functions is alternate of importP12File function,
+#importP12FileNew <P12FileLocation> <P12FilePassword> <nssdbDirectory> <nssdbPassword> <cert_nickname>
+#################################################################################
+importP12FileNew()                                                                                                                                                                            
+{                                                                                                                                                                                             
+        local cert_p12file=$1                                                                                                                                                                 
+        local p12file_password=$2                                                                                                                                                             
+        local nssdb_dir=$3                                                                                                                                                                    
+        local nss_db_password=$4                                                                                                                                                              
+        local cert_nickname=$5                                                                                                                                                                
+        rlLog "cert_p12file = $cert_p12file"                                                                                                                                                  
+        rlLog "nss_db_dir = $nssdb_dir"                                                                                                                                                       
+        rlRun "pki -d $nssdb_dir -c $nss_db_password client-init" 0                                                                                                                           
+        rlRun "pk12util -i $cert_p12file -d $nssdb_dir -K $nss_db_password -W $p12file_password"                                                                                              
+        if [ $? = 0 ]; then                                                                                                                                                                   
+                        rlPass "pk12util command executed successfully"                                                                                                                       
+                        rlRun "certutil -L -d $nssdb_dir | grep $cert_nickname" 0 "Verify certificate is installed"                                                                           
+                else                                                                                                                                                                          
+                        rlFail "ERROR: pk12util execution failed."                                                                                                                            
+                        rlFail "ERROR: Certificate is not installed in $nssdb_dir"                                                                                                            
+                        rc=1                                                                                                                                                                  
+                fi                                                                                                                                                                            
+        return $rc                                                                                                                                                                            
+}
