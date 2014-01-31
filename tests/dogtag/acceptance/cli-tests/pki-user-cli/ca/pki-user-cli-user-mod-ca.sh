@@ -304,7 +304,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-011:--state with maximum length and s
         fi
 	rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-012:--state with # character "
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-012:--state with # character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
