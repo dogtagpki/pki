@@ -1,0 +1,136 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2014 Red Hat, Inc.
+# All rights reserved.
+#
+
+import grp
+import os
+import pwd
+import re
+import subprocess
+
+import pki.server.upgrade
+
+
+class ReplaceJettisonWithJackson(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Replace Jettison with Jackson'
+
+    def upgrade_instance(self, instance):
+
+        # Tomcat common library
+        common_lib = os.path.join(instance.base_dir, 'common', 'lib')
+
+        # Tomcat user and group
+        registry_file = os.path.join(
+            pki.server.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
+
+        with open(registry_file, "r") as registry:
+            lines = registry.readlines()
+
+        for line in lines:
+            m = re.search('^PKI_USER=(.*)$', line)
+            if m:
+                user = m.group(1)
+            m = re.search('^PKI_GROUP=(.*)$', line)
+            if m:
+                group = m.group(1)
+
+        uid = pwd.getpwnam(user).pw_uid
+        gid = grp.getgrnam(group).gr_gid
+
+        # RESTEasy library
+        resteasy_lib = subprocess.check_output(
+            '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
+            shell=True)
+        # workaround for pylint error E1103
+        resteasy_lib = str(resteasy_lib).strip()
+
+        # remove old links
+        link = os.path.join(common_lib, 'jettison.jar')
+        self.remove_link(link)
+
+        link = os.path.join(common_lib, 'resteasy-jettison-provider.jar')
+        self.remove_link(link)
+
+        # create new links
+        source = os.path.join('/usr/share/java', 'jackson-annotations.jar')
+        link = os.path.join(common_lib, 'jackson-annotations.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java/jackson', 'jackson-core-asl.jar')
+        link = os.path.join(common_lib, 'jackson-core-asl.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java', 'jackson-core.jar')
+        link = os.path.join(common_lib, 'jackson-core.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java', 'jackson-databind.jar')
+        link = os.path.join(common_lib, 'jackson-databind.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java/jackson-jaxrs-providers', 'jackson-jaxrs-base.jar')
+        link = os.path.join(common_lib, 'jackson-jaxrs-base.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java/jackson', 'jackson-jaxrs.jar')
+        link = os.path.join(common_lib, 'jackson-jaxrs.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java/jackson-jaxrs-providers', 'jackson-jaxrs-json-provider.jar')
+        link = os.path.join(common_lib, 'jackson-jaxrs-json-provider.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java/jackson', 'jackson-mapper-asl.jar')
+        link = os.path.join(common_lib, 'jackson-mapper-asl.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java', 'jackson-module-jaxb-annotations.jar')
+        link = os.path.join(common_lib, 'jackson-module-jaxb-annotations.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java/jackson', 'jackson-mrbean.jar')
+        link = os.path.join(common_lib, 'jackson-mrbean.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java/jackson', 'jackson-smile.jar')
+        link = os.path.join(common_lib, 'jackson-smile.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join('/usr/share/java/jackson', 'jackson-xc.jar')
+        link = os.path.join(common_lib, 'jackson-xc.jar')
+        self.create_link(source, link, uid, gid)
+
+        source = os.path.join(resteasy_lib, 'resteasy-jackson-provider.jar')
+        link = os.path.join(common_lib, 'resteasy-jackson-provider.jar')
+        self.create_link(source, link, uid, gid)
+
+    def remove_link(self, link):
+
+        self.backup(link)
+        os.remove(link)
+
+    def create_link(self, source, link, uid, gid):
+
+        self.backup(link)
+        os.symlink(source, link)
+        os.lchown(link, uid, gid)
