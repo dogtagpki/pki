@@ -50,6 +50,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.cms.servlet.request.KeyRequestService;
 
 /**
  * @author alee
@@ -218,7 +219,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
-        KeyGenAlgorithm alg = SymKeyGenerationRequest.KEYGEN_ALGORITHMS.get(algName);
+        KeyGenAlgorithm alg = KeyRequestService.KEYGEN_ALGORITHMS.get(algName);
         if (alg == null) {
             throw new BadRequestException("Invalid Algorithm");
         }

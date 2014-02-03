@@ -44,7 +44,7 @@ public class KeyClient extends Client {
         keyRequestClient = createProxy(KeyRequestResource.class);
     }
 
-    public KeyDataInfoCollection findKeys(String clientID, String status, Integer maxSize, Integer maxTime,
+    public KeyInfoCollection findKeys(String clientID, String status, Integer maxSize, Integer maxTime,
             Integer start, Integer size) {
         return keyClient.listKeys(clientID, status, maxSize, maxTime, start, size);
     }

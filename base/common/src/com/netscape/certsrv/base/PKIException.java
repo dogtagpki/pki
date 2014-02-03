@@ -84,7 +84,7 @@ public class PKIException extends RuntimeException {
     }
 
     @XmlRootElement(name="PKIException")
-    public static class Data extends ResourceMessage{
+    public static class Data extends ResourceMessage {
 
         @XmlElement(name="Code")
         public int code;
@@ -111,8 +111,8 @@ public class PKIException extends RuntimeException {
         data.className = PKIException.class.getName();
         data.code = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
         data.message = "An error has occured";
-        data.setProperty("attr1", "value1");
-        data.setProperty("attr2", "value2");
+        data.setAttribute("attr1", "value1");
+        data.setAttribute("attr2", "value2");
 
         JAXBContext context = JAXBContext.newInstance(Data.class);
         Marshaller marshaller = context.createMarshaller();

@@ -183,6 +183,8 @@ public class SecurityDataService implements IService {
 
         auditArchivalRequestProcessed(subjectID, ILogger.SUCCESS, request.getRequestId(),
                 clientId, serialNo.toString(), "None");
+        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+        mKRA.getRequestQueue().updateRequest(request);
 
         return true;
 

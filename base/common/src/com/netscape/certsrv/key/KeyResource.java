@@ -20,7 +20,7 @@ public interface KeyResource {
 
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyDataInfoCollection listKeys(@QueryParam("clientID") String clientID,
+    public KeyInfoCollection listKeys(@QueryParam("clientID") String clientID,
                                  @QueryParam("status") String status,
                                  @QueryParam("maxResults") Integer maxResults,
                                  @QueryParam("maxTime") Integer maxTime,

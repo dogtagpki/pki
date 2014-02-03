@@ -46,14 +46,14 @@ public class KeyArchivalRequest extends ResourceMessage {
     }
 
     public KeyArchivalRequest(MultivaluedMap<String, String> form) {
-        properties.put(CLIENT_ID, form.getFirst(CLIENT_ID));
-        properties.put(DATA_TYPE, form.getFirst(DATA_TYPE));
-        properties.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
+        attributes.put(CLIENT_ID, form.getFirst(CLIENT_ID));
+        attributes.put(DATA_TYPE, form.getFirst(DATA_TYPE));
+        attributes.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
         setClassName(getClass().getName());
     }
 
     public KeyArchivalRequest(ResourceMessage data) {
-        properties.putAll(data.getProperties());
+        attributes.putAll(data.getAttributes());
         setClassName(getClass().getName());
     }
 
@@ -61,42 +61,42 @@ public class KeyArchivalRequest extends ResourceMessage {
      * @return the clientId
      */
     public String getClientId() {
-        return properties.get(CLIENT_ID);
+        return attributes.get(CLIENT_ID);
     }
 
     /**
      * @param clientId the clientId to set
      */
     public void setClientId(String clientId) {
-        properties.put(CLIENT_ID, clientId);
+        attributes.put(CLIENT_ID, clientId);
     }
 
     /**
      * @return the dataType
      */
     public String getDataType() {
-        return properties.get(DATA_TYPE);
+        return attributes.get(DATA_TYPE);
     }
 
     /**
      * @param dataType the dataType to set
      */
     public void setDataType(String dataType) {
-        properties.put(DATA_TYPE, dataType);
+        attributes.put(DATA_TYPE, dataType);
     }
 
     /**
      * @return the wrappedPrivateData
      */
     public String getWrappedPrivateData() {
-        return properties.get(WRAPPED_PRIVATE_DATA);
+        return attributes.get(WRAPPED_PRIVATE_DATA);
     }
 
     /**
      * @param wrappedPrivateData the wrappedPrivateData to set
      */
     public void setWrappedPrivateData(String wrappedPrivateData) {
-        properties.put(WRAPPED_PRIVATE_DATA, wrappedPrivateData);
+        attributes.put(WRAPPED_PRIVATE_DATA, wrappedPrivateData);
     }
 
     public String toString() {

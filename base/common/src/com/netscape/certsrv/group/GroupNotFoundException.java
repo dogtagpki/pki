@@ -23,12 +23,12 @@ public class GroupNotFoundException extends ResourceNotFoundException {
 
     public GroupNotFoundException(Data data) {
         super(data);
-        groupId = data.getProperty("groupId");
+        groupId = data.getAttribute("groupId");
     }
 
     public Data getData() {
         Data data = super.getData();
-        data.setProperty("groupId", groupId);
+        data.setAttribute("groupId", groupId);
         return data;
     }
 

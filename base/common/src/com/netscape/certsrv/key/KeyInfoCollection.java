@@ -24,11 +24,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.netscape.certsrv.base.DataCollection;
 
-@XmlRootElement(name = "KeyDataInfos")
-public class KeyDataInfoCollection extends DataCollection<KeyDataInfo> {
+@XmlRootElement(name = "KeyInfoCollection")
+public class KeyInfoCollection extends DataCollection<KeyInfo> {
 
     @XmlElementRef
-    public Collection<KeyDataInfo> getEntries() {
+    public Collection<KeyInfo> getEntries() {
         return super.getEntries();
     }
 }

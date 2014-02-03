@@ -43,7 +43,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyData;
-import com.netscape.certsrv.key.KeyDataInfo;
+import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
@@ -168,7 +168,7 @@ public class DRMTest {
         // Variables for data structures from calls
         KeyRequestInfo requestInfo = null;
         KeyData keyData = null;
-        KeyDataInfo keyInfo = null;
+        KeyInfo keyInfo = null;
 
         // Initialize token
         try {
@@ -560,7 +560,7 @@ public class DRMTest {
         List<String> usages = new ArrayList<String>();
         usages.add(SymKeyGenerationRequest.DECRYPT_USAGE);
         usages.add(SymKeyGenerationRequest.ENCRYPT_USAGE);
-        KeyRequestInfo genKeyInfo = client.generateKey(clientId, "AES", 128, usages);
+        KeyRequestInfo genKeyInfo = client.generateKey(clientId, SymKeyGenerationRequest.AES_ALGORITHM, 128, usages);
         printRequestInfo(genKeyInfo);
         keyId = genKeyInfo.getKeyId();
 

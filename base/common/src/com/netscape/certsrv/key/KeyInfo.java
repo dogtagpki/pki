@@ -32,9 +32,9 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
  * @author alee
  *
  */
-@XmlRootElement(name="KeyDataInfo")
+@XmlRootElement(name="KeyInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class KeyDataInfo {
+public class KeyInfo {
 
     @XmlElement
     protected String keyURL;
@@ -54,7 +54,7 @@ public class KeyDataInfo {
     @XmlElement
     protected String ownerName;
 
-    public KeyDataInfo() {
+    public KeyInfo() {
         // required for JAXB (defaults)
     }
 

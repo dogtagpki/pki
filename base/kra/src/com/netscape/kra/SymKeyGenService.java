@@ -44,6 +44,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.cms.servlet.request.KeyRequestService;
 import com.netscape.cmscore.dbs.KeyRecord;
 
 /**
@@ -110,7 +111,7 @@ public class SymKeyGenService implements IService {
         }
 
         CryptoToken token = mStorageUnit.getToken();
-        KeyGenAlgorithm kgAlg = SymKeyGenerationRequest.KEYGEN_ALGORITHMS.get(algorithm);
+        KeyGenAlgorithm kgAlg = KeyRequestService.KEYGEN_ALGORITHMS.get(algorithm);
         if (kgAlg == null) {
             throw new EBaseException("Invalid algorithm");
         }
@@ -215,6 +216,9 @@ public class SymKeyGenService implements IService {
 
         auditSymKeyGenRequestProcessed(subjectID, ILogger.SUCCESS, request.getRequestId(),
                 clientId, serialNo.toString(), "None");
+
+        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+        mKRA.getRequestQueue().updateRequest(request);
 
         return true;
     }

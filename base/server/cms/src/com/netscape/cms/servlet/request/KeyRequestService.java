@@ -23,6 +23,8 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -34,6 +36,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import netscape.security.x509.X509CertImpl;
+
+import org.mozilla.jss.crypto.KeyGenAlgorithm;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -97,6 +101,18 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     private IKeyRecoveryAuthority kra;
     private IRequestQueue queue;
     private IKeyService service;
+
+    public static final Map<String, KeyGenAlgorithm> KEYGEN_ALGORITHMS;
+
+    static {
+        KEYGEN_ALGORITHMS = new HashMap<String, KeyGenAlgorithm>();
+        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.DES_ALGORITHM, KeyGenAlgorithm.DES);
+        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
+        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
+        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.RC2_ALGORITHM, KeyGenAlgorithm.RC2);
+        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
+        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.AES_ALGORITHM, KeyGenAlgorithm.AES);
+    }
 
     public KeyRequestService() {
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );

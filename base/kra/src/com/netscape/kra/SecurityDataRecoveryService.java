@@ -264,7 +264,10 @@ public class SecurityDataRecoveryService implements IService {
             params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
 
         }
-        auditRecoveryRequestProcessed(subjectID, ILogger.SUCCESS, requestID, serialno.toString(), "None");
+        auditRecoveryRequestProcessed(subjectID, ILogger.SUCCESS, requestID, serialno.toString(),
+                "None");
+        request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
+        mKRA.getRequestQueue().updateRequest(request);
         return false; //return true ? TODO
     }
 

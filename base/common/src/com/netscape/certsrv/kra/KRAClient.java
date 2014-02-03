@@ -14,8 +14,8 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyData;
-import com.netscape.certsrv.key.KeyDataInfo;
-import com.netscape.certsrv.key.KeyDataInfoCollection;
+import com.netscape.certsrv.key.KeyInfo;
+import com.netscape.certsrv.key.KeyInfoCollection;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
@@ -83,13 +83,13 @@ public class KRAClient extends SubsystemClient {
         return client.getEntity(response);
     }
 
-    public KeyDataInfo getKeyData(String clientId, String status) {
-        KeyDataInfoCollection infos = keyClient.listKeys(clientId, status, null, null, null, null);
-        Collection<KeyDataInfo> list = infos.getEntries();
-        Iterator<KeyDataInfo> iter = list.iterator();
+    public KeyInfo getKeyData(String clientId, String status) {
+        KeyInfoCollection infos = keyClient.listKeys(clientId, status, null, null, null, null);
+        Collection<KeyInfo> list = infos.getEntries();
+        Iterator<KeyInfo> iter = list.iterator();
 
         while (iter.hasNext()) {
-            KeyDataInfo info = iter.next();
+            KeyInfo info = iter.next();
             if (info != null) {
                 // return the first one
                 return info;

@@ -2,9 +2,7 @@ package com.netscape.certsrv.key;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -12,7 +10,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
 
 import com.netscape.certsrv.base.ResourceMessage;
 
@@ -29,6 +26,14 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     private static final String KEY_ALGORITHM = "keyAlgorithm";
     private static final String KEY_USAGE = "keyUsage";
 
+    /* Symmetric Key Algorithms */
+    public static final String DES_ALGORITHM = "DES";
+    public static final String DESEDE_ALGORITHM = "DESede";
+    public static final String DES3_ALGORITHM = "DES3";
+    public static final String RC2_ALGORITHM = "RC2";
+    public static final String RC4_ALGORITHM = "RC4";
+    public static final String AES_ALGORITHM = "AES";
+
     /* Symmetric Key usages */
     public static final String UWRAP_USAGE = "unwrap";
     public static final String WRAP_USAGE = "wrap";
@@ -37,19 +42,8 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     public static final String DECRYPT_USAGE = "decrypt";
     public static final String ENCRYPT_USAGE = "encrypt";
 
-    public static final Map<String, KeyGenAlgorithm> KEYGEN_ALGORITHMS;
-    static {
-        KEYGEN_ALGORITHMS = new HashMap<String, KeyGenAlgorithm>();
-        KEYGEN_ALGORITHMS.put("DES", KeyGenAlgorithm.DES);
-        KEYGEN_ALGORITHMS.put("DESede", KeyGenAlgorithm.DESede);
-        KEYGEN_ALGORITHMS.put("DES3", KeyGenAlgorithm.DES3);
-        KEYGEN_ALGORITHMS.put("RC2", KeyGenAlgorithm.RC2);
-        KEYGEN_ALGORITHMS.put("RC4", KeyGenAlgorithm.RC4);
-        KEYGEN_ALGORITHMS.put("AES", KeyGenAlgorithm.AES);
-    }
-
     public List<String> getUsages() {
-        String usageString = properties.get(KEY_USAGE);
+        String usageString = attributes.get(KEY_USAGE);
         if (! StringUtils.isBlank(usageString)) {
             return new ArrayList<String>(Arrays.asList(usageString.split(",")));
         }
@@ -57,7 +51,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     }
 
     public void setUsages(List<String> usages) {
-        properties.put(KEY_USAGE, StringUtils.join(usages, ","));
+        attributes.put(KEY_USAGE, StringUtils.join(usages, ","));
     }
 
     public void addUsage(String usage) {
@@ -75,12 +69,12 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     }
 
     public SymKeyGenerationRequest(MultivaluedMap<String, String> form) {
-        properties.put(CLIENT_ID, form.getFirst(CLIENT_ID));
-        properties.put(KEY_SIZE, form.getFirst(KEY_SIZE));
-        properties.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
-        properties.put(KEY_USAGE, form.getFirst(KEY_USAGE));
+        attributes.put(CLIENT_ID, form.getFirst(CLIENT_ID));
+        attributes.put(KEY_SIZE, form.getFirst(KEY_SIZE));
+        attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
+        attributes.put(KEY_USAGE, form.getFirst(KEY_USAGE));
 
-        String usageString = properties.get(KEY_USAGE);
+        String usageString = attributes.get(KEY_USAGE);
         if (! StringUtils.isBlank(usageString)) {
             setUsages(new ArrayList<String>(Arrays.asList(usageString.split(","))));
         }
@@ -88,7 +82,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     }
 
     public SymKeyGenerationRequest(ResourceMessage data) {
-        properties.putAll(data.getProperties());
+        attributes.putAll(data.getAttributes());
         setClassName(getClass().getName());
     }
 
@@ -96,42 +90,42 @@ public class SymKeyGenerationRequest extends ResourceMessage {
      * @return the clientId
      */
     public String getClientId() {
-        return properties.get(CLIENT_ID);
+        return attributes.get(CLIENT_ID);
     }
 
     /**
      * @param clientId the clientId to set
      */
     public void setClientId(String clientId) {
-        properties.put(CLIENT_ID, clientId);
+        attributes.put(CLIENT_ID, clientId);
     }
 
     /**
      * @return the keySize
      */
     public int getKeySize() {
-        return Integer.parseInt(properties.get(KEY_SIZE));
+        return Integer.parseInt(attributes.get(KEY_SIZE));
     }
 
     /**
      * @param keySize the key size to set
      */
     public void setKeySize(int keySize) {
-        properties.put(KEY_SIZE, Integer.toString(keySize));
+        attributes.put(KEY_SIZE, Integer.toString(keySize));
     }
 
     /**
      * @return the keyAlgorithm
      */
     public String getKeyAlgorithm() {
-        return properties.get(KEY_ALGORITHM);
+        return attributes.get(KEY_ALGORITHM);
     }
 
     /**
      * @param keyAlgorithm the key algorithm to set
      */
     public void setKeyAlgorithm(String keyAlgorithm) {
-        properties.put(KEY_ALGORITHM, keyAlgorithm);
+        attributes.put(KEY_ALGORITHM, keyAlgorithm);
     }
 
     public String toString() {
@@ -154,7 +148,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
 
         SymKeyGenerationRequest before = new SymKeyGenerationRequest();
         before.setClientId("vek 12345");
-        before.setKeyAlgorithm("AES");
+        before.setKeyAlgorithm(SymKeyGenerationRequest.AES_ALGORITHM);
         before.setKeySize(128);
         before.addUsage(SymKeyGenerationRequest.DECRYPT_USAGE);
         before.addUsage(SymKeyGenerationRequest.ENCRYPT_USAGE);

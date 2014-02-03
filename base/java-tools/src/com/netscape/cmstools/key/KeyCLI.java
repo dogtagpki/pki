@@ -19,7 +19,7 @@
 package com.netscape.cmstools.key;
 
 import com.netscape.certsrv.key.KeyClient;
-import com.netscape.certsrv.key.KeyDataInfo;
+import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -61,7 +61,7 @@ public class KeyCLI extends CLI {
         super.execute(args);
     }
 
-    public static void printKeyInfo(KeyDataInfo info) {
+    public static void printKeyInfo(KeyInfo info) {
         System.out.println("  Key ID: "+info.getKeyId().toHexString());
         if (info.getClientID() != null) System.out.println("  Client ID: "+info.getClientID());
         if (info.getStatus() != null) System.out.println("  Status: "+info.getStatus());

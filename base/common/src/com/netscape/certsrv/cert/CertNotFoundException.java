@@ -42,12 +42,12 @@ public class CertNotFoundException extends ResourceNotFoundException {
 
     public CertNotFoundException(Data data) {
         super(data);
-        certId = new CertId(data.getProperty("certId"));
+        certId = new CertId(data.getAttribute("certId"));
     }
 
     public Data getData() {
         Data data = super.getData();
-        data.setProperty("certId", certId.toString());
+        data.setAttribute("certId", certId.toString());
         return data;
     }
 

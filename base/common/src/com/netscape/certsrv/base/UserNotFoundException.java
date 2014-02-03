@@ -21,12 +21,12 @@ public class UserNotFoundException extends ResourceNotFoundException {
 
     public UserNotFoundException(Data data) {
         super(data);
-        userId = data.getProperty("userId");
+        userId = data.getAttribute("userId");
     }
 
     public Data getData() {
         Data data = super.getData();
-        data.setProperty("userId", userId);
+        data.setAttribute("userId", userId);
         return data;
     }
 

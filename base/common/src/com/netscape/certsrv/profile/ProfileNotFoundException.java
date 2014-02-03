@@ -41,12 +41,12 @@ public class ProfileNotFoundException extends ResourceNotFoundException {
 
     public ProfileNotFoundException(Data data) {
         super(data);
-        profileId = data.getProperty("profileId");
+        profileId = data.getAttribute("profileId");
     }
 
     public Data getData() {
         Data data = super.getData();
-        data.setProperty("profileId", profileId);
+        data.setAttribute("profileId", profileId);
         return data;
     }
 

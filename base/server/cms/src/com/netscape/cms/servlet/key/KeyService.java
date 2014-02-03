@@ -47,8 +47,8 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyData;
-import com.netscape.certsrv.key.KeyDataInfo;
-import com.netscape.certsrv.key.KeyDataInfoCollection;
+import com.netscape.certsrv.key.KeyInfo;
+import com.netscape.certsrv.key.KeyInfoCollection;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyResource;
@@ -312,7 +312,7 @@ public class KeyService extends PKIService implements KeyResource {
      * Used to generate list of key infos based on the search parameters
      */
     @Override
-    public KeyDataInfoCollection listKeys(String clientID, String status, Integer maxResults, Integer maxTime,
+    public KeyInfoCollection listKeys(String clientID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size) {
 
         start = start == null ? 0 : start;
@@ -325,7 +325,7 @@ public class KeyService extends PKIService implements KeyResource {
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
         maxTime = maxTime == null ? DEFAULT_MAXTIME : maxTime;
 
-        KeyDataInfoCollection infos = new KeyDataInfoCollection();
+        KeyInfoCollection infos = new KeyInfoCollection();
         try {
             Enumeration<IKeyRecord> e = repo.searchKeys(filter, maxResults, maxTime);
             if (e == null) {
@@ -333,7 +333,7 @@ public class KeyService extends PKIService implements KeyResource {
             }
 
             // store non-null results in a list
-            List<KeyDataInfo> results = new ArrayList<KeyDataInfo>();
+            List<KeyInfo> results = new ArrayList<KeyInfo>();
             while (e.hasMoreElements()) {
                 IKeyRecord rec = e.nextElement();
                 if (rec == null) continue;
@@ -367,8 +367,8 @@ public class KeyService extends PKIService implements KeyResource {
     }
 
 
-    public KeyDataInfo createKeyDataInfo(IKeyRecord rec) throws EBaseException {
-        KeyDataInfo ret = new KeyDataInfo();
+    public KeyInfo createKeyDataInfo(IKeyRecord rec) throws EBaseException {
+        KeyInfo ret = new KeyInfo();
         ret.setClientID(rec.getClientId());
         ret.setStatus(rec.getKeyStatus());
         ret.setAlgorithm(rec.getAlgorithm());

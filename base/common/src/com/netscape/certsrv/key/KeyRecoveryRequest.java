@@ -53,21 +53,21 @@ public class KeyRecoveryRequest extends ResourceMessage {
 
     public KeyRecoveryRequest(MultivaluedMap<String, String> form) {
         if (form.containsKey(KEY_ID)) {
-            properties.put(KEY_ID, form.getFirst(KEY_ID));
+            attributes.put(KEY_ID, form.getFirst(KEY_ID));
         }
         if (form.containsKey(REQUEST_ID)) {
-            properties.put(REQUEST_ID, form.getFirst(REQUEST_ID));
+            attributes.put(REQUEST_ID, form.getFirst(REQUEST_ID));
         }
-        properties.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
-        properties.put(SESSION_WRAPPED_PASSPHRASE, form.getFirst(SESSION_WRAPPED_PASSPHRASE));
-        properties.put(NONCE_DATA, form.getFirst(NONCE_DATA));
-        properties.put(CERTIFICATE, form.getFirst(CERTIFICATE));
-        properties.put(PASSPHRASE, form.getFirst(PASSPHRASE));
+        attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
+        attributes.put(SESSION_WRAPPED_PASSPHRASE, form.getFirst(SESSION_WRAPPED_PASSPHRASE));
+        attributes.put(NONCE_DATA, form.getFirst(NONCE_DATA));
+        attributes.put(CERTIFICATE, form.getFirst(CERTIFICATE));
+        attributes.put(PASSPHRASE, form.getFirst(PASSPHRASE));
         setClassName(getClass().getName());
     }
 
     public KeyRecoveryRequest(ResourceMessage data) {
-        properties.putAll(data.getProperties());
+        attributes.putAll(data.getAttributes());
         setClassName(getClass().getName());
     }
 
@@ -75,56 +75,56 @@ public class KeyRecoveryRequest extends ResourceMessage {
      * @return the keyId
      */
     public KeyId getKeyId() {
-        return new KeyId(properties.get(KEY_ID));
+        return new KeyId(attributes.get(KEY_ID));
     }
 
     /**
      * @param keyId the keyId to set
      */
     public void setKeyId(KeyId keyId) {
-        properties.put(KEY_ID, keyId.toString());
+        attributes.put(KEY_ID, keyId.toString());
     }
 
     /**
      * @return the requestId
      */
     public RequestId getRequestId() {
-        return new RequestId(properties.get(REQUEST_ID));
+        return new RequestId(attributes.get(REQUEST_ID));
     }
 
     /**
      * @param requestId the requestId to set
      */
     public void setRequestId(RequestId requestId) {
-        properties.put(REQUEST_ID, requestId.toString());
+        attributes.put(REQUEST_ID, requestId.toString());
     }
 
     /**
      * @return the transWrappedSessionKey
      */
     public String getTransWrappedSessionKey() {
-        return properties.get(TRANS_WRAPPED_SESSION_KEY);
+        return attributes.get(TRANS_WRAPPED_SESSION_KEY);
     }
 
     /**
      * @param transWrappedSessionKey the transWrappedSessionKey to set
      */
     public void setTransWrappedSessionKey(String transWrappedSessionKey) {
-        properties.put(TRANS_WRAPPED_SESSION_KEY, transWrappedSessionKey);
+        attributes.put(TRANS_WRAPPED_SESSION_KEY, transWrappedSessionKey);
     }
 
     /**
      * @return the sessionWrappedPassphrase
      */
     public String getSessionWrappedPassphrase() {
-        return properties.get(SESSION_WRAPPED_PASSPHRASE);
+        return attributes.get(SESSION_WRAPPED_PASSPHRASE);
     }
 
     /**
      * @param sessionWrappedPassphrase the sessionWrappedPassphrase to set
      */
     public void setSessionWrappedPassphrase(String sessionWrappedPassphrase) {
-        properties.put(SESSION_WRAPPED_PASSPHRASE, sessionWrappedPassphrase);
+        attributes.put(SESSION_WRAPPED_PASSPHRASE, sessionWrappedPassphrase);
     }
 
     /**
@@ -132,7 +132,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
      */
 
     public String getNonceData() {
-        return properties.get(NONCE_DATA);
+        return attributes.get(NONCE_DATA);
     }
 
     /**
@@ -140,35 +140,35 @@ public class KeyRecoveryRequest extends ResourceMessage {
      */
 
     public void setNonceData(String nonceData) {
-        properties.put(NONCE_DATA, nonceData);
+        attributes.put(NONCE_DATA, nonceData);
     }
 
     /**
      * @return the certificate
      */
     public String getCertificate() {
-        return properties.get(CERTIFICATE);
+        return attributes.get(CERTIFICATE);
     }
 
     /**
      * @param certificate the certificate to set
      */
     public void setCertificate(String certificate) {
-        properties.put(CERTIFICATE, certificate);
+        attributes.put(CERTIFICATE, certificate);
     }
 
     /**
      * @return the passphrase
      */
     public String getPassphrase() {
-        return properties.get(PASSPHRASE);
+        return attributes.get(PASSPHRASE);
     }
 
     /**
      * @param passphrase the passphrase to set
      */
     public void setPassphrase(String passphrase) {
-        properties.put(PASSPHRASE, passphrase);
+        attributes.put(PASSPHRASE, passphrase);
     }
 
 
