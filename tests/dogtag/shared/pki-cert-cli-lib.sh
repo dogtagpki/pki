@@ -50,7 +50,8 @@ generate_PKCS10()
 ##############################
 #
 #Function Usage create_cert <Temporary NSS DB Directory> <NSS DB Directory Password> <pkcs10/crmf> <rsa/ec> <cn> <uid> <email> 
-#<organizationalUnit> <organization> <country> <profilename> <request status> <requestid>
+#<organizationalUnit> <organization> <country> <profilename> <return_status> <return_id> <return_dn>
+#return_status, return_id & return_dn are return variables emitting out Status of the request, Request id & Request DN Submitted
 #
 #TODO: Currently we have implemented only for caUserCert profile, Need to extend for other profiles
 #CRMF Request needs to be generated
@@ -71,6 +72,7 @@ local country="${11}"
 local profilename="${12}"
 local request_status="${13}"
 local request_id="${14}"
+local cert_subject="${15}"
 local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 
 #### First we create  NSS Database
@@ -179,5 +181,8 @@ local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 	local REQUEST_ID=`cat $dir/$cert_request_file-sumbit.out  | grep "Request ID" | awk -F ": " '{print $2}'`
 	eval $request_id="$REQUEST_ID"		
 	rlLog "Request id : $request_id"
+	local CERT_SUBJ=$subject
+	eval $cert_subject="$CERT_SUBJ"
+	rlLog "Certificate Request DN: $cert_subject"
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
