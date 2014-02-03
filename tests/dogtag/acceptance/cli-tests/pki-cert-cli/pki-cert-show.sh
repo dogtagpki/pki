@@ -9,7 +9,7 @@
 #  pki-cert-request-submit
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Author: Asha Akkiangady <aakkiang@redhat.com>
+#   Author: Niranjan Mallapadi <mrniranjan@redhat.com>
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
