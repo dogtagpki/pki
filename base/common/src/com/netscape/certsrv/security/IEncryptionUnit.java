@@ -21,6 +21,7 @@ import java.security.PublicKey;
 
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.crypto.SymmetricKey.Type;
 
 import com.netscape.certsrv.base.EBaseException;
 
@@ -111,7 +112,7 @@ public interface IEncryptionUnit extends IToken {
      * @exception EBaseException failed to unwrap
      */
 
-    public SymmetricKey unwrap(byte wrappedKeyData[])
+    public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize)
             throws EBaseException;
 
     /**
@@ -122,12 +123,14 @@ public interface IEncryptionUnit extends IToken {
      * @param symmAlgOID symmetric algorithm
      * @param symmAlgParams symmetric algorithm parameters
      * @param symmetricKey  symmetric key data
+     * @param type symmetric key algorithm
+     * @param strength symmetric key strength in bytes
      * @return Symmetric key object
      * @exception EBaseException failed to unwrap
      */
 
     public SymmetricKey unwrap_symmetric(byte sessionKey[], String symmAlgOID,
-            byte symmAlgParams[], byte symmetricKey[])
+            byte symmAlgParams[], byte symmetricKey[], Type type, int strength)
             throws EBaseException;
 
     /**

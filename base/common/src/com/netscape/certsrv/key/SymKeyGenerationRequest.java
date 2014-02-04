@@ -26,14 +26,6 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     private static final String KEY_ALGORITHM = "keyAlgorithm";
     private static final String KEY_USAGE = "keyUsage";
 
-    /* Symmetric Key Algorithms */
-    public static final String DES_ALGORITHM = "DES";
-    public static final String DESEDE_ALGORITHM = "DESede";
-    public static final String DES3_ALGORITHM = "DES3";
-    public static final String RC2_ALGORITHM = "RC2";
-    public static final String RC4_ALGORITHM = "RC4";
-    public static final String AES_ALGORITHM = "AES";
-
     /* Symmetric Key usages */
     public static final String UWRAP_USAGE = "unwrap";
     public static final String WRAP_USAGE = "wrap";
@@ -148,7 +140,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
 
         SymKeyGenerationRequest before = new SymKeyGenerationRequest();
         before.setClientId("vek 12345");
-        before.setKeyAlgorithm(SymKeyGenerationRequest.AES_ALGORITHM);
+        before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);
         before.setKeySize(128);
         before.addUsage(SymKeyGenerationRequest.DECRYPT_USAGE);
         before.addUsage(SymKeyGenerationRequest.ENCRYPT_USAGE);

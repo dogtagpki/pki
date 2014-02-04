@@ -28,6 +28,14 @@ public interface KeyRequestResource {
     public static final String PASS_PHRASE_TYPE = "passPhrase";
     public static final String ASYMMETRIC_KEY_TYPE = "asymmetricKey";
 
+    /* Symmetric Key Algorithms */
+    public static final String DES_ALGORITHM = "DES";
+    public static final String DESEDE_ALGORITHM = "DESede";
+    public static final String DES3_ALGORITHM = "DES3";
+    public static final String RC2_ALGORITHM = "RC2";
+    public static final String RC4_ALGORITHM = "RC4";
+    public static final String AES_ALGORITHM = "AES";
+
     /**
      * Used to generate list of key requests based on the search parameters
      */

@@ -38,6 +38,7 @@ import javax.ws.rs.core.UriInfo;
 import netscape.security.x509.X509CertImpl;
 
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -106,12 +107,23 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
     static {
         KEYGEN_ALGORITHMS = new HashMap<String, KeyGenAlgorithm>();
-        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.DES_ALGORITHM, KeyGenAlgorithm.DES);
-        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
-        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
-        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.RC2_ALGORITHM, KeyGenAlgorithm.RC2);
-        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
-        KEYGEN_ALGORITHMS.put(SymKeyGenerationRequest.AES_ALGORITHM, KeyGenAlgorithm.AES);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.DES_ALGORITHM, KeyGenAlgorithm.DES);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.RC2_ALGORITHM, KeyGenAlgorithm.RC2);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.AES_ALGORITHM, KeyGenAlgorithm.AES);
+    }
+
+    public static final Map<String, SymmetricKey.Type> SYMKEY_TYPES;
+    static {
+        SYMKEY_TYPES = new HashMap<String, SymmetricKey.Type>();
+        SYMKEY_TYPES.put(KeyRequestResource.DES_ALGORITHM, SymmetricKey.DES);
+        SYMKEY_TYPES.put(KeyRequestResource.DESEDE_ALGORITHM, SymmetricKey.DES3);
+        SYMKEY_TYPES.put(KeyRequestResource.DES3_ALGORITHM, SymmetricKey.DES3);
+        SYMKEY_TYPES.put(KeyRequestResource.RC2_ALGORITHM, SymmetricKey.RC2);
+        SYMKEY_TYPES.put(KeyRequestResource.RC4_ALGORITHM, SymmetricKey.RC4);
+        SYMKEY_TYPES.put(KeyRequestResource.AES_ALGORITHM, SymmetricKey.AES);
     }
 
     public KeyRequestService() {
@@ -154,6 +166,13 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
                 || data.getWrappedPrivateData() == null
                 || data.getDataType() == null) {
             throw new BadRequestException("Invalid key archival request.");
+        }
+
+        if (data.getDataType().equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+            if ((data.getKeyAlgorithm() == null) ||
+                (! SYMKEY_TYPES.containsKey(data.getKeyAlgorithm()))) {
+                throw new BadRequestException("Invalid key archival request.  Bad algorithm.");
+            }
         }
 
         KeyRequestDAO dao = new KeyRequestDAO();

@@ -301,7 +301,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
      */
     public SymmetricKey unwrap_symmetric(byte encSymmKey[],
         String symmAlgOID, byte symmAlgParams[],
-        byte encValue[])
+        byte encValue[], SymmetricKey.Type algorithm, int strength)
         throws EBaseException {
         try {
             CryptoToken token = getToken();
@@ -323,7 +323,8 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             wrapper.initUnwrap(sk, new IVParameterSpec(
                     symmAlgParams));
 
-            SymmetricKey symKey = wrapper.unwrapSymmetric(encValue, SymmetricKey.DES3, SymmetricKey.Usage.DECRYPT, 0);
+            SymmetricKey symKey = wrapper.unwrapSymmetric(encValue, algorithm,
+                    SymmetricKey.Usage.DECRYPT, strength);
 
             return symKey;
         } catch (TokenException e) {
@@ -513,7 +514,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     /**
      * External unwrapping of stored symmetric key.
      */
-    public SymmetricKey unwrap(byte wrappedKeyData[])
+    public SymmetricKey unwrap(byte wrappedKeyData[], SymmetricKey.Type algorithm, int keySize)
             throws EBaseException {
         try {
             DerValue val = new DerValue(wrappedKeyData);
@@ -540,8 +541,8 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             wrapper.initUnwrap(sk, IV);
 
             SymmetricKey sk_ret = wrapper.unwrapSymmetric(pri,
-                    SymmetricKey.DES3, SymmetricKey.Usage.UNWRAP,
-                    0);
+                    algorithm, SymmetricKey.Usage.UNWRAP,
+                    keySize);
 
             return sk_ret;
         } catch (TokenException e) {

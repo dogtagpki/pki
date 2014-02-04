@@ -35,6 +35,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.cms.servlet.request.KeyRequestService;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
 
@@ -85,6 +86,8 @@ public class SecurityDataService implements IService {
         String clientId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_ID);
         String wrappedSecurityData = request.getExtDataInString(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS);
         String dataType = request.getExtDataInString(IRequest.SECURITY_DATA_TYPE);
+        String algorithm = request.getExtDataInString(IRequest.SECURITY_DATA_ALGORITHM);
+        int strength = request.getExtDataInInteger(IRequest.SECURITY_DATA_STRENGTH);
 
         CMS.debug("SecurityDataService.serviceRequest. Request id: " + id);
         CMS.debug("SecurityDataService.serviceRequest wrappedSecurityData: " + wrappedSecurityData);
@@ -123,7 +126,9 @@ public class SecurityDataService implements IService {
             securitySymKey = mTransportUnit.unwrap_symmetric(options.getEncSymmKey(),
                       options.getSymmAlgOID(),
                       options.getSymmAlgParams(),
-                      options.getEncValue());
+                      options.getEncValue(),
+                      KeyRequestService.SYMKEY_TYPES.get(algorithm),
+                      strength);
 
         } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
             keyType = KeyRequestResource.PASS_PHRASE_TYPE;
@@ -175,6 +180,12 @@ public class SecurityDataService implements IService {
         rec.set(KeyRecord.ATTR_ID, serialNo);
         rec.set(KeyRecord.ATTR_DATA_TYPE, keyType);
         rec.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
+
+        if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+            rec.set(KeyRecord.ATTR_ALGORITHM, algorithm);
+            rec.set(KeyRecord.ATTR_KEY_SIZE, strength);
+        }
+
         request.setExtData(ATTR_KEY_RECORD, serialNo);
 
         CMS.debug("KRA adding Security Data key record " + serialNo);

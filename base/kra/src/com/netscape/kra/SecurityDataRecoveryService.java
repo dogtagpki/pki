@@ -64,6 +64,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.cms.servlet.request.KeyRequestService;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
 
@@ -277,7 +278,9 @@ public class SecurityDataRecoveryService implements IService {
         try {
             SymmetricKey symKey =
                     mStorageUnit.unwrap(
-                            keyRecord.getPrivateKeyData());
+                            keyRecord.getPrivateKeyData(),
+                            KeyRequestService.SYMKEY_TYPES.get(keyRecord.getAlgorithm()),
+                            keyRecord.getKeySize());
 
             if (symKey == null) {
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",

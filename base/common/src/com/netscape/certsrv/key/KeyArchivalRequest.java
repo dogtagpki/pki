@@ -39,6 +39,8 @@ public class KeyArchivalRequest extends ResourceMessage {
     private static final String CLIENT_ID = "clientID";
     private static final String DATA_TYPE = "dataType";
     private static final String WRAPPED_PRIVATE_DATA = "wrappedPrivateData";
+    private static final String KEY_ALGORITHM = "keyAlgorithm";
+    private static final String KEY_STRENGTH = "keyStrength";
 
     public KeyArchivalRequest() {
         // required for JAXB (defaults)
@@ -49,6 +51,8 @@ public class KeyArchivalRequest extends ResourceMessage {
         attributes.put(CLIENT_ID, form.getFirst(CLIENT_ID));
         attributes.put(DATA_TYPE, form.getFirst(DATA_TYPE));
         attributes.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
+        attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
+        attributes.put(KEY_STRENGTH, form.getFirst(KEY_STRENGTH));
         setClassName(getClass().getName());
     }
 
@@ -99,6 +103,34 @@ public class KeyArchivalRequest extends ResourceMessage {
         attributes.put(WRAPPED_PRIVATE_DATA, wrappedPrivateData);
     }
 
+    /**
+     * @return the keyAlgorithm (valid for symmetric keys)
+     */
+    public String getKeyAlgorithm() {
+        return attributes.get(KEY_ALGORITHM);
+    }
+
+    /**
+     * @param algorithm the key algorithm to set (valid for symmetric keys)
+     */
+    public void setKeyAlgorithm(String algorithm) {
+        attributes.put(KEY_ALGORITHM, algorithm);
+    }
+
+    /**
+     * @return the key strength (valid for symmetric keys)
+     */
+    public int getKeyStrength() {
+        return Integer.parseInt(attributes.get(KEY_STRENGTH));
+    }
+
+    /**
+     * @param strength the key strength to set (valid for symmetric keys)
+     */
+    public void setKeyStrength(int strength) {
+        attributes.put(KEY_STRENGTH, Integer.toString(strength));
+    }
+
     public String toString() {
         try {
             return ResourceMessage.marshal(this, KeyArchivalRequest.class);
@@ -121,6 +153,8 @@ public class KeyArchivalRequest extends ResourceMessage {
         before.setClientId("vek 12345");
         before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
         before.setWrappedPrivateData("XXXXABCDEFXXX");
+        before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);
+        before.setKeyStrength(128);
 
         String string = before.toString();
         System.out.println(string);

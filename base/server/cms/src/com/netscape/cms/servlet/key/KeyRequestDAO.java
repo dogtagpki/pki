@@ -137,6 +137,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String clientId = data.getClientId();
         String wrappedSecurityData = data.getWrappedPrivateData();
         String dataType = data.getDataType();
+        String keyAlgorithm = data.getKeyAlgorithm();
+        int keyStrength = data.getKeyStrength();
 
         boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
 
@@ -149,6 +151,12 @@ public class KeyRequestDAO extends CMSRequestDAO {
         request.setExtData(REQUEST_ARCHIVE_OPTIONS, wrappedSecurityData);
         request.setExtData(IRequest.SECURITY_DATA_CLIENT_ID, clientId);
         request.setExtData(IRequest.SECURITY_DATA_TYPE, dataType);
+        request.setExtData(IRequest.SECURITY_DATA_STRENGTH,
+                (keyStrength > 0) ? Integer.toString(keyStrength) : Integer.toString(0));
+
+        if (keyAlgorithm != null) {
+            request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, keyAlgorithm);
+        }
 
         queue.processRequest(request);
 
@@ -232,6 +240,9 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(IRequest.SYMKEY_GEN_ALGORITHM, algName);
         request.setExtData(IRequest.SYMKEY_GEN_SIZE, size);
+        request.setExtData(IRequest.SECURITY_DATA_STRENGTH, size);
+        request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, algName);
+
         request.setExtData(IRequest.SYMKEY_GEN_USAGES, StringUtils.join(usages, ","));
         request.setExtData(IRequest.SECURITY_DATA_CLIENT_ID, clientId);
 

@@ -69,13 +69,15 @@ public class KRAClient extends SubsystemClient {
         return list;
     }
 
-    public KeyRequestInfo archiveSecurityData(byte[] encoded, String clientId, String dataType) {
+    public KeyRequestInfo archiveSecurityData(byte[] encoded, String clientId, String dataType, String algorithm, int strength) {
         // create archival request
         KeyArchivalRequest data = new KeyArchivalRequest();
         String req1 = Utils.base64encode(encoded);
         data.setWrappedPrivateData(req1);
         data.setClientId(clientId);
         data.setDataType(dataType);
+        data.setKeyAlgorithm(algorithm);
+        data.setKeyStrength(strength);
 
         @SuppressWarnings("unchecked")
         ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
