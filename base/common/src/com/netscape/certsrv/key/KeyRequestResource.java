@@ -50,13 +50,13 @@ public interface KeyRequestResource {
                                             @QueryParam("maxTime") Integer maxTime);
 
     @POST
-    @ClientResponseType(entityType=KeyRequestInfo.class)
+    @ClientResponseType(entityType=KeyRequestResponse.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     public Response createRequest(MultivaluedMap<String, String> form);
 
     @POST
-    @ClientResponseType(entityType=KeyRequestInfo.class)
+    @ClientResponseType(entityType=KeyRequestResponse.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response createRequest(ResourceMessage data);

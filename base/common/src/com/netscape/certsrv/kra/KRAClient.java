@@ -20,6 +20,7 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.AuditClient;
@@ -69,7 +70,7 @@ public class KRAClient extends SubsystemClient {
         return list;
     }
 
-    public KeyRequestInfo archiveSecurityData(byte[] encoded, String clientId, String dataType, String algorithm, int strength) {
+    public KeyRequestResponse archiveSecurityData(byte[] encoded, String clientId, String dataType, String algorithm, int strength) {
         // create archival request
         KeyArchivalRequest data = new KeyArchivalRequest();
         String req1 = Utils.base64encode(encoded);
@@ -80,7 +81,7 @@ public class KRAClient extends SubsystemClient {
         data.setKeyStrength(strength);
 
         @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
+        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
                 keyRequestClient.createRequest(data);
         return client.getEntity(response);
     }
@@ -100,7 +101,7 @@ public class KRAClient extends SubsystemClient {
         return null;
     }
 
-    public KeyRequestInfo requestRecovery(KeyId keyId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
+    public KeyRequestResponse requestRecovery(KeyId keyId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(keyId);
@@ -116,7 +117,7 @@ public class KRAClient extends SubsystemClient {
         }
 
         @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
+        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
                 keyRequestClient.createRequest(data);
         return client.getEntity(response);
     }
@@ -149,14 +150,14 @@ public class KRAClient extends SubsystemClient {
         return keyRequestClient.getRequestInfo(id);
     }
 
-    public KeyRequestInfo requestKeyRecovery(String keyId, String b64Certificate) {
+    public KeyRequestResponse requestKeyRecovery(String keyId, String b64Certificate) {
         // create key recovery request
         KeyRecoveryRequest data = new KeyRecoveryRequest();
         data.setKeyId(new KeyId(keyId));
         data.setCertificate(b64Certificate);
 
         @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>)
+        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
                 keyRequestClient.createRequest(data);
         return client.getEntity(response);
     }
@@ -171,7 +172,7 @@ public class KRAClient extends SubsystemClient {
         return key;
     }
 
-    public KeyRequestInfo generateKey(String clientId, String keyAlgorithm, int keySize, List<String> usages) {
+    public KeyRequestResponse generateKey(String clientId, String keyAlgorithm, int keySize, List<String> usages) {
         SymKeyGenerationRequest data = new SymKeyGenerationRequest();
         data.setClientId(clientId);
         data.setKeyAlgorithm(keyAlgorithm);
@@ -179,7 +180,8 @@ public class KRAClient extends SubsystemClient {
         data.setUsages(usages);
 
         @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>) keyRequestClient.createRequest(data);
+        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
+                keyRequestClient.createRequest(data);
         return response.getEntity();
     }
 }

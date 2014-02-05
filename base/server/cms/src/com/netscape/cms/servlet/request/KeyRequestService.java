@@ -51,6 +51,7 @@ import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
@@ -176,14 +177,14 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
 
         KeyRequestDAO dao = new KeyRequestDAO();
-        KeyRequestInfo info;
+        KeyRequestResponse response;
         try {
-            info = dao.submitRequest(data, uriInfo);
-            auditArchivalRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getClientId());
+            response = dao.submitRequest(data, uriInfo);
+            auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientId());
 
             return Response
-                    .created(new URI(info.getRequestURL()))
-                    .entity(info)
+                    .created(new URI(response.getRequestInfo().getRequestURL()))
+                    .entity(response)
                     .type(MediaType.APPLICATION_XML)
                     .build();
         } catch (EBaseException | URISyntaxException e) {
@@ -210,15 +211,16 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             throw new BadRequestException("No wrapped session key.");
         }
         KeyRequestDAO dao = new KeyRequestDAO();
-        KeyRequestInfo info;
+        KeyRequestResponse response;
         try {
-            info = (data.getCertificate() != null)?
+            response = (data.getCertificate() != null)?
                     requestKeyRecovery(data): dao.submitRequest(data, uriInfo);
-            auditRecoveryRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getKeyId());
+            auditRecoveryRequestMade(response.getRequestInfo().getRequestId(),
+                    ILogger.SUCCESS, data.getKeyId());
 
             return Response
-                    .created(new URI(info.getRequestURL()))
-                    .entity(info)
+                    .created(new URI(response.getRequestInfo().getRequestURL()))
+                    .entity(response)
                     .type(MediaType.APPLICATION_XML)
                     .build();
         } catch (EBaseException | URISyntaxException e) {
@@ -228,8 +230,8 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
     }
 
-    private KeyRequestInfo requestKeyRecovery(KeyRecoveryRequest data) {
-        KeyRequestInfo info = null;
+    private KeyRequestResponse requestKeyRecovery(KeyRecoveryRequest data) {
+        KeyRequestResponse response = null;
         if (data == null) {
             throw new BadRequestException("Invalid request.");
         }
@@ -250,9 +252,9 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
         }
         KeyRequestDAO dao = new KeyRequestDAO();
-        info = dao.createCMSRequestInfo(request, uriInfo);
+        response = dao.createCMSRequestResponse(request, uriInfo);
 
-        return info;
+        return response;
     }
 
     @Override
@@ -447,14 +449,15 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
 
         KeyRequestDAO dao = new KeyRequestDAO();
-        KeyRequestInfo info;
+        KeyRequestResponse response;
         try {
-            info = dao.submitRequest(data, uriInfo);
-            auditSymKeyGenRequestMade(info.getRequestId(), ILogger.SUCCESS, data.getClientId());
+            response = dao.submitRequest(data, uriInfo);
+            auditSymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
+                    data.getClientId());
 
             return Response
-                    .created(new URI(info.getRequestURL()))
-                    .entity(info)
+                    .created(new URI(response.getRequestInfo().getRequestURL()))
+                    .entity(response)
                     .type(MediaType.APPLICATION_XML)
                     .build();
         } catch (EBaseException | URISyntaxException e) {

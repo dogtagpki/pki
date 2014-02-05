@@ -47,6 +47,7 @@ import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.certsrv.request.IRequest;
@@ -167,7 +168,7 @@ public class DRMTest {
         RequestId recoveryRequestId = null;
 
         // Variables for data structures from calls
-        KeyRequestInfo requestInfo = null;
+        KeyRequestResponse requestResponse = null;
         KeyData keyData = null;
         KeyInfo keyInfo = null;
 
@@ -255,11 +256,11 @@ public class DRMTest {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
                     KeyGenAlgorithm.DES3, ivps);
 
-            KeyRequestInfo info = client.archiveSecurityData(encoded, clientId,
+            KeyRequestResponse info = client.archiveSecurityData(encoded, clientId,
                     KeyRequestResource.SYMMETRIC_KEY_TYPE, KeyRequestResource.DES3_ALGORITHM, 0);
             log("Archival Results:");
-            printRequestInfo(info);
-            keyId = info.getKeyId();
+            printRequestInfo(info.getRequestInfo());
+            keyId = info.getRequestInfo().getKeyId();
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.getMessage());
             e.printStackTrace();
@@ -288,8 +289,9 @@ public class DRMTest {
         try {
             recoveryKey = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
             wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
-            KeyRequestInfo info = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
-            recoveryRequestId = info.getRequestId();
+            KeyRequestResponse info = client.requestRecovery(keyId, null, wrappedRecoveryKey,
+                    ivps.getIV());
+            recoveryRequestId = info.getRequestInfo().getRequestId();
         } catch (Exception e) {
             log("Exception in recovering symmetric key using session key: " + e.getMessage());
         }
@@ -330,8 +332,8 @@ public class DRMTest {
                     EncryptionAlgorithm.DES3_CBC_PAD);
             wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
 
-            requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
-            recoveryRequestId = requestInfo.getRequestId();
+            requestResponse = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
+            recoveryRequestId = requestResponse.getRequestInfo().getRequestId();
         } catch (Exception e) {
             log("Exception in recovering symmetric key using passphrase" + e.toString());
             e.printStackTrace();
@@ -366,11 +368,11 @@ public class DRMTest {
         try {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase,
                     KeyGenAlgorithm.DES3, ivps);
-            requestInfo = client.archiveSecurityData(encoded, clientId,
+            requestResponse = client.archiveSecurityData(encoded, clientId,
                     KeyRequestResource.PASS_PHRASE_TYPE, null, 0);
             log("Archival Results:");
-            printRequestInfo(requestInfo);
-            keyId = requestInfo.getKeyId();
+            printRequestInfo(requestResponse.getRequestInfo());
+            keyId = requestResponse.getRequestInfo().getKeyId();
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.toString());
             e.printStackTrace();
@@ -403,8 +405,8 @@ public class DRMTest {
             wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
             wrappedRecoveryPassphrase = CryptoUtil.wrapPassphrase(token, recoveryPassphrase, ivps, recoveryKey,
                     EncryptionAlgorithm.DES3_CBC_PAD);
-            requestInfo = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
-            recoveryRequestId = requestInfo.getRequestId();
+            requestResponse = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
+            recoveryRequestId = requestResponse.getRequestInfo().getRequestId();
         } catch (Exception e) {
             log("Exception in recovering passphrase using session key: " + e.getMessage());
         }
@@ -437,8 +439,8 @@ public class DRMTest {
 
         // Test 17: Submit a recovery request for the passphrase using a passphrase
         log("Submitting a recovery request for the passphrase using a passphrase");
-        requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
-        recoveryRequestId = requestInfo.getRequestId();
+        requestResponse = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
+        recoveryRequestId = requestResponse.getRequestInfo().getRequestId();
 
         //Test 18: Approve recovery
         log("Approving recovery request: " + recoveryRequestId);
@@ -466,8 +468,8 @@ public class DRMTest {
         //Wait until retrieving key before sending input data.
 
         log("Submitting a recovery request for the passphrase using a passphrase, wait till end to provide recovery data.");
-        requestInfo = client.requestRecovery(keyId, null, null, null);
-        recoveryRequestId = requestInfo.getRequestId();
+        requestResponse = client.requestRecovery(keyId, null, null, null);
+        recoveryRequestId = requestResponse.getRequestInfo().getRequestId();
 
         //Test 21: Approve recovery
         log("Approving recovery request: " + recoveryRequestId);
@@ -523,7 +525,8 @@ public class DRMTest {
                                 "greWr3xTsy6gF2yphUEkGHh4v22XvK+FLx9Jb6zloMWA2GG9gpUpvMnl1fH4";
 
         log("Requesting X509 key recovery.");
-        recoveryRequestId = client.requestKeyRecovery(keyID, b64Certificate).getRequestId();
+        recoveryRequestId = client.requestKeyRecovery(keyID,
+                b64Certificate).getRequestInfo().getRequestId();
         log("Requesting X509 key recovery request: " + recoveryRequestId);
 
         // Test 25: Approve x509 key recovery
@@ -565,11 +568,11 @@ public class DRMTest {
         List<String> usages = new ArrayList<String>();
         usages.add(SymKeyGenerationRequest.DECRYPT_USAGE);
         usages.add(SymKeyGenerationRequest.ENCRYPT_USAGE);
-        KeyRequestInfo genKeyInfo = client.generateKey(clientId,
+        KeyRequestResponse genKeyResponse = client.generateKey(clientId,
                 KeyRequestResource.AES_ALGORITHM,
                 128, usages);
-        printRequestInfo(genKeyInfo);
-        keyId = genKeyInfo.getKeyId();
+        printRequestInfo(genKeyResponse.getRequestInfo());
+        keyId = genKeyResponse.getRequestInfo().getKeyId();
 
         // test 29: Get keyId for active key with client ID
         log("Getting key ID for symmetric key");
@@ -593,8 +596,8 @@ public class DRMTest {
         try {
             recoveryKey = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
             wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
-            KeyRequestInfo info = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
-            recoveryRequestId = info.getRequestId();
+            KeyRequestResponse response = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
+            recoveryRequestId = response.getRequestInfo().getRequestId();
         } catch (Exception e) {
             log("Exception in recovering symmetric key using session key: " + e.getMessage());
         }
@@ -621,21 +624,21 @@ public class DRMTest {
 
         // test 33: Generate symmetric key - invalid algorithm
         try {
-            genKeyInfo = client.generateKey("Symmetric Key #1235", "AFS", 128, usages);
+            genKeyResponse = client.generateKey("Symmetric Key #1235", "AFS", 128, usages);
         } catch (Exception e) {
             log("Exception: " + e);
         }
 
         // test 34: Generate symmetric key - invalid key size
         try {
-            genKeyInfo = client.generateKey("Symmetric Key #1236", "AES", 135, usages);
+            genKeyResponse = client.generateKey("Symmetric Key #1236", "AES", 135, usages);
         } catch (Exception e) {
             log("Exception: " + e);
         }
 
         // test 35: Generate symmetric key - usages not defined
         try {
-            genKeyInfo = client.generateKey("Symmetric Key #1236", "DES", 56, usages);
+            genKeyResponse = client.generateKey("Symmetric Key #1236", "DES", 56, usages);
         } catch (Exception e) {
             log("Exception: " + e);
         }
@@ -651,11 +654,11 @@ public class DRMTest {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
                     KeyGenAlgorithm.DES3, ivps);
 
-            KeyRequestInfo info = client.archiveSecurityData(encoded, clientId,
+            KeyRequestResponse response = client.archiveSecurityData(encoded, clientId,
                     KeyRequestResource.SYMMETRIC_KEY_TYPE, KeyRequestResource.AES_ALGORITHM, 128);
             log("Archival Results:");
-            printRequestInfo(info);
-            keyId = info.getKeyId();
+            printRequestInfo(response.getRequestInfo());
+            keyId = response.getRequestInfo().getKeyId();
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.getMessage());
             e.printStackTrace();
@@ -683,8 +686,8 @@ public class DRMTest {
         try {
             recoveryKey = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
             wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
-            KeyRequestInfo info = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
-            recoveryRequestId = info.getRequestId();
+            KeyRequestResponse response = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
+            recoveryRequestId = response.getRequestInfo().getRequestId();
         } catch (Exception e) {
             log("Exception in recovering symmetric key using session key: " + e.getMessage());
         }

@@ -36,10 +36,12 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
+import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
+import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -133,7 +135,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @return info for the request submitted.
      * @throws EBaseException
      */
-    public KeyRequestInfo submitRequest(KeyArchivalRequest data, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestResponse submitRequest(KeyArchivalRequest data, UriInfo uriInfo) throws EBaseException {
         String clientId = data.getClientId();
         String wrappedSecurityData = data.getWrappedPrivateData();
         String dataType = data.getDataType();
@@ -162,7 +164,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         queue.markAsServiced(request);
 
-        return createKeyRequestInfo(request, uriInfo);
+        return createKeyRequestResponse(request, uriInfo);
     }
 
     /**
@@ -172,7 +174,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @return info on the recovery request created
      * @throws EBaseException
      */
-    public KeyRequestInfo submitRequest(KeyRecoveryRequest data, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo) throws EBaseException {
         // set data using request.setExtData(field, data)
 
         String wrappedSessionKeyStr = data.getTransWrappedSessionKey();
@@ -209,10 +211,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         queue.processRequest(request);
 
-        return createKeyRequestInfo(request, uriInfo);
+        return createKeyRequestResponse(request, uriInfo);
     }
 
-    public KeyRequestInfo submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestResponse submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo) throws EBaseException {
         String clientId = data.getClientId();
         String algName = data.getKeyAlgorithm();
         int size = data.getKeySize();
@@ -258,7 +260,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         queue.processRequest(request);
         queue.markAsServiced(request);
 
-        return createKeyRequestInfo(request, uriInfo);
+        return createKeyRequestResponse(request, uriInfo);
     }
 
     public void approveRequest(RequestId id) throws EBaseException {
@@ -302,9 +304,26 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return ret;
     }
 
+    private KeyData createKeyData(IRequest request, UriInfo uriInfo) {
+        // TODO - to be implemented when we enable one-shot generation and recovery
+        // with retrieval
+        return null;
+    }
+
+    private KeyRequestResponse createKeyRequestResponse(IRequest request, UriInfo uriInfo) {
+        KeyRequestResponse response = new KeyRequestResponse();
+        response.setRequestInfo(createKeyRequestInfo(request, uriInfo));
+        response.setKeyData(createKeyData(request, uriInfo));
+        return response;
+    }
+
     @Override
     public KeyRequestInfo createCMSRequestInfo(IRequest request, UriInfo uriInfo) {
         return createKeyRequestInfo(request, uriInfo);
+    }
+
+    public KeyRequestResponse createCMSRequestResponse(IRequest request, UriInfo uriInfo) {
+        return createKeyRequestResponse(request, uriInfo);
     }
 
     //We only care if the key exists or not

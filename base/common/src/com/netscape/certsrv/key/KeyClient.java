@@ -71,9 +71,9 @@ public class KeyClient extends Client {
                 maxTime);
     }
 
-    public KeyRequestInfo createRequest(ResourceMessage data) {
+    public KeyRequestResponse createRequest(ResourceMessage data) {
         @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestInfo> response = (ClientResponse<KeyRequestInfo>) keyRequestClient.createRequest(data);
+        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>) keyRequestClient.createRequest(data);
         return response.getEntity();
     }
 
