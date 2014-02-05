@@ -42,6 +42,12 @@ public class KeyData {
     @XmlElement
     String p12Data;
 
+    @XmlElement
+    String algorithm;
+
+    @XmlElement
+    Integer strength;
+
     public KeyData() {
         // required for JAXB (defaults)
     }
@@ -88,5 +94,33 @@ public class KeyData {
      */
     public void setP12Data(String p12Data) {
         this.p12Data = p12Data;
+    }
+
+    /**
+     * @return the algorithm
+     */
+    public String getAlgorithm() {
+        return algorithm;
+    }
+
+    /**
+     * @param algorithm the algorithm to set
+     */
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    /**
+     * @return the strength
+     */
+    public Integer getStrength() {
+        return strength;
+    }
+
+    /**
+     * @param strength the strength to set
+     */
+    public void setStrength(Integer strength) {
+        this.strength = strength;
     }
 }

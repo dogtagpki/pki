@@ -269,6 +269,7 @@ public class DRMTest {
 
         log("Getting key ID for symmetric key");
         keyInfo = client.getKeyData(clientId, "active");
+        printKeyInfo(keyInfo);
         KeyId keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
             log("No archived key found");
@@ -378,6 +379,7 @@ public class DRMTest {
         //Test 13: Get keyId for active passphrase with client ID
         log("Getting key ID for passphrase");
         keyInfo = client.getKeyData(clientId, "active");
+        printKeyInfo(keyInfo);
         keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
             log("No archived key found");
@@ -572,6 +574,7 @@ public class DRMTest {
         // test 29: Get keyId for active key with client ID
         log("Getting key ID for symmetric key");
         keyInfo = client.getKeyData(clientId, "active");
+        printKeyInfo(keyInfo);
         keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
             log("No archived key found");
@@ -661,6 +664,7 @@ public class DRMTest {
         //Test 37: Get keyId for active key with client ID
         log("Getting key ID for symmetric key");
         keyInfo = client.getKeyData(clientId, "active");
+        printKeyInfo(keyInfo);
         keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
             log("No archived key found");
@@ -713,8 +717,15 @@ public class DRMTest {
 
     }
 
+    private static void printKeyInfo(KeyInfo keyInfo) {
+        log("Printing keyInfo:");
+        log("ClientID:  " + keyInfo.getClientID());
+        log("Key URL:   " + keyInfo.getKeyURL());
+        log("Algorithm: " + keyInfo.getAlgorithm());
+        log("Strength:  " + keyInfo.getStrength());
+    }
+
     private static void log(String string) {
-        // TODO Auto-generated method stub
         System.out.println(string);
     }
 

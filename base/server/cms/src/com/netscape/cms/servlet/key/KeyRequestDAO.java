@@ -218,8 +218,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
         int size = data.getKeySize();
         List<String> usages = data.getUsages();
 
-        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(algName) || (size<=0)) {
-            throw new BadRequestException("Invalid key generation request. Missing parameters");
+        if (StringUtils.isBlank(clientId)) {
+            throw new BadRequestException("Invalid key generation request. Missing clientId");
         }
 
         boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
@@ -227,13 +227,22 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
-        KeyGenAlgorithm alg = KeyRequestService.KEYGEN_ALGORITHMS.get(algName);
-        if (alg == null) {
-            throw new BadRequestException("Invalid Algorithm");
-        }
+        if (StringUtils.isBlank(algName)) {
+            if (size != 0) {
+                throw new BadRequestException(
+                        "Invalid request.  Must specify key algorithm if size is specified");
+            }
+            algName = KeyRequestResource.AES_ALGORITHM;
+            size = 128;
+        } else {
+            KeyGenAlgorithm alg = KeyRequestService.KEYGEN_ALGORITHMS.get(algName);
+            if (alg == null) {
+                throw new BadRequestException("Invalid Algorithm");
+            }
 
-        if (!alg.isValidStrength(size)) {
-            throw new BadRequestException("Invalid key size for this algorithm");
+            if (!alg.isValidStrength(size)) {
+                throw new BadRequestException("Invalid key size for this algorithm");
+            }
         }
 
         IRequest request = queue.newRequest(IRequest.SYMKEY_GENERATION_REQUEST);

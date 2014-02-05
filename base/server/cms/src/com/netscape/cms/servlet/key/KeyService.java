@@ -245,6 +245,17 @@ public class KeyService extends PKIService implements KeyResource {
             keyData.setNonceData(nonceData);
         }
 
+        String algorithm = rec.getAlgorithm();
+        Integer keySize = rec.getKeySize();
+
+        if (algorithm != null) {
+            keyData.setAlgorithm(algorithm);
+        }
+
+        if (keySize != null) {
+            keyData.setStrength(keySize);
+        }
+
         kra.destroyVolatileRequest(request.getRequestId());
 
         queue.markAsServiced(request);
@@ -372,7 +383,7 @@ public class KeyService extends PKIService implements KeyResource {
         ret.setClientID(rec.getClientId());
         ret.setStatus(rec.getKeyStatus());
         ret.setAlgorithm(rec.getAlgorithm());
-        ret.setSize(rec.getKeySize());
+        ret.setStrength(rec.getKeySize());
         ret.setOwnerName(rec.getOwnerName());
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);
