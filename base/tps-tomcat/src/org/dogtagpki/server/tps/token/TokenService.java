@@ -26,7 +26,6 @@ import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -191,7 +190,6 @@ public class TokenService extends PKIService implements TokenResource {
             return Response
                     .created(tokenData.getLink().getHref())
                     .entity(tokenData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (Exception e) {
@@ -220,7 +218,6 @@ public class TokenService extends PKIService implements TokenResource {
 
             return Response
                     .ok(tokenData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (Exception e) {
@@ -254,7 +251,6 @@ public class TokenService extends PKIService implements TokenResource {
 
             return Response
                     .ok(tokenData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (Exception e) {

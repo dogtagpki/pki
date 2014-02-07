@@ -27,7 +27,6 @@ import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -182,7 +181,6 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             return Response
                     .created(authenticatorData.getLink().getHref())
                     .entity(authenticatorData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {
@@ -231,7 +229,6 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
             return Response
                     .ok(authenticatorData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {
@@ -292,7 +289,6 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
             return Response
                     .ok(authenticatorData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {

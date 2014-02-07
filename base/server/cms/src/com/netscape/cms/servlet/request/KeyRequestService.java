@@ -29,7 +29,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
@@ -185,7 +184,6 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             return Response
                     .created(new URI(response.getRequestInfo().getRequestURL()))
                     .entity(response)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
@@ -221,7 +219,6 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             return Response
                     .created(new URI(response.getRequestInfo().getRequestURL()))
                     .entity(response)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
@@ -458,12 +455,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             return Response
                     .created(new URI(response.getRequestInfo().getRequestURL()))
                     .entity(response)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
             throw new PKIException(e.toString());
         }
- }
+    }
 }

@@ -17,7 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -97,11 +101,10 @@ public class PKIException extends RuntimeException {
     public static class Mapper implements ExceptionMapper<PKIException> {
 
         public Response toResponse(PKIException exception) {
-            // convert PKIException into HTTP response with XML content
+            // convert PKIException into HTTP response
             return Response
                     .status(exception.getCode())
                     .entity(exception.getData())
-                    .type(MediaType.APPLICATION_XML)
                     .build();
         }
     }

@@ -27,7 +27,6 @@ import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -178,7 +177,6 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             return Response
                     .created(profileMappingData.getLink().getHref())
                     .entity(profileMappingData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {
@@ -224,7 +222,6 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
             return Response
                     .ok(profileMappingData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {
@@ -285,7 +282,6 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
             return Response
                     .ok(profileMappingData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {

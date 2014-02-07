@@ -26,7 +26,6 @@ import java.util.LinkedHashSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -166,7 +165,6 @@ public class AuditService extends PKIService implements AuditResource {
 
             return Response
                     .ok(auditConfig)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {

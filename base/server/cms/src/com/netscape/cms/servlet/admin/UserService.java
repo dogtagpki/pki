@@ -35,7 +35,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -366,7 +365,6 @@ public class UserService extends PKIService implements UserResource {
             return Response
                     .created(userData.getLink().getHref())
                     .entity(userData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {
@@ -445,7 +443,6 @@ public class UserService extends PKIService implements UserResource {
 
             return Response
                     .ok(userData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {
@@ -537,7 +534,6 @@ public class UserService extends PKIService implements UserResource {
 
             return Response
                     .ok(userData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {
@@ -927,7 +923,6 @@ public class UserService extends PKIService implements UserResource {
                 return Response
                         .created(userCertData.getLink().getHref())
                         .entity(userCertData)
-                        .type(MediaType.APPLICATION_XML)
                         .build();
 
             } catch (CertificateExpiredException e) {
@@ -1117,7 +1112,6 @@ public class UserService extends PKIService implements UserResource {
             return Response
                     .created(userMembershipData.getLink().getHref())
                     .entity(userMembershipData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {

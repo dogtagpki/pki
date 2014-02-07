@@ -13,7 +13,6 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -170,7 +169,6 @@ public class TPSConnectorService implements TPSConnectorResource {
             return Response
                     .created(newData.getLink().getHref())
                     .entity(newData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (EBaseException e) {
@@ -211,7 +209,6 @@ public class TPSConnectorService implements TPSConnectorResource {
             return Response
                     .ok(curData.getLink().getHref())
                     .entity(curData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
         } catch (EBaseException e) {
             CMS.debug("Unable to modify TPS Connector: " + e);

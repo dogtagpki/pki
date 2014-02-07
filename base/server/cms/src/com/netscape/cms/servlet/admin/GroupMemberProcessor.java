@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -245,7 +244,6 @@ public class GroupMemberProcessor extends Processor {
             return Response
                     .created(groupMemberData.getLink().getHref())
                     .entity(groupMemberData)
-                    .type(MediaType.APPLICATION_XML)
                     .build();
 
         } catch (PKIException e) {
