@@ -19,7 +19,7 @@ package com.netscape.certsrv.user;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -49,15 +49,13 @@ public class UserClient extends Client {
     }
 
     public UserData addUser(UserData userData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<UserData> response = (ClientResponse<UserData>)userClient.addUser(userData);
-        return client.getEntity(response);
+        Response response = userClient.addUser(userData);
+        return client.getEntity(response, UserData.class);
     }
 
     public UserData modifyUser(String userID, UserData userData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<UserData> response = (ClientResponse<UserData>)userClient.modifyUser(userID, userData);
-        return client.getEntity(response);
+        Response response = userClient.modifyUser(userID, userData);
+        return client.getEntity(response, UserData.class);
     }
 
     public void removeUser(String userID) {
@@ -73,9 +71,8 @@ public class UserClient extends Client {
     }
 
     public UserCertData addUserCert(String userID, UserCertData userCertData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<UserCertData> response = (ClientResponse<UserCertData>)userClient.addUserCert(userID, userCertData);
-        return client.getEntity(response);
+        Response response = userClient.addUserCert(userID, userCertData);
+        return client.getEntity(response, UserCertData.class);
     }
 
     public void removeUserCert(String userID, String certID) {
@@ -87,9 +84,8 @@ public class UserClient extends Client {
     }
 
     public UserMembershipData addUserMembership(String userID, String groupID) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<UserMembershipData> response = (ClientResponse<UserMembershipData>)userClient.addUserMembership(userID, groupID);
-        return client.getEntity(response);
+        Response response = userClient.addUserMembership(userID, groupID);
+        return client.getEntity(response, UserMembershipData.class);
     }
 
     public void removeUserMembership(String userD, String groupID) {

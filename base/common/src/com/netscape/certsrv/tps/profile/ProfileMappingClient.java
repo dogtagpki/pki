@@ -19,7 +19,7 @@ package com.netscape.certsrv.tps.profile;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -49,21 +49,18 @@ public class ProfileMappingClient extends Client {
     }
 
     public ProfileMappingData addProfileMapping(ProfileMappingData profileMappingData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ProfileMappingData> response = (ClientResponse<ProfileMappingData>)resource.addProfileMapping(profileMappingData);
-        return client.getEntity(response);
+        Response response = resource.addProfileMapping(profileMappingData);
+        return client.getEntity(response, ProfileMappingData.class);
     }
 
     public ProfileMappingData updateProfileMapping(String profileMappingID, ProfileMappingData profileMappingData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ProfileMappingData> response = (ClientResponse<ProfileMappingData>)resource.updateProfileMapping(profileMappingID, profileMappingData);
-        return client.getEntity(response);
+        Response response = resource.updateProfileMapping(profileMappingID, profileMappingData);
+        return client.getEntity(response, ProfileMappingData.class);
     }
 
     public ProfileMappingData changeProfileMappingStatus(String profileMappingID, String action) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ProfileMappingData> response = (ClientResponse<ProfileMappingData>)resource.changeProfileMappingStatus(profileMappingID, action);
-        return client.getEntity(response);
+        Response response = resource.changeProfileMappingStatus(profileMappingID, action);
+        return client.getEntity(response, ProfileMappingData.class);
     }
 
     public void removeProfileMapping(String profileMappingID) {

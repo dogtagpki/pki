@@ -19,7 +19,7 @@ package com.netscape.certsrv.tps.token;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -49,15 +49,13 @@ public class TokenClient extends Client {
     }
 
     public TokenData addToken(TokenData tokenData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<TokenData> response = (ClientResponse<TokenData>)resource.addToken(tokenData);
-        return client.getEntity(response);
+        Response response = resource.addToken(tokenData);
+        return client.getEntity(response, TokenData.class);
     }
 
     public TokenData updateToken(String tokenID, TokenData tokenData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<TokenData> response = (ClientResponse<TokenData>)resource.replaceToken(tokenID, tokenData);
-        return client.getEntity(response);
+        Response response = resource.replaceToken(tokenID, tokenData);
+        return client.getEntity(response, TokenData.class);
     }
 
     public void removeToken(String tokenID) {

@@ -19,7 +19,7 @@ package com.netscape.certsrv.tps.authenticator;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -49,21 +49,18 @@ public class AuthenticatorClient extends Client {
     }
 
     public AuthenticatorData addAuthenticator(AuthenticatorData authenticatorData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<AuthenticatorData> response = (ClientResponse<AuthenticatorData>)resource.addAuthenticator(authenticatorData);
-        return client.getEntity(response);
+        Response response = resource.addAuthenticator(authenticatorData);
+        return client.getEntity(response, AuthenticatorData.class);
     }
 
     public AuthenticatorData updateAuthenticator(String authenticatorID, AuthenticatorData authenticatorData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<AuthenticatorData> response = (ClientResponse<AuthenticatorData>)resource.updateAuthenticator(authenticatorID, authenticatorData);
-        return client.getEntity(response);
+        Response response = resource.updateAuthenticator(authenticatorID, authenticatorData);
+        return client.getEntity(response, AuthenticatorData.class);
     }
 
     public AuthenticatorData changeAuthenticatorStatus(String authenticatorID, String action) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<AuthenticatorData> response = (ClientResponse<AuthenticatorData>)resource.changeAuthenticatorStatus(authenticatorID, action);
-        return client.getEntity(response);
+        Response response = resource.changeAuthenticatorStatus(authenticatorID, action);
+        return client.getEntity(response, AuthenticatorData.class);
     }
 
     public void removeAuthenticator(String authenticatorID) {

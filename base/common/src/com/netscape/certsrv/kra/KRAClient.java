@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
@@ -54,10 +54,8 @@ public class KRAClient extends SubsystemClient {
     }
 
     public String getTransportCert() {
-        @SuppressWarnings("unchecked")
-        ClientResponse<CertData> response = (ClientResponse<CertData>) systemCertClient
-                .getTransportCert();
-        CertData certData = client.getEntity(response);
+        Response response = systemCertClient.getTransportCert();
+        CertData certData = client.getEntity(response, CertData.class);
         String transportCert = certData.getEncoded();
         return transportCert;
     }
@@ -80,10 +78,8 @@ public class KRAClient extends SubsystemClient {
         data.setKeyAlgorithm(algorithm);
         data.setKeySize(strength);
 
-        @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
-                keyRequestClient.createRequest(data);
-        return client.getEntity(response);
+        Response response = keyRequestClient.createRequest(data);
+        return client.getEntity(response, KeyRequestResponse.class);
     }
 
     public KeyInfo getKeyData(String clientId, String status) {
@@ -116,10 +112,8 @@ public class KRAClient extends SubsystemClient {
             data.setNonceData(Utils.base64encode(nonceData));
         }
 
-        @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
-                keyRequestClient.createRequest(data);
-        return client.getEntity(response);
+        Response response = keyRequestClient.createRequest(data);
+        return client.getEntity(response, KeyRequestResponse.class);
     }
 
     public void approveRecovery(RequestId recoveryId) {
@@ -156,10 +150,8 @@ public class KRAClient extends SubsystemClient {
         data.setKeyId(new KeyId(keyId));
         data.setCertificate(b64Certificate);
 
-        @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
-                keyRequestClient.createRequest(data);
-        return client.getEntity(response);
+        Response response = keyRequestClient.createRequest(data);
+        return client.getEntity(response, KeyRequestResponse.class);
     }
 
     public KeyData recoverKey(RequestId requestId, String passphrase) {
@@ -179,9 +171,7 @@ public class KRAClient extends SubsystemClient {
         data.setKeySize(new Integer(keySize));
         data.setUsages(usages);
 
-        @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
-                keyRequestClient.createRequest(data);
-        return response.getEntity();
+        Response response = keyRequestClient.createRequest(data);
+        return client.getEntity(response, KeyRequestResponse.class);
     }
 }

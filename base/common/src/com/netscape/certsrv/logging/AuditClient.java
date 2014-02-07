@@ -19,7 +19,7 @@ package com.netscape.certsrv.logging;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -45,8 +45,7 @@ public class AuditClient extends Client {
     }
 
     public AuditConfig updateAuditConfig(AuditConfig auditConfig) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<AuditConfig> response = (ClientResponse<AuditConfig>)resource.updateAuditConfig(auditConfig);
-        return client.getEntity(response);
+        Response response = resource.updateAuditConfig(auditConfig);
+        return client.getEntity(response, AuditConfig.class);
     }
 }

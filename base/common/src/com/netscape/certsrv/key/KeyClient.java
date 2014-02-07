@@ -19,7 +19,7 @@ package com.netscape.certsrv.key;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.client.Client;
@@ -72,9 +72,8 @@ public class KeyClient extends Client {
     }
 
     public KeyRequestResponse createRequest(ResourceMessage data) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>) keyRequestClient.createRequest(data);
-        return response.getEntity();
+        Response response = keyRequestClient.createRequest(data);
+        return client.getEntity(response, KeyRequestResponse.class);
     }
 
     public KeyRequestInfo getRequestInfo(RequestId id) {

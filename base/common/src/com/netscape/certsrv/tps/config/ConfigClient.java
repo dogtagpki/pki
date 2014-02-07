@@ -19,7 +19,7 @@ package com.netscape.certsrv.tps.config;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -45,8 +45,7 @@ public class ConfigClient extends Client {
     }
 
     public ConfigData updateConfig(ConfigData configData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ConfigData> response = (ClientResponse<ConfigData>)resource.updateConfig(configData);
-        return client.getEntity(response);
+        Response response = resource.updateConfig(configData);
+        return client.getEntity(response, ConfigData.class);
     }
 }

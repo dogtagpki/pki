@@ -19,7 +19,7 @@ package com.netscape.certsrv.tps.connection;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -49,21 +49,18 @@ public class ConnectionClient extends Client {
     }
 
     public ConnectionData addConnection(ConnectionData connectionData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ConnectionData> response = (ClientResponse<ConnectionData>)resource.addConnection(connectionData);
-        return client.getEntity(response);
+        Response response = resource.addConnection(connectionData);
+        return client.getEntity(response, ConnectionData.class);
     }
 
     public ConnectionData updateConnection(String connectionID, ConnectionData connectionData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ConnectionData> response = (ClientResponse<ConnectionData>)resource.updateConnection(connectionID, connectionData);
-        return client.getEntity(response);
+        Response response = resource.updateConnection(connectionID, connectionData);
+        return client.getEntity(response, ConnectionData.class);
     }
 
     public ConnectionData changeConnectionStatus(String connectionID, String action) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ConnectionData> response = (ClientResponse<ConnectionData>)resource.changeConnectionStatus(connectionID, action);
-        return client.getEntity(response);
+        Response response = resource.changeConnectionStatus(connectionID, action);
+        return client.getEntity(response, ConnectionData.class);
     }
 
     public void removeConnection(String connectionID) {

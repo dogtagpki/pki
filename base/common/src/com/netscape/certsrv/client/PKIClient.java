@@ -6,11 +6,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.cert.CertificateEncodingException;
 
+import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jboss.resteasy.client.ClientResponse;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -72,8 +72,8 @@ public class PKIClient {
         return config.getSubsystem();
     }
 
-    public <T> T getEntity(ClientResponse<T> response) {
-        return connection.getEntity(response);
+    public <T> T getEntity(Response response, Class<T> clazz) {
+        return connection.getEntity(response, clazz);
     }
 
     public ClientConfig getConfig() {

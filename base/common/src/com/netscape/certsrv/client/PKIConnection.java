@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.http.Header;
@@ -514,7 +515,7 @@ public class PKIConnection {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getEntity(ClientResponse<T> response) {
+    public <T> T getEntity(Response response, Class<T> clazz) {
         BaseClientResponse<T> clientResponse = (BaseClientResponse<T>)response;
         try {
             clientResponse.checkFailureStatus();
@@ -526,7 +527,7 @@ public class PKIConnection {
             errorHandler.clientErrorHandling(clientResponse, e);
         }
 
-        return response.getEntity();
+        return clientResponse.getEntity();
     }
 
     public ClientResponse<String> post(String content) throws Exception {

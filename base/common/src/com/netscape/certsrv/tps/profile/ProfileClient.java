@@ -19,7 +19,7 @@ package com.netscape.certsrv.tps.profile;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -53,21 +53,18 @@ public class ProfileClient extends Client {
     }
 
     public ProfileData addProfile(ProfileData profileData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ProfileData> response = (ClientResponse<ProfileData>)resource.addProfile(profileData);
-        return client.getEntity(response);
+        Response response = resource.addProfile(profileData);
+        return client.getEntity(response, ProfileData.class);
     }
 
     public ProfileData updateProfile(String profileID, ProfileData profileData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ProfileData> response = (ClientResponse<ProfileData>)resource.updateProfile(profileID, profileData);
-        return client.getEntity(response);
+        Response response = resource.updateProfile(profileID, profileData);
+        return client.getEntity(response, ProfileData.class);
     }
 
     public ProfileData changeProfileStatus(String profileID, String action) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<ProfileData> response = (ClientResponse<ProfileData>)resource.changeProfileStatus(profileID, action);
-        return client.getEntity(response);
+        Response response = resource.changeProfileStatus(profileID, action);
+        return client.getEntity(response, ProfileData.class);
     }
 
     public void removeProfile(String profileID) {

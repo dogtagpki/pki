@@ -19,7 +19,7 @@ package com.netscape.certsrv.group;
 
 import java.net.URISyntaxException;
 
-import org.jboss.resteasy.client.ClientResponse;
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -49,15 +49,13 @@ public class GroupClient extends Client {
     }
 
     public GroupData addGroup(GroupData groupData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<GroupData> response = (ClientResponse<GroupData>)groupClient.addGroup(groupData);
-        return client.getEntity(response);
+        Response response = groupClient.addGroup(groupData);
+        return client.getEntity(response, GroupData.class);
     }
 
     public GroupData modifyGroup(String groupID, GroupData groupData) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<GroupData> response = (ClientResponse<GroupData>)groupClient.modifyGroup(groupID, groupData);
-        return client.getEntity(response);
+        Response response = groupClient.modifyGroup(groupID, groupData);
+        return client.getEntity(response, GroupData.class);
     }
 
     public void removeGroup(String groupID) {
@@ -73,9 +71,8 @@ public class GroupClient extends Client {
     }
 
     public GroupMemberData addGroupMember(String groupID, String memberID) {
-        @SuppressWarnings("unchecked")
-        ClientResponse<GroupMemberData> response = (ClientResponse<GroupMemberData>)groupClient.addGroupMember(groupID, memberID);
-        return client.getEntity(response);
+        Response response = groupClient.addGroupMember(groupID, memberID);
+        return client.getEntity(response, GroupMemberData.class);
     }
 
     public void removeGroupMember(String groupID, String memberID) {
