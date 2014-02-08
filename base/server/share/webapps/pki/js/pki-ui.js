@@ -227,32 +227,10 @@ var Dialog = Backbone.View.extend({
         var self = this;
 
         if (action == "add") {
-            self.add({
-                success: function(model, response, options) {
-                    self.close();
-                },
-                error: function(model, response, options) {
-                    if (response.status == 201) {
-                        self.close();
-                        return;
-                    }
-                    alert("ERROR: " + response.responseText);
-                }
-            });
+            self.add();
 
         } else if (action == "save") {
-            self.save({
-                success: function(model, response, options) {
-                    self.close();
-                },
-                error: function(model, response, options) {
-                    if (response.status == 200) {
-                        self.close();
-                        return;
-                    }
-                    alert("ERROR: " + response.responseText);
-                }
-            });
+            self.save();
 
         } else {
             self.close();
@@ -306,7 +284,7 @@ var Dialog = Backbone.View.extend({
         if (!value) value = "";
         input.val(value);
     },
-    add: function(options) {
+    add: function() {
         var self = this;
 
         self.saveFields();
@@ -317,11 +295,22 @@ var Dialog = Backbone.View.extend({
         // save non-empty attributes with POST
         self.model.save(changedAttributes, {
             wait: true,
-            success: options.success,
-            error: options.error
+            success: function(model, response, options) {
+                if (self.success) self.success.call();
+                self.close();
+            },
+            error: function(model, response, options) {
+                if (response.status == 201) {
+                    if (self.success) self.success.call();
+                    self.close();
+                    return;
+                }
+                alert("ERROR: " + response.responseText);
+                if (self.error) self.error.call();
+            }
         });
     },
-    save: function(options) {
+    save: function() {
         var self = this;
 
         self.saveFields();
@@ -333,8 +322,19 @@ var Dialog = Backbone.View.extend({
         self.model.save(changedAttributes, {
             patch: true,
             wait: true,
-            success: options.success,
-            error: options.error
+            success: function(model, response, options) {
+                if (self.success) self.success.call();
+                self.close();
+            },
+            error: function(model, response, options) {
+                if (response.status == 200) {
+                    if (self.success) self.success.call();
+                    self.close();
+                    return;
+                }
+                alert("ERROR: " + response.responseText);
+                if (self.error) self.error.call();
+            }
         });
     },
     saveFields: function() {
@@ -352,6 +352,14 @@ var Dialog = Backbone.View.extend({
         var name = input.attr("name");
         var value = input.val();
         attributes[name] = value;
+    },
+    done: function(success) {
+        var self = this;
+        self.success = success;
+    },
+    fail: function(error) {
+        var self = this;
+        self.error = error;
     }
 });
 
@@ -427,7 +435,7 @@ var Table = Backbone.View.extend({
         $("button[name='add']", self.thead).click(function(e) {
             var dialog = self.addDialog;
             dialog.model = new self.collection.model();
-            dialog.once("close", function(event) {
+            dialog.done(function() {
                 self.render();
             });
             dialog.open();
@@ -461,6 +469,7 @@ var Table = Backbone.View.extend({
     render: function() {
         var self = this;
         self.collection.fetch({
+            reset: true,
             success: function() {
                 self.tbody.empty();
 
