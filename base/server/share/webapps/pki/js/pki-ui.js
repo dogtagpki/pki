@@ -93,8 +93,8 @@ var Collection = Backbone.Collection.extend({
         var self = this;
         self.links = {};
         _(links).each(function(link) {
-            var name = link["@rel"];
-            var href = link["@href"];
+            var name = link.rel;
+            var href = link.href;
             self.links[name] = href;
         });
     },

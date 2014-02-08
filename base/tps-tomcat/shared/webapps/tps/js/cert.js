@@ -83,7 +83,7 @@ var CertificatePage = Page.extend({
 
         new Table({
             el: $("table[name='certificates']"),
-            collection: new CertificateCollection({ size: 3 }),
+            collection: new CertificateCollection({ size: 5 }),
             editDialog: editDialog
         });
     }

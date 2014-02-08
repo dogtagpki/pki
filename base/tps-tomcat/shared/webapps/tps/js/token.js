@@ -93,7 +93,7 @@ var TokenPage = Page.extend({
 
         new Table({
             el: $("table[name='tokens']"),
-            collection: new TokenCollection({ size: 3 }),
+            collection: new TokenCollection({ size: 5 }),
             addDialog: addDialog,
             editDialog: editDialog
         });

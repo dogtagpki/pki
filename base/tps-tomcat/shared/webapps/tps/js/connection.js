@@ -134,7 +134,7 @@ var ConnectionPage = Page.extend({
 
         new Table({
             el: $("table[name='connections']"),
-            collection: new ConnectionCollection({ size: 3 }),
+            collection: new ConnectionCollection({ size: 5 }),
             editDialog: editDialog
         });
     }

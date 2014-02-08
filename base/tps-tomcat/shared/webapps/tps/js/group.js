@@ -72,7 +72,7 @@ var GroupPage = Page.extend({
 
         new Table({
             el: $("table[name='groups']"),
-            collection: new GroupCollection({ size: 3 }),
+            collection: new GroupCollection({ size: 5 }),
             addDialog: addDialog,
             editDialog: editDialog
         });

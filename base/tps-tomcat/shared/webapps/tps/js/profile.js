@@ -134,7 +134,7 @@ var ProfilePage = Page.extend({
 
         new Table({
             el: $("table[name='profiles']"),
-            collection: new ProfileCollection({ size: 3 }),
+            collection: new ProfileCollection({ size: 5 }),
             editDialog: editDialog
         });
     }
