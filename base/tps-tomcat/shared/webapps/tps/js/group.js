@@ -54,3 +54,27 @@ var GroupCollection = Collection.extend({
         });
     }
 });
+
+var GroupPage = Page.extend({
+    load: function() {
+        var addDialog = new Dialog({
+            el: $("#group-dialog"),
+            title: "Add Group",
+            actions: ["cancel", "add"]
+        });
+
+        var editDialog = new Dialog({
+            el: $("#group-dialog"),
+            title: "Edit Group",
+            readonly: ["groupID"],
+            actions: ["cancel", "save"]
+        });
+
+        new Table({
+            el: $("table[name='groups']"),
+            collection: new GroupCollection({ size: 3 }),
+            addDialog: addDialog,
+            editDialog: editDialog
+        });
+    }
+});

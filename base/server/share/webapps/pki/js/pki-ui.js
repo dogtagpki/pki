@@ -107,27 +107,52 @@ var Collection = Backbone.Collection.extend({
     }
 });
 
+var Page = Backbone.View.extend({
+    initialize: function(options) {
+        var self = this;
+        Page.__super__.initialize.call(self, options);
+
+        self.url = options.url;
+    },
+    load: function() {
+    }
+});
+
 var Navigation = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
         Navigation.__super__.initialize.call(self, options);
 
         self.content = options.content;
-        self.homeURL = options.homeURL;
+        self.pages = options.pages;
+        self.homePage = options.homePage;
 
         $("li", self.$el).each(function(index) {
             var li = $(this);
             var link = $("a", li);
             var url = link.attr("href");
             link.click(function(e) {
-                if (url != "#") {
-                    self.content.load(url);
+                // get page name
+                if (url.charAt(0) == "#" && url.length > 1) {
+                    var name = url.substring(1);
+                    self.load(name);
                 }
                 e.preventDefault();
             });
         });
 
-        if (self.homeURL) self.content.load(self.homeURL);
+        if (self.homePage) self.load(self.homePage);
+    },
+    load: function(name) {
+        var self = this;
+        var page = self.pages[name];
+        if (!page) {
+            alert("Invalid page: " + name);
+            return;
+        }
+        self.content.load(page.url, function(response, status, xhr) {
+            page.load();
+        });
     }
 });
 

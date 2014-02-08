@@ -15,32 +15,6 @@
      Copyright (C) 2013 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
-<html>
-<head>
-    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
-    <script src="/pki/js/jquery.js"></script>
-    <script src="/pki/js/underscore.js"></script>
-    <script src="/pki/js/backbone.js"></script>
-    <script src="/pki/js/pki-ui.js"></script>
-    <script src="/tps/js/connection.js"></script>
-    <script>
-$(function() {
-    var editDialog = new ConnectionDialog({
-        el: $("#connection-dialog"),
-        title: "Edit Connection",
-        readonly: ["id", "status"]
-    });
-
-    new Table({
-        el: $("table[name='connections']"),
-        collection: new ConnectionCollection({ size: 3 }),
-        editDialog: editDialog
-    });
-});
-    </script>
-</head>
-<body>
-
 <h1>Connections</h1>
 
 <table name="connections">
@@ -95,6 +69,3 @@ $(function() {
         </footer>
     </div>
 </div>
-
-</body>
-</html>

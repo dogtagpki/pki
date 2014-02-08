@@ -72,3 +72,30 @@ var TokenCollection = Collection.extend({
         });
     }
 });
+
+var TokenPage = Page.extend({
+    load: function() {
+        var addDialog = new Dialog({
+            el: $("#token-dialog"),
+            title: "Add Token",
+            readonly: ["status", "reason", "appletID", "keyInfo",
+                "createTimestamp", "modifyTimestamp"],
+            actions: ["cancel", "add"]
+        });
+
+        var editDialog = new Dialog({
+            el: $("#token-dialog"),
+            title: "Edit Token",
+            readonly: ["tokenID", "status", "reason", "appletID", "keyInfo",
+                "createTimestamp", "modifyTimestamp"],
+            actions: ["cancel", "save"]
+        });
+
+        new Table({
+            el: $("table[name='tokens']"),
+            collection: new TokenCollection({ size: 3 }),
+            addDialog: addDialog,
+            editDialog: editDialog
+        });
+    }
+});

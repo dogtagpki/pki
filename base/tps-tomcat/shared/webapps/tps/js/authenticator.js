@@ -123,3 +123,19 @@ var AuthenticatorDialog = Dialog.extend({
         }
     }
 });
+
+var AuthenticatorPage = Page.extend({
+    load: function() {
+        var editDialog = new AuthenticatorDialog({
+            el: $("#authenticator-dialog"),
+            title: "Edit Authenticator",
+            readonly: ["id", "status"]
+        });
+
+        new Table({
+            el: $("table[name='authenticators']"),
+            collection: new AuthenticatorCollection({ size: 3 }),
+            editDialog: editDialog
+        });
+    }
+});

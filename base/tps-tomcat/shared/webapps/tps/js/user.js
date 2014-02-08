@@ -117,3 +117,28 @@ var UserDialog = Dialog.extend({
         attributes["attributes"] = attrs;
     }
 });
+
+var UserPage = Page.extend({
+    load: function() {
+        var addDialog = new UserDialog({
+            el: $("#user-dialog"),
+            title: "Add User",
+            readonly: ["type"],
+            actions: ["cancel", "add"]
+        });
+
+        var editDialog = new UserDialog({
+            el: $("#user-dialog"),
+            title: "Edit User",
+            readonly: ["userID", "type"],
+            actions: ["cancel", "save"]
+        });
+
+        new Table({
+            el: $("table[name='users']"),
+            collection: new UserCollection({ size: 3 }),
+            addDialog: addDialog,
+            editDialog: editDialog
+        });
+    }
+});

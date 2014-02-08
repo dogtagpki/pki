@@ -123,3 +123,19 @@ var ConnectionDialog = Dialog.extend({
         }
     }
 });
+
+var ConnectionPage = Page.extend({
+    load: function() {
+        var editDialog = new ConnectionDialog({
+            el: $("#connection-dialog"),
+            title: "Edit Connection",
+            readonly: ["id", "status"]
+        });
+
+        new Table({
+            el: $("table[name='connections']"),
+            collection: new ConnectionCollection({ size: 3 }),
+            editDialog: editDialog
+        });
+    }
+});

@@ -25,12 +25,32 @@
     <script src="/pki/js/backbone.js"></script>
     <script src="/pki/js/bootstrap.js"></script>
     <script src="/pki/js/pki-ui.js"></script>
+    <script src="/tps/js/activity.js"></script>
+    <script src="/tps/js/authenticator.js"></script>
+    <script src="/tps/js/cert.js"></script>
+    <script src="/tps/js/connection.js"></script>
+    <script src="/tps/js/group.js"></script>
+    <script src="/tps/js/profile.js"></script>
+    <script src="/tps/js/selftest.js"></script>
+    <script src="/tps/js/token.js"></script>
+    <script src="/tps/js/user.js"></script>
     <script>
 $(function() {
     new Navigation({
         el: $("#navigation"),
         content: $("#content"),
-        homeURL: "tokens.html"
+        pages: {
+            activities: new ActivityPage({ url: "activities.html" }),
+            authenticators: new AuthenticatorPage({ url: "authenticators.html" }),
+            certs: new CertificatePage({ url: "certs.html" }),
+            connections: new ConnectionPage({ url: "connections.html" }),
+            groups: new GroupPage({ url: "groups.html" }),
+            profiles: new ProfilePage({ url: "profiles.html" }),
+            selftests: new SelfTestPage({ url: "selftests.html" }),
+            tokens: new TokenPage({ url: "tokens.html" }),
+            users: new UserPage({ url: "users.html" })
+        },
+        homePage: "tokens"
     });
 });
     </script>
@@ -65,21 +85,21 @@ $(function() {
     </li>
     </ul>
     <ul class="nav navbar-nav navbar-primary">
-    <li><a href="tokens.html">Tokens</a></li>
-    <li><a href="certs.html">Certificates</a></li>
-    <li><a href="activities.html">Activities</a></li>
-    <li><a href="profiles.html">Profiles</a></li>
-    <li><a href="selftests.html">SelfTests</a></li>
-    <li><a href="users.html">Users</a></li>
-    <li><a href="groups.html">Groups</a></li>
+    <li><a href="#tokens">Tokens</a></li>
+    <li><a href="#certs">Certificates</a></li>
+    <li><a href="#activities">Activities</a></li>
+    <li><a href="#profiles">Profiles</a></li>
+    <li><a href="#selftests">SelfTests</a></li>
+    <li><a href="#users">Users</a></li>
+    <li><a href="#groups">Groups</a></li>
     <li class="dropdown context">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">
         Configuration
         <b class="caret"></b>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="authenticators.html">Authenticators</a></li>
-        <li><a href="connections.html">Connections</a></li>
+        <li><a href="#authenticators">Authenticators</a></li>
+        <li><a href="#connections">Connections</a></li>
       </ul>
     </li>
     </ul>

@@ -15,40 +15,6 @@
      Copyright (C) 2013 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
-<html>
-<head>
-    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
-    <script src="/pki/js/jquery.js"></script>
-    <script src="/pki/js/underscore.js"></script>
-    <script src="/pki/js/backbone.js"></script>
-    <script src="/pki/js/pki-ui.js"></script>
-    <script src="/tps/js/group.js"></script>
-    <script>
-$(function() {
-    var addDialog = new Dialog({
-        el: $("#group-dialog"),
-        title: "Add Group",
-        actions: ["cancel", "add"]
-    });
-
-    var editDialog = new Dialog({
-        el: $("#group-dialog"),
-        title: "Edit Group",
-        readonly: ["groupID"],
-        actions: ["cancel", "save"]
-    });
-
-    new Table({
-        el: $("table[name='groups']"),
-        collection: new GroupCollection({ size: 3 }),
-        addDialog: addDialog,
-        editDialog: editDialog
-    });
-});
-    </script>
-</head>
-<body>
-
 <h1>Groups</h1>
 
 <table name="groups">
@@ -105,6 +71,3 @@ $(function() {
         </footer>
     </div>
 </div>
-
-</body>
-</html>

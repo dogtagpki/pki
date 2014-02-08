@@ -15,32 +15,6 @@
      Copyright (C) 2013 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
-<html>
-<head>
-    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
-    <script src="/pki/js/jquery.js"></script>
-    <script src="/pki/js/underscore.js"></script>
-    <script src="/pki/js/backbone.js"></script>
-    <script src="/pki/js/pki-ui.js"></script>
-    <script src="/tps/js/authenticator.js"></script>
-    <script>
-$(function() {
-    var editDialog = new AuthenticatorDialog({
-        el: $("#authenticator-dialog"),
-        title: "Edit Authenticator",
-        readonly: ["id", "status"]
-    });
-
-    new Table({
-        el: $("table[name='authenticators']"),
-        collection: new AuthenticatorCollection({ size: 3 }),
-        editDialog: editDialog
-    });
-});
-    </script>
-</head>
-<body>
-
 <h1>Authenticators</h1>
 
 <table name="authenticators">
@@ -95,6 +69,3 @@ $(function() {
         </footer>
     </div>
 </div>
-
-</body>
-</html>

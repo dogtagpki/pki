@@ -123,3 +123,19 @@ var ProfileDialog = Dialog.extend({
         }
     }
 });
+
+var ProfilePage = Page.extend({
+    load: function() {
+        var editDialog = new ProfileDialog({
+            el: $("#profile-dialog"),
+            title: "Edit Profile",
+            readonly: ["id", "status"]
+        });
+
+        new Table({
+            el: $("table[name='profiles']"),
+            collection: new ProfileCollection({ size: 3 }),
+            editDialog: editDialog
+        });
+    }
+});

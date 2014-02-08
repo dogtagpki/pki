@@ -59,3 +59,19 @@ var SelfTestCollection = Collection.extend({
         });
     }
 });
+
+var SelfTestPage = Page.extend({
+    load: function() {
+        var editDialog = new Dialog({
+            el: $("#selftest-dialog"),
+            title: "Edit Self Test",
+            readonly: ["id", "enabledAtStartup", "criticalAtStartup", "enabledOnDemand", "criticalOnDemand"]
+        });
+
+        new Table({
+            el: $("table[name='selftests']"),
+            collection: new SelfTestCollection({ size: 3 }),
+            editDialog: editDialog
+        });
+    }
+});

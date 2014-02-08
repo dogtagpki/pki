@@ -71,3 +71,20 @@ var CertificateCollection = Collection.extend({
         });
     }
 });
+
+var CertificatePage = Page.extend({
+    load: function() {
+        var editDialog = new Dialog({
+            el: $("#certificate-dialog"),
+            title: "Edit Certificate",
+            readonly: ["id", "serialNumber", "subject", "tokenID", "userID",
+            "keyType", "status", "createTime", "modifyTime"]
+        });
+
+        new Table({
+            el: $("table[name='certificates']"),
+            collection: new CertificateCollection({ size: 3 }),
+            editDialog: editDialog
+        });
+    }
+});

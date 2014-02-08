@@ -15,33 +15,6 @@
      Copyright (C) 2013 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
-<html>
-<head>
-    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
-    <script src="/pki/js/jquery.js"></script>
-    <script src="/pki/js/underscore.js"></script>
-    <script src="/pki/js/backbone.js"></script>
-    <script src="/pki/js/pki-ui.js"></script>
-    <script src="/tps/js/cert.js"></script>
-    <script>
-$(function() {
-    var editDialog = new Dialog({
-        el: $("#certificate-dialog"),
-        title: "Edit Certificate",
-        readonly: ["id", "serialNumber", "subject", "tokenID", "userID",
-            "keyType", "status", "createTime", "modifyTime"]
-    });
-
-    new Table({
-        el: $("table[name='certificates']"),
-        collection: new CertificateCollection({ size: 3 }),
-        editDialog: editDialog
-    });
-});
-    </script>
-</head>
-<body>
-
 <h1>Certificates</h1>
 
 <table name="certificates">
@@ -114,6 +87,3 @@ $(function() {
         </footer>
     </div>
 </div>
-
-</body>
-</html>

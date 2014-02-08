@@ -15,33 +15,6 @@
      Copyright (C) 2013 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
-<html>
-<head>
-    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
-    <script src="/pki/js/jquery.js"></script>
-    <script src="/pki/js/underscore.js"></script>
-    <script src="/pki/js/backbone.js"></script>
-    <script src="/pki/js/pki-ui.js"></script>
-    <script src="/tps/js/activity.js"></script>
-    <script>
-$(function() {
-    var editDialog = new Dialog({
-        el: $("#activity-dialog"),
-        title: "Edit Activity",
-        readonly: ["id", "tokenID", "userID", "ip",
-            "operation", "result", "date"]
-    });
-
-    new Table({
-        el: $("table[name='activities']"),
-        collection: new ActivityCollection({ size: 3 }),
-        editDialog: editDialog
-    });
-});
-    </script>
-</head>
-<body>
-
 <h1>Activities</h1>
 
 <table name="activities">
@@ -108,6 +81,3 @@ $(function() {
         </footer>
     </div>
 </div>
-
-</body>
-</html>

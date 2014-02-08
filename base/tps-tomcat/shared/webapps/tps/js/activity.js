@@ -65,3 +65,20 @@ var ActivityCollection = Collection.extend({
         });
     }
 });
+
+var ActivityPage = Page.extend({
+    load: function() {
+        var editDialog = new Dialog({
+            el: $("#activity-dialog"),
+            title: "Edit Activity",
+            readonly: ["id", "tokenID", "userID", "ip",
+                "operation", "result", "date"]
+        });
+
+        new Table({
+            el: $("table[name='activities']"),
+            collection: new ActivityCollection({ size: 3 }),
+            editDialog: editDialog
+        });
+    }
+});

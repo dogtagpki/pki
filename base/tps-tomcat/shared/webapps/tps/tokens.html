@@ -15,43 +15,6 @@
      Copyright (C) 2013 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
-<html>
-<head>
-    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
-    <script src="/pki/js/jquery.js"></script>
-    <script src="/pki/js/underscore.js"></script>
-    <script src="/pki/js/backbone.js"></script>
-    <script src="/pki/js/pki-ui.js"></script>
-    <script src="/tps/js/token.js"></script>
-    <script>
-$(function() {
-    var addDialog = new Dialog({
-        el: $("#token-dialog"),
-        title: "Add Token",
-        readonly: ["status", "reason", "appletID", "keyInfo",
-            "createTimestamp", "modifyTimestamp"],
-        actions: ["cancel", "add"]
-    });
-
-    var editDialog = new Dialog({
-        el: $("#token-dialog"),
-        title: "Edit Token",
-        readonly: ["tokenID", "status", "reason", "appletID", "keyInfo",
-            "createTimestamp", "modifyTimestamp"],
-        actions: ["cancel", "save"]
-    });
-
-    new Table({
-        el: $("table[name='tokens']"),
-        collection: new TokenCollection({ size: 3 }),
-        addDialog: addDialog,
-        editDialog: editDialog
-    });
-});
-    </script>
-</head>
-<body>
-
 <h1>Tokens</h1>
 
 <table name="tokens">
@@ -126,6 +89,3 @@ $(function() {
         </footer>
     </div>
 </div>
-
-</body>
-</html>
