@@ -17,12 +17,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -511,7 +513,20 @@ public class PKIConnection {
 
     public <T> T createProxy(URI uri, Class<T> clazz) throws URISyntaxException {
         ResteasyWebTarget target = resteasyClient.target(uri);
-        return ProxyBuilder.builder(clazz, target).build();
+        ProxyBuilder<T> builder = ProxyBuilder.builder(clazz, target);
+
+        String messageFormat = config.getMessageFormat();
+        if (messageFormat == null) messageFormat = PKIClient.MESSAGE_FORMATS[0];
+
+        if (!Arrays.asList(PKIClient.MESSAGE_FORMATS).contains(messageFormat)) {
+            throw new Error("Unsupported message format: " + messageFormat);
+        }
+
+        MediaType contentType = MediaType.valueOf("application/" + messageFormat);
+        builder.defaultConsumes(contentType);
+        builder.defaultProduces(contentType);
+
+        return builder.build();
     }
 
     public <T> T getEntity(Response response, Class<T> clazz) {

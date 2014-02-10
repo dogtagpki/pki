@@ -33,6 +33,8 @@ import com.netscape.cmsutil.util.Utils;
 
 public class PKIClient {
 
+    public final static String[] MESSAGE_FORMATS = { "xml", "json" };
+
     public ClientConfig config;
     public PKIConnection connection;
 

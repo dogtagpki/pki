@@ -31,6 +31,11 @@ public class PKIException extends RuntimeException {
 
     public int code;
 
+    public PKIException(Response.Status status) {
+        super(status.getReasonPhrase());
+        code = status.getStatusCode();
+    }
+
     public PKIException(String message) {
         super(message);
         code = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();

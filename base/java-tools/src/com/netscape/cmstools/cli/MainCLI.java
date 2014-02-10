@@ -185,6 +185,10 @@ public class MainCLI extends CLI {
         option.setArgName("list");
         options.addOption(option);
 
+        option = new Option(null, "message-format", true, "Message format: xml (default), json");
+        option.setArgName("format");
+        options.addOption(option);
+
         options.addOption("v", false, "Verbose");
         options.addOption(null, "help", false, "Help");
         options.addOption(null, "version", false, "Version");
@@ -252,6 +256,10 @@ public class MainCLI extends CLI {
         }
 
         if (verbose) System.out.println("Security database: "+this.certDatabase.getAbsolutePath());
+
+        String messageFormat = cmd.getOptionValue("message-format");
+        config.setMessageFormat(messageFormat);
+        if (verbose) System.out.println("Message format: " + messageFormat);
     }
 
     public void convertCertStatusList(String list, Collection<Integer> statuses) throws Exception {

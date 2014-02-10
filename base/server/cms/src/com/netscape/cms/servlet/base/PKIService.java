@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.base;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.cert.CertificateEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -27,13 +28,16 @@ import java.util.Map;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
@@ -52,18 +56,53 @@ public class PKIService {
     // caching parameters
     public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
+    public static List<MediaType> MESSAGE_FORMATS = Arrays.asList(
+            MediaType.APPLICATION_XML_TYPE,
+            MediaType.APPLICATION_JSON_TYPE
+    );
+
+    @Context
+    private HttpHeaders headers;
+
     public ILogger logger = CMS.getLogger();
     public IAuditor auditor = CMS.getAuditor();
+
+    public static MediaType resolveFormat(MediaType format) {
+
+        for (MediaType supportedFormat : MESSAGE_FORMATS) {
+            if (format.isCompatible(supportedFormat)) return supportedFormat;
+        }
+
+        return null;
+    }
+
+    public static MediaType resolveFormat(List<MediaType> formats) {
+
+        for (MediaType acceptableFormat : formats) {
+            MediaType supportedFormat = resolveFormat(acceptableFormat);
+            if (supportedFormat != null) return supportedFormat;
+        }
+
+        return null;
+    }
+
+    public MediaType getResponseFormat() {
+        MediaType responseFormat = resolveFormat(headers.getAcceptableMediaTypes());
+        if (responseFormat == null) throw new PKIException(Response.Status.NOT_ACCEPTABLE);
+        return responseFormat;
+    }
 
     public Response createOKResponse() {
         return Response
                 .ok()
+                .type(getResponseFormat())
                 .build();
     }
 
     public Response createOKResponse(Object entity) {
         return Response
                 .ok(entity)
+                .type(getResponseFormat())
                 .build();
     }
 
@@ -71,12 +110,14 @@ public class PKIService {
         return Response
                 .created(link)
                 .entity(entity)
+                .type(getResponseFormat())
                 .build();
     }
 
     public Response createNoContentResponse() {
         return Response
                 .noContent()
+                .type(getResponseFormat())
                 .build();
     }
 

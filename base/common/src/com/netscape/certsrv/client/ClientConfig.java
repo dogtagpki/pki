@@ -55,6 +55,7 @@ public class ClientConfig {
     String certPassword;
     String username;
     String password;
+    String messageFormat;
 
     @XmlElement(name="ServerURI")
     public URI getServerURI() {
@@ -123,6 +124,15 @@ public class ClientConfig {
         this.password = password;
     }
 
+    @XmlElement(name="MessageFormat")
+    public String getMessageFormat() {
+        return messageFormat;
+    }
+
+    public void setMessageFormat(String messageFormat) {
+        this.messageFormat = messageFormat;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -130,6 +140,7 @@ public class ClientConfig {
         result = prime * result + ((certDatabase == null) ? 0 : certDatabase.hashCode());
         result = prime * result + ((certNickname == null) ? 0 : certNickname.hashCode());
         result = prime * result + ((certPassword == null) ? 0 : certPassword.hashCode());
+        result = prime * result + ((messageFormat == null) ? 0 : messageFormat.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((serverURI == null) ? 0 : serverURI.hashCode());
         result = prime * result + ((username == null) ? 0 : username.hashCode());
@@ -159,6 +170,11 @@ public class ClientConfig {
             if (other.certPassword != null)
                 return false;
         } else if (!certPassword.equals(other.certPassword))
+            return false;
+        if (messageFormat == null) {
+            if (other.messageFormat != null)
+                return false;
+        } else if (!messageFormat.equals(other.messageFormat))
             return false;
         if (password == null) {
             if (other.password != null)
