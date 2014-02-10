@@ -1239,6 +1239,7 @@ verify_symlinks()
             [ldapjdk.jar]=${java_dir}/ldapjdk.jar
             [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
             [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
+            [resteasy-client.jar]=${RESTEASY_LIB}/resteasy-client.jar
             [resteasy-jaxb-provider.jar]=${RESTEASY_LIB}/resteasy-jaxb-provider.jar
             [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
             [resteasy-jackson-provider.jar]=${RESTEASY_LIB}/resteasy-jackson-provider.jar
@@ -1275,6 +1276,7 @@ verify_symlinks()
             [ldapjdk.jar]=${java_dir}/ldapjdk.jar
             [pki-tomcat.jar]=${java_dir}/pki/pki-tomcat.jar
             [resteasy-atom-provider.jar]=${RESTEASY_LIB}/resteasy-atom-provider.jar
+            [resteasy-client.jar]=${RESTEASY_LIB}/resteasy-client.jar
             [resteasy-jaxb-provider.jar]=${RESTEASY_LIB}/resteasy-jaxb-provider.jar
             [resteasy-jaxrs.jar]=${RESTEASY_LIB}/resteasy-jaxrs.jar
             [resteasy-jackson-provider.jar]=${RESTEASY_LIB}/resteasy-jackson-provider.jar

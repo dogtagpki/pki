@@ -162,6 +162,10 @@ grant codeBase "file:${RESTEASY_LIB}/resteasy-atom-provider.jar" {
         permission java.security.AllPermission;
 };
 
+grant codeBase "file:${RESTEASY_LIB}/resteasy-client.jar" {
+        permission java.security.AllPermission;
+};
+
 grant codeBase "file:${RESTEASY_LIB}/resteasy-jaxb-provider.jar" {
         permission java.security.AllPermission;
 };

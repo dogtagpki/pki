@@ -198,6 +198,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 os.path.join(
                     deployer.master_dict['pki_tomcat_common_lib_path'],
                     'resteasy-atom-provider.jar'))
+            deployer.symlink.create(deployer.master_dict['pki_resteasy_client_jar'],
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_common_lib_path'],
+                    'resteasy-client.jar'))
             deployer.symlink.create(deployer.master_dict['pki_resteasy_jaxb_provider_jar'],
                 os.path.join(
                     deployer.master_dict['pki_tomcat_common_lib_path'],

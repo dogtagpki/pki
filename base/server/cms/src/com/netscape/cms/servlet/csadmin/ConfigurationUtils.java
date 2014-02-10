@@ -54,6 +54,8 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -78,7 +80,6 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 
 import org.apache.velocity.context.Context;
-import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ClientResponseFailure;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
@@ -213,8 +214,8 @@ public class ConfigurationUtils {
         return getHttpResponse(hostname, port, secure, uri, content, clientnickname, null);
     }
 
-    public static ClientResponse<String> getClientResponse(String hostname, int port, boolean secure,
-            String path, String content, String clientnickname,
+    public static String post(String hostname, int port, boolean secure,
+            String path, MultivaluedMap<String, String> map, String clientnickname,
             SSLCertificateApprovalCallback certApprovalCallback)
             throws Exception {
 
@@ -225,9 +226,7 @@ public class ConfigurationUtils {
 
         PKIClient client = new PKIClient(config);
         PKIConnection connection = client.getConnection();
-        ClientResponse<String> response = connection.post(content);
-
-        return response;
+        return connection.post(map);
     }
 
     //TODO - replace with Jack's connector code
@@ -328,6 +327,7 @@ public class ConfigurationUtils {
         boolean oldtoken = cs.getBoolean("cs.useOldTokenInterface", false);
 
         if (oldtoken) {
+            CMS.debug("Getting old token");
             return ConfigurationUtils.getOldToken(sdhost, sdport, user, passwd);
         }
 
@@ -361,9 +361,11 @@ public class ConfigurationUtils {
             return token.getToken();
 
         } catch (ClientResponseFailure e) {
+
             if (e.getResponse().getResponseStatus() == Response.Status.NOT_FOUND) {
                 // try the old servlet
                 String tokenString = getOldCookie(sdhost, sdport, user, passwd);
+                CMS.debug("Token: " + tokenString);
                 return tokenString;
             }
 
@@ -378,12 +380,13 @@ public class ConfigurationUtils {
                 + CMS.getAdminPort() + "/ca/admin/console/config/wizard" +
                 "?p=5&subsystem=" + cs.getString("cs.type");
 
-        String content = "uid=" + URLEncoder.encode(user, "UTF-8") + "&pwd=" + URLEncoder.encode(passwd, "UTF-8") +
-                "&url=" + URLEncoder.encode(subca_url, "UTF-8");
+        MultivaluedMap<String, String> map = new MultivaluedHashMap<String, String>();
+        map.putSingle("uid", user);
+        map.putSingle("pwd", passwd);
+        map.putSingle("url", subca_url);
 
-        ClientResponse<String> response = getClientResponse(sdhost, sdport, true, "/ca/admin/ca/getCookie",
-                content, null, null);
-        String body = response.getEntity();
+        String body = post(sdhost, sdport, true, "/ca/admin/ca/getCookie",
+                map, null, null);
         return getContentValue(body, "header.session_id");
     }
 

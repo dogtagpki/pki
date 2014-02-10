@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -21,7 +22,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
@@ -53,20 +55,19 @@ import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-import org.jboss.resteasy.client.ClientExecutor;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
-import org.jboss.resteasy.client.ClientResponseFailure;
-import org.jboss.resteasy.client.ProxyFactory;
-import org.jboss.resteasy.client.core.BaseClientResponse;
-import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
-import org.jboss.resteasy.client.core.extractors.ClientErrorHandler;
+import org.jboss.resteasy.client.jaxrs.ProxyBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
+
+import com.netscape.certsrv.base.PKIException;
 
 
 public class PKIConnection {
@@ -82,9 +83,9 @@ public class PKIConnection {
 
     DefaultHttpClient httpClient = new DefaultHttpClient();
 
+    ApacheHttpClient4Engine engine;
+    ResteasyClient resteasyClient;
     ResteasyProviderFactory providerFactory;
-    ClientErrorHandler errorHandler;
-    ClientExecutor executor;
 
     int requestCounter;
     int responseCounter;
@@ -194,10 +195,8 @@ public class PKIConnection {
             }
         });
 
-        executor = new ApacheHttpClient4Executor(httpClient);
-        providerFactory = ResteasyProviderFactory.getInstance();
-        providerFactory.addClientErrorInterceptor(new PKIErrorInterceptor());
-        errorHandler = new ClientErrorHandler(providerFactory.getClientErrorInterceptors());
+        engine = new ApacheHttpClient4Engine(httpClient);
+        resteasyClient = new ResteasyClientBuilder().httpEngine(engine).build();
     }
 
     public void storeRequest(File file, HttpRequest request) throws IOException {
@@ -511,29 +510,48 @@ public class PKIConnection {
     }
 
     public <T> T createProxy(URI uri, Class<T> clazz) throws URISyntaxException {
-        return ProxyFactory.create(clazz, uri, executor, providerFactory);
+        ResteasyWebTarget target = resteasyClient.target(uri);
+        return ProxyBuilder.builder(clazz, target).build();
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T getEntity(Response response, Class<T> clazz) {
-        BaseClientResponse<T> clientResponse = (BaseClientResponse<T>)response;
-        try {
-            clientResponse.checkFailureStatus();
 
-        } catch (ClientResponseFailure e) {
-            errorHandler.clientErrorHandling((BaseClientResponse<T>) e.getResponse(), e);
-
-        } catch (RuntimeException e) {
-            errorHandler.clientErrorHandling(clientResponse, e);
+        // handle HTTP status code 4xx and 5xx only
+        int code = response.getStatus();
+        if (code < 400) {
+            if (!response.hasEntity()) return null;
+            return response.readEntity(clazz);
         }
 
-        return clientResponse.getEntity();
+        String contentType = response.getHeaderString("Content-Type");
+
+        if (contentType == null)
+            throw new PKIException("HTTP Error " + code);
+
+        PKIException.Data data = response.readEntity(PKIException.Data.class);
+
+        Class<?> exceptionClass;
+        try {
+            exceptionClass = Class.forName(data.getClassName());
+        } catch (ClassNotFoundException e) {
+            throw new PKIException(e.getMessage(), e);
+        }
+
+        try {
+            throw (PKIException) exceptionClass.getConstructor(PKIException.Data.class).newInstance(data);
+        } catch (InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException e) {
+            throw new PKIException(e.getMessage(), e);
+        }
     }
 
-    public ClientResponse<String> post(String content) throws Exception {
-        ClientRequest request = executor.createRequest(config.getServerURI().toString());
-        request.body(MediaType.APPLICATION_FORM_URLENCODED, content);
-        return request.post(String.class);
+    public String post(MultivaluedMap<String, String> form) throws Exception {
+        ResteasyWebTarget target = resteasyClient.target(config.getServerURI());
+        return target.request().post(Entity.form(form), String.class);
     }
 
     public void addRejectedCertStatus(Integer rejectedCertStatus) {

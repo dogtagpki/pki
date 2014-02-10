@@ -118,7 +118,17 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
      * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(com.netscape.cms.servlet.csadmin.data.ConfigurationData)
      */
     @Override
-    public ConfigurationResponse configure(ConfigurationRequest data){
+    public ConfigurationResponse configure(ConfigurationRequest data) {
+        try {
+            return configureImpl(data);
+        } catch (Throwable t) {
+            CMS.debug(t);
+            throw t;
+        }
+    }
+
+    public ConfigurationResponse configureImpl(ConfigurationRequest data) {
+
         if (csState.equals("1")) {
             throw new BadRequestException("System is already configured");
         }
@@ -915,6 +925,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String securityDomainURL = data.getSecurityDomainUri();
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
+            CMS.debug("Creating new security domain");
             cs.putString("preop.securitydomain.select", "new");
             cs.putString("securitydomain.select", "new");
             cs.putString("preop.securitydomain.name", securityDomainName);
@@ -931,12 +942,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("preop.cert.subsystem.type", "local");
             }
             cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
+
         } else {
+            CMS.debug("Joining existing security domain");
             cs.putString("preop.securitydomain.select", "existing");
             cs.putString("securitydomain.select", "existing");
             cs.putString("preop.cert.subsystem.type", "remote");
             cs.putString("preop.cert.subsystem.profile", "caInternalAuthSubsystemCert");
 
+            CMS.debug("Getting certificate chain");
             // contact and log onto security domain
             URL secdomainURL;
             String host;
@@ -953,6 +967,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new PKIException("Failed to import certificate chain from security domain master: " + e);
             }
 
+            CMS.debug("Getting install token");
             // log onto security domain and get token
             String user = data.getSecurityDomainUser();
             String pass = data.getSecurityDomainPassword();
@@ -965,10 +980,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             if (installToken == null) {
+                CMS.debug("Install token is null");
                 throw new PKIException("Failed to obtain installation token from security domain");
             }
             CMS.setConfigSDSessionId(installToken);
 
+            CMS.debug("Getting domain XML");
             try {
                 domainXML = ConfigurationUtils.getDomainXML(host, port, true);
                 ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);

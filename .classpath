@@ -48,6 +48,7 @@
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpcore.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/jaxrs-api.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-client.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxb-provider.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxrs.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jackson-provider.jar"/>

@@ -1,0 +1,76 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2014 Red Hat, Inc.
+# All rights reserved.
+#
+
+import grp
+import os
+import pwd
+import re
+import subprocess
+
+import pki.server.upgrade
+
+
+class AddedRESTEasyClient(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Added RESTEasy client'
+
+    def upgrade_instance(self, instance):
+
+        # Tomcat common library
+        common_lib = os.path.join(instance.base_dir, 'common', 'lib')
+
+        # Tomcat user and group
+        registry_file = os.path.join(
+            pki.server.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
+
+        with open(registry_file, "r") as registry:
+            lines = registry.readlines()
+
+        for line in lines:
+            m = re.search('^PKI_USER=(.*)$', line)
+            if m:
+                user = m.group(1)
+            m = re.search('^PKI_GROUP=(.*)$', line)
+            if m:
+                group = m.group(1)
+
+        uid = pwd.getpwnam(user).pw_uid
+        gid = grp.getgrnam(group).gr_gid
+
+        # RESTEasy library
+        resteasy_lib = subprocess.check_output(
+            '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
+            shell=True)
+        # workaround for pylint error E1103
+        resteasy_lib = str(resteasy_lib).strip()
+
+        # create new links
+        source = os.path.join(resteasy_lib, 'resteasy-client.jar')
+        link = os.path.join(common_lib, 'resteasy-client.jar')
+        self.create_link(source, link, uid, gid)
+
+    def create_link(self, source, link, uid, gid):
+
+        self.backup(link)
+        os.symlink(source, link)
+        os.lchown(link, uid, gid)

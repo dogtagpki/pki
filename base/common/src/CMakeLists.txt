@@ -104,6 +104,13 @@ find_file(RESTEASY_ATOM_PROVIDER_JAR
         ${RESTEASY_LIB}
 )
 
+find_file(RESTEASY_CLIENT_JAR
+    NAMES
+        resteasy-client.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
 find_file(HTTPCLIENT_JAR
     NAMES
         httpclient.jar
@@ -128,7 +135,7 @@ javac(pki-certsrv-classes
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
         ${APACHE_COMMONS_LANG_JAR}
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR} ${RESTEASY_CLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes

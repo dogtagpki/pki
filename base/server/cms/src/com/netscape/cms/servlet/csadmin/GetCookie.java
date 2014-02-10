@@ -78,6 +78,15 @@ public class GetCookie extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
+        try {
+            processImpl(cmsReq);
+        } catch (Throwable t) {
+            CMS.debug(t);
+            throw t;
+        }
+    }
+
+    protected void processImpl(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -93,7 +102,12 @@ public class GetCookie extends CMSServlet {
         Locale[] locale = new Locale[1];
 
         String url = httpReq.getParameter("url");
-        CMS.debug("GetCookie before auth, url =" + url);
+        CMS.debug("GetCookie before auth, url = " + url);
+        if (url == null) {
+            throw new ECMSGWException(
+                    "GetCookie missing parameter: url");
+        }
+
         String url_e = "";
         URL u = null;
         try {
@@ -101,7 +115,7 @@ public class GetCookie extends CMSServlet {
             u = new URL(url_e);
         } catch (Exception eee) {
             throw new ECMSGWException(
-                    "GetCookie missing parameter: url");
+                    "Unable to parse URL: " + url);
         }
 
         int index2 = url_e.indexOf("subsystem=");
@@ -165,11 +179,13 @@ public class GetCookie extends CMSServlet {
 
         if (authToken != null) {
             String uid = authToken.getInString("uid");
+            CMS.debug("UID: " + uid);
 
             String addr = "";
             try {
                 addr = u.getHost();
             } catch (Exception e) {
+                CMS.debug(e);
             }
 
             try {
@@ -177,6 +193,7 @@ public class GetCookie extends CMSServlet {
 
                 InstallToken installToken = processor.getInstallToken(uid, addr, subsystem);
                 String cookie = installToken.getToken();
+                CMS.debug("Cookie: " + cookie);
 
                 if (!url.startsWith("$")) {
                     try {
@@ -210,7 +227,7 @@ public class GetCookie extends CMSServlet {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                CMS.debug(e);
             }
         }
     }
