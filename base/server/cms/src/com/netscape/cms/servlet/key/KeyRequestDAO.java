@@ -140,7 +140,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String wrappedSecurityData = data.getWrappedPrivateData();
         String dataType = data.getDataType();
         String keyAlgorithm = data.getKeyAlgorithm();
-        int keyStrength = data.getKeyStrength();
+        int keyStrength = data.getKeySize();
 
         boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
 
@@ -217,11 +217,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
     public KeyRequestResponse submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo) throws EBaseException {
         String clientId = data.getClientId();
         String algName = data.getKeyAlgorithm();
-        int size = data.getKeySize();
+        Integer keySize = data.getKeySize();
         List<String> usages = data.getUsages();
 
         if (StringUtils.isBlank(clientId)) {
-            throw new BadRequestException("Invalid key generation request. Missing clientId");
+            throw new BadRequestException("Invalid key generation request. Missing client ID");
         }
 
         boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
@@ -229,29 +229,33 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Can not archive already active existing key!");
         }
 
+        if (keySize == null) {
+            keySize = new Integer(0);
+        }
+
         if (StringUtils.isBlank(algName)) {
-            if (size != 0) {
+            if (keySize.intValue() != 0) {
                 throw new BadRequestException(
                         "Invalid request.  Must specify key algorithm if size is specified");
             }
             algName = KeyRequestResource.AES_ALGORITHM;
-            size = 128;
-        } else {
-            KeyGenAlgorithm alg = KeyRequestService.KEYGEN_ALGORITHMS.get(algName);
-            if (alg == null) {
-                throw new BadRequestException("Invalid Algorithm");
-            }
+            keySize = new Integer(128);
+        }
 
-            if (!alg.isValidStrength(size)) {
-                throw new BadRequestException("Invalid key size for this algorithm");
-            }
+        KeyGenAlgorithm alg = KeyRequestService.KEYGEN_ALGORITHMS.get(algName);
+        if (alg == null) {
+            throw new BadRequestException("Invalid Algorithm");
+        }
+
+        if (!alg.isValidStrength(keySize.intValue())) {
+            throw new BadRequestException("Invalid key size for this algorithm");
         }
 
         IRequest request = queue.newRequest(IRequest.SYMKEY_GENERATION_REQUEST);
 
         request.setExtData(IRequest.SYMKEY_GEN_ALGORITHM, algName);
-        request.setExtData(IRequest.SYMKEY_GEN_SIZE, size);
-        request.setExtData(IRequest.SECURITY_DATA_STRENGTH, size);
+        request.setExtData(IRequest.SYMKEY_GEN_SIZE, keySize);
+        request.setExtData(IRequest.SECURITY_DATA_STRENGTH, keySize);
         request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, algName);
 
         request.setExtData(IRequest.SYMKEY_GEN_USAGES, StringUtils.join(usages, ","));

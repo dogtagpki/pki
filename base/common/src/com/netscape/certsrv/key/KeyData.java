@@ -46,7 +46,7 @@ public class KeyData {
     String algorithm;
 
     @XmlElement
-    Integer strength;
+    Integer size;
 
     public KeyData() {
         // required for JAXB (defaults)
@@ -111,16 +111,16 @@ public class KeyData {
     }
 
     /**
-     * @return the strength
+     * @return the size
      */
-    public Integer getStrength() {
-        return strength;
+    public Integer getSize() {
+        return size;
     }
 
     /**
-     * @param strength the strength to set
+     * @param size the size to set
      */
-    public void setStrength(Integer strength) {
-        this.strength = strength;
+    public void setSize(Integer size) {
+        this.size = size;
     }
 }

@@ -40,7 +40,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     private static final String DATA_TYPE = "dataType";
     private static final String WRAPPED_PRIVATE_DATA = "wrappedPrivateData";
     private static final String KEY_ALGORITHM = "keyAlgorithm";
-    private static final String KEY_STRENGTH = "keyStrength";
+    private static final String KEY_SIZE = "keySize";
 
     public KeyArchivalRequest() {
         // required for JAXB (defaults)
@@ -52,7 +52,7 @@ public class KeyArchivalRequest extends ResourceMessage {
         attributes.put(DATA_TYPE, form.getFirst(DATA_TYPE));
         attributes.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
         attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
-        attributes.put(KEY_STRENGTH, form.getFirst(KEY_STRENGTH));
+        attributes.put(KEY_SIZE, form.getFirst(KEY_SIZE));
         setClassName(getClass().getName());
     }
 
@@ -120,15 +120,15 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the key strength (valid for symmetric keys)
      */
-    public int getKeyStrength() {
-        return Integer.parseInt(attributes.get(KEY_STRENGTH));
+    public int getKeySize() {
+        return Integer.parseInt(attributes.get(KEY_SIZE));
     }
 
     /**
-     * @param strength the key strength to set (valid for symmetric keys)
+     * @param keySize the key strength to set (valid for symmetric keys)
      */
-    public void setKeyStrength(int strength) {
-        attributes.put(KEY_STRENGTH, Integer.toString(strength));
+    public void setKeySize(int keySize) {
+        attributes.put(KEY_SIZE, Integer.toString(keySize));
     }
 
     public String toString() {
@@ -154,7 +154,7 @@ public class KeyArchivalRequest extends ResourceMessage {
         before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
         before.setWrappedPrivateData("XXXXABCDEFXXX");
         before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);
-        before.setKeyStrength(128);
+        before.setKeySize(128);
 
         String string = before.toString();
         System.out.println(string);

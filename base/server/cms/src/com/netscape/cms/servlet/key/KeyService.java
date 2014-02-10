@@ -253,7 +253,7 @@ public class KeyService extends PKIService implements KeyResource {
         }
 
         if (keySize != null) {
-            keyData.setStrength(keySize);
+            keyData.setSize(keySize);
         }
 
         kra.destroyVolatileRequest(request.getRequestId());
@@ -383,7 +383,7 @@ public class KeyService extends PKIService implements KeyResource {
         ret.setClientID(rec.getClientId());
         ret.setStatus(rec.getKeyStatus());
         ret.setAlgorithm(rec.getAlgorithm());
-        ret.setStrength(rec.getKeySize());
+        ret.setSize(rec.getKeySize());
         ret.setOwnerName(rec.getOwnerName());
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);

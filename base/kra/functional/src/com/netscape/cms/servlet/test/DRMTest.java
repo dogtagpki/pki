@@ -725,7 +725,7 @@ public class DRMTest {
         log("ClientID:  " + keyInfo.getClientID());
         log("Key URL:   " + keyInfo.getKeyURL());
         log("Algorithm: " + keyInfo.getAlgorithm());
-        log("Strength:  " + keyInfo.getStrength());
+        log("Strength:  " + keyInfo.getSize());
     }
 
     private static void log(String string) {

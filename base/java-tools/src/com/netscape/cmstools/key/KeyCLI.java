@@ -66,7 +66,7 @@ public class KeyCLI extends CLI {
         if (info.getClientID() != null) System.out.println("  Client ID: "+info.getClientID());
         if (info.getStatus() != null) System.out.println("  Status: "+info.getStatus());
         if (info.getAlgorithm() != null) System.out.println("  Algorithm: "+info.getAlgorithm());
-        if (info.getStrength() != null) System.out.println("  Size: "+info.getStrength());
+        if (info.getSize() != null) System.out.println("  Size: "+info.getSize());
         if (info.getOwnerName() != null) System.out.println("  Owner: "+info.getOwnerName());
     }
 

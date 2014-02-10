@@ -95,15 +95,15 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     /**
      * @return the keySize
      */
-    public int getKeySize() {
-        return Integer.parseInt(attributes.get(KEY_SIZE));
+    public Integer getKeySize() {
+        return new Integer(attributes.get(KEY_SIZE));
     }
 
     /**
      * @param keySize the key size to set
      */
-    public void setKeySize(int keySize) {
-        attributes.put(KEY_SIZE, Integer.toString(keySize));
+    public void setKeySize(Integer keySize) {
+        attributes.put(KEY_SIZE, keySize.toString());
     }
 
     /**

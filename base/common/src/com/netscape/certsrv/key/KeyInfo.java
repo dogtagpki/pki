@@ -49,7 +49,7 @@ public class KeyInfo {
     protected String algorithm;
 
     @XmlElement
-    protected Integer strength;
+    protected Integer size;
 
     @XmlElement
     protected String ownerName;
@@ -110,12 +110,12 @@ public class KeyInfo {
         this.algorithm = algorithm;
     }
 
-    public Integer getStrength() {
-        return strength;
+    public Integer getSize() {
+        return size;
     }
 
-    public void setStrength(Integer strength) {
-        this.strength = strength;
+    public void setSize(Integer size) {
+        this.size = size;
     }
 
     public String getOwnerName() {

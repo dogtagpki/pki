@@ -78,7 +78,7 @@ public class KRAClient extends SubsystemClient {
         data.setClientId(clientId);
         data.setDataType(dataType);
         data.setKeyAlgorithm(algorithm);
-        data.setKeyStrength(strength);
+        data.setKeySize(strength);
 
         @SuppressWarnings("unchecked")
         ClientResponse<KeyRequestResponse> response = (ClientResponse<KeyRequestResponse>)
@@ -176,7 +176,7 @@ public class KRAClient extends SubsystemClient {
         SymKeyGenerationRequest data = new SymKeyGenerationRequest();
         data.setClientId(clientId);
         data.setKeyAlgorithm(keyAlgorithm);
-        data.setKeySize(keySize);
+        data.setKeySize(new Integer(keySize));
         data.setUsages(usages);
 
         @SuppressWarnings("unchecked")
