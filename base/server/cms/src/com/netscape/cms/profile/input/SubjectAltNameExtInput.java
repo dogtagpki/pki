@@ -17,14 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.input;
 
-import java.util.*;
-import com.netscape.certsrv.base.*;
-import com.netscape.certsrv.profile.*;
-import com.netscape.certsrv.request.*;
-import com.netscape.certsrv.property.*;
-import com.netscape.certsrv.apps.*;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Vector;
 
-import com.netscape.cms.profile.common.*;
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileContext;
+import com.netscape.certsrv.profile.IProfileInput;
+import com.netscape.certsrv.property.Descriptor;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
 
 
 /**
@@ -37,7 +43,7 @@ import com.netscape.cms.profile.common.*;
  * <p>
  *
  */
-public class SubjectAltNameExtInput extends EnrollInput implements IProfileInput { 
+public class SubjectAltNameExtInput extends EnrollInput implements IProfileInput {
 
     public static final int DEF_REQ_ENTRIES = 4;
 

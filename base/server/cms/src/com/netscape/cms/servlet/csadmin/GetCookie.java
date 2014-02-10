@@ -52,11 +52,6 @@ public class GetCookie extends CMSServlet {
     private String mErrorFormPath = null;
     private String mFormPath = null;
 
-    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
-            "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
-    private final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
-            "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
-
     public GetCookie() {
         super();
     }

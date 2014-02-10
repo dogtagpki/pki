@@ -31,7 +31,6 @@ import java.net.URLEncoder;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 import netscape.security.x509.X500Name;
 
@@ -112,33 +111,6 @@ public class CRMFPopClient {
         System.out.println("            transport certificate in its base64 encoded format.  This");
         System.out.println("            file should consist of one line containing a single certificate");
         System.out.println("            in base64 encoded format with the header and footer removed.\n");
-    }
-
-    private static int getRealArgsLength(String args[]) {
-
-        int len = args.length;
-
-        String curArg = "";
-        int finalLen = len;
-
-        for (int i = 0; i < len; i++) {
-
-            curArg = args[i];
-            // System.out.println("arg[" + i + "]  " + curArg);
-
-            if (curArg == null || curArg.equalsIgnoreCase("")) {
-                finalLen--;
-            }
-
-        }
-
-        //System.out.println("getRealArgsLength: returning " + finalLen);
-
-        if (finalLen < 0)
-            finalLen = 0;
-
-        return finalLen;
-
     }
 
     public static void main(String args[]) {
@@ -278,8 +250,6 @@ public class CRMFPopClient {
         URLConnection conn = null;
         InputStream is = null;
         BufferedReader reader = null;
-        boolean success = false;
-        long total_time = 0;
         KeyPair pair = null;
 
         boolean foundTransport = false;
@@ -500,7 +470,7 @@ public class CRMFPopClient {
                 certReq.encode(bo);
                 byte[] toBeVerified = bo.toByteArray();
 
-                byte popdata[] = ASN1Util.encode(certReq);
+                // byte popdata[] = ASN1Util.encode(certReq);
                 byte signature[];
 
                 System.out.println(".CertRequest encoded");
@@ -604,7 +574,6 @@ public class CRMFPopClient {
                     System.out.println("--------------------");
                     System.out.println("");
 
-                    long start_time = (new Date()).getTime();
                     conn = url.openConnection();
                     is = conn.getInputStream();
                     reader = new BufferedReader(new InputStreamReader(is));
@@ -613,14 +582,10 @@ public class CRMFPopClient {
                     while ((line = reader.readLine()) != null) {
                         System.out.println(line);
                         if (line.equals("CMS Enroll Request Success")) {
-                            success = true;
                             System.out.println("CRMFPopClient: Enrollment Successful: ......");
                             System.out.println("");
                         }
                     } /* while */
-
-                    long end_time = (new Date()).getTime();
-                    total_time += (end_time - start_time);
                 } catch (Exception e) {
                     System.out.println("CRMFPopClient: WARNING: " + e.toString());
                     e.printStackTrace();

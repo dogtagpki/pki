@@ -65,8 +65,6 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.usrgrp.ICertUserLocator;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -90,8 +88,6 @@ public class DoRevoke extends CMSServlet {
     private String mFormPath = null;
     private IPublisherProcessor mPublisherProcessor = null;
     private int mTimeLimits = 30; /* in seconds */
-    private IUGSubsystem mUG = null;
-    private ICertUserLocator mUL = null;
 
     public DoRevoke() {
         super();
@@ -106,9 +102,6 @@ public class DoRevoke extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-
-        mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
-        mUL = mUG.getCertUserLocator();
 
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();

@@ -122,13 +122,13 @@ public class RandomizedValidityDefault extends EnrollDefault {
                             "CMS_PROFILE_VALIDITY_START_TIME"));
         } else if (name.equals(CONFIG_NOT_BEFORE_RANDOM_BITS)) {
             return new Descriptor(IDescriptor.STRING,
-                    null, 
+                    null,
                     "10", /* 10 bits */
                     CMS.getUserMessage(locale,
                             "CMS_PROFILE_NOT_BEFORE_RANDOM_BITS"));
         } else if (name.equals(CONFIG_NOT_AFTER_RANDOM_BITS)) {
             return new Descriptor(IDescriptor.STRING,
-                    null, 
+                    null,
                     "10", /* 10 bits */
                     CMS.getUserMessage(locale,
                             "CMS_PROFILE_NOT_AFTER_RANDOM_BITS"));
@@ -261,12 +261,11 @@ public class RandomizedValidityDefault extends EnrollDefault {
         if (numBits > 0) {
             maxSecs = (1 << numBits) - 1;
             int numBytes = (numBits+7)/8;
-            int byteSecs = (1 << (numBytes * 8)) - 1;
             byte[] randomBits = new byte[numBytes];
             mRandom.nextBytes(randomBits);
             for (int i = 0; i < numBytes; i++) {
                 secs <<= 8;
-                secs |= (int)(randomBits[i]) & 0xFF;
+                secs |= (randomBits[i]) & 0xFF;
             }
             secs &= maxSecs;
         }
@@ -339,7 +338,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
         CMS.debug("RandomizedValidityDefault populate  notAfterRandomized  = "+notAfterRandomized);
         Date notAfterMax = new Date(notAfterValueMax);
         CMS.debug("RandomizedValidityDefault populate  notAfterMax         = "+notAfterMax);
-        CertificateValidity validity = 
+        CertificateValidity validity =
                 new CertificateValidity(notBeforeRandomized, notAfterRandomized);
 
         try {

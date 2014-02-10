@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.io.FileUtils;
-import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.CLI;
@@ -72,7 +71,6 @@ public class ClientCertImportCLI extends CLI {
         client = parent.getClient();
 
         byte[] bytes = null;
-        X509Certificate cert = null;
 
         String certPath = cmd.getOptionValue("cert");
         String caCertPath = cmd.getOptionValue("ca-cert");
