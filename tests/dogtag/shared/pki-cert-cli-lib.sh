@@ -1,5 +1,6 @@
 #!/bin/sh
-
+#Include below files
+. /opt/rhqa_pki/rhcs-shared.sh
 ########################################################################
 #  PKI CERT SHARED LIBRARY
 #######################################################################
@@ -117,21 +118,33 @@ local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 
 	local cert_request_file="cert-request-$rand.pem"
 	local $cert_request_file-sumbit.out
+	local subject="CN=$cn,UID=$uid,E=$email,OU=$ou,O=$organization,C=$country"
 
-	subject="CN=$cn,UID=$uid,E=$email,OU=$ou,O=$organization,C=$country"
+	if [ "$request_type" == "pkcs10" ];then
 
-	rlLog "Generating PKCS10 Request for $subject"
-	rlRun "PKCS10Client -p $password -d $dir -a $algo -l $key_size -o $dir/$cert_request_file -n \"$subject\""
-	RETVAL=$?
-	if [ $RETVAL != 0 ]; then
-        rlLog "Create of PKCS10 Request failed for $subject"
+		rlLog "Generating PKCS10 Request for $subject"
+		rlRun "PKCS10Client -p $password -d $dir -a $algo -l $key_size -o $dir/$cert_request_file -n \"$subject\""
+		RETVAL=$?
+		if [ $RETVAL != 0 ]; then
+			rlLog "Create of PKCS10 Request failed for $subject"
+		fi
+	fi
+	if [ "$request_type" == "crmf" ];then
+		rlLog "Set Java CLASSPATH"
+		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:\"" 0 "Setting Java CLASSPATH"
+		rlLog "Set Environment Variables"
+		rlRun "source /opt/rhqa_pki/env.sh" 0
+		rlLog "Execute generateCRMFRequest to generate CRMF Request"
+		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $dir/$cert_request_file" 0
 	fi
 
 #### Strip  headers from request
-
-	rlLog "Stripping headers from the $cert_request_file"
-	rlRun "sed -e '/-----BEGIN NEW CERTIFICATE REQUEST-----/d' -i $dir/$cert_request_file"
-	rlRun "sed -e '/-----END NEW CERTIFICATE REQUEST-----/d' -i $dir/$cert_request_file"
+#### Note for CRMF requests Our class doesn't generate the headers
+	if [ "$request_type" == "pkcs10"]; then
+		rlLog "Stripping headers from the $cert_request_file"
+		rlRun "sed -e '/-----BEGIN NEW CERTIFICATE REQUEST-----/d' -i $dir/$cert_request_file"
+		rlRun "sed -e '/-----END NEW CERTIFICATE REQUEST-----/d' -i $dir/$cert_request_file"
+	fi
 	
 ### use dos2unix to convert the request to unix format 
 
@@ -154,7 +167,7 @@ local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 	if [ $? != 0 ]; then
 		rlLog "FAIL :: We have some problem getting $profile xml"
 	fi 
-	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v 'pkcs10' $xml_profile_file"
+	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $dir/$cert_request_file)\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v \"$uid\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_e']/Value\" -v \"$email\" $xml_profile_file"
