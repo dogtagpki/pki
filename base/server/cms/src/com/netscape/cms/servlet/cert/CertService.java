@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import netscape.security.pkcs.ContentInfo;
@@ -62,7 +63,6 @@ import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertNotFoundException;
-import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.cert.CertRetrievalRequest;
 import com.netscape.certsrv.cert.CertRevokeRequest;
@@ -116,16 +116,20 @@ public class CertService extends PKIService implements CertResource {
     }
 
     @Override
-    public CertData getCert(CertId id) {
-        return getCert(id, false);
+    public Response getCert(CertId id) {
+        return createOKResponse(getCertData(id));
     }
 
     @Override
-    public CertData reviewCert(CertId id) {
-        return getCert(id, true);
+    public Response reviewCert(CertId id) {
+        return createOKResponse(getCertData(id, true));
     }
 
-    public CertData getCert(CertId id, boolean generateNonce) {
+    public CertData getCertData(CertId id) {
+        return getCertData(id, false);
+    }
+
+    public CertData getCertData(CertId id, boolean generateNonce) {
         if (id == null) {
             throw new BadRequestException("Unable to get certificate: Invalid id.");
         }
@@ -149,16 +153,16 @@ public class CertService extends PKIService implements CertResource {
     }
 
     @Override
-    public CertRequestInfo revokeCACert(CertId id, CertRevokeRequest request) {
+    public Response revokeCACert(CertId id, CertRevokeRequest request) {
         return revokeCert(id, request, true);
     }
 
     @Override
-    public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) {
+    public Response revokeCert(CertId id, CertRevokeRequest request) {
         return revokeCert(id, request, false);
     }
 
-    public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request, boolean caCert) {
+    public Response revokeCert(CertId id, CertRevokeRequest request, boolean caCert) {
         if (id == null) {
             CMS.debug("revokeCert: id is null");
             throw new BadRequestException("Unable to revoke cert: invalid id");
@@ -171,7 +175,7 @@ public class CertService extends PKIService implements CertResource {
         // check cert actually exists.  This will throw a CertNotFoundException
         // if the cert does not exist
         @SuppressWarnings("unused")
-        CertData data = getCert(id);
+        CertData data = getCertData(id);
 
         RevocationReason revReason = request.getReason();
         if (revReason == RevocationReason.REMOVE_FROM_CRL) {
@@ -287,7 +291,7 @@ public class CertService extends PKIService implements CertResource {
         try {
             IRequest certRequest = processor.getRequest();
             CertRequestDAO dao = new CertRequestDAO();
-            return dao.getRequest(certRequest.getRequestId(), uriInfo);
+            return createOKResponse(dao.getRequest(certRequest.getRequestId(), uriInfo));
 
         } catch (EBaseException e) {
             throw new PKIException(e.getMessage());
@@ -295,7 +299,7 @@ public class CertService extends PKIService implements CertResource {
     }
 
     @Override
-    public CertRequestInfo unrevokeCert(CertId id, CertUnrevokeRequest request) {
+    public Response unrevokeCert(CertId id, CertUnrevokeRequest request) {
         if (id == null) {
             CMS.debug("unrevokeCert: id is null");
             throw new BadRequestException("Unable to unrevoke cert: invalid id");
@@ -308,7 +312,7 @@ public class CertService extends PKIService implements CertResource {
         // check cert actually exists.  This will throw a CertNotFoundException
         // if the cert does not exist
         @SuppressWarnings("unused")
-        CertData data = getCert(id);
+        CertData data = getCertData(id);
 
         RevocationProcessor processor;
         try {
@@ -358,7 +362,7 @@ public class CertService extends PKIService implements CertResource {
         try {
             IRequest certRequest = processor.getRequest();
             CertRequestDAO dao = new CertRequestDAO();
-            return dao.getRequest(certRequest.getRequestId(), uriInfo);
+            return createOKResponse(dao.getRequest(certRequest.getRequestId(), uriInfo));
 
         } catch (EBaseException e) {
             throw new PKIException(e.getMessage());
@@ -389,7 +393,7 @@ public class CertService extends PKIService implements CertResource {
     }
 
     @Override
-    public CertDataInfos listCerts(String status, Integer maxResults, Integer maxTime, Integer start, Integer size) {
+    public Response listCerts(String status, Integer maxResults, Integer maxTime, Integer start, Integer size) {
 
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
         maxTime    = maxTime == null ? DEFAULT_MAXTIME : maxTime;
@@ -437,11 +441,11 @@ public class CertService extends PKIService implements CertResource {
             throw new PKIException("Error listing certs in CertService.listCerts!", e);
         }
 
-        return infos;
+        return createOKResponse(infos);
     }
 
     @Override
-    public CertDataInfos searchCerts(CertSearchRequest data, Integer start, Integer size) {
+    public Response searchCerts(CertSearchRequest data, Integer start, Integer size) {
 
         if (data == null) {
             throw new BadRequestException("Search request is null.");
@@ -490,7 +494,7 @@ public class CertService extends PKIService implements CertResource {
             throw new PKIException("Error searching certs in CertService.searchCerts!", e1);
         }
 
-        return infos;
+        return createOKResponse(infos);
     }
 
     public CertData getCert(CertRetrievalRequest data, boolean generateNonce) throws EBaseException, CertificateEncodingException {

@@ -19,6 +19,8 @@ package com.netscape.certsrv.cert;
 
 import java.net.URISyntaxException;
 
+import javax.ws.rs.core.Response;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -44,31 +46,38 @@ public class CertClient extends Client {
     }
 
     public CertData getCert(CertId id) {
-        return certClient.getCert(id);
+        Response response = certClient.getCert(id);
+        return client.getEntity(response, CertData.class);
     }
 
     public CertData reviewCert(CertId id) {
-        return certClient.reviewCert(id);
+        Response response = certClient.reviewCert(id);
+        return client.getEntity(response, CertData.class);
     }
 
     public CertDataInfos listCerts(String status, Integer maxResults, Integer maxTime, Integer start, Integer size) {
-        return certClient.listCerts(status, maxResults, maxTime, start, size);
+        Response response = certClient.listCerts(status, maxResults, maxTime, start, size);
+        return client.getEntity(response, CertDataInfos.class);
     }
 
     public CertDataInfos findCerts(CertSearchRequest data, Integer start, Integer size) {
-        return certClient.searchCerts(data, start, size);
+        Response response = certClient.searchCerts(data, start, size);
+        return client.getEntity(response, CertDataInfos.class);
     }
 
     public CertRequestInfo revokeCert(CertId id, CertRevokeRequest request) {
-        return certClient.revokeCert(id, request);
+        Response response = certClient.revokeCert(id, request);
+        return client.getEntity(response, CertRequestInfo.class);
     }
 
     public CertRequestInfo revokeCACert(CertId id, CertRevokeRequest request) {
-        return certClient.revokeCACert(id, request);
+        Response response = certClient.revokeCACert(id, request);
+        return client.getEntity(response, CertRequestInfo.class);
     }
 
     public CertRequestInfo unrevokeCert(CertId id, CertUnrevokeRequest request) {
-        return certClient.unrevokeCert(id, request);
+        Response response = certClient.unrevokeCert(id, request);
+        return client.getEntity(response, CertRequestInfo.class);
     }
 
     public CertRequestInfos enrollRequest(CertEnrollmentRequest data) {
