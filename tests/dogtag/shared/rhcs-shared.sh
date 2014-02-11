@@ -188,9 +188,9 @@ set_javapath(){
         if [ $? -eq 0 ] ; then
 		echo $arch | grep "x86_64"
                 if [ $? -eq 0 ] ; then
-                        classpath="./:/usr/lib64/java/jss4.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/pki/pki-certsrv.jar:/usr/share/java/pki/pki-cmscore.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/pki/pki-tools.jar:/usr/share/java/xml-commons-resolver.jar:/usr/share/java/xerces-j2.jar:"
+                        classpath="./:/usr/lib/java/jss4.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/pki/pki-certsrv.jar:/usr/share/java/pki/pki-cmscore.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/pki/pki-tools.jar:/usr/share/java/xml-commons-resolver.jar:/usr/share/java/xerces-j2.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:"
                 else
-                        classpath="./:/usr/lib/java/jss4.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/pki/pki-certsrv.jar:/usr/share/java/pki/pki-cmscore.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/pki/pki-tools.jar:/usr/share/java/xml-commons-resolver.jar:/usr/share/java/xerces-j2.jar:"
+                        classpath="./:/usr/lib/java/jss4.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/pki/pki-certsrv.jar:/usr/share/java/pki/pki-cmscore.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/pki/pki-tools.jar:/usr/share/java/xml-commons-resolver.jar:/usr/share/java/xerces-j2.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:"
                 fi
 		echo "export CLASSPATH=$classpath" >> /opt/rhqa_pki/env.sh
                 return 0
@@ -199,7 +199,43 @@ set_javapath(){
                 return 1
         fi
 }
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#set_newjavapath()
+#	Usage: set_newjavapath <classpath>
+#	Function to add new jar files to the classpath
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set_newjavapath()
+{
+	classpath=$1
+	arch=$(uname -p)
+	os_flavour=$(uname -s)
+	echo $os_flavour | grep "Linux"
+	if [ $? -eq 0 ]; then
+	#we check CLASSPATH variable is already available
+	echo $CLASSPATH | grep  "."
+		if [ $? -eq 0 ]; then
+		echo $CLASSPATH | grep $classpath
+			if [ $? -eq 0 ]; then
+				rlRun "echo \"export CLASSPATH=$classpath\" >> /opt/rhqa_pki/env.sh"
+				return 0
+			else
+				#CLASSPATH is set but the jar file that we are newly adding is missing
+				#so we add the missing jar files to the classpath 
+				CLASSPATH=$CLASSPATH:$classpath:
+				rlRun "echo \"export CLASSPATH=$classpath\" >> /opt/rhqa_pki/env.sh"
+				return 0
+			fi
+		else
+	#No ClASSPATH environment variable available so set set CLASSPATH
+			rlLog "Set CLASSPATH we are here"
+			rlRun "echo \"export CLASSPATH=./:$classpath\" >> /opt/rhqa_pki/env.sh"
+		return 0
+		fi
+	else
+		rlLog "OS flavour is not Linux"
+		return 1
+	fi
+}
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # install_and_trust_CA_cert
 #   Usage: install_and_trust_CA_cert <ca_server_root> <nss-db-directory>
