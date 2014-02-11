@@ -48,8 +48,9 @@ public interface UserResource {
     public static final String ALL_PROFILES = "All Profiles";
 
     @GET
+    @ClientResponseType(entityType=UserCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public UserCollection findUsers(
+    public Response findUsers(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -62,8 +63,9 @@ public interface UserResource {
 
     @GET
     @Path("{userID}")
+    @ClientResponseType(entityType=UserData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public UserData getUser(@PathParam("userID") String userID);
+    public Response getUser(@PathParam("userID") String userID);
 
     @PUT
     @Path("{userID}")
@@ -81,13 +83,15 @@ public interface UserResource {
 
     @DELETE
     @Path("{userID}")
+    @ClientResponseType(entityType=Void.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void removeUser(@PathParam("userID") String userID);
+    public Response removeUser(@PathParam("userID") String userID);
 
     @GET
     @Path("{userID}/certs")
+    @ClientResponseType(entityType=UserCertCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public UserCertCollection findUserCerts(
+    public Response findUserCerts(
             @PathParam("userID") String userID,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -102,18 +106,21 @@ public interface UserResource {
 
     @GET
     @Path("{userID}/certs/{certID}")
+    @ClientResponseType(entityType=UserCertData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public UserCertData getUserCert(@PathParam("userID") String userID, @PathParam("certID") String certID);
+    public Response getUserCert(@PathParam("userID") String userID, @PathParam("certID") String certID);
 
     @DELETE
     @Path("{userID}/certs/{certID}")
+    @ClientResponseType(entityType=Void.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void removeUserCert(@PathParam("userID") String userID, @PathParam("certID") String certID);
+    public Response removeUserCert(@PathParam("userID") String userID, @PathParam("certID") String certID);
 
     @GET
     @Path("{userID}/memberships")
+    @ClientResponseType(entityType=UserMembershipCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public UserMembershipCollection findUserMemberships(
+    public Response findUserMemberships(
             @PathParam("userID") String userID,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -127,6 +134,7 @@ public interface UserResource {
 
     @DELETE
     @Path("{userID}/memberships/{groupID}")
+    @ClientResponseType(entityType=Void.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void removeUserMembership(@PathParam("userID") String userID, @PathParam("groupID") String groupID);
+    public Response removeUserMembership(@PathParam("userID") String userID, @PathParam("groupID") String groupID);
 }

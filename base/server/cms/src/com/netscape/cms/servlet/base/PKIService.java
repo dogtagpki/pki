@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.base;
 
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.security.cert.CertificateEncodingException;
 import java.util.HashMap;
 import java.util.List;
@@ -54,8 +55,29 @@ public class PKIService {
     public ILogger logger = CMS.getLogger();
     public IAuditor auditor = CMS.getAuditor();
 
-    public Response createOKResponse(Object object) {
-        return Response.ok(object).build();
+    public Response createOKResponse() {
+        return Response
+                .ok()
+                .build();
+    }
+
+    public Response createOKResponse(Object entity) {
+        return Response
+                .ok(entity)
+                .build();
+    }
+
+    public Response createCreatedResponse(Object entity, URI link) {
+        return Response
+                .created(link)
+                .entity(entity)
+                .build();
+    }
+
+    public Response createNoContentResponse() {
+        return Response
+                .noContent()
+                .build();
     }
 
     public Response sendConditionalGetResponse(int ctime, Object object, Request request) {

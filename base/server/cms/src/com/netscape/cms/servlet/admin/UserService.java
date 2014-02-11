@@ -131,7 +131,7 @@ public class UserService extends PKIService implements UserResource {
      * ui/admin-protocol-definition.html#user-admin
      */
     @Override
-    public UserCollection findUsers(String filter, Integer start, Integer size) {
+    public Response findUsers(String filter, Integer start, Integer size) {
         try {
             filter = StringUtils.isEmpty(filter) ? "*" : "*"+LDAPUtil.escapeFilter(filter)+"*";
             start = start == null ? 0 : start;
@@ -165,7 +165,7 @@ public class UserService extends PKIService implements UserResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (Exception e) {
             throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
@@ -182,7 +182,11 @@ public class UserService extends PKIService implements UserResource {
      * ui/admin-protocol-definition.html#user-admin
      */
     @Override
-    public UserData getUser(String userID) {
+    public Response getUser(String userID) {
+        return createOKResponse(getUserData(userID));
+    }
+
+    public UserData getUserData(String userID) {
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -360,12 +364,9 @@ public class UserService extends PKIService implements UserResource {
             auditAddUser(userID, userData, ILogger.SUCCESS);
 
             // read the data back
-            userData = getUser(userID);
+            userData = getUserData(userID);
 
-            return Response
-                    .created(userData.getLink().getHref())
-                    .entity(userData)
-                    .build();
+            return createCreatedResponse(userData, userData.getLink().getHref());
 
         } catch (PKIException e) {
             auditAddUser(userID, userData, ILogger.FAILURE);
@@ -439,11 +440,9 @@ public class UserService extends PKIService implements UserResource {
             auditModifyUser(userID, userData, ILogger.SUCCESS);
 
             // read the data back
-            userData = getUser(userID);
+            userData = getUserData(userID);
 
-            return Response
-                    .ok(userData)
-                    .build();
+            return createOKResponse(userData);
 
         } catch (PKIException e) {
             auditModifyUser(userID, userData, ILogger.FAILURE);
@@ -530,11 +529,9 @@ public class UserService extends PKIService implements UserResource {
             auditModifyUser(userID, userData, ILogger.SUCCESS);
 
             // read the data back
-            userData = getUser(userID);
+            userData = getUserData(userID);
 
-            return Response
-                    .ok(userData)
-                    .build();
+            return createOKResponse(userData);
 
         } catch (PKIException e) {
             auditModifyUser(userID, userData, ILogger.FAILURE);
@@ -563,7 +560,7 @@ public class UserService extends PKIService implements UserResource {
      * </ul>
      */
     @Override
-    public void removeUser(String userID) {
+    public Response removeUser(String userID) {
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -587,6 +584,8 @@ public class UserService extends PKIService implements UserResource {
             userGroupManager.removeUser(userID);
 
             auditDeleteUser(userID, ILogger.SUCCESS);
+
+            return createNoContentResponse();
 
         } catch (PKIException e) {
             auditDeleteUser(userID, ILogger.FAILURE);
@@ -626,7 +625,7 @@ public class UserService extends PKIService implements UserResource {
      * ui/admin-protocol-definition.html#user-admin
      */
     @Override
-    public UserCertCollection findUserCerts(String userID, Integer start, Integer size) {
+    public Response findUserCerts(String userID, Integer start, Integer size) {
         try {
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
@@ -678,7 +677,7 @@ public class UserService extends PKIService implements UserResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (PKIException e) {
             throw e;
@@ -689,7 +688,11 @@ public class UserService extends PKIService implements UserResource {
     }
 
     @Override
-    public UserCertData getUserCert(String userID, String certID) {
+    public Response getUserCert(String userID, String certID) {
+        return createOKResponse(getUserCertData(userID, certID));
+    }
+
+    public UserCertData getUserCertData(String userID, String certID) {
 
         if (certID == null) throw new BadRequestException("Certificate ID is null.");
 
@@ -786,7 +789,7 @@ public class UserService extends PKIService implements UserResource {
             // no cert is a success
             if (encoded == null) {
                 auditAddUserCert(userID, userCertData, ILogger.SUCCESS);
-                return Response.ok().build();
+                return createOKResponse();
             }
 
             // only one cert added per operation
@@ -918,12 +921,9 @@ public class UserService extends PKIService implements UserResource {
                 userCertData.setSubjectDN(cert.getSubjectDN().toString());
                 String certID = userCertData.getID();
 
-                userCertData = getUserCert(userID, URLEncoder.encode(certID, "UTF-8"));
+                userCertData = getUserCertData(userID, URLEncoder.encode(certID, "UTF-8"));
 
-                return Response
-                        .created(userCertData.getLink().getHref())
-                        .entity(userCertData)
-                        .build();
+                return createCreatedResponse(userCertData, userCertData.getLink().getHref());
 
             } catch (CertificateExpiredException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
@@ -964,7 +964,7 @@ public class UserService extends PKIService implements UserResource {
      * </ul>
      */
     @Override
-    public void removeUserCert(String userID, String certID) {
+    public Response removeUserCert(String userID, String certID) {
 
         if (userID == null) throw new BadRequestException("User ID is null.");
         if (certID == null) throw new BadRequestException("Certificate ID is null.");
@@ -978,6 +978,8 @@ public class UserService extends PKIService implements UserResource {
         UserCertData userCertData = new UserCertData();
         userCertData.setID(certID);
         removeUserCert(userID, userCertData);
+
+        return createNoContentResponse();
     }
 
     public void removeUserCert(String userID, UserCertData userCertData) {
@@ -1036,7 +1038,7 @@ public class UserService extends PKIService implements UserResource {
     }
 
     @Override
-    public UserMembershipCollection findUserMemberships(String userID, Integer start, Integer size) {
+    public Response findUserMemberships(String userID, Integer start, Integer size) {
         try {
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
@@ -1081,7 +1083,7 @@ public class UserService extends PKIService implements UserResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (PKIException e) {
             throw e;
@@ -1109,10 +1111,7 @@ public class UserService extends PKIService implements UserResource {
 
             UserMembershipData userMembershipData = createUserMembershipData(userID, groupID);
 
-            return Response
-                    .created(userMembershipData.getLink().getHref())
-                    .entity(userMembershipData)
-                    .build();
+            return createCreatedResponse(userMembershipData, userMembershipData.getLink().getHref());
 
         } catch (PKIException e) {
             throw e;
@@ -1124,7 +1123,7 @@ public class UserService extends PKIService implements UserResource {
     }
 
     @Override
-    public void removeUserMembership(String userID, String groupID) {
+    public Response removeUserMembership(String userID, String groupID) {
 
         if (userID == null) throw new BadRequestException("User ID is null.");
         if (groupID == null) throw new BadRequestException("Group ID is null.");
@@ -1133,6 +1132,8 @@ public class UserService extends PKIService implements UserResource {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, userID);
+
+            return createNoContentResponse();
 
         } catch (PKIException e) {
             throw e;

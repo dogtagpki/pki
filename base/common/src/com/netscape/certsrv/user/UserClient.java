@@ -41,11 +41,13 @@ public class UserClient extends Client {
     }
 
     public UserCollection findUsers(String filter, Integer start, Integer size) {
-        return userClient.findUsers(filter, start, size);
+        Response response = userClient.findUsers(filter, start, size);
+        return client.getEntity(response, UserCollection.class);
     }
 
     public UserData getUser(String userID) {
-        return userClient.getUser(userID);
+        Response response = userClient.getUser(userID);
+        return client.getEntity(response, UserData.class);
     }
 
     public UserData addUser(UserData userData) {
@@ -59,15 +61,18 @@ public class UserClient extends Client {
     }
 
     public void removeUser(String userID) {
-        userClient.removeUser(userID);
+        Response response = userClient.removeUser(userID);
+        client.getEntity(response, Void.class);
     }
 
     public UserCertCollection findUserCerts(String userID, Integer start, Integer size) {
-        return userClient.findUserCerts(userID, start, size);
+        Response response = userClient.findUserCerts(userID, start, size);
+        return client.getEntity(response, UserCertCollection.class);
     }
 
     public UserCertData getUserCert(String userID, String certID) {
-        return userClient.getUserCert(userID, certID);
+        Response response = userClient.getUserCert(userID, certID);
+        return client.getEntity(response, UserCertData.class);
     }
 
     public UserCertData addUserCert(String userID, UserCertData userCertData) {
@@ -76,11 +81,13 @@ public class UserClient extends Client {
     }
 
     public void removeUserCert(String userID, String certID) {
-        userClient.removeUserCert(userID, certID);
+        Response response = userClient.removeUserCert(userID, certID);
+        client.getEntity(response, Void.class);
     }
 
     public UserMembershipCollection findUserMemberships(String userID, Integer start, Integer size) {
-        return userClient.findUserMemberships(userID, start, size);
+        Response response = userClient.findUserMemberships(userID, start, size);
+        return client.getEntity(response, UserMembershipCollection.class);
     }
 
     public UserMembershipData addUserMembership(String userID, String groupID) {
@@ -89,6 +96,7 @@ public class UserClient extends Client {
     }
 
     public void removeUserMembership(String userD, String groupID) {
-        userClient.removeUserMembership(userD, groupID);
+        Response response = userClient.removeUserMembership(userD, groupID);
+        client.getEntity(response, Void.class);
     }
 }
