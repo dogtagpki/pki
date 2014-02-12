@@ -82,7 +82,7 @@ public class CertRequestFindCLI extends CLI {
         String requestType = cmd.getOptionValue("type");
         if (requestType != null && requestType.equals("all")) requestType = null;
 
-        CertRequestInfos response = certCLI.certClient.certRequestClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
+        CertRequestInfos response = certCLI.certClient.listRequests(requestState, requestType, start, size, maxResults, maxTime);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;

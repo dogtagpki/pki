@@ -29,6 +29,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -90,7 +91,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
      * Used to retrieve key request info for a specific request
      */
     @Override
-    public CertRequestInfo getRequestInfo(RequestId id) {
+    public Response getRequestInfo(RequestId id) {
         if (id == null) {
             CMS.debug("getRequestInfo: id is null");
             throw new BadRequestException("Unable to get request: invalid id");
@@ -110,18 +111,18 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new RequestNotFoundException(id);
         }
 
-        return info;
+        return createOKResponse(info);
     }
 
     // Enrollment - used to test integration with a browser
     @Override
-    public CertRequestInfos enrollCert(MultivaluedMap<String, String> form) {
+    public Response enrollCert(MultivaluedMap<String, String> form) {
         CertEnrollmentRequest data = new CertEnrollmentRequest(form);
         return enrollCert(data);
     }
 
     @Override
-    public CertRequestInfos enrollCert(CertEnrollmentRequest data) {
+    public Response enrollCert(CertEnrollmentRequest data) {
 
         if (data == null) {
             CMS.debug("enrollCert: data is null");
@@ -150,42 +151,49 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         // because it is possible to create more than one request
         // as a result of this enrollment
 
-        return infos;
+        return createOKResponse(infos);
     }
 
     @Override
-    public void approveRequest(RequestId id, CertReviewResponse data) {
+    public Response approveRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "approve");
+        return createNoContentResponse();
     }
 
     @Override
-    public void rejectRequest(RequestId id, CertReviewResponse data) {
+    public Response rejectRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "reject");
+        return createNoContentResponse();
     }
 
     @Override
-    public void cancelRequest(RequestId id, CertReviewResponse data) {
+    public Response cancelRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "cancel");
+        return createNoContentResponse();
     }
 
     @Override
-    public void updateRequest(RequestId id, CertReviewResponse data) {
+    public Response updateRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "update");
+        return createNoContentResponse();
     }
 
     @Override
-    public void validateRequest(RequestId id, CertReviewResponse data) {
+    public Response validateRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "validate");
+        return createNoContentResponse();
     }
 
     @Override
-    public void unassignRequest(RequestId id, CertReviewResponse data) {
+    public Response unassignRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "unassign");
+        return createNoContentResponse();
     }
 
     @Override
-    public void assignRequest(RequestId id, CertReviewResponse data) {
+    public Response assignRequest(RequestId id, CertReviewResponse data) {
         changeRequestState(id, data, "assign");
+        return createNoContentResponse();
     }
 
     public void changeRequestState(RequestId id, CertReviewResponse data, String op) {
@@ -222,7 +230,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     }
 
     @Override
-    public CertReviewResponse reviewRequest(@PathParam("id") RequestId id) {
+    public Response reviewRequest(@PathParam("id") RequestId id) {
         if (id == null) {
             CMS.debug("reviewRequest: id is null");
             throw new BadRequestException("Unable to review request: invalid id");
@@ -243,14 +251,14 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new RequestNotFoundException(id);
         }
 
-        return info;
+        return createOKResponse(info);
     }
 
     /**
      * Used to generate list of cert requests based on the search parameters
      */
     @Override
-    public CertRequestInfos listRequests(String requestState, String requestType,
+    public Response listRequests(String requestState, String requestType,
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType);
@@ -270,7 +278,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             e.printStackTrace();
             throw new PKIException("Error listing cert requests!");
         }
-        return requests;
+        return createOKResponse(requests);
     }
 
     private String createSearchFilter(String requestState, String requestType) {
@@ -300,7 +308,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     }
 
     @Override
-    public CertEnrollmentRequest getEnrollmentTemplate(String profileId) {
+    public Response getEnrollmentTemplate(String profileId) {
         if (profileId == null) {
             CMS.debug("getEnrollmenTemplate: invalid request. profileId is null");
             throw new BadRequestException("Invalid ProfileId");
@@ -355,11 +363,11 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             }
         }
 
-        return request;
+        return createOKResponse(request);
     }
 
     @Override
-    public ProfileDataInfos listEnrollmentTemplates(Integer start, Integer size) {
+    public Response listEnrollmentTemplates(Integer start, Integer size) {
 
         start = start == null ? DEFAULT_START : start;
         size = size == null ? DEFAULT_PAGESIZE : size;
@@ -374,7 +382,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         boolean visibleOnly = true;
 
         Enumeration<String> e = ps.getProfileIds();
-        if (e == null) return infos;
+        if (e == null) return createOKResponse(infos);
 
         // store non-null results in a list
         List<ProfileDataInfo> results = new ArrayList<ProfileDataInfo>();
@@ -407,6 +415,6 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             infos.addLink(new Link("next", uri));
         }
 
-        return infos;
+        return createOKResponse(infos);
     }
 }

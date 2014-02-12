@@ -81,56 +81,68 @@ public class CertClient extends Client {
     }
 
     public CertRequestInfos enrollRequest(CertEnrollmentRequest data) {
-        return certRequestClient.enrollCert(data);
+        Response response = certRequestClient.enrollCert(data);
+        return client.getEntity(response, CertRequestInfos.class);
     }
 
     public CertRequestInfo getRequest(RequestId id) {
-        return certRequestClient.getRequestInfo(id);
+        Response response = certRequestClient.getRequestInfo(id);
+        return client.getEntity(response, CertRequestInfo.class);
     }
 
     public CertReviewResponse reviewRequest(RequestId id) {
-        return certRequestClient.reviewRequest(id);
+        Response response = certRequestClient.reviewRequest(id);
+        return client.getEntity(response, CertReviewResponse.class);
     }
 
     public void approveRequest(RequestId id, CertReviewResponse data) {
-        certRequestClient.approveRequest(id, data);
+        Response response = certRequestClient.approveRequest(id, data);
+        client.getEntity(response, Void.class);
     }
 
     public void rejectRequest(RequestId id, CertReviewResponse data) {
-        certRequestClient.rejectRequest(id, data);
+        Response response = certRequestClient.rejectRequest(id, data);
+        client.getEntity(response, Void.class);
     }
 
     public void cancelRequest(RequestId id, CertReviewResponse data) {
-        certRequestClient.cancelRequest(id, data);
+        Response response = certRequestClient.cancelRequest(id, data);
+        client.getEntity(response, Void.class);
     }
 
     public void updateRequest(RequestId id, CertReviewResponse data) {
-        certRequestClient.updateRequest(id, data);
+        Response response = certRequestClient.updateRequest(id, data);
+        client.getEntity(response, Void.class);
     }
 
     public void validateRequest(RequestId id, CertReviewResponse data) {
-        certRequestClient.validateRequest(id, data);
+        Response response = certRequestClient.validateRequest(id, data);
+        client.getEntity(response, Void.class);
     }
 
     public void assignRequest(RequestId id, CertReviewResponse data) {
-        certRequestClient.assignRequest(id, data);
+        Response response = certRequestClient.assignRequest(id, data);
+        client.getEntity(response, Void.class);
     }
 
     public void unassignRequest(RequestId id, CertReviewResponse data) {
-        certRequestClient.unassignRequest(id, data);
+        Response response = certRequestClient.unassignRequest(id, data);
+        client.getEntity(response, Void.class);
     }
 
     public CertRequestInfos listRequests(String requestState, String requestType, RequestId start, Integer pageSize,
             Integer maxResults, Integer maxTime) {
-        return certRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
+        Response response = certRequestClient.listRequests(requestState, requestType, start, pageSize, maxResults, maxTime);
+        return client.getEntity(response, CertRequestInfos.class);
     }
 
     public CertEnrollmentRequest getEnrollmentTemplate(String id) {
-        return certRequestClient.getEnrollmentTemplate(id);
+        Response response = certRequestClient.getEnrollmentTemplate(id);
+        return client.getEntity(response, CertEnrollmentRequest.class);
     }
 
     public ProfileDataInfos listEnrollmentTemplates(Integer start, Integer size) {
-        return certRequestClient.listEnrollmentTemplates(start, size);
+        Response response = certRequestClient.listEnrollmentTemplates(start, size);
+        return client.getEntity(response, ProfileDataInfos.class);
     }
-
 }
