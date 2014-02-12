@@ -503,7 +503,7 @@ class kra:
 
         Wrap (encrypt) data using the supplied symmetric key
         """
-        encoding_ctx, decoding_ctx = self.setup_contexts(self.mechanism, wrapping_key, self.iv)
+        encoding_ctx, _decoding_ctx = self.setup_contexts(self.mechanism, wrapping_key, self.iv)
         wrapped_data = encoding_ctx.cipher_op(data) + encoding_ctx.digest_final()
         return wrapped_data
 
@@ -526,7 +526,7 @@ class kra:
         """
         if iv == None:
             iv = self.iv
-        encoding_ctx, decoding_ctx = self.setup_contexts(self.mechanism, wrapping_key, iv)
+        _encoding_ctx, decoding_ctx = self.setup_contexts(self.mechanism, wrapping_key, iv)
         unwrapped_data = decoding_ctx.cipher_op(data) + decoding_ctx.digest_final()
         return unwrapped_data
 
@@ -615,7 +615,7 @@ class kra:
         request = self.create_archival_request(client_id, security_data, data_type)
 
         # Call CMS
-        http_status, http_reason_phrase, http_headers, http_body = \
+        http_status, http_reason_phrase, _http_headers, http_body = \
             self._request('/kra/rest/agent/keyrequests/archive',
                          self.kra_agent_port,
                          self.POST,
@@ -678,7 +678,7 @@ class kra:
             get_args = get_args + "&start=" + quote_plus(next_id)
 
         # Call CMS
-        http_status, http_reason_phrase, http_headers, http_body = \
+        http_status, http_reason_phrase, _http_headers, http_body = \
             self._request('/kra/rest/agent/keys',
                           self.kra_agent_port,
                           self.GET,
@@ -720,7 +720,7 @@ class kra:
             get_args = get_args + "&start=" + quote_plus(next_id)
 
         # Call CMS
-        http_status, http_reason_phrase, http_headers, http_body = \
+        http_status, http_reason_phrase, _http_headers, http_body = \
             self._request('/kra/rest/agent/keyrequests',
                           self.kra_agent_port,
                           self.GET,
@@ -753,7 +753,7 @@ class kra:
         request = self.create_recovery_request(key_id, None, None, None)
 
         # Call CMS
-        http_status, http_reason_phrase, http_headers, http_body = \
+        http_status, http_reason_phrase, _http_headers, http_body = \
             self._request('/kra/rest/agent/keyrequests/recover',
                          self.kra_agent_port,
                          self.POST,
@@ -801,7 +801,7 @@ class kra:
             raise CertificateOperationError(error=_('Bad argument to approve_recovery_request'))
 
         # Call CMS
-        http_status, http_reason_phrase, http_headers, http_body = \
+        http_status, http_reason_phrase, _http_headers, _http_body = \
             self._request('/kra/rest/agent/keyrequests/' + request_id + '/approve',
                          self.kra_agent_port,
                          self.POST,
@@ -823,7 +823,7 @@ class kra:
             raise CertificateOperationError(error=_('Bad argument to reject_recovery_request'))
 
         # Call CMS
-        http_status, http_reason_phrase, http_headers, http_body = \
+        http_status, http_reason_phrase, _http_headers, _http_body = \
             self._request('/kra/rest/agent/keyrequests/' + request_id + '/reject',
                          self.kra_agent_port,
                          self.POST,
@@ -845,7 +845,7 @@ class kra:
             raise CertificateOperationError(error=_('Bad argument to cancel_recovery_request'))
 
         # Call CMS
-        http_status, http_reason_phrase, http_headers, http_body = \
+        http_status, http_reason_phrase, _http_headers, _http_body = \
             self._request('/kra/rest/agent/keyrequests/' + request_id + '/cancel',
                          self.kra_agent_port,
                          self.POST,
@@ -901,7 +901,7 @@ class kra:
                                                wrapped_passphrase)
 
         # Call CMS
-        http_status, http_reason_phrase, http_headers, http_body = \
+        http_status, http_reason_phrase, _http_headers, http_body = \
             self._request('/kra/rest/agent/keys/retrieve',
                          self.kra_agent_port,
                          self.POST,

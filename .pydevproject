@@ -6,5 +6,6 @@
 <path>/pki/base/common/python/pki</path>
 <path>/pki/base/server/python/pki/server</path>
 <path>/pki/base/kra/functional</path>
+<path>/pki</path>
 </pydev_pathproperty>
 </pydev_project>

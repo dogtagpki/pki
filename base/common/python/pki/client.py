@@ -26,7 +26,7 @@ class PKIConnection:
     def __init__(self,
             protocol='http',
             hostname='localhost',
-            port=80,
+            port='8080',
             subsystem='ca',
             accept='application/json'):
 
@@ -47,19 +47,37 @@ class PKIConnection:
         if username is not None and password is not None:
             self.session.auth = (username, password)
 
-    def get(self, path, headers=None):
+    def set_authentication_cert(self, pem_cert_path):
+        if pem_cert_path is None:
+            raise Exception("No path for the certificate specified.")
+        if len(str(pem_cert_path)) == 0:
+            raise Exception("No path for the certificate specified.")
+        self.session.cert = pem_cert_path
+
+    def get(self, path, headers=None, params=None):
         r = self.session.get(
             self.serverURI + path,
             verify=False,
-            headers=headers)
+            headers=headers,
+            params=params)
         r.raise_for_status()
         return r
 
-    def post(self, path, payload, headers=None):
+    def post(self, path, payload, headers=None, params=None):
         r = self.session.post(
                 self.serverURI + path,
                 verify=False,
                 data=payload,
-                headers=headers)
+                headers=headers,
+                params=params)
         r.raise_for_status()
         return r
+def main():
+    conn = PKIConnection()
+    headers = {'Content-type': 'application/json',
+                        'Accept': 'application/json'}
+    conn.set_authentication_cert('/root/temp4.pem')
+    print conn.get("", headers).json()
+
+if __name__ == "__main__":
+    main()
