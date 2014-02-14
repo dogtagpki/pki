@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
@@ -107,7 +108,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     }
 
     @Override
-    public TPSCertCollection findCerts(Integer start, Integer size) {
+    public Response findCerts(Integer start, Integer size) {
 
         System.out.println("TPSCertService.findCerts()");
 
@@ -145,7 +146,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,7 +155,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     }
 
     @Override
-    public TPSCertData getCert(String certID) {
+    public Response getCert(String certID) {
 
         if (certID == null) throw new BadRequestException("Certificate ID is null.");
 
@@ -164,7 +165,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
-            return createCertData(database.getRecord(certID));
+            return createOKResponse(createCertData(database.getRecord(certID)));
 
         } catch (Exception e) {
             e.printStackTrace();

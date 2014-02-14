@@ -19,6 +19,8 @@ package com.netscape.certsrv.tps.cert;
 
 import java.net.URISyntaxException;
 
+import javax.ws.rs.core.Response;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -39,10 +41,12 @@ public class TPSCertClient extends Client {
     }
 
     public TPSCertCollection findCerts(Integer start, Integer size) {
-        return resource.findCerts(start, size);
+        Response response = resource.findCerts(start, size);
+        return client.getEntity(response, TPSCertCollection.class);
     }
 
     public TPSCertData getCert(String tokenID) {
-        return resource.getCert(tokenID);
+        Response response = resource.getCert(tokenID);
+        return client.getEntity(response, TPSCertData.class);
     }
 }

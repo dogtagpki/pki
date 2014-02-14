@@ -23,6 +23,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.annotations.ClientResponseType;
 
 
 /**
@@ -32,13 +35,15 @@ import javax.ws.rs.core.MediaType;
 public interface TPSCertResource {
 
     @GET
+    @ClientResponseType(entityType=TPSCertCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TPSCertCollection findCerts(
+    public Response findCerts(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("{certID}")
+    @ClientResponseType(entityType=TPSCertData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TPSCertData getCert(@PathParam("certID") String certID);
+    public Response getCert(@PathParam("certID") String certID);
 }
