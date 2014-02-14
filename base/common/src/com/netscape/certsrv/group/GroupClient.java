@@ -41,11 +41,13 @@ public class GroupClient extends Client {
     }
 
     public GroupCollection findGroups(String groupIDFilter, Integer start, Integer size) {
-        return groupClient.findGroups(groupIDFilter, start, size);
+        Response response = groupClient.findGroups(groupIDFilter, start, size);
+        return client.getEntity(response, GroupCollection.class);
     }
 
     public GroupData getGroup(String groupID) {
-        return groupClient.getGroup(groupID);
+        Response response = groupClient.getGroup(groupID);
+        return client.getEntity(response, GroupData.class);
     }
 
     public GroupData addGroup(GroupData groupData) {
@@ -59,15 +61,18 @@ public class GroupClient extends Client {
     }
 
     public void removeGroup(String groupID) {
-        groupClient.removeGroup(groupID);
+        Response response = groupClient.removeGroup(groupID);
+        client.getEntity(response, Void.class);
     }
 
     public GroupMemberCollection findGroupMembers(String groupID, Integer start, Integer size) {
-        return groupClient.findGroupMembers(groupID, start, size);
+        Response response = groupClient.findGroupMembers(groupID, start, size);
+        return client.getEntity(response, GroupMemberCollection.class);
     }
 
     public GroupMemberData getGroupMember(String groupID, String memberID) {
-        return groupClient.getGroupMember(groupID, memberID);
+        Response response = groupClient.getGroupMember(groupID, memberID);
+        return client.getEntity(response, GroupMemberData.class);
     }
 
     public GroupMemberData addGroupMember(String groupID, String memberID) {
@@ -76,6 +81,7 @@ public class GroupClient extends Client {
     }
 
     public void removeGroupMember(String groupID, String memberID) {
-        groupClient.removeGroupMember(groupID, memberID);
+        Response response = groupClient.removeGroupMember(groupID, memberID);
+        client.getEntity(response, Void.class);
     }
 }

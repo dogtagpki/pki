@@ -44,8 +44,9 @@ import com.netscape.certsrv.base.PATCH;
 public interface GroupResource {
 
     @GET
+    @ClientResponseType(entityType=GroupCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public GroupCollection findGroups(
+    public Response findGroups(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -58,8 +59,9 @@ public interface GroupResource {
 
     @GET
     @Path("{groupID}")
+    @ClientResponseType(entityType=GroupData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public GroupData getGroup(@PathParam("groupID") String groupID);
+    public Response getGroup(@PathParam("groupID") String groupID);
 
     @PATCH
     @Path("{groupID}")
@@ -70,13 +72,15 @@ public interface GroupResource {
 
     @DELETE
     @Path("{groupID}")
+    @ClientResponseType(entityType=Void.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void removeGroup(@PathParam("groupID") String groupID);
+    public Response removeGroup(@PathParam("groupID") String groupID);
 
     @GET
     @Path("{groupID}/members")
+    @ClientResponseType(entityType=GroupMemberCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public GroupMemberCollection findGroupMembers(
+    public Response findGroupMembers(
             @PathParam("groupID") String groupID,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
@@ -90,11 +94,13 @@ public interface GroupResource {
 
     @GET
     @Path("{groupID}/members/{memberID}")
+    @ClientResponseType(entityType=GroupMemberData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public GroupMemberData getGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
+    public Response getGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 
     @DELETE
     @Path("{groupID}/members/{memberID}")
+    @ClientResponseType(entityType=Void.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void removeGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
+    public Response removeGroupMember(@PathParam("groupID") String groupID, @PathParam("memberID") String memberID);
 }

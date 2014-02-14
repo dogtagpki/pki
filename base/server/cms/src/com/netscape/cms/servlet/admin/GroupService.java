@@ -42,7 +42,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.group.GroupCollection;
 import com.netscape.certsrv.group.GroupData;
-import com.netscape.certsrv.group.GroupMemberCollection;
 import com.netscape.certsrv.group.GroupMemberData;
 import com.netscape.certsrv.group.GroupNotFoundException;
 import com.netscape.certsrv.group.GroupResource;
@@ -102,7 +101,7 @@ public class GroupService extends PKIService implements GroupResource {
      * ui/admin-protocol-definition.html#user-admin
      */
     @Override
-    public GroupCollection findGroups(String filter, Integer start, Integer size) {
+    public Response findGroups(String filter, Integer start, Integer size) {
         try {
             filter = StringUtils.isEmpty(filter) ? "*" : "*"+LDAPUtil.escapeFilter(filter)+"*";
             start = start == null ? 0 : start;
@@ -136,7 +135,7 @@ public class GroupService extends PKIService implements GroupResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (Exception e) {
             throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
@@ -150,7 +149,11 @@ public class GroupService extends PKIService implements GroupResource {
      * ui/admin-protocol-definition.html#user-admin
      */
     @Override
-    public GroupData getGroup(String groupID) {
+    public Response getGroup(String groupID) {
+        return createOKResponse(getGroupData(groupID));
+    }
+
+    public GroupData getGroupData(String groupID) {
 
         try {
             if (groupID == null) {
@@ -217,12 +220,9 @@ public class GroupService extends PKIService implements GroupResource {
             auditAddGroup(groupID, groupData, ILogger.SUCCESS);
 
             // read the data back
-            groupData = getGroup(groupID);
+            groupData = getGroupData(groupID);
 
-            return Response
-                    .created(groupData.getLink().getHref())
-                    .entity(groupData)
-                    .build();
+            return createCreatedResponse(groupData, groupData.getLink().getHref());
 
         } catch (PKIException e) {
             auditAddGroup(groupID, groupData, ILogger.FAILURE);
@@ -280,11 +280,9 @@ public class GroupService extends PKIService implements GroupResource {
             auditModifyGroup(groupID, groupData, ILogger.SUCCESS);
 
             // read the data back
-            groupData = getGroup(groupID);
+            groupData = getGroupData(groupID);
 
-            return Response
-                    .ok(groupData)
-                    .build();
+            return createOKResponse(groupData);
 
         } catch (PKIException e) {
             auditModifyGroup(groupID, groupData, ILogger.FAILURE);
@@ -310,7 +308,7 @@ public class GroupService extends PKIService implements GroupResource {
      * </ul>
      */
     @Override
-    public void removeGroup(String groupID) {
+    public Response removeGroup(String groupID) {
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -325,6 +323,8 @@ public class GroupService extends PKIService implements GroupResource {
 
             auditDeleteGroup(groupID, ILogger.SUCCESS);
 
+            return createNoContentResponse();
+
         } catch (PKIException e) {
             auditDeleteGroup(groupID, ILogger.FAILURE);
             throw e;
@@ -336,14 +336,14 @@ public class GroupService extends PKIService implements GroupResource {
     }
 
     @Override
-    public GroupMemberCollection findGroupMembers(String groupID, Integer start, Integer size) {
+    public Response findGroupMembers(String groupID, Integer start, Integer size) {
 
         if (groupID == null) throw new BadRequestException("Group ID is null.");
 
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
-            return processor.findGroupMembers(groupID, start, size);
+            return createOKResponse(processor.findGroupMembers(groupID, start, size));
 
         } catch (PKIException e) {
             throw e;
@@ -355,7 +355,7 @@ public class GroupService extends PKIService implements GroupResource {
     }
 
     @Override
-    public GroupMemberData getGroupMember(String groupID, String memberID) {
+    public Response getGroupMember(String groupID, String memberID) {
 
         if (groupID == null) throw new BadRequestException("Group ID is null.");
         if (memberID == null) throw new BadRequestException("Member ID is null.");
@@ -363,7 +363,7 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
-            return processor.getGroupMember(groupID, memberID);
+            return createOKResponse(processor.getGroupMember(groupID, memberID));
 
         } catch (PKIException e) {
             throw e;
@@ -402,7 +402,7 @@ public class GroupService extends PKIService implements GroupResource {
     }
 
     @Override
-    public void removeGroupMember(String groupID, String memberID) {
+    public Response removeGroupMember(String groupID, String memberID) {
 
         if (groupID == null) throw new BadRequestException("Group ID is null.");
         if (memberID == null) throw new BadRequestException("Member ID is null.");
@@ -411,6 +411,8 @@ public class GroupService extends PKIService implements GroupResource {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
             processor.removeGroupMember(groupID, memberID);
+
+            return createNoContentResponse();
 
         } catch (PKIException e) {
             throw e;
