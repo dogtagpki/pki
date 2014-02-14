@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
@@ -97,7 +98,7 @@ public class ActivityService extends PKIService implements ActivityResource {
     }
 
     @Override
-    public ActivityCollection findActivities(Integer start, Integer size) {
+    public Response findActivities(Integer start, Integer size) {
 
         CMS.debug("ActivityService.findActivities()");
 
@@ -135,7 +136,7 @@ public class ActivityService extends PKIService implements ActivityResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,7 +145,7 @@ public class ActivityService extends PKIService implements ActivityResource {
     }
 
     @Override
-    public ActivityData getActivity(String activityID) {
+    public Response getActivity(String activityID) {
 
         if (activityID == null) throw new BadRequestException("Activity ID is null.");
 
@@ -154,7 +155,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
-            return createActivityData(database.getRecord(activityID));
+            return createOKResponse(createActivityData(database.getRecord(activityID)));
 
         } catch (Exception e) {
             e.printStackTrace();

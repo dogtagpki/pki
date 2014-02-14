@@ -19,6 +19,8 @@ package com.netscape.certsrv.logging;
 
 import java.net.URISyntaxException;
 
+import javax.ws.rs.core.Response;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -39,10 +41,12 @@ public class ActivityClient extends Client {
     }
 
     public ActivityCollection findActivities(Integer start, Integer size) {
-        return resource.findActivities(start, size);
+        Response response = resource.findActivities(start, size);
+        return client.getEntity(response, ActivityCollection.class);
     }
 
     public ActivityData getActivity(String tokenID) {
-        return resource.getActivity(tokenID);
+        Response response = resource.getActivity(tokenID);
+        return client.getEntity(response, ActivityData.class);
     }
 }

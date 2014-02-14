@@ -23,6 +23,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.annotations.ClientResponseType;
 
 
 /**
@@ -32,13 +35,15 @@ import javax.ws.rs.core.MediaType;
 public interface ActivityResource {
 
     @GET
+    @ClientResponseType(entityType=ActivityCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ActivityCollection findActivities(
+    public Response findActivities(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("{activityID}")
+    @ClientResponseType(entityType=ActivityData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ActivityData getActivity(@PathParam("activityID") String activityID);
+    public Response getActivity(@PathParam("activityID") String activityID);
 }
