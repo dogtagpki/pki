@@ -93,7 +93,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
     }
 
     @Override
-    public AuthenticatorCollection findAuthenticators(Integer start, Integer size) {
+    public Response findAuthenticators(Integer start, Integer size) {
 
         CMS.debug("AuthenticatorService.findAuthenticators()");
 
@@ -131,7 +131,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (PKIException e) {
             throw e;
@@ -143,7 +143,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
     }
 
     @Override
-    public AuthenticatorData getAuthenticator(String authenticatorID) {
+    public Response getAuthenticator(String authenticatorID) {
 
         if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
 
@@ -153,7 +153,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
-            return createAuthenticatorData(database.getRecord(authenticatorID));
+            return createOKResponse(createAuthenticatorData(database.getRecord(authenticatorID)));
 
         } catch (PKIException e) {
             throw e;
@@ -178,10 +178,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             database.addRecord(authenticatorData.getID(), createAuthenticatorRecord(authenticatorData));
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorData.getID()));
 
-            return Response
-                    .created(authenticatorData.getLink().getHref())
-                    .entity(authenticatorData)
-                    .build();
+            return createCreatedResponse(authenticatorData, authenticatorData.getLink().getHref());
 
         } catch (PKIException e) {
             throw e;
@@ -227,9 +224,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));
 
-            return Response
-                    .ok(authenticatorData)
-                    .build();
+            return createOKResponse(authenticatorData);
 
         } catch (PKIException e) {
             throw e;
@@ -287,9 +282,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
             AuthenticatorData authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));
 
-            return Response
-                    .ok(authenticatorData)
-                    .build();
+            return createOKResponse(authenticatorData);
 
         } catch (PKIException e) {
             throw e;
@@ -301,7 +294,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
     }
 
     @Override
-    public void removeAuthenticator(String authenticatorID) {
+    public Response removeAuthenticator(String authenticatorID) {
 
         if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
 
@@ -319,6 +312,8 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             }
 
             database.removeRecord(authenticatorID);
+
+            return createNoContentResponse();
 
         } catch (PKIException e) {
             throw e;

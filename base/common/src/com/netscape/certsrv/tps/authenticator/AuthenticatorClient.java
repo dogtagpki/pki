@@ -41,11 +41,13 @@ public class AuthenticatorClient extends Client {
     }
 
     public AuthenticatorCollection findAuthenticators(Integer start, Integer size) {
-        return resource.findAuthenticators(start, size);
+        Response response = resource.findAuthenticators(start, size);
+        return client.getEntity(response, AuthenticatorCollection.class);
     }
 
     public AuthenticatorData getAuthenticator(String authenticatorID) {
-        return resource.getAuthenticator(authenticatorID);
+        Response response = resource.getAuthenticator(authenticatorID);
+        return client.getEntity(response, AuthenticatorData.class);
     }
 
     public AuthenticatorData addAuthenticator(AuthenticatorData authenticatorData) {
@@ -64,6 +66,7 @@ public class AuthenticatorClient extends Client {
     }
 
     public void removeAuthenticator(String authenticatorID) {
-        resource.removeAuthenticator(authenticatorID);
+        Response response = resource.removeAuthenticator(authenticatorID);
+        client.getEntity(response, Void.class);
     }
 }

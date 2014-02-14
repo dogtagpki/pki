@@ -44,15 +44,17 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 public interface AuthenticatorResource {
 
     @GET
+    @ClientResponseType(entityType=AuthenticatorCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public AuthenticatorCollection findAuthenticators(
+    public Response findAuthenticators(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("{authenticatorID}")
+    @ClientResponseType(entityType=AuthenticatorData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public AuthenticatorData getAuthenticator(@PathParam("authenticatorID") String authenticatorID);
+    public Response getAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 
     @POST
     @ACLMapping("authenticators.add")
@@ -83,7 +85,8 @@ public interface AuthenticatorResource {
 
     @DELETE
     @Path("{authenticatorID}")
+    @ClientResponseType(entityType=Void.class)
     @ACLMapping("authenticators.remove")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void removeAuthenticator(@PathParam("authenticatorID") String authenticatorID);
+    public Response removeAuthenticator(@PathParam("authenticatorID") String authenticatorID);
 }
