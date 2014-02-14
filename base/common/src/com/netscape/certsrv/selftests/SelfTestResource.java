@@ -24,6 +24,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
@@ -38,18 +41,21 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 public interface SelfTestResource {
 
     @GET
+    @ClientResponseType(entityType=SelfTestCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public SelfTestCollection findSelfTests(
+    public Response findSelfTests(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @POST
+    @ClientResponseType(entityType=Void.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("selftests.execute")
-    public void executeSelfTests(@QueryParam("action") String action);
+    public Response executeSelfTests(@QueryParam("action") String action);
 
     @GET
     @Path("{selfTestID}")
+    @ClientResponseType(entityType=SelfTestData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public SelfTestData getSelfTest(@PathParam("selfTestID") String selfTestID);
+    public Response getSelfTest(@PathParam("selfTestID") String selfTestID);
 }

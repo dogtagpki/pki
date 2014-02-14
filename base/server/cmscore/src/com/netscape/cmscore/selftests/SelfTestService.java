@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -93,7 +94,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     }
 
     @Override
-    public SelfTestCollection findSelfTests(Integer start, Integer size) {
+    public Response findSelfTests(Integer start, Integer size) {
 
         CMS.debug("SelfTestService.findSelfTests()");
 
@@ -130,7 +131,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -139,7 +140,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     }
 
     @Override
-    public SelfTestData getSelfTest(String selfTestID) {
+    public Response getSelfTest(String selfTestID) {
 
         if (selfTestID == null) throw new BadRequestException("Self test ID is null.");
 
@@ -147,7 +148,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         try {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
-            return createSelfTestData(subsystem, selfTestID);
+            return createOKResponse(createSelfTestData(subsystem, selfTestID));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,7 +157,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     }
 
     @Override
-    public void executeSelfTests(String action) {
+    public Response executeSelfTests(String action) {
 
         if (action == null) throw new BadRequestException("Action is null.");
 
@@ -174,5 +175,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
+
+        return createNoContentResponse();
     }
 }

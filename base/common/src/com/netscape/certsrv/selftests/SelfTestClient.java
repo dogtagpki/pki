@@ -19,6 +19,8 @@ package com.netscape.certsrv.selftests;
 
 import java.net.URISyntaxException;
 
+import javax.ws.rs.core.Response;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -39,14 +41,17 @@ public class SelfTestClient extends Client {
     }
 
     public SelfTestCollection findSelfTests(Integer start, Integer size) {
-        return resource.findSelfTests(start, size);
+        Response response = resource.findSelfTests(start, size);
+        return client.getEntity(response, SelfTestCollection.class);
     }
 
     public void executeSelfTests(String action) {
-        resource.executeSelfTests(action);
+        Response response = resource.executeSelfTests(action);
+        client.getEntity(response, Void.class);
     }
 
     public SelfTestData getSelfTest(String selfTestID) {
-        return resource.getSelfTest(selfTestID);
+        Response response = resource.getSelfTest(selfTestID);
+        return client.getEntity(response, SelfTestData.class);
     }
 }
