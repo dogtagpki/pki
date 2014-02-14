@@ -35,8 +35,9 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 public interface AuditResource {
 
     @GET
+    @ClientResponseType(entityType=AuditConfig.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public AuditConfig getAuditConfig();
+    public Response getAuditConfig();
 
     @PUT
     @ClientResponseType(entityType=AuditConfig.class)

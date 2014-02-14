@@ -97,12 +97,12 @@ public class AuditService extends PKIService implements AuditResource {
     }
 
     @Override
-    public AuditConfig getAuditConfig() {
+    public Response getAuditConfig() {
 
         CMS.debug("AuditService.getAuditConfig()");
 
         try {
-            return createAuditConfig();
+            return createOKResponse(createAuditConfig());
 
         } catch (PKIException e) {
             throw e;
@@ -163,9 +163,7 @@ public class AuditService extends PKIService implements AuditResource {
 
             auditConfig = createAuditConfig();
 
-            return Response
-                    .ok(auditConfig)
-                    .build();
+            return createOKResponse(auditConfig);
 
         } catch (PKIException e) {
             throw e;

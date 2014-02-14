@@ -41,7 +41,8 @@ public class AuditClient extends Client {
     }
 
     public AuditConfig getAuditConfig() {
-        return resource.getAuditConfig();
+        Response response = resource.getAuditConfig();
+        return client.getEntity(response, AuditConfig.class);
     }
 
     public AuditConfig updateAuditConfig(AuditConfig auditConfig) {
