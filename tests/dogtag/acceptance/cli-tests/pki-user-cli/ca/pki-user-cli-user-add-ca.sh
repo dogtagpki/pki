@@ -5,7 +5,7 @@
 #   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-add CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The following ipa cli commands needs to be tested:
+# The following pki cli commands needs to be tested:
 #  pki-user-cli-user-add    Add users to pki subsystems.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -912,11 +912,345 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/842"
     rlPhaseEnd
 
+    rlPhaseStartTest "pki_user_cli_user_add-CA-051: fullname 'Örjan Äke' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='Örjan Äke' u26"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='Örjan Äke' u26 > $TmpDir/pki-user-add-ca-001_51.out 2>&1" \
+                    0 \
+                    "Adding u26 with full name Örjan Äke"
+	rlAssertGrep "Added user \"u26\"" "$TmpDir/pki-user-add-ca-001_51.out"
+        rlAssertGrep "User ID: u26" "$TmpDir/pki-user-add-ca-001_51.out"
+        rlAssertGrep "Full name: Örjan Äke" "$TmpDir/pki-user-add-ca-001_51.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-052: fullname 'Éric Têko' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='Éric Têko' u27"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='Éric Têko' u27 > $TmpDir/pki-user-add-ca-001_52.out 2>&1" \
+                    0 \
+                    "Adding u27 with full Éric Têko"
+        rlAssertGrep "Added user \"u27\"" "$TmpDir/pki-user-add-ca-001_52.out"
+        rlAssertGrep "User ID: u27" "$TmpDir/pki-user-add-ca-001_52.out"
+        rlAssertGrep "Full name: Éric Têko" "$TmpDir/pki-user-add-ca-001_52.out"
+    rlPhaseEnd 
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-053: fullname 'éénentwintig dvidešimt' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='éénentwintig dvidešimt' u28"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='éénentwintig dvidešimt' u28 > $TmpDir/pki-user-add-ca-001_53.out 2>&1" \
+                    0 \
+                    "Adding fullname éénentwintig dvidešimt with i18n characters"
+        rlAssertGrep "Added user \"u28\"" "$TmpDir/pki-user-add-ca-001_53.out"
+        rlAssertGrep "Full name: éénentwintig dvidešimt" "$TmpDir/pki-user-add-ca-001_53.out"
+        rlAssertGrep "User ID: u28" "$TmpDir/pki-user-add-ca-001_53.out"
+	rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u28"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+		   -c $CERTDB_DIR_PASSWORD \
+                    user-show u28 > $TmpDir/pki-user-add-ca-001_53_2.out 2>&1" \
+                    0 \
+                    "Show user u28 with fullname éénentwintig dvidešimt in i18n characters"
+        rlAssertGrep "User \"u28\"" "$TmpDir/pki-user-add-ca-001_53_2.out"
+        rlAssertGrep "Full name: éénentwintig dvidešimt" "$TmpDir/pki-user-add-ca-001_53_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-054: fullname 'kakskümmend üks' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='kakskümmend üks' u29"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='kakskümmend üks' u29 > $TmpDir/pki-user-add-ca-001_54.out 2>&1" \
+                    0 \
+                    "Adding fillname kakskümmend üks with i18n characters"
+        rlAssertGrep "Added user \"u29\"" "$TmpDir/pki-user-add-ca-001_54.out"
+        rlAssertGrep "Full name: kakskümmend üks" "$TmpDir/pki-user-add-ca-001_54.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u29 > $TmpDir/pki-user-add-ca-001_54_2.out" \
+                    0 \
+                    "Show user u29 with fullname kakskümmend üks in i18n characters"
+        rlAssertGrep "User \"u29\"" "$TmpDir/pki-user-add-ca-001_54_2.out"
+        rlAssertGrep "Full name: kakskümmend üks" "$TmpDir/pki-user-add-ca-001_54_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-055: fullname 'двадцять один тридцять' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='двадцять один тридцять' u30"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='двадцять один тридцять' u30 > $TmpDir/pki-user-add-ca-001_55.out 2>&1" \
+                    0 \
+                    "Adding fillname двадцять один тридцять with i18n characters"
+        rlAssertGrep "Added user \"u30\"" "$TmpDir/pki-user-add-ca-001_55.out"
+        rlAssertGrep "Full name: двадцять один тридцять" "$TmpDir/pki-user-add-ca-001_55.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u30 > $TmpDir/pki-user-add-ca-001_55_2.out" \
+                    0 \
+                    "Show user u30 with fullname двадцять один тридцять in i18n characters"
+        rlAssertGrep "User \"u30\"" "$TmpDir/pki-user-add-ca-001_55_2.out"
+        rlAssertGrep "Full name: двадцять один тридцять" "$TmpDir/pki-user-add-ca-001_55_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-056: user id 'ÖrjanÄke' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test 'ÖrjanÄke'"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test 'ÖrjanÄke' > $TmpDir/pki-user-add-ca-001_56.out 2>&1" \
+                    0 \
+                    "Adding uid ÖrjanÄke with i18n characters"
+        rlAssertGrep "Added user \"ÖrjanÄke\"" "$TmpDir/pki-user-add-ca-001_56.out"
+        rlAssertGrep "User ID: ÖrjanÄke" "$TmpDir/pki-user-add-ca-001_56.out"
+	rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show 'ÖrjanÄke' > $TmpDir/pki-user-add-ca-001_56_2.out" \
+                    0 \
+                    "Show user 'ÖrjanÄke'"
+	rlAssertGrep "User \"ÖrjanÄke\"" "$TmpDir/pki-user-add-ca-001_56_2.out"
+        rlAssertGrep "User ID: ÖrjanÄke" "$TmpDir/pki-user-add-ca-001_56_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-057: userid 'ÉricTêko' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test 'ÉricTêko'"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test 'ÉricTêko' > $TmpDir/pki-user-add-ca-001_57.out 2>&1" \
+                    0 \
+                    "Adding user id ÉricTêko with i18n characters"
+        rlAssertGrep "Added user \"ÉricTêko\"" "$TmpDir/pki-user-add-ca-001_57.out"
+        rlAssertGrep "User ID: ÉricTêko" "$TmpDir/pki-user-add-ca-001_57.out"
+	rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show 'ÉricTêko' > $TmpDir/pki-user-add-ca-001_57_2.out" \
+                    0 \
+                    "Show user 'ÉricTêko'"
+        rlAssertGrep "User \"ÉricTêko\"" "$TmpDir/pki-user-add-ca-001_57_2.out"
+        rlAssertGrep "User ID: ÉricTêko" "$TmpDir/pki-user-add-ca-001_57_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-058: email address 'negyvenkettő@qetestsdomain.com' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --email='negyvenkettő@qetestsdomain.com' u31"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test  --email='negyvenkettő@qetestsdomain.com' u31 > $TmpDir/pki-user-add-ca-001_58.out 2>&1" \
+                    0 \
+                    "Adding email negyvenkettő@qetestsdomain.com with i18n characters"
+        rlAssertGrep "Added user \"u31\"" "$TmpDir/pki-user-add-ca-001_58.out"
+	rlAssertGrep "Email: gyvenkettő@qetestsdomain.com" "$TmpDir/pki-user-add-ca-001_58.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u31 > $TmpDir/pki-user-add-ca-001_58_2.out" \
+                    0 \
+                    "Show user u31 with email in i18n characters"
+        rlAssertGrep "User \"u31\"" "$TmpDir/pki-user-add-ca-001_58_2.out"
+	rlAssertGrep "Email: negyvenkettő@qetestsdomain.com" "$TmpDir/pki-user-add-ca-001_58_2.out"
+        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-059: email 'četrdesmitdivi@qetestsdomain.com' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --email='četrdesmitdivi@qetestsdomain.com' u32"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --email='četrdesmitdivi@qetestsdomain.com' u32 > $TmpDir/pki-user-add-ca-001_59.out 2>&1" \
+                    0 \
+                    "Adding email četrdesmitdivi@qetestsdomain.com with i18n characters"
+        rlAssertGrep "Added user \"u32\"" "$TmpDir/pki-user-add-ca-001_59.out"
+	rlAssertGrep "Email: četrdesmitdivi@qetestsdomain.com" "$TmpDir/pki-user-add-ca-001_59.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u32 > $TmpDir/pki-user-add-ca-001_59_2.out" \
+                    0 \
+                    "Show user u32 with email četrdesmitdivi@qetestsdomain.com in i18n characters"
+        rlAssertGrep "User \"u32\"" "$TmpDir/pki-user-add-ca-001_59_2.out"
+	rlAssertGrep "Email: četrdesmitdivi@qetestsdomain.com" "$TmpDir/pki-user-add-ca-001_59_2.out"
+        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-060: password 'šimtaskolmkümmend' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --password='šimtaskolmkümmend' u33"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --password='šimtaskolmkümmend' u33 > $TmpDir/pki-user-add-ca-001_60.out 2>&1" \
+                    0 \
+                    "Adding password šimtaskolmkümmend with i18n characters"
+        rlAssertGrep "Added user \"u33\"" "$TmpDir/pki-user-add-ca-001_60.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u33 > $TmpDir/pki-user-add-ca-001_60_2.out" \
+                    0 \
+                    "Show user u33 with password šimtaskolmkümmend in i18n characters"
+        rlAssertGrep "User \"u33\"" "$TmpDir/pki-user-add-ca-001_60_2.out"
+    rlPhaseEnd 
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-061: password 'двадцяттридцять' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --password='двадцяттридцять' u34"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --password='двадцяттридцять' u34 > $TmpDir/pki-user-add-ca-001_61.out 2>&1" \
+                    0 \
+                    "Adding password двадцяттридцять with i18n characters"
+        rlAssertGrep "Added user \"u34\"" "$TmpDir/pki-user-add-ca-001_61.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u34 > $TmpDir/pki-user-add-ca-001_61_2.out" \
+                    0 \
+                    "Show user u34 with password двадцяттридцять in i18n characters"
+        rlAssertGrep "User \"u34\"" "$TmpDir/pki-user-add-ca-001_61_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-062: type 'tjugo-tvåhetvenhét' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --type='tjugo-tvåhetvenhét' u35"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --type='tjugo-tvåhetvenhét' u35 > $TmpDir/pki-user-add-ca-001_62.out 2>&1" \
+                    0 \
+                    "Adding type tjugo-tvåhetvenhét with i18n characters"
+        rlAssertGrep "Added user \"u35\"" "$TmpDir/pki-user-add-ca-001_62.out"
+	rlAssertGrep "Type: tjugo-tvåhetvenhét" "$TmpDir/pki-user-add-ca-001_62.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u35 > $TmpDir/pki-user-add-ca-001_62_2.out" \
+                    0 \
+                    "Show user u35 with type tjugo-tvåhetvenhét in i18n characters"
+        rlAssertGrep "User \"u35\"" "$TmpDir/pki-user-add-ca-001_62_2.out"
+	rlAssertGrep "Type: tjugo-tvåhetvenhét" "$TmpDir/pki-user-add-ca-001_62_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-063: type 'мiльйонтридцять' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --type='мiльйонтридцять' u36"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --type='мiльйонтридцять' u36 > $TmpDir/pki-user-add-ca-001_63.out 2>&1" \
+                    0 \
+                    "Adding type мiльйонтридцять with i18n characters"
+        rlAssertGrep "Added user \"u36\"" "$TmpDir/pki-user-add-ca-001_63.out"
+        rlAssertGrep "Type: мiльйонтридцять" "$TmpDir/pki-user-add-ca-001_63.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u36 > $TmpDir/pki-user-add-ca-001_63_2.out" \
+                    0 \
+                    "Show user u36 with type мiльйонтридцять in i18n characters"
+        rlAssertGrep "User \"u36\"" "$TmpDir/pki-user-add-ca-001_63_2.out"
+        rlAssertGrep "Type: мiльйонтридцять" "$TmpDir/pki-user-add-ca-001_63_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-064: state 'čå' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --state='čå' u37"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --state='čå' u37 > $TmpDir/pki-user-add-ca-001_64.out 2>&1" \
+                    0 \
+                    "Adding state 'čå' with i18n characters"
+        rlAssertGrep "Added user \"u37\"" "$TmpDir/pki-user-add-ca-001_64.out"
+        rlAssertGrep "State: čå" "$TmpDir/pki-user-add-ca-001_64.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u37 > $TmpDir/pki-user-add-ca-001_64_2.out" \
+                    0 \
+                    "Show user u37 with state čå in i18n characters"
+        rlAssertGrep "User \"u37\"" "$TmpDir/pki-user-add-ca-001_64_2.out"
+        rlAssertGrep "State: čå" "$TmpDir/pki-user-add-ca-001_64_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-065: state 'йč' with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --state='йč' u38"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName=test --state='йč' u38 > $TmpDir/pki-user-add-ca-001_65.out 2>&1" \
+                    0 \
+                    "Adding state 'йč' with i18n characters"
+        rlAssertGrep "Added user \"u38\"" "$TmpDir/pki-user-add-ca-001_65.out"
+        rlAssertGrep "State: йč" "$TmpDir/pki-user-add-ca-001_65.out"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-show u38 > $TmpDir/pki-user-add-ca-001_65_2.out" \
+                    0 \
+                    "Show user u38 with state йč in i18n characters"
+        rlAssertGrep "User \"u38\"" "$TmpDir/pki-user-add-ca-001_65_2.out"
+        rlAssertGrep "State: йč" "$TmpDir/pki-user-add-ca-001_65_2.out"
+    rlPhaseEnd
+
     rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting users"
 
         #===Deleting users created using CA_adminV cert===#
         i=1
-        while [ $i -lt 26 ] ; do
+        while [ $i -lt 39 ] ; do
                rlRun "pki -d $CERTDB_DIR \
                           -n CA_adminV \
                           -c $CERTDB_DIR_PASSWORD \
@@ -945,6 +1279,21 @@ run_pki-user-cli-user-add-ca_tests(){
         	fi
                 let j=$j+1
         done
-
+        #===Deleting i18n users created using CA_adminV cert===#
+	rlRun "pki -d $CERTDB_DIR \
+		-n CA_adminV \
+		-c $CERTDB_DIR_PASSWORD \
+		user-del 'ÖrjanÄke' > $TmpDir/pki-user-del-ca-user-i18n_1.out" \
+		0 \
+		"Deleted user ÖrjanÄke"
+	rlAssertGrep "Deleted user \"ÖrjanÄke\"" "$TmpDir/pki-user-del-ca-user-i18n_1.out"
+	
+	rlRun "pki -d $CERTDB_DIR \
+                -n CA_adminV \
+                -c $CERTDB_DIR_PASSWORD \
+                user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-user-i18n_2.out" \
+                0 \
+                "Deleted user ÉricTêko"
+        rlAssertGrep "Deleted user \"ÉricTêko\"" "$TmpDir/pki-user-del-ca-user-i18n_2.out"
     rlPhaseEnd
 }
