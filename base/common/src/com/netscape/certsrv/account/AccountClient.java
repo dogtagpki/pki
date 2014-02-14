@@ -19,6 +19,8 @@ package com.netscape.certsrv.account;
 
 import java.net.URISyntaxException;
 
+import javax.ws.rs.core.Response;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -40,14 +42,16 @@ public class AccountClient extends Client {
     }
 
     public void login() {
-        resource.login();
+        Response response = resource.login();
+        client.getEntity(response, Void.class);
         loggedIn = true;
     }
 
     public void logout() {
-        if (loggedIn) {
-            resource.logout();
-            loggedIn = false;
-        }
+        if (!loggedIn) return;
+
+        Response response = resource.logout();
+        client.getEntity(response, Void.class);
+        loggedIn = false;
     }
 }

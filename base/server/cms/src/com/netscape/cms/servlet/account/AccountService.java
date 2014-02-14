@@ -25,6 +25,7 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.account.AccountResource;
@@ -48,20 +49,24 @@ public class AccountService extends PKIService implements AccountResource {
     private HttpServletRequest servletRequest;
 
     @Override
-    public void login() {
+    public Response login() {
         HttpSession session = servletRequest.getSession();
         System.out.println("Creating session "+session.getId());
 
         Principal principal = servletRequest.getUserPrincipal();
         System.out.println("Principal: "+principal);
+
+        return createNoContentResponse();
     }
 
     @Override
-    public void logout() {
+    public Response logout() {
         HttpSession session = servletRequest.getSession(false);
-        if (session == null) return;
+        if (session == null) return createNoContentResponse();
 
         System.out.println("Destroying session "+session.getId());
         session.invalidate();
+
+        return createNoContentResponse();
     }
 }
