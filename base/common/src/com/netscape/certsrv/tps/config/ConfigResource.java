@@ -40,8 +40,9 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 public interface ConfigResource {
 
     @GET
+    @ClientResponseType(entityType=ConfigData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ConfigData getConfig();
+    public Response getConfig();
 
     @PUT
     @ClientResponseType(entityType=ConfigData.class)

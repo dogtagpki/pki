@@ -73,7 +73,7 @@ public class ConfigService extends PKIService implements ConfigResource {
     }
 
     @Override
-    public ConfigData getConfig() {
+    public Response getConfig() {
 
         CMS.debug("ConfigService.getConfig()");
 
@@ -82,7 +82,8 @@ public class ConfigService extends PKIService implements ConfigResource {
             ConfigRecord configRecord = configDatabase.getRecord("Generals");
 
             Map<String, String> properties = configDatabase.getProperties(configRecord, null);
-            return createConfigData(properties);
+
+            return createOKResponse(createConfigData(properties));
 
         } catch (PKIException e) {
             throw e;

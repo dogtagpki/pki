@@ -41,7 +41,8 @@ public class ConfigClient extends Client {
     }
 
     public ConfigData getConfig() {
-        return resource.getConfig();
+        Response response = resource.getConfig();
+        return client.getEntity(response, ConfigData.class);
     }
 
     public ConfigData updateConfig(ConfigData configData) {
