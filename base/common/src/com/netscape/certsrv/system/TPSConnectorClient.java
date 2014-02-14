@@ -22,15 +22,18 @@ public class TPSConnectorClient extends Client {
     }
 
     public TPSConnectorCollection findConnectors(Integer start, Integer size) {
-        return tpsConnectorClient.findConnectors(start, size);
+        Response response = tpsConnectorClient.findConnectors(start, size);
+        return client.getEntity(response, TPSConnectorCollection.class);
     }
 
     public TPSConnectorData getConnector(String id) {
-        return tpsConnectorClient.getConnector(id);
+        Response response = tpsConnectorClient.getConnector(id);
+        return client.getEntity(response, TPSConnectorData.class);
     }
 
     public TPSConnectorData getConnector(String host, String port) {
-        return tpsConnectorClient.getConnector(host, port);
+        Response response = tpsConnectorClient.getConnector(host, port);
+        return client.getEntity(response, TPSConnectorData.class);
     }
 
     public TPSConnectorData createConnector(String tpsHost, String tpsPort) {
@@ -44,27 +47,32 @@ public class TPSConnectorClient extends Client {
     }
 
     public void deleteConnector(String id) {
-        tpsConnectorClient.deleteConnector(id);
+        Response response = tpsConnectorClient.deleteConnector(id);
+        client.getEntity(response, Void.class);
     }
 
     public KeyData createSharedSecret(String id) {
-        return tpsConnectorClient.createSharedSecret(id);
+        Response response = tpsConnectorClient.createSharedSecret(id);
+        return client.getEntity(response, KeyData.class);
     }
 
     public KeyData replaceSharedSecret(String id) {
-        return tpsConnectorClient.replaceSharedSecret(id);
+        Response response = tpsConnectorClient.replaceSharedSecret(id);
+        return client.getEntity(response, KeyData.class);
     };
 
     public void deleteSharedSecret(String id) {
-        tpsConnectorClient.deleteSharedSecret(id);
+        Response response = tpsConnectorClient.deleteSharedSecret(id);
+        client.getEntity(response, Void.class);
     }
 
     public KeyData getSharedSecret(String id) {
-        return tpsConnectorClient.getSharedSecret(id);
+        Response response = tpsConnectorClient.getSharedSecret(id);
+        return client.getEntity(response, KeyData.class);
     }
 
     public void deleteConnector(String host, String port) {
-        tpsConnectorClient.deleteConnector(host, port);
+        Response response = tpsConnectorClient.deleteConnector(host, port);
+        client.getEntity(response, Void.class);
     }
-
 }

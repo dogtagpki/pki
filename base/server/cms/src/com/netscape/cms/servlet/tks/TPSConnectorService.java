@@ -38,10 +38,11 @@ import com.netscape.certsrv.tps.cert.TPSCertResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
-public class TPSConnectorService implements TPSConnectorResource {
+public class TPSConnectorService extends PKIService implements TPSConnectorResource {
 
     private static final String TPS_LIST = "tps.list";
 
@@ -58,7 +59,7 @@ public class TPSConnectorService implements TPSConnectorResource {
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
     @Override
-    public TPSConnectorCollection findConnectors(Integer start, Integer size) {
+    public Response findConnectors(Integer start, Integer size) {
         try {
             String tpsList = cs.getString(TPS_LIST, "");
             Iterator<String> entries = Arrays.asList(StringUtils.split(tpsList,",")).iterator();
@@ -88,7 +89,7 @@ public class TPSConnectorService implements TPSConnectorResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (EBaseException e) {
             e.printStackTrace();
@@ -109,13 +110,20 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
-    public TPSConnectorData getConnector(String id) {
+    public Response getConnector(String id) {
+        return createOKResponse(getConnectorData(id));
+    }
+
+    public TPSConnectorData getConnectorData(String id) {
 
         if (id == null) throw new BadRequestException("TPS connector ID is null.");
 
         try {
-            if (connectorExists(id)) return createTPSConnectorData(id);
-            throw new ResourceNotFoundException("Connector " + id + " not found.");
+            if (!connectorExists(id))
+                throw new ResourceNotFoundException("Connector " + id + " not found.");
+
+            return createTPSConnectorData(id);
+
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException("Unable to get TPS connection data" + e);
@@ -123,16 +131,19 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
-    public TPSConnectorData getConnector(String host, String port) {
+    public Response getConnector(String host, String port) {
 
         if (host == null) throw new BadRequestException("TPS connector host is null.");
         if (port == null) throw new BadRequestException("TPS connector port is null.");
 
         try {
             String id = getConnectorID(host, port);
-            if (id != null) return createTPSConnectorData(id);
-            throw new ResourceNotFoundException(
-                    "Connector not found for " + host + ":" + port);
+            if (id == null)
+                throw new ResourceNotFoundException(
+                        "Connector not found for " + host + ":" + port);
+
+            return createOKResponse(createTPSConnectorData(id));
+
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException("Unable to get TPS connection data" + e);
@@ -166,10 +177,7 @@ public class TPSConnectorService implements TPSConnectorResource {
             addToConnectorList(newID);
             cs.commit(true);
 
-            return Response
-                    .created(newData.getLink().getHref())
-                    .entity(newData)
-                    .build();
+            return createCreatedResponse(newData, newData.getLink().getHref());
 
         } catch (EBaseException e) {
             CMS.debug("Unable to create new TPS Connector: " + e);
@@ -199,17 +207,15 @@ public class TPSConnectorService implements TPSConnectorResource {
             if ((data.getUserID() != null) || (data.getNickname() != null)) {
                 throw new UnauthorizedException("Cannot change userid or nickname using this interface");
             }
-            TPSConnectorData curData = getConnector(id);
+            TPSConnectorData curData = getConnectorData(id);
             curData.setHost(data.getHost());
             curData.setPort(data.getPort());
 
             saveClientData(curData);
             cs.commit(true);
 
-            return Response
-                    .ok(curData.getLink().getHref())
-                    .entity(curData)
-                    .build();
+            return createOKResponse(curData);
+
         } catch (EBaseException e) {
             CMS.debug("Unable to modify TPS Connector: " + e);
             e.printStackTrace();
@@ -236,17 +242,20 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
-    public void deleteConnector(String id) {
+    public Response deleteConnector(String id) {
         try {
             if (StringUtils.isEmpty(id))
                 throw new BadRequestException("Attempt to delete TPS connection with null or empty id");
 
-            if (!connectorExists(id)) return;
+            if (!connectorExists(id)) return createNoContentResponse();
 
             deleteSharedSecret(id);
             cs.removeSubStore("tps." + id);
             removeFromConnectorList(id);
             cs.commit(true);
+
+            return createNoContentResponse();
+
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException("Failed to delete TPS connection" + e);
@@ -254,7 +263,7 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
-    public void deleteConnector(String host, String port) {
+    public Response deleteConnector(String host, String port) {
 
         if (host == null) throw new BadRequestException("TPS connector host is null.");
         if (port == null) throw new BadRequestException("TPS connector port is null.");
@@ -267,10 +276,12 @@ public class TPSConnectorService implements TPSConnectorResource {
             e.printStackTrace();
             throw new PKIException("Failed to delete TPS connector: " + e);
         }
+
+        return createNoContentResponse();
     }
 
     @Override
-    public KeyData createSharedSecret(String id) {
+    public Response createSharedSecret(String id) {
 
         if (id == null) throw new BadRequestException("TPS connector ID is null.");
 
@@ -299,7 +310,8 @@ public class TPSConnectorService implements TPSConnectorResource {
             byte[] wrappedKey = CryptoUtil.exportSharedSecret(nickname, certs[0]);
             KeyData keyData = new KeyData();
             keyData.setWrappedPrivateData(Utils.base64encode(wrappedKey));
-            return keyData;
+
+            return createOKResponse(keyData);
 
         } catch (InvalidKeyException | IllegalStateException | NoSuchAlgorithmException
                 | InvalidAlgorithmParameterException | EBaseException
@@ -329,7 +341,7 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
-    public KeyData replaceSharedSecret(String id) {
+    public Response replaceSharedSecret(String id) {
 
         if (id == null) throw new BadRequestException("TPS connector ID is null.");
 
@@ -355,7 +367,9 @@ public class TPSConnectorService implements TPSConnectorResource {
             byte[] wrappedKey = CryptoUtil.exportSharedSecret(nickname, certs[0]);
             KeyData keyData = new KeyData();
             keyData.setWrappedPrivateData(Utils.base64encode(wrappedKey));
-            return keyData;
+
+            return createOKResponse(keyData);
+
         } catch (InvalidKeyException | IllegalStateException | NoSuchAlgorithmException
                 | InvalidAlgorithmParameterException | EBaseException
                 | NotInitializedException | TokenException | IOException | InvalidKeyFormatException e) {
@@ -366,7 +380,7 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
-    public void deleteSharedSecret(String id) {
+    public Response deleteSharedSecret(String id) {
 
         if (id == null) throw new BadRequestException("TPS connector ID is null.");
 
@@ -383,12 +397,15 @@ public class TPSConnectorService implements TPSConnectorResource {
 
             String nickname = userid + " sharedSecret";
             if (!CryptoUtil.sharedSecretExists(nickname)) {
-                return;
+                return createNoContentResponse();
             }
             CryptoUtil.deleteSharedSecret(nickname);
 
             cs.putString("tps." + id + ".nickname", "");
             cs.commit(true);
+
+            return createNoContentResponse();
+
         } catch (InvalidKeyException | IllegalStateException | EBaseException
                 | NotInitializedException | TokenException e) {
             e.printStackTrace();
@@ -398,7 +415,7 @@ public class TPSConnectorService implements TPSConnectorResource {
     }
 
     @Override
-    public KeyData getSharedSecret(String id) {
+    public Response getSharedSecret(String id) {
 
         if (id == null) throw new BadRequestException("TPS connector ID is null.");
 
@@ -412,7 +429,7 @@ public class TPSConnectorService implements TPSConnectorResource {
 
             String nickname = userid + " sharedSecret";
             if (!CryptoUtil.sharedSecretExists(nickname)) {
-                return null;
+                return createNoContentResponse();
             }
 
             // get user cert
@@ -422,7 +439,9 @@ public class TPSConnectorService implements TPSConnectorResource {
             byte[] wrappedKey = CryptoUtil.exportSharedSecret(nickname, certs[0]);
             KeyData keyData = new KeyData();
             keyData.setWrappedPrivateData(Utils.base64encode(wrappedKey));
-            return keyData;
+
+            return createOKResponse(keyData);
+
         } catch (InvalidKeyException | IllegalStateException | NoSuchAlgorithmException
                 | InvalidAlgorithmParameterException | EBaseException
                 | NotInitializedException | TokenException | IOException | InvalidKeyFormatException e) {

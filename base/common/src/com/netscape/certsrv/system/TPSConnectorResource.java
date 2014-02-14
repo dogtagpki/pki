@@ -42,20 +42,23 @@ import com.netscape.certsrv.key.KeyData;
 @AuthMethodMapping("tpsconnectors")
 public interface TPSConnectorResource {
     @GET
+    @ClientResponseType(entityType=TPSConnectorCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TPSConnectorCollection findConnectors(
+    public Response findConnectors(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("{id}")
+    @ClientResponseType(entityType=TPSConnectorData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TPSConnectorData getConnector(@PathParam("id") String id);
+    public Response getConnector(@PathParam("id") String id);
 
     @GET
     @Path("search")
+    @ClientResponseType(entityType=TPSConnectorData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TPSConnectorData getConnector(@QueryParam("host") String host,
+    public Response getConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
 
     @POST
@@ -73,33 +76,39 @@ public interface TPSConnectorResource {
 
     @DELETE
     @Path("{id}")
-    public void deleteConnector(@PathParam("id") String id);
+    @ClientResponseType(entityType=Void.class)
+    public Response deleteConnector(@PathParam("id") String id);
 
     @POST
     @Path("{id}/shared-secret")
+    @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyData createSharedSecret(@PathParam("id") String id);
+    public Response createSharedSecret(@PathParam("id") String id);
 
     @PUT
     @Path("{id}/shared-secret")
+    @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyData replaceSharedSecret(@PathParam("id") String id);
+    public Response replaceSharedSecret(@PathParam("id") String id);
 
     @DELETE
     @Path("{id}/shared-secret")
+    @ClientResponseType(entityType=Void.class)
     @ACLMapping("admin.sharedsecret")
-    public void deleteSharedSecret(@PathParam("id") String id);
+    public Response deleteSharedSecret(@PathParam("id") String id);
 
     @DELETE
+    @ClientResponseType(entityType=Void.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void deleteConnector(@QueryParam("host") String host,
+    public Response deleteConnector(@QueryParam("host") String host,
             @QueryParam("port") String port);
 
     @GET
     @Path("{id}/shared-secret")
+    @ClientResponseType(entityType=KeyData.class)
     @ACLMapping("admin.sharedsecret")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyData getSharedSecret(@PathParam("id") String id);
+    public Response getSharedSecret(@PathParam("id") String id);
 }
