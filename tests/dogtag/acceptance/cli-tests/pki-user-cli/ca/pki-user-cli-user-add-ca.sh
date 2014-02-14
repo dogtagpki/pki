@@ -912,7 +912,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/842"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-051: fullname 'Örjan Äke' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-051: fullname with i18n characters"
+	rlLog "user-add fullname Örjan Äke with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -928,7 +929,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "Full name: Örjan Äke" "$TmpDir/pki-user-add-ca-001_51.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-052: fullname 'Éric Têko' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-052: fullname with i18n characters"
+	rlLog "user-add fullname Éric Têko with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -944,7 +946,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "Full name: Éric Têko" "$TmpDir/pki-user-add-ca-001_52.out"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-053: fullname 'éénentwintig dvidešimt' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-053: fullname with i18n characters"
+	rlLog "user-add fullname éénentwintig dvidešimt with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -972,7 +975,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "Full name: éénentwintig dvidešimt" "$TmpDir/pki-user-add-ca-001_53_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-054: fullname 'kakskümmend üks' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-054: fullname with i18n characters"
+	rlLog "user-add fullname kakskümmend üks with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -995,7 +999,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "Full name: kakskümmend üks" "$TmpDir/pki-user-add-ca-001_54_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-055: fullname 'двадцять один тридцять' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-055: fullname with i18n characters"
+	rlLog "user-add fullname двадцять один тридцять with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1018,7 +1023,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "Full name: двадцять один тридцять" "$TmpDir/pki-user-add-ca-001_55_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-056: user id 'ÖrjanÄke' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-056: user id with i18n characters"
+	rlLog "user-add userid ÖrjanÄke with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1041,7 +1047,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "User ID: ÖrjanÄke" "$TmpDir/pki-user-add-ca-001_56_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-057: userid 'ÉricTêko' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-057: userid with i18n characters"
+	rlLog "user-add userid ÉricTêko with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1064,7 +1071,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "User ID: ÉricTêko" "$TmpDir/pki-user-add-ca-001_57_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-058: email address 'negyvenkettő@qetestsdomain.com' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-058: email address with i18n characters"
+	rlLog "user-add email address negyvenkettő@qetestsdomain.com with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1088,7 +1096,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-059: email 'četrdesmitdivi@qetestsdomain.com' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-059: email address with i18n characters"
+	rlLog "user-add email address četrdesmitdivi@qetestsdomain.com with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1112,7 +1121,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-060: password 'šimtaskolmkümmend' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-060: password with i18n characters"
+	rlLog "user-add password šimtaskolmkümmend with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1133,7 +1143,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "User \"u33\"" "$TmpDir/pki-user-add-ca-001_60_2.out"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-061: password 'двадцяттридцять' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-061: password with i18n characters"
+	rlLog "user-add password двадцяттридцять with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1154,7 +1165,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "User \"u34\"" "$TmpDir/pki-user-add-ca-001_61_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-062: type 'tjugo-tvåhetvenhét' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-062: type with i18n characters"
+	rlLog "user-add type tjugo-tvåhetvenhét with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1177,7 +1189,8 @@ run_pki-user-cli-user-add-ca_tests(){
 	rlAssertGrep "Type: tjugo-tvåhetvenhét" "$TmpDir/pki-user-add-ca-001_62_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-063: type 'мiльйонтридцять' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-063: type with i18n characters"
+	rlLog "user-add type мiльйонтридцять with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1200,7 +1213,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "Type: мiльйонтридцять" "$TmpDir/pki-user-add-ca-001_63_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-064: state 'čå' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-064: state with i18n characters"
+	rlLog "user-add state čå with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1223,7 +1237,8 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "State: čå" "$TmpDir/pki-user-add-ca-001_64_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-065: state 'йč' with i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-065: state with i18n characters"
+	rlLog "user-add state йč with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
