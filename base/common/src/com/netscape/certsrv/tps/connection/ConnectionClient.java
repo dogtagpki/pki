@@ -41,11 +41,13 @@ public class ConnectionClient extends Client {
     }
 
     public ConnectionCollection findConnections(Integer start, Integer size) {
-        return resource.findConnections(start, size);
+        Response response = resource.findConnections(start, size);
+        return client.getEntity(response, ConnectionCollection.class);
     }
 
     public ConnectionData getConnection(String connectionID) {
-        return resource.getConnection(connectionID);
+        Response response = resource.getConnection(connectionID);
+        return client.getEntity(response, ConnectionData.class);
     }
 
     public ConnectionData addConnection(ConnectionData connectionData) {
@@ -64,6 +66,7 @@ public class ConnectionClient extends Client {
     }
 
     public void removeConnection(String connectionID) {
-        resource.removeConnection(connectionID);
+        Response response = resource.removeConnection(connectionID);
+        client.getEntity(response, Void.class);
     }
 }

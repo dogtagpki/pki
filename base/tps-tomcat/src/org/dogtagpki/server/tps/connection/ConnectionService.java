@@ -93,7 +93,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public ConnectionCollection findConnections(Integer start, Integer size) {
+    public Response findConnections(Integer start, Integer size) {
 
         CMS.debug("ConnectionService.findConnections()");
 
@@ -131,7 +131,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (PKIException e) {
             throw e;
@@ -143,7 +143,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public ConnectionData getConnection(String connectionID) {
+    public Response getConnection(String connectionID) {
 
         if (connectionID == null) throw new BadRequestException("Connection ID is null.");
 
@@ -153,7 +153,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            return createConnectionData(database.getRecord(connectionID));
+            return createOKResponse(createConnectionData(database.getRecord(connectionID)));
 
         } catch (PKIException e) {
             throw e;
@@ -178,10 +178,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             database.addRecord(connectionData.getID(), createConnectionRecord(connectionData));
             connectionData = createConnectionData(database.getRecord(connectionData.getID()));
 
-            return Response
-                    .created(connectionData.getLink().getHref())
-                    .entity(connectionData)
-                    .build();
+            return createCreatedResponse(connectionData, connectionData.getLink().getHref());
 
         } catch (PKIException e) {
             throw e;
@@ -227,9 +224,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
             connectionData = createConnectionData(database.getRecord(connectionID));
 
-            return Response
-                    .ok(connectionData)
-                    .build();
+            return createOKResponse(connectionData);
 
         } catch (PKIException e) {
             throw e;
@@ -287,9 +282,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
             ConnectionData connectionData = createConnectionData(database.getRecord(connectionID));
 
-            return Response
-                    .ok(connectionData)
-                    .build();
+            return createOKResponse(connectionData);
 
         } catch (PKIException e) {
             throw e;
@@ -301,7 +294,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public void removeConnection(String connectionID) {
+    public Response removeConnection(String connectionID) {
 
         if (connectionID == null) throw new BadRequestException("Connection ID is null.");
 
@@ -319,6 +312,8 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             }
 
             database.removeRecord(connectionID);
+
+            return createNoContentResponse();
 
         } catch (PKIException e) {
             throw e;

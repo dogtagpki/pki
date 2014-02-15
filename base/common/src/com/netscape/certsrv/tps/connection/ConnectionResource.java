@@ -44,15 +44,17 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 public interface ConnectionResource {
 
     @GET
+    @ClientResponseType(entityType=ConnectionCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ConnectionCollection findConnections(
+    public Response findConnections(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("{connectionID}")
+    @ClientResponseType(entityType=ConnectionData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ConnectionData getConnection(@PathParam("connectionID") String connectionID);
+    public Response getConnection(@PathParam("connectionID") String connectionID);
 
     @POST
     @ACLMapping("connections.add")
@@ -83,7 +85,8 @@ public interface ConnectionResource {
 
     @DELETE
     @Path("{connectionID}")
+    @ClientResponseType(entityType=Void.class)
     @ACLMapping("connections.remove")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void removeConnection(@PathParam("connectionID") String connectionID);
+    public Response removeConnection(@PathParam("connectionID") String connectionID);
 }
