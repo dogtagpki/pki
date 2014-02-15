@@ -41,19 +41,23 @@ public class ProfileClient extends Client {
     }
 
     public ProfileData retrieveProfile(String id) {
-        return profileClient.retrieveProfile(id);
+        Response response = profileClient.retrieveProfile(id);
+        return client.getEntity(response, ProfileData.class);
     }
 
     public ProfileDataInfos listProfiles(Integer start, Integer size) {
-        return profileClient.listProfiles(start, size);
+        Response response =  profileClient.listProfiles(start, size);
+        return client.getEntity(response, ProfileDataInfos.class);
     }
 
     public void enableProfile(String id) {
-        profileClient.modifyProfileState(id, "enable");
+        Response response = profileClient.modifyProfileState(id, "enable");
+        client.getEntity(response, Void.class);
     }
 
     public void disableProfile(String id) {
-        profileClient.modifyProfileState(id, "disable");
+        Response response = profileClient.modifyProfileState(id, "disable");
+        client.getEntity(response, Void.class);
     }
 
     public ProfileData createProfile(ProfileData data) {
@@ -67,7 +71,7 @@ public class ProfileClient extends Client {
     }
 
     public void deleteProfile(String id) {
-        profileClient.deleteProfile(id);
+        Response response = profileClient.deleteProfile(id);
+        client.getEntity(response, Void.class);
     }
-
 }

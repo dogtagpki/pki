@@ -22,17 +22,19 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 public interface ProfileResource {
 
     @GET
+    @ClientResponseType(entityType=ProfileDataInfos.class)
     @ACLMapping("profiles.list")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ProfileDataInfos listProfiles(
+    public Response listProfiles(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("{id}")
+    @ClientResponseType(entityType=ProfileData.class)
     @ACLMapping("profiles.read")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ProfileData retrieveProfile(@PathParam("id") String id);
+    public Response retrieveProfile(@PathParam("id") String id);
 
     @POST
     @ClientResponseType(entityType=ProfileData.class)
@@ -43,9 +45,10 @@ public interface ProfileResource {
 
     @POST
     @Path("{id}")
+    @ClientResponseType(entityType=Void.class)
     @ACLMapping("profiles.approve")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void modifyProfileState(@PathParam("id") String id, @QueryParam("action") String action);
+    public Response modifyProfileState(@PathParam("id") String id, @QueryParam("action") String action);
 
     @PUT
     @Path("{id}")
@@ -57,8 +60,9 @@ public interface ProfileResource {
 
     @DELETE
     @Path("{id}")
+    @ClientResponseType(entityType=Void.class)
     @ACLMapping("profiles.delete")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void deleteProfile(@PathParam("id") String id);
+    public Response deleteProfile(@PathParam("id") String id);
 
 }

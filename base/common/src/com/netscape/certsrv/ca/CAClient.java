@@ -24,15 +24,11 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.logging.AuditClient;
-import com.netscape.certsrv.profile.ProfileData;
-import com.netscape.certsrv.profile.ProfileDataInfos;
-import com.netscape.certsrv.profile.ProfileResource;
+import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.user.UserClient;
 
 public class CAClient extends SubsystemClient {
-
-    private ProfileResource profileClient;
 
     public CAClient(PKIClient client) throws URISyntaxException {
         super(client, "ca");
@@ -44,22 +40,8 @@ public class CAClient extends SubsystemClient {
         addClient(new AuditClient(client, name));
         addClient(new CertClient(client, name));
         addClient(new GroupClient(client, name));
+        addClient(new ProfileClient(client, name));
         addClient(new SelfTestClient(client, name));
         addClient(new UserClient(client, name));
-
-        profileClient = createProxy(ProfileResource.class);
-    }
-
-    public ProfileDataInfos listProfiles(Integer start, Integer size) {
-        return profileClient.listProfiles(start, size);
-    }
-
-    public ProfileData getProfile(String id) {
-
-        if (id == null) {
-            return null;
-        }
-
-        return profileClient.retrieveProfile(id);
     }
 }

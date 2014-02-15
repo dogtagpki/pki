@@ -107,7 +107,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
 
     @Override
-    public ProfileDataInfos listProfiles(Integer start, Integer size) {
+    public Response listProfiles(Integer start, Integer size) {
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
@@ -128,7 +128,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         }
 
         Enumeration<String> e = ps.getProfileIds();
-        if (e == null) return infos;
+        if (e == null) return createOKResponse(infos);
 
         // store non-null results in a list
         List<ProfileDataInfo> results = new ArrayList<ProfileDataInfo>();
@@ -161,11 +161,11 @@ public class ProfileService extends PKIService implements ProfileResource {
             infos.addLink(new Link("next", uri));
         }
 
-        return infos;
+        return createOKResponse(infos);
     }
 
     @Override
-    public ProfileData retrieveProfile(String profileId) throws ProfileNotFoundException {
+    public Response retrieveProfile(String profileId) throws ProfileNotFoundException {
         ProfileData data = null;
         boolean visibleOnly = true;
 
@@ -226,7 +226,7 @@ public class ProfileService extends PKIService implements ProfileResource {
                 build(profileId);
         data.setLink(new Link("self", uri));
 
-        return data;
+        return createOKResponse(data);
     }
 
     public ProfileData createProfileData(String profileId) throws EBaseException {
@@ -373,7 +373,7 @@ public class ProfileService extends PKIService implements ProfileResource {
     }
 
     @Override
-    public void modifyProfileState(String profileId, String action) {
+    public Response modifyProfileState(String profileId, String action) {
         if (profileId == null) {
             CMS.debug("modifyProfileState: invalid request. profileId is null");
             throw new BadRequestException("Unable to modify profile state: Invalid Profile Id");
@@ -442,6 +442,8 @@ public class ProfileService extends PKIService implements ProfileResource {
             auditProfileChangeState(profileId, "invalid", ILogger.FAILURE);
             throw new BadRequestException("Invalid operation");
         }
+
+        return createNoContentResponse();
     }
 
     @Override
@@ -500,10 +502,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             ProfileData profileData = createProfileData(profileId);
 
-            return Response
-                    .created(profileData.getLink().getHref())
-                    .entity(profileData)
-                    .build();
+            return createCreatedResponse(profileData, profileData.getLink().getHref());
 
         } catch (EBaseException | IOException e) {
             CMS.debug("createProfile: error in creating profile: " + e);
@@ -547,9 +546,9 @@ public class ProfileService extends PKIService implements ProfileResource {
             changeProfileData(data, profile);
 
             ProfileData profileData = createProfileData(profileId);
-            return Response
-                    .ok(profileData)
-                    .build();
+
+            return createOKResponse(profileData);
+
         } catch (EBaseException e) {
             CMS.debug("modifyProfile: error obtaining profile `" + profileId + "`: " + e);
             e.printStackTrace();
@@ -953,7 +952,7 @@ public class ProfileService extends PKIService implements ProfileResource {
     }
 
     @Override
-    public void deleteProfile(@PathParam("id") String profileId) {
+    public Response deleteProfile(@PathParam("id") String profileId) {
         if (profileId == null) {
             CMS.debug("deleteProfile: invalid request. profileId is null");
             throw new BadRequestException("Unable to delete profile: Invalid Profile Id");
@@ -994,6 +993,9 @@ public class ProfileService extends PKIService implements ProfileResource {
                     profileId,
                     ILogger.FAILURE,
                     null);
+
+            return createNoContentResponse();
+
         } catch (EBaseException e) {
             CMS.debug("deleteProfile: error in deleting profile `" + profileId + "`: " + e);
             e.printStackTrace();

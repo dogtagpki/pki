@@ -46,6 +46,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
@@ -153,6 +154,8 @@ public class CATest {
 
         CAClient client;
         CertClient certClient;
+        ProfileClient profileClient;
+
         try {
             ClientConfig config = new ClientConfig();
             config.setServerURI(protocol + "://" + host + ":" + port);
@@ -160,6 +163,8 @@ public class CATest {
 
             client = new CAClient(new PKIClient(config));
             certClient = (CertClient)client.getClient("cert");
+            profileClient = (ProfileClient)client.getClient("profile");
+
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -268,13 +273,13 @@ public class CATest {
 
         //Get a list of Profiles
 
-        ProfileDataInfos pInfos = client.listProfiles(null, null);
+        ProfileDataInfos pInfos = profileClient.listProfiles(null, null);
 
         printProfileInfos(pInfos);
 
         // Get a specific profile
         String pId = "caUserCert";
-        ProfileData pData = client.getProfile(pId);
+        ProfileData pData = profileClient.retrieveProfile(pId);
 
         printProfileData(pData);
 
