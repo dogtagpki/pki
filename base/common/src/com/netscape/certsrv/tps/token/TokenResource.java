@@ -45,15 +45,17 @@ import com.netscape.certsrv.base.PATCH;
 public interface TokenResource {
 
     @GET
+    @ClientResponseType(entityType=TokenCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TokenCollection findTokens(
+    public Response findTokens(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("{tokenID}")
+    @ClientResponseType(entityType=TokenData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public TokenData getToken(@PathParam("tokenID") String tokenID);
+    public Response getToken(@PathParam("tokenID") String tokenID);
 
     @POST
     @ClientResponseType(entityType=TokenData.class)
@@ -84,7 +86,8 @@ public interface TokenResource {
 
     @DELETE
     @Path("{tokenID}")
+    @ClientResponseType(entityType=Void.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @ACLMapping("tokens.remove")
-    public void removeToken(@PathParam("tokenID") String tokenID);
+    public Response removeToken(@PathParam("tokenID") String tokenID);
 }

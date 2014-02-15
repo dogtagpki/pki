@@ -41,11 +41,13 @@ public class TokenClient extends Client {
     }
 
     public TokenCollection findTokens(Integer start, Integer size) {
-        return resource.findTokens(start, size);
+        Response response = resource.findTokens(start, size);
+        return client.getEntity(response, TokenCollection.class);
     }
 
     public TokenData getToken(String tokenID) {
-        return resource.getToken(tokenID);
+        Response response = resource.getToken(tokenID);
+        return client.getEntity(response, TokenData.class);
     }
 
     public TokenData addToken(TokenData tokenData) {
@@ -59,6 +61,7 @@ public class TokenClient extends Client {
     }
 
     public void removeToken(String tokenID) {
-        resource.removeToken(tokenID);
+        Response response = resource.removeToken(tokenID);
+        client.getEntity(response, Void.class);
     }
 }

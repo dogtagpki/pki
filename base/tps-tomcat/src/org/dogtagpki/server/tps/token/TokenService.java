@@ -107,7 +107,7 @@ public class TokenService extends PKIService implements TokenResource {
     }
 
     @Override
-    public TokenCollection findTokens(Integer start, Integer size) {
+    public Response findTokens(Integer start, Integer size) {
 
         CMS.debug("TokenService.findTokens()");
 
@@ -145,7 +145,7 @@ public class TokenService extends PKIService implements TokenResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,7 +154,7 @@ public class TokenService extends PKIService implements TokenResource {
     }
 
     @Override
-    public TokenData getToken(String tokenID) {
+    public Response getToken(String tokenID) {
 
         if (tokenID == null) throw new BadRequestException("Token ID is null.");
 
@@ -164,7 +164,7 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            return createTokenData(database.getRecord(tokenID));
+            return createOKResponse(createTokenData(database.getRecord(tokenID)));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,10 +187,7 @@ public class TokenService extends PKIService implements TokenResource {
             database.addRecord(tokenID, createTokenRecord(tokenData));
             tokenData = createTokenData(database.getRecord(tokenID));
 
-            return Response
-                    .created(tokenData.getLink().getHref())
-                    .entity(tokenData)
-                    .build();
+            return createCreatedResponse(tokenData, tokenData.getLink().getHref());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,9 +213,7 @@ public class TokenService extends PKIService implements TokenResource {
 
             tokenData = createTokenData(database.getRecord(tokenID));
 
-            return Response
-                    .ok(tokenData)
-                    .build();
+            return createOKResponse(tokenData);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -249,9 +244,7 @@ public class TokenService extends PKIService implements TokenResource {
 
             tokenData = createTokenData(database.getRecord(tokenID));
 
-            return Response
-                    .ok(tokenData)
-                    .build();
+            return createOKResponse(tokenData);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -260,7 +253,7 @@ public class TokenService extends PKIService implements TokenResource {
     }
 
     @Override
-    public void removeToken(String tokenID) {
+    public Response removeToken(String tokenID) {
 
         if (tokenID == null) throw new BadRequestException("Token ID is null.");
 
@@ -270,6 +263,8 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
             database.removeRecord(tokenID);
+
+            return createNoContentResponse();
 
         } catch (Exception e) {
             e.printStackTrace();
