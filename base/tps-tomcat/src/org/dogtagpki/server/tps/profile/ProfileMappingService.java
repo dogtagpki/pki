@@ -93,7 +93,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
     }
 
     @Override
-    public ProfileMappingCollection findProfileMappings(Integer start, Integer size) {
+    public Response findProfileMappings(Integer start, Integer size) {
 
         CMS.debug("ProfileMappingService.findProfileMappings()");
 
@@ -131,7 +131,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (PKIException e) {
             throw e;
@@ -143,7 +143,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
     }
 
     @Override
-    public ProfileMappingData getProfileMapping(String profileMappingID) {
+    public Response getProfileMapping(String profileMappingID) {
 
         CMS.debug("ProfileMappingService.getProfileMapping(\"" + profileMappingID + "\")");
 
@@ -151,7 +151,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
-            return createProfileMappingData(database.getRecord(profileMappingID));
+            return createOKResponse(createProfileMappingData(database.getRecord(profileMappingID)));
 
         } catch (PKIException e) {
             throw e;
@@ -174,10 +174,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             database.addRecord(profileMappingData.getID(), createProfileMappingRecord(profileMappingData));
             profileMappingData = createProfileMappingData(database.getRecord(profileMappingData.getID()));
 
-            return Response
-                    .created(profileMappingData.getLink().getHref())
-                    .entity(profileMappingData)
-                    .build();
+            return createCreatedResponse(profileMappingData, profileMappingData.getLink().getHref());
 
         } catch (PKIException e) {
             throw e;
@@ -220,9 +217,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
             profileMappingData = createProfileMappingData(database.getRecord(profileMappingID));
 
-            return Response
-                    .ok(profileMappingData)
-                    .build();
+            return createOKResponse(profileMappingData);
 
         } catch (PKIException e) {
             throw e;
@@ -280,9 +275,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
             ProfileMappingData profileMappingData = createProfileMappingData(database.getRecord(profileMappingID));
 
-            return Response
-                    .ok(profileMappingData)
-                    .build();
+            return createOKResponse(profileMappingData);
 
         } catch (PKIException e) {
             throw e;
@@ -294,7 +287,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
     }
 
     @Override
-    public void removeProfileMapping(String profileMappingID) {
+    public Response removeProfileMapping(String profileMappingID) {
 
         CMS.debug("ProfileMappingService.removeProfileMapping(\"" + profileMappingID + "\")");
 
@@ -310,6 +303,8 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             }
 
             database.removeRecord(profileMappingID);
+
+            return createNoContentResponse();
 
         } catch (PKIException e) {
             throw e;

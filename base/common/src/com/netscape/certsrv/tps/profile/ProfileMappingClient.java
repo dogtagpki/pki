@@ -41,11 +41,13 @@ public class ProfileMappingClient extends Client {
     }
 
     public ProfileMappingCollection findProfileMappings(Integer start, Integer size) {
-        return resource.findProfileMappings(start, size);
+        Response response = resource.findProfileMappings(start, size);
+        return client.getEntity(response, ProfileMappingCollection.class);
     }
 
     public ProfileMappingData getProfileMapping(String profileMappingID) {
-        return resource.getProfileMapping(profileMappingID);
+        Response response = resource.getProfileMapping(profileMappingID);
+        return client.getEntity(response, ProfileMappingData.class);
     }
 
     public ProfileMappingData addProfileMapping(ProfileMappingData profileMappingData) {
@@ -64,6 +66,7 @@ public class ProfileMappingClient extends Client {
     }
 
     public void removeProfileMapping(String profileMappingID) {
-        resource.removeProfileMapping(profileMappingID);
+        Response response = resource.removeProfileMapping(profileMappingID);
+        client.getEntity(response, Void.class);
     }
 }

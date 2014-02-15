@@ -44,15 +44,17 @@ import com.netscape.certsrv.authentication.AuthMethodMapping;
 public interface ProfileMappingResource {
 
     @GET
+    @ClientResponseType(entityType=ProfileMappingCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ProfileMappingCollection findProfileMappings(
+    public Response findProfileMappings(
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
     @Path("{profileMappingID}")
+    @ClientResponseType(entityType=ProfileMappingData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public ProfileMappingData getProfileMapping(@PathParam("profileMappingID") String profileMappingID);
+    public Response getProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 
     @POST
     @ACLMapping("profile-mappings.add")
@@ -83,7 +85,8 @@ public interface ProfileMappingResource {
 
     @DELETE
     @Path("{profileMappingID}")
+    @ClientResponseType(entityType=Void.class)
     @ACLMapping("profile-mappings.remove")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public void removeProfileMapping(@PathParam("profileMappingID") String profileMappingID);
+    public Response removeProfileMapping(@PathParam("profileMappingID") String profileMappingID);
 }
