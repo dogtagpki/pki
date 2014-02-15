@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -26,7 +25,7 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.selftests.SelfTestClient;
-import com.netscape.certsrv.system.SystemCertResource;
+import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.cmsutil.util.Utils;
 
@@ -34,7 +33,6 @@ public class KRAClient extends SubsystemClient {
 
     private KeyResource keyClient;
     private KeyRequestResource keyRequestClient;
-    private SystemCertResource systemCertClient;
 
     public KRAClient(PKIClient client) throws URISyntaxException {
         super(client, "kra");
@@ -46,18 +44,11 @@ public class KRAClient extends SubsystemClient {
         addClient(new AuditClient(client, name));
         addClient(new GroupClient(client, name));
         addClient(new SelfTestClient(client, name));
+        addClient(new SystemCertClient(client, name));
         addClient(new UserClient(client, name));
 
-        systemCertClient = createProxy(SystemCertResource.class);
         keyRequestClient = createProxy(KeyRequestResource.class);
         keyClient = createProxy(KeyResource.class);
-    }
-
-    public String getTransportCert() {
-        Response response = systemCertClient.getTransportCert();
-        CertData certData = client.getEntity(response, CertData.class);
-        String transportCert = certData.getEncoded();
-        return transportCert;
     }
 
     public Collection<KeyRequestInfo> listRequests(String requestState, String requestType) {

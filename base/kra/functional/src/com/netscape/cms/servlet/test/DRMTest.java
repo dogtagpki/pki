@@ -53,6 +53,7 @@ import com.netscape.certsrv.kra.KRAClient;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
+import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
@@ -203,12 +204,14 @@ public class DRMTest {
 
 
         KRAClient client;
+        SystemCertClient systemCertClient;
         try {
             ClientConfig config = new ClientConfig();
             config.setServerURI(protocol + "://" + host + ":" + port + "/kra");
             config.setCertNickname(clientCertNickname);
 
             client = new KRAClient(new PKIClient(config));
+            systemCertClient = (SystemCertClient)client.getClient("systemcert");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,7 +219,7 @@ public class DRMTest {
         }
 
         // Test 1: Get transport certificate from DRM
-        transportCert = client.getTransportCert();
+        transportCert = systemCertClient.getTransportCert().getEncoded();
         transportCert = transportCert.substring(PKIService.HEADER.length(),
                                                 transportCert.indexOf(PKIService.TRAILER));
 
@@ -544,7 +547,7 @@ public class DRMTest {
 
 
         // Test 1: Get transport certificate from DRM
-        transportCert = client.getTransportCert();
+        transportCert = systemCertClient.getTransportCert().getEncoded();
         transportCert = transportCert.substring(PKIService.HEADER.length(),
                                                 transportCert.indexOf(PKIService.TRAILER));
 
