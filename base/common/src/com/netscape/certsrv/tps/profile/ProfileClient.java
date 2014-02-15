@@ -45,11 +45,13 @@ public class ProfileClient extends Client {
     }
 
     public ProfileCollection findProfiles(Integer start, Integer size) {
-        return resource.findProfiles(start, size);
+        Response response = resource.findProfiles(start, size);
+        return client.getEntity(response, ProfileCollection.class);
     }
 
     public ProfileData getProfile(String profileID) {
-        return resource.getProfile(profileID);
+        Response response = resource.getProfile(profileID);
+        return client.getEntity(response, ProfileData.class);
     }
 
     public ProfileData addProfile(ProfileData profileData) {
@@ -68,6 +70,7 @@ public class ProfileClient extends Client {
     }
 
     public void removeProfile(String profileID) {
-        resource.removeProfile(profileID);
+        Response response = resource.removeProfile(profileID);
+        client.getEntity(response, Void.class);
     }
 }

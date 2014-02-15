@@ -93,7 +93,7 @@ public class ProfileService extends PKIService implements ProfileResource {
     }
 
     @Override
-    public ProfileCollection findProfiles(Integer start, Integer size) {
+    public Response findProfiles(Integer start, Integer size) {
 
         CMS.debug("ProfileService.findProfiles()");
 
@@ -131,7 +131,7 @@ public class ProfileService extends PKIService implements ProfileResource {
                 response.addLink(new Link("next", uri));
             }
 
-            return response;
+            return createOKResponse(response);
 
         } catch (PKIException e) {
             throw e;
@@ -143,7 +143,7 @@ public class ProfileService extends PKIService implements ProfileResource {
     }
 
     @Override
-    public ProfileData getProfile(String profileID) {
+    public Response getProfile(String profileID) {
 
         if (profileID == null) throw new BadRequestException("Profile ID is null.");
 
@@ -153,7 +153,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
-            return createProfileData(database.getRecord(profileID));
+            return createOKResponse(createProfileData(database.getRecord(profileID)));
 
         } catch (PKIException e) {
             throw e;
@@ -179,10 +179,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             profileData = createProfileData(database.getRecord(profileData.getID()));
 
-            return Response
-                    .created(profileData.getLink().getHref())
-                    .entity(profileData)
-                    .build();
+            return createCreatedResponse(profileData, profileData.getLink().getHref());
 
         } catch (PKIException e) {
             throw e;
@@ -228,9 +225,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             profileData = createProfileData(database.getRecord(profileID));
 
-            return Response
-                    .ok(profileData)
-                    .build();
+            return createOKResponse(profileData);
 
         } catch (PKIException e) {
             throw e;
@@ -288,9 +283,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             ProfileData profileData = createProfileData(database.getRecord(profileID));
 
-            return Response
-                    .ok(profileData)
-                    .build();
+            return createOKResponse(profileData);
 
         } catch (PKIException e) {
             throw e;
@@ -302,7 +295,7 @@ public class ProfileService extends PKIService implements ProfileResource {
     }
 
     @Override
-    public void removeProfile(String profileID) {
+    public Response removeProfile(String profileID) {
 
         if (profileID == null) throw new BadRequestException("Profile ID is null.");
 
@@ -320,6 +313,8 @@ public class ProfileService extends PKIService implements ProfileResource {
             }
 
             database.removeRecord(profileID);
+
+            return createNoContentResponse();
 
         } catch (PKIException e) {
             throw e;
