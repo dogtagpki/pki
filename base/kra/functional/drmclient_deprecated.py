@@ -18,6 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 '''
+NOTE: This is an old deprecated client.  The REST interface has changed
+and so this code will likely NOT work.  It will be removed from the code
+base soon.
 
 ============================================================
 Python Test client for KRA using the new RESTful interface
@@ -572,7 +575,7 @@ class kra:
         :param passphrase         passphrase wrapped in session key
         :return doc:              xml doc with archival request
 
-    	"""
+	"""
         self.debug('%s.create_recovery_request()', self.fullname)
         root = etree.Element("KeyRecoveryRequest")
         if key_id != None:
@@ -878,7 +881,7 @@ class kra:
         |data             |String         | Key data (either wrapped using        |
         |                 |               | passphrase or unwrapped)              |
         +-----------------+---------------+---------------------------------------+
-    	"""
+	"""
         self.debug('%s.retrieve_security_data()', self.fullname)
 
         if recovery_request_id == None:

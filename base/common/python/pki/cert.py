@@ -1,11 +1,13 @@
 #!/usr/bin/python
 '''
-Created on Aug 27, 2013
+Created on Feb 13, 2014
+Note: The implementation in this file has not been completed and is not tested.
+This note should be removed when testing/implementation is complete.
 
 @author: akoneru
 '''
 import pki.client as client
-import pki.encoder as e
+import pki.encoder as encoder
 import json
 import types
 
@@ -32,11 +34,13 @@ class CertData(object):
         ''' Constructor '''
         self.Encoded = None
 
-    def from_dict(self, attr_list):
+    @classmethod
+    def from_dict(cls, attr_list):
         ''' Return CertData object from JSON dict '''
+        cert_data = cls()
         for key in attr_list:
-            setattr(self, key, attr_list[key])
-        return self
+            setattr(cert_data, key, attr_list[key])
+        return cert_data
 
 class CertDataInfo(object):
     '''
@@ -58,11 +62,13 @@ class CertDataInfo(object):
         self.issuedOn = None
         self.issuedBy = None
 
-    def from_dict(self, attr_list):
+    @classmethod
+    def from_dict(cls, attr_list):
         ''' Return CertDataInfo object from JSON dict '''
+        cert_data_info = cls()
         for key in attr_list:
-            setattr(self, key, attr_list[key])
-        return self
+            setattr(cert_data_info, key, attr_list[key])
+        return cert_data_info
 
 class CertDataInfos(object):
     '''
@@ -75,17 +81,17 @@ class CertDataInfos(object):
         self.certInfoList = []
         self.links = []
 
-    def decode_from_json(self, json_value):
+    @classmethod
+    def from_json(cls, json_value):
         ''' Populate object from JSON input '''
+        ret = cls()
         cert_infos = json_value['CertDataInfo']
         if not isinstance(cert_infos, types.ListType):
-            certInfo = CertDataInfo()
-            self.certInfoList.append(certInfo.from_dict(cert_infos))
+            ret.certInfoList.append(CertDataInfo.from_dict(cert_infos))
         else:
             for cert_info in cert_infos:
-                cert_data_info = CertDataInfo()
-                cert_data_info.from_dict(cert_info)
-                self.certInfoList.append(cert_data_info)
+                ret.certInfoList.append(CertDataInfo.from_dict(cert_info))
+        return ret
 
 class CertSearchRequest(object):
 
@@ -134,7 +140,7 @@ class CertSearchRequest(object):
         self.certTypeInUse = False
 
 
-class CertResource(object):
+class CertClient(object):
     '''
     Class encapsulating and mirroring the functionality in the CertResouce Java interface class
     defining the REST API for Certificate resources.
@@ -153,8 +159,7 @@ class CertResource(object):
         ''' Return a CertData object for a particular certificate. '''
         url = self.cert_url + '/' + str(cert_id.id)
         response = self.connection.get(url, self.headers)
-        e.TYPES['CertData'] = CertData()
-        certData = e.CustomTypeDecoder(response.json())
+        certData = encoder.CustomTypeDecoder(response.json())
         return certData
 
     def listCerts(self, status = None):
@@ -171,13 +176,10 @@ class CertResource(object):
     def searchCerts(self, cert_search_request):
         ''' Return a CertDataInfos object containing the results of a cert search.'''
         url = self.cert_url + '/search'
-        e.TYPES['CertSearchRequest'] = CertSearchRequest
-        searchRequest = json.dumps(cert_search_request, cls=e.CustomTypeEncoder)
+        searchRequest = json.dumps(cert_search_request, cls=encoder.CustomTypeEncoder)
         r = self.connection.post(url, searchRequest, self.headers)
         print r.json()['CertDataInfos']
-        cdis = CertDataInfos()
-        cdis.decode_from_json(r.json()['CertDataInfos'])
-        return cdis
+        return CertDataInfos.from_json(r.json()['CertDataInfos'])
 
     def getCerts(self, cert_search_request):
         ''' Doctring needed here. '''
@@ -199,19 +201,14 @@ class CertResource(object):
         ''' Doc string needed here '''
         pass
 
+encoder.NOTYPES['CertData'] = CertData
+encoder.NOTYPES['CertSearchRequest'] = CertSearchRequest
 
-    def get_transport_cert(self):
-        ''' Return transport certificate '''
-        url = '/rest/config/cert/transport'
-        response = self.connection.get(url, self.headers)
-        certData = CertData()
-        certData.Encoded = response.json()['Encoded']
-        return certData.Encoded
 
 def main():
     connection = client.PKIConnection('http', 'localhost', '8080', 'ca')
     connection.authenticate('caadmin', 'Secret123')
-    certResource = CertResource(connection)
+    certResource = CertClient(connection)
     cert = certResource.getCert(CertId('0x6'))
     print cert
 

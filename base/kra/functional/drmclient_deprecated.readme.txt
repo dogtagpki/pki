@@ -3,7 +3,7 @@ Running drmclient.py:
 The python drmclient currently requires a little setup to be run.
 
 1. Create a working directory - the code uses /tmp/drmtest
-2. In that directory, create an NSS database.  In this doc, we will use the 
+2. In that directory, create an NSS database.  In this doc, we will use the
    password redhat123 as the password for the NSS db.
 
    certutil -N -d /tmp/drmtest
@@ -19,7 +19,7 @@ The python drmclient currently requires a little setup to be run.
 5. Import the transport certificate into the certificate databse in /tmp/drmtest.
    certutil -A -d /tmp/drmtest -n "DRM Transport Certificate" -i /tmp/drmtest/transport.asc
 
-5. Run GeneratePKIArchiveOptions to generate some test data.   Specifically we will be 
+5. Run GeneratePKIArchiveOptions to generate some test data.   Specifically we will be
    using it to generate a symmetric key and its associated PKIArchoveOptions structure
    to be archived.
 
@@ -47,4 +47,4 @@ optional arguments:
   -n KRA_NICKNAME       DRM Nickname
 
 For example:
-python pki/base/kra/functional/drmclient.py -d /tmp/drmtest -p 10200 -n "DRM Transport Certificate - alee eclipse domain 2" 
+python pki/base/kra/functional/drmclient.py -d /tmp/drmtest -p 10200 -n "DRM Transport Certificate - alee eclipse domain 2"

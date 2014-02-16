@@ -1,0 +1,28 @@
+You will need to set up a few things first though:
+1.  Install a CA/KRA.  It this is not on the default ports, you will
+need to modify the connection information in KRAClient.__main__
+
+2. The python code uses python-requests to talk to the server, and
+requests uses openssl.  That means you need to export your DRM admin
+cert to a PEM file, so that it can be used for client auth.  I did this
+as follows:
+
+ openssl pkcs12 -in ~/.dogtag/pki-tomcat/ca_admin_cert.p12 -out /tmp/temp4.pem -nodes
+
+Without any changes, the code in KRAClient.__main__ assumes this file
+will be in /tmp/temp4.pem.
+
+3.  We do some crypto functions using NSS commands (like generating a
+symmetric key or wrapping using the transport cert).  Therefore, we need
+to create an NSS database and populate it with the transport cert.  The
+code expects it to be at /tmp/drmtest/certdb
+
+I did this as follows:
+mkdir -p /tmp/drmtest/certdb
+certutil -N -d /tmp/drmtest/certdb
+chmod +r /tmp/drmtest/certdb/*
+
+certutil -L -d /var/lib/pki/pki-tomcat/alias/ -n "transportCert cert-pki-tomcat KRA" -a > transport_cert.txt
+certutil -A -d /tmp/drmtest/certdb/ -n "kra transport cert" -i ./transport_cert.txt -a -t "u,u,u"
+
+4. Then just run kraclient.__main__ with no arguments.
