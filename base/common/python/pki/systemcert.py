@@ -21,7 +21,7 @@
 '''
 Module containing the Python client classes for the SystemCert REST API
 '''
-
+import pki
 from pki.cert import CertData
 
 class SystemCertClient(object):
@@ -38,6 +38,7 @@ class SystemCertClient(object):
                         'Accept': 'application/json'}
         self.cert_url = '/rest/config/cert'
 
+    @pki.handle_exceptions
     def get_transport_cert(self):
         ''' Return transport certificate '''
         url = self.cert_url +  '/transport'

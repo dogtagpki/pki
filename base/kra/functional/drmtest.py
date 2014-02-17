@@ -30,6 +30,7 @@ See drmtest.readme.txt.
 '''
 
 import base64
+import pki
 import pki.cryptoutil as cryptoutil
 import pki.key as key
 import time
@@ -125,6 +126,31 @@ def main():
         print "Failure: The returned keys do not match!"
         print "key1: " + key1
         print "key2: " + key2
+
+    # Test 10 = test BadRequestException on create()
+    print "Trying to generate a new symkey with the same client ID"
+    try:
+        response = kraclient.generate_sym_key(client_id, algorithm, key_size, usages)
+    except pki.BadRequestException as exc:
+        print "BadRequestException thrown - Code:" + exc.code + " Message: " + exc.message
+
+    # Test 11 - Test RequestNotFoundException on get_request_info
+    print "Try to list a nonexistent request"
+    try:
+        keyrequest = kraclient.keys.get_request_info('200000034')
+    except pki.RequestNotFoundException as exc:
+        print "RequestNotFoundRequestException thrown - Code:" + exc.code + " Message: " + exc.message
+
+    # Test 12 - Test exception on retrieve_key
+    # Note - this currently throws PKIException when it should probably throw a ResourceNotFound exception
+    # Fix in next patch.
+    print "Try to retrieve an invalid key"
+    try:
+        key_data, unwrapped_key = kraclient.retrieve_key('2000003434')
+    except pki.PKIException as exc:
+        print "PKIException thrown - Code:" + exc.code + " Message: " + exc.message
+
+
 
 if __name__ == "__main__":
     main()

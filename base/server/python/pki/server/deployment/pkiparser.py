@@ -251,7 +251,7 @@ class PKIConfigParser:
 
     def read_text(self, message,
         section=None, key=None, default=None,
-        options=None, sign=':', allowEmpty=True, caseSensitive=True):
+        options=None, sign=':', allow_empty=True, case_sensitive=True):
 
         if default is None and key is not None:
             default = self.pki_master_dict[key]
@@ -265,7 +265,7 @@ class PKIConfigParser:
             value = value.strip()
 
             if len(value) == 0:  # empty value
-                if allowEmpty:
+                if allow_empty:
                     value = default
                     done = True
                     break
@@ -273,7 +273,7 @@ class PKIConfigParser:
             else:  # non-empty value
                 if options is not None:
                     for v in options:
-                        if caseSensitive:
+                        if case_sensitive:
                             if v == value:
                                 done = True
                                 break

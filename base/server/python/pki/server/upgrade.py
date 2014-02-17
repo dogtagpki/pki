@@ -98,7 +98,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                     print message
                 else:
                     result = pki.read_text(message + ' Continue (Yes/No)',
-                        options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
+                        options=['Y', 'N'], default='Y', delimiter='?', case_sensitive=False).lower()
                     if result == 'y': continue
 
                 raise pki.server.PKIServerException(
@@ -128,7 +128,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                     print message
                 else:
                     result = pki.read_text(message + ' Continue (Yes/No)',
-                        options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
+                        options=['Y', 'N'], default='Y', delimiter='?', case_sensitive=False).lower()
                     if result == 'y': continue
 
                 raise pki.server.PKIServerException(

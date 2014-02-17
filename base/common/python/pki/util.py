@@ -18,6 +18,8 @@
 # Copyright (C) 2013 Red Hat, Inc.
 # All rights reserved.
 #
+''' Module containing utility functions and classes for the Dogtag python code '''
+
 
 import os
 import shutil
@@ -28,8 +30,10 @@ def copy(source, dest):
     """
 
     # remove trailing slashes
-    if source[-1] == '/': source = source[:-1]
-    if dest[-1] == '/': dest = dest[:-1]
+    if source[-1] == '/':
+        source = source[:-1]
+    if dest[-1] == '/':
+        dest = dest[:-1]
 
     sourceparent = os.path.dirname(source)
     destparent = os.path.dirname(dest)
@@ -44,7 +48,8 @@ def copy(source, dest):
 
             relpath = sourcepath[len(source):]
             destpath = dest + relpath
-            if destpath == '': destpath = '/'
+            if destpath == '':
+                destpath = '/'
 
             copydirs(sourcepath, destpath)
 
@@ -66,16 +71,16 @@ def copyfile(source, dest, overwrite=True):
         target = os.readlink(source)
         os.symlink(target, dest)
 
-        st = os.lstat(source)
-        os.lchown(dest, st.st_uid, st.st_gid)
+        stat = os.lstat(source)
+        os.lchown(dest, stat.st_uid, stat.st_gid)
 
     else:
         shutil.copyfile(source, dest)
 
-        st = os.stat(source)
-        os.utime(dest, (st.st_atime, st.st_mtime))
-        os.chmod(dest, st.st_mode)
-        os.chown(dest, st.st_uid, st.st_gid)
+        stat = os.stat(source)
+        os.utime(dest, (stat.st_atime, stat.st_mtime))
+        os.chmod(dest, stat.st_mode)
+        os.chown(dest, stat.st_uid, stat.st_gid)
 
 def copydirs(source, dest):
     """
@@ -93,10 +98,10 @@ def copydirs(source, dest):
 
     os.mkdir(dest)
 
-    st = os.stat(source)
-    os.utime(dest, (st.st_atime, st.st_mtime))
-    os.chmod(dest, st.st_mode)
-    os.chown(dest, st.st_uid, st.st_gid)
+    stat = os.stat(source)
+    os.utime(dest, (stat.st_atime, stat.st_mtime))
+    os.chmod(dest, stat.st_mode)
+    os.chown(dest, stat.st_uid, stat.st_gid)
 
 def chown(path, uid, gid):
     """

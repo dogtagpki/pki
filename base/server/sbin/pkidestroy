@@ -132,7 +132,7 @@ def main(argv):
             interactive = True
             config.pki_subsystem = parser.read_text('Subsystem (CA/KRA/OCSP/TKS/TPS)',
                 options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
-                default='CA', caseSensitive=False).upper()
+                default='CA', case_sensitive=False).upper()
         else:
             config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
 
@@ -149,7 +149,7 @@ def main(argv):
 
             begin = parser.read_text('Begin uninstallation (Yes/No/Quit)',
                 options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
-                sign='?', allowEmpty=False, caseSensitive=False).lower()
+                sign='?', allow_empty=False, case_sensitive=False).lower()
 
             print
 

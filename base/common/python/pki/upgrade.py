@@ -312,7 +312,7 @@ class PKIUpgradeScriptlet(object):
                 print message
             else:
                 result = pki.read_text(message + ' Continue (Yes/No)',
-                    options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
+                    options=['Y', 'N'], default='Y', delimiter='?', case_sensitive=False).lower()
                 if result == 'y': return
 
             raise pki.PKIException('Upgrade failed: ' + e.message, e)
@@ -590,7 +590,7 @@ class PKIUpgrader(object):
 
             else:
                 result = pki.read_text(message + ' (Yes/No)',
-                    options=['Y', 'N'], default='Y', caseSensitive=False).lower()
+                    options=['Y', 'N'], default='Y', case_sensitive=False).lower()
 
                 if result == 'n':
                     raise pki.PKIException('Upgrade canceled.')
@@ -616,7 +616,7 @@ class PKIUpgrader(object):
                 print
 
                 result = pki.read_text('Continue (Yes/No)',
-                    options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
+                    options=['Y', 'N'], default='Y', delimiter='?', case_sensitive=False).lower()
 
                 if result == 'n':
                     raise pki.PKIException(message, e)
@@ -655,7 +655,7 @@ class PKIUpgrader(object):
 
             else:
                 result = pki.read_text(message + ' (Yes/No)',
-                    options=['Y', 'N'], default='Y', caseSensitive=False).lower()
+                    options=['Y', 'N'], default='Y', case_sensitive=False).lower()
 
                 if result == 'n':
                     raise pki.PKIException('Revert canceled.')
@@ -680,7 +680,7 @@ class PKIUpgrader(object):
                 print
 
                 result = pki.read_text('Continue (Yes/No)',
-                    options=['Y', 'N'], default='Y', delimiter='?', caseSensitive=False).lower()
+                    options=['Y', 'N'], default='Y', delimiter='?', case_sensitive=False).lower()
 
                 if result == 'n':
                     raise pki.PKIException(message, e)

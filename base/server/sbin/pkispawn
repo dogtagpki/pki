@@ -130,7 +130,7 @@ def main(argv):
 
             config.pki_subsystem = parser.read_text('Subsystem (CA/KRA/OCSP/TKS/TPS)',
                 options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
-                default='CA', caseSensitive=False).upper()
+                default='CA', case_sensitive=False).upper()
             print
         else:
             config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
@@ -167,7 +167,7 @@ def main(argv):
 
             import_cert = parser.read_text('Import certificate (Yes/No)',
                 default=import_cert, options=['Yes', 'Y', 'No', 'N'],
-                sign='?', caseSensitive=False).lower()
+                sign='?', case_sensitive=False).lower()
 
             if import_cert == 'y' or import_cert == 'yes':
                 parser.set_property(config.pki_subsystem, 'pki_import_admin_cert', 'True')
@@ -203,7 +203,7 @@ def main(argv):
 
                 remove = parser.read_text('Base DN already exists. Overwrite (Yes/No/Quit)',
                     options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
-                    sign='?', allowEmpty=False, caseSensitive=False).lower()
+                    sign='?', allow_empty=False, case_sensitive=False).lower()
 
                 if remove == 'q' or remove == 'quit':
                     print "Installation canceled."
@@ -271,7 +271,7 @@ def main(argv):
                 while True:
                     keygen = parser.read_text('Enable server side key generation (Yes/No)',
                         options=['Yes', 'Y', 'No', 'N'], default='N',
-                        sign='?', caseSensitive=False).lower()
+                        sign='?', case_sensitive=False).lower()
 
                     if keygen == 'y' or keygen == 'yes':
                         parser.set_property(config.pki_subsystem, 'pki_enable_server_side_keygen', 'True')
@@ -295,7 +295,7 @@ def main(argv):
                 while True:
                     parser.read_text('Hostname', config.pki_subsystem, 'pki_authdb_hostname')
                     parser.read_text('Port', config.pki_subsystem, 'pki_authdb_port')
-                    basedn = parser.read_text('Base DN', allowEmpty=False)
+                    basedn = parser.read_text('Base DN', allow_empty=False)
                     parser.set_property(config.pki_subsystem, 'pki_authdb_basedn', basedn)
 
                     try:
@@ -315,7 +315,7 @@ def main(argv):
 
             begin = parser.read_text('Begin installation (Yes/No/Quit)',
                 options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
-                sign='?', allowEmpty=False, caseSensitive=False).lower()
+                sign='?', allow_empty=False, case_sensitive=False).lower()
             print
 
             if begin == 'q' or begin == 'quit':

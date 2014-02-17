@@ -25,6 +25,7 @@ KeyRequestClient REST API on a DRM
 '''
 import pki.encoder as encoder
 import json
+import pki
 import types
 
 class KeyId(object):
@@ -212,54 +213,7 @@ class KeyRequestResponse(object):
         ''' Return the id for the created request '''
         return self.requestInfo.get_request_id()
 
-
-class Attribute(object):
-    '''
-    Class representing a key/value pair.
-
-    This object is the basis of the representation of a ResourceMessage.
-    '''
-
-    def __init__(self, name, value):
-        ''' Constructor '''
-        self.name = name
-        self.value = value
-
-class AttributeList(object):
-    '''
-    Class representing a list of attributes.
-
-    This class is needed because of a JavaMapper used in the REST API.
-    '''
-
-    def __init__(self):
-        ''' Constructor '''
-        self.Attribute = []
-
-class ResourceMessage(object):
-    '''
-    This class is the basis for the various types of key requests.
-    It is essentially a list of attributes.
-    '''
-
-    def __init__(self, class_name):
-        ''' Constructor '''
-        self.Attributes = AttributeList()
-        self.ClassName = class_name
-
-    def add_attribute(self, name, value):
-        ''' Add an attribute to the list. '''
-        attr = Attribute(name, value)
-        self.Attributes.Attribute.append(attr)
-
-    def get_attribute_value(self, name):
-        ''' Get the value of a given attribute '''
-        for attr in self.Attributes.Attribute:
-            if attr.name == name:
-                return attr.value
-        return None
-
-class KeyArchivalRequest(ResourceMessage):
+class KeyArchivalRequest(pki.ResourceMessage):
     '''
     Class representing the object sent to the DRM when archiving a secret.
     '''
@@ -267,7 +221,7 @@ class KeyArchivalRequest(ResourceMessage):
     def __init__(self, client_id=None, data_type=None, wrapped_private_data=None,
                  key_algorithm=None, key_size=None):
         ''' Constructor '''
-        ResourceMessage.__init__(self,
+        pki.ResourceMessage.__init__(self,
                                  "com.netscape.certsrv.key.KeyArchivalRequest")
         self.add_attribute("clientID", client_id)
         self.add_attribute("dataType", data_type)
@@ -275,7 +229,7 @@ class KeyArchivalRequest(ResourceMessage):
         self.add_attribute("keyAlgorithm", key_algorithm)
         self.add_attribute("keySize", key_size)
 
-class KeyRecoveryRequest(ResourceMessage):
+class KeyRecoveryRequest(pki.ResourceMessage):
     '''
     Class representing the data sent to the DRM when either creating a request
     for the recovery of a secret, or, once the request is approved, retrieving
@@ -288,7 +242,7 @@ class KeyRecoveryRequest(ResourceMessage):
                  nonce_data=None, certificate=None,
                  passphrase=None):
         ''' Constructor '''
-        ResourceMessage.__init__(self,
+        pki.ResourceMessage.__init__(self,
                                  "com.netscape.certsrv.key.KeyRecoveryRequest")
         self.add_attribute("requestId", request_id)
         self.add_attribute("transWrappedSessionKey", trans_wrapped_session_key)
@@ -298,7 +252,7 @@ class KeyRecoveryRequest(ResourceMessage):
         self.add_attribute("passphrase", passphrase)
         self.add_attribute("keyId", key_id)
 
-class SymKeyGenerationRequest(ResourceMessage):
+class SymKeyGenerationRequest(pki.ResourceMessage):
     '''
     Class representing the data sent to the DRM when generating and archiving
     a symmetric key on the DRM.
@@ -314,7 +268,7 @@ class SymKeyGenerationRequest(ResourceMessage):
     def __init__(self, client_id=None, key_size=None, key_algorithm=None,
                  key_usages=None):
         ''' Constructor '''
-        ResourceMessage.__init__(self,
+        pki.ResourceMessage.__init__(self,
                                  "com.netscape.certsrv.key.SymKeyGenerationRequest")
         key_usages = key_usages or []
         self.add_attribute("clientID", client_id)
@@ -340,6 +294,7 @@ class KeyClient(object):
         self.keyURL = '/rest/agent/keys'
         self.keyRequestsURL = '/rest/agent/keyrequests'
 
+    @pki.handle_exceptions
     def list_keys(self, client_id=None, status=None, max_results=None,
                   max_time=None, start=None, size=None):
         ''' List/Search archived secrets in the DRM.
@@ -353,6 +308,7 @@ class KeyClient(object):
         response = self.connection.get(self.keyURL, self.headers, params=query_params)
         return KeyInfoCollection.from_json(response.json())
 
+    @pki.handle_exceptions
     def retrieve_key(self, data):
         ''' Retrieve a secret from the DRM.
 
@@ -368,6 +324,7 @@ class KeyClient(object):
         response = self.connection.post(url, keyRequest, self.headers)
         return KeyData.from_dict(response.json())
 
+    @pki.handle_exceptions
     def request_key_retrieval(self, key_id, request_id, trans_wrapped_session_key=None,
                      session_wrapped_passphrase=None, passphrase=None, nonce_data=None):
         ''' Retrieve a secret from the DRM.
@@ -400,6 +357,7 @@ class KeyClient(object):
 
         return self.retrieve_key(request)
 
+    @pki.handle_exceptions
     def list_requests(self, request_state=None, request_type=None, client_id=None,
                      start=None, page_size=None, max_results=None, max_time=None):
         ''' List/Search key requests in the DRM.
@@ -414,12 +372,14 @@ class KeyClient(object):
                                 params=query_params)
         return KeyRequestInfoCollection.from_json(response.json())
 
+    @pki.handle_exceptions
     def get_request_info(self, request_id):
         ''' Return a KeyRequestInfo object for a specific request. '''
         url = self.keyRequestsURL + '/' + request_id
         response = self.connection.get(url, self.headers)
         return KeyRequestInfo.from_dict(response.json())
 
+    @pki.handle_exceptions
     def create_request(self, request):
         ''' Submit an archival, recovery or key generation request
             to the DRM.
@@ -434,21 +394,25 @@ class KeyClient(object):
         response = self.connection.post(url, key_request, self.headers)
         return KeyRequestResponse.from_json(response.json())
 
+    @pki.handle_exceptions
     def approve_request(self, request_id):
         ''' Approve a secret recovery request '''
         url = self.keyRequestsURL + '/' + request_id + '/approve'
         return self.connection.post(url, self.headers)
 
+    @pki.handle_exceptions
     def reject_request(self, request_id):
         ''' Reject a secret recovery request. '''
         url = self.keyRequestsURL + '/' + request_id + '/reject'
         return self.connection.post(url, self.headers)
 
+    @pki.handle_exceptions
     def cancel_request(self, request_id):
         ''' Cancel a secret recovery request '''
         url = self.keyRequestsURL + '/' + request_id + '/cancel'
         return self.connection.post(url, self.headers)
 
+    @pki.handle_exceptions
     def request_recovery(self, key_id, request_id=None, session_wrapped_passphrase=None,
                         trans_wrapped_session_key=None, b64certificate=None, nonce_data=None):
         ''' Create a request to recover a secret.
@@ -469,6 +433,7 @@ class KeyClient(object):
                                      nonce_data=nonce_data)
         return self.create_request(request)
 
+    @pki.handle_exceptions
     def request_archival(self, client_id, data_type, wrapped_private_data,
                     key_algorithm=None, key_size=None):
         ''' Archive a secret (symmetric key or passphrase) on the DRM.
@@ -493,11 +458,11 @@ class KeyClient(object):
                                      key_size=key_size)
         return self.create_request(request)
 
-encoder.NOTYPES['Attribute'] = Attribute
-encoder.NOTYPES['AttributeList'] = AttributeList
+encoder.NOTYPES['Attribute'] = pki.Attribute
+encoder.NOTYPES['AttributeList'] = pki.AttributeList
 encoder.NOTYPES['KeyArchivalRequest'] = KeyArchivalRequest
 encoder.NOTYPES['KeyRecoveryRequest'] = KeyRecoveryRequest
-encoder.NOTYPES['ResourceMessage'] = ResourceMessage
+encoder.NOTYPES['ResourceMessage'] = pki.ResourceMessage
 encoder.NOTYPES['SymKeyGenerationRequest'] = SymKeyGenerationRequest
 
 def main():
