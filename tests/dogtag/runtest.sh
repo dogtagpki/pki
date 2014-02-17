@@ -49,6 +49,9 @@
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-find-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-del-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cleanup-ca.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
 
 PACKAGE="pki-tools"
 
@@ -104,6 +107,12 @@ rlJournalStart
                 # Execute pki user-mem-del-ca tests
                   run_pki-user-cli-user-membership-del-ca_tests
         fi
+	if [ "$CERT_TEST" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ]; then
+		#Execute pki cert tests
+		 run_pki_cert
+		 run_pki_cert_show
+		 run_pki_cert_request_show
+	fi
         #Clean up role users (admin agent etc) created in CA
         if [ "$USER_CLEANUP_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                 # Execute pki user-cleanup-ca tests
