@@ -5,7 +5,7 @@
 #   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-cert-cli
 #   Description: PKI CERT CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The following ipa cli commands needs to be tested:
+# The following pki cert cli commands needs to be tested:
 #  pki-cert-request-submit
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
