@@ -78,6 +78,9 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-find-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-del-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cleanup-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
+	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)
