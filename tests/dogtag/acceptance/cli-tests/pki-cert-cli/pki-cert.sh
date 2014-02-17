@@ -5,7 +5,7 @@
 #   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-cert-cli
 #   Description: PKI CERT CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The following ipa cli commands needs to be tested:
+# The following pki cert cli commands needs to be tested:
 #  pki-cert-request-submit
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -46,7 +46,7 @@ run_pki-cert()
 	rlRun "pushd $TmpDir"
 	rlPhaseEnd
 
-	rlPhaseStartSetup "pki_cert --help Test: Show all the options of pki cert"
+	rlPhaseStartTest "pki_cert --help Test: Show all the options of pki cert"
 	local temp_out="$TmpDir/pki_cert"
 	rlLog "Executing pki cert --help"
 	rlRun "pki cert --help 1> $temp_out" 0 "pki cert --help"
@@ -64,7 +64,7 @@ run_pki-cert()
 	rlLog "FAIL :: https://engineering.redhat.com/trac/pki-tests/ticket/490"
 	rlPhaseEnd
 	
-	rlPhaseStartSetup "pki_cert001: pki cert with junk characters should return invalid module"
+	rlPhaseStartTest "pki_cert001: pki cert with junk characters should return invalid module"
 	local temp_out1="$TmpDir/pki_cert001"
 	local rand=`cat /dev/urandom | tr -dc 'a-zA-Z0-9*?$@#!%^&*()' | fold -w 40 | head -n 1`
 	rlLog "Executing pki cert \"$junk\" characters"
