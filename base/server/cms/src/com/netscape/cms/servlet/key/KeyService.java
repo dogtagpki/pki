@@ -22,8 +22,10 @@ package com.netscape.cms.servlet.key;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +34,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -42,6 +45,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
@@ -106,7 +110,7 @@ public class KeyService extends PKIService implements KeyResource {
      * @return
      */
     @Override
-    public KeyData retrieveKey(KeyRecoveryRequest data) {
+    public Response retrieveKey(KeyRecoveryRequest data) {
         if (data == null) {
             CMS.debug("retrieveKey: data is null");
             throw new BadRequestException("Cannot retrieve key. Invalid request");
@@ -142,12 +146,13 @@ public class KeyService extends PKIService implements KeyResource {
             throw new HTTPGoneException("No key record.");
         }
         auditRetrieveKey(ILogger.SUCCESS, requestID, keyId, "None");
-        return keyData;
+
+        return createOKResponse(keyData);
     }
 
     // retrieval - used to test integration with a browser
     @Override
-    public KeyData retrieveKey(MultivaluedMap<String, String> form) {
+    public Response retrieveKey(MultivaluedMap<String, String> form) {
         KeyRecoveryRequest data = new KeyRecoveryRequest(form);
         return retrieveKey(data);
     }
@@ -323,7 +328,12 @@ public class KeyService extends PKIService implements KeyResource {
      * Used to generate list of key infos based on the search parameters
      */
     @Override
-    public KeyInfoCollection listKeys(String clientID, String status, Integer maxResults, Integer maxTime,
+    public Response listKeys(String clientID, String status, Integer maxResults, Integer maxTime,
+            Integer start, Integer size) {
+        return createOKResponse(listKeyInfos(clientID, status, maxResults, maxTime, start, size));
+    }
+
+    public KeyInfoCollection listKeyInfos(String clientID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size) {
 
         start = start == null ? 0 : start;
@@ -377,6 +387,31 @@ public class KeyService extends PKIService implements KeyResource {
         return infos;
     }
 
+    @Override
+    public Response getActiveKeyInfo(String clientID) {
+
+        KeyInfoCollection infos = listKeyInfos(
+                clientID,
+                "active",
+                null,
+                null,
+                null,
+                null
+        );
+
+        Collection<KeyInfo> list = infos.getEntries();
+        Iterator<KeyInfo> iter = list.iterator();
+
+        while (iter.hasNext()) {
+            KeyInfo info = iter.next();
+            if (info != null) {
+                // return the first one
+                return createOKResponse(info);
+            }
+        }
+
+        throw new ResourceNotFoundException("Key not found.");
+    }
 
     public KeyInfo createKeyDataInfo(IKeyRecord rec) throws EBaseException {
         KeyInfo ret = new KeyInfo();

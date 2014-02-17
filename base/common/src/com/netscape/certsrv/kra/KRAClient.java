@@ -1,38 +1,17 @@
 package com.netscape.certsrv.kra;
 
 import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
-import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.group.GroupClient;
-import com.netscape.certsrv.key.KeyArchivalRequest;
-import com.netscape.certsrv.key.KeyData;
-import com.netscape.certsrv.key.KeyInfo;
-import com.netscape.certsrv.key.KeyInfoCollection;
-import com.netscape.certsrv.key.KeyRecoveryRequest;
-import com.netscape.certsrv.key.KeyRequestInfo;
-import com.netscape.certsrv.key.KeyRequestInfoCollection;
-import com.netscape.certsrv.key.KeyRequestResource;
-import com.netscape.certsrv.key.KeyRequestResponse;
-import com.netscape.certsrv.key.KeyResource;
-import com.netscape.certsrv.key.SymKeyGenerationRequest;
+import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.logging.AuditClient;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.certsrv.user.UserClient;
-import com.netscape.cmsutil.util.Utils;
 
 public class KRAClient extends SubsystemClient {
-
-    private KeyResource keyClient;
-    private KeyRequestResource keyRequestClient;
 
     public KRAClient(PKIClient client) throws URISyntaxException {
         super(client, "kra");
@@ -43,126 +22,9 @@ public class KRAClient extends SubsystemClient {
 
         addClient(new AuditClient(client, name));
         addClient(new GroupClient(client, name));
+        addClient(new KeyClient(client, name));
         addClient(new SelfTestClient(client, name));
         addClient(new SystemCertClient(client, name));
         addClient(new UserClient(client, name));
-
-        keyRequestClient = createProxy(KeyRequestResource.class);
-        keyClient = createProxy(KeyResource.class);
-    }
-
-    public Collection<KeyRequestInfo> listRequests(String requestState, String requestType) {
-        KeyRequestInfoCollection infos = keyRequestClient.listRequests(
-                requestState, requestType, null, new RequestId(0), 100, 100, 10
-                );
-        Collection<KeyRequestInfo> list = infos.getEntries();
-        return list;
-    }
-
-    public KeyRequestResponse archiveSecurityData(byte[] encoded, String clientId, String dataType, String algorithm, int strength) {
-        // create archival request
-        KeyArchivalRequest data = new KeyArchivalRequest();
-        String req1 = Utils.base64encode(encoded);
-        data.setWrappedPrivateData(req1);
-        data.setClientId(clientId);
-        data.setDataType(dataType);
-        data.setKeyAlgorithm(algorithm);
-        data.setKeySize(strength);
-
-        Response response = keyRequestClient.createRequest(data);
-        return client.getEntity(response, KeyRequestResponse.class);
-    }
-
-    public KeyInfo getKeyData(String clientId, String status) {
-        KeyInfoCollection infos = keyClient.listKeys(clientId, status, null, null, null, null);
-        Collection<KeyInfo> list = infos.getEntries();
-        Iterator<KeyInfo> iter = list.iterator();
-
-        while (iter.hasNext()) {
-            KeyInfo info = iter.next();
-            if (info != null) {
-                // return the first one
-                return info;
-            }
-        }
-        return null;
-    }
-
-    public KeyRequestResponse requestRecovery(KeyId keyId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
-        // create recovery request
-        KeyRecoveryRequest data = new KeyRecoveryRequest();
-        data.setKeyId(keyId);
-        if (rpwd != null) {
-            data.setSessionWrappedPassphrase(Utils.base64encode(rpwd));
-        }
-        if (rkey != null) {
-            data.setTransWrappedSessionKey(Utils.base64encode(rkey));
-        }
-
-        if (nonceData != null) {
-            data.setNonceData(Utils.base64encode(nonceData));
-        }
-
-        Response response = keyRequestClient.createRequest(data);
-        return client.getEntity(response, KeyRequestResponse.class);
-    }
-
-    public void approveRecovery(RequestId recoveryId) {
-        keyRequestClient.approveRequest(recoveryId);
-    }
-
-    public KeyData retrieveKey(KeyId keyId, RequestId requestId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
-        // create recovery request
-        KeyRecoveryRequest data = new KeyRecoveryRequest();
-        data.setKeyId(keyId);
-        data.setRequestId(requestId);
-        if (rkey != null) {
-            data.setTransWrappedSessionKey(Utils.base64encode(rkey));
-        }
-        if (rpwd != null) {
-            data.setSessionWrappedPassphrase(Utils.base64encode(rpwd));
-        }
-
-        if (nonceData != null) {
-            data.setNonceData(Utils.base64encode(nonceData));
-        }
-
-        KeyData key = keyClient.retrieveKey(data);
-        return key;
-    }
-
-    public KeyRequestInfo getRequest(RequestId id) {
-        return keyRequestClient.getRequestInfo(id);
-    }
-
-    public KeyRequestResponse requestKeyRecovery(String keyId, String b64Certificate) {
-        // create key recovery request
-        KeyRecoveryRequest data = new KeyRecoveryRequest();
-        data.setKeyId(new KeyId(keyId));
-        data.setCertificate(b64Certificate);
-
-        Response response = keyRequestClient.createRequest(data);
-        return client.getEntity(response, KeyRequestResponse.class);
-    }
-
-    public KeyData recoverKey(RequestId requestId, String passphrase) {
-        // recover key based on approved request
-        KeyRecoveryRequest data = new KeyRecoveryRequest();
-        data.setRequestId(requestId);
-        data.setPassphrase(passphrase);
-
-        KeyData key = keyClient.retrieveKey(data);
-        return key;
-    }
-
-    public KeyRequestResponse generateKey(String clientId, String keyAlgorithm, int keySize, List<String> usages) {
-        SymKeyGenerationRequest data = new SymKeyGenerationRequest();
-        data.setClientId(clientId);
-        data.setKeyAlgorithm(keyAlgorithm);
-        data.setKeySize(new Integer(keySize));
-        data.setUsages(usages);
-
-        Response response = keyRequestClient.createRequest(data);
-        return client.getEntity(response, KeyRequestResponse.class);
     }
 }

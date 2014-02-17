@@ -181,10 +181,8 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             response = dao.submitRequest(data, uriInfo);
             auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientId());
 
-            return Response
-                    .created(new URI(response.getRequestInfo().getRequestURL()))
-                    .entity(response)
-                    .build();
+            return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
+
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
@@ -216,10 +214,8 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             auditRecoveryRequestMade(response.getRequestInfo().getRequestId(),
                     ILogger.SUCCESS, data.getKeyId());
 
-            return Response
-                    .created(new URI(response.getRequestInfo().getRequestURL()))
-                    .entity(response)
-                    .build();
+            return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
+
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditRecoveryRequestMade(null, ILogger.FAILURE, data.getKeyId());
@@ -452,10 +448,8 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             auditSymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
                     data.getClientId());
 
-            return Response
-                    .created(new URI(response.getRequestInfo().getRequestURL()))
-                    .entity(response)
-                    .build();
+            return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
+
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
