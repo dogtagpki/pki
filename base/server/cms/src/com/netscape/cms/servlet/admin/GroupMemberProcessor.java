@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -184,7 +183,7 @@ public class GroupMemberProcessor extends Processor {
         }
     }
 
-    public Response addGroupMember(GroupMemberData groupMemberData) {
+    public GroupMemberData addGroupMember(GroupMemberData groupMemberData) {
         String groupID = groupMemberData.getGroupID();
         try {
             if (groupID == null) {
@@ -241,10 +240,7 @@ public class GroupMemberProcessor extends Processor {
             // read the data back
             groupMemberData = getGroupMember(groupID, memberID);
 
-            return Response
-                    .created(groupMemberData.getLink().getHref())
-                    .entity(groupMemberData)
-                    .build();
+            return groupMemberData;
 
         } catch (PKIException e) {
             auditAddGroupMember(groupID, groupMemberData, ILogger.FAILURE);

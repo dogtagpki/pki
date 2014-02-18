@@ -390,7 +390,9 @@ public class GroupService extends PKIService implements GroupResource {
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
-            return processor.addGroupMember(groupMemberData);
+            groupMemberData = processor.addGroupMember(groupMemberData);
+
+            return createCreatedResponse(groupMemberData, groupMemberData.getLink().getHref());
 
         } catch (PKIException e) {
             throw e;
