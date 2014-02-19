@@ -136,7 +136,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
      * Used to retrieve key request info for a specific request
      */
     @Override
-    public KeyRequestInfo getRequestInfo(RequestId id) {
+    public Response getRequestInfo(RequestId id) {
         if (id == null) {
             CMS.debug("getRequestInfo: is is null");
             throw new BadRequestException("Unable to get Request: invalid ID");
@@ -155,7 +155,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             // request does not exist
             throw new RequestNotFoundException(id);
         }
-        return info;
+        return createOKResponse(info);
     }
 
     public Response archiveKey(KeyArchivalRequest data) {
@@ -251,7 +251,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     }
 
     @Override
-    public void approveRequest(RequestId id) {
+    public Response approveRequest(RequestId id) {
         if (id == null) {
             throw new BadRequestException("Invalid request id.");
         }
@@ -272,10 +272,12 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             auditRecoveryRequestChange(id, ILogger.FAILURE, "approve");
             throw new PKIException(e.toString());
         }
+
+        return createNoContentResponse();
     }
 
     @Override
-    public void rejectRequest(RequestId id) {
+    public Response rejectRequest(RequestId id) {
         if (id == null) {
             throw new BadRequestException("Invalid request id.");
         }
@@ -289,10 +291,12 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             auditRecoveryRequestChange(id, ILogger.FAILURE, "reject");
             throw new PKIException(e.toString());
         }
+
+        return createNoContentResponse();
     }
 
     @Override
-    public void cancelRequest(RequestId id) {
+    public Response cancelRequest(RequestId id) {
         if (id == null) {
             throw new BadRequestException("Invalid request id.");
         }
@@ -306,13 +310,15 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             auditRecoveryRequestChange(id, ILogger.FAILURE, "cancel");
             throw new PKIException(e.toString());
         }
+
+        return createNoContentResponse();
     }
 
     /**
      * Used to generate list of key requests based on the search parameters
      */
     @Override
-    public KeyRequestInfoCollection listRequests(String requestState, String requestType, String clientID,
+    public Response listRequests(String requestState, String requestType, String clientID,
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
         // auth and authz
 
@@ -334,7 +340,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             e.printStackTrace();
             throw new PKIException(e.toString());
         }
-        return requests;
+        return createOKResponse(requests);
     }
 
     private String createSearchFilter(String requestState, String requestType, String clientID) {

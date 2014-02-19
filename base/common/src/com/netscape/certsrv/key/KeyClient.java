@@ -102,7 +102,7 @@ public class KeyClient extends Client {
             Integer pageSize,
             Integer maxResults,
             Integer maxTime) {
-        return keyRequestClient.listRequests(
+        Response response = keyRequestClient.listRequests(
                 requestState,
                 requestType,
                 clientID,
@@ -110,10 +110,12 @@ public class KeyClient extends Client {
                 pageSize,
                 maxResults,
                 maxTime);
+        return client.getEntity(response, KeyRequestInfoCollection.class);
     }
 
     public KeyRequestInfo getRequestInfo(RequestId id) {
-        return keyRequestClient.getRequestInfo(id);
+        Response response = keyRequestClient.getRequestInfo(id);
+        return client.getEntity(response, KeyRequestInfo.class);
     }
 
     public KeyRequestResponse archiveSecurityData(byte[] encoded, String clientId, String dataType, String algorithm, int strength) {
@@ -172,14 +174,17 @@ public class KeyClient extends Client {
     }
 
     public void approveRequest(RequestId id) {
-        keyRequestClient.approveRequest(id);
+        Response response = keyRequestClient.approveRequest(id);
+        client.getEntity(response, Void.class);
     }
 
     public void rejectRequest(RequestId id) {
-        keyRequestClient.rejectRequest(id);
+        Response response = keyRequestClient.rejectRequest(id);
+        client.getEntity(response, Void.class);
     }
 
     public void cancelRequest(RequestId id) {
-        keyRequestClient.cancelRequest(id);
+        Response response = keyRequestClient.cancelRequest(id);
+        client.getEntity(response, Void.class);
     }
 }

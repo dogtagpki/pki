@@ -40,8 +40,9 @@ public interface KeyRequestResource {
      * Used to generate list of key requests based on the search parameters
      */
     @GET
+    @ClientResponseType(entityType=KeyRequestInfoCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyRequestInfoCollection listRequests(@QueryParam("requestState") String requestState,
+    public Response listRequests(@QueryParam("requestState") String requestState,
                                             @QueryParam("requestType") String requestType,
                                             @QueryParam("clientID") String clientID,
                                             @QueryParam("start") RequestId start,
@@ -66,19 +67,22 @@ public interface KeyRequestResource {
      */
     @GET
     @Path("{id}")
+    @ClientResponseType(entityType=KeyRequestInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public KeyRequestInfo getRequestInfo(@PathParam("id") RequestId id);
+    public Response getRequestInfo(@PathParam("id") RequestId id);
 
     @POST
     @Path("{id}/approve")
-    public void approveRequest(@PathParam("id") RequestId id);
+    @ClientResponseType(entityType=Void.class)
+    public Response approveRequest(@PathParam("id") RequestId id);
 
     @POST
     @Path("{id}/reject")
-    public void rejectRequest(@PathParam("id") RequestId id);
+    @ClientResponseType(entityType=Void.class)
+    public Response rejectRequest(@PathParam("id") RequestId id);
 
     @POST
     @Path("{id}/cancel")
-    public void cancelRequest(@PathParam("id") RequestId id);
-
+    @ClientResponseType(entityType=Void.class)
+    public Response cancelRequest(@PathParam("id") RequestId id);
 }
