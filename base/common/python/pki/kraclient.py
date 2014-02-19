@@ -95,7 +95,7 @@ class KRAClient(object):
             return key_data, None
 
         unwrapped_key = self.crypto.symmetric_unwrap(key_data.wrappedPrivateData, session_key,
-                                                     iv=key_data.nonceData)
+                                                     nonce_iv=key_data.nonceData)
         return key_data, unwrapped_key
 
     def retrieve_key_by_passphrase(self, key_id, passphrase=None,

@@ -15,6 +15,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 
 
 @Path("agent/keys")
@@ -37,6 +38,19 @@ public interface KeyResource {
     @ClientResponseType(entityType=KeyInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response getActiveKeyInfo(@PathParam("clientID") String clientID);
+
+    @GET
+    @Path("{id}")
+    @ClientResponseType(entityType=KeyInfo.class)
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    public Response getKeyInfo(@PathParam("id") KeyId id);
+
+    @POST
+    @Path("{id}")
+    @ClientResponseType(entityType=Void.class)
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    public Response modifyKeyStatus(@PathParam("id") KeyId id,
+                                    @QueryParam("status") String status);
 
     /**
      * Used to retrieve a key

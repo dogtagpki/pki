@@ -47,12 +47,16 @@ import com.netscape.certsrv.base.HTTPGoneException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
+import com.netscape.certsrv.dbs.Modification;
+import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyInfoCollection;
+import com.netscape.certsrv.key.KeyNotFoundException;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyResource;
@@ -515,4 +519,41 @@ public class KeyService extends PKIService implements KeyResource {
 
         return keyData;
     }
+
+    @Override
+    public Response getKeyInfo(KeyId keyId) {
+        IKeyRecord rec = null;
+        try {
+            rec = repo.readKeyRecord(keyId.toBigInteger());
+            KeyInfo info = createKeyDataInfo(rec);
+
+            return createOKResponse(info);
+        } catch (EDBRecordNotFoundException e) {
+            throw new KeyNotFoundException(keyId);
+        } catch (Exception e) {
+            CMS.debug("Unable to retrieve key record: " + e);
+            e.printStackTrace();
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response modifyKeyStatus(KeyId keyId, String status) {
+        try {
+
+            ModificationSet mods = new ModificationSet();
+            mods.add(IKeyRecord.ATTR_STATUS, Modification.MOD_REPLACE,
+                    status);
+            repo.modifyKeyRecord(keyId.toBigInteger(), mods);
+            return createNoContentResponse();
+        } catch (EDBRecordNotFoundException e) {
+            throw new KeyNotFoundException(keyId);
+        } catch (Exception e) {
+            CMS.debug("Unable to retrieve key record: " + e);
+            e.printStackTrace();
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+
 }

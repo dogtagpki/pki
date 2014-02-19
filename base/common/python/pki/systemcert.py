@@ -38,7 +38,7 @@ class SystemCertClient(object):
                         'Accept': 'application/json'}
         self.cert_url = '/rest/config/cert'
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def get_transport_cert(self):
         ''' Return transport certificate '''
         url = self.cert_url +  '/transport'

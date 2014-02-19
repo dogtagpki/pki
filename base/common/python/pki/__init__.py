@@ -185,6 +185,9 @@ class CertNotFoundException(ResourceNotFoundException):
 class GroupNotFoundException(ResourceNotFoundException):
     ''' Group Not Found Exception: return code = 404 '''
 
+class KeyNotFoundException(ResourceNotFoundException):
+    ''' Key Not Found Exception: return code 404 '''
+
 class ProfileNotFoundException(ResourceNotFoundException):
     ''' Profile Not Found Exception: return code = 404 '''
 
@@ -202,6 +205,7 @@ EXCEPTION_MAPPINGS = {
     "com.netscape.certsrv.base.ResourceNotFoundException": "pki.ResourceNotFoundException",
     "com.netscape.certsrv.cert.CertNotFoundException": "pki.CertNotFoundException",
     "com.netscape.certsrv.group.GroupNotFoundException": "pki.GroupNotFoundException",
+    "com.netscape.certsrv.key.KeyNotFoundException": "pki.KeyNotFoundException",
     "com.netscape.certsrv.profile.ProfileNotFoundException": "pki.ProfileNotFoundException",
     "com.netscape.certsrv.request.RequestNotFoundException": "pki.RequestNotFoundException",
     "com.netscape.certsrv.base.UserNotFoundException": "pki.UserNotFoundException",

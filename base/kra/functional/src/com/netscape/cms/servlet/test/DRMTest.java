@@ -39,6 +39,7 @@ import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -724,6 +725,25 @@ public class DRMTest {
             log("Success: recoverd and archived keys match!");
         }
 
+        // Test 41: Get key info
+        log("getting key info for existing key");
+        printKeyInfo(keyClient.getKeyInfo(keyId));
+
+        //Test 42: Modify status
+        log("modify the key status");
+        keyClient.modifyKeyStatus(keyId, "inactive");
+        keyInfo = keyClient.getKeyInfo(keyId);
+        printKeyInfo(keyInfo);
+
+        //Test 43:  Confirm no more active keys with this ID
+        log("look for active keys with this id");
+        clientId = keyInfo.getClientID();
+        try {
+            keyInfo = keyClient.getActiveKeyInfo(clientId);
+            printKeyInfo(keyInfo);
+        } catch (ResourceNotFoundException e) {
+            log("Success: ResourceNotFound exception thrown: " + e);
+        }
     }
 
     private static void printKeyInfo(KeyInfo keyInfo) {
@@ -732,6 +752,7 @@ public class DRMTest {
         log("Key URL:   " + keyInfo.getKeyURL());
         log("Algorithm: " + keyInfo.getAlgorithm());
         log("Strength:  " + keyInfo.getSize());
+        log("Status:    " + keyInfo.getStatus());
     }
 
     private static void log(String string) {

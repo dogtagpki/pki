@@ -335,7 +335,6 @@ def main(argv):
         sys.exit(1)
 
     # Enable 'pkispawn' logging.
-    rv = 0
     config.pki_log_dir = config.pki_root_prefix + \
                          config.PKI_DEPLOYMENT_LOG_ROOT
     config.pki_log_name = "pki" + "-" + \

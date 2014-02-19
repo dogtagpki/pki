@@ -111,7 +111,7 @@ def main():
     wrapped_session_key = crypto.asymmetric_wrap(session_key, kraclient.transport_cert)
     key_data, _unwrapped_key = kraclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
-    unwrapped_key = crypto.symmetric_unwrap(key_data.wrappedPrivateData, session_key, iv=key_data.nonceData)
+    unwrapped_key = crypto.symmetric_unwrap(key_data.wrappedPrivateData, session_key, nonce_iv=key_data.nonceData)
     key1 = base64.encodestring(unwrapped_key)
 
     # Test 7: Recover key without providing trans_wrapped_session_key
@@ -139,18 +139,34 @@ def main():
     try:
         keyrequest = kraclient.keys.get_request_info('200000034')
     except pki.RequestNotFoundException as exc:
-        print "RequestNotFoundRequestException thrown - Code:" + exc.code + " Message: " + exc.message
+        print "RequestNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
 
-    # Test 12 - Test exception on retrieve_key
-    # Note - this currently throws PKIException when it should probably throw a ResourceNotFound exception
-    # Fix in next patch.
+    # Test 12 - Test exception on retrieve_key.
     print "Try to retrieve an invalid key"
     try:
         key_data, unwrapped_key = kraclient.retrieve_key('2000003434')
+    except pki.KeyNotFoundException as exc:
+        print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
     except pki.PKIException as exc:
+        # note: this is broken - we should be sending KeyNotFoundException here before the recovery
+        # request is created - to be fixed in next patch
         print "PKIException thrown - Code:" + exc.code + " Message: " + exc.message
 
+    #Test 13 = getKeyInfo
+    print "Get key info for existing key"
+    key_info = kraclient.keys.get_key_info(key_id)
+    print_key_info(key_info)
 
+    #Test 14: change the key status
+    print "Change the key status"
+    kraclient.keys.modify_key_status(key_id, "inactive")
+    print_key_info(kraclient.keys.get_key_info(key_id))
+
+    print "Get key info for non-existent key"
+    try:
+        key_info = kraclient.keys.get_key_info('200004556')
+    except pki.KeyNotFoundException as exc:
+        print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
 
 if __name__ == "__main__":
     main()

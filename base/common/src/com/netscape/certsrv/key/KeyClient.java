@@ -187,4 +187,14 @@ public class KeyClient extends Client {
         Response response = keyRequestClient.cancelRequest(id);
         client.getEntity(response, Void.class);
     }
+
+    public KeyInfo getKeyInfo(KeyId id) {
+        Response response = keyClient.getKeyInfo(id);
+        return client.getEntity(response, KeyInfo.class);
+    }
+
+    public void modifyKeyStatus(KeyId id, String status) {
+        Response response  = keyClient.modifyKeyStatus(id, status);
+        client.getEntity(response, Void.class);
+    }
 }

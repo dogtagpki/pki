@@ -294,7 +294,7 @@ class KeyClient(object):
         self.keyURL = '/rest/agent/keys'
         self.keyRequestsURL = '/rest/agent/keyrequests'
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def list_keys(self, client_id=None, status=None, max_results=None,
                   max_time=None, start=None, size=None):
         ''' List/Search archived secrets in the DRM.
@@ -308,7 +308,7 @@ class KeyClient(object):
         response = self.connection.get(self.keyURL, self.headers, params=query_params)
         return KeyInfoCollection.from_json(response.json())
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def retrieve_key(self, data):
         ''' Retrieve a secret from the DRM.
 
@@ -324,7 +324,7 @@ class KeyClient(object):
         response = self.connection.post(url, keyRequest, self.headers)
         return KeyData.from_dict(response.json())
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def request_key_retrieval(self, key_id, request_id, trans_wrapped_session_key=None,
                      session_wrapped_passphrase=None, passphrase=None, nonce_data=None):
         ''' Retrieve a secret from the DRM.
@@ -357,7 +357,7 @@ class KeyClient(object):
 
         return self.retrieve_key(request)
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def list_requests(self, request_state=None, request_type=None, client_id=None,
                      start=None, page_size=None, max_results=None, max_time=None):
         ''' List/Search key requests in the DRM.
@@ -372,14 +372,14 @@ class KeyClient(object):
                                 params=query_params)
         return KeyRequestInfoCollection.from_json(response.json())
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def get_request_info(self, request_id):
         ''' Return a KeyRequestInfo object for a specific request. '''
         url = self.keyRequestsURL + '/' + request_id
         response = self.connection.get(url, self.headers)
         return KeyRequestInfo.from_dict(response.json())
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def create_request(self, request):
         ''' Submit an archival, recovery or key generation request
             to the DRM.
@@ -394,25 +394,25 @@ class KeyClient(object):
         response = self.connection.post(url, key_request, self.headers)
         return KeyRequestResponse.from_json(response.json())
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def approve_request(self, request_id):
         ''' Approve a secret recovery request '''
         url = self.keyRequestsURL + '/' + request_id + '/approve'
-        return self.connection.post(url, self.headers)
+        self.connection.post(url, self.headers)
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def reject_request(self, request_id):
         ''' Reject a secret recovery request. '''
         url = self.keyRequestsURL + '/' + request_id + '/reject'
-        return self.connection.post(url, self.headers)
+        self.connection.post(url, self.headers)
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def cancel_request(self, request_id):
         ''' Cancel a secret recovery request '''
         url = self.keyRequestsURL + '/' + request_id + '/cancel'
-        return self.connection.post(url, self.headers)
+        self.connection.post(url, self.headers)
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def request_recovery(self, key_id, request_id=None, session_wrapped_passphrase=None,
                         trans_wrapped_session_key=None, b64certificate=None, nonce_data=None):
         ''' Create a request to recover a secret.
@@ -433,7 +433,7 @@ class KeyClient(object):
                                      nonce_data=nonce_data)
         return self.create_request(request)
 
-    @pki.handle_exceptions
+    @pki.handle_exceptions()
     def request_archival(self, client_id, data_type, wrapped_private_data,
                     key_algorithm=None, key_size=None):
         ''' Archive a secret (symmetric key or passphrase) on the DRM.
@@ -457,6 +457,20 @@ class KeyClient(object):
                                      key_algorithm=key_algorithm,
                                      key_size=key_size)
         return self.create_request(request)
+
+    @pki.handle_exceptions()
+    def get_key_info(self, key_id):
+        ''' Get the info in the KeyRecord for a specific secret in the DRM. '''
+        url = self.keyURL + '/' + key_id
+        response = self.connection.get(url, headers=self.headers)
+        return KeyInfo.from_dict(response.json())
+
+    @pki.handle_exceptions()
+    def modify_key_status(self, key_id, status):
+        ''' Modify the status of a key '''
+        url = self.keyURL + '/' + key_id
+        params = {'status':status}
+        self.connection.post(url, None, headers=self.headers, params=params)
 
 encoder.NOTYPES['Attribute'] = pki.Attribute
 encoder.NOTYPES['AttributeList'] = pki.AttributeList
