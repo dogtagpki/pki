@@ -59,7 +59,7 @@ class KeyData(object):
         self.wrappedPrivateData = None
 
     @classmethod
-    def from_dict(cls, attr_list):
+    def from_json(cls, attr_list):
         ''' Return a KeyData object from a JSON dict '''
         key_data = cls()
         for key in attr_list:
@@ -83,7 +83,7 @@ class KeyInfo(object):
         self.size = None
 
     @classmethod
-    def from_dict(cls, attr_list):
+    def from_json(cls, attr_list):
         ''' Return KeyInfo from JSON dict '''
         key_info = cls()
         for key in attr_list:
@@ -115,10 +115,10 @@ class KeyInfoCollection(object):
         ret = cls()
         infos = json_value['entries']
         if not isinstance(infos, types.ListType):
-            ret.key_infos.append(KeyInfo.from_dict(infos))
+            ret.key_infos.append(KeyInfo.from_json(infos))
         else:
             for info in infos:
-                ret.key_infos.append(KeyInfo.from_dict(info))
+                ret.key_infos.append(KeyInfo.from_json(info))
         return ret
 
 class KeyRequestInfo(object):
@@ -135,7 +135,7 @@ class KeyRequestInfo(object):
         self.requestStatus = None
 
     @classmethod
-    def from_dict(cls, attr_list):
+    def from_json(cls, attr_list):
         ''' Return a KeyRequestInfo object from a JSON dict. '''
         key_request_info = cls()
         for key in attr_list:
@@ -174,10 +174,10 @@ class KeyRequestInfoCollection(object):
         ret = cls()
         infos = json_value['entries']
         if not isinstance(infos, types.ListType):
-            ret.key_requests.append(KeyRequestInfo.from_dict(infos))
+            ret.key_requests.append(KeyRequestInfo.from_json(infos))
         else:
             for info in infos:
-                ret.key_requests.append(KeyRequestInfo.from_dict(info))
+                ret.key_requests.append(KeyRequestInfo.from_json(info))
         return ret
 
 class KeyRequestResponse(object):
@@ -199,10 +199,10 @@ class KeyRequestResponse(object):
         ret = cls()
 
         if 'RequestInfo' in json_value:
-            ret.requestInfo = KeyRequestInfo.from_dict(json_value['RequestInfo'])
+            ret.requestInfo = KeyRequestInfo.from_json(json_value['RequestInfo'])
 
         if 'KeyData' in json_value:
-            ret.keyData = KeyData.from_dict(json_value['KeyData'])
+            ret.keyData = KeyData.from_json(json_value['KeyData'])
         return ret
 
     def get_key_id(self):
@@ -322,7 +322,7 @@ class KeyClient(object):
         url = self.keyURL + '/retrieve'
         keyRequest = json.dumps(data, cls=encoder.CustomTypeEncoder, sort_keys=True)
         response = self.connection.post(url, keyRequest, self.headers)
-        return KeyData.from_dict(response.json())
+        return KeyData.from_json(response.json())
 
     @pki.handle_exceptions()
     def request_key_retrieval(self, key_id, request_id, trans_wrapped_session_key=None,
@@ -377,7 +377,7 @@ class KeyClient(object):
         ''' Return a KeyRequestInfo object for a specific request. '''
         url = self.keyRequestsURL + '/' + request_id
         response = self.connection.get(url, self.headers)
-        return KeyRequestInfo.from_dict(response.json())
+        return KeyRequestInfo.from_json(response.json())
 
     @pki.handle_exceptions()
     def create_request(self, request):
@@ -463,7 +463,7 @@ class KeyClient(object):
         ''' Get the info in the KeyRecord for a specific secret in the DRM. '''
         url = self.keyURL + '/' + key_id
         response = self.connection.get(url, headers=self.headers)
-        return KeyInfo.from_dict(response.json())
+        return KeyInfo.from_json(response.json())
 
     @pki.handle_exceptions()
     def modify_key_status(self, key_id, status):
@@ -483,7 +483,8 @@ def main():
     ''' Some unit tests - basically printing different types of requests '''
     print "printing symkey generation request"
     client_id = "vek 123"
-    gen_request = SymKeyGenerationRequest(client_id, 128, "AES", "encrypt,decrypt")
+    usages = [SymKeyGenerationRequest.DECRYPT_USAGE, SymKeyGenerationRequest.ENCRYPT_USAGE]
+    gen_request = SymKeyGenerationRequest(client_id, 128, "AES", usages)
     print json.dumps(gen_request, cls=encoder.CustomTypeEncoder, sort_keys=True)
 
     print "printing key recovery request"

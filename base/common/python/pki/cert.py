@@ -35,7 +35,7 @@ class CertData(object):
         self.Encoded = None
 
     @classmethod
-    def from_dict(cls, attr_list):
+    def from_json(cls, attr_list):
         ''' Return CertData object from JSON dict '''
         cert_data = cls()
         for key in attr_list:
@@ -63,7 +63,7 @@ class CertDataInfo(object):
         self.issuedBy = None
 
     @classmethod
-    def from_dict(cls, attr_list):
+    def from_json(cls, attr_list):
         ''' Return CertDataInfo object from JSON dict '''
         cert_data_info = cls()
         for key in attr_list:
@@ -87,10 +87,10 @@ class CertDataInfos(object):
         ret = cls()
         cert_infos = json_value['CertDataInfo']
         if not isinstance(cert_infos, types.ListType):
-            ret.certInfoList.append(CertDataInfo.from_dict(cert_infos))
+            ret.certInfoList.append(CertDataInfo.from_json(cert_infos))
         else:
             for cert_info in cert_infos:
-                ret.certInfoList.append(CertDataInfo.from_dict(cert_info))
+                ret.certInfoList.append(CertDataInfo.from_json(cert_info))
         return ret
 
 class CertSearchRequest(object):

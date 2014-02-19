@@ -198,27 +198,18 @@ class UserNotFoundException(ResourceNotFoundException):
     ''' User Not Found Exception: return code = 404 '''
 
 EXCEPTION_MAPPINGS = {
-    "com.netscape.certsrv.base.BadRequestException": "pki.BadRequestException",
-    "com.netscape.certsrv.base.ConflictingOperationException": "pki.ConflictingOperationException",
-    "com.netscape.certsrv.base.ForbiddenException": "pki.ForbiddenException",
-    "com.netscape.certsrv.base.HTTPGoneException": "pki.HTTPGoneException",
-    "com.netscape.certsrv.base.ResourceNotFoundException": "pki.ResourceNotFoundException",
-    "com.netscape.certsrv.cert.CertNotFoundException": "pki.CertNotFoundException",
-    "com.netscape.certsrv.group.GroupNotFoundException": "pki.GroupNotFoundException",
-    "com.netscape.certsrv.key.KeyNotFoundException": "pki.KeyNotFoundException",
-    "com.netscape.certsrv.profile.ProfileNotFoundException": "pki.ProfileNotFoundException",
-    "com.netscape.certsrv.request.RequestNotFoundException": "pki.RequestNotFoundException",
-    "com.netscape.certsrv.base.UserNotFoundException": "pki.UserNotFoundException",
-    "com.netscape.certsrv.base.PKIException": "pki.PKIException"}
-
-def get_class( kls ):
-    ''' Get reference to the class specified by string kls '''
-    parts = kls.split('.')
-    module = ".".join(parts[:-1])
-    mod = __import__( module )
-    for comp in parts[1:]:
-        mod = getattr(mod, comp)
-    return mod
+    "com.netscape.certsrv.base.BadRequestException": BadRequestException,
+    "com.netscape.certsrv.base.ConflictingOperationException": ConflictingOperationException,
+    "com.netscape.certsrv.base.ForbiddenException": ForbiddenException,
+    "com.netscape.certsrv.base.HTTPGoneException": HTTPGoneException,
+    "com.netscape.certsrv.base.ResourceNotFoundException": ResourceNotFoundException,
+    "com.netscape.certsrv.cert.CertNotFoundException": CertNotFoundException,
+    "com.netscape.certsrv.group.GroupNotFoundException": GroupNotFoundException,
+    "com.netscape.certsrv.key.KeyNotFoundException": KeyNotFoundException,
+    "com.netscape.certsrv.profile.ProfileNotFoundException": ProfileNotFoundException,
+    "com.netscape.certsrv.request.RequestNotFoundException": RequestNotFoundException,
+    "com.netscape.certsrv.base.UserNotFoundException": UserNotFoundException,
+    "com.netscape.certsrv.base.PKIException": PKIException}
 
 def handle_exceptions():
     ''' Decorator handling exceptions from REST methods. '''
@@ -233,7 +224,7 @@ def handle_exceptions():
             except requests.exceptions.HTTPError as exc:
                 clazz = exc.response.json()['ClassName']
                 if clazz in EXCEPTION_MAPPINGS:
-                    exception_class = get_class(EXCEPTION_MAPPINGS[clazz])
+                    exception_class = EXCEPTION_MAPPINGS[clazz]
                     pki_exception = exception_class.from_json(exc.response.json())
                     raise pki_exception
                 else:
