@@ -25,9 +25,9 @@ import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
-import com.netscape.cms.servlet.admin.UserService;
 
 /**
  * A class represents a user.
@@ -77,7 +77,7 @@ public class User implements IUser {
     public void setTpsProfiles(List<String> tpsProfiles) {
         boolean setAll = false;
         for (String profile: tpsProfiles) {
-            if (profile.equals(UserService.ALL_PROFILES)) {
+            if (profile.equals(UserResource.ALL_PROFILES)) {
                 setAll = true;
                 break;
             }
@@ -86,7 +86,7 @@ public class User implements IUser {
             this.tpsProfiles = tpsProfiles;
         } else {
             List<String> list = new ArrayList<String>();
-            list.add(UserService.ALL_PROFILES);
+            list.add(UserResource.ALL_PROFILES);
             this.tpsProfiles = list;
         }
     }

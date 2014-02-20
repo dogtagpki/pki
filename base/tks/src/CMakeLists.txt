@@ -46,14 +46,6 @@ find_file(LDAPJDK_JAR
         /usr/share/java
 )
 
-find_file(JAXRS_API_JAR
-    NAMES
-        jaxrs-api.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
-
 # '${JAVA_LIB_INSTALL_DIR}' jars
 find_file(JSS_JAR
     NAMES
@@ -69,6 +61,34 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_LANG_JAR
+    NAMES
+        commons-lang.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(JAXRS_API_JAR
+    NAMES
+        jaxrs-api.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
+find_file(RESTEASY_JAXRS_JAR
+    NAMES
+        resteasy-jaxrs.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
+find_file(RESTEASY_ATOM_PROVIDER_JAR
+    NAMES
+        resteasy-atom-provider.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
 find_file(SYMKEY_JAR
     NAMES
         symkey.jar
@@ -76,16 +96,34 @@ find_file(SYMKEY_JAR
         ${JAVA_LIB_INSTALL_DIR}
 )
 
+find_file(SERVLET_JAR
+    NAMES
+        servlet.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(TOMCAT_CATALINA_JAR
+    NAMES
+        catalina.jar
+    PATHS
+        /usr/share/java/tomcat
+)
 
 # build pki-tks
 javac(pki-tks-classes
     SOURCES
         com/netscape/tks/*.java
+        org/dogtagpki/server/tks/*.java
     CLASSPATH
-        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
+        ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
+        ${LDAPJDK_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-        ${LDAPJDK_JAR} ${JAXRS_API_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
@@ -108,6 +146,7 @@ jar(pki-tks-jar
         ${CMAKE_BINARY_DIR}/classes
     FILES
         com/netscape/tks/*.class
+        org/dogtagpki/server/tks/*.class
     DEPENDS
         pki-tks-classes
 )

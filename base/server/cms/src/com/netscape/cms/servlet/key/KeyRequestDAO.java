@@ -19,8 +19,10 @@ package com.netscape.cms.servlet.key;
 
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
@@ -54,13 +56,24 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
-import com.netscape.cms.servlet.request.KeyRequestService;
 
 /**
  * @author alee
  *
  */
 public class KeyRequestDAO extends CMSRequestDAO {
+
+    public static final Map<String, KeyGenAlgorithm> KEYGEN_ALGORITHMS;
+
+    static {
+        KEYGEN_ALGORITHMS = new HashMap<String, KeyGenAlgorithm>();
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.DES_ALGORITHM, KeyGenAlgorithm.DES);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.RC2_ALGORITHM, KeyGenAlgorithm.RC2);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
+        KEYGEN_ALGORITHMS.put(KeyRequestResource.AES_ALGORITHM, KeyGenAlgorithm.AES);
+    }
 
     private static String REQUEST_ARCHIVE_OPTIONS = IEnrollProfile.REQUEST_ARCHIVE_OPTIONS;
     private static String REQUEST_SECURITY_DATA = IEnrollProfile.REQUEST_SECURITY_DATA;
@@ -266,7 +279,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             keySize = new Integer(128);
         }
 
-        KeyGenAlgorithm alg = KeyRequestService.KEYGEN_ALGORITHMS.get(algName);
+        KeyGenAlgorithm alg = KEYGEN_ALGORITHMS.get(algName);
         if (alg == null) {
             throw new BadRequestException("Invalid Algorithm");
         }

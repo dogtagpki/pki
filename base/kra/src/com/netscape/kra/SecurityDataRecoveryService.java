@@ -30,6 +30,7 @@ import java.util.Random;
 
 import javax.crypto.spec.RC2ParameterSpec;
 
+import org.dogtagpki.server.kra.rest.KeyRequestService;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.Cipher;
@@ -64,7 +65,6 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
-import com.netscape.cms.servlet.request.KeyRequestService;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
 

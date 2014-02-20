@@ -1,24 +1,10 @@
 project(pki-tps_java NONE)
 
-find_file(APACHE_COMMONS_LANG_JAR
-    NAMES
-        apache-commons-lang.jar
-    PATHS
-        /usr/share/java
-)
-
 find_file(LDAPJDK_JAR
     NAMES
         ldapjdk.jar
     PATHS
         /usr/share/java
-)
-
-find_file(JAXRS_API_JAR
-    NAMES
-        jaxrs-api.jar
-    PATHS
-        ${RESTEASY_LIB}
 )
 
 find_file(JSS_JAR
@@ -31,6 +17,13 @@ find_file(JSS_JAR
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar
+    PATHS
+        /usr/share/java
+)
+
+find_file(COMMONS_LANG_JAR
+    NAMES
+        commons-lang.jar
     PATHS
         /usr/share/java
 )
@@ -84,6 +77,20 @@ find_file(PKI_NSUTIL_JAR
         /usr/share/java/pki
 )
 
+find_file(JAXRS_API_JAR
+    NAMES
+        jaxrs-api.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
+find_file(RESTEASY_JAXRS_JAR
+    NAMES
+        resteasy-jaxrs.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
 find_file(RESTEASY_ATOM_PROVIDER_JAR
     NAMES
         resteasy-atom-provider.jar
@@ -112,10 +119,13 @@ javac(pki-tps-classes
     SOURCES
         org/dogtagpki/server/tps/*.java
     CLASSPATH
-        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
+        ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
+        ${LDAPJDK_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-        ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${JAXRS_API_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS

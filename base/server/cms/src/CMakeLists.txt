@@ -30,9 +30,9 @@ find_file(COMMONS_HTTPCLIENT_JAR
         /usr/share/java
 )
 
-find_file(APACHE_COMMONS_LANG_JAR
+find_file(COMMONS_LANG_JAR
     NAMES
-        apache-commons-lang.jar
+        commons-lang.jar
     PATHS
         /usr/share/java
 )
@@ -122,14 +122,16 @@ find_file(HTTPCORE_JAR
 javac(pki-cms-classes
     SOURCES
         com/netscape/cms/*.java
+        org/dogtagpki/server/*.java
     CLASSPATH
-        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_TOMCAT_JAR}
-        ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR}
-        ${APACHE_COMMONS_LANG_JAR}
-        ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR} ${COMMONS_HTTPCLIENT_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+        ${XALAN_JAR} ${XERCES_JAR}
+        ${JSS_JAR} ${SYMKEY_JAR}
+        ${LDAPJDK_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${VELOCITY_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
+        ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_TOMCAT_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS
@@ -152,6 +154,7 @@ jar(pki-cms-jar
         ${CMAKE_BINARY_DIR}/classes
     FILES
         com/netscape/cms/*.class
+        org/dogtagpki/server/*.class
     EXCLUDE
         com/netscape/cms/tomcat/*.class
     DEPENDS

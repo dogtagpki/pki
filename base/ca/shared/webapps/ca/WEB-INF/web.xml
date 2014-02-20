@@ -1860,7 +1860,7 @@
       <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
       <init-param>
          <param-name>javax.ws.rs.Application</param-name>
-         <param-value>com.netscape.ca.CertificateAuthorityApplication</param-value>
+         <param-value>org.dogtagpki.server.ca.rest.CAApplication</param-value>
       </init-param>
    </servlet>
    

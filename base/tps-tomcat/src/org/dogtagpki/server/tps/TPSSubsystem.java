@@ -17,14 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
-import org.dogtagpki.server.tps.authenticator.AuthenticatorDatabase;
-import org.dogtagpki.server.tps.cert.TPSCertDatabase;
 import org.dogtagpki.server.tps.config.ConfigDatabase;
-import org.dogtagpki.server.tps.connection.ConnectionDatabase;
-import org.dogtagpki.server.tps.logging.ActivityDatabase;
-import org.dogtagpki.server.tps.profile.ProfileDatabase;
-import org.dogtagpki.server.tps.profile.ProfileMappingDatabase;
-import org.dogtagpki.server.tps.token.TokenDatabase;
+import org.dogtagpki.server.tps.config.ConnectionDatabase;
+import org.dogtagpki.server.tps.config.ProfileDatabase;
+import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
+import org.dogtagpki.server.tps.dbs.ActivityDatabase;
+import org.dogtagpki.server.tps.dbs.AuthenticatorDatabase;
+import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
+import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;

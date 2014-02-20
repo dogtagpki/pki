@@ -158,11 +158,11 @@ import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
+import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.servlet.admin.UserService;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpClient;
 import com.netscape.cmsutil.http.HttpRequest;
@@ -3759,7 +3759,7 @@ public class ConfigurationUtils {
         IUser user = system.getUser(adminID);
 
         List<String> profiles = new ArrayList<String>();
-        profiles.add(UserService.ALL_PROFILES);
+        profiles.add(UserResource.ALL_PROFILES);
 
         user.setTpsProfiles(profiles);
         system.modifyUser(user);

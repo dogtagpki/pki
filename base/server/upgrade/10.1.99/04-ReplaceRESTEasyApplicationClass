@@ -1,0 +1,74 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2014 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+import sys
+from lxml import etree as ET
+
+import pki
+import pki.server.upgrade
+
+class ReplaceRESTEasyApplicationClass(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Replace RESTEasy application class'
+        self.class_names = {
+            'ca': 'org.dogtagpki.server.ca.rest.CAApplication',
+            'kra': 'org.dogtagpki.server.kra.rest.KRAApplication',
+            'ocsp': 'org.dogtagpki.server.ocsp.rest.OCSPApplication',
+            'tks': 'org.dogtagpki.server.tks.rest.TKSApplication',
+            'tps': 'org.dogtagpki.server.tps.rest.TPSApplication'
+        }
+
+    def upgrade_subsystem(self, instance, subsystem):
+
+        if subsystem.name not in self.class_names:
+            return
+
+        web_xml = os.path.join(
+            instance.base_dir,
+            'webapps', subsystem.name,
+            'WEB-INF', 'web.xml')
+
+        self.backup(web_xml)
+
+        doc = ET.parse(web_xml)
+        root = doc.getroot()
+
+        servlet = root.find('servlet[servlet-name="Resteasy"]')
+
+        if servlet is None:
+            raise Exception('Resteasy servlet not found in ' + web_xml)
+
+        param = servlet.find('init-param[param-name="javax.ws.rs.Application"]')
+
+        if param is None:
+            raise Exception('Resteasy application parameter not found in ' + web_xml)
+
+        value = param.find('param-value')
+
+        if value is None:
+            raise Exception('Resteasy application value not found in ' + web_xml)
+
+        value.text = self.class_names[subsystem.name]
+
+        doc.write(web_xml)

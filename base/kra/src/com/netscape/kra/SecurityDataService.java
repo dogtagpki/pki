@@ -19,6 +19,7 @@ package com.netscape.kra;
 
 import java.math.BigInteger;
 
+import org.dogtagpki.server.kra.rest.KeyRequestService;
 import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.apps.CMS;
@@ -35,7 +36,6 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
-import com.netscape.cms.servlet.request.KeyRequestService;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.util.Utils;
 

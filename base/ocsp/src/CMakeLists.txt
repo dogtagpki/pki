@@ -80,6 +80,7 @@ find_file(SYMKEY_JAR
 javac(pki-ocsp-classes
     SOURCES
         com/netscape/ocsp/*.java
+        org/dogtagpki/server/ocsp/*.java
     CLASSPATH
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
@@ -107,6 +108,7 @@ jar(pki-ocsp-jar
         ${CMAKE_BINARY_DIR}/classes
     FILES
         com/netscape/ocsp/*.class
+        org/dogtagpki/server/ocsp/*.class
     DEPENDS
         pki-ocsp-classes
 )
