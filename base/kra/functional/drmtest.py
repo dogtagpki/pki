@@ -65,12 +65,20 @@ def main():
     ''' test code execution '''
     connection = PKIConnection('https', 'localhost', '8443', 'kra')
     connection.set_authentication_cert('/tmp/temp4.pem')
-    crypto = cryptoutil.NSSCryptoUtil("/tmp/drmtest/certdb", "redhat123")
-    kraclient = KRAClient(connection, crypto, "kra transport cert")
+    certdb_dir = "/tmp/drmtest-certdb"
+    certdb_password = "redhat123"
+    transport_nick = "kra transport cert"
+    cryptoutil.NSSCryptoUtil.setup_database(certdb_dir, certdb_password, over_write=True)
+    crypto = cryptoutil.NSSCryptoUtil(certdb_dir, certdb_password)
+    kraclient = KRAClient(connection, crypto)
 
-    # Test 1: Get Transport Cert
+    # Test 1: Get transport certificate and import it into the NSS database
     transport_cert = kraclient.system_certs.get_transport_cert()
     print transport_cert
+    tcert = transport_cert[len(pki.CERT_HEADER):len(transport_cert) -len(pki.CERT_FOOTER)]
+    crypto.import_cert(transport_nick, base64.decodestring(tcert), "u,u,u")
+    crypto.initialize_db()
+    kraclient.set_transport_cert(transport_nick)
 
     # Test 2: Get key request info
     print "Now getting key request"
@@ -111,7 +119,9 @@ def main():
     wrapped_session_key = crypto.asymmetric_wrap(session_key, kraclient.transport_cert)
     key_data, _unwrapped_key = kraclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
-    unwrapped_key = crypto.symmetric_unwrap(key_data.wrappedPrivateData, session_key, nonce_iv=key_data.nonceData)
+    unwrapped_key = crypto.symmetric_unwrap(base64.decodestring(key_data.wrappedPrivateData),
+                                            session_key,
+                                            nonce_iv=base64.decodestring(key_data.nonceData))
     key1 = base64.encodestring(unwrapped_key)
 
     # Test 7: Recover key without providing trans_wrapped_session_key

@@ -25,6 +25,7 @@ to interact with the DRM to expose the functionality of the KeyClient and
 KeyRequestResouce REST APIs.
 '''
 
+import base64
 import pki.key as key
 
 from pki.systemcert import SystemCertClient
@@ -34,7 +35,7 @@ class KRAClient(object):
     Client class that models interactions with a KRA using the Key and KeyRequest REST APIs.
     '''
 
-    def __init__(self, connection, crypto, transport_cert_nick):
+    def __init__(self, connection, crypto, transport_cert_nick=None):
         ''' Constructor
 
         :param connection - PKIConnection object with DRM connection info.
@@ -49,7 +50,14 @@ class KRAClient(object):
         self.keys = key.KeyClient(connection)
         self.system_certs = SystemCertClient(connection)
         self.crypto = crypto
-        self.transport_cert = crypto.get_cert(transport_cert_nick)
+        if transport_cert_nick != None:
+            self.transport_cert = crypto.get_cert(transport_cert_nick)
+        else:
+            self.transport_cert = None
+
+    def set_transport_cert(self, transport_cert_nick):
+        ''' Set the transport certificate for crypto operations '''
+        self.transport_cert = self.crypto.get_cert(transport_cert_nick)
 
     def retrieve_key(self, key_id, trans_wrapped_session_key=None):
         ''' Retrieve a secret (passphrase or symmetric key) from the DRM.
@@ -90,12 +98,14 @@ class KRAClient(object):
         self.keys.approve_request(request_id)
 
         key_data = self.keys.request_key_retrieval(key_id, request_id,
-                        trans_wrapped_session_key=trans_wrapped_session_key)
+                        trans_wrapped_session_key=base64.encodestring(trans_wrapped_session_key))
         if key_provided:
             return key_data, None
 
-        unwrapped_key = self.crypto.symmetric_unwrap(key_data.wrappedPrivateData, session_key,
-                                                     nonce_iv=key_data.nonceData)
+        unwrapped_key = self.crypto.symmetric_unwrap(
+                                base64.decodestring(key_data.wrappedPrivateData),
+                                session_key,
+                                nonce_iv=base64.decodestring(key_data.nonceData))
         return key_data, unwrapped_key
 
     def retrieve_key_by_passphrase(self, key_id, passphrase=None,

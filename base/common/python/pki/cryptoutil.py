@@ -22,8 +22,12 @@
 Module containing crypto classes.
 '''
 import abc
-import base64
+import exceptions
 import nss.nss as nss
+import os
+import shutil
+import subprocess
+import tempfile
 
 
 class CryptoUtil(object):
@@ -74,7 +78,28 @@ class NSSCryptoUtil(CryptoUtil):
     '''
     Class that defines NSS implementation of CryptoUtil.
     Requires an NSS database to have been set up and initialized.
+
+    Note that all inputs and outputs are unencoded.
     '''
+
+    @staticmethod
+    def setup_database(db_dir, password, over_write=False):
+        ''' Create an NSS database '''
+        if os.path.exists(db_dir):
+            if not over_write:
+                raise exceptions.ValueError(
+                        "Directory already exists and over_write is false")
+            if os.path.isdir(db_dir):
+                shutil.rmtree(db_dir)
+            else:
+                os.remove(db_dir)
+        os.makedirs(db_dir)
+
+        with tempfile.NamedTemporaryFile() as pwd_file:
+            pwd_file.write(password)
+            pwd_file.flush()
+            command = ['certutil', '-N', '-d', db_dir, '-f', pwd_file.name]
+            subprocess.check_call(command)
 
     def __init__(self, certdb_dir, certdb_password):
         ''' Initialize nss and nss related parameters
@@ -85,8 +110,22 @@ class NSSCryptoUtil(CryptoUtil):
         CryptoUtil.__init__(self)
         self.certdb_dir = certdb_dir
         self.certdb_password = certdb_password
-        nss.nss_init(certdb_dir)
         self.nonce_iv = "e4:bb:3b:d3:c3:71:2e:58"
+
+    def initialize_db(self):
+        nss.nss_init(self.certdb_dir)
+
+    def import_cert(self, cert_nick, cert, trust):
+        ''' Import a certificate into the nss database
+        '''
+        # certutil -A -d db_dir -n cert_nick -t trust -i cert_file -a
+        with tempfile.NamedTemporaryFile() as cert_file:
+            cert_file.write(cert)
+            cert_file.flush()
+            command = ['certutil', '-A', '-d', self.certdb_dir,
+                       '-n', cert_nick, '-t', trust,
+                       '-i', cert_file.name]
+            subprocess.check_call(command)
 
     @staticmethod
     def setup_contexts(mechanism, sym_key, nonce_iv):
@@ -139,19 +178,19 @@ class NSSCryptoUtil(CryptoUtil):
 
     def symmetric_unwrap(self, data, wrapping_key, mechanism=nss.CKM_DES3_CBC_PAD, nonce_iv=None):
         '''
-        :param data:           Data to be unwrapped (base 64 encoded)
+        :param data:           Data to be unwrapped
         :param wrapping_key    Symmetric key to unwrap data
-        :param nonce_iv              Base 64 encoded iv data
+        :param nonce_iv        iv data
 
         Unwrap (decrypt) data using the supplied symmetric key
         '''
         if nonce_iv == None:
             nonce_iv = self.nonce_iv
         else:
-            nonce_iv = nss.data_to_hex(base64.decodestring(nonce_iv))
+            nonce_iv = nss.data_to_hex(nonce_iv)
 
         _encoding_ctx, decoding_ctx = self.setup_contexts(mechanism, wrapping_key, nonce_iv)
-        unwrapped_data = decoding_ctx.cipher_op(base64.decodestring(data)) \
+        unwrapped_data = decoding_ctx.cipher_op(data) \
             + decoding_ctx.digest_final()
         return unwrapped_data
 
@@ -164,7 +203,7 @@ class NSSCryptoUtil(CryptoUtil):
         Wrap (encrypt) data using the supplied asymmetric key
         '''
         public_key = wrapping_cert.subject_public_key_info.public_key
-        return base64.b64encode(nss.pub_wrap_sym_key(mechanism, public_key, data))
+        return nss.pub_wrap_sym_key(mechanism, public_key, data)
 
     def get_cert(self, cert_nick):
         '''
