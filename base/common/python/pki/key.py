@@ -27,6 +27,7 @@ import pki.encoder as encoder
 import json
 import pki
 import types
+import urllib
 
 class KeyId(object):
     '''
@@ -463,6 +464,14 @@ class KeyClient(object):
         ''' Get the info in the KeyRecord for a specific secret in the DRM. '''
         url = self.keyURL + '/' + key_id
         response = self.connection.get(url, headers=self.headers)
+        return KeyInfo.from_json(response.json())
+
+    @pki.handle_exceptions()
+    def get_active_key_info(self, client_id):
+        ''' Get the info in the KeyRecord for the active secret in the DRM. '''
+        url = self.keyURL + '/active/' + urllib.quote_plus(client_id)
+        response = self.connection.get(url, headers=self.headers)
+        print response
         return KeyInfo.from_json(response.json())
 
     @pki.handle_exceptions()

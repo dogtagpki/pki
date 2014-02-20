@@ -167,16 +167,29 @@ def main():
     key_info = kraclient.keys.get_key_info(key_id)
     print_key_info(key_info)
 
-    #Test 14: change the key status
+    # Test 14: get the active key
+    print "Get the active key for client id: " + client_id
+    key_info = kraclient.keys.get_active_key_info(client_id)
+    print_key_info(key_info)
+
+    #Test 15: change the key status
     print "Change the key status"
     kraclient.keys.modify_key_status(key_id, "inactive")
     print_key_info(kraclient.keys.get_key_info(key_id))
 
+    # Test 16: Get key info for non-existent key
     print "Get key info for non-existent key"
     try:
         key_info = kraclient.keys.get_key_info('200004556')
     except pki.KeyNotFoundException as exc:
         print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
+
+    # Test 17: Get key info for non-existent active key
+    print "Get non-existent active key"
+    try:
+        key_info = kraclient.keys.get_active_key_info(client_id)
+    except pki.ResourceNotFoundException as exc:
+        print "ResourceNotFoundException thrown - Code: " + exc.code + "Message: " + exc.message
 
 if __name__ == "__main__":
     main()
