@@ -41,6 +41,11 @@ class CryptoUtil(object):
         pass
 
     @abc.abstractmethod
+    def initialize(self):
+        ''' Initialization code '''
+        pass
+
+    @abc.abstractmethod
     def generate_symmetric_key(self, mechanism=None):
         ''' Generate and return a symmetric key '''
         pass
@@ -112,7 +117,7 @@ class NSSCryptoUtil(CryptoUtil):
         self.certdb_password = certdb_password
         self.nonce_iv = "e4:bb:3b:d3:c3:71:2e:58"
 
-    def initialize_db(self):
+    def initialize(self):
         ''' initialize the nss db.  Must be done before any crypto operations '''
         nss.nss_init(self.certdb_dir)
 

@@ -23,6 +23,7 @@
 Module containing the Python client classes for the KeyClient and
 KeyRequestClient REST API on a DRM
 '''
+import base64
 import pki.encoder as encoder
 import json
 import pki
@@ -287,13 +288,24 @@ class KeyClient(object):
     PASS_PHRASE_TYPE = "passPhrase"
     ASYMMETRIC_KEY_TYPE = "asymmetricKey"
 
-    def __init__(self, connection):
+    def __init__(self, connection, crypto, transport_cert_nick=None):
         ''' Constructor '''
         self.connection = connection
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
         self.keyURL = '/rest/agent/keys'
         self.keyRequestsURL = '/rest/agent/keyrequests'
+        self.crypto = crypto
+
+        if transport_cert_nick != None:
+            self.crypto.initialize()
+            self.transport_cert = crypto.get_cert(transport_cert_nick)
+        else:
+            self.transport_cert = None
+
+    def set_transport_cert(self, transport_cert_nick):
+        ''' Set the transport certificate for crypto operations '''
+        self.transport_cert = self.crypto.get_cert(transport_cert_nick)
 
     @pki.handle_exceptions()
     def list_keys(self, client_key_id=None, status=None, max_results=None,
@@ -308,55 +320,6 @@ class KeyClient(object):
                         'start':start, 'size':size}
         response = self.connection.get(self.keyURL, self.headers, params=query_params)
         return KeyInfoCollection.from_json(response.json())
-
-    @pki.handle_exceptions()
-    def retrieve_key(self, data):
-        ''' Retrieve a secret from the DRM.
-
-            @param: data - a KeyRecoveryRequest containing the keyId of the
-            secret being retrieved, the request_id of the approved recovery
-            request and a wrapping mechanism.  More details at
-            KRAClient.retrieve_key.
-
-            Returns a KeyData object containing the wrapped secret.
-        '''
-        url = self.keyURL + '/retrieve'
-        keyRequest = json.dumps(data, cls=encoder.CustomTypeEncoder, sort_keys=True)
-        response = self.connection.post(url, keyRequest, self.headers)
-        return KeyData.from_json(response.json())
-
-    @pki.handle_exceptions()
-    def request_key_retrieval(self, key_id, request_id, trans_wrapped_session_key=None,
-                     session_wrapped_passphrase=None, passphrase=None, nonce_data=None):
-        ''' Retrieve a secret from the DRM.
-
-            The secret (which is referenced by key_id) can be retrieved only if the
-            recovery request (referenced by request_id) is approved.  key_id and request_id
-            are required.
-
-            Data must be provided to wrap the recovered secret.  This can either be
-            a) a 56-bit DES3 symmetric key, wrapped by the DRM transport key, and
-               passed in trans_wrapped_session_key
-            b) a passphrase.  In this case, the passphrase must be wrapped by a 56-bit
-               symmetric key ("the session key" and passed in session_wrapped_passphrase,
-               and the session key must be wrapped by the DRM transport key and passed
-               in trans_wrapped_session_key
-            c) a passphrase for a p12 file.  If the key being recovered is an asymmetric
-               key, then it is possible to pass in the passphrase for the P12 file to
-               be generated.  This is passed in as passphrase
-
-            nonce_data may also be passed as a salt.
-
-            Returns a KeyData object containing the wrapped secret.
-        '''
-        request = KeyRecoveryRequest(key_id=key_id,
-                                     request_id=request_id,
-                                     trans_wrapped_session_key=trans_wrapped_session_key,
-                                     session_wrapped_passphrase=session_wrapped_passphrase,
-                                     nonce_data=nonce_data,
-                                     passphrase=passphrase)
-
-        return self.retrieve_key(request)
 
     @pki.handle_exceptions()
     def list_requests(self, request_state=None, request_type=None, client_key_id=None,
@@ -381,19 +344,25 @@ class KeyClient(object):
         return KeyRequestInfo.from_json(response.json())
 
     @pki.handle_exceptions()
-    def create_request(self, request):
-        ''' Submit an archival, recovery or key generation request
-            to the DRM.
+    def get_key_info(self, key_id):
+        ''' Get the info in the KeyRecord for a specific secret in the DRM. '''
+        url = self.keyURL + '/' + key_id
+        response = self.connection.get(url, headers=self.headers)
+        return KeyInfo.from_json(response.json())
 
-            @param request - is either a KeyArchivalRequest,
-            KeyRecoverRequest or SymKeyGenerationRequest.
+    @pki.handle_exceptions()
+    def get_active_key_info(self, client_key_id):
+        ''' Get the info in the KeyRecord for the active secret in the DRM. '''
+        url = self.keyURL + '/active/' + urllib.quote_plus(client_key_id)
+        response = self.connection.get(url, headers=self.headers)
+        return KeyInfo.from_json(response.json())
 
-            returns a KeyRequestResponse object.
-        '''
-        url = self.keyRequestsURL
-        key_request = json.dumps(request, cls=encoder.CustomTypeEncoder, sort_keys=True)
-        response = self.connection.post(url, key_request, self.headers)
-        return KeyRequestResponse.from_json(response.json())
+    @pki.handle_exceptions()
+    def modify_key_status(self, key_id, status):
+        ''' Modify the status of a key '''
+        url = self.keyURL + '/' + key_id
+        params = {'status':status}
+        self.connection.post(url, None, headers=self.headers, params=params)
 
     @pki.handle_exceptions()
     def approve_request(self, request_id):
@@ -413,8 +382,107 @@ class KeyClient(object):
         url = self.keyRequestsURL + '/' + request_id + '/cancel'
         self.connection.post(url, self.headers)
 
+    def generate_pki_archive_options(self, trans_wrapped_session_key, session_wrapped_secret):
+        ''' Return a PKIArchiveOptions structure for archiving a secret
+
+            Takes in a session key wrapped by the DRM transport certificate,
+            and a secret wrapped with the session key and creates a PKIArchiveOptions
+            structure to be used when archiving a secret
+        '''
+        pass
+
+    def generate_archive_options(self, secret):
+        ''' Return a PKIArchiveOptions structure for archiving a secret.
+
+            This method uses NSS calls to do the following:
+            1) generate a session key
+            2) wrap the session key with the transport key
+            3) wrap the secret with the session key
+            4) create the PKIArchiveOptions structure using the results of
+               (2) and (3)
+
+            This method expects initialize_nss() to have been called previously.
+        '''
+        session_key = self.crypto.generate_symmetric_key()
+        trans_wrapped_session_key = self.crypto.asymmetric_wrap(session_key, self.transport_cert)
+        wrapped_secret = self.crypto.symmetric_wrap(secret, session_key)
+
+        return self.generate_pki_archive_options(trans_wrapped_session_key, wrapped_secret)
+
     @pki.handle_exceptions()
-    def request_recovery(self, key_id, request_id=None, session_wrapped_passphrase=None,
+    def create_request(self, request):
+        ''' Submit an archival, recovery or key generation request
+            to the DRM.
+
+            @param request - is either a KeyArchivalRequest,
+            KeyRecoverRequest or SymKeyGenerationRequest.
+
+            returns a KeyRequestResponse object.
+        '''
+        url = self.keyRequestsURL
+        key_request = json.dumps(request, cls=encoder.CustomTypeEncoder, sort_keys=True)
+        response = self.connection.post(url, key_request, self.headers)
+        return KeyRequestResponse.from_json(response.json())
+
+    @pki.handle_exceptions()
+    def generate_symmetric_key(self, client_key_id, algorithm, size, usages):
+        ''' Generate and archive a symmetric key on the DRM.
+
+            Return a KeyRequestResponse which contains a KeyRequestInfo
+            object that describes the URL for the request and generated key.
+        '''
+        request = SymKeyGenerationRequest(client_key_id=client_key_id,
+                                          key_size=size,
+                                          key_algorithm=algorithm,
+                                          key_usages=usages)
+        return self.create_request(request)
+
+    @pki.handle_exceptions()
+    def archive_key(self, client_key_id, data_type, private_data=None,
+                    wrapped_private_data=None,
+                    key_algorithm=None, key_size=None):
+        ''' Archive a secret (symmetric key or passphrase) on the DRM.
+
+            Requires a user-supplied client ID.  There can be only one active
+            key with a specified client ID.  If a record for a duplicate active
+            key exists, a BadRequestException is thrown.
+
+            data_type can be one of the following:
+                KeyRequestResource.SYMMETRIC_KEY_TYPE,
+                KeyRequestResource.ASYMMETRIC_KEY_TYPE,
+                KeyRequestResource.PASS_PHRASE_TYPE
+
+            key_algorithm and key_size are applicable to symmetric keys only.
+            If a symmetric key is being archived, these parameters are required.
+
+            wrapped_private_data consists of a PKIArchiveOptions structure, which
+            can be constructed using either generate_archive_options() or
+            generate_pki_archive_options() below.
+
+            private_data is the secret that is to be archived.
+
+            Callers must specify EITHER wrapped_private_data OR private_data.
+            If wrapped_private_data is specified, then this data is forwarded to the
+            DRM unchanged.  Otherwise, the private_data is converted to a
+            PKIArchiveOptions structure using the functions below.
+
+            The function returns a KeyRequestResponse object containing a KeyRequestInfo
+            object with details about the archival request and key archived.
+        '''
+        if wrapped_private_data == None:
+            if private_data == None:
+                raise ValueError("No data provided to be archived")
+            wrapped_private_data = self.generate_archive_options(private_data)
+
+        request = KeyArchivalRequest(client_key_id=client_key_id,
+                                     data_type=data_type,
+                                     wrapped_private_data=wrapped_private_data,
+                                     key_algorithm=key_algorithm,
+                                     key_size=key_size)
+        return self.create_request(request)
+
+    @pki.handle_exceptions()
+    def recover_key(self, key_id, request_id=None, session_wrapped_passphrase=None,
                         trans_wrapped_session_key=None, b64certificate=None, nonce_data=None):
         ''' Create a request to recover a secret.
 
@@ -435,51 +503,141 @@ class KeyClient(object):
         return self.create_request(request)
 
     @pki.handle_exceptions()
-    def request_archival(self, client_key_id, data_type, wrapped_private_data,
-                    key_algorithm=None, key_size=None):
-        ''' Archive a secret (symmetric key or passphrase) on the DRM.
+    def retrieve_key_data(self, data):
+        ''' Retrieve a secret from the DRM.
 
-            Requires a user-supplied client ID.  There can be only one active
-            key with a specified client ID.  If a record for a duplicate active
-            key exists, an exception is thrown.
+            @param: data - a KeyRecoveryRequest containing the keyId of the
+            secret being retrieved, the request_id of the approved recovery
+            request and a wrapping mechanism.  More details at
+            KRAClient.retrieve_key.
 
-            data_type can be one of the following:
-
-            wrapped_private_data consists of a PKIArchiveOptions structure, which
-            can be constructed using either generate_archive_options() or
-            generate_pki_archive_options() below.
-
-            key_algorithm and key_size are applicable to symmetric keys only.
-            If a symmetric key is being archived, these parameters are required.
+            Returns a KeyData object containing the wrapped secret.
         '''
-        request = KeyArchivalRequest(client_key_id=client_key_id,
-                                     data_type=data_type,
-                                     wrapped_private_data=wrapped_private_data,
-                                     key_algorithm=key_algorithm,
-                                     key_size=key_size)
-        return self.create_request(request)
+        url = self.keyURL + '/retrieve'
+        keyRequest = json.dumps(data, cls=encoder.CustomTypeEncoder, sort_keys=True)
+        response = self.connection.post(url, keyRequest, self.headers)
+        return KeyData.from_json(response.json())
 
     @pki.handle_exceptions()
-    def get_key_info(self, key_id):
-        ''' Get the info in the KeyRecord for a specific secret in the DRM. '''
-        url = self.keyURL + '/' + key_id
-        response = self.connection.get(url, headers=self.headers)
-        return KeyInfo.from_json(response.json())
+    def retrieve_key(self, key_id, trans_wrapped_session_key=None):
+        ''' Retrieve a secret (passphrase or symmetric key) from the DRM.
+
+        This function generates a key recovery request, approves it, and retrieves
+        the secret referred to by key_id.  This assumes that only one approval is required
+        to authorize the recovery.
+
+        To ensure data security in transit, the data will be returned encrypted by a session
+        key (56 bit DES3 symmetric key) - which is first wrapped (encrypted) by the public
+        key of the DRM transport certificate before being sent to the DRM.  The
+        parameter trans_wrapped_session_key refers to this wrapped session key.
+
+        There are two ways of using this function:
+
+        1) trans_wrapped_session_key is not provided by caller.
+
+        In this case, the function will call CryptoUtil methods to generate and wrap the
+        session key.  The function will return the tuple (KeyData, unwrapped_secret)
+
+        2)  The trans_wrapped_session_key is provided by the caller.
+
+        In this case, the function will simply pass the data to the DRM, and will return the secret
+        wrapped in the session key.  The secret will still need to be unwrapped by the caller.
+
+        The function will return the tuple (KeyData, None), where the KeyData structure includes the
+        wrapped secret and some nonce data to be used as a salt when unwrapping.
+        '''
+        key_provided = True
+        if (trans_wrapped_session_key == None):
+            key_provided = False
+            session_key = self.crypto.generate_symmetric_key()
+            trans_wrapped_session_key = self.crypto.asymmetric_wrap(session_key,
+                                                                    self.transport_cert)
+
+        response = self.recover_key(key_id)
+        request_id = response.get_request_id()
+        self.approve_request(request_id)
+
+        request = KeyRecoveryRequest(
+                        key_id=key_id,
+                        request_id=request_id,
+                        trans_wrapped_session_key=base64.encodestring(trans_wrapped_session_key))
+
+        key_data = self.retrieve_key_data(request)
+        if key_provided:
+            return key_data, None
+
+        unwrapped_key = self.crypto.symmetric_unwrap(
+                                base64.decodestring(key_data.wrappedPrivateData),
+                                session_key,
+                                nonce_iv=base64.decodestring(key_data.nonceData))
+        return key_data, unwrapped_key
 
     @pki.handle_exceptions()
-    def get_active_key_info(self, client_key_id):
-        ''' Get the info in the KeyRecord for the active secret in the DRM. '''
-        url = self.keyURL + '/active/' + urllib.quote_plus(client_key_id)
-        response = self.connection.get(url, headers=self.headers)
-        print response
-        return KeyInfo.from_json(response.json())
+    def retrieve_key_by_passphrase(self, key_id, passphrase=None,
+                                   trans_wrapped_session_key=None,
+                                   session_wrapped_passphrase=None,
+                                   nonce_data=None):
+        ''' Retrieve a secret (passphrase or symmetric key) from the DRM using a passphrase.
+
+        This function generates a key recovery request, approves it, and retrieves
+        the secret referred to by key_id.  This assumes that only one approval is required
+        to authorize the recovery.
+
+        The secret is secured in transit by wrapping the secret with a passphrase using
+        PBE encryption.
+
+        There are two ways of using this function:
+
+        1) A passphrase is provided by the caller.
+
+        In this case, CryptoUtil methods will be called to create the data to securely send the
+        passphrase to the DRM.  Basically, three pieces of data will be sent:
+
+        - the passphrase wrapped by a 56 bit DES3 symmetric key (the session key).  This
+          is referred to as the parameter session_wrapped_passphrase above.
+
+        - the session key wrapped with the public key in the DRM transport certificate.  This
+          is referred to as the trans_wrapped_session_key above.
+
+        - ivps nonce data, referred to as nonce_data
+
+        The function will return the tuple (KeyData, unwrapped_secret)
+
+        2) The caller provides the trans_wrapped_session_key, session_wrapped_passphrase
+        and nonce_data.
+
+        In this case, the data will simply be passed to the DRM.  The function will return
+        the secret encrypted by the passphrase using PBE Encryption.  The secret will still
+        need to be decrypted by the caller.
+
+        The function will return the tuple (KeyData, None)
+        '''
+        pass
 
     @pki.handle_exceptions()
-    def modify_key_status(self, key_id, status):
-        ''' Modify the status of a key '''
-        url = self.keyURL + '/' + key_id
-        params = {'status':status}
-        self.connection.post(url, None, headers=self.headers, params=params)
+    def retrieve_key_by_pkcs12(self, key_id, certificate, passphrase):
+        ''' Retrieve an asymmetric private key and return it as PKCS12 data.
+
+        This function generates a key recovery request, approves it, and retrieves
+        the secret referred to by key_id in a PKCS12 file.  This assumes that only
+        one approval is required to authorize the recovery.
+
+        This function requires the following parameters:
+        - key_id : the ID of the key
+        - certificate: the certificate associated with the private key
+        - passphrase: A passphrase for the pkcs12 file.
+
+        The function returns a KeyData object.
+        '''
+        response = self.recover_key(key_id, b64certificate=certificate)
+        request_id = response.get_request_id()
+        self.approve_request(request_id)
+
+        request = KeyRecoveryRequest(key_id=key_id,
+                                     request_id=request_id,
+                                     passphrase=passphrase)
+
+        return self.retrieve_key_data(request)
 
 encoder.NOTYPES['Attribute'] = pki.Attribute
 encoder.NOTYPES['AttributeList'] = pki.AttributeList

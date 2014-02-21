@@ -63,31 +63,42 @@ def print_key_data(key_data):
 
 def main():
     ''' test code execution '''
+
+    # set up the connectoon to the DRM, including authentication credentials
     connection = PKIConnection('https', 'localhost', '8443', 'kra')
     connection.set_authentication_cert('/tmp/temp4.pem')
+
+    # create an NSS DB for crypto operations
     certdb_dir = "/tmp/drmtest-certdb"
     certdb_password = "redhat123"
-    transport_nick = "kra transport cert"
     cryptoutil.NSSCryptoUtil.setup_database(certdb_dir, certdb_password, over_write=True)
+
+    #create kraclient
     crypto = cryptoutil.NSSCryptoUtil(certdb_dir, certdb_password)
     kraclient = KRAClient(connection, crypto)
+    keyclient = kraclient.keys
 
-    # Test 1: Get transport certificate and import it into the NSS database
+    # Get transport cert and insert in the certdb
+    transport_nick = "kra transport cert"
     transport_cert = kraclient.system_certs.get_transport_cert()
-    print transport_cert
     tcert = transport_cert[len(pki.CERT_HEADER):len(transport_cert) -len(pki.CERT_FOOTER)]
     crypto.import_cert(transport_nick, base64.decodestring(tcert), "u,u,u")
-    crypto.initialize_db()
-    kraclient.set_transport_cert(transport_nick)
+
+    # initialize the certdb for crypto operations
+    # for NSS db, this must be done after importing the transport cert
+    crypto.initialize()
+
+    # set transport cert into keyclient
+    keyclient.set_transport_cert(transport_nick)
 
     # Test 2: Get key request info
     print "Now getting key request"
-    keyrequest = kraclient.keys.get_request_info('2')
+    keyrequest = keyclient.get_request_info('2')
     print_key_request(keyrequest)
 
     # Test 3: List requests
     print "Now listing some requests"
-    keyrequests = kraclient.keys.list_requests('complete', 'securityDataRecovery')
+    keyrequests = keyclient.list_requests('complete', 'securityDataRecovery')
     print keyrequests.key_requests
     for request in keyrequests.key_requests:
         print_key_request(request)
@@ -95,18 +106,18 @@ def main():
     # Test 4: generate symkey -- same as barbican_encode()
     print "Now generating symkey on KRA"
     #client_key_id = "Vek #1" + time.strftime('%X %x %Z')
-    client_key_id = "abcxyz"
+    client_key_id = "vek1234567"
     algorithm = "AES"
     key_size = 128
     usages = [key.SymKeyGenerationRequest.DECRYPT_USAGE, key.SymKeyGenerationRequest.ENCRYPT_USAGE]
-    response = kraclient.generate_symmetric_key(client_key_id, algorithm, key_size, usages)
+    response = keyclient.generate_symmetric_key(client_key_id, algorithm, key_size, usages)
     print_key_request(response.requestInfo)
     print "Request ID is " + response.requestInfo.get_request_id()
     key_id = response.get_key_id()
 
     # Test 5: Confirm the key_id matches
     print "Now getting key ID for clientKeyID=\"" + client_key_id + "\""
-    key_infos = kraclient.keys.list_keys(client_key_id=client_key_id, status="active")
+    key_infos = keyclient.list_keys(client_key_id=client_key_id, status="active")
     for key_info in key_infos.key_infos:
         print_key_info(key_info)
         key_id2 = key_info.get_key_id()
@@ -117,8 +128,8 @@ def main():
 
     # Test 6: Barbican_decode() - Retrieve while providing trans_wrapped_session_key
     session_key = crypto.generate_symmetric_key()
-    wrapped_session_key = crypto.asymmetric_wrap(session_key, kraclient.transport_cert)
-    key_data, _unwrapped_key = kraclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
+    wrapped_session_key = crypto.asymmetric_wrap(session_key, keyclient.transport_cert)
+    key_data, _unwrapped_key = keyclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
     unwrapped_key = crypto.symmetric_unwrap(base64.decodestring(key_data.wrappedPrivateData),
                                             session_key,
@@ -126,7 +137,7 @@ def main():
     key1 = base64.encodestring(unwrapped_key)
 
     # Test 7: Recover key without providing trans_wrapped_session_key
-    key_data, unwrapped_key = kraclient.retrieve_key(key_id)
+    key_data, unwrapped_key = keyclient.retrieve_key(key_id)
     print_key_data(key_data)
     key2 = base64.encodestring(unwrapped_key)
 
@@ -141,21 +152,21 @@ def main():
     # Test 10 = test BadRequestException on create()
     print "Trying to generate a new symkey with the same client ID"
     try:
-        response = kraclient.generate_symmetric_key(client_key_id, algorithm, key_size, usages)
+        response = keyclient.generate_symmetric_key(client_key_id, algorithm, key_size, usages)
     except pki.BadRequestException as exc:
         print "BadRequestException thrown - Code:" + exc.code + " Message: " + exc.message
 
     # Test 11 - Test RequestNotFoundException on get_request_info
     print "Try to list a nonexistent request"
     try:
-        keyrequest = kraclient.keys.get_request_info('200000034')
+        keyrequest = keyclient.get_request_info('200000034')
     except pki.RequestNotFoundException as exc:
         print "RequestNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
 
     # Test 12 - Test exception on retrieve_key.
     print "Try to retrieve an invalid key"
     try:
-        key_data, unwrapped_key = kraclient.retrieve_key('2000003434')
+        key_data, unwrapped_key = keyclient.retrieve_key('2000003434')
     except pki.KeyNotFoundException as exc:
         print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
     except pki.PKIException as exc:
@@ -165,30 +176,30 @@ def main():
 
     #Test 13 = getKeyInfo
     print "Get key info for existing key"
-    key_info = kraclient.keys.get_key_info(key_id)
+    key_info = keyclient.get_key_info(key_id)
     print_key_info(key_info)
 
     # Test 14: get the active key
     print "Get the active key for client id: " + client_key_id
-    key_info = kraclient.keys.get_active_key_info(client_key_id)
+    key_info = keyclient.get_active_key_info(client_key_id)
     print_key_info(key_info)
 
     #Test 15: change the key status
     print "Change the key status"
-    kraclient.keys.modify_key_status(key_id, "inactive")
-    print_key_info(kraclient.keys.get_key_info(key_id))
+    keyclient.modify_key_status(key_id, "inactive")
+    print_key_info(keyclient.get_key_info(key_id))
 
     # Test 16: Get key info for non-existent key
     print "Get key info for non-existent key"
     try:
-        key_info = kraclient.keys.get_key_info('200004556')
+        key_info = keyclient.get_key_info('200004556')
     except pki.KeyNotFoundException as exc:
         print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
 
     # Test 17: Get key info for non-existent active key
     print "Get non-existent active key"
     try:
-        key_info = kraclient.keys.get_active_key_info(client_key_id)
+        key_info = keyclient.get_active_key_info(client_key_id)
     except pki.ResourceNotFoundException as exc:
         print "ResourceNotFoundException thrown - Code: " + exc.code + "Message: " + exc.message
 
