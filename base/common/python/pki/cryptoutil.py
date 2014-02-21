@@ -113,6 +113,7 @@ class NSSCryptoUtil(CryptoUtil):
         self.nonce_iv = "e4:bb:3b:d3:c3:71:2e:58"
 
     def initialize_db(self):
+        ''' initialize the nss db.  Must be done before any crypto operations '''
         nss.nss_init(self.certdb_dir)
 
     def import_cert(self, cert_nick, cert, trust):

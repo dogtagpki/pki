@@ -26,7 +26,7 @@ public interface KeyResource {
     @GET
     @ClientResponseType(entityType=KeyInfoCollection.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Response listKeys(@QueryParam("clientID") String clientID,
+    public Response listKeys(@QueryParam("clientKeyID") String clientKeyID,
                                  @QueryParam("status") String status,
                                  @QueryParam("maxResults") Integer maxResults,
                                  @QueryParam("maxTime") Integer maxTime,
@@ -34,10 +34,10 @@ public interface KeyResource {
                                  @QueryParam("size") Integer size);
 
     @GET
-    @Path("active/{clientID}")
+    @Path("active/{clientKeyID}")
     @ClientResponseType(entityType=KeyInfo.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Response getActiveKeyInfo(@PathParam("clientID") String clientID);
+    public Response getActiveKeyInfo(@PathParam("clientKeyID") String clientKeyID);
 
     @GET
     @Path("{id}")

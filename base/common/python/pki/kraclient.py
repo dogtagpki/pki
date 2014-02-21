@@ -42,9 +42,11 @@ class KRAClient(object):
         :param crypto - CryptoUtil object.  NSSCryptoUtil is provided by default.
                         If a different crypto implementation is desired, a different
                         subclass of CryptoUtil must be provided.
-        :param trnasport_cert_nick - identifier for the DRM transport certificate.  This will
+        :param transport_cert_nick - identifier for the DRM transport certificate.  This will
                         be passed to the CryptoUtil.get_cert() command to get a representation
                         of the transport certificate usable for crypto operations.
+                        Note that for NSS databases, the database must have been initialized
+                        beforehand.
         '''
         self.connection = connection
         self.keys = key.KeyClient(connection)
@@ -170,19 +172,19 @@ class KRAClient(object):
         return self.keys.request_key_retrieval(key_id, request_id, passphrase)
 
 
-    def generate_sym_key(self, client_id, algorithm, size, usages):
+    def generate_symmetric_key(self, client_key_id, algorithm, size, usages):
         ''' Generate and archive a symmetric key on the DRM.
 
             Return a KeyRequestResponse which contains a KeyRequestInfo
             object that describes the URL for the request and generated key.
         '''
-        request = key.SymKeyGenerationRequest(client_id=client_id,
+        request = key.SymKeyGenerationRequest(client_key_id=client_key_id,
                                               key_size=size,
                                               key_algorithm=algorithm,
                                               key_usages=usages)
         return self.keys.create_request(request)
 
-    def archive_key(self, client_id, data_type, private_data=None,
+    def archive_key(self, client_key_id, data_type, private_data=None,
                     wrapped_private_data=None,
                     key_algorithm=None, key_size=None):
         ''' Archive a secret (symmetric key or passphrase) on the DRM.
@@ -218,7 +220,7 @@ class KRAClient(object):
                 # raise BadRequestException - to be added in next patch
                 return None
             wrapped_private_data = self.generate_archive_options(private_data)
-        return self.keys.request_archival(client_id, data_type, wrapped_private_data,
+        return self.keys.request_archival(client_key_id, data_type, wrapped_private_data,
                                           key_algorithm, key_size)
 
     def generate_pki_archive_options(self, trans_wrapped_session_key, session_wrapped_secret):

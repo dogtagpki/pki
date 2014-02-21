@@ -40,7 +40,7 @@ public class KeyInfo {
     protected String keyURL;
 
     @XmlElement
-    protected String clientID;
+    protected String clientKeyID;
 
     @XmlElement
     protected String status;
@@ -81,17 +81,17 @@ public class KeyInfo {
     }
 
     /**
-     * @return the clientID
+     * @return the clientKeyID
      */
-    public String getClientID() {
-        return clientID;
+    public String getClientKeyID() {
+        return clientKeyID;
     }
 
     /**
-     * @param clientID the clientID to set
+     * @param clientKeyID the clientKeyID to set
      */
-    public void setClientID(String clientID) {
-        this.clientID = clientID;
+    public void setClientKeyID(String clientKeyID) {
+        this.clientKeyID = clientKeyID;
     }
 
     public String getStatus() {

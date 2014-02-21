@@ -47,14 +47,14 @@ public class KeyClient extends Client {
         keyRequestClient = createProxy(KeyRequestResource.class);
     }
 
-    public KeyInfoCollection findKeys(String clientID, String status, Integer maxSize, Integer maxTime,
+    public KeyInfoCollection findKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
             Integer start, Integer size) {
-        Response response = keyClient.listKeys(clientID, status, maxSize, maxTime, start, size);
+        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size);
         return client.getEntity(response, KeyInfoCollection.class);
     }
 
-    public KeyInfo getActiveKeyInfo(String clientID) {
-        Response response = keyClient.getActiveKeyInfo(clientID);
+    public KeyInfo getActiveKeyInfo(String clientKeyID) {
+        Response response = keyClient.getActiveKeyInfo(clientKeyID);
         return client.getEntity(response, KeyInfo.class);
     }
 
@@ -97,7 +97,7 @@ public class KeyClient extends Client {
     public KeyRequestInfoCollection findRequests(
             String requestState,
             String requestType,
-            String clientID,
+            String clientKeyID,
             RequestId start,
             Integer pageSize,
             Integer maxResults,
@@ -105,7 +105,7 @@ public class KeyClient extends Client {
         Response response = keyRequestClient.listRequests(
                 requestState,
                 requestType,
-                clientID,
+                clientKeyID,
                 start,
                 pageSize,
                 maxResults,
@@ -118,12 +118,12 @@ public class KeyClient extends Client {
         return client.getEntity(response, KeyRequestInfo.class);
     }
 
-    public KeyRequestResponse archiveSecurityData(byte[] encoded, String clientId, String dataType, String algorithm, int strength) {
+    public KeyRequestResponse archiveSecurityData(byte[] encoded, String clientKeyId, String dataType, String algorithm, int strength) {
         // create archival request
         KeyArchivalRequest data = new KeyArchivalRequest();
         String req1 = Utils.base64encode(encoded);
         data.setWrappedPrivateData(req1);
-        data.setClientId(clientId);
+        data.setClientKeyId(clientKeyId);
         data.setDataType(dataType);
         data.setKeyAlgorithm(algorithm);
         data.setKeySize(strength);
@@ -158,9 +158,9 @@ public class KeyClient extends Client {
         return createRequest(data);
     }
 
-    public KeyRequestResponse generateKey(String clientId, String keyAlgorithm, int keySize, List<String> usages) {
+    public KeyRequestResponse generateKey(String clientKeyId, String keyAlgorithm, int keySize, List<String> usages) {
         SymKeyGenerationRequest data = new SymKeyGenerationRequest();
-        data.setClientId(clientId);
+        data.setClientKeyId(clientKeyId);
         data.setKeyAlgorithm(keyAlgorithm);
         data.setKeySize(new Integer(keySize));
         data.setUsages(usages);

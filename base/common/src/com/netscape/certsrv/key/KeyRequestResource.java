@@ -44,7 +44,7 @@ public interface KeyRequestResource {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     public Response listRequests(@QueryParam("requestState") String requestState,
                                             @QueryParam("requestType") String requestType,
-                                            @QueryParam("clientID") String clientID,
+                                            @QueryParam("clientKeyID") String clientKeyID,
                                             @QueryParam("start") RequestId start,
                                             @QueryParam("pageSize") Integer pageSize,
                                             @QueryParam("maxResults") Integer maxResults,

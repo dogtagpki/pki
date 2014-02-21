@@ -76,7 +76,7 @@ class KeyInfo(object):
 
     def __init__(self):
         ''' Constructor '''
-        self.clientID = None
+        self.clientKeyID = None
         self.keyURL = None
         self.algorithm = None
         self.status = None
@@ -219,12 +219,12 @@ class KeyArchivalRequest(pki.ResourceMessage):
     Class representing the object sent to the DRM when archiving a secret.
     '''
 
-    def __init__(self, client_id=None, data_type=None, wrapped_private_data=None,
+    def __init__(self, client_key_id=None, data_type=None, wrapped_private_data=None,
                  key_algorithm=None, key_size=None):
         ''' Constructor '''
         pki.ResourceMessage.__init__(self,
                                  "com.netscape.certsrv.key.KeyArchivalRequest")
-        self.add_attribute("clientID", client_id)
+        self.add_attribute("clientKeyID", client_key_id)
         self.add_attribute("dataType", data_type)
         self.add_attribute("wrappedPrivateData", wrapped_private_data)
         self.add_attribute("keyAlgorithm", key_algorithm)
@@ -266,13 +266,13 @@ class SymKeyGenerationRequest(pki.ResourceMessage):
     DECRYPT_USAGE = "decrypt"
     ENCRYPT_USAGE = "encrypt"
 
-    def __init__(self, client_id=None, key_size=None, key_algorithm=None,
+    def __init__(self, client_key_id=None, key_size=None, key_algorithm=None,
                  key_usages=None):
         ''' Constructor '''
         pki.ResourceMessage.__init__(self,
                                  "com.netscape.certsrv.key.SymKeyGenerationRequest")
         key_usages = key_usages or []
-        self.add_attribute("clientID", client_id)
+        self.add_attribute("clientKeyID", client_key_id)
         self.add_attribute("keySize", key_size)
         self.add_attribute("keyAlgorithm", key_algorithm)
         self.add_attribute("keyUsage", ','.join(key_usages))
@@ -296,14 +296,14 @@ class KeyClient(object):
         self.keyRequestsURL = '/rest/agent/keyrequests'
 
     @pki.handle_exceptions()
-    def list_keys(self, client_id=None, status=None, max_results=None,
+    def list_keys(self, client_key_id=None, status=None, max_results=None,
                   max_time=None, start=None, size=None):
         ''' List/Search archived secrets in the DRM.
 
             See KRAClient.list_keys for the valid values of status.
             Returns a KeyInfoCollection object.
         '''
-        query_params = {'clientID':client_id, 'status':status,
+        query_params = {'clientKeyID':client_key_id, 'status':status,
                         'maxResults':max_results, 'maxTime':max_time,
                         'start':start, 'size':size}
         response = self.connection.get(self.keyURL, self.headers, params=query_params)
@@ -359,7 +359,7 @@ class KeyClient(object):
         return self.retrieve_key(request)
 
     @pki.handle_exceptions()
-    def list_requests(self, request_state=None, request_type=None, client_id=None,
+    def list_requests(self, request_state=None, request_type=None, client_key_id=None,
                      start=None, page_size=None, max_results=None, max_time=None):
         ''' List/Search key requests in the DRM.
 
@@ -367,7 +367,7 @@ class KeyClient(object):
             request_type.  Returns a KeyRequestInfoCollection object.
         '''
         query_params = {'requestState':request_state, 'requestType':request_type,
-                        'clientID':client_id, 'start':start, 'pageSize':page_size,
+                        'clientKeyID':client_key_id, 'start':start, 'pageSize':page_size,
                         'maxResults':max_results, 'maxTime':max_time}
         response = self.connection.get(self.keyRequestsURL, self.headers,
                                 params=query_params)
@@ -435,7 +435,7 @@ class KeyClient(object):
         return self.create_request(request)
 
     @pki.handle_exceptions()
-    def request_archival(self, client_id, data_type, wrapped_private_data,
+    def request_archival(self, client_key_id, data_type, wrapped_private_data,
                     key_algorithm=None, key_size=None):
         ''' Archive a secret (symmetric key or passphrase) on the DRM.
 
@@ -452,7 +452,7 @@ class KeyClient(object):
             key_algorithm and key_size are applicable to symmetric keys only.
             If a symmetric key is being archived, these parameters are required.
         '''
-        request = KeyArchivalRequest(client_id=client_id,
+        request = KeyArchivalRequest(client_key_id=client_key_id,
                                      data_type=data_type,
                                      wrapped_private_data=wrapped_private_data,
                                      key_algorithm=key_algorithm,
@@ -467,9 +467,9 @@ class KeyClient(object):
         return KeyInfo.from_json(response.json())
 
     @pki.handle_exceptions()
-    def get_active_key_info(self, client_id):
+    def get_active_key_info(self, client_key_id):
         ''' Get the info in the KeyRecord for the active secret in the DRM. '''
-        url = self.keyURL + '/active/' + urllib.quote_plus(client_id)
+        url = self.keyURL + '/active/' + urllib.quote_plus(client_key_id)
         response = self.connection.get(url, headers=self.headers)
         print response
         return KeyInfo.from_json(response.json())
@@ -491,9 +491,9 @@ encoder.NOTYPES['SymKeyGenerationRequest'] = SymKeyGenerationRequest
 def main():
     ''' Some unit tests - basically printing different types of requests '''
     print "printing symkey generation request"
-    client_id = "vek 123"
+    client_key_id = "vek 123"
     usages = [SymKeyGenerationRequest.DECRYPT_USAGE, SymKeyGenerationRequest.ENCRYPT_USAGE]
-    gen_request = SymKeyGenerationRequest(client_id, 128, "AES", usages)
+    gen_request = SymKeyGenerationRequest(client_key_id, 128, "AES", usages)
     print json.dumps(gen_request, cls=encoder.CustomTypeEncoder, sort_keys=True)
 
     print "printing key recovery request"
@@ -502,7 +502,7 @@ def main():
     print json.dumps(key_request, cls=encoder.CustomTypeEncoder, sort_keys=True)
 
     print "printing key archival request"
-    archival_request = KeyArchivalRequest(client_id, "symmetricKey",
+    archival_request = KeyArchivalRequest(client_key_id, "symmetricKey",
                                           "MX123AABBCD", "AES", 128)
     print json.dumps(archival_request, cls=encoder.CustomTypeEncoder, sort_keys=True)
 

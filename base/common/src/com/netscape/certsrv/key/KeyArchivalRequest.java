@@ -36,7 +36,7 @@ import com.netscape.certsrv.base.ResourceMessage;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyArchivalRequest extends ResourceMessage {
 
-    private static final String CLIENT_ID = "clientID";
+    private static final String CLIENT_KEY_ID = "clientKeyID";
     private static final String DATA_TYPE = "dataType";
     private static final String WRAPPED_PRIVATE_DATA = "wrappedPrivateData";
     private static final String KEY_ALGORITHM = "keyAlgorithm";
@@ -48,7 +48,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     }
 
     public KeyArchivalRequest(MultivaluedMap<String, String> form) {
-        attributes.put(CLIENT_ID, form.getFirst(CLIENT_ID));
+        attributes.put(CLIENT_KEY_ID, form.getFirst(CLIENT_KEY_ID));
         attributes.put(DATA_TYPE, form.getFirst(DATA_TYPE));
         attributes.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
         attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
@@ -62,17 +62,17 @@ public class KeyArchivalRequest extends ResourceMessage {
     }
 
     /**
-     * @return the clientId
+     * @return the clientKeyID
      */
-    public String getClientId() {
-        return attributes.get(CLIENT_ID);
+    public String getClientKeyId() {
+        return attributes.get(CLIENT_KEY_ID);
     }
 
     /**
-     * @param clientId the clientId to set
+     * @param clientKeyId the clientKeyId to set
      */
-    public void setClientId(String clientId) {
-        attributes.put(CLIENT_ID, clientId);
+    public void setClientKeyId(String clientKeyId) {
+        attributes.put(CLIENT_KEY_ID, clientKeyId);
     }
 
     /**
@@ -150,7 +150,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     public static void main(String args[]) throws Exception {
 
         KeyArchivalRequest before = new KeyArchivalRequest();
-        before.setClientId("vek 12345");
+        before.setClientKeyId("vek 12345");
         before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
         before.setWrappedPrivateData("XXXXABCDEFXXX");
         before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);

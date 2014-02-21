@@ -88,7 +88,7 @@ public class SymKeyGenService implements IService {
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
         String id = request.getRequestId().toString();
-        String clientId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_ID);
+        String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
         String algorithm = request.getExtDataInString(IRequest.SYMKEY_GEN_ALGORITHM);
 
         String usageStr = request.getExtDataInString(IRequest.SYMKEY_GEN_USAGES);
@@ -104,9 +104,9 @@ public class SymKeyGenService implements IService {
         String subjectID = auditSubjectID();
 
         //Check here even though restful layer checks for this.
-        if (algorithm == null || clientId == null || keySize <= 0) {
+        if (algorithm == null || clientKeyId == null || keySize <= 0) {
             auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, "Bad data in request");
+                    clientKeyId, null, "Bad data in request");
             throw new EBaseException("Bad data in SymKeyGenService.serviceRequest");
         }
 
@@ -166,7 +166,7 @@ public class SymKeyGenService implements IService {
                 | InvalidAlgorithmParameterException e) {
             CMS.debugStackTrace();
             auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, "Failed to generate symmetric key");
+                    clientKeyId, null, "Failed to generate symmetric key");
             throw new EBaseException("Errors in generating symmetric key: " + e);
         }
 
@@ -177,7 +177,7 @@ public class SymKeyGenService implements IService {
             privateSecurityData = mStorageUnit.wrap(sk);
         } else { // We have no data.
             auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, "Failed to create security data to archive");
+                    clientKeyId, null, "Failed to create security data to archive");
             throw new EBaseException("Failed to create security data to archive!");
         }
 
@@ -186,12 +186,12 @@ public class SymKeyGenService implements IService {
                 privateSecurityData, owner,
                 algorithm, owner);
 
-        rec.set(IKeyRecord.ATTR_CLIENT_ID, clientId);
+        rec.set(IKeyRecord.ATTR_CLIENT_ID, clientKeyId);
 
         //Now we need a serial number for our new key.
         if (rec.getSerialNumber() != null) {
             auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
@@ -202,7 +202,7 @@ public class SymKeyGenService implements IService {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
             auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, "Failed to get  next Key ID");
+                    clientKeyId, null, "Failed to get  next Key ID");
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
@@ -217,7 +217,7 @@ public class SymKeyGenService implements IService {
         storage.addKeyRecord(rec);
 
         auditSymKeyGenRequestProcessed(subjectID, ILogger.SUCCESS, request.getRequestId(),
-                clientId, serialNo.toString(), "None");
+                clientKeyId, serialNo.toString(), "None");
 
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         mKRA.getRequestQueue().updateRequest(request);
@@ -261,14 +261,14 @@ public class SymKeyGenService implements IService {
         return subjectID;
     }
 
-    private void auditSymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID, String clientID,
+    private void auditSymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
             String keyID, String reason) {
         String auditMessage = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SYMKEY_GEN_REQUEST_PROCESSED,
                 subjectID,
                 status,
                 requestID.toString(),
-                clientID,
+                clientKeyID,
                 keyID != null ? keyID : "None",
                 reason);
         audit(auditMessage);

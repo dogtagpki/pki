@@ -48,7 +48,7 @@ def print_key_request(request):
 def print_key_info(key_info):
     ''' Prints the relevant fields of a KeyInfo object '''
     print "Key URL: " + str(key_info.keyURL)
-    print "Client ID: " + str(key_info.clientID)
+    print "Client ID: " + str(key_info.clientKeyID)
     print "Algorithm: " + str(key_info.algorithm)
     print "Status: " + str(key_info.status)
     print "Owner Name: " + str(key_info.ownerName)
@@ -94,18 +94,19 @@ def main():
 
     # Test 4: generate symkey -- same as barbican_encode()
     print "Now generating symkey on KRA"
-    client_id = "Vek #1" + time.strftime('%X %x %Z')
+    #client_key_id = "Vek #1" + time.strftime('%X %x %Z')
+    client_key_id = "abcxyz"
     algorithm = "AES"
     key_size = 128
     usages = [key.SymKeyGenerationRequest.DECRYPT_USAGE, key.SymKeyGenerationRequest.ENCRYPT_USAGE]
-    response = kraclient.generate_sym_key(client_id, algorithm, key_size, usages)
+    response = kraclient.generate_symmetric_key(client_key_id, algorithm, key_size, usages)
     print_key_request(response.requestInfo)
     print "Request ID is " + response.requestInfo.get_request_id()
     key_id = response.get_key_id()
 
     # Test 5: Confirm the key_id matches
-    print "Now getting key ID for clientID=\"" + client_id + "\""
-    key_infos = kraclient.keys.list_keys(client_id=client_id, status="active")
+    print "Now getting key ID for clientKeyID=\"" + client_key_id + "\""
+    key_infos = kraclient.keys.list_keys(client_key_id=client_key_id, status="active")
     for key_info in key_infos.key_infos:
         print_key_info(key_info)
         key_id2 = key_info.get_key_id()
@@ -140,7 +141,7 @@ def main():
     # Test 10 = test BadRequestException on create()
     print "Trying to generate a new symkey with the same client ID"
     try:
-        response = kraclient.generate_sym_key(client_id, algorithm, key_size, usages)
+        response = kraclient.generate_symmetric_key(client_key_id, algorithm, key_size, usages)
     except pki.BadRequestException as exc:
         print "BadRequestException thrown - Code:" + exc.code + " Message: " + exc.message
 
@@ -168,8 +169,8 @@ def main():
     print_key_info(key_info)
 
     # Test 14: get the active key
-    print "Get the active key for client id: " + client_id
-    key_info = kraclient.keys.get_active_key_info(client_id)
+    print "Get the active key for client id: " + client_key_id
+    key_info = kraclient.keys.get_active_key_info(client_key_id)
     print_key_info(key_info)
 
     #Test 15: change the key status
@@ -187,7 +188,7 @@ def main():
     # Test 17: Get key info for non-existent active key
     print "Get non-existent active key"
     try:
-        key_info = kraclient.keys.get_active_key_info(client_id)
+        key_info = kraclient.keys.get_active_key_info(client_key_id)
     except pki.ResourceNotFoundException as exc:
         print "ResourceNotFoundException thrown - Code: " + exc.code + "Message: " + exc.message
 

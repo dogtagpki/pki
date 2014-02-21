@@ -89,7 +89,7 @@ public class KeyRequestFindCLI extends CLI {
 
         String status = cmd.getOptionValue("status");
         String type = cmd.getOptionValue("type");
-        String clientID = cmd.getOptionValue("client");
+        String clientKeyID = cmd.getOptionValue("client");
 
         String s = cmd.getOptionValue("start");
         RequestId start = s == null ? null : new RequestId(s);
@@ -104,7 +104,7 @@ public class KeyRequestFindCLI extends CLI {
         Integer maxTime = s == null ? null : Integer.valueOf(s);
 
         KeyRequestInfoCollection keys = keyCLI.keyClient.findRequests(
-                status, type, clientID, start, pageSize, maxResults, maxTime);
+                status, type, clientKeyID, start, pageSize, maxResults, maxTime);
 
         MainCLI.printMessage(keys.getTotal() + " entries matched");
         if (keys.getTotal() == 0) return;

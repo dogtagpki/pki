@@ -136,13 +136,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      */
     public KeyRequestResponse submitRequest(KeyArchivalRequest data, UriInfo uriInfo) throws EBaseException {
-        String clientId = data.getClientId();
+        String clientKeyId = data.getClientKeyId();
         String wrappedSecurityData = data.getWrappedPrivateData();
         String dataType = data.getDataType();
         String keyAlgorithm = data.getKeyAlgorithm();
         int keyStrength = data.getKeySize();
 
-        boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
+        boolean keyExists = doesKeyExist(clientKeyId, "active", uriInfo);
 
         if (keyExists == true) {
             throw new EBaseException("Can not archive already active existing key!");
@@ -151,7 +151,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         IRequest request = queue.newRequest(IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
 
         request.setExtData(REQUEST_ARCHIVE_OPTIONS, wrappedSecurityData);
-        request.setExtData(IRequest.SECURITY_DATA_CLIENT_ID, clientId);
+        request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
         request.setExtData(IRequest.SECURITY_DATA_TYPE, dataType);
         request.setExtData(IRequest.SECURITY_DATA_STRENGTH,
                 (keyStrength > 0) ? Integer.toString(keyStrength) : Integer.toString(0));
@@ -215,16 +215,16 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public KeyRequestResponse submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo) throws EBaseException {
-        String clientId = data.getClientId();
+        String clientKeyId = data.getClientKeyId();
         String algName = data.getKeyAlgorithm();
         Integer keySize = data.getKeySize();
         List<String> usages = data.getUsages();
 
-        if (StringUtils.isBlank(clientId)) {
+        if (StringUtils.isBlank(clientKeyId)) {
             throw new BadRequestException("Invalid key generation request. Missing client ID");
         }
 
-        boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
+        boolean keyExists = doesKeyExist(clientKeyId, "active", uriInfo);
         if (keyExists == true) {
             throw new BadRequestException("Can not archive already active existing key!");
         }
@@ -259,7 +259,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, algName);
 
         request.setExtData(IRequest.SYMKEY_GEN_USAGES, StringUtils.join(usages, ","));
-        request.setExtData(IRequest.SECURITY_DATA_CLIENT_ID, clientId);
+        request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
 
         queue.processRequest(request);
         queue.markAsServiced(request);
@@ -331,9 +331,9 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     //We only care if the key exists or not
-    private boolean doesKeyExist(String clientId, String keyStatus, UriInfo uriInfo) {
+    private boolean doesKeyExist(String clientKeyId, String keyStatus, UriInfo uriInfo) {
         String state = "active";
-        String filter = "(&(" + IRequest.SECURITY_DATA_CLIENT_ID + "=" + clientId + ")"
+        String filter = "(&(" + IRequest.SECURITY_DATA_CLIENT_KEY_ID + "=" + clientKeyId + ")"
                 + "(" + IRequest.SECURITY_DATA_STATUS + "=" + state + "))";
         try {
             Enumeration<IKeyRecord> existingKeys = null;

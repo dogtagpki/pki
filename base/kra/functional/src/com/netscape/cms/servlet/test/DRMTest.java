@@ -167,7 +167,7 @@ public class DRMTest {
 
         // various ids used in recovery/archival operations
         KeyId keyId = null;
-        String clientId = null;
+        String clientKeyId = null;
         RequestId recoveryRequestId = null;
 
         // Variables for data structures from calls
@@ -257,13 +257,13 @@ public class DRMTest {
 
         // Test 4: Generate and archive a symmetric key
         log("Archiving symmetric key");
-        clientId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
+        clientKeyId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
         try {
             vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
                     KeyGenAlgorithm.DES3, ivps);
 
-            KeyRequestResponse info = keyClient.archiveSecurityData(encoded, clientId,
+            KeyRequestResponse info = keyClient.archiveSecurityData(encoded, clientKeyId,
                     KeyRequestResource.SYMMETRIC_KEY_TYPE, KeyRequestResource.DES3_ALGORITHM, 0);
             log("Archival Results:");
             printRequestInfo(info.getRequestInfo());
@@ -276,7 +276,7 @@ public class DRMTest {
         //Test 5: Get keyId for active key with client ID
 
         log("Getting key ID for symmetric key");
-        keyInfo = keyClient.getActiveKeyInfo(clientId);
+        keyInfo = keyClient.getActiveKeyInfo(clientKeyId);
         printKeyInfo(keyInfo);
         KeyId keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
@@ -371,11 +371,11 @@ public class DRMTest {
 
         passphrase = "secret12345";
         // Test 12: Generate and archive a passphrase
-        clientId = "UUID: 123-45-6789 RKEK " + Calendar.getInstance().getTime().toString();
+        clientKeyId = "UUID: 123-45-6789 RKEK " + Calendar.getInstance().getTime().toString();
         try {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase,
                     KeyGenAlgorithm.DES3, ivps);
-            requestResponse = keyClient.archiveSecurityData(encoded, clientId,
+            requestResponse = keyClient.archiveSecurityData(encoded, clientKeyId,
                     KeyRequestResource.PASS_PHRASE_TYPE, null, 0);
             log("Archival Results:");
             printRequestInfo(requestResponse.getRequestInfo());
@@ -387,7 +387,7 @@ public class DRMTest {
 
         //Test 13: Get keyId for active passphrase with client ID
         log("Getting key ID for passphrase");
-        keyInfo = keyClient.getActiveKeyInfo(clientId);
+        keyInfo = keyClient.getActiveKeyInfo(clientKeyId);
         printKeyInfo(keyInfo);
         keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
@@ -571,11 +571,11 @@ public class DRMTest {
         }
 
         // test 28: Generate symmetric key
-        clientId = "Symmetric Key #1234f " + Calendar.getInstance().getTime().toString();
+        clientKeyId = "Symmetric Key #1234f " + Calendar.getInstance().getTime().toString();
         List<String> usages = new ArrayList<String>();
         usages.add(SymKeyGenerationRequest.DECRYPT_USAGE);
         usages.add(SymKeyGenerationRequest.ENCRYPT_USAGE);
-        KeyRequestResponse genKeyResponse = keyClient.generateKey(clientId,
+        KeyRequestResponse genKeyResponse = keyClient.generateKey(clientKeyId,
                 KeyRequestResource.AES_ALGORITHM,
                 128, usages);
         printRequestInfo(genKeyResponse.getRequestInfo());
@@ -583,7 +583,7 @@ public class DRMTest {
 
         // test 29: Get keyId for active key with client ID
         log("Getting key ID for symmetric key");
-        keyInfo = keyClient.getActiveKeyInfo(clientId);
+        keyInfo = keyClient.getActiveKeyInfo(clientKeyId);
         printKeyInfo(keyInfo);
         keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
@@ -652,7 +652,7 @@ public class DRMTest {
 
         // Test 36: Generate and archive a symmetric key of type AES
         log("Archiving symmetric key");
-        clientId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
+        clientKeyId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
         try {
             KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
             kg.initialize(128);
@@ -661,7 +661,7 @@ public class DRMTest {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
                     KeyGenAlgorithm.DES3, ivps);
 
-            KeyRequestResponse response = keyClient.archiveSecurityData(encoded, clientId,
+            KeyRequestResponse response = keyClient.archiveSecurityData(encoded, clientKeyId,
                     KeyRequestResource.SYMMETRIC_KEY_TYPE, KeyRequestResource.AES_ALGORITHM, 128);
             log("Archival Results:");
             printRequestInfo(response.getRequestInfo());
@@ -673,7 +673,7 @@ public class DRMTest {
 
         //Test 37: Get keyId for active key with client ID
         log("Getting key ID for symmetric key");
-        keyInfo = keyClient.getActiveKeyInfo(clientId);
+        keyInfo = keyClient.getActiveKeyInfo(clientKeyId);
         printKeyInfo(keyInfo);
         keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
@@ -737,9 +737,9 @@ public class DRMTest {
 
         //Test 43:  Confirm no more active keys with this ID
         log("look for active keys with this id");
-        clientId = keyInfo.getClientID();
+        clientKeyId = keyInfo.getClientKeyID();
         try {
-            keyInfo = keyClient.getActiveKeyInfo(clientId);
+            keyInfo = keyClient.getActiveKeyInfo(clientKeyId);
             printKeyInfo(keyInfo);
         } catch (ResourceNotFoundException e) {
             log("Success: ResourceNotFound exception thrown: " + e);
@@ -748,7 +748,7 @@ public class DRMTest {
 
     private static void printKeyInfo(KeyInfo keyInfo) {
         log("Printing keyInfo:");
-        log("ClientID:  " + keyInfo.getClientID());
+        log("Client Key ID:  " + keyInfo.getClientKeyID());
         log("Key URL:   " + keyInfo.getKeyURL());
         log("Algorithm: " + keyInfo.getAlgorithm());
         log("Strength:  " + keyInfo.getSize());

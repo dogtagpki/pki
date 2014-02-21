@@ -162,7 +162,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         // auth and authz
         // Catch this before internal server processing has to deal with it
 
-        if (data == null || data.getClientId() == null
+        if (data == null || data.getClientKeyId() == null
                 || data.getWrappedPrivateData() == null
                 || data.getDataType() == null) {
             throw new BadRequestException("Invalid key archival request.");
@@ -179,13 +179,13 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestResponse response;
         try {
             response = dao.submitRequest(data, uriInfo);
-            auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientId());
+            auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
 
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
-            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
+            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
             throw new PKIException(e.toString());
         }
     }
@@ -318,12 +318,12 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
      * Used to generate list of key requests based on the search parameters
      */
     @Override
-    public Response listRequests(String requestState, String requestType, String clientID,
+    public Response listRequests(String requestState, String requestType, String clientKeyID,
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
         // auth and authz
 
         // get ldap filter
-        String filter = createSearchFilter(requestState, requestType, clientID);
+        String filter = createSearchFilter(requestState, requestType, clientKeyID);
         CMS.debug("listRequests: filter is " + filter);
 
         start = start == null ? new RequestId(KeyRequestService.DEFAULT_START) : start;
@@ -343,11 +343,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         return createOKResponse(requests);
     }
 
-    private String createSearchFilter(String requestState, String requestType, String clientID) {
+    private String createSearchFilter(String requestState, String requestType, String clientKeyID) {
         String filter = "";
         int matches = 0;
 
-        if ((requestState == null) && (requestType == null) && (clientID == null)) {
+        if ((requestState == null) && (requestType == null) && (clientKeyID == null)) {
             filter = "(requeststate=*)";
             return filter;
         }
@@ -362,8 +362,8 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             matches ++;
         }
 
-        if (clientID != null) {
-            filter += "(clientID=" + LDAPUtil.escapeFilter(clientID) + ")";
+        if (clientKeyID != null) {
+            filter += "(clientID=" + LDAPUtil.escapeFilter(clientKeyID) + ")";
             matches ++;
         }
 
@@ -394,23 +394,23 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         auditor.log(msg);
     }
 
-    public void auditArchivalRequestMade(RequestId requestId, String status, String clientId) {
+    public void auditArchivalRequestMade(RequestId requestId, String status, String clientKeyID) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId != null? requestId.toString(): "null",
-                clientId);
+                clientKeyID);
         auditor.log(msg);
     }
 
-    public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientId) {
+    public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST,
                 servletRequest.getUserPrincipal().getName(),
                 status,
                 requestId != null ? requestId.toString() : "null",
-                clientId);
+                clientKeyID);
         auditor.log(msg);
     }
 
@@ -452,13 +452,13 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         try {
             response = dao.submitRequest(data, uriInfo);
             auditSymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
-                    data.getClientId());
+                    data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
 
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
-            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientId());
+            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
             throw new PKIException(e.toString());
         }
     }

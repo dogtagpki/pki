@@ -83,7 +83,7 @@ public class SecurityDataService implements IService {
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
         String id = request.getRequestId().toString();
-        String clientId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_ID);
+        String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
         String wrappedSecurityData = request.getExtDataInString(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS);
         String dataType = request.getExtDataInString(IRequest.SECURITY_DATA_TYPE);
         String algorithm = request.getExtDataInString(IRequest.SECURITY_DATA_ALGORITHM);
@@ -96,9 +96,9 @@ public class SecurityDataService implements IService {
         String subjectID = auditSubjectID();
 
         //Check here even though restful layer checks for this.
-        if(wrappedSecurityData == null || clientId == null || dataType == null) {
+        if(wrappedSecurityData == null || clientKeyId == null || dataType == null) {
             auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, "Bad data in request");
+                    clientKeyId, null, "Bad data in request");
             throw new EBaseException("Bad data in SecurityDataService.serviceRequest");
         }
         //We need some info from the PKIArchiveOptions wrapped security data
@@ -110,7 +110,7 @@ public class SecurityDataService implements IService {
         //Check here just in case a null ArchiveOptions makes it this far
         if(options == null) {
             auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, "Problem decoding PKIArchiveOptions");
+                    clientKeyId, null, "Problem decoding PKIArchiveOptions");
             throw new EBaseException("Problem decoding PKIArchiveOptions.");
         }
 
@@ -148,7 +148,7 @@ public class SecurityDataService implements IService {
             privateSecurityData = mStorageUnit.encryptInternalPrivate(securityData);
         } else { // We have no data.
             auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, "Failed to create security data to archive");
+                    clientKeyId, null, "Failed to create security data to archive");
             throw new EBaseException("Failed to create security data to archive!");
         }
         // create key record
@@ -156,13 +156,13 @@ public class SecurityDataService implements IService {
                 privateSecurityData, owner,
                 algStr, owner);
 
-        rec.set(IKeyRecord.ATTR_CLIENT_ID, clientId);
+        rec.set(IKeyRecord.ATTR_CLIENT_ID, clientKeyId);
 
         //Now we need a serial number for our new key.
 
         if (rec.getSerialNumber() != null) {
             auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
@@ -173,7 +173,7 @@ public class SecurityDataService implements IService {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
             auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientId, null, "Failed to get  next Key ID");
+                    clientKeyId, null, "Failed to get  next Key ID");
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
 
@@ -193,7 +193,7 @@ public class SecurityDataService implements IService {
         storage.addKeyRecord(rec);
 
         auditArchivalRequestProcessed(subjectID, ILogger.SUCCESS, request.getRequestId(),
-                clientId, serialNo.toString(), "None");
+                clientKeyId, serialNo.toString(), "None");
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         mKRA.getRequestQueue().updateRequest(request);
 
@@ -236,14 +236,14 @@ public class SecurityDataService implements IService {
         return subjectID;
     }
 
-    private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientID,
+    private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,
             String keyID, String reason) {
         String auditMessage = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED,
                 subjectID,
                 status,
                 requestID.toString(),
-                clientID,
+                clientKeyID,
                 keyID != null ? keyID : "None",
                 reason);
         audit(auditMessage);

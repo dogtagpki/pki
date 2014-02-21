@@ -21,7 +21,7 @@ import com.netscape.certsrv.base.ResourceMessage;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SymKeyGenerationRequest extends ResourceMessage {
 
-    private static final String CLIENT_ID = "clientID";
+    private static final String CLIENT_KEY_ID = "clientKeyID";
     private static final String KEY_SIZE = "keySize";
     private static final String KEY_ALGORITHM = "keyAlgorithm";
     private static final String KEY_USAGE = "keyUsage";
@@ -61,7 +61,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     }
 
     public SymKeyGenerationRequest(MultivaluedMap<String, String> form) {
-        attributes.put(CLIENT_ID, form.getFirst(CLIENT_ID));
+        attributes.put(CLIENT_KEY_ID, form.getFirst(CLIENT_KEY_ID));
         attributes.put(KEY_SIZE, form.getFirst(KEY_SIZE));
         attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
         attributes.put(KEY_USAGE, form.getFirst(KEY_USAGE));
@@ -79,17 +79,17 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     }
 
     /**
-     * @return the clientId
+     * @return the clientKeyId
      */
-    public String getClientId() {
-        return attributes.get(CLIENT_ID);
+    public String getClientKeyId() {
+        return attributes.get(CLIENT_KEY_ID);
     }
 
     /**
-     * @param clientId the clientId to set
+     * @param clientKeyId the clientKeyId to set
      */
-    public void setClientId(String clientId) {
-        attributes.put(CLIENT_ID, clientId);
+    public void setClientKeyId(String clientKeyId) {
+        attributes.put(CLIENT_KEY_ID, clientKeyId);
     }
 
     /**
@@ -139,7 +139,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     public static void main(String args[]) throws Exception {
 
         SymKeyGenerationRequest before = new SymKeyGenerationRequest();
-        before.setClientId("vek 12345");
+        before.setClientKeyId("vek 12345");
         before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);
         before.setKeySize(128);
         before.addUsage(SymKeyGenerationRequest.DECRYPT_USAGE);

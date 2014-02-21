@@ -332,19 +332,19 @@ public class KeyService extends PKIService implements KeyResource {
      * Used to generate list of key infos based on the search parameters
      */
     @Override
-    public Response listKeys(String clientID, String status, Integer maxResults, Integer maxTime,
+    public Response listKeys(String clientKeyID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size) {
-        return createOKResponse(listKeyInfos(clientID, status, maxResults, maxTime, start, size));
+        return createOKResponse(listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size));
     }
 
-    public KeyInfoCollection listKeyInfos(String clientID, String status, Integer maxResults, Integer maxTime,
+    public KeyInfoCollection listKeyInfos(String clientKeyID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size) {
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
         // get ldap filter
-        String filter = createSearchFilter(status, clientID);
+        String filter = createSearchFilter(status, clientKeyID);
         CMS.debug("listKeys: filter is " + filter);
 
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
@@ -392,10 +392,10 @@ public class KeyService extends PKIService implements KeyResource {
     }
 
     @Override
-    public Response getActiveKeyInfo(String clientID) {
+    public Response getActiveKeyInfo(String clientKeyID) {
 
         KeyInfoCollection infos = listKeyInfos(
-                clientID,
+                clientKeyID,
                 "active",
                 null,
                 null,
@@ -419,7 +419,7 @@ public class KeyService extends PKIService implements KeyResource {
 
     public KeyInfo createKeyDataInfo(IKeyRecord rec) throws EBaseException {
         KeyInfo ret = new KeyInfo();
-        ret.setClientID(rec.getClientId());
+        ret.setClientKeyID(rec.getClientId());
         ret.setStatus(rec.getKeyStatus());
         ret.setAlgorithm(rec.getAlgorithm());
         ret.setSize(rec.getKeySize());
@@ -435,11 +435,11 @@ public class KeyService extends PKIService implements KeyResource {
         return ret;
     }
 
-    private String createSearchFilter(String status, String clientID) {
+    private String createSearchFilter(String status, String clientKeyID) {
         String filter = "";
         int matches = 0;
 
-        if ((status == null) && (clientID == null)) {
+        if ((status == null) && (clientKeyID == null)) {
             filter = "(serialno=*)";
             return filter;
         }
@@ -449,8 +449,8 @@ public class KeyService extends PKIService implements KeyResource {
             matches ++;
         }
 
-        if (clientID != null) {
-            filter += "(clientID=" + LDAPUtil.escapeFilter(clientID) + ")";
+        if (clientKeyID != null) {
+            filter += "(clientID=" + LDAPUtil.escapeFilter(clientKeyID) + ")";
             matches ++;
         }
 

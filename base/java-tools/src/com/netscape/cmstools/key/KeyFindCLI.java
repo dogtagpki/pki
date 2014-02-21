@@ -82,7 +82,7 @@ public class KeyFindCLI extends CLI {
             System.exit(1);
         }
 
-        String clientID = cmd.getOptionValue("client");
+        String clientKeyID = cmd.getOptionValue("client");
         String status = cmd.getOptionValue("status");
 
         String s = cmd.getOptionValue("maxResults");
@@ -97,7 +97,7 @@ public class KeyFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        KeyInfoCollection keys = keyCLI.keyClient.findKeys(clientID, status, maxResults, maxTime, start, size);
+        KeyInfoCollection keys = keyCLI.keyClient.findKeys(clientKeyID, status, maxResults, maxTime, start, size);
 
         Collection<KeyInfo> entries = keys.getEntries();
 

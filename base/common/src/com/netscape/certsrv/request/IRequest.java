@@ -157,7 +157,7 @@ public interface IRequest extends Serializable {
     //Security Data request attributes
     public static final String SECURITY_DATA_ENROLLMENT_REQUEST = "securityDataEnrollment";
     public static final String SECURITY_DATA_RECOVERY_REQUEST = "securityDataRecovery";
-    public static final String SECURITY_DATA_CLIENT_ID = "clientID";
+    public static final String SECURITY_DATA_CLIENT_KEY_ID = "clientKeyID";
     public static final String SECURITY_DATA_STRENGTH = "strength";
     public static final String SECURITY_DATA_ALGORITHM = "algorithm";
     public static final String SECURITY_DATA_TYPE = "dataType";
