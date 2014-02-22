@@ -32,11 +32,13 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyData;
+import com.netscape.certsrv.key.KeyNotFoundException;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
@@ -142,7 +144,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String keyAlgorithm = data.getKeyAlgorithm();
         int keyStrength = data.getKeySize();
 
-        boolean keyExists = doesKeyExist(clientKeyId, "active", uriInfo);
+        boolean keyExists = doesKeyExist(clientKeyId, "active");
 
         if (keyExists == true) {
             throw new EBaseException("Can not archive already active existing key!");
@@ -184,6 +186,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
         IRequest request = queue.newRequest(IRequest.SECURITY_DATA_RECOVERY_REQUEST);
 
         KeyId keyId = data.getKeyId();
+        try {
+            repo.readKeyRecord(keyId.toBigInteger());
+        } catch (EDBRecordNotFoundException e) {
+            throw new KeyNotFoundException(keyId);
+        }
 
         Hashtable<String, Object> requestParams;
 
@@ -219,12 +226,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String algName = data.getKeyAlgorithm();
         Integer keySize = data.getKeySize();
         List<String> usages = data.getUsages();
+        String transWrappedSessionKey = data.getTransWrappedSessionKey();
 
         if (StringUtils.isBlank(clientKeyId)) {
             throw new BadRequestException("Invalid key generation request. Missing client ID");
         }
 
-        boolean keyExists = doesKeyExist(clientKeyId, "active", uriInfo);
+        boolean keyExists = doesKeyExist(clientKeyId, "active");
         if (keyExists == true) {
             throw new BadRequestException("Can not archive already active existing key!");
         }
@@ -260,6 +268,11 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(IRequest.SYMKEY_GEN_USAGES, StringUtils.join(usages, ","));
         request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
+
+        if (transWrappedSessionKey != null) {
+            request.setExtData(IRequest.SYMKEY_TRANS_WRAPPED_SESSION_KEY,
+                    transWrappedSessionKey);
+        }
 
         queue.processRequest(request);
         queue.markAsServiced(request);
@@ -331,10 +344,14 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     //We only care if the key exists or not
-    private boolean doesKeyExist(String clientKeyId, String keyStatus, UriInfo uriInfo) {
-        String state = "active";
-        String filter = "(&(" + IRequest.SECURITY_DATA_CLIENT_KEY_ID + "=" + clientKeyId + ")"
-                + "(" + IRequest.SECURITY_DATA_STATUS + "=" + state + "))";
+    private boolean doesKeyExist(String clientKeyId, String keyStatus) {
+        String filter = null;
+        if (keyStatus == null) {
+            filter = "(" + IKeyRecord.ATTR_CLIENT_ID + "=" + clientKeyId + ")";
+        } else {
+            filter = "(&(" + IKeyRecord.ATTR_CLIENT_ID + "=" + clientKeyId + ")"
+                     + "(" + IKeyRecord.ATTR_STATUS + "=" + keyStatus + "))";
+        }
         try {
             Enumeration<IKeyRecord> existingKeys = null;
 

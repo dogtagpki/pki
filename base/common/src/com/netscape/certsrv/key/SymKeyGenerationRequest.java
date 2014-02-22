@@ -25,6 +25,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     private static final String KEY_SIZE = "keySize";
     private static final String KEY_ALGORITHM = "keyAlgorithm";
     private static final String KEY_USAGE = "keyUsage";
+    private static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
 
     /* Symmetric Key usages */
     public static final String UWRAP_USAGE = "unwrap";
@@ -65,6 +66,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
         attributes.put(KEY_SIZE, form.getFirst(KEY_SIZE));
         attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
         attributes.put(KEY_USAGE, form.getFirst(KEY_USAGE));
+        attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
 
         String usageString = attributes.get(KEY_USAGE);
         if (! StringUtils.isBlank(usageString)) {
@@ -96,7 +98,11 @@ public class SymKeyGenerationRequest extends ResourceMessage {
      * @return the keySize
      */
     public Integer getKeySize() {
-        return new Integer(attributes.get(KEY_SIZE));
+        try {
+            return new Integer(attributes.get(KEY_SIZE));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
@@ -118,6 +124,20 @@ public class SymKeyGenerationRequest extends ResourceMessage {
      */
     public void setKeyAlgorithm(String keyAlgorithm) {
         attributes.put(KEY_ALGORITHM, keyAlgorithm);
+    }
+
+    /**
+     * @return the transWrappedSessionKey
+     */
+    public String getTransWrappedSessionKey() {
+        return attributes.get(TRANS_WRAPPED_SESSION_KEY);
+    }
+
+    /**
+     * @param transWrappedSessionKey the wrapped seesion key to set
+     */
+    public void setTransWrappedSessionKey(String transWrappedSessionKey) {
+        attributes.put(TRANS_WRAPPED_SESSION_KEY, transWrappedSessionKey);
     }
 
     public String toString() {

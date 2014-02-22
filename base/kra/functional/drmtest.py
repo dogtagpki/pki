@@ -106,18 +106,21 @@ def main():
     # Test 4: generate symkey -- same as barbican_encode()
     print "Now generating symkey on KRA"
     #client_key_id = "Vek #1" + time.strftime('%X %x %Z')
-    client_key_id = "vek1234567"
+    client_key_id = "veka6"
     algorithm = "AES"
     key_size = 128
     usages = [key.SymKeyGenerationRequest.DECRYPT_USAGE, key.SymKeyGenerationRequest.ENCRYPT_USAGE]
-    response = keyclient.generate_symmetric_key(client_key_id, algorithm, key_size, usages)
+    response = keyclient.generate_symmetric_key(client_key_id,
+                                                algorithm=algorithm,
+                                                size=key_size,
+                                                usages=usages)
     print_key_request(response.requestInfo)
     print "Request ID is " + response.requestInfo.get_request_id()
     key_id = response.get_key_id()
 
     # Test 5: Confirm the key_id matches
     print "Now getting key ID for clientKeyID=\"" + client_key_id + "\""
-    key_infos = keyclient.list_keys(client_key_id=client_key_id, status="active")
+    key_infos = keyclient.list_keys(client_key_id=client_key_id, status=keyclient.KEY_STATUS_ACTIVE)
     for key_info in key_infos.key_infos:
         print_key_info(key_info)
         key_id2 = key_info.get_key_id()
@@ -152,7 +155,10 @@ def main():
     # Test 10 = test BadRequestException on create()
     print "Trying to generate a new symkey with the same client ID"
     try:
-        response = keyclient.generate_symmetric_key(client_key_id, algorithm, key_size, usages)
+        response = keyclient.generate_symmetric_key(client_key_id,
+                                                    algorithm=algorithm,
+                                                    size=key_size,
+                                                    usages=usages)
     except pki.BadRequestException as exc:
         print "BadRequestException thrown - Code:" + exc.code + " Message: " + exc.message
 
@@ -169,10 +175,6 @@ def main():
         key_data, unwrapped_key = keyclient.retrieve_key('2000003434')
     except pki.KeyNotFoundException as exc:
         print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
-    except pki.PKIException as exc:
-        # note: this is broken - we should be sending KeyNotFoundException here before the recovery
-        # request is created - to be fixed in next patch
-        print "PKIException thrown - Code:" + exc.code + " Message: " + exc.message
 
     #Test 13 = getKeyInfo
     print "Get key info for existing key"
@@ -186,7 +188,7 @@ def main():
 
     #Test 15: change the key status
     print "Change the key status"
-    keyclient.modify_key_status(key_id, "inactive")
+    keyclient.modify_key_status(key_id, keyclient.KEY_STATUS_INACTIVE)
     print_key_info(keyclient.get_key_info(key_id))
 
     # Test 16: Get key info for non-existent key
@@ -200,8 +202,14 @@ def main():
     print "Get non-existent active key"
     try:
         key_info = keyclient.get_active_key_info(client_key_id)
+        print_key_info(key_info)
     except pki.ResourceNotFoundException as exc:
         print "ResourceNotFoundException thrown - Code: " + exc.code + "Message: " + exc.message
+
+    #Test 18: Generate a symmetric key with default parameters
+    client_key_id = "Vek #3" + time.strftime('%X %x %Z')
+    response = keyclient.generate_symmetric_key(client_key_id)
+    print_key_request(response.requestInfo)
 
 if __name__ == "__main__":
     main()

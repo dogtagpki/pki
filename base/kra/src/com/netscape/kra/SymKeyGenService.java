@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
@@ -92,7 +93,8 @@ public class SymKeyGenService implements IService {
         String algorithm = request.getExtDataInString(IRequest.SYMKEY_GEN_ALGORITHM);
 
         String usageStr = request.getExtDataInString(IRequest.SYMKEY_GEN_USAGES);
-        List<String> usages = new ArrayList<String>(Arrays.asList(usageStr.split(",")));
+        List<String> usages = new ArrayList<String>(
+                Arrays.asList(StringUtils.split(usageStr, ",")));
 
         String keySizeStr = request.getExtDataInString(IRequest.SYMKEY_GEN_SIZE);
         int keySize = Integer.parseInt(keySizeStr);

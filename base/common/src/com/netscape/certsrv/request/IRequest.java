@@ -174,6 +174,7 @@ public interface IRequest extends Serializable {
     public static final String SYMKEY_GEN_ALGORITHM = "symkeyGenAlgorithm";
     public static final String SYMKEY_GEN_SIZE = "symkeyGenSize";
     public static final String SYMKEY_GEN_USAGES = "symkeyGenUsages";
+    public static final String SYMKEY_TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
 
     // requestor type values.
     public static final String REQUESTOR_EE = "EE";
