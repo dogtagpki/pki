@@ -44,6 +44,7 @@ BuildRequires:    resteasy >= 3.0.1-3
 %endif
 
 BuildRequires:    pylint
+BuildRequires:    python-nss
 BuildRequires:    python-requests
 BuildRequires:    libselinux-python
 BuildRequires:    policycoreutils-python
@@ -993,9 +994,9 @@ fi
 
 %changelog
 * Fri Nov 22 2013 Dogtag Team <pki-devel@redhat.com> 10.2.0-0.1
-- Updated version number to 10.2.0-0.1.
 - Added option to build without server packages.
 - Replaced Jettison with Jackson.
+- Added python-nss build requirement
 
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
