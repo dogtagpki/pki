@@ -433,7 +433,7 @@ class KeyClient(object):
         if secret is None:
             raise ValueError("secret must be specified")
 
-        session_key = self.crypto.generate_symmetric_key()
+        session_key = self.crypto.generate_session_key()
         trans_wrapped_session_key = self.crypto.asymmetric_wrap(session_key, self.transport_cert)
         wrapped_secret = self.crypto.symmetric_wrap(secret, session_key)
 
@@ -591,7 +591,7 @@ class KeyClient(object):
         to authorize the recovery.
 
         To ensure data security in transit, the data will be returned encrypted by a session
-        key (56 bit DES3 symmetric key) - which is first wrapped (encrypted) by the public
+        key (168 bit 3DES symmetric key) - which is first wrapped (encrypted) by the public
         key of the DRM transport certificate before being sent to the DRM.  The
         parameter trans_wrapped_session_key refers to this wrapped session key.
 
@@ -616,7 +616,7 @@ class KeyClient(object):
         key_provided = True
         if trans_wrapped_session_key is None:
             key_provided = False
-            session_key = self.crypto.generate_symmetric_key()
+            session_key = self.crypto.generate_session_key()
             trans_wrapped_session_key = self.crypto.asymmetric_wrap(session_key,
                                                                     self.transport_cert)
 
@@ -660,7 +660,7 @@ class KeyClient(object):
         In this case, CryptoUtil methods will be called to create the data to securely send the
         passphrase to the DRM.  Basically, three pieces of data will be sent:
 
-        - the passphrase wrapped by a 56 bit DES3 symmetric key (the session key).  This
+        - the passphrase wrapped by a 168 bit 3DES symmetric key (the session key).  This
           is referred to as the parameter session_wrapped_passphrase above.
 
         - the session key wrapped with the public key in the DRM transport certificate.  This

@@ -130,7 +130,7 @@ def main():
         print "Failure - key_ids for generation do not match!"
 
     # Test 6: Barbican_decode() - Retrieve while providing trans_wrapped_session_key
-    session_key = crypto.generate_symmetric_key()
+    session_key = crypto.generate_session_key()
     wrapped_session_key = crypto.asymmetric_wrap(session_key, keyclient.transport_cert)
     key_data, _unwrapped_key = keyclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)

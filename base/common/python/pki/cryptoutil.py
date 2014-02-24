@@ -46,8 +46,14 @@ class CryptoUtil(object):
         pass
 
     @abc.abstractmethod
-    def generate_symmetric_key(self, mechanism=None):
+    def generate_symmetric_key(self, mechanism=None, size=0):
         ''' Generate and return a symmetric key '''
+        pass
+
+    @abc.abstractmethod
+    def generate_session_key(self):
+        ''' Generate a session key to be used for wrapping data to the DRM
+        This must return a 3DES 168 bit key '''
         pass
 
     @abc.abstractmethod
@@ -166,10 +172,23 @@ class NSSCryptoUtil(CryptoUtil):
 
         return encoding_ctx, decoding_ctx
 
-    def generate_symmetric_key(self, mechanism=nss.CKM_DES3_CBC_PAD):
-        ''' Returns a symmetric key.'''
+    def generate_symmetric_key(self, mechanism=nss.CKM_DES3_CBC_PAD, size=0):
+        ''' Returns a symmetric key.
+
+        Note that for fixed length keys, this length should be 0.  If no length
+        is provided, then the function will either use 0 (for fixed length keys)
+        or the maximaum available length for that algorithm and the token.
+        '''
         slot = nss.get_best_slot(mechanism)
-        return slot.key_gen(mechanism, None, slot.get_best_key_length(mechanism))
+        if size == 0:
+            size = slot.get_best_key_length(mechanism)
+        return slot.key_gen(mechanism, None, size)
+
+    def generate_session_key(self):
+        ''' Returns a session key to be used when wrapping secrets for the DRM
+        This will return a 168 bit 3DES key.
+        '''
+        return self.generate_symmetric_key(mechanism=nss.CKM_DES3_CBC_PAD)
 
     def symmetric_wrap(self, data, wrapping_key, mechanism=nss.CKM_DES3_CBC_PAD, nonce_iv=None):
         '''
