@@ -162,10 +162,21 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         // auth and authz
         // Catch this before internal server processing has to deal with it
 
-        if (data == null || data.getClientKeyId() == null
-                || data.getWrappedPrivateData() == null
-                || data.getDataType() == null) {
+        if (data == null || data.getClientKeyId() == null || data.getDataType() == null) {
             throw new BadRequestException("Invalid key archival request.");
+        }
+
+        if (data.getWrappedPrivateData() != null) {
+            if (data.getTransWrappedSessionKey() == null ||
+                data.getAlgorithmOID() == null ||
+                data.getSymmetricAlgorithmParams() == null) {
+                throw new BadRequestException(
+                        "Invalid key archival request.  " +
+                        "Missing wrapped session key, algoriithmOIS or symmetric key parameters");
+            }
+        } else if (data.getPKIArchiveOptions() == null) {
+            throw new BadRequestException(
+                    "Invalid key archival request.  No data to archive");
         }
 
         if (data.getDataType().equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {

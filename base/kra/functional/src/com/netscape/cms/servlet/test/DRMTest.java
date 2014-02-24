@@ -263,8 +263,8 @@ public class DRMTest {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
                     KeyGenAlgorithm.DES3, ivps);
 
-            KeyRequestResponse info = keyClient.archiveSecurityData(encoded, clientKeyId,
-                    KeyRequestResource.SYMMETRIC_KEY_TYPE, KeyRequestResource.DES3_ALGORITHM, 0);
+            KeyRequestResponse info = keyClient.archiveSecurityData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE,
+                    KeyRequestResource.DES3_ALGORITHM, 0, encoded);
             log("Archival Results:");
             printRequestInfo(info.getRequestInfo());
             keyId = info.getRequestInfo().getKeyId();
@@ -375,8 +375,8 @@ public class DRMTest {
         try {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase,
                     KeyGenAlgorithm.DES3, ivps);
-            requestResponse = keyClient.archiveSecurityData(encoded, clientKeyId,
-                    KeyRequestResource.PASS_PHRASE_TYPE, null, 0);
+            requestResponse = keyClient.archiveSecurityData(clientKeyId, KeyRequestResource.PASS_PHRASE_TYPE,
+                    null, 0, encoded);
             log("Archival Results:");
             printRequestInfo(requestResponse.getRequestInfo());
             keyId = requestResponse.getRequestInfo().getKeyId();
@@ -661,8 +661,8 @@ public class DRMTest {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
                     KeyGenAlgorithm.DES3, ivps);
 
-            KeyRequestResponse response = keyClient.archiveSecurityData(encoded, clientKeyId,
-                    KeyRequestResource.SYMMETRIC_KEY_TYPE, KeyRequestResource.AES_ALGORITHM, 128);
+            KeyRequestResponse response = keyClient.archiveSecurityData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE,
+                    KeyRequestResource.AES_ALGORITHM, 128, encoded);
             log("Archival Results:");
             printRequestInfo(response.getRequestInfo());
             keyId = response.getRequestInfo().getKeyId();

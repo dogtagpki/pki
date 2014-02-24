@@ -155,6 +155,26 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQUEST_TRANSPORT_CERT = "req_transport_cert";
 
     /**
+     * Session wrapped security data passed in to the DRM archival service
+     */
+    public static final String REQUEST_SECURITY_DATA = "req_security_data";
+
+    /**
+     * Transport Key wrapped session key passed into DRM archival service.
+     */
+    public static final String REQUEST_SESSION_KEY = "req_session_key";
+
+    /**
+     * Symmetric Key algorithm OID passed into DRM archival service
+     */
+    public static final String REQUEST_ALGORITHM_OID = "req_algorithm_oid";
+
+    /**
+     * Symmetric key algorithm params passed into DRM archival service
+     */
+    public static final String REQUEST_ALGORITHM_PARAMS = "req_algorithm_params";
+
+    /**
      * Set Default X509CertInfo in the request.
      *
      * @param request profile-based certificate request.

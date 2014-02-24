@@ -106,7 +106,7 @@ def main():
     # Test 4: generate symkey -- same as barbican_encode()
     print "Now generating symkey on KRA"
     #client_key_id = "Vek #1" + time.strftime('%X %x %Z')
-    client_key_id = "veka6"
+    client_key_id = "veka9"
     algorithm = "AES"
     key_size = 128
     usages = [key.SymKeyGenerationRequest.DECRYPT_USAGE, key.SymKeyGenerationRequest.ENCRYPT_USAGE]
@@ -132,6 +132,7 @@ def main():
     # Test 6: Barbican_decode() - Retrieve while providing trans_wrapped_session_key
     session_key = crypto.generate_session_key()
     wrapped_session_key = crypto.asymmetric_wrap(session_key, keyclient.transport_cert)
+    print "My key id is " + str(key_id)
     key_data, _unwrapped_key = keyclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
     unwrapped_key = crypto.symmetric_unwrap(base64.decodestring(key_data.wrappedPrivateData),
@@ -210,6 +211,18 @@ def main():
     client_key_id = "Vek #3" + time.strftime('%X %x %Z')
     response = keyclient.generate_symmetric_key(client_key_id)
     print_key_request(response.requestInfo)
+
+    # Test 19: Try to archive key
+    print "try to archive key"
+    print "key to archive: " + key1
+    client_key_id = "Vek #4" + time.strftime('%X %x %Z')
+
+    # this test is not quite working yet
+    #response = keyclient.archive_key(client_key_id, keyclient.SYMMETRIC_KEY_TYPE,
+    #                                private_data=base64.decodestring(key1),
+    #                                key_algorithm=keyclient.AES_ALGORITHM,
+    #                                key_size=128)
+    #print_key_request(response.requestInfo)
 
 if __name__ == "__main__":
     main()

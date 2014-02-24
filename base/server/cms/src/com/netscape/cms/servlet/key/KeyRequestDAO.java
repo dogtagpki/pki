@@ -63,6 +63,11 @@ import com.netscape.cms.servlet.request.KeyRequestService;
 public class KeyRequestDAO extends CMSRequestDAO {
 
     private static String REQUEST_ARCHIVE_OPTIONS = IEnrollProfile.REQUEST_ARCHIVE_OPTIONS;
+    private static String REQUEST_SECURITY_DATA = IEnrollProfile.REQUEST_SECURITY_DATA;
+    private static String REQUEST_SESSION_KEY = IEnrollProfile.REQUEST_SESSION_KEY;
+    private static String REQUEST_ALGORITHM_OID = IEnrollProfile.REQUEST_ALGORITHM_OID;
+    private static String REQUEST_ALGORITHM_PARAMS = IEnrollProfile.REQUEST_ALGORITHM_PARAMS;
+
     public static final String ATTR_SERIALNO = "serialNumber";
 
     private IKeyRepository repo;
@@ -140,6 +145,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
     public KeyRequestResponse submitRequest(KeyArchivalRequest data, UriInfo uriInfo) throws EBaseException {
         String clientKeyId = data.getClientKeyId();
         String wrappedSecurityData = data.getWrappedPrivateData();
+        String transWrappedSessionKey = data.getTransWrappedSessionKey();
+        String algorithmOID = data.getAlgorithmOID();
+        String symkeyParams = data.getSymmetricAlgorithmParams();
+        String pkiArchiveOptions = data.getPKIArchiveOptions();
         String dataType = data.getDataType();
         String keyAlgorithm = data.getKeyAlgorithm();
         int keyStrength = data.getKeySize();
@@ -152,7 +161,14 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         IRequest request = queue.newRequest(IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
 
-        request.setExtData(REQUEST_ARCHIVE_OPTIONS, wrappedSecurityData);
+        if (pkiArchiveOptions != null) {
+            request.setExtData(REQUEST_ARCHIVE_OPTIONS, pkiArchiveOptions);
+        } else {
+            request.setExtData(REQUEST_SECURITY_DATA, wrappedSecurityData);
+            request.setExtData(REQUEST_SESSION_KEY, transWrappedSessionKey);
+            request.setExtData(REQUEST_ALGORITHM_PARAMS, symkeyParams);
+            request.setExtData(REQUEST_ALGORITHM_OID, algorithmOID);
+        }
         request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
         request.setExtData(IRequest.SECURITY_DATA_TYPE, dataType);
         request.setExtData(IRequest.SECURITY_DATA_STRENGTH,

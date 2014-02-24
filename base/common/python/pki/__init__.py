@@ -94,6 +94,7 @@ def implementation_version():
 
     raise Exception('Missing implementation version.')
 
+#pylint: disable-msg=R0903
 class Attribute(object):
     '''
     Class representing a key/value pair.
@@ -106,6 +107,7 @@ class Attribute(object):
         self.name = name
         self.value = value
 
+#pylint: disable-msg=R0903
 class AttributeList(object):
     '''
     Class representing a list of attributes.
@@ -113,6 +115,7 @@ class AttributeList(object):
     This class is needed because of a JavaMapper used in the REST API.
     '''
 
+    # pylint: disable-msg=C0103
     def __init__(self):
         ''' Constructor '''
         self.Attribute = []
@@ -123,6 +126,7 @@ class ResourceMessage(object):
     It is essentially a list of attributes.
     '''
 
+    # pylint: disable-msg=C0103
     def __init__(self, class_name):
         ''' Constructor '''
         self.Attributes = AttributeList()
@@ -246,24 +250,24 @@ class PropertyFile(object):
         self.lines = []
 
     def read(self):
-        ''' Read from propert file '''
+        ''' Read from property file '''
         self.lines = []
 
         if not os.path.exists(self.filename):
             return
 
         # read all lines and preserve the original order
-        with open(self.filename, 'r') as f:
-            for line in f:
+        with open(self.filename, 'r') as f_in:
+            for line in f_in:
                 line = line.strip('\n')
                 self.lines.append(line)
 
     def write(self):
         ''' Write to property file '''
         # write all lines in the original order
-        with open(self.filename, 'w') as f:
+        with open(self.filename, 'w') as f_out:
             for line in self.lines:
-                f.write(line + '\n')
+                f_out.write(line + '\n')
 
     def show(self):
         ''' Show contents of property file.'''

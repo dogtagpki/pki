@@ -118,11 +118,28 @@ public class KeyClient extends Client {
         return client.getEntity(response, KeyRequestInfo.class);
     }
 
-    public KeyRequestResponse archiveSecurityData(byte[] encoded, String clientKeyId, String dataType, String algorithm, int strength) {
+    public KeyRequestResponse archiveSecurityData(String clientKeyId, String dataType,
+            String algorithm, int strength, byte[] pkiArchiveOptions) {
         // create archival request
         KeyArchivalRequest data = new KeyArchivalRequest();
-        String req1 = Utils.base64encode(encoded);
-        data.setWrappedPrivateData(req1);
+        data.setPKIArchiveOptions(Utils.base64encode(pkiArchiveOptions));
+        data.setClientKeyId(clientKeyId);
+        data.setDataType(dataType);
+        data.setKeyAlgorithm(algorithm);
+        data.setKeySize(strength);
+
+        return createRequest(data);
+    }
+
+    public KeyRequestResponse archiveSecurityData(String clientKeyId, String dataType,
+            String algorithm, int strength, byte[] wrappedPrivateData,
+            byte[] wrappedSessionKey, String algorithmOID, byte[] algParams) {
+        // create archival request
+        KeyArchivalRequest data = new KeyArchivalRequest();
+        data.setTransWrappedSessionKey(Utils.base64encode(wrappedSessionKey));
+        data.setWrappedPrivateData(Utils.base64encode(wrappedPrivateData));
+        data.setAlgorithmOID(algorithmOID);
+        data.setSymmetricAlgorithmParams(Utils.base64encode(algParams));
         data.setClientKeyId(clientKeyId);
         data.setDataType(dataType);
         data.setKeyAlgorithm(algorithm);

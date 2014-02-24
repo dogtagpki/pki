@@ -84,7 +84,17 @@ public class SecurityDataService implements IService {
             throws EBaseException {
         String id = request.getRequestId().toString();
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
-        String wrappedSecurityData = request.getExtDataInString(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS);
+
+        // one way to get data - unexploded pkiArchiveOptions
+        String pkiArchiveOptions = request.getExtDataInString(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS);
+
+        // another way - exploded pkiArchiveOptions
+        String transWrappedSessionKey = request.getExtDataInString(IEnrollProfile.REQUEST_SESSION_KEY);
+        String wrappedSecurityData = request.getExtDataInString(IEnrollProfile.REQUEST_SECURITY_DATA);
+        String algParams = request.getExtDataInString(IEnrollProfile.REQUEST_ALGORITHM_PARAMS);
+        String algStr = request.getExtDataInString(IEnrollProfile.REQUEST_ALGORITHM_OID);
+
+        // prameters if the secret is a symkey
         String dataType = request.getExtDataInString(IRequest.SECURITY_DATA_TYPE);
         String algorithm = request.getExtDataInString(IRequest.SECURITY_DATA_ALGORITHM);
         int strength = request.getExtDataInInteger(IRequest.SECURITY_DATA_STRENGTH);
@@ -96,25 +106,50 @@ public class SecurityDataService implements IService {
         String subjectID = auditSubjectID();
 
         //Check here even though restful layer checks for this.
-        if(wrappedSecurityData == null || clientKeyId == null || dataType == null) {
+        if (clientKeyId == null || dataType == null) {
             auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Bad data in request");
             throw new EBaseException("Bad data in SecurityDataService.serviceRequest");
         }
-        //We need some info from the PKIArchiveOptions wrapped security data
 
-        byte[] encoded = Utils.base64decode(wrappedSecurityData);
+        if (wrappedSecurityData != null) {
+            if (transWrappedSessionKey == null || algStr == null || algParams == null) {
+                throw new EBaseException(
+                        "Bad data in SecurityDataService.serviceRequest, no session key");
 
-        ArchiveOptions options = ArchiveOptions.toArchiveOptions(encoded);
-
-        //Check here just in case a null ArchiveOptions makes it this far
-        if(options == null) {
-            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Problem decoding PKIArchiveOptions");
-            throw new EBaseException("Problem decoding PKIArchiveOptions.");
+            }
+        } else if (pkiArchiveOptions == null) {
+            throw new EBaseException("No data to archive in SecurityDataService.serviceRequest");
         }
 
-        String algStr = options.getSymmAlgOID();
+        byte[] wrappedSessionKey = null;
+        byte[] secdata = null;
+        byte[] sparams = null;
+
+        if (wrappedSecurityData == null) {
+            // We have PKIArchiveOptions data
+
+            //We need some info from the PKIArchiveOptions wrapped security data
+            byte[] encoded = Utils.base64decode(pkiArchiveOptions);
+
+            ArchiveOptions options = ArchiveOptions.toArchiveOptions(encoded);
+
+            //Check here just in case a null ArchiveOptions makes it this far
+            if (options == null) {
+                auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+                        clientKeyId, null, "Problem decoding PKIArchiveOptions");
+                throw new EBaseException("Problem decoding PKIArchiveOptions.");
+            }
+            algStr = options.getSymmAlgOID();
+            wrappedSessionKey = options.getEncSymmKey();
+            secdata = options.getEncValue();
+            sparams = options.getSymmAlgParams();
+
+        } else {
+            wrappedSessionKey = Utils.base64decode(transWrappedSessionKey);
+            secdata = Utils.base64decode(wrappedSecurityData);
+            sparams = Utils.base64decode(algParams);
+        }
 
         SymmetricKey securitySymKey = null;
         byte[] securityData = null;
@@ -123,19 +158,21 @@ public class SecurityDataService implements IService {
         if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
             // Symmetric Key
             keyType = KeyRequestResource.SYMMETRIC_KEY_TYPE;
-            securitySymKey = mTransportUnit.unwrap_symmetric(options.getEncSymmKey(),
-                      options.getSymmAlgOID(),
-                      options.getSymmAlgParams(),
-                      options.getEncValue(),
-                      KeyRequestService.SYMKEY_TYPES.get(algorithm),
-                      strength);
+            securitySymKey = mTransportUnit.unwrap_symmetric(
+                    wrappedSessionKey,
+                    algStr,
+                    sparams,
+                    secdata,
+                    KeyRequestService.SYMKEY_TYPES.get(algorithm),
+                    strength);
 
         } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
             keyType = KeyRequestResource.PASS_PHRASE_TYPE;
-            securityData = mTransportUnit.decryptExternalPrivate(options.getEncSymmKey(),
-                      options.getSymmAlgOID(),
-                      options.getSymmAlgParams(),
-                      options.getEncValue());
+            securityData = mTransportUnit.decryptExternalPrivate(
+                    wrappedSessionKey,
+                    algStr,
+                    sparams,
+                    secdata);
 
         }
 

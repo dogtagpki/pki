@@ -38,7 +38,17 @@ public class KeyArchivalRequest extends ResourceMessage {
 
     private static final String CLIENT_KEY_ID = "clientKeyID";
     private static final String DATA_TYPE = "dataType";
+
+    // exploded pkiArchiveOptions parameters
     private static final String WRAPPED_PRIVATE_DATA = "wrappedPrivateData";
+    private static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
+    private static final String ALGORITHM_OID = "algorithmOID";
+    private static final String SYMMETRIC_ALGORITHM_PARAMS = "symmetricAlgorithmParams";
+
+    // parameter for un-exploded pkiArchiveOptions
+    private static final String PKI_ARCHIVE_OPTIONS = "pkiArchiveOptions";
+
+    // parameters for symmetric keys
     private static final String KEY_ALGORITHM = "keyAlgorithm";
     private static final String KEY_SIZE = "keySize";
 
@@ -53,6 +63,8 @@ public class KeyArchivalRequest extends ResourceMessage {
         attributes.put(WRAPPED_PRIVATE_DATA, form.getFirst(WRAPPED_PRIVATE_DATA));
         attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
         attributes.put(KEY_SIZE, form.getFirst(KEY_SIZE));
+        attributes.put(PKI_ARCHIVE_OPTIONS, form.getFirst(PKI_ARCHIVE_OPTIONS));
+        attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
         setClassName(getClass().getName());
     }
 
@@ -90,7 +102,63 @@ public class KeyArchivalRequest extends ResourceMessage {
     }
 
     /**
-     * @return the wrappedPrivateData
+     * @return the transWrappedSessionKey
+     */
+    public String getTransWrappedSessionKey() {
+        return attributes.get(TRANS_WRAPPED_SESSION_KEY);
+    }
+
+    /**
+     * @param transWrappedSessionKey the trans wrapped session key to set
+     */
+    public void setTransWrappedSessionKey(String twsk) {
+        attributes.put(TRANS_WRAPPED_SESSION_KEY, twsk);
+    }
+
+    /**
+     * @return the PKIArchiveOptions structure
+     */
+    public String getPKIArchiveOptions() {
+        return attributes.get(PKI_ARCHIVE_OPTIONS);
+    }
+
+    /**
+     * @param pkiArchiveIOptions the archive options structure to set
+     */
+    public void setPKIArchiveOptions(String pkiArchiveOptions) {
+        attributes.put(PKI_ARCHIVE_OPTIONS, pkiArchiveOptions);
+    }
+
+    /**
+     * @return the algorithm OID structure
+     */
+    public String getAlgorithmOID() {
+        return attributes.get(ALGORITHM_OID);
+    }
+
+    /**
+     * @param algorithmOID the symmetric algorithm OID to set
+     */
+    public void setAlgorithmOID(String algOID) {
+        attributes.put(ALGORITHM_OID, algOID);
+    }
+
+    /**
+     * @return the algorithm params structure
+     */
+    public String getSymmetricAlgorithmParams() {
+        return attributes.get(SYMMETRIC_ALGORITHM_PARAMS);
+    }
+
+    /**
+     * @param params the algorithm params to set
+     */
+    public void setSymmetricAlgorithmParams(String params) {
+        attributes.put(SYMMETRIC_ALGORITHM_PARAMS, params);
+    }
+
+    /**
+     * @return the pkiArchiveOptions structure
      */
     public String getWrappedPrivateData() {
         return attributes.get(WRAPPED_PRIVATE_DATA);
