@@ -523,6 +523,16 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+# Create symlinks for TPS web application
+%{__mkdir_p} %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+ln -s %{_javadir}/pki/pki-nsutil.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+ln -s %{_javadir}/pki/pki-cmsutil.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+ln -s %{_javadir}/pki/pki-certsrv.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+ln -s %{_javadir}/pki/pki-cms.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+ln -s %{_javadir}/pki/pki-cmscore.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+ln -s %{_javadir}/pki/pki-cmsbundle.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+ln -s %{_javadir}/pki/pki-tps.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+
 %if %{with server}
 
 # Scanning the python code with pylint. A return value of 0 represents there are no

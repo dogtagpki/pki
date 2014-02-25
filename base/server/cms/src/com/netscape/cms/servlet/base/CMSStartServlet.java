@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -46,9 +45,27 @@ public class CMSStartServlet extends HttpServlet {
     private static final long serialVersionUID = 515623839479425172L;
     public final static String PROP_CMS_CFG = "cfgPath";
 
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        String path = config.getInitParameter(PROP_CMS_CFG);
+    public void init() throws ServletException {
+
+        // get web application context: /<subsystem>
+        String context = getServletContext().getContextPath();
+
+        // get subsystem name by removing the / prefix from the context
+        String subsystem = context.startsWith("/") ? context.substring(1) : context;
+
+        // get config path from web.xml
+        String path = getServletConfig().getInitParameter(PROP_CMS_CFG);
+
+        // if path not specified, use default path
+        if (path == null) {
+            // catalina.base points to instance dir
+            // it's defined as CATALINA_BASE in <instance>/conf/tomcat.conf
+            String instanceDir = System.getProperty("catalina.base");
+
+            // path: <instance>/conf/<subsystem>/CS.cfg
+            path = instanceDir + File.separator + "conf" + File.separator +
+                    subsystem + File.separator + "CS.cfg";
+        }
 
         File f = new File(path);
         String old_path = "";
@@ -88,6 +105,7 @@ public class CMSStartServlet extends HttpServlet {
                         }
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -95,12 +113,11 @@ public class CMSStartServlet extends HttpServlet {
         try {
             CMS.start(path);
         } catch (EBaseException e) {
+            e.printStackTrace();
         }
 
         // Register realm for this subsystem
-        String context = getServletContext().getContextPath();
-        if (context.startsWith("/")) context = context.substring(1);
-        ProxyRealm.registerRealm(context, new PKIRealm());
+        ProxyRealm.registerRealm(subsystem, new PKIRealm());
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)

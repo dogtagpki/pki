@@ -22,7 +22,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<Context crossContext="true" allowLinking="true">
+<Context docBase="/usr/share/pki/tps/webapps/tps" crossContext="true" allowLinking="true">
 
     <Manager
         secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>

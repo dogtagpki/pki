@@ -43,10 +43,6 @@
             <param-value>BasicAclAuthz</param-value>
         </init-param>
         <init-param>
-            <param-name>cfgPath</param-name>
-            <param-value>[PKI_INSTANCE_PATH]/conf/[PKI_SUBSYSTEM_TYPE]/CS.cfg</param-value>
-        </init-param>
-        <init-param>
             <param-name>ID</param-name>
             <param-value>tpsstart</param-value>
         </init-param>

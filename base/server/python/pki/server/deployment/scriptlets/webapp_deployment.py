@@ -44,21 +44,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
 
-            # Copy /usr/share/pki/server/webapps/pki/admin
-            # to <instance>/webapps/<subsystem>/admin
-            # TODO: common templates should be deployed in common webapp
+            # For TPS, deploy web application directly from /usr/share/pki.
+            if deployer.master_dict['pki_subsystem'] == "TPS":
+                deployer.file.copy(
+                    os.path.join(
+                        config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                        "tps",
+                        "conf",
+                        "Catalina",
+                        "localhost",
+                        "tps.xml"),
+                    os.path.join(
+                        deployer.master_dict['pki_instance_configuration_path'],
+                        "Catalina",
+                        "localhost",
+                        "tps.xml"))
+                return self.rv
+
+            # For other subsystems, deploy web application into Tomcat instance.
             deployer.directory.create(deployer.master_dict['pki_tomcat_webapps_subsystem_path'])
-            deployer.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "server",
-                    "webapps",
-                    "pki",
-                    "admin"),
-                os.path.join(
-                    deployer.master_dict['pki_tomcat_webapps_subsystem_path'],
-                    "admin"),
-                overwrite_flag=True)
 
             # Copy /usr/share/pki/<subsystem>/webapps/<subsystem>
             # to <instance>/webapps/<subsystem>
@@ -69,6 +73,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "webapps",
                     deployer.master_dict['pki_subsystem'].lower()),
                 deployer.master_dict['pki_tomcat_webapps_subsystem_path'],
+                overwrite_flag=True)
+
+            # Copy /usr/share/pki/server/webapps/pki/admin
+            # to <instance>/webapps/<subsystem>/admin
+            # TODO: common templates should be deployed in common webapp
+            deployer.directory.copy(
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "server",
+                    "webapps",
+                    "pki",
+                    "admin"),
+                os.path.join(
+                    deployer.master_dict['pki_tomcat_webapps_subsystem_path'],
+                    "admin"),
                 overwrite_flag=True)
 
             deployer.directory.create(
@@ -100,13 +119,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             elif deployer.master_dict['pki_subsystem'] == "TKS":
                 deployer.symlink.create(deployer.master_dict['pki_tks_jar'],
                                     deployer.master_dict['pki_tks_jar_link'])
-            elif deployer.master_dict['pki_subsystem'] == "TPS":
-                deployer.symlink.create(deployer.master_dict['pki_tps_jar'],
-                                    deployer.master_dict['pki_tps_jar_link'])
+
             # set ownerships, permissions, and acls
             deployer.directory.set_mode(deployer.master_dict['pki_tomcat_webapps_subsystem_path'])
 
-            # Copy /usr/share/pki/<subsystem>/conf/Catalina/localhost/<subsystem>.xml
+            # Copy web application context file
+            # from /usr/share/pki/<subsystem>/conf/Catalina/localhost/<subsystem>.xml
             # to <instance>/conf/Catalina/localhost/<subsystem>.xml
             deployer.file.copy(
                 os.path.join(
@@ -137,7 +155,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "localhost",
                     deployer.master_dict['pki_subsystem'].lower() + ".xml"))
 
-            # Delete <instance>/webapps/<subsystem>
-            deployer.directory.delete(deployer.master_dict['pki_tomcat_webapps_subsystem_path'])
+            # For subsystems other than TPS, delete <instance>/webapps/<subsystem>.
+            if deployer.master_dict['pki_subsystem'] != "TPS":
+                deployer.directory.delete(deployer.master_dict['pki_tomcat_webapps_subsystem_path'])
 
         return self.rv
