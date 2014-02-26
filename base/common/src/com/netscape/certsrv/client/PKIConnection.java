@@ -27,6 +27,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
+import javax.ws.rs.core.Response.StatusType;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.http.Header;
@@ -456,7 +458,7 @@ public class PKIConnection {
                 CryptoManager.getInstance();
 
             } catch (NotInitializedException e) {
-                throw new IOException("Certificate database not initialized.", e);
+                throw new Error("Certificate database not initialized.", e);
             }
 
             String hostName = null;
@@ -532,16 +534,18 @@ public class PKIConnection {
     public <T> T getEntity(Response response, Class<T> clazz) {
 
         // handle HTTP status code 4xx and 5xx only
-        int code = response.getStatus();
-        if (code < 400) {
-            if (!response.hasEntity()) return null;
-            return response.readEntity(clazz);
+        StatusType status = response.getStatusInfo();
+        Family family = status.getFamily();
+        if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
+            if (response.hasEntity()) return response.readEntity(clazz);
+            return null;
         }
 
-        String contentType = response.getHeaderString("Content-Type");
+        MediaType contentType = response.getMediaType();
 
-        if (contentType == null)
-            throw new PKIException("HTTP Error " + code);
+        if (!MediaType.APPLICATION_XML_TYPE.equals(contentType)
+                && !MediaType.APPLICATION_JSON_TYPE.equals(contentType))
+            throw new PKIException(status.getStatusCode(), status.getReasonPhrase());
 
         PKIException.Data data = response.readEntity(PKIException.Data.class);
 
