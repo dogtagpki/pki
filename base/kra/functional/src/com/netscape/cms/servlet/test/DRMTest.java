@@ -257,7 +257,7 @@ public class DRMTest {
 
         // Test 4: Generate and archive a symmetric key
         log("Archiving symmetric key");
-        clientKeyId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
+        clientKeyId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime();
         try {
             vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
@@ -371,7 +371,7 @@ public class DRMTest {
 
         passphrase = "secret12345";
         // Test 12: Generate and archive a passphrase
-        clientKeyId = "UUID: 123-45-6789 RKEK " + Calendar.getInstance().getTime().toString();
+        clientKeyId = "UUID: 123-45-6789 RKEK " + Calendar.getInstance().getTime();
         try {
             byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase,
                     KeyGenAlgorithm.DES3, ivps);
@@ -571,7 +571,7 @@ public class DRMTest {
         }
 
         // test 28: Generate symmetric key
-        clientKeyId = "Symmetric Key #1234f " + Calendar.getInstance().getTime().toString();
+        clientKeyId = "Symmetric Key #1234f " + Calendar.getInstance().getTime();
         List<String> usages = new ArrayList<String>();
         usages.add(SymKeyGenerationRequest.DECRYPT_USAGE);
         usages.add(SymKeyGenerationRequest.ENCRYPT_USAGE);
@@ -652,7 +652,7 @@ public class DRMTest {
 
         // Test 36: Generate and archive a symmetric key of type AES
         log("Archiving symmetric key");
-        clientKeyId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
+        clientKeyId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime();
         try {
             KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.AES);
             kg.initialize(128);

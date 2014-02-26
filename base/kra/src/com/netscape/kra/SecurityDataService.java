@@ -133,13 +133,6 @@ public class SecurityDataService implements IService {
             byte[] encoded = Utils.base64decode(pkiArchiveOptions);
 
             ArchiveOptions options = ArchiveOptions.toArchiveOptions(encoded);
-
-            //Check here just in case a null ArchiveOptions makes it this far
-            if (options == null) {
-                auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
-                        clientKeyId, null, "Problem decoding PKIArchiveOptions");
-                throw new EBaseException("Problem decoding PKIArchiveOptions.");
-            }
             algStr = options.getSymmAlgOID();
             wrappedSessionKey = options.getEncSymmKey();
             secdata = options.getEncValue();

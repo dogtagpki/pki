@@ -69,7 +69,10 @@ class KeyData(object):
         ''' Return a KeyData object from a JSON dict '''
         key_data = cls()
         for key in attr_list:
-            setattr(key_data, key, attr_list[key])
+            if (key == "wrappedPrivateData") or (key == "nonceData"):
+                setattr(key_data, key, base64.decodestring(attr_list[key]))
+            else:
+                setattr(key_data, key, attr_list[key])
         return key_data
 
 class KeyInfo(object):
@@ -342,7 +345,7 @@ class KeyClient(object):
     def set_transport_cert(self, transport_cert_nick):
         ''' Set the transport certificate for crypto operations '''
         if transport_cert_nick is None:
-            raise ValueError("Transport cert nickname must be specified.")
+            raise TypeError("Transport certificate nickname must be specified.")
         self.transport_cert = self.crypto.get_cert(transport_cert_nick)
 
     @pki.handle_exceptions()
@@ -378,7 +381,7 @@ class KeyClient(object):
     def get_request_info(self, request_id):
         ''' Return a KeyRequestInfo object for a specific request. '''
         if request_id is None:
-            raise ValueError("request_id must be specified")
+            raise TypeError("Request ID must be specified")
 
         url = self.key_requests_url + '/' + request_id
         response = self.connection.get(url, self.headers)
@@ -388,7 +391,7 @@ class KeyClient(object):
     def get_key_info(self, key_id):
         ''' Get the info in the KeyRecord for a specific secret in the DRM. '''
         if key_id is None:
-            raise ValueError("key_id must be specified")
+            raise TypeError("Key ID must be specified")
 
         url = self.key_url + '/' + key_id
         response = self.connection.get(url, headers=self.headers)
@@ -398,9 +401,9 @@ class KeyClient(object):
     def get_active_key_info(self, client_key_id):
         ''' Get the info in the KeyRecord for the active secret in the DRM. '''
         if client_key_id is None:
-            raise ValueError("client_key_id must be specified")
+            raise TypeError("Client Key ID must be specified")
 
-        url = self.key_url + '/active/' + urllib.quote_plus(client_key_id)
+        url = self.key_url + '/active/' + urllib.quote(client_key_id)
         response = self.connection.get(url, headers=self.headers)
         return KeyInfo.from_json(response.json())
 
@@ -408,7 +411,7 @@ class KeyClient(object):
     def modify_key_status(self, key_id, status):
         ''' Modify the status of a key '''
         if (key_id is None) or (status is None):
-            raise ValueError("key_id and status must be specified")
+            raise TypeError("Key ID and status must be specified")
 
         url = self.key_url + '/' + key_id
         params = {'status':status}
@@ -418,7 +421,7 @@ class KeyClient(object):
     def approve_request(self, request_id):
         ''' Approve a secret recovery request '''
         if request_id is None:
-            raise ValueError("request_id must be specified")
+            raise TypeError("Request ID must be specified")
 
         url = self.key_requests_url + '/' + request_id + '/approve'
         self.connection.post(url, self.headers)
@@ -427,7 +430,7 @@ class KeyClient(object):
     def reject_request(self, request_id):
         ''' Reject a secret recovery request. '''
         if request_id is None:
-            raise ValueError("request_id must be specified")
+            raise TypeError("Request ID must be specified")
 
         url = self.key_requests_url + '/' + request_id + '/reject'
         self.connection.post(url, self.headers)
@@ -436,7 +439,7 @@ class KeyClient(object):
     def cancel_request(self, request_id):
         ''' Cancel a secret recovery request '''
         if request_id is None:
-            raise ValueError("request_id must be specified")
+            raise TypeError("Request ID must be specified")
 
         url = self.key_requests_url + '/' + request_id + '/cancel'
         self.connection.post(url, self.headers)
@@ -452,7 +455,7 @@ class KeyClient(object):
             returns a KeyRequestResponse object.
         '''
         if request is None:
-            raise ValueError("request must be specified")
+            raise TypeError("Request must be specified")
 
         url = self.key_requests_url
         key_request = json.dumps(request, cls=encoder.CustomTypeEncoder, sort_keys=True)
@@ -469,7 +472,7 @@ class KeyClient(object):
 
         '''
         if client_key_id is None:
-            raise ValueError("Must specify client_key_id")
+            raise TypeError("Must specify Client Key ID")
 
         if trans_wrapped_session_key is not None:
             twsk = base64.encodestring(trans_wrapped_session_key)
@@ -490,10 +493,7 @@ class KeyClient(object):
         return self.create_request(request)
 
     @pki.handle_exceptions()
-    def archive_key(self, client_key_id, data_type, private_data=None,
-                    wrapped_private_data=None, trans_wrapped_session_key=None,
-                    algorithm_oid=None, symkey_params=None,
-                    pki_archive_options=None,
+    def archive_key(self, client_key_id, data_type, private_data,
                     key_algorithm=None, key_size=None):
         ''' Archive a secret (symmetric key or passphrase) on the DRM.
 
@@ -509,12 +509,57 @@ class KeyClient(object):
             key_algorithm and key_size are applicable to symmetric keys only.
             If a symmetric key is being archived, these parameters are required.
 
-            Callers can invoke this method in one of three ways:
+            private_data is the raw secret to be archived.
+            It will be wrapped and sent to the DRM.
 
-            1. Provide the private_data.  This is the secret to be archived.
-               It will be wrapped and sent to the DRM.
+            The function returns a KeyRequestResponse object containing a KeyRequestInfo
+            object with details about the archival request and key archived.
+        '''
+        if (client_key_id is None) or (data_type is None):
+            raise TypeError("Client Key ID and data type must be specified")
 
-            2. Provide the following pieces:
+        if data_type == KeyClient.SYMMETRIC_KEY_TYPE:
+            if (key_algorithm is None) or (key_size is None):
+                raise TypeError(
+                        "For symmetric keys, key algorithm and key_size must be specified")
+
+        if private_data is None:
+            raise TypeError("No data provided to be archived")
+
+        session_key = self.crypto.generate_session_key()
+        trans_wrapped_session_key = \
+            self.crypto.asymmetric_wrap(session_key, self.transport_cert)
+        wrapped_private_data = self.crypto.symmetric_wrap(private_data, session_key)
+
+        twsk = base64.encodestring(trans_wrapped_session_key)
+        data = base64.encodestring(wrapped_private_data)
+
+        # TODO - generate_algorithm_oid here
+        # generate symkey_params here
+        algorithm_oid = "todo - fix me"
+        symkey_params = "todo - fix me"
+
+        request = KeyArchivalRequest(client_key_id=client_key_id,
+                         data_type=data_type,
+                         wrapped_private_data=data,
+                         trans_wrapped_session_key=twsk,
+                         algorithm_oid=algorithm_oid,
+                         symkey_params=symkey_params,
+                         key_algorithm=key_algorithm,
+                         key_size=key_size)
+        return self.create_request(request)
+
+    @pki.handle_exceptions()
+    def archive_wrapped_data(self, client_key_id, data_type,
+                    wrapped_private_data, trans_wrapped_session_key,
+                    algorithm_oid, symkey_params,
+                    key_algorithm=None, key_size=None):
+        ''' Archive a secret (symmetric key or passphrase) on the DRM.
+
+            Refer to archive_key() comments for a description of client_key_id,
+            data_type, key_algorithm and key_size.
+
+            The following parameters are also required:
                 - wrapped_private_data - which is the secret wrapped by a session
                 key (168 bit 3DES symmetric key)
                 - trans_wrapped_session_key - the above session key wrapped by the
@@ -522,58 +567,28 @@ class KeyClient(object):
                 - the algorithm_oid string for the symmetric key wrap
                 - the symkey_params for the symmetric key wrap
 
-            3. wrapped_private_data which consists of a PKIArchiveOptions structure,
-
-            private_data is the secret that is to be archived.
+            This function is useful if the caller wants to do their own wrapping
+            of the secret, or if the secret was generated on a separate client
+            machine and the wrapping was done there.
 
             The function returns a KeyRequestResponse object containing a KeyRequestInfo
             object with details about the archival request and key archived.
         '''
         if (client_key_id is None) or (data_type is None):
-            raise ValueError("client_key_id and data_type must be specified")
+            raise TypeError("Client Key ID and data type must be specified")
 
         if data_type == KeyClient.SYMMETRIC_KEY_TYPE:
             if (key_algorithm is None) or (key_size is None):
-                raise ValueError(
-                        "For symmetric keys, key algorithm and key_size must be specified")
+                raise TypeError(
+                        "For symmetric keys, key algorithm and key size must be specified")
 
-        if private_data is None:
-            if wrapped_private_data is None:
-                if pki_archive_options is None:
-                    raise ValueError("No data provided to be archived")
-                else:
-                    data = base64.encodestring(pki_archive_options)
-                    request = KeyArchivalRequest(client_key_id=client_key_id,
-                                     data_type=data_type,
-                                     pki_archive_options=data,
-                                     key_algorithm=key_algorithm,
-                                     key_size=key_size)
-            if trans_wrapped_session_key is None:
-                raise ValueError("Session Key not provided")
-            else:
-                twsk = base64.encodestring(trans_wrapped_session_key)
-                data = base64.encodestring(wrapped_private_data)
-                request = KeyArchivalRequest(client_key_id=client_key_id,
-                                 data_type=data_type,
-                                 wrapped_private_data=data,
-                                 trans_wrapped_session_key=twsk,
-                                 algorithm_oid=algorithm_oid,
-                                 symkey_params=symkey_params,
-                                 key_algorithm=key_algorithm,
-                                 key_size=key_size)
-        else:
-            session_key = self.crypto.generate_session_key()
-            trans_wrapped_session_key = \
-                self.crypto.asymmetric_wrap(session_key, self.transport_cert)
-            wrapped_private_data = self.crypto.symmetric_wrap(private_data, session_key)
+        if (wrapped_private_data is None) or (trans_wrapped_session_key is None) or \
+           (algorithm_oid is None)  or (symkey_params is None):
+            raise TypeError("All data and wrapping parameters must be specified")
 
-            twsk = base64.encodestring(trans_wrapped_session_key)
-            data = base64.encodestring(wrapped_private_data)
-
-            # TODO - generate_algorithm_oid here
-            # generate symkey_params here
-
-            request = KeyArchivalRequest(client_key_id=client_key_id,
+        twsk = base64.encodestring(trans_wrapped_session_key)
+        data = base64.encodestring(wrapped_private_data)
+        request = KeyArchivalRequest(client_key_id=client_key_id,
                             data_type=data_type,
                             wrapped_private_data=data,
                             trans_wrapped_session_key=twsk,
@@ -581,6 +596,40 @@ class KeyClient(object):
                             symkey_params=symkey_params,
                             key_algorithm=key_algorithm,
                             key_size=key_size)
+
+        return self.create_request(request)
+
+    @pki.handle_exceptions()
+    def archive_options_data(self, client_key_id, data_type, pki_archive_options,
+                    key_algorithm=None, key_size=None):
+        ''' Archive a secret (symmetric key or passphrase) on the DRM.
+
+            Refer to archive_key() comments for a description of client_key_id,
+            data_type, key_algorithm and key_size.
+
+            pki_archive_options is the data to be archived wrapped in a
+            PKIArchiveOptions structure,
+
+            The function returns a KeyRequestResponse object containing a KeyRequestInfo
+            object with details about the archival request and key archived.
+        '''
+        if (client_key_id is None) or (data_type is None):
+            raise TypeError("Client Key_ID and Data Type must be specified")
+
+        if data_type == KeyClient.SYMMETRIC_KEY_TYPE:
+            if (key_algorithm is None) or (key_size is None):
+                raise TypeError(
+                        "For symmetric keys, key algorithm and key_size must be specified")
+
+        if pki_archive_options is None:
+            raise TypeError("No data provided to be archived")
+
+        data = base64.encodestring(pki_archive_options)
+        request = KeyArchivalRequest(client_key_id=client_key_id,
+                           data_type=data_type,
+                           pki_archive_options=data,
+                           key_algorithm=key_algorithm,
+                           key_size=key_size)
         return self.create_request(request)
 
     @pki.handle_exceptions()
@@ -597,7 +646,7 @@ class KeyClient(object):
             is required.
         '''
         if key_id is None:
-            raise ValueError("key_id must be defined")
+            raise TypeError("Key ID must be defined")
 
         request = KeyRecoveryRequest(key_id=key_id,
                                      request_id=request_id,
@@ -619,7 +668,7 @@ class KeyClient(object):
             Returns a KeyData object containing the wrapped secret.
         '''
         if data is None:
-            raise ValueError("KeyRecoveryRequest must be specified")
+            raise TypeError("Key Recovery Request must be specified")
 
         url = self.key_url + '/retrieve'
         key_request = json.dumps(data, cls=encoder.CustomTypeEncoder, sort_keys=True)
@@ -655,7 +704,7 @@ class KeyClient(object):
         wrapped secret and some nonce data to be used as a salt when unwrapping.
         '''
         if key_id is None:
-            raise ValueError("key_id must be specified")
+            raise TypeError("Key ID must be specified")
 
         key_provided = True
         if trans_wrapped_session_key is None:
@@ -678,9 +727,9 @@ class KeyClient(object):
             return key_data, None
 
         unwrapped_key = self.crypto.symmetric_unwrap(
-                                base64.decodestring(key_data.wrappedPrivateData),
+                                key_data.wrappedPrivateData,
                                 session_key,
-                                nonce_iv=base64.decodestring(key_data.nonceData))
+                                nonce_iv=key_data.nonceData)
         return key_data, unwrapped_key
 
     @pki.handle_exceptions()
@@ -741,7 +790,7 @@ class KeyClient(object):
         The function returns a KeyData object.
         '''
         if (key_id is None) or (certificate is None) or (passphrase is None):
-            raise ValueError("key_id, certificate and passphrase must all be specified")
+            raise TypeError("Key ID, certificate and passphrase must all be specified")
 
         response = self.recover_key(key_id, b64certificate=certificate)
         request_id = response.get_request_id()

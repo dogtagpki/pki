@@ -98,15 +98,16 @@ class NSSCryptoUtil(CryptoUtil):
         ''' Create an NSS database '''
         if os.path.exists(db_dir):
             if not over_write:
-                raise exceptions.ValueError(
-                        "Directory already exists and over_write is false")
+                raise exceptions.IOError(
+                        "Directory already exists.")
             if os.path.isdir(db_dir):
                 shutil.rmtree(db_dir)
             else:
                 os.remove(db_dir)
         os.makedirs(db_dir)
 
-        with tempfile.NamedTemporaryFile() as pwd_file:
+        home = os.path.expanduser("~")
+        with tempfile.NamedTemporaryFile(dir=home) as pwd_file:
             pwd_file.write(password)
             pwd_file.flush()
             command = ['certutil', '-N', '-d', db_dir, '-f', pwd_file.name]
@@ -145,7 +146,7 @@ class NSSCryptoUtil(CryptoUtil):
         # Get a PK11 slot based on the cipher
         slot = nss.get_best_slot(mechanism)
 
-        if sym_key == None:
+        if sym_key is None:
             sym_key = slot.key_gen(mechanism, None, slot.get_best_key_length(mechanism))
 
         # If initialization vector was supplied use it, otherwise set it to None
@@ -192,7 +193,7 @@ class NSSCryptoUtil(CryptoUtil):
 
     def symmetric_wrap(self, data, wrapping_key, mechanism=nss.CKM_DES3_CBC_PAD, nonce_iv=None):
         '''
-        :param data:           Data to be wrapped
+        :param data            Data to be wrapped
         :param wrapping_key    Symmetric key to wrap data
 
         Wrap (encrypt) data using the supplied symmetric key
@@ -203,13 +204,13 @@ class NSSCryptoUtil(CryptoUtil):
 
     def symmetric_unwrap(self, data, wrapping_key, mechanism=nss.CKM_DES3_CBC_PAD, nonce_iv=None):
         '''
-        :param data:           Data to be unwrapped
+        :param data            Data to be unwrapped
         :param wrapping_key    Symmetric key to unwrap data
         :param nonce_iv        iv data
 
         Unwrap (decrypt) data using the supplied symmetric key
         '''
-        if nonce_iv == None:
+        if nonce_iv is None:
             nonce_iv = self.nonce_iv
         else:
             nonce_iv = nss.data_to_hex(nonce_iv)
@@ -221,7 +222,7 @@ class NSSCryptoUtil(CryptoUtil):
 
     def asymmetric_wrap(self, data, wrapping_cert, mechanism=nss.CKM_DES3_CBC_PAD):
         '''
-        :param data:            Data to be wrapped
+        :param data             Data to be wrapped
         :param wrapping_cert    Public key to wrap data
         :param mechanism        algorithm of symmetric key to be wrapped
 

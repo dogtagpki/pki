@@ -48,7 +48,7 @@ def print_key_request(request):
 def print_key_info(key_info):
     ''' Prints the relevant fields of a KeyInfo object '''
     print "Key URL: " + str(key_info.keyURL)
-    print "Client ID: " + str(key_info.clientKeyID)
+    print "Client Key ID: " + str(key_info.clientKeyID)
     print "Algorithm: " + str(key_info.algorithm)
     print "Status: " + str(key_info.status)
     print "Owner Name: " + str(key_info.ownerName)
@@ -58,8 +58,8 @@ def print_key_data(key_data):
     ''' Prints the relevant fields of a KeyData object '''
     print "Key Algorithm: " + str(key_data.algorithm)
     print "Key Size: " + str(key_data.size)
-    print "Nonce Data: " + str(key_data.nonceData)
-    print "Wrapped Private Data: " + str(key_data.wrappedPrivateData)
+    print "Nonce Data: " + base64.encodestring(key_data.nonceData)
+    print "Wrapped Private Data: " + base64.encodestring(key_data.wrappedPrivateData)
 
 def main():
     ''' test code execution '''
@@ -105,8 +105,7 @@ def main():
 
     # Test 4: generate symkey -- same as barbican_encode()
     print "Now generating symkey on KRA"
-    #client_key_id = "Vek #1" + time.strftime('%X %x %Z')
-    client_key_id = "veka9"
+    client_key_id = "Vek #1" + time.strftime('%c')
     algorithm = "AES"
     key_size = 128
     usages = [key.SymKeyGenerationRequest.DECRYPT_USAGE, key.SymKeyGenerationRequest.ENCRYPT_USAGE]
@@ -135,9 +134,9 @@ def main():
     print "My key id is " + str(key_id)
     key_data, _unwrapped_key = keyclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
-    unwrapped_key = crypto.symmetric_unwrap(base64.decodestring(key_data.wrappedPrivateData),
+    unwrapped_key = crypto.symmetric_unwrap(key_data.wrappedPrivateData,
                                             session_key,
-                                            nonce_iv=base64.decodestring(key_data.nonceData))
+                                            nonce_iv=key_data.nonceData)
     key1 = base64.encodestring(unwrapped_key)
 
     # Test 7: Recover key without providing trans_wrapped_session_key
@@ -208,18 +207,18 @@ def main():
         print "ResourceNotFoundException thrown - Code: " + exc.code + "Message: " + exc.message
 
     #Test 18: Generate a symmetric key with default parameters
-    client_key_id = "Vek #3" + time.strftime('%X %x %Z')
+    client_key_id = "Vek #3" + time.strftime('%c')
     response = keyclient.generate_symmetric_key(client_key_id)
     print_key_request(response.requestInfo)
 
     # Test 19: Try to archive key
     print "try to archive key"
     print "key to archive: " + key1
-    client_key_id = "Vek #4" + time.strftime('%X %x %Z')
+    client_key_id = "Vek #4" + time.strftime('%c')
 
     # this test is not quite working yet
     #response = keyclient.archive_key(client_key_id, keyclient.SYMMETRIC_KEY_TYPE,
-    #                                private_data=base64.decodestring(key1),
+    #                                base64.decodestring(key1),
     #                                key_algorithm=keyclient.AES_ALGORITHM,
     #                                key_size=128)
     #print_key_request(response.requestInfo)
