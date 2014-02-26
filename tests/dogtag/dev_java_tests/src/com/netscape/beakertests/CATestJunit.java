@@ -73,7 +73,7 @@ public class CATestJunit extends PKIJUnitTest {
             config.setServerURI(protocol + "://" + host + ":" + port + "/ca");
             config.setCertNickname(clientCertNickname);
             log("URI::: " + config.getServerURI().toString());
-            client = new CAClient(new PKIClient(config));
+            client = new CAClient(new PKIClient(config, null));
             certClient = (CertClient)client.getClient("cert");
         } catch (Exception e) {
             e.printStackTrace();

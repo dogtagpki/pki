@@ -50,9 +50,6 @@ import com.netscape.certsrv.logging.ILogger;
  */
 public class PKIService {
 
-    public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-
     // caching parameters
     public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
@@ -141,7 +138,7 @@ public class PKIService {
     public CertData createCertificateData(org.mozilla.jss.crypto.X509Certificate cert)
             throws CertificateEncodingException {
         CertData data = new CertData();
-        String b64 = HEADER + CMS.BtoA(cert.getEncoded()) + TRAILER;
+        String b64 = CertData.HEADER + CMS.BtoA(cert.getEncoded()) + CertData.FOOTER;
         data.setEncoded(b64);
         return data;
     }

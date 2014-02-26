@@ -192,7 +192,7 @@ class NSSCryptoUtil(CryptoUtil):
 
         Note that for fixed length keys, this length should be 0.  If no length
         is provided, then the function will either use 0 (for fixed length keys)
-        or the maximaum available length for that algorithm and the token.
+        or the maximum available length for that algorithm and the token.
         '''
         slot = nss.get_best_slot(mechanism)
         if size == 0:

@@ -97,7 +97,7 @@ public class KeyFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        KeyInfoCollection keys = keyCLI.keyClient.findKeys(clientKeyID, status, maxResults, maxTime, start, size);
+        KeyInfoCollection keys = keyCLI.keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size);
 
         Collection<KeyInfo> entries = keys.getEntries();
 

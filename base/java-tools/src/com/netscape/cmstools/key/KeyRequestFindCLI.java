@@ -103,7 +103,7 @@ public class KeyRequestFindCLI extends CLI {
         s = cmd.getOptionValue("maxTime");
         Integer maxTime = s == null ? null : Integer.valueOf(s);
 
-        KeyRequestInfoCollection keys = keyCLI.keyClient.findRequests(
+        KeyRequestInfoCollection keys = keyCLI.keyClient.listRequests(
                 status, type, clientKeyID, start, pageSize, maxResults, maxTime);
 
         MainCLI.printMessage(keys.getTotal() + " entries matched");

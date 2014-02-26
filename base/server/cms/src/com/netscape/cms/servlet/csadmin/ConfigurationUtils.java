@@ -224,7 +224,7 @@ public class ConfigurationUtils {
         config.setServerURI(protocol + "://" + hostname + ":" + port + path);
         config.setCertNickname(clientnickname);
 
-        PKIClient client = new PKIClient(config);
+        PKIClient client = new PKIClient(config, null);
         PKIConnection connection = client.getConnection();
         return connection.post(map);
     }
@@ -338,7 +338,7 @@ public class ConfigurationUtils {
         config.setUsername(user);
         config.setPassword(passwd);
 
-        PKIClient client = new PKIClient(config);
+        PKIClient client = new PKIClient(config, null);
         PKIConnection connection = client.getConnection();
 
         // Ignore the "UNTRUSTED_ISSUER" validity status
@@ -3595,7 +3595,7 @@ public class ConfigurationUtils {
         config.setCertNickname(dbNick);
         config.setCertPassword(dbPass);
 
-        PKIClient client = new PKIClient(config);
+        PKIClient client = new PKIClient(config, null);
         PKIConnection connection = client.getConnection();
 
         // Ignore the "UNTRUSTED_ISSUER" and "CA_CERT_INVALID" validity status

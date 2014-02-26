@@ -190,7 +190,7 @@ public class ConfigurationTest {
             ClientConfig config = new ClientConfig();
             config.setServerURI(protocol + "://" + host + ":" + port);
 
-            client = new SystemConfigClient(new PKIClient(config), cstype);
+            client = new SystemConfigClient(new PKIClient(config, null), cstype);
         } catch (URISyntaxException e1) {
             e1.printStackTrace();
             System.exit(1);

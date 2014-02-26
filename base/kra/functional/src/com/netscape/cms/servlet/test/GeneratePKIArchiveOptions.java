@@ -199,7 +199,7 @@ public class GeneratePKIArchiveOptions {
         // Data to be archived
         SymmetricKey vek = null;
         if (!passphraseMode) {
-            vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
+            vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3, 0);
             // store vek in file
             write_file(Utils.base64encode(vek.getKeyData()), key_file);
         }
@@ -208,10 +208,10 @@ public class GeneratePKIArchiveOptions {
 
         if (passphraseMode) {
             encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase,
-                    KeyGenAlgorithm.DES3, ivps);
+                    KeyGenAlgorithm.DES3, 0, ivps);
         } else {
             encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
-                    KeyGenAlgorithm.DES3, ivps);
+                    KeyGenAlgorithm.DES3, 0, ivps);
         }
 
         // write encoded to file

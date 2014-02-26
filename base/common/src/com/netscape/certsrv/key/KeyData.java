@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement(name="KeyData")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.NONE)
 public class KeyData {
     @XmlElement
     String wrappedPrivateData;
@@ -47,6 +47,8 @@ public class KeyData {
 
     @XmlElement
     Integer size;
+
+    String privateData;
 
     public KeyData() {
         // required for JAXB (defaults)
@@ -122,5 +124,13 @@ public class KeyData {
      */
     public void setSize(Integer size) {
         this.size = size;
+    }
+
+    public String getPrivateData() {
+        return privateData;
+    }
+
+    public void setPrivateData(String privateData) {
+        this.privateData = privateData;
     }
 }

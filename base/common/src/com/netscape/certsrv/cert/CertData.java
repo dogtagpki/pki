@@ -54,6 +54,10 @@ public class CertData {
         }
     }
 
+    /* HEADER and FOOTER used to create an encoded cert string*/
+    public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
+    public static final String FOOTER = "-----END NEW CERTIFICATE REQUEST-----";
+
     CertId serialNumber;
     String issuerDN;
     String subjectDN;

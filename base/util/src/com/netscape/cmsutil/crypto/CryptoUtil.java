@@ -39,6 +39,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -1302,11 +1303,15 @@ public class CryptoUtil {
      * Generates a symmetric key.
      */
     public static SymmetricKey generateKey(CryptoToken token,
-            KeyGenAlgorithm alg)
+            KeyGenAlgorithm alg, int keySize)
             throws TokenException, NoSuchAlgorithmException,
-                IllegalStateException {
+                IllegalStateException, InvalidAlgorithmParameterException {
         try {
             KeyGenerator kg = token.getKeyGenerator(alg);
+            if (alg == KeyGenAlgorithm.AES || alg == KeyGenAlgorithm.RC4
+                    || alg == KeyGenAlgorithm.RC2) {
+                kg.initialize(keySize);
+            }
 
             return kg.generate();
         } catch (CharConversionException e) {
@@ -1533,6 +1538,19 @@ public class CryptoUtil {
         return certs;
     }
 
+    /**
+     * Generates a nonve_iv for padding.
+     *
+     * @return
+     */
+    public static byte[] getNonceData(int size) {
+        byte[] iv = new byte[size];
+        Random rnd = new Random();
+        rnd.nextBytes(iv);
+
+        return iv;
+    }
+
     public static String unwrapUsingPassphrase(String wrappedRecoveredKey, String recoveryPassphrase)
             throws IOException, InvalidBERException, InvalidKeyException, IllegalStateException,
             NoSuchAlgorithmException, InvalidAlgorithmParameterException, NotInitializedException, TokenException,
@@ -1605,7 +1623,7 @@ public class CryptoUtil {
     }
 
     public static byte[] createPKIArchiveOptions(CryptoManager manager, CryptoToken token, String transportCert,
-            SymmetricKey vek, String passphrase, KeyGenAlgorithm keyGenAlg, IVParameterSpec IV) throws TokenException,
+            SymmetricKey vek, String passphrase, KeyGenAlgorithm keyGenAlg, int symKeySize, IVParameterSpec IV) throws TokenException,
             CharConversionException,
             NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException,
             CertificateEncodingException, IOException, IllegalStateException, IllegalBlockSizeException,
@@ -1613,7 +1631,7 @@ public class CryptoUtil {
         byte[] key_data = null;
 
         //generate session key
-        SymmetricKey sk = CryptoUtil.generateKey(token, keyGenAlg);
+        SymmetricKey sk = CryptoUtil.generateKey(token, keyGenAlg, symKeySize);
 
         if (passphrase != null) {
             key_data = wrapPassphrase(token, passphrase, IV, sk, EncryptionAlgorithm.DES3_CBC_PAD);

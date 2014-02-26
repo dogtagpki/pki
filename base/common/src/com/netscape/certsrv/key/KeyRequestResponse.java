@@ -18,10 +18,16 @@
 
 package com.netscape.certsrv.key;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.request.RequestId;
+
 @XmlRootElement(name = "KeyRequestResponse")
+@XmlAccessorType(XmlAccessType.NONE)
 public class KeyRequestResponse {
     KeyRequestInfo requestInfo;
     KeyData keyData;
@@ -42,5 +48,13 @@ public class KeyRequestResponse {
 
     public void setKeyData(KeyData keyData) {
         this.keyData = keyData;
+    }
+
+    public KeyId getKeyId(){
+        return this.requestInfo.getKeyId();
+    }
+
+    public RequestId getRequestId(){
+        return this.requestInfo.getRequestId();
     }
 }

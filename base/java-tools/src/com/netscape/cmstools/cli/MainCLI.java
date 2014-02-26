@@ -287,7 +287,7 @@ public class MainCLI extends CLI {
 
         }
 
-        client = new PKIClient(config);
+        client = new PKIClient(config, null);
         client.setVerbose(verbose);
 
         PKIConnection connection = client.getConnection();

@@ -1,7 +1,5 @@
 package com.netscape.certsrv.kra;
 
-import java.net.URISyntaxException;
-
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
@@ -13,12 +11,12 @@ import com.netscape.certsrv.user.UserClient;
 
 public class KRAClient extends SubsystemClient {
 
-    public KRAClient(PKIClient client) throws URISyntaxException {
+    public KRAClient(PKIClient client) throws Exception {
         super(client, "kra");
         init();
     }
 
-    public void init() throws URISyntaxException {
+    public void init() throws Exception {
 
         addClient(new AuditClient(client, name));
         addClient(new GroupClient(client, name));

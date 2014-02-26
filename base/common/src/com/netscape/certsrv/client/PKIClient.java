@@ -28,6 +28,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.util.CryptoProvider;
 import com.netscape.cmsutil.util.Utils;
 
 
@@ -37,12 +38,13 @@ public class PKIClient {
 
     public ClientConfig config;
     public PKIConnection connection;
+    public CryptoProvider crypto;
 
     public boolean verbose;
 
-    public PKIClient(ClientConfig config) {
+    public PKIClient(ClientConfig config, CryptoProvider crypto) {
         this.config = config;
-
+        this.crypto = crypto;
         connection = new PKIConnection(this);
     }
 
@@ -80,6 +82,14 @@ public class PKIClient {
 
     public ClientConfig getConfig() {
         return config;
+    }
+
+    public CryptoProvider getCrypto() {
+        return crypto;
+    }
+
+    public void setCrypto(CryptoProvider crypto) {
+        this.crypto = crypto;
     }
 
     public PKIConnection getConnection() {
