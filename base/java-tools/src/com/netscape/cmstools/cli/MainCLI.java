@@ -70,6 +70,7 @@ public class MainCLI extends CLI {
         addModule(new TPSCLI(this));
 
         addModule(new ClientCLI(this));
+        addModule(new HelpCLI(this));
 
         addModule(new ProxyCLI(new CertCLI(this), "ca"));
         addModule(new ProxyCLI(new GroupCLI(this), "ca"));
