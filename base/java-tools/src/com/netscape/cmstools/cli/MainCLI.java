@@ -63,20 +63,21 @@ public class MainCLI extends CLI {
     public MainCLI() throws Exception {
         super("pki", "PKI command-line interface");
 
-        addModule(new CACLI(this));
-        addModule(new KRACLI(this));
-        addModule(new OCSPCLI(this));
-        addModule(new TKSCLI(this));
-        addModule(new TPSCLI(this));
+        addModule(new HelpCLI(this));
 
         addModule(new ClientCLI(this));
-        addModule(new HelpCLI(this));
 
         addModule(new ProxyCLI(new CertCLI(this), "ca"));
         addModule(new ProxyCLI(new GroupCLI(this), "ca"));
         addModule(new ProxyCLI(new KeyCLI(this), "kra"));
         addModule(new ProxyCLI(new SecurityDomainCLI(this), "ca"));
         addModule(new ProxyCLI(new UserCLI(this), "ca"));
+
+        addModule(new CACLI(this));
+        addModule(new KRACLI(this));
+        addModule(new OCSPCLI(this));
+        addModule(new TKSCLI(this));
+        addModule(new TPSCLI(this));
     }
 
     public String getFullModuleName(String moduleName) {
@@ -96,29 +97,9 @@ public class MainCLI extends CLI {
         int leftPadding = 1;
         int rightPadding = 25;
 
-        System.out.println("Subsystems:");
-
-        for (CLI module : modules.values()) {
-            if (!(module instanceof SubsystemCLI)) continue;
-
-            String label = module.getFullName();
-
-            int padding = rightPadding - leftPadding - label.length();
-            if (padding < 1)
-                padding = 1;
-
-            System.out.print(StringUtils.repeat(" ", leftPadding));
-            System.out.print(label);
-            System.out.print(StringUtils.repeat(" ", padding));
-            System.out.println(module.getDescription());
-        }
-
-        System.out.println();
         System.out.println("Commands:");
 
         for (CLI module : modules.values()) {
-            if (module instanceof SubsystemCLI) continue;
-
             String label = module.getFullName();
 
             int padding = rightPadding - leftPadding - label.length();
