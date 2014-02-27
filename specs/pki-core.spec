@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -263,6 +263,7 @@ Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
+Requires:         policycoreutils-python
 
 Requires:         selinux-policy-base >= 3.11.1-43
 Obsoletes:        pki-selinux
@@ -966,6 +967,10 @@ fi
 
 
 %changelog
+* Wed Jan 29 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.0-2
+- Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python
+- TRAC Ticket #840 - pkispawn requires policycoreutils-python
+
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
 - Update release number for release build
