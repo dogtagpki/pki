@@ -74,7 +74,7 @@ local profilename="${12}"
 local request_status="${13}"
 local request_id="${14}"
 local cert_subject="${15}"
-local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
+local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 
 #### First we create  NSS Database
 
@@ -84,10 +84,10 @@ local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 	else
 		rlLog "Creating Security Database"
 		rlRun "pki -d $dir -c $password client-init" 0 "Initializing Security Database"
-
 		RETVAL=$?
 		if  [ $RETVAL != 0 ]; then
-		  rlLog "FAIL :: NSS Database was not created"
+		  rlFail "FAIL :: NSS Database was not created"
+		  return 1
 		fi
 	fi
 
@@ -96,10 +96,10 @@ local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 	if [ "$cn" == "--" ]; then
 		cn="pkiuser$rand"
 	fi
-	if [ "$uid" == "--" ]; then
+	if [ "$uid" == "--" ] && [ "$uid" != " " ]; then
 	        uid=$cn
 	fi
-	if [ "$email" == "--" ]; then
+	if [ "$email" == "--" ] && [ "$email" != " " ]; then
 	        email="$cn@example.org"
 	fi
 	if [ "$ou" == "--" ]; then
@@ -117,42 +117,52 @@ local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 #### Generate request
 
 	local cert_request_file="cert-request-$rand.pem"
-	local $cert_request_file-sumbit.out
-	local subject="CN=$cn,UID=$uid,E=$email,OU=$ou,O=$organization,C=$country"
+	local cert_request_file_sumbit="$cert_request_file-submit.out"
+
+	if [ "$uid" != "" ] && [ "$email" != "" ]; then
+		local subject="UID=$uid,E=$email,CN=$cn,OU=$ou,O=$organization,C=$country"
+	else
+		local subject="CN=$cn,OU=$ou,O=$organization,C=$country"
+	fi
 
 	if [ "$request_type" == "pkcs10" ];then
-
-		rlLog "Generating PKCS10 Request for $subject"
-		rlRun "PKCS10Client -p $password -d $dir -a $algo -l $key_size -o $dir/$cert_request_file -n \"$subject\""
+		rlRun "PKCS10Client -p $password -d $dir -a $algo -l $key_size -o $dir/$cert_request_file -n \"$subject\" 1> $dir/pkcs10.out" 0 "Generating PKCS10 Request for $subject"
 		RETVAL=$?
 		if [ $RETVAL != 0 ]; then
-			rlLog "Create of PKCS10 Request failed for $subject"
+			rlFail "Create of PKCS10 Request failed for $subject"
+			return 1
 		fi
 	fi
-	if [ "$request_type" == "crmf" ];then
-		rlLog "Set Java CLASSPATH"
+	if [ "$request_type" == "crmf" ] && [ "$profilename" != "caDualCert" ];then
 		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:\"" 0 "Setting Java CLASSPATH"
-		rlLog "Set Environment Variables"
-		rlRun "source /opt/rhqa_pki/env.sh" 0
-		rlLog "Execute generateCRMFRequest to generate CRMF Request"
-		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $dir/$cert_request_file" 0
+		rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $dir/$cert_request_file 1> $dir/crmf.out" 0 "Execute generateCRMFRequest to generate CRMF Request"
 	fi
-
+	if [ "$request_type" == "crmf" ] && [ "$profilename" == "caDualCert" ];then
+		rlRun "cat $CA_SERVER_ROOT/conf/CS.cfg | grep ca.connector.KRA.transportCert | awk -F \"=\" '{print \$2}' > transport.txt" 0 "Get Transport Cert"
+		rlRun "CRMFPopClient -d $dir -p $password -o $dir/$cert_request_file -n \"$subject\" -a $algo -l $key_size -u $uid -r $uid 1> $dir/CRMFPopClient.out" 0 "Executing CRMFPopClient"
+		RETVAL=$?
+		if [ $RETVAL != 0 ]; then
+			rlFail "CRMFPopClient Failed"
+			return 1
+		fi
+	fi
 #### Strip  headers from request
 #### Note for CRMF requests Our class doesn't generate the headers
-	if [ "$request_type" == "pkcs10"]; then
+
+	if [ "$request_type" == "pkcs10" ] || [ "$profilename" == "caDualCert" ]; then
+
 		rlLog "Stripping headers from the $cert_request_file"
 		rlRun "sed -e '/-----BEGIN NEW CERTIFICATE REQUEST-----/d' -i $dir/$cert_request_file"
 		rlRun "sed -e '/-----END NEW CERTIFICATE REQUEST-----/d' -i $dir/$cert_request_file"
 	fi
 	
 ### use dos2unix to convert the request to unix format 
-
-	rlLog "Converting $cert_request_file to unix format to strip CRLF lines"
-	rlRun "dos2unix $dir/$cert_request_file" 0 
+	rlRun "dos2unix $dir/$cert_request_file" 0 "Converting $cert_request_file to unix format to strip CRLF lines" 
 	RETVAL=$?
 	if [ $RETVAL != 0 ]; then
-		rlLog "FAIL :: Convert to UNIX format failed"
+		rlFail "FAIL :: Convert to UNIX format failed"
+		return 1
 	fi
 
 ### Get the xml profile from the argument "profliename", in future, we have implement this with switch case. so that it can be extended to other profiles.
@@ -160,13 +170,15 @@ local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 	local xml_profile_file=$dir/$cert_request_file_$profilename.xml
 
 	rlLog "Getting the $profilename XML file to submit the request"
-
 	rlRun "pki -d $dir -c $password cert-request-profile-show $profilename --output $xml_profile_file"
 	pid=$!
-	wait=$pid
+	wait $pid
 	if [ $? != 0 ]; then
 		rlLog "FAIL :: We have some problem getting $profile xml"
+		return 1
 	fi 
+
+	if [ "$profilename" == "caUserCert" ]  || [ "$profilename" ==  "caUserSMIMEcapCert" ] || [ "$profilename" ==  "caDualCert" ];then
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $dir/$cert_request_file)\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v \"$uid\" $xml_profile_file"
@@ -178,24 +190,37 @@ local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$cn\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v \"$email\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
-
+	fi
+	
+	if [ "$profilename" != "CaDualCert" ] || \
+	[ "$profilename" != "caDirPinUserCert" ] || \
+	[ "$profilename" != "caDirUserCert" ] || \
+	[ "$profilename" != "caECDirUserCert" ] || \
+	[ "$profilename" != "caAgentServerCert" ]; then
+		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
+		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $dir/$cert_request_file)\" $xml_profile_file"
+		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_cn']/Value\" -v \"$cn\" $xml_profile_file"
+		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$cn\" $xml_profile_file"
+		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v \"$email\" $xml_profile_file"
+		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
+	fi
 #### submit the request to CA 
 
 	rlLog "Submit PKCS10 Request to CA"
-	rlRun "pki cert-request-submit $xml_profile_file >> $dir/$cert_request_file-sumbit.out" 0 "Submit Request"
+	rlRun "pki cert-request-submit $xml_profile_file >> $dir/$cert_request_file_sumbit" 0 "Submit Request"
 	RETVAL=$?
         if [ $RETVAL != 0 ]; then
-                rlLog "We have some problem getting $profile xml"
+                rlFail "We have some problem getting $profile xml"
+		return 1
         fi
 
-	local REQUEST_SUBMIT_STATUS=`cat $dir/$cert_request_file-sumbit.out | grep "Operation Result" | awk -F ": " '{print $2}'`
-	eval $request_status="$REQUEST_SUBMIT_STATUS"
+	local REQUEST_SUBMIT_STATUS=$(cat $dir/$cert_request_file_sumbit | grep "Operation Result" | awk -F ": " '{print $2}')
+	eval "$request_status"="'$REQUEST_SUBMIT_STATUS'"
 	rlLog "Certificate Request was $request_status"
-	local REQUEST_ID=`cat $dir/$cert_request_file-sumbit.out  | grep "Request ID" | awk -F ": " '{print $2}'`
-	eval $request_id="$REQUEST_ID"		
+	local REQUEST_ID=`cat $dir/$cert_request_file_sumbit  | grep "Request ID" | awk -F ": " '{print $2}'`
+	eval "$request_id"="'$REQUEST_ID'"		
 	rlLog "Request id : $request_id"
-	local CERT_SUBJ=$subject
-	eval $cert_subject="$CERT_SUBJ"
-	rlLog "Certificate Request DN: $cert_subject"
+	eval "$cert_subject"="'$subject'"
+	return 0 
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
