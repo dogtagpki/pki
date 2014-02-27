@@ -41,13 +41,22 @@
 run_pki_cert_show()
 {
 
-	local invalid_serialNumber=`cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1`
+	local invalid_serialNumber=$(cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1)
 	CA_agentV_user=CA_agentV
+	local pkcs10_reqstatus
+	local pkcs10_requestid
+	local crmf_reqstatus
+	local crmf_requestid
+	local decimal_valid_serialNumber
+
+	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local invalid_hex_serialNumber=$(expr $valid_pkcs10_serialNumber$rand)
+	local junk="axb124?$5@@_%^$#$@\!(_)043112321412321"
 
 	# Creating Temporary Directory for pki cert-show
 
         rlPhaseStartSetup "pki cert-show Temporary Directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "TmpDir=\$(mktemp -d)" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
         rlPhaseEnd
 	
@@ -55,14 +64,21 @@ run_pki_cert_show()
 
 	rlPhaseStartSetup "Generating temporary Cert to be used pki cert-show automation Tests"
         local TEMP_NSS_DB="$TmpDir/nssdb"
-        local reqstatus
-        local requestid
-        rlRun "create_cert_request $TEMP_NSS_DB redhat pkcs10 rsa 2048 "--" "--" "--" "--" "--" "--" "--" "reqstatus" "requestid""
-	rlLog "To Approve the request we would need CA Admin Cert Nick Name stored in $MY_CERTDB_DIR"
-        rlLog "Approve Certificate requeset"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" ca-cert-request-review $requestid --action approve 1> $TmpDir/pki-approve-out"
-	rlAssertGrep "Approved certificate request $requestid" "$TmpDir/pki-approve-out"
-	rlRun "valid_serialNumber=`pki cert-request-show $requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2`"
+	local temp_out="$TmpDir/cert-show.out"
+        rlRun "create_cert_request $TEMP_NSS_DB redhat pkcs10 rsa 2048 "--" "--" "--" "--" "--" "--" "--" "pkcs10_reqstatus" "pkcs10_requestid" "pkcs10_requestdn""
+        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" ca-cert-request-review $pkcs10_requestid --action approve 1> $TmpDir/pki-pkcs10-approve-out" 0 "As $CA_agentV_user Approve Certificate Request"
+	rlAssertGrep "Approved certificate request $pkcs10_requestid" "$TmpDir/pki-pkcs10-approve-out"
+	rlRun "create_cert_request $TEMP_NSS_DB redhat crmf rsa 2048 "--" "--" "--" "--" "--" "--" "--" "crmf_reqstatus" "crmf_requestid" "crmf_requestdn""
+	rlRun "pki -d $CERTDB_DIR \
+			-c $CERTDB_DIR_PASSWORD \
+			-n \"$CA_agentV_user\" \
+			ca-cert-request-review $crmf_requestid \
+			--action approve 1> $TmpDir/pki-crmf-approve-out"
+	rlAssertGrep "Approved certificate request $crmf_requestid" "$TmpDir/pki-crmf-approve-out"
+	rlRun "valid_pkcs10_serialNumber=\$(pki cert-request-show $pkcs10_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)" 0 \
+		"Get SerialNumber of Approved pkcs10 Request"
+	rlRun "valid_crmf_serialNumber=\$(pki cert-request-show $crmf_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)" 0 \
+		"Get SerialNumber of Approved crmf Requests"
         rlPhaseEnd
 
 	# pki cert cli config test
@@ -81,182 +97,228 @@ run_pki_cert_show()
 	#Run pki cert-show with valid serial number in HexaDecimal
 
 	rlPhaseStartTest "pki_cert_show-001: pki cert-show < valid serialNumber(HexaDecimal) >  should show Certificate Details"
-	rlLog "run get_cert_serialnumber function first to get the serial Number"
-	local temp_out1="$TmpDir/cert-show1.out"
-	rlLog "Running pki cert-show $valid_serialNumber"
-	rlRun "pki cert-show $valid_serialNumber > $temp_out1" 0 "command pki cert-show $serialNumber"
-	RETVAL=$?
-		if [ $RETVAL != 0 ]; then	
-		rlLog "pki cert-show has exited with return status $RETVAL"
-		fi
-	rlLog "Get the Subject Name of the Certificat with $serialNumber"
-	rlLog "`cat $temp_out1 | grep Issuer | awk -F":" '{print $2}'`"
+	rlRun "pki cert-show $valid_pkcs10_serialNumber > $temp_out" 0 "Executing pki cert-show $valid_pkcs10_serialNumber"
+	rlAssertGrep "Certificate \"$valid_pkcs10_serialNumber\"" "$temp_out"
+	rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$temp_out"
+	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN" "$temp_out"	
+	rlAssertGrep "Subject: $pkcs10_requestdn" "$temp_out"
+	rlAssertGrep "Status: VALID" "$temp_out"
 	rlPhaseEnd
 
 	#Run pki cert-show with No serial Number 
 
 	rlPhaseStartTest "pki_cert_show-002: pki cert-show should fail when no serial Number is given"
-	local temp_out2="$TmpDir/cert-show2.out"
-	rlRun "pki cert-show  > $temp_out2" 1 "pki cert-show without any serial number fails"
-	rlAssertGrep "usage: cert-show" "$temp_out2"
+	rlRun "pki cert-show  > $temp_out" 1 "pki cert-show without any serial number fails"
+	rlAssertGrep "usage: cert-show" "$temp_out"
 	rlPhaseEnd
 	
 	# Run pki cert-show with Invalid Serial Number in decimal
 
 	rlPhaseStartTest "pki_cert_show-003: pki cert-show < invalid serialNumber(Decimal) > should Fail"
-	local temp_out3="$TmpDir/cert-show3.out"
-	rlRun "pki cert-show $invalid_serialNumber 2> $temp_out3" 1 "command pki cert-show $serialNumber"
-	rlAssertGrep "CertNotFoundException" "$temp_out3"
+	rlRun "pki cert-show $invalid_serialNumber 2> $temp_out" 1 "command pki cert-show $serialNumber"
+	rlAssertGrep "CertNotFoundException" "$temp_out"
 	rlPhaseEnd
 
 	# Run pki cert-show with valid serial Number given in decimal 
-
 	rlPhaseStartTest "pki_cert_show-004: pki cert-show < valid serialNumber(Decimal) > should show Certificate Details"
-	local temp_out4="$TmpDir/cert-show4.out"
-	local decimal_valid_serialNumber
-	decimal_valid_serialNumber=$(printf %d $valid_serialNumber)
-	rlLog "Running pki cert-show $decimal_valid_serialNumber"
-	rlRun "pki cert-show $decimal_valid_serialNumber > $temp_out3" 0 "command pki cert-show $decimal_valid_serialNumber"
-	RETVAL=$?
-		if [ $RETVAL != 0 ]; then
-		rlLog "pki cert-show has exited with return status $RETVAL"
-		fi 
-	rlLog "Get the Subject Name of the Certificat with $decimal_valid_serialNumber"
-	rlLog "Subject: `cat $temp_out4 | grep Subject | awk -F":" '{print $2}'`"
+	local decimal_valid_serialNumber=$(printf %d $valid_pkcs10_serialNumber)
+	rlRun "pki cert-show $decimal_valid_serialNumber > $temp_out" 0 "Executing pki cert-show $decimal_valid_serialNumber"
+	rlAssertGrep "Certificate \"$valid_pkcs10_serialNumber\"" "$temp_out"
+	rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$temp_out"
+	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN" "$temp_out"
+	rlAssertGrep "Subject: $pkcs10_requestdn" "$temp_out"
+	rlAssertGrep "Status: VALID" "$temp_out"
 	rlPhaseEnd
 
 	#Run pki cert-show with invalid serialNumber given in Hexadecimal
 	
 	rlPhaseStartTest "pki_cert_show-005: pki cert-show < invalid serialNumber(hexadecimal) > should fail"
-	local temp_out5="$TmpDir/cert-show5.out"
-	local rand=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
-	local invalid_hex_serialNumber=`expr $valid_serialNumber$rand`
-	rlRun "pki cert-show $invalid_serialNumber 2> $temp_out5" 1 "command pki cert-show $serialNumber"
-	rlAssertGrep "CertNotFoundException" "$temp_out5"
+	rlRun "pki cert-show $invalid_serialNumber 2> $temp_out" 1 "Executing pki cert-show $serialNumber"
+	rlAssertGrep "CertNotFoundException" "$temp_out"
 	rlPhaseEnd
 
 	# Run pki cert-show with Junk Characters
 
 	rlPhaseStartTest "pki_cert_show-006: pki cert-show < junk characters > should fail to show any certificate Details"
-	local temp_out6="$TmpDir/cert-show6.out"
-	local junk="axb124?$5@@_%^$#$@\!(_)043112321412321"
-	rlLog "Executing pki cert-show \"$junk\""
-	rlRun "pki cert-show \"$junk\" 2> $temp_out6" 1 "pki cert-show $junk"
-	rlAssertGrep "NumberFormatException: For input string" "$temp_out6"
+	rlRun "pki cert-show \"$junk\" 2> $temp_out" 1 "Executing pki cert-show $junk"
+	rlAssertGrep "NumberFormatException: For input string" "$temp_out"
 	rlPhaseEnd	
 	
 	# Run pki cert-show <valid serialNumber> --encoded to produce a valid pem output
 
 	rlPhaseStartTest "pki_cert_show-007: pki cert-show <valid SerialNumber>  --encoded should produce a valid pem output"
-	local temp_out7="$TmpDir/cert-show7.out"
-	rlLog "Running pki cert-show $serialNumber"
-        rlRun "pki cert-show $valid_serialNumber --encoded > $temp_out7" 0 "command pki cert-show $serialNumber --encoded"
-        RETVAL=$?
-                if [ $RETVAL != 0 ]; then
-                rlLog "pki cert-show has exited with return status $RETVAL"
-                fi
-        rlLog "Get the Subject Name of the Certificate with $serialNumber"
-        rlLog "`cat $temp_out7 | grep Issuer | awk -F":" '{print $2}'`"
-	rlLog "Check if the encoded output is usable"
-	rlRun "openssl x509 -in $temp_out7 -noout -serial" 0 "Run openssl x509 pki cert-show --encoded"
-        rlPhaseEnd
+	rlLog "Running pki cert-show $valid_pkcs10_serialNumber"
+        rlRun "pki cert-show $valid_pkcs10_serialNumber --encoded > $temp_out" 0 "command pki cert-show $serialNumber --encoded"
+        rlLog "Get the Subject Name of the Certificate with $valid_pkcs10_serialNumber"
+        rlLog "$(cat $temp_out | grep Issuer | awk -F":" '{print $2}')"
+	rlRun "openssl x509 -in $temp_out -noout -serial 1> $temp_out-openssl" 0 "Run openssl x509 pki cert-show --encoded"
+	rlAssertGrep "serial=$(echo $valid_pkcs10_serialNumber|sed 's/x//g')" "$temp_out-openssl"
+	rlPhaseEnd
 	
 	#Run pki cert-show --encoded with No serial Number
 
 	rlPhaseStartTest "pki_cert_show-008: pki cert-show <No SerialNumber> --encoded should fail"
-	local temp_out8=$TmpDir/cert-show8.out
-	rlLog "Running pki cert-show <No-serial-Number> --encoded"
-	rlRun "pki cert-show --encoded 1> $temp_out8" 1
-	rlAssertGrep "usage: cert-show" "$temp_out8"
+	rlRun "pki cert-show --encoded 1> $temp_out" 1 "Running pki cert-show <No-serial-Number> --encoded"
+	rlAssertGrep "usage: cert-show" "$temp_out"
 	rlPhaseEnd
 	
 	# Run pki cert-show --encoded with Invalid Serial Number
 
-	rlPhaseStartTest "pki_cert_show-009: pki cert-show < In-Valid SerialNumber > --encoded should fail"
-	local temp_out9=$TmpDir/cert-show9.out
+	rlPhaseStartTest "pki_cert_show-009: pki cert-show <In-Valid SerialNumber> --encoded should fail"
 	rlLog "Running pki cer-show <invalid-serial-Number> --encoded"
-	rlRun "pki cert-show $invalid_serialNumber --encoded 2> $temp_out9" 1 "pki cert-show $serialNumber"
+	rlRun "pki cert-show $invalid_serialNumber --encoded 2> $temp_out" 1 "pki cert-show $serialNumber"
 	rlPhaseEnd
 	
-	# Run pki cert-show <valid serialNumber> --output <filename>
+	# Run pki cert-show <valid serialNumber> --output <filename>(pkcs10)
 
 	rlPhaseStartTest "pki_cert_show-0010: pki cert-show <valid SerialNumber(decimal)> --output <filename> should save the Certificate in File"
-	local temp_out10=$TmpDir/cert-show10.out
-	rlLog "Running pki cert-show $serialNumber --output <file-name>"
-	rlRun "pki cert-show $valid_serialNumber --output $temp_out10" 0
-        RETVAL=$?                                                                                                                                                                             
- 		if [ $RETVAL != 0 ]; then                                                                                                                                                     
-	        rlLog "pki cert-show has exited with return status $RETVAL"
-        	fi                                      
-	rlAssertGrep "-----BEGIN CERTIFICATE-----" "$temp_out10"
-	rlAssertGrep "\-----END CERTIFICATE-----" "$temp_out10"
-	rlRun "openssl x509 -in $temp_out10 -noout -serial" 0 "Run openssl x509 on the output file"
+	rlRun "pki cert-show $valid_pkcs10_serialNumber --output $temp_out" 0 "Executing pki cert-show $valid_pkcs10_serialNumber --output <file-name>"
+	rlAssertGrep "-----BEGIN CERTIFICATE-----" "$temp_out"
+	rlAssertGrep "\-----END CERTIFICATE-----" "$temp_out"
+	rlRun "openssl x509 -in $temp_out -noout -serial 1> $temp_out-openssl" 0 "Run openssl x509 on the output file"
+	rlAssertGrep "serial=$(echo $valid_pkcs10_serialNumber|sed 's/x//g')" "$temp_out-openssl"
+	rlPhaseEnd
+
+	#Run pki cert-show <valid serialNumber> --output <filename> (crmf)
+
+	rlPhaseStartTest "pki_cert_show-0011: pki cert-show <valid SerialNumber(Decimal)> (crmf) --output <filename> should save the Certificate in File"
+	rlRun "pki cert-show $valid_crmf_serialNumber --output $temp_out" 0 "Executing pki cert-show $valid_crmf_serialNumber --output <file-name>"
+	rlAssertGrep "-----BEGIN CERTIFICATE-----" "$temp_out"
+	rlAssertGrep "\-----END CERTIFICATE-----" "$temp_out"
+	rlRun "openssl x509 -in $temp_out -noout -serial 1> $temp_out-openssl" 0 "Run openssl x509 on the output file"
+	rlAssertGrep "serial=$(echo $valid_pkcs10_serialNumber|sed 's/x//g')" "$temp_out-openssl"
 	rlPhaseEnd
 	
 	# Run pki cert-show <invalid-serial-number> --output 
 
-	rlPhaseStartTest "pki_cert_show-0011: pki cert-show <invalid-serial-Number> --output <filename> should not create any file"
-	local temp_out11=$TmpDir/cert-show11.out
+	rlPhaseStartTest "pki_cert_show-0012: pki cert-show <invalid-serial-Number> --output <filename> should not create any file"
 	rlLog "Running pki cert-show <invalid-serialNumber> --output <filename>"
-	rlRun "pki cert-show $invalid_serialNumber --output $temp_out11" 1 "pki cert-show <invalid-serial-number> --output <file>"
-	if `test -f $temp_out11`; then
-		rlLog "$temp_out11 exists"	
+	rlRun "pki cert-show $invalid_serialNumber --output $temp_out" 1 "pki cert-show <invalid-serial-number> --output <file>"
+	if $(test -f $temp_out); then
+		rlPass "$temp_out exists"	
 	else 
-		rlLog "$temp_out11 doesn't exist"
+		rlFail "$temp_out doesn't exist"
 	fi
 	rlPhaseEnd
 
 	# Run pki cert-show <No serial number> --output <filename>
 
-	rlPhaseStartTest "pki_cert_show-0012: pki cert-show <No serialNumber> --output <filename> should fail"
-	local temp_out12=$TmpDir/cert-show12.out
-	local temp_out12_err=$TmpDir/cert-err12.out
-	rlLog "Running pki cert-show --output $temp_out12 1> $temp_out12_err" 
-	rlRun "pki cert-show --output $temp_ou12 1> $temp_out12_err" 1
-	rlAssertGrep "usage:" "$temp_out12_err"  	
-	rlAssertGrep "--encoded         Base-64 encoded" "$temp_out12_err"
-	rlAssertGrep "--output <file>   Output file" "$temp_out12_err"
-	rlAssertGrep "--pretty          Pretty print" "$temp_out12_err"	
+	rlPhaseStartTest "pki_cert_show-0013: pki cert-show <No serialNumber> --output <filename> should fail"
+	local temp_out13=$TmpDir/cert-show13.out
+	local temp_out13_err=$TmpDir/cert-err13.out
+	rlLog "Running pki cert-show --output $temp_out13 1> $temp_out13_err" 
+	rlRun "pki cert-show --output $temp_ou13 1> $temp_out13_err" 1
+	rlAssertGrep "usage:" "$temp_out13_err"  	
+	rlAssertGrep "--encoded         Base-64 encoded" "$temp_out13_err"
+	rlAssertGrep "--output <file>   Output file" "$temp_out13_err"
+	rlAssertGrep "--pretty          Pretty print" "$temp_out13_err"	
 	rlPhaseEnd	
 	
 	
 	# Run pki cert-show <valid-serial-number> --pretty 
 
-        rlPhaseStartTest "pki_cert_show-0013: pki cert-show <valid SerialNumber(decimal)> --pretty <filename> should show PrettyPrint output of cert and save the the Cert in File."
-        local temp_out13=$TmpDir/cert-show13.out
-        rlLog "Running pki cert-show $valid_serialNumber --pretty"
-        rlRun "pki cert-show $valid_serialNumber --pretty > $temp_out13" 0
-        RETVAL=$?
-                if [ $RETVAL != 0 ]; then
-                rlLog "pki cert-show has exited with return status $RETVAL"
-	       fi
-        rlAssertGrep "Certificate:" "$temp_out13"
-        rlAssertGrep "Version:" "$temp_out13"
-	rlAssertGrep "Subject:" "$temp_out13"
+        rlPhaseStartTest "pki_cert_show-0014: pki cert-show <valid SerialNumber(decimal)> --pretty <filename> should show PrettyPrint output of cert and save the the Cert in File."
+        rlLog "Running pki cert-show $valid_pkcs10_serialNumber --pretty"
+        rlRun "pki cert-show $valid_pkcs10_serialNumber --pretty > $temp_out" 0
+        rlAssertGrep "Certificate:" "$temp_out"
+        rlAssertGrep "Version:" "$temp_out"
+	rlAssertGrep "Subject:" "$temp_out"
         rlPhaseEnd
-	
+
 	 # Run pki cert-show <in-valid-serial-number> --pretty 
 
-	rlPhaseStartTest "pki_cert_show-0014: pki cert-show < $invalid_serialNumber > --pretty <filename> should fail to produce any PrettyPrint output"
-	local temp_out14=$TmpDir/cert-show14.out
-	rlLog "Running pki cert-show $invalid_serialNumber --pretty"
-	rlRun "pki cert-show $invalid_serialNumber --pretty 2> $temp_out13" 1
-	rlAssertGrep "CertNotFoundException: Certificate ID 0x`printf %x $invalid_serialNumber` not found" "$temp_out13"
+	rlPhaseStartTest "pki_cert_show-0015: pki cert-show < $invalid_serialNumber > --pretty <filename> should fail to produce any PrettyPrint output"
+	rlRun "pki cert-show $invalid_serialNumber --pretty 2> $temp_out" 1 "Executing pki cert-show $invalid_serialNumber --pretty"
+	rlAssertGrep "CertNotFoundException: Certificate ID 0x$(printf %x $invalid_serialNumber) not found" "$temp_out"
 	rlPhaseEnd
 
 	# Run pki cert-show <No serial Number> --pretty
 
-	rlPhaseStartTest "pki_cert_Show-0015: pki cert-show <No serialNumber --pretty <filename> should fail to produce any PrettyPrint output"
-	local temp_out15=$TmpDir/cert-show15.out
+	rlPhaseStartTest "pki_cert_show-0016: pki cert-show <No serialNumber> --pretty <filename> should fail to produce any PrettyPrint output"
 	rlLog "Running pki cert-show --pretty" 1
-	rlRun "pki cert-show --pretty 1> $temp_out15" 1
-	rlAssertGrep "usage:" "$temp_out15"
-	rlAssertGrep "--encoded         Base-64 encoded" "$temp_out15"
-	rlAssertGrep "--output <file>   Output file" "$temp_out15"
-	rlAssertGrep "--pretty          Pretty print" "$temp_out15" 
+	rlRun "pki cert-show --pretty 1> $temp_out" 1
+	rlAssertGrep "usage:" "$temp_out"
+	rlAssertGrep "--encoded         Base-64 encoded" "$temp_out"
+	rlAssertGrep "--output <file>   Output file" "$temp_out"
+	rlAssertGrep "--pretty          Pretty print" "$temp_out" 
+	rlPhaseEnd
+
+	# Run pki cert-show with i18n characters 
+	
+	rlPhaseStartTest "pki_cert_show-0017: Verify pki cert-show \"CN=Örjan Äke,UID=Örjan Äke\" i18n Characters"
+	rlRun "create_cert_request $TEMP_NSS_DB redhat pkcs10 rsa 2048 \"Örjan Äke\" \"Örjan Äke\" \"test@example.org\" "--" "--" "--" "--" "i18n_ret_reqstatus" "i18n_ret_requestid""
+	rlRun "pki -d $CERTDB_DIR \
+		-c $CERTDB_DIR_PASSWORD \
+		-n \"$CA_agentV_user\" \
+		ca-cert-request-review $i18n_ret_requestid \
+		--action approve 1> $TmpDir/i18n-pkcs10-approve-out" 0 "As $CA_agentV_user Approve Certificate Request"
+	rlAssertGrep "Approved certificate request $i18n_ret_requestid" "$TmpDir/i18n-pkcs10-approve-out"
+	rlRun "valid_i18n_pkcs10_serialNumber=\$(pki cert-request-show $i18n_ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+	rlRun "pki cert-show $valid_i18n_pkcs10_serialNumber 1> $temp_out" 0 "Executing pki cert-show $valid_i18n_valid_pkcs10_serialNumber"
+	rlAssertGrep "CN=Örjan Äke" "$temp_out"
+	rlAssertGrep "UID=Örjan Äke" "$temp_out"
 	rlPhaseEnd
 	
+	rlPhaseStartTest "pki_cert_show-0018: Verify pki cert-show \"CN=Éric Têko,UID=Éric Têko\" i18n Characters"
+	rlRun "create_cert_request $TEMP_NSS_DB redhat pkcs10 rsa 2048 \"Éric Têko\" \"Éric Têko\" \"test@example.org\" "--" "--" "--" "--" "i18n_ret_reqstatus" "i18n_ret_requestid""
+	rlRun "pki -d $CERTDB_DIR \
+		-c $CERTDB_DIR_PASSWORD \
+		-n \"$CA_agentV_user\" \
+		ca-cert-request-review $i18n_ret_requestid \
+		--action approve 1> $TmpDir/i18n-pkcs10-approve-out" 0 "As $CA_agentV_user Approve Certificate Request"
+	rlAssertGrep "Approved certificate request $i18n_ret_requestid" "$TmpDir/i18n-pkcs10-approve-out"
+	rlRun "valid_i18n_pkcs10_serialNumber=\$(pki cert-request-show $i18n_ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+	rlRun "pki cert-show $valid_i18n_pkcs10_serialNumber 1> $temp_out" 0 "Executing pki cert-show $valid_i18n_valid_pkcs10_serialNumber"
+	rlAssertGrep "CN=Éric Têko" "$temp_out"
+	rlAssertGrep "UID=Éric Têko" "$temp_out"
+	rlPhaseEnd 
+
+
+	rlPhaseStartTest "pki_cert_show-0018: Verify pki cert-show \"CN=éénentwintig dvidešimt,UID=éénentwintig dvidešimt\" i18n Characters"
+	rlRun "create_cert_request $TEMP_NSS_DB redhat pkcs10 rsa 2048 \"éénentwintig dvidešimt\" \"éénentwintig dvidešimt\" \"test@example.org\" "--" "--" "--" "--" "i18n_ret_reqstatus" "i18n_ret_requestid""
+	rlRun "pki -d $CERTDB_DIR \
+		-c $CERTDB_DIR_PASSWORD \
+		-n \"$CA_agentV_user\" \
+		ca-cert-request-review $i18n_ret_requestid \
+		--action approve 1> $TmpDir/i18n-pkcs10-approve-out" 0 "As $CA_agentV_user Approve Certificate Request"
+	rlAssertGrep "Approved certificate request $i18n_ret_requestid" "$TmpDir/i18n-pkcs10-approve-out"
+	rlRun "valid_i18n_pkcs10_serialNumber=\$(pki cert-request-show $i18n_ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+	rlRun "pki cert-show $valid_i18n_pkcs10_serialNumber 1> $temp_out" 0 "Executing pki cert-show $valid_i18n_valid_pkcs10_serialNumber"
+	rlAssertGrep "CN=éénentwintig dvidešimt" "$temp_out"
+	rlAssertGrep "UID=éénentwintig dvidešimt" "$temp_out"
+	rlPhaseEnd 
+
+
+	rlPhaseStartTest "pki_cert_show-0018: Verify pki cert-show \"CN=kakskümmend üks,UID=kakskümmend üks\" i18n Characters"
+	rlRun "create_cert_request $TEMP_NSS_DB redhat pkcs10 rsa 2048 \"kakskümmend üks\" \"kakskümmend üks\" \"test@example.org\" "--" "--" "--" "--" "i18n_ret_reqstatus" "i18n_ret_requestid""
+	rlRun "pki -d $CERTDB_DIR \
+		-c $CERTDB_DIR_PASSWORD \
+		-n \"$CA_agentV_user\" \
+		ca-cert-request-review $i18n_ret_requestid \
+		--action approve 1> $TmpDir/i18n-pkcs10-approve-out" 0 "As $CA_agentV_user Approve Certificate Request"
+	rlAssertGrep "Approved certificate request $i18n_ret_requestid" "$TmpDir/i18n-pkcs10-approve-out"
+	rlRun "valid_i18n_pkcs10_serialNumber=\$(pki cert-request-show $i18n_ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+	rlRun "pki cert-show $valid_i18n_pkcs10_serialNumber 1> $temp_out" 0 "Executing pki cert-show $valid_i18n_valid_pkcs10_serialNumber"
+	rlAssertGrep "CN=kakskümmend üks" "$temp_out"
+	rlAssertGrep "UID=kakskümmend üks" "$temp_out"
+	rlPhaseEnd 
+	
+	rlPhaseStartTest "pki_cert_show-0018: Verify pki cert-show \"CN=двадцять один тридцять,UID=двадцять один тридцять\" i18n Characters"
+	rlRun "create_cert_request $TEMP_NSS_DB redhat pkcs10 rsa 2048 \"двадцять один тридцять\" \"двадцять один тридцять\" \"test@example.org\" "--" "--" "--" "--" "i18n_ret_reqstatus" "i18n_ret_requestid""
+	rlRun "pki -d $CERTDB_DIR \
+		-c $CERTDB_DIR_PASSWORD \
+		-n \"$CA_agentV_user\" \
+		ca-cert-request-review $i18n_ret_requestid \
+		--action approve 1> $TmpDir/i18n-pkcs10-approve-out" 0 "As $CA_agentV_user Approve Certificate Request"
+	rlAssertGrep "Approved certificate request $i18n_ret_requestid" "$TmpDir/i18n-pkcs10-approve-out"
+	rlRun "valid_i18n_pkcs10_serialNumber=\$(pki cert-request-show $i18n_ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+	rlRun "pki cert-show $valid_i18n_pkcs10_serialNumber 1> $temp_out" 0 "Executing pki cert-show $valid_i18n_valid_pkcs10_serialNumber"
+	rlAssertGrep "двадцять один тридцять" "$temp_out"
+	rlAssertGrep "двадцять один тридцять" "$temp_out"
+	rlPhaseEnd 
+
 	rlPhaseStartCleanup "pki cert-show cleanup: Delete temp dir"
 	rlRun "popd"
+	rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     	rlPhaseEnd
 }
