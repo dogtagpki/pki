@@ -269,6 +269,7 @@ Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
+Requires:         policycoreutils-python
 
 Requires:         selinux-policy-base >= 3.11.1-43
 Obsoletes:        pki-selinux
@@ -997,6 +998,8 @@ fi
 - Added option to build without server packages.
 - Replaced Jettison with Jackson.
 - Added python-nss build requirement
+- Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python
+- TRAC Ticket #840 - pkispawn requires policycoreutils-python
 
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
