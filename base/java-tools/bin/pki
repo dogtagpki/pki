@@ -1,0 +1,156 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2014 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+import shlex
+import subprocess
+import sys
+
+def run_java_cli(args):
+
+    # construct libpath based on the architecture
+    arch = subprocess.check_output('arch')
+    arch = arch.strip()
+
+    if arch == 'i686':
+        libpath = [
+            '/usr/lib/jss',
+            '/usr/lib',
+            '/lib'
+        ]
+
+    elif arch == 'x86_64':
+        libpath = [
+            '/usr/lib64/jss',
+            '/usr/lib64',
+            '/lib64',
+            '/usr/lib/jss',
+            '/usr/lib',
+            '/lib'
+        ]
+
+    else:
+        raise Exception('Unsupported architecture: ' + arch)
+
+    # read RESTEasy library path
+    value = subprocess.check_output(
+        '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
+        shell=True)
+    resteasy_lib = str(value).strip()
+
+    # construct classpath
+    classpath = [
+        '/usr/share/java/commons-cli.jar',
+        '/usr/share/java/commons-codec.jar',
+        '/usr/share/java/commons-httpclient.jar',
+        '/usr/share/java/commons-io.jar',
+        '/usr/share/java/commons-lang.jar',
+        '/usr/share/java/commons-logging.jar',
+        '/usr/share/java/httpcomponents/httpclient.jar',
+        '/usr/share/java/httpcomponents/httpcore.jar',
+        '/usr/share/java/jackson-annotations.jar',
+        '/usr/share/java/jackson-core.jar',
+        '/usr/share/java/jackson-databind.jar',
+        '/usr/share/java/jackson-module-jaxb-annotations.jar',
+        '/usr/share/java/jackson/jackson-core-asl.jar',
+        '/usr/share/java/jackson/jackson-jaxrs.jar',
+        '/usr/share/java/jackson/jackson-mapper-asl.jar',
+        '/usr/share/java/jackson/jackson-mrbean.jar',
+        '/usr/share/java/jackson/jackson-smile.jar',
+        '/usr/share/java/jackson/jackson-xc.jar',
+        '/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar',
+        '/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar',
+        '/usr/share/java/jaxb-api.jar',
+        '/usr/share/java/servlet.jar',
+        resteasy_lib + '/jaxrs-api.jar',
+        resteasy_lib + '/resteasy-atom-provider.jar',
+        resteasy_lib + '/resteasy-client.jar',
+        resteasy_lib + '/resteasy-jaxb-provider.jar',
+        resteasy_lib + '/resteasy-jaxrs.jar',
+        resteasy_lib + '/resteasy-jaxrs-jandex.jar',
+        resteasy_lib + '/resteasy-jackson-provider.jar',
+        '/usr/share/java/pki/pki-nsutil.jar',
+        '/usr/share/java/pki/pki-cmsutil.jar',
+        '/usr/share/java/pki/pki-certsrv.jar',
+        '/usr/share/java/pki/pki-tools.jar',
+    ]
+
+    if arch == 'i686':
+        classpath.append('/usr/lib/java/jss4.jar')
+
+    elif arch == 'x86_64':
+        classpath.append('/usr/lib64/java/jss4.jar')
+        classpath.append('/usr/lib/java/jss4.jar')
+
+    command = [
+        'java',
+        '-Djava.library.path=' + (':'.join(libpath)),
+        '-cp',
+        ':'.join(classpath),
+        'com.netscape.cmstools.cli.MainCLI'
+    ]
+
+    command.extend(args)
+
+    subprocess.call(command)
+
+
+def run_python_cli(args):
+
+    raise Exception('Not implemented')
+
+
+def main(argv):
+
+    # read global options
+    value = subprocess.check_output(
+        '. /etc/pki/pki.conf && echo $PKI_CLI_OPTIONS',
+        shell=True)
+    args = shlex.split(value.strip())
+    args.extend(argv[1:])
+
+    client_type = 'java'
+
+    new_args = []
+
+    # read --client-type parameter and remove it from the argument list
+    i = 0
+    while i < len(args):
+        if args[i] == '--client-type':
+            client_type = args[i + 1]
+            i = i + 1
+
+        else:
+            new_args.append(args[i])
+
+        i = i + 1
+
+    if client_type == 'java':
+        run_java_cli(new_args)
+
+    elif client_type == 'python':
+        run_python_cli(new_args)
+
+    else:
+        raise Exception('Unsupported client type: ' + client_type)
+
+if __name__ == '__main__':
+    main(sys.argv)
