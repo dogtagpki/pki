@@ -69,6 +69,7 @@ public class TPS {
     public static final String CFG_PRINTBUF_FULL = "tps.printBufFull";
     public static final String CFG_RECV_BUF_SIZE = "tps.recvBufSize";
     public static final String CFG_AUTHS_ENABLE="auth.enable";
+    public static final String CFG_PROFILE_MAPPING_ORDER="mapping.order";
 
     /* default values */
     public static final String CFG_DEF_CARDMGR_INSTANCE_AID = "A0000000030000";
@@ -82,12 +83,16 @@ public class TPS {
 
     public static final String CFG_EXTERNAL_REG = "externalReg";
 
+    /* misc values */
+
+    public static final String OP_FORMAT_PREFEX = "op.format";
 
 
-    TPS() {
+
+    public TPS() {
     }
 
-    public int Initialize(String cfg_path) {
+    public int initialize(String cfg_path) {
 
         int rc = -1;
 
