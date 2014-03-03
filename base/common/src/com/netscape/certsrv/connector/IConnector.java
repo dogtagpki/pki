@@ -19,6 +19,7 @@ package com.netscape.certsrv.connector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmsutil.http.HttpResponse;
 
 /**
  * This interface represents a connector that forwards
@@ -52,6 +53,17 @@ public interface IConnector {
      * @exception EBaseException Failure to send request to remote authority.
      */
     public boolean send(IRequest req)
+            throws EBaseException;
+
+    /**
+     * Sends the request to a remote authority.
+     *
+     * @param op operation to determine receiving servlet (multi-uri support)
+     * @param msg Request to be forwarded to remote authority.
+     * @return HttpResponse to be parsed by client
+     * @exception EBaseException Failure to send request to remote authority.
+     */
+    public HttpResponse send(String op, String msg)
             throws EBaseException;
 
     /**

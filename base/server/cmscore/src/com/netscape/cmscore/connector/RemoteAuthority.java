@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
+import java.util.Hashtable;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IRemoteAuthority;
@@ -25,6 +27,8 @@ public class RemoteAuthority implements IRemoteAuthority {
     String mHost = null;
     int mPort = -1;
     String mURI = null;
+    Hashtable<String, String> mURIs = new Hashtable<String, String>();
+    String mContentType = null;
     int mTimeout = 0;
 
     /**
@@ -40,9 +44,28 @@ public class RemoteAuthority implements IRemoteAuthority {
         mTimeout = timeout;
     }
 
+    public RemoteAuthority(String host, int port, Hashtable<String, String>uris, int timeout) {
+        mHost = host;
+        mPort = port;
+        mURIs = uris;
+        mTimeout = timeout;
+    }
+
+    public RemoteAuthority(String host, int port, Hashtable<String, String>uris, int timeout, String contentType) {
+        mHost = host;
+        mPort = port;
+        mURIs = uris;
+        mTimeout = timeout;
+        if (contentType.equals(""))
+            mContentType = null;
+        else
+            mContentType = contentType;
+    }
+
     public RemoteAuthority() {
     }
 
+/*cfu what TODO?*/
     public void init(IConfigStore c)
             throws EBaseException {
         mHost = c.getString("host");
@@ -63,7 +86,19 @@ public class RemoteAuthority implements IRemoteAuthority {
         return mURI;
     }
 
+    public String getURI(String name) {
+        return mURIs.get(name);
+    }
+
+    public Hashtable<String, String> getURIs() {
+        return mURIs;
+    }
+
     public int getTimeout() {
         return mTimeout;
+    }
+
+    public String getContentType() {
+        return mContentType;
     }
 }

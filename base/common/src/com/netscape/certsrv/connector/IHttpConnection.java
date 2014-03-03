@@ -18,6 +18,7 @@
 package com.netscape.certsrv.connector;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmsutil.http.HttpResponse;
 
 /**
  * This represents a HTTP connection to a remote authority.
@@ -37,5 +38,15 @@ public interface IHttpConnection {
      * @exception EBaseException Failed to send message.
      */
     public IPKIMessage send(IPKIMessage tomsg)
+            throws EBaseException;
+
+    /**
+     * Sends the message to the remote authority.
+     *
+     * @param msg Message to forward to authority.
+     * @return HttpResponse response to be parsed by the client
+     * @exception EBaseException Failed to send message.
+     */
+    public HttpResponse send(String msg)
             throws EBaseException;
 }

@@ -47,11 +47,11 @@ import java.util.Map;
  *     String valx = config.getString(&quot;param1&quot;);
  *     // valx is &quot;value1&quot; &lt;p&gt;
  *
- *     IConfigStore substore1 = config.getSubstore(&quot;configStore1&quot;);
+ *     IConfigStore substore1 = config.getSubStore(&quot;configStore1&quot;);
  *     String valy = substore1.getString(&quot;param11&quot;);
  *     // valy is &quot;value11&quot; &lt;p&gt;
  *
- *     IConfigStore substore2 = config.getSubstore(&quot;configStore2&quot;);
+ *     IConfigStore substore2 = config.getSubStore(&quot;configStore2&quot;);
  *     String valz = substore2.getString(&quot;param21&quot;);
  *     // valz is &quot;value21&quot; &lt;p&gt;
  * }

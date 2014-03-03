@@ -494,7 +494,15 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
+    public IHttpConnection getHttpConnection(IRemoteAuthority authority, ISocketFactory factory, String op) {
+        return null;
+    }
+
     public IHttpConnection getHttpConnection(IRemoteAuthority authority, ISocketFactory factory, int timeout) {
+        return null;
+    }
+
+    public IHttpConnection getHttpConnection(IRemoteAuthority authority, ISocketFactory factory, int timeout, String op) {
         return null;
     }
 

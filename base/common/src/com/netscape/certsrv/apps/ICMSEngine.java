@@ -1029,12 +1029,36 @@ public interface ICMSEngine extends ISubsystem {
      *
      * @param authority remote authority
      * @param factory socket factory
+     * @param op operation to determine receiving servlet (multi-uri support)
+     * @return http connection to the remote authority
+     */
+    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
+            ISocketFactory factory, String op);
+
+    /**
+     * Retrieves the HTTP Connection for use with connector.
+     *
+     * @param authority remote authority
+     * @param factory socket factory
      * @param timeout return error if connection cannot be established within
      *            the timeout period
      * @return http connection to the remote authority
      */
     public IHttpConnection getHttpConnection(IRemoteAuthority authority,
             ISocketFactory factory, int timeout);
+
+    /**
+     * Retrieves the HTTP Connection for use with connector.
+     *
+     * @param authority remote authority
+     * @param factory socket factory
+     * @param timeout return error if connection cannot be established within
+     *            the timeout period
+     * @param op operation to determine receiving servlet (multi-uri support)
+     * @return http connection to the remote authority
+     */
+    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
+            ISocketFactory factory, int timeout, String op);
 
     /**
      * Retrieves the request sender for use with connector.

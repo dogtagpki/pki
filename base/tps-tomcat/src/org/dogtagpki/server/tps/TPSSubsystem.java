@@ -21,6 +21,7 @@ import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.config.ConnectionDatabase;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
+import org.dogtagpki.server.tps.cms.ConnectionManager;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
@@ -63,6 +64,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public ProfileDatabase profileDatabase;
     public ProfileMappingDatabase profileMappingDatabase;
     public TokenDatabase tokenDatabase;
+    public ConnectionManager connManager;
 
     @Override
     public String getId() {
@@ -100,6 +102,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     @Override
     public void startup() throws EBaseException {
+        CMS.debug("TPSSubsystem: startup() begins");
+        connManager = new ConnectionManager();
+        connManager.initConnectors();
+        CMS.debug("TPSSubsystem: startup() ends.");
     }
 
     @Override
@@ -173,6 +179,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public TokenDatabase getTokenDatabase() {
         return tokenDatabase;
+    }
+
+    public ConnectionManager getConnectionManager() {
+        return connManager;
     }
 
     public org.mozilla.jss.crypto.X509Certificate getSubsystemCert() throws EBaseException, NotInitializedException,

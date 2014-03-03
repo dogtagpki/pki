@@ -61,6 +61,13 @@ public class HttpConnection implements IHttpConnection {
     }
 
     public HttpConnection(IRemoteAuthority dest, ISocketFactory factory) {
+        this(dest, factory, null);
+    }
+
+    /*
+     * @param op operation to determine the receiving servlet (multi-uri support)
+     */
+    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory, String op) {
         mDest = dest;
         mReqEncoder = new HttpRequestEncoder();
         mHttpClient = new HttpClient(factory);
@@ -68,7 +75,18 @@ public class HttpConnection implements IHttpConnection {
             Debug.trace("Created HttpClient");
         try {
             mHttpreq.setMethod("POST");
-            mHttpreq.setURI(mDest.getURI());
+            if (op == null)
+                mHttpreq.setURI(mDest.getURI());
+            else {
+                mHttpreq.setURI(mDest.getURI(op));
+            }
+
+            String contentType = dest.getContentType();
+            if (contentType != null) {
+                CMS.debug("HttpConnection: setting Content-Type");
+                mHttpreq.setHeader("Content-Type", contentType );
+            }
+
             mHttpreq.setHeader("Connection", "Keep-Alive");
             CMS.debug("HttpConnection: connecting to " + dest.getHost() + ":" + dest.getPort());
             String host = dest.getHost();
@@ -94,13 +112,31 @@ public class HttpConnection implements IHttpConnection {
 
     // Inserted by beomsuk
     public HttpConnection(IRemoteAuthority dest, ISocketFactory factory, int timeout) {
+        this(dest, factory, timeout, null);
+    }
+
+    /*
+     * @param op operation to determine the receiving servlet (multi-uri support)
+     */
+    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory, int timeout, String op) {
         mDest = dest;
         mReqEncoder = new HttpRequestEncoder();
         mHttpClient = new HttpClient(factory);
         CMS.debug("HttpConn:Created HttpConnection: factory " + factory + "client " + mHttpClient);
         try {
             mHttpreq.setMethod("POST");
-            mHttpreq.setURI(mDest.getURI());
+            if (op == null)
+                mHttpreq.setURI(mDest.getURI());
+            else {
+                mHttpreq.setURI(mDest.getURI(op));
+            }
+
+            String contentType = dest.getContentType();
+            if (contentType != null) {
+                CMS.debug("HttpConnection: setting Content-Type");
+                mHttpreq.setHeader("Content-Type", contentType );
+            }
+
             mHttpreq.setHeader("Connection", "Keep-Alive");
             CMS.debug("HttpConnection: connecting to " + dest.getHost() + ":" + dest.getPort() + " timeout:" + timeout);
             mHttpClient.connect(dest.getHost(), dest.getPort(), timeout);
@@ -122,6 +158,7 @@ public class HttpConnection implements IHttpConnection {
     public IPKIMessage send(IPKIMessage tomsg)
             throws EBaseException {
         IPKIMessage replymsg = null;
+        HttpResponse resp = null;
 
         CMS.debug("in HttpConnection.send " + this);
         if (Debug.ON)
@@ -139,20 +176,61 @@ public class HttpConnection implements IHttpConnection {
             Debug.trace(content);
             Debug.trace("--------------------------");
         }
+        resp = doSend(content);
+
+        // decode reply.
+        // if reply is bad, error is thrown and request will be resent
+        String pcontent = resp.getContent();
+
+        if (Debug.ON) {
+            Debug.trace("Server returned\n");
+            Debug.trace("-------");
+            Debug.trace(pcontent);
+            Debug.trace("-------");
+        }
+        CMS.debug("HttpConnection.send response: " + pcontent);
+
+        try {
+            replymsg = (IPKIMessage) mReqEncoder.decode(pcontent);
+        } catch (IOException e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "Could not decode content"));
+        }
+        CMS.debug("HttpConn:decoded reply");
+        return replymsg;
+    }
+
+    /**
+     * sends a request to a remote authority, returning the result.
+     * @author cfu (multi-uri support)
+     * @throws EBaseException for any failure
+     */
+    public HttpResponse send(String content)
+            throws EBaseException {
+        HttpResponse resp = null;
+        if ((content == null) || content.equals("")) {
+            CMS.debug("HttpConnection.send: with String content: null or empty");
+            throw new EBaseException("HttpConnection.send: with String content: null or empty");
+        }
+        // CMS.debug("HttpConnection.send: with String content: " + content);
+
+        resp = doSend(content);
+        return resp;
+    }
+
+    private HttpResponse doSend(String content)
+            throws EBaseException {
+        HttpResponse resp = null;
         boolean reconnect = false;
 
         mHttpreq.setHeader("Content-Length",
                 Integer.toString(content.length()));
-        if (Debug.ON)
-            Debug.trace("request encoded length " + content.length());
+        CMS.debug("HttpConnection.doSend: with String content length: " + Integer.toString(content.length()));
         mHttpreq.setContent(content);
-
-        HttpResponse p = null;
 
         try {
             if (!mHttpClient.connected()) {
                 mHttpClient.connect(mDest.getHost(), mDest.getPort());
-                CMS.debug("HttpConn:reconnected to " + mDest.getHost() + ":" + mDest.getPort());
+                CMS.debug("HttpConnection.doSend: reconnected to " + mDest.getHost() + ":" + mDest.getPort());
                 reconnect = true;
             }
         } catch (IOException e) {
@@ -167,33 +245,32 @@ public class HttpConnection implements IHttpConnection {
         }
 
         // if remote closed connection want to reconnect and resend.
-        while (p == null) {
+        while (resp == null) {
             try {
-                if (Debug.ON)
-                    Debug.trace("sending request");
-                p = mHttpClient.send(mHttpreq);
+                CMS.debug("HttpConnection.doSend: sending request");
+                resp = mHttpClient.send(mHttpreq);
             } catch (IOException e) {
                 CMS.debug("HttpConn: mHttpClient.send failed " + e.toString());
                 if (reconnect) {
-                    CMS.debug("HttpConn:resend failed again. " + e);
+                    CMS.debug("HttpConnection.doSend:resend failed again. " + e);
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "resend failed again. " + e));
                 }
                 try {
-                    CMS.debug("HttpConn: trying a reconnect ");
+                    CMS.debug("HttpConnection.doSend: trying a reconnect ");
                     mHttpClient.connect(mDest.getHost(), mDest.getPort());
                 } catch (IOException ex) {
-                    CMS.debug("reconnect for resend failed. " + ex);
+                    CMS.debug("HttpConnection.doSend: reconnect for resend failed. " + ex);
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "reconnect for resend failed."
                             + ex));
                 }
                 reconnect = true;
             }
-        }
+        } //while
 
         // got reply; check status
-        String statusStr = p.getStatusCode();
+        String statusStr = resp.getStatusCode();
 
-        CMS.debug("HttpConn:server returned status " + statusStr);
+        CMS.debug("HttpConnection.doSend:server returned status " + statusStr);
         int statuscode = -1;
 
         try {
@@ -208,37 +285,18 @@ public class HttpConnection implements IHttpConnection {
             /* HttpServletResponse.SC_UNAUTHORIZED = 401 */
             if (statuscode == 401) {
                 // XXX what to do here.
-                String msg = "request no good " + statuscode + " " + p.getReasonPhrase();
+                String msg = "request no good " + statuscode + " " + resp.getReasonPhrase();
 
-                if (Debug.ON)
-                    Debug.trace(msg);
+                CMS.debug(msg);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_AUTHENTICATE_FAILED", msg));
             } else {
                 // XXX what to do here.
-                String msg = "HttpConn:request no good " + statuscode + " " + p.getReasonPhrase();
+                String msg = "HttpConn:request no good " + statuscode + " " + resp.getReasonPhrase();
 
                 CMS.debug(msg);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", msg));
             }
         }
-
-        // decode reply.
-        // if reply is bad, error is thrown and request will be resent
-        String pcontent = p.getContent();
-
-        if (Debug.ON) {
-            Debug.trace("Server returned\n");
-            Debug.trace("-------");
-            Debug.trace(pcontent);
-            Debug.trace("-------");
-        }
-
-        try {
-            replymsg = (IPKIMessage) mReqEncoder.decode(pcontent);
-        } catch (IOException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "Could not decode content"));
-        }
-        CMS.debug("HttpConn:decoded reply");
-        return replymsg;
+        return resp;
     }
 }

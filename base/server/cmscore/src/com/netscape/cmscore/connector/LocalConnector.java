@@ -34,6 +34,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.http.HttpResponse;
 
 public class LocalConnector implements IConnector {
     ICertAuthority mSource = null;
@@ -120,6 +121,11 @@ public class LocalConnector implements IConnector {
         } else {
             return false;
         }
+    }
+
+    public HttpResponse send(String op, String r) throws EBaseException {
+        CMS.debug("LocalConnector send() with String.  Should not get here.");
+        return null;
     }
 
     public class LocalConnListener implements IRequestListener {

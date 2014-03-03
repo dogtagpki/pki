@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.connector;
 
+import java.util.Hashtable;
+
 /**
  * This represents a remote authority that can be
  * a certificate manager, or key recovery manager or
@@ -48,9 +50,30 @@ public interface IRemoteAuthority {
     public String getURI();
 
     /**
+     * Retrieves the list of URIs supported by the remote Authority
+     * (multi-URI support)
+     */
+    public Hashtable<String, String> getURIs();
+
+    /**
+     * Retrieves an URI by operation
+     * (multi-URI support)
+     * @param op operation to determine the receiving servlet
+     */
+    public String getURI(String op);
+
+    /**
      * Retrieves the timeout value for the connection to the remote Authority.
      *
      * @return In with remote Authority timeout value.
      */
     public int getTimeout();
+
+    /**
+     * Retrieves the Content-Type value of the connection to the Remote Authority.
+     *
+     * @return String with Content-Type, if it was set
+     * @return
+     */
+    public String getContentType();
 }

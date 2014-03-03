@@ -458,6 +458,17 @@ public abstract class CMSServlet extends HttpServlet {
             outputHttpParameters(httpReq);
         }
         CMS.debug("CMSServlet: " + mId + " start to service.");
+        /* cfu test
+        CMS.debug("CMSServlet: content length=" +httpReq.getContentLength());
+        Enumeration<String> reqParams = httpReq.getParameterNames();
+        while (reqParams.hasMoreElements()) {
+            String reqName = reqParams.nextElement();
+            String reqValue = httpReq.getParameter(reqName);
+
+            CMS.debug("CMSServlet: process() cfu debug: HttpServletRequest "+
+               reqName+"="+reqValue);
+        }
+        */
 
         // get a cms request
         CMSRequest cmsRequest = newCMSRequest();

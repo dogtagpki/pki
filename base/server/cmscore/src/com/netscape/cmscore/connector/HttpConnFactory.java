@@ -75,7 +75,7 @@ public class HttpConnFactory {
      * initialize parameters obtained from either constructor or
      * config store
      *
-     * @param minConns minimum number of connection handls to have available.
+     * @param minConns minimum number of connection handles to have available.
      * @param maxConns maximum total number of connections to ever have.
      * @param connInfo ldap connection info.
      * @param authInfo ldap authentication info.
@@ -113,7 +113,7 @@ public class HttpConnFactory {
         CMS.debug("leaving HttpConnFactory init.");
     }
 
-    private IHttpConnection createConnection() throws EBaseException {
+    private IHttpConnection createConnection(String op) throws EBaseException {
 
         IHttpConnection retConn = null;
 
@@ -122,10 +122,18 @@ public class HttpConnFactory {
         try {
             ISocketFactory tFactory = new JssSSLSocketFactory(mNickname);
 
-            if (mTimeout == 0) {
-                retConn = CMS.getHttpConnection(mDest, tFactory);
+            if (op == null) {
+                if (mTimeout == 0) {
+                    retConn = CMS.getHttpConnection(mDest, tFactory);
+                } else {
+                    retConn = CMS.getHttpConnection(mDest, tFactory, mTimeout);
+                }
             } else {
-                retConn = CMS.getHttpConnection(mDest, tFactory, mTimeout);
+                if (mTimeout == 0) {
+                    retConn = CMS.getHttpConnection(mDest, tFactory, op);
+                } else {
+                    retConn = CMS.getHttpConnection(mDest, tFactory, mTimeout, op);
+                }
             }
 
         } catch (Exception e) {
@@ -142,7 +150,7 @@ public class HttpConnFactory {
     /**
      * makes the minumum number of connections
      */
-    private void makeMinimum() throws EBaseException {
+    private void makeMinimum(String op) throws EBaseException {
 
         CMS.debug("In HttpConnFactory.makeMinimum.");
         int increment;
@@ -157,7 +165,7 @@ public class HttpConnFactory {
             CMS.debug(
                     "increasing minimum connections by " + increment);
             for (int i = increment - 1; i >= 0; i--) {
-                mConns[i] = createConnection();
+                mConns[i] = createConnection(op);
             }
             mTotal += increment;
             mNumConns += increment;
@@ -190,6 +198,15 @@ public class HttpConnFactory {
         return getConn(true);
     }
 
+    /*
+     * See getConn() above
+     * @param op operation to determine the receiving servlet (multi-uri support)
+     */
+    public IHttpConnection getConn(String op)
+            throws EBaseException {
+        return getConn(true, op);
+    }
+
     /**
      * Returns a Http connection - a clone of the master connection.
      * All connections should be returned to the factory using returnConn()
@@ -214,11 +231,20 @@ public class HttpConnFactory {
      */
     public synchronized IHttpConnection getConn(boolean waitForConn)
             throws EBaseException {
+        return getConn(waitForConn, null);
+    }
+
+    /*
+     * See getConn() above
+     * @param op operation to determine the receiving servlet (multi-uri support)
+     */
+    public synchronized IHttpConnection getConn(boolean waitForConn, String op)
+            throws EBaseException {
         boolean waited = false;
 
         CMS.debug("In HttpConnFactory.getConn");
         if (mNumConns == 0)
-            makeMinimum();
+            makeMinimum(op);
         if (mNumConns == 0) {
             if (!waitForConn)
                 return null;
@@ -251,7 +277,7 @@ public class HttpConnFactory {
     }
 
     /**
-     * Teturn connection to the factory.
+     * Return connection to the factory.
      * This is mandatory after a getConn().
      * The best thing to do is to put returnConn in a finally clause so it
      * always gets called. For example,

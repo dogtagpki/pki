@@ -34,6 +34,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
+import com.netscape.cmsutil.http.HttpResponse;
 
 public class HttpConnector implements IConnector {
     protected IAuthority mSource = null;
@@ -71,7 +72,9 @@ public class HttpConnector implements IConnector {
 
         //        mConn = CMS.getHttpConnection(dest, mFactory);
         // this will start resending past requests in parallel.
-        mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
+        if (resendInterval >= 0) {
+            mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
+        }
     }
 
     // Inserted by beomsuk
@@ -95,10 +98,31 @@ public class HttpConnector implements IConnector {
         }
 
         // this will start resending past requests in parallel.
-        mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
+        if (resendInterval >= 0) {
+            mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
+        }
     }
 
     // Insert end
+
+    // cfu
+    public HttpResponse send(String op, String msg)
+        throws EBaseException {
+        CMS.debug("HttpConnector: send(): cfu");
+        HttpResponse resp = null;
+        IHttpConnection curConn = null;
+        try {
+            curConn = mConnFactory.getConn(op);
+            resp = curConn.send(msg);
+        } catch (EBaseException e) {
+            CMS.debug("HttpConnector: send():"+ e.toString());
+        } finally {
+            if (curConn != null) {
+                mConnFactory.returnConn(curConn);
+            }
+        }
+        return resp;
+    }
 
     public boolean send(IRequest r)
             throws EBaseException {
@@ -148,9 +172,12 @@ public class HttpConnector implements IConnector {
                     replyStatus == RequestStatus.APPROVED)) {
                 CMS.debug("HttpConn:  remote request id still pending " +
                         r.getRequestId() + " state " + replyStatus);
+                /*
                 mSource.log(ILogger.LL_INFO,
                         CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_COMPLETED", r.getRequestId().toString()));
-                mResender.addRequest(r);
+                */
+                if (mResender != null)
+                    mResender.addRequest(r);
                 return false;
             }
 
@@ -181,12 +208,16 @@ public class HttpConnector implements IConnector {
         } catch (EBaseException e) {
             CMS.debug("HttpConn: inside EBaseException " + e.toString());
 
-            if (!r.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))
-                mResender.addRequest(r);
+            if (!r.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST)) {
+                if (mResender != null)
+                    mResender.addRequest(r);
+            }
 
             CMS.debug("HttpConn:  error sending request to cert " + e.toString());
+            /*
             mSource.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CONNECTOR_SEND_REQUEST", r.getRequestId()
                     .toString(), mDest.getHost(), Integer.toString(mDest.getPort())));
+            */
             // mSource.log(ILogger.LL_INFO,
             //    "Queing " + r.getRequestId() + " for resend.");
             return false;
@@ -200,12 +231,14 @@ public class HttpConnector implements IConnector {
 
     public void start() {
         CMS.debug("Starting HttpConnector resender thread");
-        mResender.start("HttpConnector");
+        if (mResender != null)
+            mResender.start("HttpConnector");
     }
 
     public void stop() {
         CMS.debug("Stopping HttpConnector resender thread");
-        mResender.stop();
+        if (mResender != null)
+            mResender.stop();
     }
 
 }
