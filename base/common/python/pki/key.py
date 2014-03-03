@@ -63,6 +63,10 @@ class KeyData(object):
         self.nonceData = None
         self.size = None
         self.wrappedPrivateData = None
+        
+        # To store the unwrapped key information.
+        # Is not transferred in the response.
+        self.private_data = None
 
     @classmethod
     def from_json(cls, attr_list):
@@ -427,7 +431,7 @@ class KeyClient(object):
             raise TypeError("Request ID must be specified")
 
         url = self.key_requests_url + '/' + request_id + '/approve'
-        self.connection.post(url, self.headers)
+        self.connection.post(url, None, self.headers)
 
     @pki.handle_exceptions()
     def reject_request(self, request_id):
@@ -436,7 +440,7 @@ class KeyClient(object):
             raise TypeError("Request ID must be specified")
 
         url = self.key_requests_url + '/' + request_id + '/reject'
-        self.connection.post(url, self.headers)
+        self.connection.post(url, None, self.headers)
 
     @pki.handle_exceptions()
     def cancel_request(self, request_id):
@@ -445,7 +449,7 @@ class KeyClient(object):
             raise TypeError("Request ID must be specified")
 
         url = self.key_requests_url + '/' + request_id + '/cancel'
-        self.connection.post(url, self.headers)
+        self.connection.post(url, None, self.headers)
 
     @pki.handle_exceptions()
     def create_request(self, request):
@@ -687,14 +691,15 @@ class KeyClient(object):
         1) trans_wrapped_session_key is not provided by caller.
 
         In this case, the function will call CryptoUtil methods to generate and wrap the
-        session key.  The function will return the tuple (KeyData, unwrapped_secret)
+        session key.  The function will return the KeyData object with a private_data attribute
+        which stores the unwrapped key information.
 
         2)  The trans_wrapped_session_key is provided by the caller.
 
         In this case, the function will simply pass the data to the DRM, and will return the secret
         wrapped in the session key.  The secret will still need to be unwrapped by the caller.
 
-        The function will return the tuple (KeyData, None), where the KeyData structure includes the
+        The function will return the KeyData object, where the KeyData structure includes the
         wrapped secret and some nonce data to be used as a salt when unwrapping.
         '''
         if key_id is None:
@@ -717,14 +722,12 @@ class KeyClient(object):
                         trans_wrapped_session_key=base64.encodestring(trans_wrapped_session_key))
 
         key_data = self.retrieve_key_data(request)
-        if key_provided:
-            return key_data, None
-
-        unwrapped_key = self.crypto.symmetric_unwrap(
+        if not key_provided:
+            key_data.private_data = self.crypto.symmetric_unwrap(
                                 key_data.wrappedPrivateData,
                                 session_key,
                                 nonce_iv=key_data.nonceData)
-        return key_data, unwrapped_key
+        return key_data
 
     @pki.handle_exceptions()
     def retrieve_key_by_passphrase(self, key_id, passphrase=None,

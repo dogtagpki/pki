@@ -60,6 +60,8 @@ def print_key_data(key_data):
     print "Key Size: " + str(key_data.size)
     print "Nonce Data: " + base64.encodestring(key_data.nonceData)
     print "Wrapped Private Data: " + base64.encodestring(key_data.wrappedPrivateData)
+    if key_data.private_data is not None:
+        print "Private Data: " + base64.encodestring(key_data.private_data)
 
 def main():
     ''' test code execution '''
@@ -93,8 +95,12 @@ def main():
 
     # Test 2: Get key request info
     print "Now getting key request"
-    keyrequest = keyclient.get_request_info('2')
-    print_key_request(keyrequest)
+    try:
+        keyrequest = keyclient.get_request_info('2')
+        print_key_request(keyrequest)
+    except pki.RequestNotFoundException as e:
+        print "Can be ignored for a first time run!!"
+        print e
 
     # Test 3: List requests
     print "Now listing some requests"
@@ -132,7 +138,7 @@ def main():
     session_key = crypto.generate_session_key()
     wrapped_session_key = crypto.asymmetric_wrap(session_key, keyclient.transport_cert)
     print "My key id is " + str(key_id)
-    key_data, _unwrapped_key = keyclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
+    key_data = keyclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
     unwrapped_key = crypto.symmetric_unwrap(key_data.wrappedPrivateData,
                                             session_key,
@@ -140,9 +146,9 @@ def main():
     key1 = base64.encodestring(unwrapped_key)
 
     # Test 7: Recover key without providing trans_wrapped_session_key
-    key_data, unwrapped_key = keyclient.retrieve_key(key_id)
+    key_data = keyclient.retrieve_key(key_id)
     print_key_data(key_data)
-    key2 = base64.encodestring(unwrapped_key)
+    key2 = base64.encodestring(key_data.private_data)
 
     # Test 8 - Confirm that keys returned are the same
     if key1 == key2:
@@ -172,7 +178,7 @@ def main():
     # Test 12 - Test exception on retrieve_key.
     print "Try to retrieve an invalid key"
     try:
-        key_data, unwrapped_key = keyclient.retrieve_key('2000003434')
+        key_data = keyclient.retrieve_key('2000003434')
     except pki.KeyNotFoundException as exc:
         print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
 
@@ -226,9 +232,9 @@ def main():
     key_info = keyclient.get_active_key_info(client_key_id)
     print_key_info(key_info)
 
-    key_data, unwrapped_key = keyclient.retrieve_key(key_info.get_key_id())
+    key_data = keyclient.retrieve_key(key_info.get_key_id())
     print_key_data(key_data)
-    key2 = base64.encodestring(unwrapped_key)
+    key2 = base64.encodestring(key_data.private_data)
 
     if key1 == key2:
         print "Success: archived and recovered keys match"
