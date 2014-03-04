@@ -39,7 +39,7 @@ public class TPSBuffer {
     public TPSBuffer(String str) {
 
         if (str != null) {
-            buf = Util.Str2ByteArray(str);
+            buf = Util.str2ByteArray(str);
         } else {
             buf = new byte[0];
         }

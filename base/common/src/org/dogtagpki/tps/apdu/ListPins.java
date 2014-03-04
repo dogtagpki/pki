@@ -25,12 +25,14 @@ import org.dogtagpki.tps.main.TPSBuffer;
 
 public class ListPins extends APDU {
 
+    private byte ret_size = 0;
+
     public ListPins(byte theRet_size)
     {
-        SetCLA((byte) 0xB0);
-        SetINS((byte) 0x48);
-        SetP1((byte) 0x00);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0xB0);
+        setINS((byte) 0x48);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
         ret_size = theRet_size;
     }
 
@@ -52,7 +54,5 @@ public class ListPins extends APDU {
 
         return encoding;
     } /* Encode */
-
-    private byte ret_size = 0;
 
 }

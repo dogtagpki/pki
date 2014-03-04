@@ -29,10 +29,10 @@ public class InstallLoad extends APDU {
             int fileLen)
     {
 
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0xE6);
-        SetP1((byte) 0x02);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0xE6);
+        setP1((byte) 0x02);
+        setP2((byte) 0x00);
 
         TPSBuffer inputData = new TPSBuffer();
         inputData.add((byte) packageAID.size());
@@ -49,7 +49,7 @@ public class InstallLoad extends APDU {
         inputData.add((byte) ((fileLen >> 8) & 0xff));
         inputData.add((byte) (fileLen & 0xff));
 
-        SetData(inputData);
+        setData(inputData);
     }
 
     /**
@@ -57,11 +57,11 @@ public class InstallLoad extends APDU {
      */
     public InstallLoad(TPSBuffer theData)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0xE6);
-        SetP1((byte) 0x02);
-        SetP2((byte) 0x00);
-        SetData(theData);
+        setCLA((byte) 0x84);
+        setINS((byte) 0xE6);
+        setP1((byte) 0x02);
+        setP2((byte) 0x00);
+        setData(theData);
     }
 
     @Override

@@ -47,10 +47,10 @@ public class GetIssuerInfo extends APDU {
      */
     public GetIssuerInfo()
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0xF6);
-        SetP1((byte) 0x00);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0xF6);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
     }
 
     @Override

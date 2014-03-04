@@ -25,10 +25,10 @@ import org.dogtagpki.tps.main.TPSBuffer;
 public class GetStatus extends APDU {
     public GetStatus()
     {
-        SetCLA((byte) 0xB0);
-        SetINS((byte) 0x3C);
-        SetP1((byte) 0x00);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0xB0);
+        setINS((byte) 0x3C);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
     }
 
     @Override

@@ -22,6 +22,9 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
 public class TokenPDUResponse extends TPSMessage {
+
+    private APDUResponse response;
+
     public TokenPDUResponse(String message) {
 
         super(message);
@@ -32,7 +35,7 @@ public class TokenPDUResponse extends TPSMessage {
 
         int sizeI = Integer.parseInt(size);
 
-        byte[] decoded_pdu_data = Util.URIDecodeFromHex(apduData);
+        byte[] decoded_pdu_data = Util.uriDecodeFromHex(apduData);
 
         if (decoded_pdu_data.length == sizeI) {
 
@@ -43,8 +46,6 @@ public class TokenPDUResponse extends TPSMessage {
         }
 
     }
-
-    private APDUResponse response;
 
     public APDUResponse getResponseAPDU() {
         return response;

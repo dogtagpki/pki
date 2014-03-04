@@ -20,8 +20,6 @@ package org.dogtagpki.server.tps;
 import java.io.IOException;
 
 import org.dogtagpki.server.tps.processor.TPSFormatProcessor;
-import org.dogtagpki.server.tps.processor.TPSProcessor;
-import org.dogtagpki.server.tps.processor.TPSProcessor.TPS_Status;
 import org.dogtagpki.tps.TPSConnection;
 import org.dogtagpki.tps.msg.BeginOp;
 import org.dogtagpki.tps.msg.EndOp;
@@ -31,6 +29,8 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
 public class TPSSession {
+
+    private TPSConnection connection;
 
     public TPSSession(TPSConnection conn) {
 
@@ -82,7 +82,7 @@ public class TPSSession {
     }
 
     public void process() throws IOException, EBaseException {
-        TPSProcessor.TPS_Status status = TPS_Status.STATUS_ERROR_BAD_STATUS;
+        EndOp.TPSStatus status = EndOp.TPSStatus.STATUS_ERROR_BAD_STATUS;
         CMS.debug("In TPSSession.process()");
 
         TPSMessage firstMsg = read();
@@ -103,7 +103,7 @@ public class TPSSession {
 
             TPSFormatProcessor processor = new TPSFormatProcessor();
             BeginOp beginOp = (BeginOp) firstMsg;
-            status = processor.Process(this, beginOp);
+            status = processor.process(this, beginOp);
 
         case OP_ENROLL:
             break;
@@ -122,7 +122,7 @@ public class TPSSession {
 
         int result = EndOp.RESULT_ERROR;
 
-        if (status == TPSProcessor.TPS_Status.STATUS_NO_ERROR) {
+        if (status == EndOp.TPSStatus.STATUS_NO_ERROR) {
             result = EndOp.RESULT_GOOD;
         }
 
@@ -133,7 +133,5 @@ public class TPSSession {
         CMS.debug("TPSSession.process: leaving: result: " + result + " status: " + status);
 
     }
-
-    private TPSConnection connection;
 
 }

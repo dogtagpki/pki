@@ -27,10 +27,10 @@ public class Lifecycle extends APDU {
      */
     public Lifecycle(byte lifecycle)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0xf0);
-        SetP1(lifecycle);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0xf0);
+        setP1(lifecycle);
+        setP2((byte) 0x00);
     }
 
     @Override

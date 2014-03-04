@@ -28,12 +28,12 @@ public class LoadFile extends APDU {
      */
     public LoadFile(byte refControl, byte blockNum, TPSBuffer theData)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0xE8);
-        SetP1(refControl);
-        SetP2(blockNum);
+        setCLA((byte) 0x84);
+        setINS((byte) 0xE8);
+        setP1(refControl);
+        setP2(blockNum);
 
-        SetData(theData);
+        setData(theData);
     }
 
     @Override

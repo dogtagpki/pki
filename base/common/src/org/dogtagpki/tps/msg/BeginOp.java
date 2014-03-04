@@ -22,7 +22,10 @@ import java.util.Map;
 import com.netscape.certsrv.apps.CMS;
 
 public class BeginOp extends TPSMessage {
-    public BeginOp(OpType theOp, Map<String,String> theExtensions) {
+
+    private Map<String, String> extensions;
+
+    public BeginOp(OpType theOp, Map<String, String> theExtensions) {
 
         CMS.debug("BeingOp op: " + theOp + " extensions: " + theExtensions);
         put(OPERATION_TYPE_NAME, opTypeToInt(theOp));
@@ -33,12 +36,11 @@ public class BeginOp extends TPSMessage {
 
     public OpType getOpType() {
 
-        int opTypeInt =  getInt(OPERATION_TYPE_NAME);
+        int opTypeInt = getInt(OPERATION_TYPE_NAME);
         return intToOpType(opTypeInt);
     }
 
-
-    public Map<String,String> GetExtensions() {
+    public Map<String, String> GetExtensions() {
         return extensions;
     }
 
@@ -46,12 +48,11 @@ public class BeginOp extends TPSMessage {
 
         String result = null;
 
-        if(extName == null)
+        if (extName == null)
             return result;
 
         return extensions.get(extName);
 
     }
 
-    private    Map<String, String> extensions;
 }

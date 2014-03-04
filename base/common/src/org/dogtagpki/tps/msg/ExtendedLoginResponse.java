@@ -22,6 +22,8 @@ import java.util.Map;
 
 public class ExtendedLoginResponse extends TPSMessage {
 
+    private Map<String, String> authParams;
+
     public ExtendedLoginResponse(String msg) {
 
         super(msg);
@@ -38,5 +40,4 @@ public class ExtendedLoginResponse extends TPSMessage {
         return authParams;
     }
 
-    private Map<String, String> authParams;
 }

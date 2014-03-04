@@ -128,7 +128,7 @@ find_file(HTTPCORE_JAR
 # build pki-certsrv
 javac(pki-certsrv-classes
     SOURCES
-        com/netscape/certsrv/*.java
+        *.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
@@ -158,7 +158,7 @@ jar(pki-certsrv-jar
     INPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     FILES
-        com/netscape/certsrv/*.class
+        *.class
     DEPENDS
         pki-certsrv-classes
 )

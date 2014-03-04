@@ -28,11 +28,11 @@ public class PutKey extends APDU {
      */
     public PutKey(byte p1, byte p2, TPSBuffer theData)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0xd8);
-        SetP1(p1);
-        SetP2(p2);
-        SetData(theData);
+        setCLA((byte) 0x84);
+        setINS((byte) 0xd8);
+        setP1(p1);
+        setP2(p2);
+        setData(theData);
     }
 
     public Type getType()

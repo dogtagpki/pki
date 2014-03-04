@@ -26,6 +26,8 @@ import org.dogtagpki.tps.main.Util;
 
 public class ExtendedLoginRequest extends TPSMessage {
 
+    private Set<String> params;
+
     public ExtendedLoginRequest(int invalid_pw, int blocked, Set<String> params, String title, String description) {
 
         put(INVALID_PWD_NAME, invalid_pw);
@@ -46,7 +48,7 @@ public class ExtendedLoginRequest extends TPSMessage {
                 String curParam = null;
 
                 try {
-                    curParam = Util.URIEncode(iter.next());
+                    curParam = Util.uriEncode(iter.next());
                 } catch (UnsupportedEncodingException e) {
                     curParam = null;
                 }
@@ -67,8 +69,6 @@ public class ExtendedLoginRequest extends TPSMessage {
         return super.encode();
 
     }
-
-    private Set<String> params;
 
     public static void main(String[] args) {
 

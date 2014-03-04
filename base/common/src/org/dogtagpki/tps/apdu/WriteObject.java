@@ -66,10 +66,10 @@ public class WriteObject extends APDU {
             return;
         }
 
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x54);
-        SetP1((byte) 0x00);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x54);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
 
         TPSBuffer data1 = new TPSBuffer();
 
@@ -85,7 +85,7 @@ public class WriteObject extends APDU {
         data1.add((byte) (offset & 0xff));
         data1.add((byte) data.size());
         data1.add(data);
-        SetData(data1);
+        setData(data1);
     }
 
     public Type getType()

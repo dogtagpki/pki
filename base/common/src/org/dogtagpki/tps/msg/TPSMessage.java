@@ -417,7 +417,7 @@ public class TPSMessage {
         Map<String, String> extsMap = null;
         if (extensions != null) {
             try {
-                decoded = Util.URIDecode(extensions);
+                decoded = Util.uriDecode(extensions);
             } catch (Exception e) {
                 CMS.debug("TPSMessage.createMessage: Util.URIDecode failed: " + e);
                 return null;

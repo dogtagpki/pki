@@ -19,6 +19,7 @@ package org.dogtagpki.server.tps.processor;
 
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.tps.msg.BeginOp;
+import org.dogtagpki.tps.msg.EndOp.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -29,9 +30,9 @@ public class TPSFormatProcessor extends TPSProcessor {
     }
 
 
-    public TPS_Status Process(TPSSession session, BeginOp beginMsg) throws EBaseException {
+    public TPSStatus process(TPSSession session, BeginOp beginMsg) throws EBaseException {
         CMS.debug("In TPS_Format_Processor.Process.");
-        return super.Format(session,beginMsg);
+        return super.format(session,beginMsg);
     }
 
     public static void main(String[] args) {

@@ -26,10 +26,10 @@ public class GetData extends APDU {
 
     public GetData()
     {
-        SetCLA((byte) 0x80);
-        SetINS((byte) 0xCA);
-        SetP1((byte) 0x9F);
-        SetP2((byte) 0x7F);
+        setCLA((byte) 0x80);
+        setINS((byte) 0xCA);
+        setP1((byte) 0x9F);
+        setP2((byte) 0x7F);
     }
 
     @Override

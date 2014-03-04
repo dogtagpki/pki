@@ -25,11 +25,11 @@ import org.dogtagpki.tps.main.TPSBuffer;
 public class Select extends APDU {
     public Select(byte p1, byte p2, TPSBuffer theData)
     {
-        SetCLA((byte) 0x00);
-        SetINS((byte) 0xa4);
-        SetP1(p1);
-        SetP2(p2);
-        SetData(theData);
+        setCLA((byte) 0x00);
+        setINS((byte) 0xa4);
+        setP1(p1);
+        setP2(p2);
+        setData(theData);
     }
 
     public Type getType()

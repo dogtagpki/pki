@@ -25,10 +25,10 @@ import org.dogtagpki.tps.main.TPSBuffer;
 public class GetVersion extends APDU {
     public GetVersion()
     {
-        SetCLA((byte) 0xB0);
-        SetINS((byte) 0x70);
-        SetP1((byte) 0x00);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0xB0);
+        setINS((byte) 0x70);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
     }
 
     @Override

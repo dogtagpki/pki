@@ -48,10 +48,10 @@ public class ImportKey extends APDU {
      */
     public ImportKey(byte p1)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x32);
-        SetP1(p1);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x32);
+        setP1(p1);
+        setP2((byte) 0x00);
 
         data = new TPSBuffer();
         data.add((byte) 0xFF);

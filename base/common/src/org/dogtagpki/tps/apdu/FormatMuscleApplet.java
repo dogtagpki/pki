@@ -35,10 +35,10 @@ public class FormatMuscleApplet extends APDU {
             short keyCreationPermissions,
             short pinCreationPermissions) {
 
-        SetCLA((byte) 0xB0);
-        SetINS((byte) 0x2A);
-        SetP1((byte) 0x00);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0xB0);
+        setINS((byte) 0x2A);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
 
     }
 

@@ -33,7 +33,7 @@ public class TokenPDURequest extends TPSMessage {
             TPSBuffer encoding = apdu.getEncoding();
             int apduSize = encoding.size();
 
-            String apdu_value = Util.URIEncodeInHex(encoding.toBytesArray());
+            String apdu_value = Util.uriEncodeInHex(encoding.toBytesArray());
 
             put(PDU_SIZE_NAME, apduSize);
             put(PDU_DATA_NAME, apdu_value);

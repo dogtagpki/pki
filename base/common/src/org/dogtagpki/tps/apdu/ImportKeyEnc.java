@@ -49,12 +49,12 @@ public class ImportKeyEnc extends APDU {
      */
     public ImportKeyEnc(byte p1, byte p2, TPSBuffer theData)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x0A);
-        SetP1(p1);
-        SetP2(p2);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x0A);
+        setP1(p1);
+        setP2(p2);
 
-        SetData(theData);
+        setData(theData);
     }
 
     public Type getType()

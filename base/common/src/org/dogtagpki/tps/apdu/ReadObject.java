@@ -54,10 +54,10 @@ public class ReadObject extends APDU {
 
     public ReadObject(byte[] object_id, int offset, int len)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x56);
-        SetP1((byte) 0x00);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x56);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
         data = new TPSBuffer();
 
         data.add(object_id[0]);

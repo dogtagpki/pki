@@ -28,10 +28,10 @@ public class InstallApplet extends APDU {
     public InstallApplet(TPSBuffer packageAID, TPSBuffer appletAID,
             byte appPrivileges, int instanceSize, int appletMemorySize)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0xE6);
-        SetP1((byte) 0x0C);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0xE6);
+        setP1((byte) 0x0C);
+        setP2((byte) 0x00);
 
         data = new TPSBuffer();
         data.add((byte) packageAID.size());
@@ -81,11 +81,11 @@ public class InstallApplet extends APDU {
      */
     public InstallApplet(TPSBuffer theData)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0xE6);
-        SetP1((byte) 0x0C);
-        SetP2((byte) 0x00);
-        SetData(theData);
+        setCLA((byte) 0x84);
+        setINS((byte) 0xE6);
+        setP1((byte) 0x0C);
+        setP2((byte) 0x00);
+        setData(theData);
     }
 
     @Override

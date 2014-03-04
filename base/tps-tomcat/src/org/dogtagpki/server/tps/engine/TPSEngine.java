@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps.engine;
 
-public class TPS {
+public class TPSEngine {
 
     public static final String TKS_RESPONSE_STATUS = "status";
     public static final String TKS_RESPONSE_SessionKey = "sessionKey";
@@ -89,7 +89,7 @@ public class TPS {
 
 
 
-    public TPS() {
+    public TPSEngine() {
     }
 
     public int initialize(String cfg_path) {

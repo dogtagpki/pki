@@ -56,6 +56,15 @@ public abstract class APDU {
         APDU_GENERATE_KEY_ECC
     }
 
+    protected byte cla;
+    protected byte ins;
+    protected byte p1;
+    protected byte p2;
+
+    protected TPSBuffer data = null;
+    protected TPSBuffer plainText = null;
+    protected TPSBuffer mac = null;
+
     public APDU() {
         data = new TPSBuffer();
     }
@@ -64,28 +73,28 @@ public abstract class APDU {
         data = new TPSBuffer(otherAPDU.getData());
     }
 
-    void SetCLA(byte theCla) {
+    void setCLA(byte theCla) {
         cla = theCla;
     }
 
-    void SetINS(byte theIns) {
+    void setINS(byte theIns) {
         ins = theIns;
     }
 
-    void SetP1(byte theP1) {
+    void setP1(byte theP1) {
         p1 = theP1;
     }
 
-    void SetP2(byte theP2) {
+    void setP2(byte theP2) {
         p2 = theP2;
     }
 
-    void SetData(TPSBuffer theData) {
+    void setData(TPSBuffer theData) {
         data = new TPSBuffer(theData);
 
     }
 
-    public void SetMAC(TPSBuffer theMac) {
+    public void setMAC(TPSBuffer theMac) {
         mac = theMac;
     }
 
@@ -168,8 +177,8 @@ public abstract class APDU {
 
         int claInt = cla & 0xff;
         int insInt = ins & 0xff;
-        int p1Int =  p1 & 0xff;
-        int p2Int =  p2 & 0xff;
+        int p1Int = p1 & 0xff;
+        int p2Int = p2 & 0xff;
 
         System.out.println("APDU: ");
         System.out.println("CLA: " + Util.intToHex(claInt));
@@ -179,14 +188,5 @@ public abstract class APDU {
 
         data.dump();
     }
-
-    protected byte cla;
-    protected byte ins;
-    protected byte p1;
-    protected byte p2;
-
-    protected TPSBuffer data = null;
-    protected TPSBuffer plainText = null;
-    protected TPSBuffer mac = null;
 
 };

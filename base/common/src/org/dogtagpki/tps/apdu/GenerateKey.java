@@ -29,10 +29,10 @@ public class GenerateKey extends APDU {
             int keysize, byte option,
             byte type, TPSBuffer wrapped_challenge, TPSBuffer key_check) {
 
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x0C);
-        SetP1(theP1);
-        SetP2(theP2);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x0C);
+        setP1(theP1);
+        setP2(theP2);
         data = new TPSBuffer();
 
         data.add(alg);

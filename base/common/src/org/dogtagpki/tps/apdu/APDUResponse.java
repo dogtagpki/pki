@@ -31,7 +31,7 @@ public class APDUResponse extends APDU {
     }
 
     public APDUResponse(TPSBuffer theData) {
-        SetData(theData);
+        setData(theData);
 
     }
 
@@ -52,7 +52,7 @@ public class APDUResponse extends APDU {
 
     }
 
-    public byte GetSW2() {
+    public byte getSW2() {
         if (data == null) {
             return 0x0;
         } else {

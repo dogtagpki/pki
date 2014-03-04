@@ -28,10 +28,10 @@ public class ReadBuffer extends APDU {
      */
     public ReadBuffer(int len, int offset)
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x08);
-        SetP1((byte) len);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x08);
+        setP1((byte) len);
+        setP2((byte) 0x00);
         data = new TPSBuffer();
 
         data.add((byte) (offset / 256));
@@ -48,7 +48,7 @@ public class ReadBuffer extends APDU {
         return p1;
     }
 
-    public int GetOffset()
+    public int getOffset()
     {
         byte a = data.at(0);
         byte b = data.at(1);

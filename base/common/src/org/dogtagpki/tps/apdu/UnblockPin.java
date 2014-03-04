@@ -26,10 +26,10 @@ public class UnblockPin extends APDU {
      */
     public UnblockPin()
     {
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x02);
-        SetP1((byte) 0x00);
-        SetP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x02);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
     }
 
     public Type getType()

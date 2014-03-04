@@ -29,10 +29,10 @@ public class GenerateKeyECC extends APDU {
             int keysize, byte option,
             byte type, TPSBuffer wrapped_challenge, TPSBuffer key_check) {
 
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x0D);
-        SetP1(theP1);
-        SetP2(theP2);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x0D);
+        setP1(theP1);
+        setP2(theP2);
 
         TPSBuffer data1 = new TPSBuffer();
 
@@ -55,7 +55,7 @@ public class GenerateKeyECC extends APDU {
             data1.add(key_check);
         }
 
-        SetData(data1);
+        setData(data1);
     }
 
     @Override

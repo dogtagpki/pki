@@ -17,30 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.tps.apdu;
 
-import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.tps.main.TPSBuffer;
 
 public class ExternalAuthenticate extends APDU {
 
-    public ExternalAuthenticate(TPSBuffer theData, SecureChannel.SecurityLevel sl) {
+    public ExternalAuthenticate(TPSBuffer theData, byte securityLevel) {
 
-        SetCLA((byte) 0x84);
-        SetINS((byte) 0x82);
-        SetP1((byte) 0x01);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x82);
 
-        if (sl == SecureChannel.SecurityLevel.SECURE_MSG_MAC_ENC) {
-            SetP1((byte) 0x03);
-        } else if (sl == SecureChannel.SecurityLevel.SECURE_MSG_NONE) {
-            SetP1((byte) 0x00);
-        } else { // default
-            SetP1((byte) 0x01);
-        }
+        setP1(securityLevel);
 
-        SetP2((byte) 0x00);
-        SetData(theData);
+        setP2((byte) 0x00);
+        setData(theData);
     }
 
-    public TPSBuffer GetHostCryptogram()
+    public TPSBuffer getHostCryptogram()
     {
         return getData();
     }

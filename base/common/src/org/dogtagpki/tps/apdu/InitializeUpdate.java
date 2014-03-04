@@ -29,13 +29,13 @@ public class InitializeUpdate extends APDU {
      * Constructs Initialize Update APDU.
      */
     public InitializeUpdate(byte key_version, byte key_index, TPSBuffer theData) {
-        SetINS((byte) 0x50);
-        SetP1(key_version);
-        SetP2(key_index);
-        SetData(theData);
+        setINS((byte) 0x50);
+        setP1(key_version);
+        setP2(key_index);
+        setData(theData);
     }
 
-    public TPSBuffer GetHostChallenge()
+    public TPSBuffer getHostChallenge()
     {
         return getData();
     }

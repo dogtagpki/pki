@@ -30,7 +30,7 @@ public class Util {
     public Util() {
     }
 
-    public static byte[]  Str2ByteArray (String s)  {
+    public static byte[]  str2ByteArray (String s)  {
         int len = s.length() / 2;
 
 
@@ -63,17 +63,17 @@ public class Util {
 
     }
 
-    public static String URIDecode(String encoded) throws UnsupportedEncodingException {
+    public static String uriDecode(String encoded) throws UnsupportedEncodingException {
 
         return URLDecoder.decode(encoded, "UTF-8");
     }
 
-    public static String URIEncode(String decoded) throws UnsupportedEncodingException {
+    public static String uriEncode(String decoded) throws UnsupportedEncodingException {
 
         return URLEncoder.encode(decoded, "UTF-8");
     }
 
-    public static byte[] URIDecodeFromHex(String buff) {
+    public static byte[] uriDecodeFromHex(String buff) {
 
         byte[] result = null;
         byte[] tmp = null;
@@ -106,7 +106,7 @@ public class Util {
         return result;
     }
 
-    public static String URIEncodeInHex(byte[] buff) {
+    public static String uriEncodeInHex(byte[] buff) {
 
         final String HEX_DIGITS = "0123456789ABCDEF";
 
