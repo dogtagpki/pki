@@ -216,12 +216,24 @@ def main():
     print "key to archive: " + key1
     client_key_id = "Vek #4" + time.strftime('%c')
 
-    # this test is not quite working yet
-    #response = keyclient.archive_key(client_key_id, keyclient.SYMMETRIC_KEY_TYPE,
-    #                                base64.decodestring(key1),
-    #                                key_algorithm=keyclient.AES_ALGORITHM,
-    #                                key_size=128)
-    #print_key_request(response.requestInfo)
+    response = keyclient.archive_key(client_key_id, keyclient.SYMMETRIC_KEY_TYPE,
+                                    base64.decodestring(key1),
+                                    key_algorithm=keyclient.AES_ALGORITHM,
+                                    key_size=128)
+    print_key_request(response.requestInfo)
+
+    # Test 20: Lets get it back
+    key_info = keyclient.get_active_key_info(client_key_id)
+    print_key_info(key_info)
+
+    key_data, unwrapped_key = keyclient.retrieve_key(key_info.get_key_id())
+    print_key_data(key_data)
+    key2 = base64.encodestring(unwrapped_key)
+
+    if key1 == key2:
+        print "Success: archived and recovered keys match"
+    else:
+        print "Error: archived and recovered keys do not match"
 
 if __name__ == "__main__":
     main()

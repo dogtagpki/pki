@@ -327,6 +327,9 @@ class KeyClient(object):
     RC4_ALGORITHM = "RC4"
     AES_ALGORITHM = "AES"
 
+    #default session key wrapping algorithm
+    DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
+
     def __init__(self, connection, crypto, transport_cert_nick=None):
         ''' Constructor '''
         self.connection = connection
@@ -526,28 +529,19 @@ class KeyClient(object):
         if private_data is None:
             raise TypeError("No data provided to be archived")
 
+        nonce_iv = self.crypto.generate_nonce_iv()
         session_key = self.crypto.generate_session_key()
         trans_wrapped_session_key = \
             self.crypto.asymmetric_wrap(session_key, self.transport_cert)
-        wrapped_private_data = self.crypto.symmetric_wrap(private_data, session_key)
+        wrapped_private_data = self.crypto.symmetric_wrap(private_data, session_key, nonce_iv=nonce_iv)
 
-        twsk = base64.encodestring(trans_wrapped_session_key)
-        data = base64.encodestring(wrapped_private_data)
+        algorithm_oid = self.DES_EDE3_CBC_OID
+        symkey_params = base64.encodestring(nonce_iv)
 
-        # TODO - generate_algorithm_oid here
-        # generate symkey_params here
-        algorithm_oid = "todo - fix me"
-        symkey_params = "todo - fix me"
-
-        request = KeyArchivalRequest(client_key_id=client_key_id,
-                         data_type=data_type,
-                         wrapped_private_data=data,
-                         trans_wrapped_session_key=twsk,
-                         algorithm_oid=algorithm_oid,
-                         symkey_params=symkey_params,
-                         key_algorithm=key_algorithm,
-                         key_size=key_size)
-        return self.create_request(request)
+        return self.archive_wrapped_data(client_key_id, data_type, wrapped_private_data,
+                                         trans_wrapped_session_key, algorithm_oid,
+                                         symkey_params, key_algorithm=key_algorithm,
+                                         key_size=key_size)
 
     @pki.handle_exceptions()
     def archive_wrapped_data(self, client_key_id, data_type,

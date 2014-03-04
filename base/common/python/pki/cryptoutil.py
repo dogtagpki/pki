@@ -45,6 +45,12 @@ class CryptoUtil(object):
         ''' Initialization code '''
         pass
 
+    @staticmethod
+    @abc.abstractmethod
+    def generate_nonce_iv(mechanism):
+        ''' Create a random initialization vector '''
+        pass
+
     @abc.abstractmethod
     def generate_symmetric_key(self, mechanism=None, size=0):
         ''' Generate and return a symmetric key '''
@@ -141,7 +147,17 @@ class NSSCryptoUtil(CryptoUtil):
             subprocess.check_call(command)
 
     @staticmethod
-    def setup_contexts(mechanism, sym_key, nonce_iv):
+    def generate_nonce_iv(mechanism=nss.CKM_DES3_CBC_PAD):
+        ''' Create a random initialization vector '''
+        iv_length = nss.get_iv_length(mechanism)
+        if iv_length > 0:
+            iv_data = nss.generate_random(iv_length)
+            return iv_data
+        else:
+            return None
+
+    @classmethod
+    def setup_contexts(cls, mechanism, sym_key, nonce_iv):
         ''' Set up contexts to do wrapping/unwrapping by symmetric keys. '''
         # Get a PK11 slot based on the cipher
         slot = nss.get_best_slot(mechanism)
@@ -151,13 +167,11 @@ class NSSCryptoUtil(CryptoUtil):
 
         # If initialization vector was supplied use it, otherwise set it to None
         if nonce_iv:
-            iv_data = nss.read_hex(nonce_iv)
-            iv_si = nss.SecItem(iv_data)
+            iv_si = nss.SecItem(nonce_iv)
             iv_param = nss.param_from_iv(mechanism, iv_si)
         else:
-            iv_length = nss.get_iv_length(mechanism)
-            if iv_length > 0:
-                iv_data = nss.generate_random(iv_length)
+            iv_data = cls.generate_nonce_iv(mechanism)
+            if iv_data is not None:
                 iv_si = nss.SecItem(iv_data)
                 iv_param = nss.param_from_iv(mechanism, iv_si)
             else:
@@ -198,6 +212,9 @@ class NSSCryptoUtil(CryptoUtil):
 
         Wrap (encrypt) data using the supplied symmetric key
         '''
+        if nonce_iv is None:
+            nonce_iv = nss.read_hex(self.nonce_iv)
+
         encoding_ctx, _decoding_ctx = self.setup_contexts(mechanism, wrapping_key, nonce_iv)
         wrapped_data = encoding_ctx.cipher_op(data) + encoding_ctx.digest_final()
         return wrapped_data
@@ -211,9 +228,7 @@ class NSSCryptoUtil(CryptoUtil):
         Unwrap (decrypt) data using the supplied symmetric key
         '''
         if nonce_iv is None:
-            nonce_iv = self.nonce_iv
-        else:
-            nonce_iv = nss.data_to_hex(nonce_iv)
+            nonce_iv = nss.read_hex(self.nonce_iv)
 
         _encoding_ctx, decoding_ctx = self.setup_contexts(mechanism, wrapping_key, nonce_iv)
         unwrapped_data = decoding_ctx.cipher_op(data) \
