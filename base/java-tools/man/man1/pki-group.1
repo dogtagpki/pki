@@ -1,0 +1,115 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-group 1 "May 5, 2014" "version 10.2" "PKI Group Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-group \- Command-Line Interface for managing Certificate System groups.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fB<subsystem>-group\fR
+\fBpki\fR [CLI options] \fB<subsystem>-group-find\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-show\fR <group ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-add\fR <group ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-mod\fR <group ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-del\fR <group ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-add\fR <group ID> <member ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-del\fR <group ID> <member ID> [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-group\fR commands provide command-line interfaces to manage groups on the specified subsystem.
+.PP
+Valid subsystems are \fBca\fR, \fBkra\fR, \fBocsp\fR, \fBtks\fR, and \fBtps\fR.
+If the \fB<subsystem>-\fR prefix is omitted, it will default to \fBca\fR.
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group\fR
+.RS 4
+This command is to list available group commands for the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-find\fR [command options]
+.RS 4
+This command is to list groups in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-show\fR <group ID> [command options]
+.RS 4
+This command is to view a group details in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-add\fR <group ID> [command options]
+.RS 4
+This command is to add a group into the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-mod\fR <group ID> [command options]
+.RS 4
+This command is to modify a group in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-del\fR <group ID> [command options]
+.RS 4
+This command is to delete a group from the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-add\fR <group ID> <member ID> [command options]
+.RS 4
+This command is to add a member to a group.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-del\fR <group ID> <member ID> [command options]
+.RS 4
+This command is to delete a member from a group.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available group commands, type \fBpki <subsystem>-group\fP. To view each command's usage, type \fB pki <subsystem>-group-<command> --help\fP.
+
+All group commands must be executed as the subsystem administrator.
+
+To list groups in CA, use \fBpki ca-group-find\fP.  It is possible to select the page size to limit the number of entries returned.  To list all groups:
+
+.B pki <admin authentication> ca-group-find
+
+To view a particular group:
+
+.B pki <admin authentication> ca-group-show <group ID>
+
+To add a group:
+
+.B pki <admin authentication> ca-group-add <group ID> --description "description"
+
+To delete a group:
+
+.B pki <admin authentication> ca-group-del <group ID>
+
+To add a user to a group:
+
+.B pki <admin authentication> ca-group-member-add <group ID> <member ID>
+
+To delete a user from a group:
+
+.B pki <admin authentication> ca-group-member-del <group ID> <member ID>
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

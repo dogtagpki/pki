@@ -1,0 +1,94 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-user 1 "May 5, 2014" "version 10.2" "PKI User Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-user \- Command-Line Interface for managing Certificate System users.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fB<subsystem>-user\fR
+\fBpki\fR [CLI options] \fB<subsystem>-user-find\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-show\fR <user ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-add\fR <user ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-mod\fR <user ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-del\fR <user ID> [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-user\fR commands provide command-line interfaces to manage users on the specified subsystem.
+.PP
+Valid subsystems are \fBca\fR, \fBkra\fR, \fBocsp\fR, \fBtks\fR, and \fBtps\fR. If the \fB<subsystem>-\fR prefix is omitted, it will default to \fBca\fR.
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user\fR
+.RS 4
+This command is to list available user commands for the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-find\fR [command options]
+.RS 4
+This command is to list users in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-show\fR <user ID> [command options]
+.RS 4
+This command is to view a user details in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-add\fR <user ID> [command options]
+.RS 4
+This command is to add a user into the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-mod\fR <user ID> [command options]
+.RS 4
+This command is to modify a user in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-del\fR <user ID> [command options]
+.RS 4
+This command is to delete a user from the subsystem.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available user commands, type \fBpki <subsystem>-user\fP. To view each command's usage, type \fB pki <subsystem>-user-<command> --help\fP.
+
+All user commands must be executed as the subsystem administrator.
+
+To list users in CA, use \fBpki ca-user-find\fP.  It is possible to select the page size to limit the size of the results.  To list all users:
+
+.B pki <admin authentication> ca-user-find
+
+To view a particular user:
+
+.B pki <admin authentication> ca-user-show <user ID>
+
+To add a user:
+
+.B pki <admin authentication> ca-user-add <user ID> --fullName "<full name>"
+
+To delete a user:
+
+.B pki <admin authentication> ca-user-del <user ID>
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

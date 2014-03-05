@@ -1,0 +1,83 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-client 1 "May 5, 2014" "version 10.2" "PKI Client Security Database Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-client \- Command-Line Interface for managing the security database on Certificate System client.
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fBclient\fR
+\fBpki\fR [CLI options] \fBclient-init\fR [command options]
+\fBpki\fR [CLI options] \fBclient-cert-find\fR [command options]
+\fBpki\fR [CLI options] \fBclient-cert-import\fR [command options]
+\fBpki\fR [CLI options] \fBclient-cert-del\fR [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-client\fR commands provide command-line interfaces to manage the security database on the client's machine.
+.PP
+\fBpki\fR [CLI options] \fBclient\fR
+.RS 4
+This command is to list available client commands.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBclient-init\fR [command options]
+.RS 4
+This command is to create a new security database for the client.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBclient-cert-find\fR [command options]
+.RS 4
+This command is to list certificates in the client security database.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBclient-cert-import\fR [command options]
+.RS 4
+This command is to view a certificate in the client security database.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBclient-cert-del\fR [command options]
+.RS 4
+This command is to delete a certificate from the client security database.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available client commands, type \fBpki client\fP. To view each command's usage, type \fB pki client-<command> --help\fP.
+
+To create a new database execute the following command:
+
+.B pki -d <security database location> -c <security database password> client-init
+
+To view certificates in the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-find
+
+To import a certificate into the security database:
+
+.B pki -d <security database location> -c <security database password> -n <certificate nickname> client-cert-import --cert <certificate file>
+
+To delete a certificate from the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-del <certificate nickname>
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

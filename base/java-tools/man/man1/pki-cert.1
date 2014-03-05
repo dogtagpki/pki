@@ -1,0 +1,159 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-cert 1 "May 5, 2014" "version 10.2" "PKI Certificate Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-cert \- Command-Line Interface for managing certificates on the Certificate System server.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fB<subsystem>-cert\fR
+\fBpki\fR [CLI options] \fB<subsystem>-cert-find\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-cert-show\fR <certificate ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-cert-revoke\fR <certificate ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-cert-hold\fR <certificate ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-cert-release-hold\fR <certificate ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-cert-request-profile-find\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-cert-request-profile-show\fR <profile ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-cert-request-submit\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-cert-request-review\fR <request ID> [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-cert\fR commands provide command-line interfaces to manage certificates on the specified subsystem.
+.PP
+Valid subsystems are \fBca\fR and \fBtps\fR. If the <subsystem>- prefix is omitted, it will default to \fBca\fR.
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert\fR
+.RS 4
+This command is to list available certificate commands for the subsystem.
+Different subsystems may have different certificate commands.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-find\fR [command options]
+.RS 4
+This command is to list certificates in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-show\fR <certificate ID> [command options]
+.RS 4
+This command is to view a certificate details in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-revoke\fR <certificate ID>
+.RS 4
+This command is to revoke a certificate.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-hold\fR <certificate ID>
+.RS 4
+This command is to place a certificate on hold temporarily.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-release-hold\fR <certificate ID>
+.RS 4
+This command is to release a certificate that has been placed on hold.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-request-profile-find\fR [command options]
+.RS 4
+This command is to list available certificate request templates.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-request-profile-show\fR <profile ID> [command options]
+.RS 4
+This command is to view a certificate request template.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-request-submit\fR [command options]
+.RS 4
+This command is to submit a certificate request.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-cert-request-review\fR <request ID> [command options]
+.RS 4
+This command is to review a certificate request.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available certificate commands, type \fBpki <subsystem>-cert\fP. To view each command's usage, type \fB pki <subsystem>-cert-<command> --help\fP.
+
+.SS Viewing Certificates
+Certificates can be viewed anonymously.
+
+To list all certificates in the CA:
+
+.B pki ca-cert-find
+
+It is also possible to search for and list specific certificates by adding a search filter.  Use \fBpki ca-cert-find --help\fP to see options.  For example, to search based on issuance date:
+
+.B pki ca-cert-find --issuedOnFrom 2012-06-15
+
+To view a particular certificate:
+
+.B pki ca-cert-show <certificate ID>
+
+.SS Revoking Certificates
+Revoking, holding, or releasing a certificate must be executed as an agent user.
+To revoke a certificate:
+
+.B pki <agent authentication> ca-cert-revoke <certificate ID>
+
+To place a certificate on hold temporarily:
+
+.B pki <agent authentication> ca-cert-hold <certificate ID>
+
+To release a certificate that has been placed on hold:
+
+.B pki <agent authentication> ca-cert-release-hold <certificate ID>
+
+.SS Certificate Requests
+To request a certificate, first generate a certificate request in PKCS #10 or CRMF, and store this request in the XML template file, of the profile type the request relates to.
+
+The list of profiles can be viewed using the CLI command:
+
+.B pki ca-cert-request-profile-find
+
+The XML template file for a profile type can be created by calling the ca-cert-request-profile-show CLI command. For example:
+
+\fBpki ca-cert-request-profile-show <profileID> --output <file to store the XML template>\fP
+
+will store the XML template of the request in the specified output file.
+
+Then, fill in the values in the XML file and submit the request for review.  This can be done without authentication.
+
+.B pki ca-cert-request-submit <request file>
+
+Then, an agent needs to review the request by running the following command:
+
+.B pki <agent authentication> ca-cert-request-review <request ID> --file <file to store the certificate request>
+
+The certificate request, as well as the defaults and constraints of the enrollment profile, will be stored in the output file provided by the --file option.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
+
+.B Action (approve/reject/cancel/update/validate/assign/unassign):
+
+Alternatively, the agent can process the request in a single step with the following command:
+
+.B pki <agent authentication> ca-cert-request-review <request ID> --action <action>
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

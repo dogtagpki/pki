@@ -1,7 +1,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH pki 1 "November 18, 2013" "version 10.1" "PKI Command-Line Interface (CLI)" Ade Lee
+.TH pki 1 "May 5, 2014" "version 10.2" "PKI Command-Line Interface (CLI)" Dogtag Team
 .\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
@@ -18,14 +18,14 @@
 pki \- Command-Line Interface for accessing Certificate System services.
 
 .SH SYNOPSIS
-pki [CLI options] <command> [command arguments]
+\fBpki\fR [CLI options] <command> [command arguments]
 
 .SH DESCRIPTION
 .PP
-\fBpki\fR provides a command-line interface allowing clients to access various services on the Certificate System server.
+The \fBpki\fR command provides a command-line interface allowing clients to access various services on the Certificate System server.
 These services include certificates, groups, keys, security domains, and users.
   
-.SH OPTIONS
+.SH CLI OPTIONS
 .TP
 .B -c <security database password>
 Specifies the security database password.
@@ -34,7 +34,7 @@ Specifies the security database password.
 Specifies the security database location (default: ~/.dogtag/nssdb).
 .TP
 .B -h <hostname>
-Specifies the hostname (default: localhost).
+Specifies the hostname (default: hostname of the local machine).
 .TP
 .B --help
 Prints additional help information.
@@ -58,34 +58,21 @@ Specifies the username.
 Displays verbose information.
 .TP
 .B --version
-Displays 'pki' CLI version information.
+Displays CLI version information.
 .TP
 .B -w <password>
 Specifies the user password.
 
 .SH OPERATIONS
-To view available commands and options, simply type \fBpki\fP.  Some commands have sub-commands. To view the sub-commands, type \fBpki <command>\fP.  To view each command's usage, type \fB pki <command> --help\fP.
+To view available commands and options, simply type \fBpki\fP.  Some commands have sub-commands.
+To view the sub-commands, type \fBpki <command>\fP.
+To view each command's usage, type \fB pki <command> --help\fP.
 
-.SS Security Database
-
-The CLI uses a security database to store keys and certificates on the client side. To create a new database execute the following command:
-
-.B pki -d <security database location> -c <security database password> client-init
-
-To view certificates in the security database:
-
-.B pki -d <security database location> -c <security database password> client-cert-find
-
-To import a certificate into the security database:
-
-.B pki -d <security database location> -c <security database password> -n <certificate nickname> client-cert-import --cert <certificate file>
-
-To delete a certificate from the security database:
-
-.B pki -d <security database location> -c <security database password> client-cert-del <certificate nickname>
+A client security database is needed to execute commands that require SSL connection or client certificate
+for authentication. See \fBpki-client\fR(1) for more information.
 
 .SS Connection
-By default, the CLI connects to a server running on the localhost via the non-secure HTTP port 8080.  To specify a different server location, use the appropriate arguments to give a different host (\fB-h\fP), port (\fB-p\fP), or connection protocol (\fB-P\fP).
+By default, the CLI connects to a server running on the local machine via the non-secure HTTP port 8080.  To specify a different server location, use the appropriate arguments to give a different host (\fB-h\fP), port (\fB-p\fP), or connection protocol (\fB-P\fP).
 
 .B pki -P <protocol> -h <hostname> -p <port> <command>
 
@@ -110,129 +97,48 @@ To authenticate with a client certificate:
 
 .B pki -d <security database location> -c <security database password> -n <certificate nickname> <command>
     
-.SS Viewing Certificates
-Certificates can be viewed anonymously.
-
-To list all certificates in the CA:
-
-.B pki ca-cert-find
-
-It is also possible to search for and list specific certificates by adding a search filter.  Use \fBpki ca-cert-find --help\fP to see options.  For example, to search based on issuance date:
-
-.B pki ca-cert-find --issuedOnFrom 2012-06-15
-
-To view a particular certificate:
-
-.B pki ca-cert-show <certificate ID>
-
-.SS Revoking Certificates
-Revoking, holding, or releasing a certificate must be executed as an agent user.
-To revoke a certificate:
-
-.B pki <agent authentication> ca-cert-revoke <certificate ID>
-
-To place a certificate on hold temporarily:
-
-.B pki <agent authentication> ca-cert-hold <certificate ID>
-
-To release a certificate that has been placed on hold:
-
-.B pki <agent authentication> ca-cert-release-hold <certificate ID>
-
-.SS Certificate Requests
-To request a certificate, first generate a certificate request in PKCS #10 or CRMF, and store this request in the XML template file, of the profile type the request relates to.
-
-The list of profiles can be viewed using the CLI command:  
-
-.B pki ca-cert-request-profile-find
-
-The XML template file for a profile type can be created by calling the ca-cert-request-profile-show CLI command. For example:
-
-\fBpki ca-cert-request-profile-show <profileID> --output <file to store the XML template>\fP
-
-will store the XML template of the request in the specified output file.
-
-Then, fill in the values in the XML file and submit the request for review.  This can be done without authentication.
-
-.B pki ca-cert-request-submit <request file>
-
-Then, an agent needs to review the request by running the following command:
-
-.B pki <agent authentication> ca-cert-request-review <request ID> --file <file to store the certificate request>
-
-The certificate request, as well as the defaults and constraints of the enrollment profile, will be stored in the output file provided by the --file option.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
-
-.B Action (approve/reject/cancel/update/validate/assign/unassign):
-
-Alternatively, the agent can process the request in a single step with the following command:
-
-.B pki <agent authentication> ca-cert-request-review <request ID> --action <action>
-
-.SS Group Management Commands
-All group commands must be executed as the subsystem administrator. Type \fBpki <subsystem>-group\fP to view all group management commands for the subsystem.
-
-To list groups in CA, use \fBpki ca-group-find\fP.  It is possible to select the page size to limit the number of entries returned.  To list all groups:
-
-.B pki <admin authentication> ca-group-find
-
-To view a particular group:
-
-.B pki <admin authentication> ca-group-show <group ID>
-
-To add a group:
-
-.B pki <admin authentication> ca-group-add <group ID> --description "description"
-
-To delete a group:
-
-.B pki <admin authentication> ca-group-del <group ID>
-
-To add a user to a group:
-
-.B pki <admin authentication> ca-group-member-add <group ID> <Member ID>
-
-To delete a user from a group:
-
-.B pki <admin authentication> ca-group-member-del <group ID> <Member ID>
-
-.\".SS Key Management Commands
-.\"\fBpki\fP can be used with a KRA to find specific keys and key requests.  This will be documented in more detail at a later time.
-
-.SS Security Domain Commands
-\fBpki\fP can be used to access certain information from the security domain.
-
-To get an installation token (used when installing a new subsystem within a security domain):
-
-\fBpki <security domain admin authentication> securitydomain-get-install-token --hostname <hostname> --subsystem <subsystem>\fP
-
-To show the contents of the security domain:
-
-\fBpki <security domain admin authentication> securitydomain-show\fP
-
-.SS User Management Commands
-All user commands must be executed as the subsystem administrator. Type \fBpki <subsystem>-user\fP to view all user management commands for the subsystem.
-
-To list users in CA, use \fBpki ca-user-find\fP.  It is possible to select the page size to limit the size of the results.  To list all users:
-
-.B pki <admin authentication> ca-user-find
-
-To view a particular user:
-
-.B pki <admin authentication> ca-user-show <user ID>
-
-To add a user:
-
-.B pki <admin authentication> ca-user-add <user ID> --fullName "<full name>"
-
-To delete a user:
-
-.B pki <admin authentication> ca-user-del <user ID>
-
 .SH FILES
 .I /usr/bin/pki
 
+.SH SEE ALSO
+.PP
+\fBpki-cert\fR(1)
+.RS 4
+Certificate management commands
+.RE
+
+.PP
+\fBpki-client\fR(1)
+.RS 4
+Client security database management commands
+.RE
+
+.PP
+\fBpki-group\fR(1)
+.RS 4
+Group management commands
+.RE
+
+.PP
+\fBpki-key\fR(1)
+.RS 4
+Key management commands
+.RE
+
+.PP
+\fBpki-securitydomain\fR(1)
+.RS 4
+Security domain management commands
+.RE
+
+.PP
+\fBpki-user\fR(1)
+.RS 4
+User management commands
+.RE
+
 .SH AUTHORS
-Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.  \fBpki\fP was written by the Dogtag project.
+Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.
 
 .SH COPYRIGHT
 Copyright (c) 2012 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

@@ -1,0 +1,60 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-key 1 "May 5, 2014" "version 10.2" "PKI Key Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-key \- Command-Line Interface for managing Certificate System keys.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fB<subsystem>-key\fR
+\fBpki\fR [CLI options] \fB<subsystem>-key-find\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-request-find\fR [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-key\fR commands provide command-line interfaces to manage keys on the KRA.
+.PP
+The only valid subsystem is \fBkra\fR. The \fB<subsystem>-\fR prefix may be omitted.
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key\fR
+.RS 4
+This command is to list available key commands.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-find\fR [command options]
+.RS 4
+This command is to list keys.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-request-find\fR [command options]
+.RS 4
+This command is to list key requests.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available key commands, type \fBpki <subsystem>-key\fP. To view each command's usage, type \fB pki <subsystem>-key-<command> --help\fP.
+
+This will be documented in more detail at a later time.
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
