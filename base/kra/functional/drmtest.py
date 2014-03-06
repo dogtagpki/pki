@@ -98,9 +98,8 @@ def main():
     try:
         keyrequest = keyclient.get_request_info('2')
         print_key_request(keyrequest)
-    except pki.RequestNotFoundException as e:
-        print "Can be ignored for a first time run!!"
-        print e
+    except pki.RequestNotFoundException:
+        pass
 
     # Test 3: List requests
     print "Now listing some requests"
