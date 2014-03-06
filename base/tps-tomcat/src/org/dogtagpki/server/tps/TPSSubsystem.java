@@ -17,15 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
+import org.dogtagpki.server.tps.cms.ConnectionManager;
 import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.config.ConnectionDatabase;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
-import org.dogtagpki.server.tps.cms.ConnectionManager;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
+import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -65,6 +66,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public ProfileMappingDatabase profileMappingDatabase;
     public TokenDatabase tokenDatabase;
     public ConnectionManager connManager;
+    public TPSEngine engine;
 
     @Override
     public String getId() {
@@ -98,6 +100,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         connectionDatabase = new ConnectionDatabase();
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
+        engine = new TPSEngine();
+        engine.init();
     }
 
     @Override
@@ -195,5 +199,9 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         CryptoManager cm = CryptoManager.getInstance();
         return cm.findCertByNickname(nickname);
+    }
+
+    public TPSEngine getEngine() {
+        return engine;
     }
 }

@@ -19,13 +19,6 @@ package org.dogtagpki.server.tps.engine;
 
 public class TPSEngine {
 
-    public static final String TKS_RESPONSE_STATUS = "status";
-    public static final String TKS_RESPONSE_SessionKey = "sessionKey";
-    public static final String TKS_RESPONSE_EncSessionKey = "encSessionKey";
-    public static final String TKS_RESPONSE_KEK_DesKey = "kek_wrapped_desKey";
-    public static final String TKS_RESPONSE_DRM_Trans_DesKey = "drm_trans_wrapped_desKey";
-    public static final String TKS_RESPONSE_HostCryptogram = "hostCryptogram";
-
     public static final String CFG_DEBUG_ENABLE = "logging.debug.enable";
     public static final String CFG_DEBUG_FILENAME = "logging.debug.filename";
     public static final String CFG_DEBUG_LEVEL = "logging.debug.level";
@@ -50,9 +43,9 @@ public class TPSEngine {
     public static final String CFG_APPLET_NETKEY_OLD_FILE_AID = "applet.aid.netkey_old_file";
     public static final String CFG_APPLET_SO_PIN = "applet.so_pin";
     public static final String CFG_APPLET_DELETE_NETKEY_OLD = "applet.delete_old";
-    public static final String CFG_AUDIT_SELECTED_EVENTS="logging.audit.selected.events";
-    public static final String CFG_AUDIT_NONSELECTABLE_EVENTS="logging.audit.nonselectable.events";
-    public static final String CFG_AUDIT_SELECTABLE_EVENTS="logging.audit.selectable.events";
+    public static final String CFG_AUDIT_SELECTED_EVENTS = "logging.audit.selected.events";
+    public static final String CFG_AUDIT_NONSELECTABLE_EVENTS = "logging.audit.nonselectable.events";
+    public static final String CFG_AUDIT_SELECTABLE_EVENTS = "logging.audit.selectable.events";
     public static final String CFG_AUDIT_BUFFER_SIZE = "logging.audit.buffer.size";
     public static final String CFG_AUDIT_FLUSH_INTERVAL = "logging.audit.flush.interval";
     public static final String CFG_AUDIT_FILE_TYPE = "logging.audit.file.type";
@@ -68,8 +61,12 @@ public class TPSEngine {
 
     public static final String CFG_PRINTBUF_FULL = "tps.printBufFull";
     public static final String CFG_RECV_BUF_SIZE = "tps.recvBufSize";
-    public static final String CFG_AUTHS_ENABLE="auth.enable";
-    public static final String CFG_PROFILE_MAPPING_ORDER="mapping.order";
+    public static final String CFG_AUTHS_ENABLE = "auth.enable";
+    public static final String CFG_PROFILE_MAPPING_ORDER = "mapping.order";
+    public static final String CFG_ALLOW_UNKNOWN_TOKEN = "allowUnkonwnToken";
+    public static final String CFG_ALLOW_NO_APPLET = "update.applet.emptyToken.enable";
+    public static final String CFG_APPLET_UPDATE_REQUIRED_VERSION = "update.applet.requiredVersion";
+    public static final String CFG_APPLET_DIRECTORY = "update.applet.directory";
 
     /* default values */
     public static final String CFG_DEF_CARDMGR_INSTANCE_AID = "A0000000030000";
@@ -78,6 +75,7 @@ public class TPSEngine {
     public static final String CFG_DEF_NETKEY_OLD_INSTANCE_AID = "A00000000101";
     public static final String CFG_DEF_NETKEY_OLD_FILE_AID = "A000000001";
     public static final String CFG_DEF_APPLET_SO_PIN = "000000000000";
+    public static final String CFG_ENABLED="Enabled";
 
     /* External reg values */
 
@@ -85,9 +83,11 @@ public class TPSEngine {
 
     /* misc values */
 
-    public static final String OP_FORMAT_PREFEX = "op.format";
+    public static final String OP_FORMAT_PREFIX = "op.format";
 
-
+    public void init() {
+        //ToDo
+    }
 
     public TPSEngine() {
     }
@@ -97,6 +97,12 @@ public class TPSEngine {
         int rc = -1;
 
         return rc;
+    }
+
+    public boolean isTokenPresent(String cuid) {
+        boolean present = false;
+
+        return present;
     }
 
     public static void main(String[] args) {

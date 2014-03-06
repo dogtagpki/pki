@@ -40,7 +40,7 @@ public class BeginOp extends TPSMessage {
         return intToOpType(opTypeInt);
     }
 
-    public Map<String, String> GetExtensions() {
+    public Map<String, String> getExtensions() {
         return extensions;
     }
 

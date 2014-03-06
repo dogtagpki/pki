@@ -22,6 +22,9 @@
 package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
+import org.dogtagpki.tps.main.Util;
+
+import com.netscape.certsrv.apps.CMS;
 
 public class APDUResponse extends APDU {
 
@@ -63,6 +66,34 @@ public class APDUResponse extends APDU {
             }
         }
 
+    }
+
+    //Not every non 0x90 0x00 is considered fatal, return result
+    public boolean checkResult() {
+        boolean result = false;
+
+        byte sw1 = getSW1();
+        byte sw2 = getSW2();
+
+        int int1 = sw1 & 0xff;
+        int int2 = sw2 & 0xff;
+
+        CMS.debug("APDUResponse.checkResult : sw1: " + "0x" + Util.intToHex(int1) + " sw2: " + "0x"
+                + Util.intToHex(int2));
+
+        if (sw1 == (byte) 0x90 && sw2 == 0x0)
+            result = true;
+
+        return result;
+    }
+
+    //Get the two byte apdu return code
+    byte[] getResultBytes() {
+        byte[] result = new byte[2];
+
+        result[0] = getSW1();
+        result[1] = getSW2();
+        return result;
     }
 
     public static void main(String args[]) {

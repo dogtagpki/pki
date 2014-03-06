@@ -15,24 +15,31 @@
 // (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package org.dogtagpki.server.tps.processor;
+package org.dogtagpki.tps.main;
 
-import org.dogtagpki.server.tps.TPSSession;
-import org.dogtagpki.tps.msg.BeginOp;
 import org.dogtagpki.tps.msg.EndOp.TPSStatus;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
-public class TPSFormatProcessor extends TPSProcessor {
+public class TPSException extends EBaseException {
 
-    public TPSFormatProcessor() {
+    private static final long serialVersionUID = -678878301521643436L;
+    private TPSStatus status;
+
+    public TPSException(String msg) {
+        super(msg);
+        status = TPSStatus.STATUS_ERROR_CONTACT_ADMIN;
     }
 
+    public TPSException(String msg, TPSStatus theStatus) {
 
-    public TPSStatus process(TPSSession session, BeginOp beginMsg) throws EBaseException {
-        CMS.debug("In TPS_Format_Processor.Process.");
-        return super.format(session,beginMsg);
+        super(msg);
+        status = theStatus;
+
+    }
+
+    public TPSStatus getStatus() {
+        return status;
     }
 
     public static void main(String[] args) {

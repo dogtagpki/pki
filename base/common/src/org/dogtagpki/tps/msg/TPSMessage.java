@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.tps.msg;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -401,7 +402,7 @@ public class TPSMessage {
         return result;
     }
 
-    private TPSMessage createMessage() {
+    private TPSMessage createMessage() throws IOException {
 
         TPSMessage result = null;
 
@@ -416,13 +417,7 @@ public class TPSMessage {
         String decoded = null;
         Map<String, String> extsMap = null;
         if (extensions != null) {
-            try {
-                decoded = Util.uriDecode(extensions);
-            } catch (Exception e) {
-                CMS.debug("TPSMessage.createMessage: Util.URIDecode failed: " + e);
-                return null;
-            }
-
+            decoded = Util.uriDecode(extensions);
             System.out.println("decoded extensions : " + decoded);
 
             extsMap = decodeToMap(decoded);
@@ -431,15 +426,11 @@ public class TPSMessage {
         int msg_type_int = 0;
         int op_type_int = 0;
 
-        try {
-            if (msg_type != null) {
-                msg_type_int = Integer.parseInt(msg_type);
-            }
-            if (op_type != null) {
-                op_type_int = Integer.parseInt(op_type);
-            }
-        } catch (NumberFormatException e) {
-            CMS.debug("TPSMessage.createMessage: Error obtaining msg_type or op_type from incoming message.");
+        if (msg_type != null) {
+            msg_type_int = Integer.parseInt(msg_type);
+        }
+        if (op_type != null) {
+            op_type_int = Integer.parseInt(op_type);
         }
 
         MsgType val = intToMsgType(msg_type_int);
@@ -481,29 +472,22 @@ public class TPSMessage {
         case MSG_TOKEN_PDU_RESPONSE:
             result = new TokenPDUResponse(encode());
             break;
-        case MSG_UNDEFINED:
-            return result;
         default:
-            return result;
-
+            //Something was garbled with the message coming in
+            throw new IOException("TPSMessage.createMessage: Can't create incoming TPS message!");
         }
 
         return result;
 
     }
 
-    public static TPSMessage createMessage(String message) {
+    public static TPSMessage createMessage(String message) throws IOException {
 
         CMS.debug("TPSMessage.createMessage: message: " + message);
 
-        TPSMessage new_msg = null;
-        TPSMessage returnMsg = null;
+        TPSMessage new_msg = new TPSMessage(message);
 
-        new_msg = new TPSMessage(message);
-
-        returnMsg = new_msg.createMessage();
-
-        return returnMsg;
+        return new_msg.createMessage();
     }
 
     public MsgType getType() {
@@ -512,11 +496,11 @@ public class TPSMessage {
         return intToMsgType(res);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String encoded = "s=204&msg_type=2&operation=5&extensions=tokenType%3DuserKey%26clientVersion%3DESC+1%2E0%2E1%26tokenATR%3D3BFF1400FF8131FE458025A00000005657534336353003003B%26statusUpdate%3Dtrue%26extendedLoginRequest%3Dtrue%26";
         BeginOp testMessage = (BeginOp) TPSMessage.createMessage(encoded);
         System.out.println("Encoded msg: " + testMessage.encode());
-        System.out.println("msg Extensions: " + testMessage.GetExtensions());
+        System.out.println("msg Extensions: " + testMessage.getExtensions());
 
     }
 

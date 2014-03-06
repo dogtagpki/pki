@@ -19,20 +19,24 @@ package org.dogtagpki.server.tps;
 
 import java.io.IOException;
 
-import org.dogtagpki.server.tps.processor.TPSFormatProcessor;
+import org.dogtagpki.server.tps.processor.TPSProcessor;
 import org.dogtagpki.tps.TPSConnection;
+import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOp;
 import org.dogtagpki.tps.msg.EndOp;
 import org.dogtagpki.tps.msg.TPSMessage;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
 
 public class TPSSession {
 
     private TPSConnection connection;
 
     public TPSSession(TPSConnection conn) {
+
+        if (conn == null) {
+            throw new NullPointerException("TPSSession incoming connection is null!");
+        }
 
         CMS.debug("TPSSession constructor conn: " + conn);
         connection = conn;
@@ -45,20 +49,16 @@ public class TPSSession {
     public TPSMessage read() throws IOException {
         TPSMessage message = null;
 
-        if (connection != null) {
-            CMS.debug("TPSSession.process() about to call read on connection : " + connection);
+        CMS.debug("TPSSession.process() about to call read on connection : " + connection);
 
-            try {
-                message = connection.read();
-                CMS.debug("TPSSession.process() created message " + message);
+        try {
+            message = connection.read();
+            CMS.debug("TPSSession.process() created message " + message);
 
-            } catch (Exception e) {
-                //Catch here so we can log
-                CMS.debug("Exception reading from the client: " + e.toString());
-                throw new IOException(e.toString());
-            }
-        } else {
-            throw new IOException("No connection available in TPSSession instance!");
+        } catch (IOException e) {
+            //Catch here so we can log
+            CMS.debug("TPSSession.process: Exception reading from the client: " + e.toString());
+            throw e;
         }
 
         return message;
@@ -66,68 +66,66 @@ public class TPSSession {
 
     public void write(TPSMessage msg) throws IOException {
 
-        if (connection != null) {
-
-            try {
-                connection.write(msg);
-            } catch (Exception e) {
-                //Catch here so we can log
-                CMS.debug("Exception reading from the client: " + e.toString());
-                throw new IOException(e.toString());
-            }
-
-        } else {
-            throw new IOException("No conneciton available in TPSSession instance!");
+        try {
+            connection.write(msg);
+        } catch (Exception e) {
+            //Catch here so we can log
+            CMS.debug("Exception writing to client: " + e.toString());
+            throw e;
         }
+
     }
 
-    public void process() throws IOException, EBaseException {
+    public void process() throws IOException {
         EndOp.TPSStatus status = EndOp.TPSStatus.STATUS_ERROR_BAD_STATUS;
         CMS.debug("In TPSSession.process()");
 
         TPSMessage firstMsg = read();
 
-        if (firstMsg == null) {
-            throw new IOException("Can't create first TPSMessage!");
-        }
-
         TPSMessage.MsgType msg_type = firstMsg.getType();
         TPSMessage.OpType op_type = firstMsg.getOpType();
 
         if (msg_type != TPSMessage.MsgType.MSG_BEGIN_OP) {
-            throw new IOException("Wong first message type read in TPSSession.process!");
+            throw new IOException("Wrong first message type read in TPSSession.process!");
         }
 
-        switch (op_type) {
-        case OP_FORMAT:
+        int result = EndOp.RESULT_GOOD;
+        try {
 
-            TPSFormatProcessor processor = new TPSFormatProcessor();
-            BeginOp beginOp = (BeginOp) firstMsg;
-            status = processor.process(this, beginOp);
+            switch (op_type) {
+            case OP_FORMAT:
 
-        case OP_ENROLL:
-            break;
-        case OP_RENEW:
-            break;
-        case OP_RESET_PIN:
-            break;
-        case OP_UNBLOCK:
-            break;
-        case OP_UNDEFINED:
-            break;
-        default:
-            break;
+                TPSProcessor processor = new TPSProcessor(this);
+                BeginOp beginOp = (BeginOp) firstMsg;
+                processor.process(beginOp);
 
-        }
+            case OP_ENROLL:
+                break;
+            case OP_RENEW:
+                break;
+            case OP_RESET_PIN:
+                break;
+            case OP_UNBLOCK:
+                break;
+            case OP_UNDEFINED:
+                break;
+            default:
+                break;
 
-        int result = EndOp.RESULT_ERROR;
+            }
+        } catch (TPSException e) {
+            //Get the status from the exception and return it to the client.
+            CMS.debug("TPSSession.process: Message processing failed: " + e);
+            status = e.getStatus();
+            result = EndOp.RESULT_ERROR;
+        } catch (IOException e) {
+            CMS.debug("TPSSession.process: IO error happened during processing: " + e);
+            // We get here we are done.
+            throw e;
 
-        if (status == EndOp.TPSStatus.STATUS_NO_ERROR) {
-            result = EndOp.RESULT_GOOD;
         }
 
         EndOp endOp = new EndOp(firstMsg.getOpType(), result, status);
-
         write(endOp);
 
         CMS.debug("TPSSession.process: leaving: result: " + result + " status: " + status);

@@ -48,13 +48,7 @@ public class TPSServlet extends HttpServlet {
 
         CMS.debug("TPSSession created: " + session);
 
-        if (session != null) {
-            try {
-                session.process();
-            } catch (Exception e) {
-                CMS.debug("TPSServlet.service: Can't process incoming message exception occured: " + e);
-            }
-        }
+        session.process();
 
         CMS.debug("After session.process() exiting ...");
 
