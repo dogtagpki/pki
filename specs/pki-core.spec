@@ -40,7 +40,7 @@ BuildRequires:    resteasy-base-jaxrs
 BuildRequires:    resteasy-base-jaxrs-api
 BuildRequires:    resteasy-base-jackson-provider
 %else
-BuildRequires:    resteasy >= 3.0.1-3
+BuildRequires:    resteasy >= 3.0.6-2
 %endif
 
 BuildRequires:    pylint
@@ -203,7 +203,7 @@ Requires:    resteasy-base-jaxrs
 Requires:    resteasy-base-jaxrs-api
 Requires:    resteasy-base-jackson-provider
 %else
-Requires:         resteasy >= 3.0.1-3
+Requires:         resteasy >= 3.0.6-2
 %endif
 Requires:         xalan-j2
 Requires:         xerces-j2
@@ -1000,6 +1000,7 @@ fi
 - Added python-nss build requirement
 - Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python
 - TRAC Ticket #840 - pkispawn requires policycoreutils-python
+- Updated requirements for resteasy
 
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
