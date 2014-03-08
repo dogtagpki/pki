@@ -142,6 +142,5 @@ public class CMSStartServlet extends HttpServlet {
      */
     public void destroy() {
         CMS.shutdown();
-        super.destroy();
     }
 }
