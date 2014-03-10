@@ -24,6 +24,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+import com.netscape.cmsutil.util.Utils;
+
 
 public class Util {
 
@@ -125,4 +127,13 @@ public class Util {
         return result.toString();
     }
 
+    public static String specialEncode(TPSBuffer data) {
+        return Utils.SpecialEncode(data.toBytesArray());
+    }
+
+    public static TPSBuffer specialDecode(String str) {
+        byte[] data = Utils.SpecialDecode(str);
+        TPSBuffer tbuf = new TPSBuffer(data);
+        return tbuf;
+    }
 }

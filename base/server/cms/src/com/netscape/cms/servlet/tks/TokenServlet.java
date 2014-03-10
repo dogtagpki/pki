@@ -48,6 +48,8 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.symkey.SessionKey;
 
+import org.dogtagpki.server.connector.IRemoteRequest;
+
 /**
  * A class representings an administration servlet for Token Key
  * Service Authority. This servlet is responsible to serve
@@ -165,14 +167,14 @@ public class TokenServlet extends CMSServlet {
     private void setDefaultSlotAndKeyName(HttpServletRequest req) {
         try {
 
-            String keySet = req.getParameter("keySet");
+            String keySet = req.getParameter(IRemoteRequest.TOKEN_KEYSET);
             if (keySet == null || keySet.equals("")) {
                 keySet = "defKeySet";
             }
             CMS.debug("keySet selected: " + keySet);
 
             String masterKeyPrefix = CMS.getConfigStore().getString("tks.master_key_prefix", null);
-            String temp = req.getParameter("KeyInfo"); //#xx#xx
+            String temp = req.getParameter(IRemoteRequest.TOKEN_KEYINFO); //#xx#xx
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + temp;
             String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
             if (mappingValue != null) {
@@ -187,9 +189,9 @@ public class TokenServlet extends CMSServlet {
 
                 }
             }
-            if (req.getParameter("newKeyInfo") != null) // for diversification
+            if (req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO) != null) // for diversification
             {
-                temp = req.getParameter("newKeyInfo"); //#xx#xx
+                temp = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO); //#xx#xx
                 String newKeyInfoMap = "tks." + keySet + ".mk_mappings." + temp;
                 String newMappingValue = CMS.getConfigStore().getString(newKeyInfoMap, null);
                 if (newMappingValue != null) {
@@ -225,8 +227,8 @@ public class TokenServlet extends CMSServlet {
         String badParams = "";
         String transportKeyName = "";
 
-        String rCUID = req.getParameter("CUID");
-        String keySet = req.getParameter("keySet");
+        String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
+        String keySet = req.getParameter(IRemoteRequest.TOKEN_KEYSET);
         if (keySet == null || keySet.equals("")) {
             keySet = "defKeySet";
         }
@@ -271,7 +273,7 @@ public class TokenServlet extends CMSServlet {
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
-        String rServersideKeygen = req.getParameter("serversideKeygen");
+        String rServersideKeygen = req.getParameter(IRemoteRequest.SERVER_SIDE_KEYGEN);
         if (rServersideKeygen.equals("true")) {
             CMS.debug("TokenServlet: serversideKeygen requested");
             serversideKeygen = true;
@@ -288,10 +290,10 @@ public class TokenServlet extends CMSServlet {
 
         CMS.debug("TokenServlet: ComputeSessionKey(): tksSharedSymKeyName: " + transportKeyName);
 
-        String rcard_challenge = req.getParameter("card_challenge");
-        String rhost_challenge = req.getParameter("host_challenge");
-        String rKeyInfo = req.getParameter("KeyInfo");
-        String rcard_cryptogram = req.getParameter("card_cryptogram");
+        String rcard_challenge = req.getParameter(IRemoteRequest.TOKEN_CARD_CHALLENGE);
+        String rhost_challenge = req.getParameter(IRemoteRequest.TOKEN_HOST_CHALLENGE);
+        String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
+        String rcard_cryptogram = req.getParameter(IRemoteRequest.TOKEN_CARD_CRYPTOGRAM);
         if ((rCUID == null) || (rCUID.equals(""))) {
             CMS.debug("TokenServlet: ComputeSessionKey(): missing request parameter: CUID");
             badParams += " CUID,";
@@ -659,32 +661,32 @@ public class TokenServlet extends CMSServlet {
                 errorMsg = "Missing input parameters :" + badParams;
             }
 
-            value = "status=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
         } else {
             if (serversideKeygen == true) {
                 StringBuffer sb = new StringBuffer();
-                sb.append("status=0&");
-                sb.append("sessionKey=");
+                sb.append(IRemoteRequest.RESPONSE_STATUS+"=0&");
+                sb.append(IRemoteRequest.TKS_RESPONSE_SessionKey+"=");
                 sb.append(outputString);
-                sb.append("&hostCryptogram=");
+                sb.append("&"+IRemoteRequest.TKS_RESPONSE_HostCryptogram+"=");
                 sb.append(cryptogram);
-                sb.append("&encSessionKey=");
+                sb.append("&"+IRemoteRequest.TKS_RESPONSE_EncSessionKey+"=");
                 sb.append(encSessionKeyString);
-                sb.append("&kek_wrapped_desKey=");
+                sb.append("&"+IRemoteRequest.TKS_RESPONSE_KEK_DesKey+"=");
                 sb.append(kek_wrapped_desKeyString);
-                sb.append("&keycheck=");
+                sb.append("&"+IRemoteRequest.TKS_RESPONSE_KeyCheck+"=");
                 sb.append(keycheck_s);
-                sb.append("&drm_trans_wrapped_desKey=");
+                sb.append("&"+IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey+"=");
                 sb.append(drm_trans_wrapped_desKeyString);
                 value = sb.toString();
             } else {
                 StringBuffer sb = new StringBuffer();
-                sb.append("status=0&");
-                sb.append("sessionKey=");
+                sb.append(IRemoteRequest.RESPONSE_STATUS+"=0&");
+                sb.append(IRemoteRequest.TKS_RESPONSE_SessionKey+"=");
                 sb.append(outputString);
-                sb.append("&hostCryptogram=");
+                sb.append("&"+IRemoteRequest.TKS_RESPONSE_HostCryptogram+"=");
                 sb.append(cryptogram);
-                sb.append("&encSessionKey=");
+                sb.append("&"+IRemoteRequest.TKS_RESPONSE_EncSessionKey+"=");
                 sb.append(encSessionKeyString);
                 value = sb.toString();
             }
@@ -773,13 +775,13 @@ public class TokenServlet extends CMSServlet {
         String badParams = "";
 
         IConfigStore sconfig = CMS.getConfigStore();
-        String rnewKeyInfo = req.getParameter("newKeyInfo");
-        String newMasterKeyName = req.getParameter("newKeyInfo");
-        String oldMasterKeyName = req.getParameter("KeyInfo");
-        String rCUID = req.getParameter("CUID");
+        String rnewKeyInfo = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
+        String newMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
+        String oldMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
+        String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
         String auditMessage = "";
 
-        String keySet = req.getParameter("keySet");
+        String keySet = req.getParameter(IRemoteRequest.TOKEN_KEYSET);
         if (keySet == null || keySet.equals("")) {
             keySet = "defKeySet";
         }
@@ -854,13 +856,13 @@ public class TokenServlet extends CMSServlet {
             if (mNewKeyNickName != null)
                 newMasterKeyName = mNewKeyNickName;
 
-            String oldKeyInfoMap = "tks." + keySet + ".mk_mappings." + req.getParameter("KeyInfo"); //#xx#xx
+            String oldKeyInfoMap = "tks." + keySet + ".mk_mappings." + req.getParameter(IRemoteRequest.TOKEN_KEYINFO); //#xx#xx
             String oldMappingValue = CMS.getConfigStore().getString(oldKeyInfoMap, null);
             String oldSelectedToken = null;
             String oldKeyNickName = null;
             if (oldMappingValue == null) {
                 oldSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot", "internal");
-                oldKeyNickName = req.getParameter("KeyInfo");
+                oldKeyNickName = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
             } else {
                 StringTokenizer st = new StringTokenizer(oldMappingValue, ":");
                 oldSelectedToken = st.nextToken();
@@ -913,7 +915,7 @@ public class TokenServlet extends CMSServlet {
         String status = "0";
 
         if (KeySetData != null && KeySetData.length > 1) {
-            value = "status=0&" + "keySetData=" +
+            value = IRemoteRequest.RESPONSE_STATUS+"=0&" + IRemoteRequest.TKS_RESPONSE_KeySetData+"=" +
                      com.netscape.cmsutil.util.Utils.SpecialEncode(KeySetData);
             CMS.debug("TokenServlet:process DiversifyKey.encode " + value);
         } else if (missingParam) {
@@ -922,11 +924,11 @@ public class TokenServlet extends CMSServlet {
                 badParams = badParams.substring(0, badParams.length() - 1);
             }
             errorMsg = "Missing input parameters: " + badParams;
-            value = "status=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
         } else {
             errorMsg = "Problem diversifying key data.";
             status = "1";
-            value = "status=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
         }
 
         resp.setContentLength(value.length());
@@ -979,10 +981,10 @@ public class TokenServlet extends CMSServlet {
         String badParams = "";
         IConfigStore sconfig = CMS.getConfigStore();
         encryptedData = null;
-        String rdata = req.getParameter("data");
-        String rKeyInfo = req.getParameter("KeyInfo");
-        String rCUID = req.getParameter("CUID");
-        String keySet = req.getParameter("keySet");
+        String rdata = req.getParameter(IRemoteRequest.TOKEN_DATA);
+        String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
+        String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
+        String keySet = req.getParameter(IRemoteRequest.TOKEN_KEYSET);
         if (keySet == null || keySet.equals("")) {
             keySet = "defKeySet";
         }
@@ -1102,9 +1104,10 @@ public class TokenServlet extends CMSServlet {
         String status = "0";
         if (encryptedData != null && encryptedData.length > 0) {
             // sending both the pre-encrypted and encrypted data back
-            value = "status=0&" + "data=" +
+            value = IRemoteRequest.RESPONSE_STATUS+"=0&"
+                    + IRemoteRequest.TOKEN_DATA+"=" +
                          com.netscape.cmsutil.util.Utils.SpecialEncode(data) +
-                         "&encryptedData=" +
+                    "&"+IRemoteRequest.TKS_RESPONSE_EncryptedData+"=" +
                          com.netscape.cmsutil.util.Utils.SpecialEncode(encryptedData);
         } else if (missingParam) {
             if (badParams.endsWith(",")) {
@@ -1112,11 +1115,11 @@ public class TokenServlet extends CMSServlet {
             }
             errorMsg = "Missing input parameters: " + badParams;
             status = "3";
-            value = "status=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
         } else {
             errorMsg = "Problem encrypting data.";
             status = "1";
-            value = "status=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
         }
 
         CMS.debug("TokenServlet:process EncryptData.encode " + value);
@@ -1197,7 +1200,7 @@ public class TokenServlet extends CMSServlet {
                     (String) sContext.get(SessionContext.USER_ID);
         }
 
-        String sDataSize = req.getParameter("dataNumBytes");
+        String sDataSize = req.getParameter(IRemoteRequest.TOKEN_DATA_NUM_BYTES);
 
         if (sDataSize == null || sDataSize.equals("")) {
             CMS.debug("TokenServlet::processComputeRandomData missing param dataNumBytes");
@@ -1259,9 +1262,9 @@ public class TokenServlet extends CMSServlet {
         resp.setContentType("text/html");
         String value = "";
 
-        value = "status=" + status;
+        value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
         if (status.equals("0")) {
-            value = value + "&DATA=" + randomDataOut;
+            value = value + "&"+IRemoteRequest.TKS_RESPONSE_RandomData+"=" + randomDataOut;
         }
 
         try {
@@ -1327,15 +1330,15 @@ public class TokenServlet extends CMSServlet {
             return;
         }
 
-        String temp = req.getParameter("card_challenge");
+        String temp = req.getParameter(IRemoteRequest.TOKEN_CARD_CHALLENGE);
         setDefaultSlotAndKeyName(req);
         if (temp != null) {
             processComputeSessionKey(req, resp);
-        } else if (req.getParameter("data") != null) {
+        } else if (req.getParameter(IRemoteRequest.TOKEN_DATA) != null) {
             processEncryptData(req, resp);
-        } else if (req.getParameter("newKeyInfo") != null) {
+        } else if (req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO) != null) {
             processDiversifyKey(req, resp);
-        } else if (req.getParameter("dataNumBytes") != null) {
+        } else if (req.getParameter(IRemoteRequest.TOKEN_DATA_NUM_BYTES) != null) {
             processComputeRandomData(req, resp);
         }
     }

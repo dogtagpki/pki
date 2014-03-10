@@ -201,26 +201,4 @@ public class ConnectionManager
         return connectors.get(connID);
     }
 
-    /*
-     * Get the XML parser for XML in text
-     *
-     * @param text XML in text
-     * @return XMLObject the parser
-     */
-    public XMLObject getXMLParser(String text) {
-        if (text == null) {
-            return null;
-        } else {
-            CMS.debug("ConnectionManager: getXMLparser(): parsing: "+ text);
-        }
-        try {
-            ByteArrayInputStream bis =
-                new ByteArrayInputStream(text.getBytes());
-            return new XMLObject(bis);
-        } catch (Exception e) {
-            CMS.debug("ConnectionManager: getXMLparser(): failed: "+ e);
-            throw new RuntimeException(e);
-        }
-    }
-
 }
