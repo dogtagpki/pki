@@ -132,8 +132,13 @@ var Navigation = Backbone.View.extend({
             var link = $("a", li);
             var url = link.attr("href");
             link.click(function(e) {
-                // get page name
-                if (url.charAt(0) == "#" && url.length > 1) {
+                if (url == "#logout") {
+                    if (options.logout) {
+                        options.logout.call(self);
+                    }
+
+                } else if (url.charAt(0) == "#" && url.length > 1) {
+                    // get page name
                     var name = url.substring(1);
                     self.load(name);
                 }

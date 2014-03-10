@@ -1,0 +1,126 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2013 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/pki/css/rcue.css" rel="stylesheet" media="screen, print">
+    <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
+    <script src="/pki/js/jquery.js"></script>
+    <script src="/pki/js/underscore.js"></script>
+    <script src="/pki/js/backbone.js"></script>
+    <script src="/pki/js/bootstrap.js"></script>
+    <script src="/pki/js/pki-ui.js"></script>
+    <script src="/tps/js/account.js"></script>
+    <script src="/tps/js/activity.js"></script>
+    <script src="/tps/js/authenticator.js"></script>
+    <script src="/tps/js/cert.js"></script>
+    <script src="/tps/js/connection.js"></script>
+    <script src="/tps/js/group.js"></script>
+    <script src="/tps/js/profile.js"></script>
+    <script src="/tps/js/selftest.js"></script>
+    <script src="/tps/js/token.js"></script>
+    <script src="/tps/js/user.js"></script>
+    <script>
+$(function() {
+    var account = new Account();
+    new Navigation({
+        el: $("#navigation"),
+        content: $("#content"),
+        pages: {
+            activities: new ActivityPage({ url: "activities.html" }),
+            authenticators: new AuthenticatorPage({ url: "authenticators.html" }),
+            certs: new CertificatePage({ url: "certs.html" }),
+            connections: new ConnectionPage({ url: "connections.html" }),
+            groups: new GroupPage({ url: "groups.html" }),
+            profiles: new ProfilePage({ url: "profiles.html" }),
+            selftests: new SelfTestPage({ url: "selftests.html" }),
+            tokens: new TokenPage({ url: "tokens.html" }),
+            users: new UserPage({ url: "users.html" })
+        },
+        logout: function() {
+            account.logout({
+                success: function() {
+                    if (window.crypto) window.crypto.logout();
+                    window.location.href = "/tps";
+                },
+                error: function() {
+                    alert("Logout failed");
+                }
+            });
+        },
+        homePage: "tokens"
+    });
+});
+    </script>
+</head>
+<body>
+
+<nav id="navigation" class="navbar navbar-default navbar-rcue" role="navigation">
+<div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/tps">
+        <b>Token Processing Service</b>
+    </a>
+</div>
+<div class="collapse navbar-collapse navbar-collapse-1">
+    <ul class="nav navbar-nav navbar-utility">
+    <li><a href="#">Status</a></li>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <span class="rcueicon rcueicon-user"></span>
+        Administrator<b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+        <li><a href="settings.html">Settings</a></li>
+        <li class="divider"></li>
+        <li><a href="#logout">Logout</a></li>
+        </ul>
+    </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-primary">
+    <li><a href="#tokens">Tokens</a></li>
+    <li><a href="#certs">Certificates</a></li>
+    <li><a href="#activities">Activities</a></li>
+    <li><a href="#profiles">Profiles</a></li>
+    <li><a href="#selftests">SelfTests</a></li>
+    <li><a href="#users">Users</a></li>
+    <li><a href="#groups">Groups</a></li>
+    <li class="dropdown context">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Configuration
+        <b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="#authenticators">Authenticators</a></li>
+        <li><a href="#connections">Connections</a></li>
+      </ul>
+    </li>
+    </ul>
+</div>
+</nav>
+
+<div id="content">
+</div>
+
+</body>
+</html>
