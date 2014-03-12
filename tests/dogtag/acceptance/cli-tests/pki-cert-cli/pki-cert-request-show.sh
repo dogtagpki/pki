@@ -55,7 +55,9 @@ run_pki_cert_request_show()
 	local invalid_requestid=$(cat /dev/urandom | tr -dc '0-9' | fold -w 10 | head -n 1)
 	local junk_requestid=$(cat /dev/urandom | tr -dc 'a-bA-Z0-9' | fold -w 40 | head -n 1)
 	local temp_cert_out="$TmpDir/cert-request.out"
-	local hex_invalid_requestid=$(printf 0x%x $invalid_requestid)
+	local hex_invalid_upp_reqid=$(echo "obase=16;$invalid_requestid"|bc)
+	local hex_invalid_requestid=0x"${hex_invalid_upp_reqid,,}"
+
 
 	local temp_out="$TmpDir/cert-request-show.out"	
 
@@ -75,6 +77,7 @@ run_pki_cert_request_show()
 		--action approve 1> $TmpDir/pki-approve-out" 0 "Approve Certificate requeset"
 	rlAssertGrep "Approved certificate request $ret_requestid" "$TmpDir/pki-approve-out"
 	rlRun "valid_serialNumber=$(pki cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+	local hex_valid_requestid=0x$(echo "obase=16;$ret_requestid"|bc)
         rlPhaseEnd
 	
 
@@ -90,7 +93,6 @@ run_pki_cert_request_show()
 
 	# pki cert-request-show  <valid requestid(hexadecimal)>
 	rlPhaseStartTest "pki_cert_request_show-002: pki cert-request-show <valid requestid(hexadecimal)> should Show Certificate Request details"
-	local hex_valid_requestid=$(printf 0x%x $ret_requestid)
 	rlRun "pki cert-request-show $hex_valid_requestid > $temp_out" 0 "Executing pki cert-request-show $hex_valid_reqid"
 	rlAssertGrep "Certificate request \"$ret_requestid\"" "$temp_out"
 	rlAssertGrep "Type: enrollment" "$temp_out" 
@@ -101,20 +103,20 @@ run_pki_cert_request_show()
 
 	# pki cert-request-show <invalid requestid(decimal)>
 	rlPhaseStartTest "pki_cert_request_show-003: pki cert-request-show <invalid requestid(decimal)> Should fail to display any Request details"
-	rlRun "pki cert-request-show $invalid_requestid 2> $temp_out" 1 "Executing pki cert-request-show $invalid_requestid"
+	rlRun "pki cert-request-show $invalid_requestid 2> $temp_out" 0 "Executing pki cert-request-show $invalid_requestid"
 	rlAssertGrep "RequestNotFoundException: Request ID $hex_invalid_requestid not found" "$temp_out"
 	rlPhaseEnd
 
 	#pki cert-request-show <invalid requestid(hexadecimal)>
 	rlPhaseStartTest "pki_cert_request_show-004: pki cert-request-show <invalid requestid(hexadecimal)> Should fail to display any Request details"
-	rlRun "pki cert-request-show $hex_invalid_requestid 2> $temp_out" 1 "Executing pki cert-request-show $hex_invalid_requestid"
+	rlRun "pki cert-request-show $hex_invalid_requestid 2> $temp_out" 0 "Executing pki cert-request-show $hex_invalid_requestid"
 	rlAssertGrep "RequestNotFoundException: Request ID $hex_invalid_requestid not found" "$temp_out"
 	rlPhaseEnd
 	
 	#pki cert-request-show <junk chracters>
 	rlPhaseStartTest "pki_cert_request_show-005: pki cert-request-show <Junk Characters(decimal)> Should fail to display any Request details"
 	rlLog "Executing pki cert-request-show \"$junk_requestid~!@#$%^&*()_+|\""
-	rlRun "pki cert-request-show \"$junk_requestid~\!@#$%^&*\(\)_+|\" 2> $temp_out" 255
+	rlRun "pki cert-request-show \"$junk_requestid~\!@#$%^&*\(\)_+|\" 2> $temp_out" 0
 	rlAssertGrep "Error: Invalid certificate request ID" "$temp_out"
 	rlPhaseEnd
 	
@@ -222,7 +224,7 @@ run_pki_cert_request_show()
 		\"ou=certificateRepository,ou=ca,O=pki-tomcat-CA\" \
 		-D \"$LDAP_ROOTDN\" -w $LDAP_ROOTDNPWD \
 		-h $(hostname) -p $CA_LDAP_PORT \"(metainfo=requestID:$ret_requestid)\" cn | grep -v dn | awk -F ": " '{print $2}')
-	if [ "$sno" == "$(printf %d $valid_serialNumber)" ]; then
+	if [ "$sno" == $(echo "ibase=10;$valid_serialNumber"|bc) ]; then
 		rlLog "SerialNumber Matches with serialNumber assigned to Approved Request"
 	else
 		rlLog "FAIL :: SerialNumber displayed doesn't match with serialNumber assigned to Approved Request"
