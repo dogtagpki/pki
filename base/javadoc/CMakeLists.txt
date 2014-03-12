@@ -5,6 +5,7 @@ javadoc(pki-javadoc
         ${CMAKE_SOURCE_DIR}/base/util/src
         ${CMAKE_SOURCE_DIR}/base/common/src
         ${CMAKE_SOURCE_DIR}/base/java-tools/src
+        ${CMAKE_SOURCE_DIR}/base/server/cms/src
     DEST
         ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${APPLICATION_VERSION}
     SUBPACKAGES
@@ -12,6 +13,7 @@ javadoc(pki-javadoc
         com.netscape.cms
         com.netscape.cmstools
         com.netscape.cmsutil
+        org.dogtagpki
     CLASSPATH
         ${XALAN_JAR} ${XERCES_JAR}
         ${APACHE_COMMONS_CLI_JAR} ${APACHE_COMMONS_LANG_JAR}
@@ -20,8 +22,8 @@ javadoc(pki-javadoc
         ${JSS_JAR} ${SYMKEY_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_TOOLS_JAR}
+        ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR} ${RESTEASY_CLIENT_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_TOMCAT_JAR} ${PKI_CMS_JAR} ${PKI_TOOLS_JAR}
     OPTIONS
         -windowtitle 'pki-javadoc'
         -doctitle '<h1>PKI Javadoc</h1>'
@@ -29,7 +31,7 @@ javadoc(pki-javadoc
         -use
         -version
     DEPENDS
-        pki-cmsutil-jar pki-certsrv-jar pki-cms-jar pki-tools-jar
+        pki-cmsutil-jar pki-certsrv-jar pki-tomcat-jar pki-cms-jar pki-tools-jar
 )
 
 install(
