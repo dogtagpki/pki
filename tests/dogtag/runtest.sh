@@ -34,6 +34,8 @@
 . /opt/rhqa_pki/rhcs-shared.sh
 . /opt/rhqa_pki/rhcs-install-shared.sh
 . /opt/rhqa_pki/pki-user-cli-lib.sh
+. /opt/rhqa_pki/pki-config-lib.sh
+. /opt/rhqa_pki/pki-auth-plugin-lib.sh
 . /opt/rhqa_pki/env.sh
 
 # Include tests
@@ -52,6 +54,7 @@
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-bigInt.sh
 
 PACKAGE="pki-tools"
 
@@ -112,6 +115,13 @@ rlJournalStart
 		 run_pki_cert
 		 run_pki_cert_show
 		 run_pki_cert_request_show
+	fi
+	if [ "$BIG_INT" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ]; then
+		#Execute pki bigInt tests
+		run_pki_big_int
+		run_pki_cert
+		run_pki_cert_show
+		run_pki_cert_request_show
 	fi
         #Clean up role users (admin agent etc) created in CA
         if [ "$USER_CLEANUP_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
