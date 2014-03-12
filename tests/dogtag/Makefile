@@ -53,6 +53,10 @@ run: $(FILES) build
 	chmod a+x /opt/rhqa_pki/*.sh
 	rm -f /opt/rhqa_pki/java/generateCRMFRequest.jar
 	cp  ./shared/generateCRMFRequest.jar /opt/rhqa_pki/java/
+	rm -f /opt/rhqa_pki/pki-auth-plugin-lib.sh
+	cp ./shared/pki-auth-plugin-lib.sh /opt/rhqa_pki/.
+	rm -f /opt/rhqa_pki/pki-config-lib.sh
+	cp ./shared/pki-config-lib.sh /opt/rhqa_pki/.
 	./runtest.sh
 
 build: $(BUILT_FILES)
@@ -62,6 +66,8 @@ build: $(BUILT_FILES)
 	chmod a+x ./shared/pki-user-cli-lib.sh
 	chmod a+x ./shared/dummycert1.pem
 	chmod a+x ./shared/pki-cert-cli-lib.sh
+	chmod a+x ./shared/pki-auth-plugin-lib.sh
+	chmod a+x ./shared/pki-config-lib.sh
 	chmod a+x runtest.sh
 	#quickinstall
 	chmod a+x ./acceptance/quickinstall/rhcs-install.sh
@@ -81,6 +87,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-bigInt.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)
