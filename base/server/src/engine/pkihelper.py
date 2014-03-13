@@ -2902,8 +2902,28 @@ class security_domain:
 
 # PKI Deployment 'systemd' Execution Management Class
 class systemd:
-    def start(self, critical_failure=True):
+    def daemon_reload(self, critical_failure=True):
         try:
+            # Compose this "systemd" management lifecycle command
+            command = "systemctl" + " " + "daemon-reload"
+            # Display this "systemd" execution managment command
+            config.pki_log.info(
+                log.PKIHELPER_SYSTEMD_COMMAND_1, command,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            # Execute this "systemd" management lifecycle command
+            subprocess.call(command, shell=True)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                raise
+        return
+
+    def start(self, critical_failure=True, reload_daemon=True):
+        try:
+            # Execute the "systemd daemon-reload" management lifecycle command
+            if reload_daemon == True:
+                self.daemon_reload(critical_failure)
             # Compose this "systemd" execution management command
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 command = "systemctl" + " " +\
@@ -2954,8 +2974,11 @@ class systemd:
                 raise
         return
 
-    def restart(self, critical_failure=True):
+    def restart(self, critical_failure=True, reload_daemon=True):
         try:
+            # Execute the "systemd daemon-reload" management lifecycle command
+            if reload_daemon == True:
+                self.daemon_reload(critical_failure)
             # Compose this "systemd" execution management command
             if master['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 command = "systemctl" + " " +\
