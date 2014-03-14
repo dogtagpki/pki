@@ -391,13 +391,18 @@ var TableItem = Backbone.View.extend({
             var name = item.attr("name");
 
             if (index == 0) {
-                // setup select checkbox
+                // find the checkbox and label for this item
                 var checkbox = $("input[type='checkbox']", item);
                 var id = checkbox.attr("id");
                 var label = $("label[for='" + id + "']", item);
+
+                // replace checkbox and label id with a unique id
                 id = id + "_" + self.model.id;
                 checkbox.attr("id", id);
                 label.attr("for", id);
+
+                // store item id as checkbox value
+                checkbox.val(self.model.id);
 
             } else if (index == 1) {
                 // setup link to edit dialog
@@ -437,6 +442,8 @@ var Table = Backbone.View.extend({
         self.editDialog = options.editDialog;
 
         self.thead = $("thead", self.$el);
+
+        // setup add button handler
         $("button[name='add']", self.thead).click(function(e) {
             var dialog = self.addDialog;
             dialog.model = new self.collection.model();
@@ -444,6 +451,32 @@ var Table = Backbone.View.extend({
                 self.render();
             });
             dialog.open();
+        });
+
+        // setup remove button handler
+        $("button[name='remove']", self.thead).click(function(e) {
+            var items = [];
+            var message = "Are you sure you want to remove the following entries?\n";
+
+            // get selected items
+            $("input:checked", self.tbody).each(function(index) {
+                var input = $(this);
+                var id = input.val();
+                items.push(id);
+                message = message + " - " + id + "\n";
+            });
+
+            if (items.length == 0) return;
+            if (!confirm(message)) return;
+
+            _.each(items, function(id, index) {
+                var model = self.collection.get(id);
+                model.destroy({
+                    wait: true
+                });
+            });
+
+            self.render();
         });
 
         $("input[type='checkbox']", self.thead).click(function(e) {
