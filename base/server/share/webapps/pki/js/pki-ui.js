@@ -46,16 +46,9 @@ var Collection = Backbone.Collection.extend({
     initialize: function(options) {
         var self = this;
 
-        // convert options into URL query
-        var query = "";
-        _(options).each(function(value, name) {
-            query = query == "" ? "?" : query + "&";
-            query = query + name + "=" + encodeURIComponent(value);
-        });
-
         self.options = options;
-        self.currentURL = self.urlRoot + query;
         self.links = {};
+        self.filter(null);
     },
     url: function() {
         return this.currentURL;
@@ -104,6 +97,22 @@ var Collection = Backbone.Collection.extend({
     go: function(name) {
         if (this.links[name] == undefined) return;
         this.currentURL = this.links[name];
+    },
+    filter: function(filter) {
+        var self = this;
+
+        var query = "";
+        _(self.options).each(function(value, name) {
+            query = query == "" ? "?" : query + "&";
+            query = query + name + "=" + encodeURIComponent(value);
+        });
+
+        if (filter) {
+            query = query == "" ? "?" : query + "&";
+            query = query + "filter=" + encodeURIComponent(filter);
+        }
+
+        self.currentURL = self.urlRoot + query;
     }
 });
 
@@ -443,6 +452,15 @@ var Table = Backbone.View.extend({
 
         self.thead = $("thead", self.$el);
 
+        // setup search field handler
+        $("input[name='search']", self.thead).keypress(function(e) {
+            if (e.which == 13) {
+                var input = $(e.target);
+                self.collection.filter(input.val());
+                self.render();
+            }
+        });
+
         // setup add button handler
         $("button[name='add']", self.thead).click(function(e) {
             var dialog = self.addDialog;
@@ -508,7 +526,7 @@ var Table = Backbone.View.extend({
         var self = this;
         self.collection.fetch({
             reset: true,
-            success: function() {
+            success: function(collection, response, options) {
                 self.tbody.empty();
 
                 // display result page
@@ -533,6 +551,9 @@ var Table = Backbone.View.extend({
                         self.tbody.append(item.$el);
                     }
                 }
+            },
+            error: function(collection, response, options) {
+                alert(response.statusText);
             }
         });
     }
