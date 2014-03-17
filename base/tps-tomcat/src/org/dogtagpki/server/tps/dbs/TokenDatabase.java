@@ -20,9 +20,12 @@ package org.dogtagpki.server.tps.dbs;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.cmscore.dbs.LDAPDatabase;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author Endi S. Dewata
@@ -55,6 +58,6 @@ public class TokenDatabase extends LDAPDatabase<TokenRecord> {
 
     @Override
     public String createFilter(String filter) {
-        return "(id=*)";
+        return StringUtils.isEmpty(filter) ? "(id=*)" : "(id=*"+LDAPUtil.escapeFilter(filter)+"*)";
     }
 }

@@ -98,14 +98,14 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     public abstract String createFilter(String filter);
 
     @Override
-    public Collection<E> getRecords() throws Exception {
-        CMS.debug("LDAPDatabase: getRecords()");
+    public Collection<E> findRecords(String filter) throws Exception {
+        CMS.debug("LDAPDatabase: findRecords()");
 
         try (IDBSSession session = dbSubsystem.createSession()) {
             Collection<E> list = new ArrayList<E>();
-
-            CMS.debug("LDAPDatabase: searching " + baseDN);
-            IDBSearchResults results = session.search(baseDN, createFilter(null));
+            filter = createFilter(filter);
+            CMS.debug("LDAPDatabase: searching " + baseDN + " with filter " + filter);
+            IDBSearchResults results = session.search(baseDN, filter);
 
             while (results.hasMoreElements()) {
                 @SuppressWarnings("unchecked")
@@ -167,5 +167,4 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
             session.delete(dn);
         }
     }
-
 }

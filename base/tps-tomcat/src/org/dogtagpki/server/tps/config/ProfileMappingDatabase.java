@@ -50,13 +50,14 @@ public class ProfileMappingDatabase extends CSCfgDatabase<ProfileMappingRecord> 
     }
 
     @Override
-    public Collection<ProfileMappingRecord> getRecords() throws Exception {
+    public Collection<ProfileMappingRecord> findRecords(String filter) throws Exception {
 
         Collection<ProfileMappingRecord> result = new ArrayList<ProfileMappingRecord>();
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         for (String profileMappingID : configRecord.getKeys()) {
+            if (filter != null && !profileMappingID.contains(filter)) continue;
             ProfileMappingRecord profileMappingRecord = createProfileMappingRecord(configDatabase, configRecord, profileMappingID);
             result.add(profileMappingRecord);
         }

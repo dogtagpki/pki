@@ -21,7 +21,8 @@ package org.dogtagpki.server.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
@@ -94,7 +95,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     }
 
     @Override
-    public Response findSelfTests(Integer start, Integer size) {
+    public Response findSelfTests(String filter, Integer start, Integer size) {
 
         CMS.debug("SelfTestService.findSelfTests()");
 
@@ -103,9 +104,16 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             size = size == null ? DEFAULT_SIZE : size;
 
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
-            Iterator<String> entries = Arrays.asList(subsystem.listSelfTestsEnabledOnDemand()).iterator();
+
+            // filter self tests
+            Collection<String> results = new ArrayList<String>();
+            for (String name : subsystem.listSelfTestsEnabledOnDemand()) {
+                if (filter != null && !name.contains(filter)) continue;
+                results.add(name);
+            }
 
             SelfTestCollection response = new SelfTestCollection();
+            Iterator<String> entries = results.iterator();
             int i = 0;
 
             // skip to the start of the page

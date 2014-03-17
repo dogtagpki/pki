@@ -40,8 +40,8 @@ public class ConnectionClient extends Client {
         resource = createProxy(ConnectionResource.class);
     }
 
-    public ConnectionCollection findConnections(Integer start, Integer size) {
-        Response response = resource.findConnections(start, size);
+    public ConnectionCollection findConnections(String filter, Integer start, Integer size) {
+        Response response = resource.findConnections(filter, start, size);
         return client.getEntity(response, ConnectionCollection.class);
     }
 

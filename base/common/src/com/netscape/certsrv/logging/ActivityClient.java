@@ -40,13 +40,13 @@ public class ActivityClient extends Client {
         resource = createProxy(ActivityResource.class);
     }
 
-    public ActivityCollection findActivities(Integer start, Integer size) {
-        Response response = resource.findActivities(start, size);
+    public ActivityCollection findActivities(String filter, Integer start, Integer size) {
+        Response response = resource.findActivities(filter, start, size);
         return client.getEntity(response, ActivityCollection.class);
     }
 
-    public ActivityData getActivity(String tokenID) {
-        Response response = resource.getActivity(tokenID);
+    public ActivityData getActivity(String activityID) {
+        Response response = resource.getActivity(activityID);
         return client.getEntity(response, ActivityData.class);
     }
 }

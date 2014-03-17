@@ -35,6 +35,7 @@ public interface ActivityResource {
     @GET
     @ClientResponseType(entityType=ActivityCollection.class)
     public Response findActivities(
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

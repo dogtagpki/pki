@@ -40,8 +40,8 @@ public class SelfTestClient extends Client {
         resource = createProxy(SelfTestResource.class);
     }
 
-    public SelfTestCollection findSelfTests(Integer start, Integer size) {
-        Response response = resource.findSelfTests(start, size);
+    public SelfTestCollection findSelfTests(String filter, Integer start, Integer size) {
+        Response response = resource.findSelfTests(filter, start, size);
         return client.getEntity(response, SelfTestCollection.class);
     }
 

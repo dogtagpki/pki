@@ -139,7 +139,8 @@ public class GroupService extends PKIService implements GroupResource {
             return createOKResponse(response);
 
         } catch (Exception e) {
-            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 

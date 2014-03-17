@@ -95,7 +95,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public Response findConnections(Integer start, Integer size) {
+    public Response findConnections(String filter, Integer start, Integer size) {
 
         CMS.debug("ConnectionService.findConnections()");
 
@@ -106,7 +106,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            Iterator<ConnectionRecord> connections = database.getRecords().iterator();
+            Iterator<ConnectionRecord> connections = database.findRecords(filter).iterator();
 
             ConnectionCollection response = new ConnectionCollection();
             int i = 0;

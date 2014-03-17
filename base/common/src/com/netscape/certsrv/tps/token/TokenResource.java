@@ -44,6 +44,7 @@ public interface TokenResource {
     @GET
     @ClientResponseType(entityType=TokenCollection.class)
     public Response findTokens(
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

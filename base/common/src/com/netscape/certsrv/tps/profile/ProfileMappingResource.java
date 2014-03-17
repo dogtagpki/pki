@@ -43,6 +43,7 @@ public interface ProfileMappingResource {
     @GET
     @ClientResponseType(entityType=ProfileMappingCollection.class)
     public Response findProfileMappings(
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

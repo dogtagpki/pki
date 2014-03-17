@@ -95,7 +95,7 @@ public class ProfileService extends PKIService implements ProfileResource {
     }
 
     @Override
-    public Response findProfiles(Integer start, Integer size) {
+    public Response findProfiles(String filter, Integer start, Integer size) {
 
         CMS.debug("ProfileService.findProfiles()");
 
@@ -106,7 +106,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
-            Iterator<ProfileRecord> profiles = database.getRecords().iterator();
+            Iterator<ProfileRecord> profiles = database.findRecords(filter).iterator();
 
             ProfileCollection response = new ProfileCollection();
             int i = 0;

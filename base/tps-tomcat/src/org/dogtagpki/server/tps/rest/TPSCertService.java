@@ -110,7 +110,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     }
 
     @Override
-    public Response findCerts(Integer start, Integer size) {
+    public Response findCerts(String filter, Integer start, Integer size) {
 
         System.out.println("TPSCertService.findCerts()");
 
@@ -121,7 +121,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
-            Iterator<TPSCertRecord> activities = database.getRecords().iterator();
+            Iterator<TPSCertRecord> activities = database.findRecords(filter).iterator();
 
             TPSCertCollection response = new TPSCertCollection();
             int i = 0;

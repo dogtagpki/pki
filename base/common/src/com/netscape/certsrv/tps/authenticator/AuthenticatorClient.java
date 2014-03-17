@@ -40,8 +40,8 @@ public class AuthenticatorClient extends Client {
         resource = createProxy(AuthenticatorResource.class);
     }
 
-    public AuthenticatorCollection findAuthenticators(Integer start, Integer size) {
-        Response response = resource.findAuthenticators(start, size);
+    public AuthenticatorCollection findAuthenticators(String filter, Integer start, Integer size) {
+        Response response = resource.findAuthenticators(filter, start, size);
         return client.getEntity(response, AuthenticatorCollection.class);
     }
 

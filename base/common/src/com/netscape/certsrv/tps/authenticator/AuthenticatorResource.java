@@ -43,6 +43,7 @@ public interface AuthenticatorResource {
     @GET
     @ClientResponseType(entityType=AuthenticatorCollection.class)
     public Response findAuthenticators(
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

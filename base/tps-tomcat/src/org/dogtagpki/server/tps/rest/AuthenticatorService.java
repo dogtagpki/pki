@@ -95,7 +95,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
     }
 
     @Override
-    public Response findAuthenticators(Integer start, Integer size) {
+    public Response findAuthenticators(String filter, Integer start, Integer size) {
 
         CMS.debug("AuthenticatorService.findAuthenticators()");
 
@@ -106,7 +106,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
-            Iterator<AuthenticatorRecord> authenticators = database.getRecords().iterator();
+            Iterator<AuthenticatorRecord> authenticators = database.findRecords(filter).iterator();
 
             AuthenticatorCollection response = new AuthenticatorCollection();
             int i = 0;

@@ -18,6 +18,7 @@
 
 package com.netscape.cmscore.dbs;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -43,8 +44,18 @@ public class Database<E> {
         CMS.debug("Initializing " + name + " database");
     }
 
-    public Collection<E> getRecords() throws Exception {
-        return records.values();
+    /**
+     * Find records matching filter
+     */
+    public Collection<E> findRecords(String filter) throws Exception {
+
+        Collection<E> results = new ArrayList<E>();
+        for (String id : records.keySet()) {
+            if (filter != null && !id.contains(filter)) continue;
+            results.add(records.get(id));
+        }
+
+        return results;
     }
 
     public E getRecord(String id) throws Exception {

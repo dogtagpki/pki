@@ -55,9 +55,9 @@ public class ConfigDatabase extends Database<ConfigRecord> {
     }
 
     @Override
-    public Collection<ConfigRecord> getRecords() throws Exception {
+    public Collection<ConfigRecord> findRecords(String filter) throws Exception {
 
-        CMS.debug("ConfigDatabase.getRecords()");
+        CMS.debug("ConfigDatabase.findRecords()");
 
         Collection<ConfigRecord> result = new ArrayList<ConfigRecord>();
 
@@ -75,6 +75,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
         }
 
         for (String configID : configIDs) {
+            if (filter != null && !configID.contains(filter)) continue;
             ConfigRecord configData = getRecord(configID);
             result.add(configData);
         }

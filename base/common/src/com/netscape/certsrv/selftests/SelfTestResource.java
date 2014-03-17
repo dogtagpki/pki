@@ -41,6 +41,7 @@ public interface SelfTestResource {
     @GET
     @ClientResponseType(entityType=SelfTestCollection.class)
     public Response findSelfTests(
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

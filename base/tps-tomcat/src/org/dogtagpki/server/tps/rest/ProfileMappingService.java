@@ -95,7 +95,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
     }
 
     @Override
-    public Response findProfileMappings(Integer start, Integer size) {
+    public Response findProfileMappings(String filter, Integer start, Integer size) {
 
         CMS.debug("ProfileMappingService.findProfileMappings()");
 
@@ -106,7 +106,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
-            Iterator<ProfileMappingRecord> profileMappings = database.getRecords().iterator();
+            Iterator<ProfileMappingRecord> profileMappings = database.findRecords(filter).iterator();
 
             ProfileMappingCollection response = new ProfileMappingCollection();
             int i = 0;

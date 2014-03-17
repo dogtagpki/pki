@@ -44,8 +44,8 @@ public class ProfileClient extends Client {
         resource = createProxy(ProfileResource.class);
     }
 
-    public ProfileCollection findProfiles(Integer start, Integer size) {
-        Response response = resource.findProfiles(start, size);
+    public ProfileCollection findProfiles(String filter, Integer start, Integer size) {
+        Response response = resource.findProfiles(filter, start, size);
         return client.getEntity(response, ProfileCollection.class);
     }
 

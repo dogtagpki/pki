@@ -31,44 +31,41 @@ public class PKIException extends RuntimeException {
 
     public int code;
 
-    public PKIException(Response.Status status) {
-        super(status.getReasonPhrase());
-        code = status.getStatusCode();
-    }
-
-    public PKIException(String message) {
-        super(message);
-        code = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-    }
-
-    public PKIException(int code, String message) {
-        super(message);
-        this.code = code;
-    }
-
-    public PKIException(Response.Status status, String message) {
-        super(message);
-        code = status.getStatusCode();
-    }
-
-    public PKIException(String message, Throwable cause) {
-        super(message, cause);
-        code = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-    }
-
     public PKIException(int code, String message, Throwable cause) {
         super(message, cause);
         this.code = code;
     }
 
+    public PKIException(Response.Status status) {
+        this(status, status.getReasonPhrase(), null);
+    }
+
+    public PKIException(String message) {
+        this(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), message, null);
+    }
+
+    public PKIException(int code, String message) {
+        this(code, message, null);
+    }
+
+    public PKIException(Response.Status status, String message) {
+        this(status.getStatusCode(), message, null);
+    }
+
+    public PKIException(Throwable cause) {
+        this(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), cause.getMessage(), cause);
+    }
+
+    public PKIException(String message, Throwable cause) {
+        this(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), message, cause);
+    }
+
     public PKIException(Response.Status status, String message, Throwable cause) {
-        super(message, cause);
-        code = status.getStatusCode();
+        this(status.getStatusCode(), message, cause);
     }
 
     public PKIException(Data data) {
-        super(data.message);
-        code = data.code;
+        this(data.code, data.message, null);
     }
 
     public int getCode() {

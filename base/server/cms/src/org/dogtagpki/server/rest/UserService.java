@@ -133,6 +133,7 @@ public class UserService extends PKIService implements UserResource {
      */
     @Override
     public Response findUsers(String filter, Integer start, Integer size) {
+        UserCollection response = new UserCollection();
         try {
             filter = StringUtils.isEmpty(filter) ? "*" : "*"+LDAPUtil.escapeFilter(filter)+"*";
             start = start == null ? 0 : start;
@@ -140,7 +141,6 @@ public class UserService extends PKIService implements UserResource {
 
             Enumeration<IUser> users = userGroupManager.findUsers(filter);
 
-            UserCollection response = new UserCollection();
             int i = 0;
 
             // skip to the start of the page
@@ -168,8 +168,20 @@ public class UserService extends PKIService implements UserResource {
 
             return createOKResponse(response);
 
+        } catch (EUsrGrpException e) {
+            // Workaround for ticket #914.
+            // If no users found, return empty result.
+            if (CMS.getUserMessage("CMS_USRGRP_USER_NOT_FOUND").equals(e.getMessage())) {
+                CMS.debug("UserService.findUsers(): " + e.getMessage());
+                return createOKResponse(response);
+            }
+
+            CMS.debug(e);
+            throw new PKIException(e);
+
         } catch (Exception e) {
-            throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR", headers));
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 

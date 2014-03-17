@@ -53,13 +53,14 @@ public class ConnectionDatabase extends CSCfgDatabase<ConnectionRecord> {
     }
 
     @Override
-    public Collection<ConnectionRecord> getRecords() throws Exception {
+    public Collection<ConnectionRecord> findRecords(String filter) throws Exception {
 
         Collection<ConnectionRecord> result = new ArrayList<ConnectionRecord>();
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord("Subsystem_Connections");
 
         for (String connectionID : configRecord.getKeys()) {
+            if (filter != null && !connectionID.contains(filter)) continue;
             ConnectionRecord connectionRecord = createConnectionRecord(configDatabase, configRecord, connectionID);
             result.add(connectionRecord);
         }

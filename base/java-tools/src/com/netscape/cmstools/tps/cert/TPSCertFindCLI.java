@@ -41,7 +41,7 @@ public class TPSCertFindCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [FILTER] [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -65,13 +65,16 @@ public class TPSCertFindCLI extends CLI {
             System.exit(1);
         }
 
+        String[] cmdArgs = cmd.getArgs();
+        String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
+
         String s = cmd.getOptionValue("start");
         Integer start = s == null ? null : Integer.valueOf(s);
 
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        TPSCertCollection result = certCLI.certClient.findCerts(start, size);
+        TPSCertCollection result = certCLI.certClient.findCerts(filter, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

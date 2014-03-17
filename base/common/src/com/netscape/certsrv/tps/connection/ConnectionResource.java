@@ -43,6 +43,7 @@ public interface ConnectionResource {
     @GET
     @ClientResponseType(entityType=ConnectionCollection.class)
     public Response findConnections(
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

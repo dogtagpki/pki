@@ -100,7 +100,7 @@ public class ActivityService extends PKIService implements ActivityResource {
     }
 
     @Override
-    public Response findActivities(Integer start, Integer size) {
+    public Response findActivities(String filter, Integer start, Integer size) {
 
         CMS.debug("ActivityService.findActivities()");
 
@@ -111,7 +111,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
-            Iterator<ActivityRecord> activities = database.getRecords().iterator();
+            Iterator<ActivityRecord> activities = database.findRecords(filter).iterator();
 
             ActivityCollection response = new ActivityCollection();
             int i = 0;

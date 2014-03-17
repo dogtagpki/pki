@@ -43,6 +43,7 @@ public interface ProfileResource {
     @GET
     @ClientResponseType(entityType=ProfileCollection.class)
     public Response findProfiles(
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

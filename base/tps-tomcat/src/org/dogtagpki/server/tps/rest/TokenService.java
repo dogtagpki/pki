@@ -109,7 +109,7 @@ public class TokenService extends PKIService implements TokenResource {
     }
 
     @Override
-    public Response findTokens(Integer start, Integer size) {
+    public Response findTokens(String filter, Integer start, Integer size) {
 
         CMS.debug("TokenService.findTokens()");
 
@@ -120,7 +120,7 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            Iterator<TokenRecord> tokens = database.getRecords().iterator();
+            Iterator<TokenRecord> tokens = database.findRecords(filter).iterator();
 
             TokenCollection response = new TokenCollection();
             int i = 0;
