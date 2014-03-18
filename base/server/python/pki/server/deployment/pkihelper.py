@@ -3061,9 +3061,29 @@ class Systemd:
     def __init__(self, deployer):
         self.master_dict = deployer.master_dict
 
-    def start(self, critical_failure=True):
+    def daemon_reload(self, critical_failure=True):
+        try:
+            # Compose this "systemd" management lifecycle command
+            command = ["systemctl", "daemon-reload"]
+            # Display this "systemd" management lifecycle command
+            config.pki_log.info(
+                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            # Execute this "systemd" management lifecycle command
+            subprocess.check_call(command)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                raise
+        return
+
+    def start(self, critical_failure=True, reload_daemon=True):
         try:
             service = None
+            # Execute the "systemd daemon-reload" management lifecycle command
+            if reload_daemon == True:
+                self.daemon_reload(critical_failure)
             # Compose this "systemd" execution management command
             if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 service = "pki-apached" + "@" +\
@@ -3113,9 +3133,12 @@ class Systemd:
                 raise
         return
 
-    def restart(self, critical_failure=True):
+    def restart(self, critical_failure=True, reload_daemon=True):
         try:
             service = None
+            # Execute the "systemd daemon-reload" management lifecycle command
+            if reload_daemon == True:
+                self.daemon_reload(critical_failure)
             # Compose this "systemd" execution management command
             if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 service = "pki-apached" + "@" +\
