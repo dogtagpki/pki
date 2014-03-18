@@ -136,7 +136,7 @@ var UserPage = Page.extend({
 
         new Table({
             el: $("table[name='users']"),
-            collection: new UserCollection({ size: 5 }),
+            collection: new UserCollection(),
             addDialog: addDialog,
             editDialog: editDialog
         });

@@ -77,7 +77,7 @@ var ActivityPage = Page.extend({
 
         new Table({
             el: $("table[name='activities']"),
-            collection: new ActivityCollection({ size: 5 }),
+            collection: new ActivityCollection(),
             editDialog: editDialog
         });
     }

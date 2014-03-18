@@ -74,7 +74,48 @@ table tr th:first-child, table tr td:first-child {
 }
 
 table input[type="checkbox"] + label {
+  margin: 0;
   padding: 0 0 0 13px;
+}
+
+.pagination {
+  margin: 4px;
+}
+
+.pki-table-actions {
+  padding: 1px;
+  border-top: none;
+}
+
+.pki-table-actions button {
+  padding: 3px 8px;
+  font-size: 11px;
+  box-shadow: 1px 2px 2px #e3e3e3;
+  margin: 4px 4px 4px 0;
+}
+
+.pki-table-actions input[name="page"] {
+  width: 50px;
+  min-width: 50px;
+}
+
+.pki-table-actions span[name="actions"] {
+  float: right;
+}
+
+.pki-table-actions span[name="info"] {
+  line-height: 26px;
+  margin: 4px;
+  display: inline-block;
+}
+
+table span[name="page-controls"] {
+  float: right;
+}
+
+table span[name="page-jump"] {
+  margin: 0 8px 0 0;
+  float: right;
 }
 
 #content {

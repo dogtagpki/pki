@@ -48,13 +48,16 @@ var Collection = Backbone.Collection.extend({
 
         self.options = options;
         self.links = {};
-        self.filter(null);
+        self.query({});
     },
     url: function() {
         return this.currentURL;
     },
     parse: function(response) {
         var self = this;
+
+        // get total entries
+        self.total = self.getTotal(response);
 
         // parse links
         var links = self.getLinks(response);
@@ -72,6 +75,9 @@ var Collection = Backbone.Collection.extend({
         });
 
         return models;
+    },
+    getTotal: function(response) {
+        return response.total;
     },
     getEntries: function(response) {
         return null;
@@ -95,22 +101,24 @@ var Collection = Backbone.Collection.extend({
         return this.links[name];
     },
     go: function(name) {
-        if (this.links[name] == undefined) return;
-        this.currentURL = this.links[name];
+        var self = this;
+        if (self.links[name] == undefined) return;
+        self.currentURL = self.links[name];
     },
-    filter: function(filter) {
+    query: function(params) {
         var self = this;
 
+        // add default options into the params
+        _.defaults(params, self.options);
+
+        // generate query string
         var query = "";
-        _(self.options).each(function(value, name) {
+        _(params).each(function(value, name) {
+            // skip null or empty string, but don't skip 0
+            if (value === null || value === "") return;
             query = query == "" ? "?" : query + "&";
             query = query + name + "=" + encodeURIComponent(value);
         });
-
-        if (filter) {
-            query = query == "" ? "?" : query + "&";
-            query = query + "filter=" + encodeURIComponent(filter);
-        }
 
         self.currentURL = self.urlRoot + query;
     }
@@ -450,13 +458,21 @@ var Table = Backbone.View.extend({
         self.addDialog = options.addDialog;
         self.editDialog = options.editDialog;
 
+        // number of table rows
+        self.pageSize = options.pageSize || 5;
+
+        // current page: 1, 2, 3, ...
+        self.page = 1;
+        self.totalPages = 1;
+
         self.thead = $("thead", self.$el);
 
         // setup search field handler
-        $("input[name='search']", self.thead).keypress(function(e) {
+        self.searchField = $("input[name='search']", self.thead);
+        self.searchField.keypress(function(e) {
             if (e.which == 13) {
-                var input = $(e.target);
-                self.collection.filter(input.val());
+                // show the first page of search results
+                self.page = 1;
                 self.render();
             }
         });
@@ -505,17 +521,43 @@ var Table = Backbone.View.extend({
         self.tbody = $("tbody", self.$el);
         self.template = $("tr", self.tbody).detach();
 
-        // attach link handlers
         self.tfoot = $("tfoot", self.$el);
-        $("a.prev", self.tfoot).click(function(e) {
-            if (self.collection.link("prev") == undefined) return;
-            self.collection.go("prev");
+        self.totalEntriesField = $("span[name='totalEntries']", self.tfoot);
+        self.pageField = $("input[name='page']", self.tfoot);
+        self.totalPagesField = $("span[name='totalPages']", self.tfoot);
+
+        // setup page jump handler
+        self.pageField.keypress(function(e) {
+            if (e.which == 13) {
+                // parse user entered page number
+                self.page = parseInt(self.pageField.val());
+                if (isNaN(self.page)) self.page = 1;
+
+                // make sure 1 <= page <= total pages
+                self.page = Math.max(self.page, 1);
+                self.page = Math.min(self.page, self.totalPages);
+                self.render();
+            }
+        });
+
+        // setup handlers for first, prev, next, and last buttons
+        $("a[name='first']", self.tfoot).click(function(e) {
+            self.page = 1;
             self.render();
             e.preventDefault();
         });
-        $("a.next", self.tfoot).click(function(e) {
-            if (self.collection.link("next") == undefined) return;
-            self.collection.go("next");
+        $("a[name='prev']", self.tfoot).click(function(e) {
+            self.page = Math.max(self.page - 1, 1);
+            self.render();
+            e.preventDefault();
+        });
+        $("a[name='next']", self.tfoot).click(function(e) {
+            self.page = Math.min(self.page + 1, self.totalPages);
+            self.render();
+            e.preventDefault();
+        });
+        $("a[name='last']", self.tfoot).click(function(e) {
+            self.page = self.totalPages;
             self.render();
             e.preventDefault();
         });
@@ -524,12 +566,31 @@ var Table = Backbone.View.extend({
     },
     render: function() {
         var self = this;
+
+        // set query based on current page, page size, and filter
+        self.collection.query({
+            start: (self.page - 1) * self.pageSize,
+            size: self.pageSize,
+            filter: self.searchField.val()
+        });
+
+        // fetch data based on query
         self.collection.fetch({
             reset: true,
             success: function(collection, response, options) {
                 self.tbody.empty();
 
-                // display result page
+                // display total entries
+                self.totalEntriesField.text(self.collection.total);
+
+                // display current page number
+                self.pageField.val(self.page);
+
+                // calculate and display total number of pages
+                self.totalPages = Math.floor(Math.max(0, self.collection.total - 1) / self.pageSize) + 1;
+                self.totalPagesField.text(self.totalPages);
+
+                // display entries in the current page
                 _(self.collection.models).each(function(model) {
                     var item = new TableItem({
                         el: self.template.clone(),
@@ -540,16 +601,14 @@ var Table = Backbone.View.extend({
                     self.tbody.append(item.$el);
                 }, self);
 
-                // add blank lines
-                if (self.collection.options.size != undefined) {
-                    var blanks = self.collection.options.size - self.collection.models.length;
-                    for (var i = 0; i < blanks; i++) {
-                        var item = new BlankTableItem({
-                            el: self.template.clone()
-                        });
-                        item.render();
-                        self.tbody.append(item.$el);
-                    }
+                // add blank rows to keep page size consistent
+                var blanks = self.pageSize - self.collection.models.length;
+                for (var i = 0; i < blanks; i++) {
+                    var item = new BlankTableItem({
+                        el: self.template.clone()
+                    });
+                    item.render();
+                    self.tbody.append(item.$el);
                 }
             },
             error: function(collection, response, options) {

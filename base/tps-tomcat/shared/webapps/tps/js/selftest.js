@@ -70,7 +70,7 @@ var SelfTestPage = Page.extend({
 
         new Table({
             el: $("table[name='selftests']"),
-            collection: new SelfTestCollection({ size: 5 }),
+            collection: new SelfTestCollection(),
             editDialog: editDialog
         });
     }

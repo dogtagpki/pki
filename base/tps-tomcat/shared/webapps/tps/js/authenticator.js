@@ -134,7 +134,7 @@ var AuthenticatorPage = Page.extend({
 
         new Table({
             el: $("table[name='authenticators']"),
-            collection: new AuthenticatorCollection({ size: 5 }),
+            collection: new AuthenticatorCollection(),
             editDialog: editDialog
         });
     }
