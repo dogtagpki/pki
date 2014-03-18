@@ -537,7 +537,7 @@ public class CertService extends PKIService implements CertResource {
             certData.setNonce(n);
         }
 
-        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(certId.toHexString());
+        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class, "getCert").build(certId.toHexString());
         certData.setLink(new Link("self", uri));
 
         return certData;
@@ -572,7 +572,7 @@ public class CertService extends PKIService implements CertResource {
         info.setIssuedOn(record.getCreateTime());
         info.setIssuedBy(record.getIssuedBy());
 
-        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class).path("{id}").build(id.toHexString());
+        URI uri = uriInfo.getBaseUriBuilder().path(CertResource.class, "getCert").build(id.toHexString());
         info.setLink(new Link("self", uri));
 
         return info;
