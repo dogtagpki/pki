@@ -4,7 +4,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.0.6
+Version:          10.0.7
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -1134,6 +1134,13 @@ fi
 
 
 %changelog
+* Mon Mar 17 2014 Matthew Harmsen <mharmsen@redhat.com> 10.0.7-1
+- PKI Trac #803 - avc generated for useradd in pkispawn scripts. (alee)
+- PKI Trac #868 - REST API get certs links missing segment (alee, mharmsen)
+- PKI Trac #869 - f19 ipa-server-install fails at step 6/22 of cert sys
+                  install - systemctl start pki-tomcatd.target fails (mharmsen)
+- Updated version number.
+
 * Mon Oct 28 2013 Endi S. Dewata <edewata@redhat.com> 10.0.6-1
 - Trac #739, BZ#999722 - Fixed error handling in DoUnrevoke servlet.
 - Trac #775, BZ#1018628 - Fixed errors during Tomcat shutdown.

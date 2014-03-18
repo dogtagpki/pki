@@ -1,5 +1,5 @@
 Name:             pki-migrate
-Version:          10.0.6
+Version:          10.0.7
 Release:          1%{?dist}
 Summary:          Red Hat Certificate System - PKI Migration Scripts
 URL:              http://pki.fedoraproject.org/
@@ -71,6 +71,9 @@ cd build
 
 
 %changelog
+* Mon Mar 17 2014 Matthew Harmsen <mharmsen@redhat.com> 10.0.7-1
+- Updated version number.
+
 * Mon Oct 28 2013 Endi S. Dewata <edewata@redhat.com> 10.0.6-1
 - Updated version number.
 
