@@ -385,65 +385,79 @@ var Dialog = Backbone.View.extend({
     }
 });
 
-var BlankTableItem = Backbone.View.extend({
-    render: function() {
-        var self = this;
-        $("td:first", self.$el).each(function(index) {
-            var item = $(this);
-            item.html("&nbsp;");
-        });
-    }
-});
-
 var TableItem = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
         TableItem.__super__.initialize.call(self, options);
         self.table = options.table;
+        self.reset();
+    },
+    reset: function() {
+        var self = this;
+        $("td", self.$el).each(function(index) {
+            var td = $(this);
+            var name = td.attr("name");
+
+            if (td.hasClass("pki-select-column")) {
+                // uncheck checkbox and reset the value
+                var checkbox = $("input[type='checkbox']", td);
+                checkbox.attr("checked", false);
+                checkbox.val("");
+
+                // hide checkbox by hiding the label
+                $("label", td).hide();
+
+            } else if (name == "id") {
+                // hide the content
+                td.children().hide();
+
+            } else {
+                // empty the content
+                td.html("&nbsp;");
+            }
+        });
     },
     render: function() {
         var self = this;
+        var prefix = self.table.$el.attr("name") + "_select_";
+
         $("td", self.$el).each(function(index) {
-            var item = $(this);
-            var name = item.attr("name");
+            var td = $(this);
+            var name = td.attr("name");
 
-            if (index == 0) {
-                // find the checkbox and label for this item
-                var checkbox = $("input[type='checkbox']", item);
-                var id = checkbox.attr("id");
-                var label = $("label[for='" + id + "']", item);
+            if (td.hasClass("pki-select-column")) {
+                // generate a unique id based on model id
+                var id = prefix + self.model.id;
 
-                // replace checkbox and label id with a unique id
-                id = id + "_" + self.model.id;
+                // set the unique id and value for checkbox
+                var checkbox = $("input[type='checkbox']", td);
                 checkbox.attr("id", id);
-                label.attr("for", id);
-
-                // store item id as checkbox value
+                checkbox.attr("checked", false);
                 checkbox.val(self.model.id);
 
-            } else if (index == 1) {
+                // point the label to the checkbox and make it visible
+                var label = $("label", td);
+                label.attr("for", id);
+                label.show();
+
+            } else if (name == "id") {
                 // setup link to edit dialog
-                item.empty();
+                td.empty();
                 $("<a/>", {
                     href: "#",
-                    text: self.model.get(name),
+                    text: self.model.id,
                     click: function(e) {
-                        var dialog = self.table.editDialog;
-                        dialog.model = self.model;
-                        dialog.once("close", function(event) {
-                            self.render();
-                        });
-                        dialog.open();
+                        self.table.open(self);
                         e.preventDefault();
                     }
-                }).appendTo(item);
+                }).appendTo(td);
 
             } else {
                 // show cell content in plain text
-                item.text(self.model.get(name));
+                td.text(self.model.get(name));
                 // update cell automatically on model change
                 self.model.on("change:" + name, function(event) {
-                    item.text(self.model.get(name));
+                    td.text(self.model.get(name));
                 });
             }
         });
@@ -479,12 +493,7 @@ var Table = Backbone.View.extend({
 
         // setup add button handler
         $("button[name='add']", self.thead).click(function(e) {
-            var dialog = self.addDialog;
-            dialog.model = new self.collection.model();
-            dialog.done(function() {
-                self.render();
-            });
-            dialog.open();
+            self.add();
         });
 
         // setup remove button handler
@@ -496,6 +505,7 @@ var Table = Backbone.View.extend({
             $("input:checked", self.tbody).each(function(index) {
                 var input = $(this);
                 var id = input.val();
+                if (id == "") return;
                 items.push(id);
                 message = message + " - " + id + "\n";
             });
@@ -503,23 +513,30 @@ var Table = Backbone.View.extend({
             if (items.length == 0) return;
             if (!confirm(message)) return;
 
-            _.each(items, function(id, index) {
-                var model = self.collection.get(id);
-                model.destroy({
-                    wait: true
-                });
-            });
-
-            self.render();
+            self.remove(items);
         });
 
-        $("input[type='checkbox']", self.thead).click(function(e) {
+        // setup select all handler
+        self.selectAllCheckbox = $("input[type='checkbox']", self.thead);
+        self.selectAllCheckbox.click(function(e) {
             var checked = $(this).is(":checked");
             $("input[type='checkbox']", self.tbody).prop("checked", checked);
         });
 
         self.tbody = $("tbody", self.$el);
         self.template = $("tr", self.tbody).detach();
+
+        // create empty rows
+        self.items = [];
+        for (var i = 0; i < self.pageSize; i++) {
+            var tr = self.template.clone();
+            var item = new TableItem({
+                el: tr,
+                table: self
+            });
+            self.items.push(item);
+            self.tbody.append(tr);
+        }
 
         self.tfoot = $("tfoot", self.$el);
         self.totalEntriesField = $("span[name='totalEntries']", self.tfoot);
@@ -578,42 +595,68 @@ var Table = Backbone.View.extend({
         self.collection.fetch({
             reset: true,
             success: function(collection, response, options) {
-                self.tbody.empty();
+
+                // clear selection
+                self.selectAllCheckbox.attr("checked", false);
 
                 // display total entries
-                self.totalEntriesField.text(self.collection.total);
+                self.totalEntriesField.text(self.totalEntries());
 
                 // display current page number
                 self.pageField.val(self.page);
 
                 // calculate and display total number of pages
-                self.totalPages = Math.floor(Math.max(0, self.collection.total - 1) / self.pageSize) + 1;
+                self.totalPages = Math.floor(Math.max(0, self.totalEntries() - 1) / self.pageSize) + 1;
                 self.totalPagesField.text(self.totalPages);
 
-                // display entries in the current page
-                _(self.collection.models).each(function(model) {
-                    var item = new TableItem({
-                        el: self.template.clone(),
-                        table: self,
-                        model: model
-                    });
-                    item.render();
-                    self.tbody.append(item.$el);
-                }, self);
+                // display entries
+                _(self.items).each(function(item, index) {
+                    if (index < self.collection.length) {
+                        // show entry in existing row
+                        item.model = self.collection.at(index);
+                        item.render();
 
-                // add blank rows to keep page size consistent
-                var blanks = self.pageSize - self.collection.models.length;
-                for (var i = 0; i < blanks; i++) {
-                    var item = new BlankTableItem({
-                        el: self.template.clone()
-                    });
-                    item.render();
-                    self.tbody.append(item.$el);
-                }
+                    } else {
+                        // clear unused row
+                        item.reset();
+                    }
+                });
             },
             error: function(collection, response, options) {
                 alert(response.statusText);
             }
         });
+    },
+    totalEntries: function() {
+        var self = this;
+        return self.collection.total;
+    },
+    open: function(item) {
+        var self = this;
+        var dialog = self.editDialog;
+        dialog.model = item.model;
+        dialog.once("close", function(event) {
+            item.render();
+        });
+        dialog.open();
+    },
+    add: function() {
+        var self = this;
+        var dialog = self.addDialog;
+        dialog.model = new self.collection.model();
+        dialog.done(function() {
+            self.render();
+        });
+        dialog.open();
+    },
+    remove: function(items) {
+        var self = this;
+        _.each(items, function(id, index) {
+            var model = self.collection.get(id);
+            model.destroy({
+                wait: true
+            });
+        });
+        self.render();
     }
 });
