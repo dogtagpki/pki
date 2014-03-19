@@ -3055,15 +3055,94 @@ class SecurityDomain:
                 raise
         return None
 
-class Systemd:
-    """PKI Deployment 'systemd' Execution Management Class"""
+class Systemd(object):
+    """PKI Deployment Execution Management Class"""
 
     def __init__(self, deployer):
+        """PKI Deployment execution management __init__ method.
+
+        Args:
+          deployer (dictionary):  PKI Deployment name/value parameters
+
+        Attributes:
+
+        Returns:
+
+        Raises:
+
+        Examples:
+
+        """
         self.master_dict = deployer.master_dict
 
-    def start(self, critical_failure=True):
+    def daemon_reload(self, critical_failure=True):
+        """PKI Deployment execution management lifecycle function.
+
+        Executes a 'systemd daemon-reload' system command.
+
+        Args:
+          critical_failure (boolean, optional):  Raise exception on failures;
+                                                 defaults to 'True'.
+
+        Attributes:
+
+        Returns:
+
+        Raises:
+          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
+
+        Examples:
+
+        """
+        try:
+            # Un-defined command on Debian systems
+            if pki.system.SYSTEM_TYPE == "debian":
+                return
+            # Compose this "systemd" execution management lifecycle command
+            command = ["systemctl", "daemon-reload"]
+            # Display this "systemd" execution management lifecycle command
+            config.pki_log.info(
+                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            # Execute this "systemd" execution management lifecycle command
+            subprocess.check_call(command)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure == True:
+                raise
+        return
+
+    def start(self, critical_failure=True, reload_daemon=True):
+        """PKI Deployment execution management 'start' method.
+
+           Executes a 'systemd start <service>' system command, or
+           an '/etc/init.d/pki-tomcatd start <instance>' system command.
+           on Debian systems.
+
+        Args:
+          critical_failure (boolean, optional):  Raise exception on failures;
+                                                 defaults to 'True'.
+          reload_daemon (boolean, optional):     Perform a reload of the
+                                                 'systemd' daemon prior to
+                                                 starting;
+                                                 defaults to 'True'.
+
+        Attributes:
+
+        Returns:
+
+        Raises:
+          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
+
+        Examples:
+
+        """
         try:
             service = None
+            # Execute the "systemd daemon-reload" management lifecycle command
+            if reload_daemon == True:
+                self.daemon_reload(critical_failure)
             # Compose this "systemd" execution management command
             if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 service = "pki-apached" + "@" +\
@@ -3097,6 +3176,26 @@ class Systemd:
         return
 
     def stop(self, critical_failure=True):
+        """PKI Deployment execution management 'stop' method.
+
+        Executes a 'systemd stop <service>' system command, or
+        an '/etc/init.d/pki-tomcatd stop <instance>' system command
+        on Debian systems.
+
+        Args:
+          critical_failure (boolean, optional):  Raise exception on failures;
+                                                 defaults to 'True'.
+
+        Attributes:
+
+        Returns:
+
+        Raises:
+          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
+
+        Examples:
+
+        """
         try:
             service = None
             # Compose this "systemd" execution management command
@@ -3128,10 +3227,37 @@ class Systemd:
                 raise
         return
 
-    def restart(self, critical_failure=True):
+    def restart(self, critical_failure=True, reload_daemon=True):
+        """PKI Deployment execution management 'restart' method.
+
+        Executes a 'systemd restart <service>' system command, or
+        an '/etc/init.d/pki-tomcatd restart <instance>' system command
+        on Debian systems.
+
+        Args:
+          critical_failure (boolean, optional):  Raise exception on failures;
+                                                 defaults to 'True'.
+          reload_daemon (boolean, optional):     Perform a reload of the
+                                                 'systemd' daemon prior to
+                                                 restarting;
+                                                 defaults to 'True'.
+
+        Attributes:
+
+        Returns:
+
+        Raises:
+          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
+
+        Examples:
+
+        """
         try:
             service = None
             # Compose this "systemd" execution management command
+            # Execute the "systemd daemon-reload" management lifecycle command
+            if reload_daemon == True:
+                self.daemon_reload(critical_failure)
             if self.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
                 service = "pki-apached" + "@" +\
                           self.master_dict['pki_instance_name'] + "." +\
