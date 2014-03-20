@@ -195,7 +195,7 @@ public class KeyClient extends Client {
         if (id == null || status == null) {
             throw new IllegalArgumentException("Key Id and status must be specified.");
         }
-        if ((status != KeyResource.KEY_STATUS_ACTIVE) && (status != KeyResource.KEY_STATUS_INACTIVE)) {
+        if ((!status.equalsIgnoreCase(KeyResource.KEY_STATUS_ACTIVE)) && (!status.equalsIgnoreCase(KeyResource.KEY_STATUS_INACTIVE))) {
             throw new IllegalArgumentException("Invalid status value.");
         }
         Response response = keyClient.modifyKeyStatus(id, status);

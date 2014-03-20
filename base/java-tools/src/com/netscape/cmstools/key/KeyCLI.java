@@ -36,6 +36,9 @@ public class KeyCLI extends CLI {
 
         addModule(new KeyFindCLI(this));
         addModule(new KeyRequestFindCLI(this));
+        addModule(new KeyShowCLI(this));
+        addModule(new KeyRequestShowCLI(this));
+        addModule(new KeyModifyCLI(this));
     }
 
     public String getFullName() {
