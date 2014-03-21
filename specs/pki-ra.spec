@@ -1,5 +1,5 @@
 Name:             pki-ra
-Version:          10.1.0
+Version:          10.1.1
 Release:          1%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
@@ -197,6 +197,19 @@ fi
 
 
 %changelog
+* Fri Mar 21 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.1-1
+- PKI TRAC Ticket #840 - pkispawn requires policycoreutils-python (mharmsen)
+- Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python (mharmsen)
+- PKI TRAC Ticket #868 - REST API get certs links missing segment
+                         (alee, mharmsen)
+- PKI TRAC Ticket #869 - f19 ipa-server-install fails at step 6/22 of cert sys
+                         install - systemctl start pki-tomcatd.target fails
+                         (mharmsen)
+- PKI TRAC Ticket #816 - pki-tomcat cannot be started after installation of
+                         ipa replica with ca
+                         (alee, cfu, edewata, mharmsen)
+- Updated version number.
+
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files
 - Update release number for release build

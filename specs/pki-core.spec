@@ -4,8 +4,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.1.0
-Release:          2%{?dist}
+Version:          10.1.1
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -967,6 +967,19 @@ fi
 
 
 %changelog
+* Fri Mar 21 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.1-1
+- PKI TRAC Ticket #840 - pkispawn requires policycoreutils-python (mharmsen)
+- Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python (mharmsen)
+- PKI TRAC Ticket #868 - REST API get certs links missing segment
+                         (alee, mharmsen)
+- PKI TRAC Ticket #869 - f19 ipa-server-install fails at step 6/22 of cert sys
+                         install - systemctl start pki-tomcatd.target fails
+                         (mharmsen)
+- PKI TRAC Ticket #816 - pki-tomcat cannot be started after installation of
+                         ipa replica with ca
+                         (alee, cfu, edewata, mharmsen)
+- Updated version number.
+
 * Wed Jan 29 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.0-2
 - Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python
 - TRAC Ticket #840 - pkispawn requires policycoreutils-python
