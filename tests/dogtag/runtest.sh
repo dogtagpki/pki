@@ -34,9 +34,8 @@
 . /opt/rhqa_pki/rhcs-shared.sh
 . /opt/rhqa_pki/rhcs-install-shared.sh
 . /opt/rhqa_pki/pki-user-cli-lib.sh
-. /opt/rhqa_pki/pki-config-lib.sh
-. /opt/rhqa_pki/pki-auth-plugin-lib.sh
 . /opt/rhqa_pki/env.sh
+. /opt/rhqa_pki/saving_codecoverage_results.sh
 
 # Include tests
 . ./acceptance/quickinstall/rhcs-install.sh
@@ -54,7 +53,6 @@
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
-. ./acceptance/cli-tests/pki-cert-cli/pki-bigInt.sh
 
 PACKAGE="pki-tools"
 
@@ -66,7 +64,7 @@ dir2="/opt/rhqa_pki/"
 cmd2="ant report"
 
 rlJournalStart
-    rlPhaseStartSetup "list files in /opt/rhqa_pki and begin code coverage"
+    rlPhaseStartSetup "list files in /opt/rhqa_pki"
 	rlRun "ls /opt/rhqa_pki" 0 "Listing files in /opt/rhqa_pki"
 	rlRun "export MASTER=`hostname`"
         rlRun "env|sort"
@@ -74,81 +72,100 @@ rlJournalStart
 
     rlPhaseStartSetup "RHCS tests"
 	#Execute pki user config tests
-        if [ "$QUICKINSTALL" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	TEST_ALL_UPPERCASE=$(echo $TEST_ALL | tr [a-z] [A-Z])
+	QUICKINSTALL_UPPERCASE=$(echo $QUICKINSTALL | tr [a-z] [A-Z])
+        if [ "$QUICKINSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
                   run_rhcs_install_subsystems
 		  run_pki-user-cli-user-ca_tests
         fi
-        if [ "$USER_ADD_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	USER_ADD_CA_UPPERCASE=$(echo $USER_ADD_CA | tr [a-z] [A-Z])
+        if [ "$USER_ADD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-add-ca tests
                   run_pki-user-cli-user-add-ca_tests
         fi
-        if [ "$USER_SHOW_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	USER_SHOW_CA_UPPERCASE=$(echo $USER_SHOW_CA | tr [a-z] [A-Z])
+        if [ "$USER_SHOW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-show-ca tests
                   run_pki-user-cli-user-show-ca_tests
         fi
-	if [ "$USER_MOD_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	USER_MOD_CA_UPPERCASE=$(echo $USER_MOD_CA | tr [a-z] [A-Z])
+	if [ "$USER_MOD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-mod-ca tests
                   run_pki-user-cli-user-mod-ca_tests
 	fi
-        if [ "$USER_FIND_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	USER_FIND_CA_UPPERCASE=$(echo $USER_FIND_CA | tr [a-z] [A-Z])
+        if [ "$USER_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-find-ca tests
 		  run_pki-user-cli-user-find-ca_tests
         fi
-        if [ "$USER_DEL_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	USER_DEL_CA_UPPERCASE=$(echo $USER_DEL_CA | tr [a-z] [A-Z])
+        if [ "$USER_DEL_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-del-ca tests
 		  run_pki-user-cli-user-del-ca_tests
         fi
-	if [ "$USER_MEM_ADD_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	USER_MEM_ADD_CA_UPPERCASE=$(echo $USER_MEM_ADD_CA | tr [a-z] [A-Z])
+	if [ "$USER_MEM_ADD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-mem-add-ca tests
                   run_pki-user-cli-user-membership-add-ca_tests
         fi
-	if [ "$USER_MEM_FIND_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	USER_MEM_FIND_CA_UPPERCASE=$(echo $USER_MEM_FIND_CA | tr [a-z] [A-Z])
+	if [ "$USER_MEM_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-mem-find-ca tests
                   run_pki-user-cli-user-membership-find-ca_tests
         fi
-        if [ "$USER_MEM_DEL_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	USER_MEM_DEL_CA_UPPERCASE=$(echo $USER_MEM_DEL_CA | tr [a-z] [A-Z])
+        if [ "$USER_MEM_DEL_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-mem-del-ca tests
                   run_pki-user-cli-user-membership-del-ca_tests
         fi
-	if [ "$CERT_TEST" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ]; then
+	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
+	if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		#Execute pki cert tests
 		 run_pki_cert
 		 run_pki_cert_show
 		 run_pki_cert_request_show
 	fi
-	if [ "$BIG_INT" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ]; then
+	BIG_INT_UPPERCASE=$(echo $BIG_INT | tr [a-z] [A-Z])
+	if [ "$BIG_INT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		#Execute pki bigInt tests
 		run_pki_big_int
 		run_pki_cert
 		run_pki_cert_show
 		run_pki_cert_request_show
 	fi
+	USER_CLEANUP_CA_UPPERCASE=$(echo $USER_CLEANUP_CA | tr [a-z] [A-Z])
         #Clean up role users (admin agent etc) created in CA
-        if [ "$USER_CLEANUP_CA" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+        if [ "$USER_CLEANUP_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-cleanup-ca tests
                   run_pki-user-cli-user-cleanup-ca_tests
-        fi
+	fi
         rlPhaseEnd
 
-        if [ "$DEV_JAVA_TESTS" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+	DEV_JAVA_TESTS_UPPERCASE=$(echo $DEV_JAVA_TESTS | tr [a-z] [A-Z])
+        if [ "$DEV_JAVA_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
         rlPhaseStartSetup "Dev Tests"
              run_dev_junit_tests
         rlPhaseEnd
         fi
 
-    if [ $CODE_COVERAGE = "TRUE" ] ; then
-        rlPhaseStartSetup "JACOCO Code coverage report"
-                rlRun "cp /tmp/jacoco.exec /opt/rhqa_pki/."
-                rlLog "ant task to create a report"
-                rlRun "cd $dir2 && $cmd2"
-                rlRun "ls /opt/rhqa_pki" 0 "Listing files in /opt/rhqa_pki"
-                rlLog "Jacoco coverage report can be viewed at http://`hostname`:8000/"
-                rlRun "screen -d -m sh -c 'cd $dir1 ; $cmd1'"
-		rhts-submit-log -l $dir1
-        rlPhaseEnd
-    fi
+	CODE_COVERAGE_UPPERCASE=$(echo $CODE_COVERAGE | tr [a-z] [A-Z])
+	if [ $CODE_COVERAGE_UPPERCASE = "TRUE" ] ; then
+	        rlPhaseStartSetup "JACOCO Code coverage report"
+        	        rlRun "cp /tmp/jacoco.exec /opt/rhqa_pki/."
+                	rlLog "ant task to create a report"
+	                rlRun "cd $dir2 && $cmd2"
+                	rlLog "Jacoco coverage report stored locally on $HOSTNAME can be viewed at http://$HOSTNAME:8000/"
+	                rlRun "screen -d -m sh -c 'cd $dir1 ; $cmd1'"
+			#Archive the codecoverage results 
+			if [ "$ARCHIVELOCATIONSERVER" != "" ] ; then
+				rlLog "Archiving results to $ARCHIVELOCATIONSERVER"
+				rlRun "backupCodeCoverageResults $dir1"
+			fi
+        	rlPhaseEnd
+	fi
     rlJournalPrintText
     report=/tmp/rhts.report.$RANDOM.txt
     makereport $report
     rhts-submit-log -l $report
 rlJournalEnd
+

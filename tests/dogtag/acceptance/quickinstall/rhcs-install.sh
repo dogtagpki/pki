@@ -100,7 +100,8 @@ run_rhcs_install_subsystems() {
 		yum -y install $CA_SERVER_PACKAGES
 		echo "export CA_SERVER_CERT_SUBJECT_NAME= CN=$HOSTNAME,O=redhat" >> /opt/rhqa_pki/env.sh
 		#codecoverage setup
-		if [ "$CODE_COVERAGE" = "TRUE" ] ; then
+		CODE_COVERAGE_UPPERCASE=$(echo $CODE_COVERAGE | tr [a-z] [A-Z])
+                if [ "$CODE_COVERAGE_UPPERCASE" = "TRUE" ] ; then	
 			rlLog "Setup for codecoverage"
 			yum -y install jacoco wget objectweb-asm4 screen
 

@@ -28,7 +28,7 @@ export TESTVERSION=1.0.8_RPM_IDENTIFIER
 
 BUILT_FILE=
 
-FILES=$(METADATA) runtest.sh Makefile PURPOSE shared acceptance dev_java_tests
+FILES=$(METADATA) runtest.sh Makefile PURPOSE shared acceptance dev_java_tests codecoverage
 
 .PHONY: all install download clean
 
@@ -57,6 +57,14 @@ run: $(FILES) build
 	cp ./shared/pki-auth-plugin-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-config-lib.sh
 	cp ./shared/pki-config-lib.sh /opt/rhqa_pki/.
+	rm -f /opt/rhqa_pki/id_rsa-host-beaker_archive.pub
+	cp  ./codecoverage/id_rsa-host-beaker_archive.pub /opt/rhqa_pki/id_rsa-host-beaker_archive.pub
+	rm -f /opt/rhqa_pki/id_rsa-host-beaker_archive
+	cp  ./codecoverage/id_rsa-host-beaker_archive /opt/rhqa_pki/id_rsa-host-beaker_archive
+	rm -f /opt/rhqa_pki/known_hosts_archivehost
+	cp  ./codecoverage/known_hosts_archivehost /opt/rhqa_pki/known_hosts_archivehost
+	rm -f /opt/rhqa_pki/saving_codecoverage_results.sh
+	cp  ./codecoverage/saving_codecoverage_results.sh /opt/rhqa_pki/saving_codecoverage_results.sh
 	./runtest.sh
 
 build: $(BUILT_FILES)
@@ -66,8 +74,6 @@ build: $(BUILT_FILES)
 	chmod a+x ./shared/pki-user-cli-lib.sh
 	chmod a+x ./shared/dummycert1.pem
 	chmod a+x ./shared/pki-cert-cli-lib.sh
-	chmod a+x ./shared/pki-auth-plugin-lib.sh
-	chmod a+x ./shared/pki-config-lib.sh
 	chmod a+x runtest.sh
 	#quickinstall
 	chmod a+x ./acceptance/quickinstall/rhcs-install.sh
@@ -102,7 +108,7 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Package containing libraries for rhcs beaker tests" >> $(METADATA)
 	@echo "Type:            Acceptance" >> $(METADATA)
-	@echo "TestTime:        180m" >> $(METADATA)
+	@echo "TestTime:        360m" >> $(METADATA)
 	@echo "RunFor:          rhcs" >> $(METADATA)
 	@echo "Requires:        expect" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
