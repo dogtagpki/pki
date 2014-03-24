@@ -24,7 +24,8 @@ var ConnectionModel = Model.extend({
     parseResponse: function(response) {
         return {
             id: response.id,
-            status: response.Status
+            status: response.Status,
+            properties: response.Properties.Property
         };
     },
     parseXML: function(data) {
@@ -124,7 +125,39 @@ var ConnectionDialog = Dialog.extend({
     }
 });
 
-var ConnectionPage = Page.extend({
+var ConnectionsTable = Table.extend({
+    initialize: function(options) {
+        var self = this;
+        ConnectionsTable.__super__.initialize.call(self, options);
+        self.url = options.url;
+        self.container = options.container;
+    },
+    open: function(item) {
+        var self = this;
+
+        // load entry properties
+        item.model.fetch({
+            success: function(model, response, options) {
+                self.container.load(self.url, function(response, status, xhr) {
+                    $("h1 span[name='id']", self.container).text(model.id);
+
+                    var fields = $("div[name='connection']", self.container);
+                    $("input[name='id']", fields).val(model.id);
+                    $("input[name='status']", fields).val(model.get("status"));
+
+                    var properties = new PropertiesTable({
+                        el: $("table[name='connection-properties']"),
+                        properties: model.get("properties"),
+                        pageSize: 10
+                    });
+                    properties.render();
+                });
+            }
+        });
+    }
+});
+
+var ConnectionsPage = Page.extend({
     load: function(container) {
         var editDialog = new ConnectionDialog({
             el: $("#connection-dialog"),
@@ -132,10 +165,12 @@ var ConnectionPage = Page.extend({
             readonly: ["id", "status"]
         });
 
-        var table = new Table({
+        var table = new ConnectionsTable({
+            url: "connection.html",
             el: $("table[name='connections']"),
             collection: new ConnectionCollection(),
-            editDialog: editDialog
+            editDialog: editDialog,
+            container: container
         });
         table.render();
     }
