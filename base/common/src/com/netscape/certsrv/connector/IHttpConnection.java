@@ -49,4 +49,16 @@ public interface IHttpConnection {
      */
     public HttpResponse send(String msg)
             throws EBaseException;
+
+    /**
+     * Sets the HttpRequest URI before send
+     * @param uri the uri for the HttpRequest
+     */
+    public void setRequestURI(String uri)
+            throws EBaseException;
+
+    /**
+     * Gets the HttpRequest URI
+     */
+    public String getRequestURI();
 }

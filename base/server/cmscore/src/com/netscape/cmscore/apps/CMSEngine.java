@@ -801,16 +801,6 @@ public class CMSEngine implements ICMSEngine {
         return new HttpConnection(authority, factory, timeout);
     }
 
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory, String op) {
-        return new HttpConnection(authority, factory, op);
-    }
-
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory, int timeout, String op) {
-        return new HttpConnection(authority, factory, timeout, op);
-    }
-
     public IResender getResender(IAuthority authority, String nickname,
             IRemoteAuthority remote, int interval) {
         return new Resender(authority, nickname, remote, interval);

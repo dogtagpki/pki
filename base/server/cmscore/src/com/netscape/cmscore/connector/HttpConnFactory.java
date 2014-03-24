@@ -113,7 +113,7 @@ public class HttpConnFactory {
         CMS.debug("leaving HttpConnFactory init.");
     }
 
-    private IHttpConnection createConnection(String op) throws EBaseException {
+    private IHttpConnection createConnection() throws EBaseException {
 
         IHttpConnection retConn = null;
 
@@ -122,20 +122,11 @@ public class HttpConnFactory {
         try {
             ISocketFactory tFactory = new JssSSLSocketFactory(mNickname);
 
-            if (op == null) {
-                if (mTimeout == 0) {
-                    retConn = CMS.getHttpConnection(mDest, tFactory);
-                } else {
-                    retConn = CMS.getHttpConnection(mDest, tFactory, mTimeout);
-                }
+            if (mTimeout == 0) {
+                retConn = CMS.getHttpConnection(mDest, tFactory);
             } else {
-                if (mTimeout == 0) {
-                    retConn = CMS.getHttpConnection(mDest, tFactory, op);
-                } else {
-                    retConn = CMS.getHttpConnection(mDest, tFactory, mTimeout, op);
-                }
+                retConn = CMS.getHttpConnection(mDest, tFactory, mTimeout);
             }
-
         } catch (Exception e) {
 
             CMS.debug("can't make new Htpp Connection");
@@ -150,7 +141,7 @@ public class HttpConnFactory {
     /**
      * makes the minumum number of connections
      */
-    private void makeMinimum(String op) throws EBaseException {
+    private void makeMinimum() throws EBaseException {
 
         CMS.debug("In HttpConnFactory.makeMinimum.");
         int increment;
@@ -165,7 +156,7 @@ public class HttpConnFactory {
             CMS.debug(
                     "increasing minimum connections by " + increment);
             for (int i = increment - 1; i >= 0; i--) {
-                mConns[i] = createConnection(op);
+                mConns[i] = createConnection();
             }
             mTotal += increment;
             mNumConns += increment;
@@ -198,15 +189,6 @@ public class HttpConnFactory {
         return getConn(true);
     }
 
-    /*
-     * See getConn() above
-     * @param op operation to determine the receiving servlet (multi-uri support)
-     */
-    public IHttpConnection getConn(String op)
-            throws EBaseException {
-        return getConn(true, op);
-    }
-
     /**
      * Returns a Http connection - a clone of the master connection.
      * All connections should be returned to the factory using returnConn()
@@ -231,20 +213,11 @@ public class HttpConnFactory {
      */
     public synchronized IHttpConnection getConn(boolean waitForConn)
             throws EBaseException {
-        return getConn(waitForConn, null);
-    }
-
-    /*
-     * See getConn() above
-     * @param op operation to determine the receiving servlet (multi-uri support)
-     */
-    public synchronized IHttpConnection getConn(boolean waitForConn, String op)
-            throws EBaseException {
         boolean waited = false;
 
         CMS.debug("In HttpConnFactory.getConn");
         if (mNumConns == 0)
-            makeMinimum(op);
+            makeMinimum();
         if (mNumConns == 0) {
             if (!waitForConn)
                 return null;

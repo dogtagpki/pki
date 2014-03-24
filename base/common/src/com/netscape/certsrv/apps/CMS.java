@@ -850,19 +850,6 @@ public final class CMS {
      *
      * @param authority remote authority
      * @param factory socket factory
-     * @param op operation to determine receiving servlet (multi-uri support)
-     * @return http connection to the remote authority
-     */
-    public static IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory, String op) {
-        return _engine.getHttpConnection(authority, factory, op);
-    }
-
-    /**
-     * Retrieves the HTTP Connection for use with connector.
-     *
-     * @param authority remote authority
-     * @param factory socket factory
      * @param timeout return error if connection cannot be established within
      *            the timeout period
      * @return http connection to the remote authority
@@ -870,21 +857,6 @@ public final class CMS {
     public static IHttpConnection getHttpConnection(IRemoteAuthority authority,
             ISocketFactory factory, int timeout) {
         return _engine.getHttpConnection(authority, factory, timeout);
-    }
-
-    /**
-     * Retrieves the HTTP Connection for use with connector.
-     *
-     * @param authority remote authority
-     * @param factory socket factory
-     * @param timeout return error if connection cannot be established within
-     *            the timeout period
-     * @param op operation to determine receiving servlet (multi-uri support)
-     * @return http connection to the remote authority
-     */
-    public static IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory, int timeout, String op) {
-        return _engine.getHttpConnection(authority, factory, timeout, op);
     }
 
     /**

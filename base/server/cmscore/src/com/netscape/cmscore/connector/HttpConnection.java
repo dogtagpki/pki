@@ -60,14 +60,16 @@ public class HttpConnection implements IHttpConnection {
         return false;
     }
 
-    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory) {
-        this(dest, factory, null);
+    public void setRequestURI(String uri)
+            throws EBaseException {
+        mHttpreq.setURI(uri);
     }
 
-    /*
-     * @param op operation to determine the receiving servlet (multi-uri support)
-     */
-    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory, String op) {
+    public String getRequestURI() {
+        return mHttpreq.getURI();
+    }
+
+    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory) {
         mDest = dest;
         mReqEncoder = new HttpRequestEncoder();
         mHttpClient = new HttpClient(factory);
@@ -75,11 +77,10 @@ public class HttpConnection implements IHttpConnection {
             Debug.trace("Created HttpClient");
         try {
             mHttpreq.setMethod("POST");
-            if (op == null)
+            // in case of multi-uri, uri will be set right before send
+            //   by calling setRequestURI(uri)
+            if (mDest.getURI() != null)
                 mHttpreq.setURI(mDest.getURI());
-            else {
-                mHttpreq.setURI(mDest.getURI(op));
-            }
 
             String contentType = dest.getContentType();
             if (contentType != null) {
@@ -110,26 +111,20 @@ public class HttpConnection implements IHttpConnection {
         }
     }
 
-    // Inserted by beomsuk
-    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory, int timeout) {
-        this(dest, factory, timeout, null);
-    }
-
     /*
      * @param op operation to determine the receiving servlet (multi-uri support)
      */
-    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory, int timeout, String op) {
+    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory, int timeout) {
         mDest = dest;
         mReqEncoder = new HttpRequestEncoder();
         mHttpClient = new HttpClient(factory);
         CMS.debug("HttpConn:Created HttpConnection: factory " + factory + "client " + mHttpClient);
         try {
             mHttpreq.setMethod("POST");
-            if (op == null)
+            // in case of multi-uri, uri will be set right before send
+            //   by calling setRequestURI(op)
+            if (mDest.getURI() != null)
                 mHttpreq.setURI(mDest.getURI());
-            else {
-                mHttpreq.setURI(mDest.getURI(op));
-            }
 
             String contentType = dest.getContentType();
             if (contentType != null) {
@@ -163,6 +158,7 @@ public class HttpConnection implements IHttpConnection {
         CMS.debug("in HttpConnection.send " + this);
         if (Debug.ON)
             Debug.trace("encoding request ");
+
         String content = null;
 
         try {
@@ -221,6 +217,10 @@ public class HttpConnection implements IHttpConnection {
             throws EBaseException {
         HttpResponse resp = null;
         boolean reconnect = false;
+
+        if (getRequestURI() == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "URI not set in HttpRequest"));
+        }
 
         mHttpreq.setHeader("Content-Length",
                 Integer.toString(content.length()));

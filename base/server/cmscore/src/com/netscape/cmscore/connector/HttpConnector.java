@@ -108,11 +108,23 @@ public class HttpConnector implements IConnector {
     // cfu
     public HttpResponse send(String op, String msg)
         throws EBaseException {
-        CMS.debug("HttpConnector: send(): cfu");
+        CMS.debug("HttpConnector: send(): begins");
         HttpResponse resp = null;
         IHttpConnection curConn = null;
+        String uri;
+
+        if (op != null) {
+            uri = mDest.getURI(op);
+        } else {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "HttpConnector.send(): op null"));
+        }
+        if (uri == null) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "HttpConnector.send(): cannot find uri for op"));
+        }
+
         try {
-            curConn = mConnFactory.getConn(op);
+            curConn = mConnFactory.getConn();
+            curConn.setRequestURI(uri);
             resp = curConn.send(msg);
         } catch (EBaseException e) {
             CMS.debug("HttpConnector: send():"+ e.toString());

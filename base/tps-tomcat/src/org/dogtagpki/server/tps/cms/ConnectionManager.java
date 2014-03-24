@@ -18,9 +18,9 @@
 
 package org.dogtagpki.server.tps.cms;
 
-import java.io.ByteArrayInputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
+
 import javax.ws.rs.core.MediaType;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
-import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * ConnectionManager is a class for connection management
