@@ -131,7 +131,7 @@ var Page = Backbone.View.extend({
 
         self.url = options.url;
     },
-    load: function() {
+    load: function(container) {
     }
 });
 
@@ -173,7 +173,7 @@ var Navigation = Backbone.View.extend({
             return;
         }
         self.content.load(page.url, function(response, status, xhr) {
-            page.load();
+            page.load(self.content);
         });
     }
 });
@@ -427,13 +427,13 @@ var TableItem = Backbone.View.extend({
 
             if (td.hasClass("pki-select-column")) {
                 // generate a unique id based on model id
-                var id = prefix + self.model.id;
+                var id = prefix + self.id();
 
                 // set the unique id and value for checkbox
                 var checkbox = $("input[type='checkbox']", td);
                 checkbox.attr("id", id);
                 checkbox.attr("checked", false);
-                checkbox.val(self.model.id);
+                checkbox.val(self.id());
 
                 // point the label to the checkbox and make it visible
                 var label = $("label", td);
@@ -445,7 +445,7 @@ var TableItem = Backbone.View.extend({
                 td.empty();
                 $("<a/>", {
                     href: "#",
-                    text: self.model.id,
+                    text: self.id(),
                     click: function(e) {
                         self.table.open(self);
                         e.preventDefault();
@@ -453,13 +453,24 @@ var TableItem = Backbone.View.extend({
                 }).appendTo(td);
 
             } else {
-                // show cell content in plain text
-                td.text(self.model.get(name));
-                // update cell automatically on model change
-                self.model.on("change:" + name, function(event) {
-                    td.text(self.model.get(name));
-                });
+                self.renderColumn(td);
             }
+        });
+    },
+    id: function() {
+        var self = this;
+        return self.model.id;
+    },
+    renderColumn: function(td) {
+        var self = this;
+        var name = td.attr("name");
+
+        // show cell content in plain text
+        td.text(self.model.get(name));
+
+        // update cell automatically on model change
+        self.model.on("change:" + name, function(event) {
+            td.text(self.model.get(name));
         });
     }
 });
@@ -471,6 +482,7 @@ var Table = Backbone.View.extend({
         Table.__super__.initialize.call(self, options);
         self.addDialog = options.addDialog;
         self.editDialog = options.editDialog;
+        self.tableItem = options.tableItem || TableItem;
 
         // number of table rows
         self.pageSize = options.pageSize || 5;
@@ -530,7 +542,7 @@ var Table = Backbone.View.extend({
         self.items = [];
         for (var i = 0; i < self.pageSize; i++) {
             var tr = self.template.clone();
-            var item = new TableItem({
+            var item = new self.tableItem({
                 el: tr,
                 table: self
             });
@@ -578,8 +590,6 @@ var Table = Backbone.View.extend({
             self.render();
             e.preventDefault();
         });
-
-        self.render();
     },
     render: function() {
         var self = this;
@@ -596,36 +606,46 @@ var Table = Backbone.View.extend({
             reset: true,
             success: function(collection, response, options) {
 
-                // clear selection
-                self.selectAllCheckbox.attr("checked", false);
-
-                // display total entries
-                self.totalEntriesField.text(self.totalEntries());
-
-                // display current page number
-                self.pageField.val(self.page);
-
-                // calculate and display total number of pages
-                self.totalPages = Math.floor(Math.max(0, self.totalEntries() - 1) / self.pageSize) + 1;
-                self.totalPagesField.text(self.totalPages);
+                // update controls
+                self.renderControls();
 
                 // display entries
                 _(self.items).each(function(item, index) {
-                    if (index < self.collection.length) {
-                        // show entry in existing row
-                        item.model = self.collection.at(index);
-                        item.render();
-
-                    } else {
-                        // clear unused row
-                        item.reset();
-                    }
+                    self.renderRow(item, index);
                 });
             },
             error: function(collection, response, options) {
                 alert(response.statusText);
             }
         });
+    },
+    renderControls: function() {
+        var self = this;
+
+        // clear selection
+        self.selectAllCheckbox.attr("checked", false);
+
+        // display total entries
+        self.totalEntriesField.text(self.totalEntries());
+
+        // display current page number
+        self.pageField.val(self.page);
+
+        // calculate and display total number of pages
+        self.totalPages = Math.floor(Math.max(0, self.totalEntries() - 1) / self.pageSize) + 1;
+        self.totalPagesField.text(self.totalPages);
+    },
+    renderRow: function(item, index) {
+        var self = this;
+        if (index < self.collection.length) {
+            // show entry in existing row
+            item.model = self.collection.at(index);
+            item.render();
+
+        } else {
+            // clear unused row
+            item.reset();
+        }
     },
     totalEntries: function() {
         var self = this;

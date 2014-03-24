@@ -132,10 +132,11 @@ var ProfilePage = Page.extend({
             readonly: ["id", "status"]
         });
 
-        new Table({
+        var table = new Table({
             el: $("table[name='profiles']"),
             collection: new ProfileCollection(),
             editDialog: editDialog
         });
+        table.render();
     }
 });

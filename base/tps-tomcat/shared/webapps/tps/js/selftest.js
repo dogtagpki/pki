@@ -61,17 +61,18 @@ var SelfTestCollection = Collection.extend({
 });
 
 var SelfTestPage = Page.extend({
-    load: function() {
+    load: function(container) {
         var editDialog = new Dialog({
             el: $("#selftest-dialog"),
             title: "Edit Self Test",
             readonly: ["id", "enabledAtStartup", "criticalAtStartup", "enabledOnDemand", "criticalOnDemand"]
         });
 
-        new Table({
+        var table = new Table({
             el: $("table[name='selftests']"),
             collection: new SelfTestCollection(),
             editDialog: editDialog
         });
+        table.render();
     }
 });

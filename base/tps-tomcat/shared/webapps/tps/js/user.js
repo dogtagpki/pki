@@ -119,7 +119,7 @@ var UserDialog = Dialog.extend({
 });
 
 var UserPage = Page.extend({
-    load: function() {
+    load: function(container) {
         var addDialog = new UserDialog({
             el: $("#user-dialog"),
             title: "Add User",
@@ -134,11 +134,12 @@ var UserPage = Page.extend({
             actions: ["cancel", "save"]
         });
 
-        new Table({
+        var table = new Table({
             el: $("table[name='users']"),
             collection: new UserCollection(),
             addDialog: addDialog,
             editDialog: editDialog
         });
+        table.render();
     }
 });

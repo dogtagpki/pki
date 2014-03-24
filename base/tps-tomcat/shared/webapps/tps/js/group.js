@@ -56,7 +56,7 @@ var GroupCollection = Collection.extend({
 });
 
 var GroupPage = Page.extend({
-    load: function() {
+    load: function(container) {
         var addDialog = new Dialog({
             el: $("#group-dialog"),
             title: "Add Group",
@@ -70,11 +70,12 @@ var GroupPage = Page.extend({
             actions: ["cancel", "save"]
         });
 
-        new Table({
+        var table = new Table({
             el: $("table[name='groups']"),
             collection: new GroupCollection(),
             addDialog: addDialog,
             editDialog: editDialog
         });
+        table.render();
     }
 });

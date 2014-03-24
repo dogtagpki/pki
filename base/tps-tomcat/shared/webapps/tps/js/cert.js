@@ -73,7 +73,7 @@ var CertificateCollection = Collection.extend({
 });
 
 var CertificatePage = Page.extend({
-    load: function() {
+    load: function(container) {
         var editDialog = new Dialog({
             el: $("#certificate-dialog"),
             title: "Edit Certificate",
@@ -81,10 +81,11 @@ var CertificatePage = Page.extend({
             "keyType", "status", "createTime", "modifyTime"]
         });
 
-        new Table({
+        var table = new Table({
             el: $("table[name='certificates']"),
             collection: new CertificateCollection(),
             editDialog: editDialog
         });
+        table.render();
     }
 });

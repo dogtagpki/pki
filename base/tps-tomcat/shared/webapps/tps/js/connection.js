@@ -125,17 +125,18 @@ var ConnectionDialog = Dialog.extend({
 });
 
 var ConnectionPage = Page.extend({
-    load: function() {
+    load: function(container) {
         var editDialog = new ConnectionDialog({
             el: $("#connection-dialog"),
             title: "Edit Connection",
             readonly: ["id", "status"]
         });
 
-        new Table({
+        var table = new Table({
             el: $("table[name='connections']"),
             collection: new ConnectionCollection(),
             editDialog: editDialog
         });
+        table.render();
     }
 });
