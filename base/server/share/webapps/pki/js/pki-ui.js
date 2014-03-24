@@ -680,3 +680,70 @@ var Table = Backbone.View.extend({
         self.render();
     }
 });
+
+var PropertiesTableItem = TableItem.extend({
+    initialize: function(options) {
+        var self = this;
+        PropertiesTableItem.__super__.initialize.call(self, options);
+    },
+    id: function() {
+        var self = this;
+        return self.property.name;
+    },
+    renderColumn: function(td) {
+        var self = this;
+        td.text(self.property.value);
+    }
+});
+
+var PropertiesTable = Table.extend({
+    initialize: function(options) {
+        var self = this;
+        options.tableItem = options.tableItem || PropertiesTableItem;
+        PropertiesTable.__super__.initialize.call(self, options);
+        self.properties = options.properties;
+    },
+    render: function() {
+        var self = this;
+
+        // perform manual filter
+        var filter = self.searchField.val();
+        if (filter === "") {
+            self.entries = self.properties;
+
+        } else {
+            self.entries = [];
+            _(self.properties).each(function(item, index) {
+                // select properties whose names or values contain the filter
+                if (item.name.indexOf(filter) >= 0 || item.value.indexOf(filter) >= 0) {
+                    self.entries.push(item);
+                }
+            });
+        }
+
+        self.renderControls();
+
+        _(self.items).each(function(item, index) {
+            self.renderRow(item, index);
+        });
+    },
+    totalEntries: function() {
+        var self = this;
+        return self.entries.length;
+    },
+    open: function(item) {
+    },
+    renderRow: function(item, index) {
+        var self = this;
+        var i = (self.page - 1) * self.pageSize + index;
+        if (i < self.entries.length) {
+            // show entry in existing row
+            item.property = self.entries[i];
+            item.render();
+
+        } else {
+            // clear unused row
+            item.reset();
+        }
+    }
+});

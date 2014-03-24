@@ -78,8 +78,17 @@ table tfoot tr th {
   padding: 0 0 0 13px;
 }
 
+.pki-property-name-column {
+  width: 500px;
+}
+
 .pagination {
   margin: 4px;
+}
+
+.pki-fields fieldset label {
+  min-width: 100px;
+  display: inline-block;
 }
 
 .pki-table-actions {

@@ -24,7 +24,8 @@ var ProfileModel = Model.extend({
     parseResponse: function(response) {
         return {
             id: response.id,
-            status: response.Status
+            status: response.Status,
+            properties: response.Properties.Property
         };
     },
     parseXML: function(data) {
@@ -124,18 +125,59 @@ var ProfileDialog = Dialog.extend({
     }
 });
 
-var ProfilePage = Page.extend({
-    load: function() {
+var ProfilesTable = Table.extend({
+    initialize: function(options) {
+        var self = this;
+        ProfilesTable.__super__.initialize.call(self, options);
+        self.url = options.url;
+        self.container = options.container;
+    },
+    open: function(item) {
+        var self = this;
+
+        // load entry properties
+        item.model.fetch({
+            success: function(model, response, options) {
+                self.container.load(self.url, function(response, status, xhr) {
+                    $("h1 span[name='id']", self.container).text(model.id);
+
+                    var fields = $("div[name='profile']", self.container);
+                    $("input[name='id']", fields).val(model.id);
+                    $("input[name='status']", fields).val(model.get("status"));
+
+                    var properties = new PropertiesTable({
+                        el: $("table[name='profile-properties']"),
+                        properties: model.get("properties"),
+                        pageSize: 10
+                    });
+                    properties.render();
+                });
+            }
+        });
+    }
+});
+
+var ProfilesPage = Page.extend({
+    initialize: function(options) {
+        var self = this;
+        ProfilesPage.__super__.initialize.call(self, options);
+        self.container = options.container;
+    },
+    load: function(container) {
+        var self = this;
+
         var editDialog = new ProfileDialog({
             el: $("#profile-dialog"),
             title: "Edit Profile",
             readonly: ["id", "status"]
         });
 
-        var table = new Table({
+        var table = new ProfilesTable({
+            url: "profile.html",
             el: $("table[name='profiles']"),
             collection: new ProfileCollection(),
-            editDialog: editDialog
+            editDialog: editDialog,
+            container: container
         });
         table.render();
     }
