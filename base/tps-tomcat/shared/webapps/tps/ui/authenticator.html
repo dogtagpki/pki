@@ -1,0 +1,77 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2014 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<h1>Authenticator <span name="id"></span></h1>
+
+<div name="authenticator" class="pki-fields">
+<fieldset>
+    <label>Authenticator ID</label>
+    <input name="id" readonly>
+    <br>
+    <label>Status</label>
+    <input name="status" readonly>
+    <br>
+</fieldset>
+</div>
+
+<h2>Properties</h2>
+
+<table name="authenticator-properties">
+<thead>
+    <tr>
+         <th class="pki-table-actions" colspan="3">
+             <span name="search">
+                 <input name="search" type="text" placeholder="Search...">
+             </span>
+             <span name="actions">
+             </span>
+         </th>
+    </tr>
+    <tr>
+        <th class="pki-select-column"><input id="authenticator_selectall" type="checkbox"><label for="authenticator_selectall">&nbsp;</label></th>
+        <th class="pki-property-name-column">Name</th>
+        <th>Value</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td class="pki-select-column"><input id="authenticator_select" type="checkbox"><label for="authenticator_select">&nbsp;</label></td>
+        <td name="id" class="pki-property-name-column"><a href="authenticator.html">&nbsp;</a></td>
+        <td name="status">&nbsp;</td>
+    </tr>
+</tbody>
+<tfoot>
+    <tr>
+         <th class="pki-table-actions" colspan="3">
+             <span name="info">
+                 Total: <span name="totalEntries">0</span> entries
+             </span>
+             <span name="page-controls">
+                 <ul class="pagination">
+                     <li><a href="#" name="first"><span class="i fa fa-angle-double-left"></span></a></li>
+                     <li><a href="#" name="prev"><span class="i fa fa-angle-left"></span></a></li>
+                     <li><a href="#" name="next"><span class="i fa fa-angle-right"></span></a></li>
+                     <li><a href="#" name="last"><span class="i fa fa-angle-double-right"></span></a></li>
+                 </ul>
+             </span>
+             <span name="page-jump">
+                 Page <input name="page" type="text" value="1"> of <span name="totalPages">1</span>
+             </span>
+         </th>
+    </tr>
+</tfoot>
+</table>
