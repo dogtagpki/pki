@@ -96,13 +96,13 @@ var UserDialog = Dialog.extend({
             return;
         }
 
-        var attributes = self.model.get("attributes");
+        var attributes = self.attributes.attributes;
         if (attributes) {
             var value = attributes.tpsProfiles;
             input.val(value);
         }
     },
-    saveField: function(input, attributes) {
+    saveField: function(input) {
         var self = this;
 
         var name = input.attr("name");
@@ -111,10 +111,12 @@ var UserDialog = Dialog.extend({
             return;
         }
 
-        var attrs = attributes["attributes"];
-        if (attrs == undefined) attrs = {};
-        attrs.tpsProfiles = input.val();
-        attributes["attributes"] = attrs;
+        var attributes = self.attributes.attributes;
+        if (attributes == undefined) {
+            attributes = {};
+            self.attributes.attributes = attributes;
+        }
+        attributes.tpsProfiles = input.val();
     }
 });
 

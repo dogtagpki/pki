@@ -29,8 +29,27 @@
   display: none;
 }
 
+.rcue-dialog header {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  margin: 0;
+  padding: 16px 16px 0 22px;
+}
+
+.rcue-dialog fieldset {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 75px;
+  bottom: 60px;
+  padding: 16px 16px 16px 44px;
+}
+
 .rcue-dialog footer {
   right: 0;
+  padding: 0 16px 16px 22px;
 }
 
 input[readonly="readonly"] {

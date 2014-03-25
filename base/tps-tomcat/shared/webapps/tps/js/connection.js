@@ -145,9 +145,26 @@ var ConnectionsTable = Table.extend({
                     $("input[name='id']", fields).val(model.id);
                     $("input[name='status']", fields).val(model.get("status"));
 
+                    var dialog = $("#property-dialog");
+
+                    var addDialog = new Dialog({
+                        el: dialog,
+                        title: "Add Property",
+                        actions: ["cancel", "add"]
+                    });
+
+                    var editDialog = new Dialog({
+                        el: dialog,
+                        title: "Edit Property",
+                        readonly: ["name"],
+                        actions: ["cancel", "save"]
+                    });
+
                     var properties = new PropertiesTable({
                         el: $("table[name='connection-properties']"),
                         properties: model.get("properties"),
+                        addDialog: addDialog,
+                        editDialog: editDialog,
                         pageSize: 10
                     });
                     properties.render();

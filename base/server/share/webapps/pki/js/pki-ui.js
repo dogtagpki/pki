@@ -199,6 +199,13 @@ var Dialog = Backbone.View.extend({
                 self.actions.push(action);
             });
         }
+
+        self.handlers = {};
+
+        // add default cancel handler
+        self.handlers["cancel"] = function() {
+            self.close();
+        };
     },
     render: function() {
         var self = this;
@@ -212,8 +219,8 @@ var Dialog = Backbone.View.extend({
             e.preventDefault();
         });
 
-        // set/unset readonly fields
-        $("input", self.$el).each(function(index) {
+        // setup input fields
+        self.$("input").each(function(index) {
             var input = $(this);
             var name = input.attr("name");
             if ( _.contains(self.readonly, name)) {
@@ -223,6 +230,7 @@ var Dialog = Backbone.View.extend({
             }
         });
 
+        // setup buttons
         self.$("button").each(function(index) {
             var button = $(this);
             var action = button.attr("name");
@@ -231,41 +239,27 @@ var Dialog = Backbone.View.extend({
                 // enable buttons for specified actions
                 button.show();
                 button.click(function(e) {
-                    self.performAction(action);
+                    var handler = self.handlers[action];
+                    handler.call(self);
                     e.preventDefault();
                 });
+
             } else {
                 // hide unused buttons
                 button.hide();
             }
         });
 
-        self.loadFields();
-        // save the fields back into model so the model
-        // can detect which fields are changed
-        self.saveFields();
+        self.load();
     },
-    performAction: function(action) {
+    handler: function(name, handler) {
         var self = this;
-
-        if (action == "add") {
-            self.add();
-
-        } else if (action == "save") {
-            self.save();
-
-        } else {
-            self.close();
-        }
+        self.handlers[name] = handler;
     },
     open: function() {
         var self = this;
-        if (self.model.isNew()) {
-            self.render();
-            self.$el.show();
-        } else {
-            self.load();
-        }
+        self.render();
+        self.$el.show();
     },
     close: function() {
         var self = this;
@@ -281,18 +275,6 @@ var Dialog = Backbone.View.extend({
     },
     load: function() {
         var self = this;
-        self.model.fetch({
-            success: function(model, response, options) {
-                self.render();
-                self.$el.show();
-            },
-            error: function(model, response, options) {
-                alert("ERROR: " + response);
-            }
-        });
-    },
-    loadFields: function() {
-        var self = this;
 
         $("input", self.$el).each(function(index) {
             var input = $(this);
@@ -302,86 +284,23 @@ var Dialog = Backbone.View.extend({
     loadField: function(input) {
         var self = this;
         var name = input.attr("name");
-        var value = self.model.get(name);
+        var value = self.attributes[name];
         if (!value) value = "";
         input.val(value);
-    },
-    add: function() {
-        var self = this;
-
-        self.saveFields();
-
-        var changedAttributes = self.model.changedAttributes();
-        if (!changedAttributes) return;
-
-        // save non-empty attributes with POST
-        self.model.save(changedAttributes, {
-            wait: true,
-            success: function(model, response, options) {
-                if (self.success) self.success.call();
-                self.close();
-            },
-            error: function(model, response, options) {
-                if (response.status == 201) {
-                    if (self.success) self.success.call();
-                    self.close();
-                    return;
-                }
-                alert("ERROR: " + response.responseText);
-                if (self.error) self.error.call();
-            }
-        });
     },
     save: function() {
         var self = this;
 
-        self.saveFields();
-
-        var changedAttributes = self.model.changedAttributes();
-        if (!changedAttributes) return;
-
-        // save changed attributes with PATCH
-        self.model.save(changedAttributes, {
-            patch: true,
-            wait: true,
-            success: function(model, response, options) {
-                if (self.success) self.success.call();
-                self.close();
-            },
-            error: function(model, response, options) {
-                if (response.status == 200) {
-                    if (self.success) self.success.call();
-                    self.close();
-                    return;
-                }
-                alert("ERROR: " + response.responseText);
-                if (self.error) self.error.call();
-            }
-        });
-    },
-    saveFields: function() {
-        var self = this;
-
-        var attributes = {};
         $("input", self.$el).each(function(index) {
             var input = $(this);
-            self.saveField(input, attributes);
+            self.saveField(input);
         });
-        self.model.set(attributes);
     },
-    saveField: function(input, attributes) {
+    saveField: function(input) {
         var self = this;
         var name = input.attr("name");
         var value = input.val();
-        attributes[name] = value;
-    },
-    done: function(success) {
-        var self = this;
-        self.success = success;
-    },
-    fail: function(error) {
-        var self = this;
-        self.error = error;
+        self.attributes[name] = value;
     }
 });
 
@@ -653,30 +572,102 @@ var Table = Backbone.View.extend({
     },
     open: function(item) {
         var self = this;
+
         var dialog = self.editDialog;
-        dialog.model = item.model;
-        dialog.once("close", function(event) {
-            item.render();
+        var model = item.model;
+        dialog.attributes = _.clone(model.attributes);
+
+        dialog.handler("save", function() {
+
+            // save attribute changes
+            dialog.save();
+            model.set(dialog.attributes);
+
+            // if nothing has changed, return
+            var changedAttributes = model.changedAttributes();
+            if (!changedAttributes) return;
+
+            // save changed attributes with PATCH
+            model.save(changedAttributes, {
+                patch: true,
+                wait: true,
+                success: function(model, response, options) {
+                    // redraw table after saving entries
+                    self.render();
+                    dialog.close();
+                },
+                error: function(model, response, options) {
+                    if (response.status == 200) {
+                        // redraw table after saving entries
+                        self.render();
+                        dialog.close();
+                        return;
+                    }
+                    alert("ERROR: " + response.responseText);
+                }
+            });
         });
-        dialog.open();
+
+        // load data from server
+        model.fetch({
+            success: function(model, response, options) {
+                dialog.open();
+            },
+            error: function(model, response, options) {
+                alert("ERROR: " + response);
+            }
+        });
     },
     add: function() {
         var self = this;
+
         var dialog = self.addDialog;
-        dialog.model = new self.collection.model();
-        dialog.done(function() {
-            self.render();
+        dialog.attributes = {};
+
+        dialog.handler("add", function() {
+
+            // save new attributes
+            dialog.save();
+            var attributes = {};
+            _.each(dialog.attributes, function(value, key) {
+                if (value == "") return;
+                attributes[key] = value;
+            });
+
+            // save new entry with POST
+            var model = new self.collection.model();
+            model.save(attributes, {
+                wait: true,
+                success: function(model, response, options) {
+                    // redraw table after adding new entry
+                    self.render();
+                    dialog.close();
+                },
+                error: function(model, response, options) {
+                    if (response.status == 201) {
+                        // redraw table after adding new entry
+                        self.render();
+                        dialog.close();
+                        return;
+                    }
+                    alert("ERROR: " + response.responseText);
+                }
+            });
         });
+
         dialog.open();
     },
     remove: function(items) {
         var self = this;
+
+        // remove selected entries
         _.each(items, function(id, index) {
             var model = self.collection.get(id);
             model.destroy({
                 wait: true
             });
         });
+
         self.render();
     }
 });
@@ -727,12 +718,6 @@ var PropertiesTable = Table.extend({
             self.renderRow(item, index);
         });
     },
-    totalEntries: function() {
-        var self = this;
-        return self.entries.length;
-    },
-    open: function(item) {
-    },
     renderRow: function(item, index) {
         var self = this;
         var i = (self.page - 1) * self.pageSize + index;
@@ -745,5 +730,63 @@ var PropertiesTable = Table.extend({
             // clear unused row
             item.reset();
         }
+    },
+    totalEntries: function() {
+        var self = this;
+        return self.entries.length;
+    },
+    open: function(item) {
+        var self = this;
+
+        var dialog = self.editDialog;
+        dialog.attributes = _.clone(item.property);
+
+        dialog.handler("save", function() {
+
+            // save property changes
+            dialog.save();
+            _.extend(item.property, dialog.attributes);
+
+            // redraw table after saving property changes
+            self.render();
+            dialog.close();
+        });
+
+        dialog.open();
+    },
+    add: function() {
+        var self = this;
+
+        var dialog = self.addDialog;
+        dialog.attributes = {};
+
+        dialog.handler("add", function() {
+
+            // save new property
+            dialog.save();
+            self.properties.push(dialog.attributes);
+
+            // sort properties by name
+            self.properties = _.sortBy(self.properties, function(property) {
+                return property.name;
+            });
+
+            // redraw table after adding new property
+            self.render();
+            dialog.close();
+        });
+
+        dialog.open();
+    },
+    remove: function(items) {
+        var self = this;
+
+        // remove selected properties
+        self.properties = _.reject(self.properties, function(property) {
+            return _.contains(items, property.name);
+        });
+
+        // redraw table after removing properties
+        self.render();
     }
 });

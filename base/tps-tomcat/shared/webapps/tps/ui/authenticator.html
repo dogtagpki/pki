@@ -38,6 +38,8 @@
                  <input name="search" type="text" placeholder="Search...">
              </span>
              <span name="actions">
+                 <button name="add">Add</button>
+                 <button name="remove">Remove</button>
              </span>
          </th>
     </tr>
@@ -75,3 +77,21 @@
     </tr>
 </tfoot>
 </table>
+
+<div id="property-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Edit Property</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Name</label><input name="name" type="text"><br>
+            <label>Value</label><input name="value" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="add" class="primary">Add</button>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
