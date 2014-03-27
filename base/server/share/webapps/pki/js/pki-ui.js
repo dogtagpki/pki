@@ -202,8 +202,11 @@ var Dialog = Backbone.View.extend({
 
         self.handlers = {};
 
-        // add default cancel handler
+        // add default handlers
         self.handlers["cancel"] = function() {
+            self.close();
+        };
+        self.handlers["close"] = function() {
             self.close();
         };
     },
@@ -360,16 +363,7 @@ var TableItem = Backbone.View.extend({
                 label.show();
 
             } else if (name == "id") {
-                // setup link to edit dialog
-                td.empty();
-                $("<a/>", {
-                    href: "#",
-                    text: self.id(),
-                    click: function(e) {
-                        self.table.open(self);
-                        e.preventDefault();
-                    }
-                }).appendTo(td);
+                self.renderIDColumn(td);
 
             } else {
                 self.renderColumn(td);
@@ -380,17 +374,26 @@ var TableItem = Backbone.View.extend({
         var self = this;
         return self.model.id;
     },
+    renderIDColumn: function(td) {
+        var self = this;
+
+        // show content as link to open item
+        td.empty();
+        $("<a/>", {
+            href: "#",
+            text: self.id(),
+            click: function(e) {
+                self.table.open(self);
+                e.preventDefault();
+            }
+        }).appendTo(td);
+    },
     renderColumn: function(td) {
         var self = this;
+
+        // show content in plain text
         var name = td.attr("name");
-
-        // show cell content in plain text
         td.text(self.model.get(name));
-
-        // update cell automatically on model change
-        self.model.on("change:" + name, function(event) {
-            td.text(self.model.get(name));
-        });
     }
 });
 
@@ -401,6 +404,7 @@ var Table = Backbone.View.extend({
         Table.__super__.initialize.call(self, options);
         self.addDialog = options.addDialog;
         self.editDialog = options.editDialog;
+        self.viewDialog = options.viewDialog;
         self.tableItem = options.tableItem || TableItem;
 
         // number of table rows
@@ -411,6 +415,7 @@ var Table = Backbone.View.extend({
         self.totalPages = 1;
 
         self.thead = $("thead", self.$el);
+        self.buttons = $(".pki-table-buttons", self.thead);
 
         // setup search field handler
         self.searchField = $("input[name='search']", self.thead);
@@ -423,12 +428,12 @@ var Table = Backbone.View.extend({
         });
 
         // setup add button handler
-        $("button[name='add']", self.thead).click(function(e) {
+        $("button[name='add']", self.buttons).click(function(e) {
             self.add();
         });
 
         // setup remove button handler
-        $("button[name='remove']", self.thead).click(function(e) {
+        $("button[name='remove']", self.buttons).click(function(e) {
             var items = [];
             var message = "Are you sure you want to remove the following entries?\n";
 
@@ -509,6 +514,21 @@ var Table = Backbone.View.extend({
             self.render();
             e.preventDefault();
         });
+    },
+    readOnly: function(value) {
+        var self = this;
+        if (value === undefined) {
+            var display = self.buttons.css("display");
+            value = display == "none";
+
+        } else if (value) {
+            self.buttons.hide();
+
+        } else {
+            self.buttons.show();
+        }
+
+        return value;
     },
     render: function() {
         var self = this;
@@ -738,19 +758,26 @@ var PropertiesTable = Table.extend({
     open: function(item) {
         var self = this;
 
-        var dialog = self.editDialog;
+        var dialog;
+        if (self.readOnly()) {
+            dialog = self.viewDialog;
+
+        } else {
+            dialog = self.editDialog;
+
+            dialog.handler("save", function() {
+
+                // save property changes
+                dialog.save();
+                _.extend(item.property, dialog.attributes);
+
+                // redraw table after saving property changes
+                self.render();
+                dialog.close();
+            });
+		}
+
         dialog.attributes = _.clone(item.property);
-
-        dialog.handler("save", function() {
-
-            // save property changes
-            dialog.save();
-            _.extend(item.property, dialog.attributes);
-
-            // redraw table after saving property changes
-            self.render();
-            dialog.close();
-        });
 
         dialog.open();
     },
@@ -788,5 +815,199 @@ var PropertiesTable = Table.extend({
 
         // redraw table after removing properties
         self.render();
+    }
+});
+
+var DetailsPage = Page.extend({
+    initialize: function(options) {
+        var self = this;
+        DetailsPage.__super__.initialize.call(self, options);
+        self.model = options.model;
+        self.mode = "view";
+    },
+    load: function() {
+        var self = this;
+
+        self.menu = self.$(".pki-menu");
+        self.editLink = $("a[name='edit']", self.menu);
+        self.enableLink = $("a[name='enable']", self.menu);
+        self.disableLink = $("a[name='disable']", self.menu);
+
+        self.buttons = self.$(".pki-buttons");
+        self.cancelButton = $("button[name='cancel']", self.buttons);
+        self.saveButton = $("button[name='save']", self.buttons);
+
+        self.idField = self.$("input[name='id']");
+        self.statusField = self.$("input[name='status']");
+
+        var table = self.$("table[name='properties']");
+        self.propertiesButtons = $(".pki-table-buttons", table);
+        self.addButton = $("button[name='add']", self.propertiesButtons);
+        self.removeButton = $("button[name='remove']", self.propertiesButtons);
+
+        self.editLink.click(function(e) {
+            self.mode = "edit";
+            self.render();
+            e.preventDefault();
+        });
+
+        self.enableLink.click(function(e) {
+            var message = "Are you sure you want to enable this entry?";
+            if (!confirm(message)) return;
+            self.model.enable({
+                success: function(data,textStatus, jqXHR) {
+                    self.attributes = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert("ERROR: " + textStatus);
+                }
+            });
+        });
+
+        self.disableLink.click(function(e) {
+            var message = "Are you sure you want to disable this entry?";
+            if (!confirm(message)) return;
+            self.model.disable({
+                success: function(data,textStatus, jqXHR) {
+                    self.attributes = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert("ERROR: " + textStatus);
+                }
+            });
+        });
+
+        self.cancelButton.click(function(e) {
+            self.mode = "view";
+            self.render();
+            e.preventDefault();
+        });
+
+        self.saveButton.click(function(e) {
+            self.save();
+            e.preventDefault();
+        });
+
+        var dialog = self.$("#property-dialog");
+
+        var addDialog = new Dialog({
+            el: dialog,
+            title: "Add Property",
+            actions: ["cancel", "add"]
+        });
+
+        var editDialog = new Dialog({
+            el: dialog,
+            title: "Edit Property",
+            readonly: ["name"],
+            actions: ["cancel", "save"]
+        });
+
+        var viewDialog = new Dialog({
+            el: dialog,
+            title: "Property",
+            readonly: ["name", "value"],
+            actions: ["close"]
+        });
+
+        self.propertiesTable = new PropertiesTable({
+            el: table,
+            addDialog: addDialog,
+            editDialog: editDialog,
+            viewDialog: viewDialog,
+            pageSize: 10
+        });
+
+        self.render();
+    },
+    render: function() {
+        var self = this;
+
+        self.model.fetch({
+            success: function(model, response, options) {
+
+                self.attributes = _.clone(self.model.attributes);
+                self.propertiesTable.properties = self.attributes.properties;
+
+                self.$("span[name='id']").text(self.model.id);
+
+                var status = self.model.get("status");
+                if (status == "Disabled") {
+                    self.enableLink.show();
+                    self.disableLink.hide();
+                } else if (status == "Enabled") {
+                    self.enableLink.hide();
+                    self.disableLink.show();
+                }
+
+                if (self.mode == "view") {
+                    self.menu.show();
+                    self.buttons.hide();
+                    self.propertiesButtons.hide();
+
+                } else {
+                    self.menu.hide();
+                    self.buttons.show();
+                    self.propertiesButtons.show();
+                }
+
+                self.$(".pki-fields input").each(function(index) {
+                    var input = $(this);
+                    self.renderField(input);
+                });
+
+                self.propertiesTable.render();
+            }
+        });
+    },
+    renderField: function(input) {
+        var self = this;
+        var name = input.attr("name");
+        var value = self.attributes[name];
+        if (!value) value = "";
+        input.val(value);
+    },
+    save: function() {
+        var self = this;
+
+        self.$(".pki-fields input").each(function(index) {
+            var input = $(this);
+            self.saveField(input);
+        });
+
+        var attributes = {};
+        _.each(self.attributes, function(value, name) {
+            if (value == "") return;
+            attributes[name] = value;
+        });
+
+        attributes.properties = self.propertiesTable.properties;
+
+        // save changed attributes with PATCH
+        self.model.save(attributes, {
+            patch: true,
+            wait: true,
+            success: function(model, response, options) {
+                // redraw table after saving entries
+                self.mode = "view";
+                self.render();
+            },
+            error: function(model, response, options) {
+                if (response.status == 200) {
+                    // redraw table after saving entries
+                    self.mode = "view";
+                    self.render();
+                    return;
+                }
+                alert("ERROR: " + response.responseText);
+            }
+        });
+    },
+    saveField: function(input) {
+        var self = this;
+        var name = input.attr("name");
+        self.attributes[name] = input.val();
     }
 });

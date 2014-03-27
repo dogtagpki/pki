@@ -15,29 +15,47 @@
      Copyright (C) 2014 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
-<h1>Profile <span name="id"></span></h1>
+<div class="pki-header">
+
+<span class="pki-title">Profile <span name="id"></span></span>
+
+<span class="pki-actions">
+
+<span class="pki-menu" style="display: none;">
+<a name="edit" href="#">Edit Profile</a><br>
+<a name="enable" href="#">Enable Profile</a><a name="disable" href="#" style="display: none;">Disable Profile</a><br>
+</span>
+
+<span class="pki-buttons" style="display: none;">
+<button name="cancel">Cancel</button>
+<button name="save" class="primary">Save</button>
+</span>
+
+</span>
+
+</div>
 
 <div name="profile" class="pki-fields">
 <fieldset>
     <label>Profile ID</label>
-    <input name="id" readonly>
+    <input name="profileID" readonly="readonly">
     <br>
     <label>Status</label>
-    <input name="status" readonly>
+    <input name="status" readonly="readonly">
     <br>
 </fieldset>
 </div>
 
 <h2>Properties</h2>
 
-<table name="profile-properties">
+<table name="properties">
 <thead>
     <tr>
          <th class="pki-table-actions" colspan="3">
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
              </span>
-             <span name="actions">
+             <span class="pki-table-buttons" style="display: none;">
                  <button name="add">Add</button>
                  <button name="remove">Remove</button>
              </span>
@@ -52,7 +70,7 @@
 <tbody>
     <tr>
         <td class="pki-select-column"><input id="profile_select" type="checkbox"><label for="profile_select">&nbsp;</label></td>
-        <td name="id" class="pki-property-name-column"><a href="profile.html">&nbsp;</a></td>
+        <td name="id" class="pki-property-name-column"><a href="#">&nbsp;</a></td>
         <td name="status">&nbsp;</td>
     </tr>
 </tbody>
@@ -91,6 +109,7 @@
         <footer>
             <button name="add" class="primary">Add</button>
             <button name="save" class="primary">Save</button>
+            <button name="close" class="primary">Close</button>
             <button name="cancel">Cancel</button>
         </footer>
     </div>

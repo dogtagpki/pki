@@ -25,6 +25,35 @@
 @import url("pki-tables.css");
 @import url("pki-dialogs.css");
 
+.pki-header {
+  margin-bottom: 10px;
+}
+
+.pki-title {
+  font-family: "Open Sans",sans-serif;
+  font-size: 30px;
+  margin: 0;
+  color: inherit;
+  font-weight: 500;
+  line-height: 1.1;
+  display: inline-block;
+}
+
+.pki-actions {
+  float: right;
+  display: inline-block;
+}
+
+.pki-fields {
+  margin-bottom: 5px;
+}
+
+.pki-fields fieldset label {
+  min-width: 100px;
+  display: inline-block;
+  line-height: 30px;
+}
+
 .rcue-dialog-background {
   display: none;
 }
@@ -105,11 +134,6 @@ table tfoot tr th {
   margin: 4px;
 }
 
-.pki-fields fieldset label {
-  min-width: 100px;
-  display: inline-block;
-}
-
 .pki-table-actions {
   padding: 1px;
   border-top: none;
@@ -127,7 +151,7 @@ table tfoot tr th {
   min-width: 50px;
 }
 
-.pki-table-actions span[name="actions"] {
+.pki-table-buttons {
   float: right;
 }
 

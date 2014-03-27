@@ -15,7 +15,9 @@
      Copyright (C) 2013 Red Hat, Inc.
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
-<h1>Profiles</h1>
+<div class="pki-header">
+<span class="pki-title">Profiles</span>
+</div>
 
 <table name="profiles">
 <thead>
@@ -24,7 +26,7 @@
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
              </span>
-             <span name="actions">
+             <span class="pki-table-buttons">
                  <button name="add">Add</button>
                  <button name="remove">Remove</button>
              </span>
@@ -64,23 +66,3 @@
     </tr>
 </tfoot>
 </table>
-
-<div id="profile-dialog" class="rcue-dialog-background">
-    <div class="rcue-dialog">
-        <header>
-            <h1>Edit Profile</h1>
-            <a class="rcue-button-close" href="#"></a>
-        </header>
-        <fieldset>
-            <label>Profile ID</label><input name="id" type="text"><br>
-            <label>Status</label><input name="status" type="text"><br>
-        </fieldset>
-        <footer>
-            <button name="approve">Approve</button>
-            <button name="reject">Reject</button>
-            <button name="enable" class="primary">Enable</button>
-            <button name="disable" class="primary">Disable</button>
-            <button name="cancel">Cancel</button>
-        </footer>
-    </div>
-</div>

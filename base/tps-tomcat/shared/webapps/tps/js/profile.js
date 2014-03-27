@@ -82,117 +82,31 @@ var ProfileCollection = Collection.extend({
     }
 });
 
-var ProfileDialog = Dialog.extend({
-    render: function() {
-        var self = this;
-        var status = self.model.get("status");
-        if (status == "Enabled") {
-            self.actions = ["disable", "cancel"];
-        } else if (status == "Disabled") {
-            self.actions = ["enable", "cancel"];
-        } else {
-            alert("ERROR: Invalid status: " + status);
-        }
-        ProfileDialog.__super__.render.call(self);
-    },
-    performAction: function(action) {
-        var self = this;
-
-        if (action == "enable") {
-            self.model.enable({
-                success: function(data,textStatus, jqXHR) {
-                    self.close();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert("ERROR: " + textStatus);
-                }
-            });
-
-        } else if (action == "disable") {
-            self.model.disable({
-                success: function(data,textStatus, jqXHR) {
-                    self.close();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert("ERROR: " + textStatus);
-                }
-            });
-
-        } else {
-            ProfileDialog.__super__.performAction.call(self, action);
-        }
-    }
-});
-
 var ProfilesTable = Table.extend({
     initialize: function(options) {
         var self = this;
         ProfilesTable.__super__.initialize.call(self, options);
-        self.url = options.url;
         self.container = options.container;
     },
     open: function(item) {
         var self = this;
 
-        // load entry properties
-        item.model.fetch({
-            success: function(model, response, options) {
-                self.container.load(self.url, function(response, status, xhr) {
-                    $("h1 span[name='id']", self.container).text(model.id);
+        var page = new DetailsPage({
+            el: self.container,
+            model: item.model
+        });
 
-                    var fields = $("div[name='profile']", self.container);
-                    $("input[name='id']", fields).val(model.id);
-                    $("input[name='status']", fields).val(model.get("status"));
-
-                    var dialog = $("#property-dialog");
-
-                    var addDialog = new Dialog({
-                        el: dialog,
-                        title: "Add Property",
-                        actions: ["cancel", "add"]
-                    });
-
-                    var editDialog = new Dialog({
-                        el: dialog,
-                        title: "Edit Property",
-                        readonly: ["name"],
-                        actions: ["cancel", "save"]
-                    });
-
-                    var properties = new PropertiesTable({
-                        el: $("table[name='profile-properties']"),
-                        properties: model.get("properties"),
-                        addDialog: addDialog,
-                        editDialog: editDialog,
-                        pageSize: 10
-                    });
-                    properties.render();
-                });
-            }
+        self.container.load("profile.html", function(response, status, xhr) {
+            page.load();
         });
     }
 });
 
 var ProfilesPage = Page.extend({
-    initialize: function(options) {
-        var self = this;
-        ProfilesPage.__super__.initialize.call(self, options);
-        self.container = options.container;
-    },
     load: function(container) {
-        var self = this;
-
-        var editDialog = new ProfileDialog({
-            el: $("#profile-dialog"),
-            title: "Edit Profile",
-            readonly: ["id", "status"]
-        });
-
         var table = new ProfilesTable({
-            url: "profile.html",
             el: $("table[name='profiles']"),
             collection: new ProfileCollection(),
-            editDialog: editDialog,
             container: container
         });
         table.render();
