@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -205,23 +206,34 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
             ConnectionRecord record = database.getRecord(connectionID);
 
-            String status = record.getStatus();
-            if (!"Disabled".equals(status)) {
+            // only disabled connection can be updated
+            if (!"Disabled".equals(record.getStatus())) {
                 throw new ForbiddenException("Unable to update connection " + connectionID);
             }
 
-            status = connectionData.getStatus();
-            if (!"Enabled".equals(status)) {
-                throw new ForbiddenException("Invalid connection status: " + status);
+            // update status if specified
+            String status = connectionData.getStatus();
+            if (status != null && !"Disabled".equals(status)) {
+                if (!"Enabled".equals(status)) {
+                    throw new ForbiddenException("Invalid connection status: " + status);
+                }
+
+                // if user doesn't have rights, set to pending
+                Principal principal = servletRequest.getUserPrincipal();
+                if (database.requiresApproval() && !database.canApprove(principal)) {
+                    status = "Pending_Approval";
+                }
+
+                // enable connection
+                record.setStatus(status);
             }
 
-            Principal principal = servletRequest.getUserPrincipal();
-            if (database.requiresApproval() && !database.canApprove(principal)) {
-                status = "Pending_Approval";
+            // update properties if specified
+            Map<String, String> properties = connectionData.getProperties();
+            if (properties != null) {
+                record.setProperties(properties);
             }
 
-            record.setStatus(status);
-            record.setProperties(connectionData.getProperties());
             database.updateRecord(connectionID, record);
 
             connectionData = createConnectionData(database.getRecord(connectionID));

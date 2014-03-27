@@ -59,9 +59,11 @@ public class ConnectionCLI extends CLI {
         if (showProperties) {
             System.out.println("  Properties:");
             Map<String, String> properties = connectionData.getProperties();
-            for (String name : properties.keySet()) {
-                String value = properties.get(name);
-                System.out.println("    " + name + ": " + value);
+            if (properties != null) {
+                for (String name : properties.keySet()) {
+                    String value = properties.get(name);
+                    System.out.println("    " + name + ": " + value);
+                }
             }
         }
 

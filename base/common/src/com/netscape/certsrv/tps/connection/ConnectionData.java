@@ -21,7 +21,6 @@ package com.netscape.certsrv.tps.connection;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,7 @@ public class ConnectionData {
 
     String id;
     String status;
-    Map<String, String> properties = new LinkedHashMap<String, String>();
+    Map<String, String> properties;
 
     Link link;
 
@@ -91,24 +90,7 @@ public class ConnectionData {
     }
 
     public void setProperties(Map<String, String> properties) {
-        this.properties.clear();
-        this.properties.putAll(properties);
-    }
-
-    public Collection<String> getPropertyNames() {
-        return properties.keySet();
-    }
-
-    public String getProperty(String name) {
-        return properties.get(name);
-    }
-
-    public void setProperty(String name, String value) {
-        properties.put(name, value);
-    }
-
-    public String removeProperty(String name) {
-        return properties.remove(name);
+        this.properties = properties;
     }
 
     public static class MapAdapter extends XmlAdapter<PropertyList, Map<String, String>> {
@@ -223,8 +205,11 @@ public class ConnectionData {
         ConnectionData before = new ConnectionData();
         before.setID("connection1");
         before.setStatus("ENABLED");
-        before.setProperty("param1", "value1");
-        before.setProperty("param2", "value2");
+
+        Map<String, String> properties = new LinkedHashMap<String, String>();
+        properties.put("param1", "value1");
+        properties.put("param2", "value2");
+        before.setProperties(properties);
 
         String string = before.toString();
         System.out.println(string);
