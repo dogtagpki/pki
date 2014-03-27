@@ -3690,6 +3690,7 @@ class ConfigClient:
         # Create 'Subsystem Certificate'
         if not self.clone:
             if self.standalone and self.external_step_two:
+                data.generateSubsystemCert = "true"
                 # Stand-alone PKI (Step 2)
                 cert4 = self.create_system_cert("subsystem")
                 # Load the Stand-alone PKI 'Subsystem Certificate' (Step 2)
@@ -3698,9 +3699,20 @@ class ConfigClient:
                     self.master_dict['pki_external_subsystem_cert_path'],
                     self.subsystem)
                 systemCerts.append(cert4)
+            elif len(system_list) >= 2:
+                # Existing PKI Instance
+                data.generateSubsystemCert = "false"
+                for subsystem in system_list:
+                    dst = self.master_dict['pki_instance_path'] + '/conf/' + \
+                        subsystem.lower() + '/CS.cfg'
+                    if subsystem != self.subsystem and os.path.exists(dst):
+                        cert4 = self.retrieve_existing_subsystem_cert(dst)
+                        systemCerts.append(cert4)
+                        break
             else:
                 # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
                 # Subordinate CA, or External CA
+                data.generateSubsystemCert = "true"
                 cert4 = self.create_system_cert("subsystem")
                 systemCerts.append(cert4)
 
@@ -3807,6 +3819,11 @@ class ConfigClient:
             data.secureConn = "true"
         else:
             data.secureConn = "false"
+        if config.str2bool(self.master_dict['pki_share_db']):
+            data.sharedDB = "true"
+            data.sharedDBUserDN = self.master_dict['pki_share_dbuser_dn']
+        else:
+            data.sharedDB = "false"
 
     def set_backup_parameters(self, data):
         if config.str2bool(self.master_dict['pki_backup_keys']):
@@ -3955,6 +3972,21 @@ class ConfigClient:
         cert.request = cs_cfg.get(cstype + ".sslserver.certreq")
         cert.subjectDN = self.master_dict["pki_ssl_server_subject_dn"]
         cert.token = cs_cfg.get(cstype + ".sslserver.tokenname")
+        return cert
+
+    def retrieve_existing_subsystem_cert(self, cfg_file):
+        cs_cfg = PKIConfigParser.read_simple_configuration_file(cfg_file)
+        cstype = cs_cfg.get('cs.type').lower()
+        cert = pki.system.SystemCertData()
+        cert.tag = self.master_dict["pki_subsystem_tag"]
+        cert.keyAlgorithm = cs_cfg.get("cloning.subsystem.keyalgorithm")
+        cert.keySize = self.master_dict["pki_subsystem_key_size"]
+        cert.keyType = cs_cfg.get("cloning.subsystem.keytype")
+        cert.nickname = cs_cfg.get(cstype + ".subsystem.nickname")
+        cert.cert = cs_cfg.get(cstype + ".subsystem.cert")
+        cert.request = cs_cfg.get(cstype + ".subsystem.certreq")
+        cert.subjectDN = cs_cfg.get("cloning.subsystem.dn")
+        cert.token = cs_cfg.get(cstype + ".subsystem.tokenname")
         return cert
 
 class PKIDeployer:

@@ -88,6 +88,11 @@ public class ConfigurationRequest {
     // TKS/TPS shared secret parameters
     private static final String IMPORT_SHARED_SECRET = "importSharedSecret";
 
+    // Parameters for shared tomcat instances
+    private static final String GENERATE_SUBSYSTEM_CERT="generateSubsystemCert";
+    private static final String SHARED_DB = "sharedDB";
+    private static final String SHARED_DBUSER_DN = "sharedDBUserDN";
+
     //defaults
     public static final String TOKEN_DEFAULT = "Internal Key Storage Token";
     public static final String NEW_DOMAIN = "newdomain";
@@ -252,6 +257,15 @@ public class ConfigurationRequest {
     @XmlElement(defaultValue="false")
     protected String importSharedSecret;
 
+    @XmlElement(defaultValue="true")
+    protected String generateSubsystemCert;
+
+    @XmlElement(defaultValue="false")
+    protected String sharedDB;
+
+    @XmlElement
+    protected String sharedDBUserDN;
+
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -309,6 +323,10 @@ public class ConfigurationRequest {
         kraUri = form.getFirst(KRA_URI);
         enableServerSideKeyGen = form.getFirst(ENABLE_SERVER_SIDE_KEYGEN);
         importSharedSecret = form.getFirst(IMPORT_SHARED_SECRET);
+
+        generateSubsystemCert = form.getFirst(GENERATE_SUBSYSTEM_CERT);
+        sharedDB = form.getFirst(SHARED_DB);
+        sharedDBUserDN = form.getFirst(SHARED_DBUSER_DN);
     }
 
     public String getSubsystemName() {
@@ -905,6 +923,30 @@ public class ConfigurationRequest {
         this.importSharedSecret = importSharedSecret;
     }
 
+    public boolean getGenerateSubsystemCert() {
+        return generateSubsystemCert != null && generateSubsystemCert.equalsIgnoreCase("true");
+    }
+
+    public void setGenerateSubsystemCert(String generateSubsystemCert) {
+        this.generateSubsystemCert = generateSubsystemCert;
+    }
+
+    public boolean getSharedDB() {
+        return sharedDB != null && sharedDB.equalsIgnoreCase("true");
+    }
+
+    public void setSharedDB(String sharedDB) {
+        this.sharedDB = sharedDB;
+    }
+
+    public String getSharedDBUserDN() {
+        return sharedDBUserDN;
+    }
+
+    public void setSharedDBUserDN(String sharedDBUserDN) {
+        this.sharedDBUserDN = sharedDBUserDN;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -959,6 +1001,9 @@ public class ConfigurationRequest {
                ", tksUri=" + tksUri +
                ", enableServerSideKeyGen=" + enableServerSideKeyGen +
                ", importSharedSecret=" + importSharedSecret +
+               ", generateSubsystemCert=" + generateSubsystemCert +
+               ", sharedDB=" +  sharedDB +
+               ", sharedDBUserDN=" + sharedDBUserDN +
                "]";
     }
 }

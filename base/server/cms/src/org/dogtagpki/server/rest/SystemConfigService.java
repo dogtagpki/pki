@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -39,11 +40,15 @@ import javax.ws.rs.core.UriInfo;
 
 import netscape.security.x509.X509CertImpl;
 
+import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.util.IncorrectPasswordException;
 
 import com.netscape.certsrv.apps.CMS;
@@ -205,8 +210,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             // CA Info Panel
             caInfoPanel(data, subsystemNick);
 
-            // retrieve and import CA cert
-
             // TKS Info Panel
             tksInfoPanel(data, subsystemNick);
 
@@ -269,6 +272,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         boolean generateServerCert = data.getGenerateServerCert().equalsIgnoreCase("false")? false : true;
+        boolean generateSubsystemCert = data.getGenerateSubsystemCert();
+
         boolean hasSigningCert = false;
         Vector<Cert> certs = new Vector<Cert>();
         try {
@@ -323,16 +328,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
 
                 if (!generateServerCert && ct.equals("sslserver")) {
-                    if (!cdata.getToken().equals("internal")) {
-                        cs.putString(csSubsystem + ".cert.sslserver.nickname", cdata.getNickname());
-                    } else {
-                        cs.putString(csSubsystem + ".cert.sslserver.nickname", data.getToken() +
-                                ":" + cdata.getNickname());
-                    }
-                    cs.putString(csSubsystem + ".sslserver.nickname", cdata.getNickname());
-                    cs.putString(csSubsystem + ".sslserver.cert", cdata.getCert());
-                    cs.putString(csSubsystem + ".sslserver.certreq", cdata.getRequest());
-                    cs.putString(csSubsystem + ".sslserver.tokenname", cdata.getToken());
+                    updateConfiguration(data, cdata, "sslserver");
+                    continue;
+                }
+
+                if (!generateSubsystemCert && ct.equals("subsystem")) {
+                    // update the details for the shared subsystem cert here.
+                    updateConfiguration(data, cdata, "subsystem");
+
+                    // get parameters needed for cloning
+                    updateCloneConfiguration(cdata, "subsystem");
                     continue;
                 }
 
@@ -574,7 +579,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         try {
-            ConfigurationUtils.setupDBUser();
+            if (!data.getSharedDB()) ConfigurationUtils.setupDBUser();
         } catch (Exception e) {
             e.printStackTrace();
             throw new PKIException("Errors in creating or updating dbuser: " + e);
@@ -636,6 +641,40 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         response.setStatus(SUCCESS);
         return response;
+    }
+
+    private void updateCloneConfiguration(SystemCertData cdata, String tag) throws NotInitializedException,
+            ObjectNotFoundException, TokenException {
+        // TODO - some of these parameters may only be valid for RSA
+        CryptoManager cryptoManager = CryptoManager.getInstance();
+        X509Certificate cert = cryptoManager.findCertByNickname(cdata.getNickname());
+        PublicKey pubk = cert.getPublicKey();
+        byte[] exponent = CryptoUtil.getPublicExponent(pubk);
+        byte[] modulus = CryptoUtil.getModulus(pubk);
+        PrivateKey privk = cryptoManager.findPrivKeyByCert(cert);
+
+        cs.putString("preop.cert." + tag + ".pubkey.modulus", CryptoUtil.byte2string(modulus));
+        cs.putString("preop.cert." + tag + ".pubkey.exponent", CryptoUtil.byte2string(exponent));
+        cs.putString("preop.cert." + tag + ".privkey.id", CryptoUtil.byte2string(privk.getUniqueID()));
+        cs.putString("preop.cert." + tag + ".dn", cdata.getSubjectDN());
+        cs.putString("preop.cert." + tag + ".keyalgorithm", cdata.getKeyAlgorithm());
+        cs.putString("preop.cert." + tag + ".keytype", cdata.getKeyType());
+        cs.putString("preop.cert." + tag + ".nickname", cdata.getNickname());
+    }
+
+    private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) {
+        if (cdata.getToken().equals("Internal Key Storage Token")) {
+            cs.putString(csSubsystem + ".cert." + tag + ".nickname", cdata.getNickname());
+        } else {
+            cs.putString(csSubsystem + ".cert." + tag + ".nickname", data.getToken() +
+                    ":" + cdata.getNickname());
+        }
+
+        cs.putString(csSubsystem + "." + tag + ".nickname", cdata.getNickname());
+        cs.putString(csSubsystem + "." + tag + ".tokenname", cdata.getToken());
+        cs.putString(csSubsystem + "." + tag + ".certreq", cdata.getRequest());
+        cs.putString(csSubsystem + "." + tag + ".cert", cdata.getCert());
+        cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());
     }
 
     private void caInfoPanel(ConfigurationRequest data, String subsystemNick) {
@@ -816,6 +855,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
                 cs.putString("preop.internaldb.replicationpwd", replicationpwd);
                 cs.putString("preop.database.removeData", "false");
+                if (data.getSharedDB()) {
+                    cs.putString("preop.internaldb.dbuser", data.getSharedDBUserDN());
+                }
                 cs.commit(false);
 
                 if (data.getIsClone().equals("true")) {
@@ -1232,6 +1274,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (data.getGenerateServerCert() == null) {
             data.setGenerateServerCert("true");
+        }
+
+        if (! data.getGenerateSubsystemCert()) {
+            // No subsystem cert to be generated.  All interactions use a shared subsystem cert.
+            if (data.getSharedDB() && StringUtils.isEmpty(data.getSharedDBUserDN())) {
+                throw new BadRequestException("Shared db user DN not provided");
+            }
+        } else {
+            // if the subsystem cert is not shared, we do not need to worry about sharing the db
+            data.setSharedDB("false");
         }
 
         if (csType.equals("TPS")) {

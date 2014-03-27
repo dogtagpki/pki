@@ -1425,8 +1425,8 @@ public class ConfigurationUtils {
         String instancePath = cs.getString("instanceRoot");
         String instanceId = cs.getString("instanceId");
         String cstype = cs.getString("cs.type");
-
-        String dbuser = "uid=" + DBUSER + ",ou= people," + baseDN;
+        String dbuser = cs.getString("preop.internaldb.dbuser",
+                "uid=" + DBUSER + ",ou=people," + baseDN);
 
         String configDir = instancePath + File.separator + cstype.toLowerCase() + File.separator + "conf";
 
