@@ -24,46 +24,45 @@ var ProfileModel = Model.extend({
     parseResponse: function(response) {
         return {
             id: response.id,
+            profileID: response.id,
             status: response.Status,
             properties: response.Properties.Property
         };
     },
-    parseXML: function(data) {
-        var xml = $(data);
-        var entry = $("Profile", xml);
-        var status = $("Status", entry);
-        return {
-            id: entry.attr("id"),
-            status: status.text()
-        };
-    },
     createRequest: function(attributes) {
         return {
-            id: attributes.id,
-            Status: attributes.status
+            id: attributes.profileID,
+            Status: attributes.status,
+            Properties: {
+                Property: attributes.properties
+            }
         };
     },
     enable: function(options) {
         var self = this;
-        $.post(self.url() + "?action=enable")
-            .done(function(data, textStatus, jqXHR) {
-                self.set(self.parseXML(data));
-                options.success.call(self, data, textStatus, jqXHR);
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                options.error.call(self, jqXHR, textStatus, errorThrown);
-            });
+        $.ajax({
+            type: "POST",
+            url: self.url() + "?action=enable",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            self.set(self.parseResponse(data));
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
     },
     disable: function(options) {
         var self = this;
-        $.post(self.url() + "?action=disable")
-            .done(function(data, textStatus, jqXHR) {
-                self.set(self.parseXML(data));
-                options.success.call(self, data, textStatus, jqXHR);
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                options.error.call(self, jqXHR, textStatus, errorThrown);
-            });
+        $.ajax({
+            type: "POST",
+            url: self.url() + "?action=disable",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            self.set(self.parseResponse(data));
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
     }
 });
 

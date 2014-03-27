@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -206,23 +207,34 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             ProfileRecord record = database.getRecord(profileID);
 
-            String status = record.getStatus();
-            if (!"Disabled".equals(status)) {
+            // only disabled profile can be updated
+            if (!"Disabled".equals(record.getStatus())) {
                 throw new ForbiddenException("Unable to update profile " + profileID);
             }
 
-            status = profileData.getStatus();
-            if (!"Enabled".equals(status)) {
-                throw new ForbiddenException("Invalid profile status: " + status);
+            // update status if specified
+            String status = profileData.getStatus();
+            if (status != null && !"Disabled".equals(status)) {
+                if (!"Enabled".equals(status)) {
+                    throw new ForbiddenException("Invalid profile status: " + status);
+                }
+
+                // if user doesn't have rights, set to pending
+                Principal principal = servletRequest.getUserPrincipal();
+                if (database.requiresApproval() && !database.canApprove(principal)) {
+                    status = "Pending_Approval";
+                }
+
+                // enable profile
+                record.setStatus(status);
             }
 
-            Principal principal = servletRequest.getUserPrincipal();
-            if (database.requiresApproval() && !database.canApprove(principal)) {
-                status = "Pending_Approval";
+            // update properties if specified
+            Map<String, String> properties = profileData.getProperties();
+            if (properties != null) {
+                record.setProperties(properties);
             }
 
-            record.setStatus(status);
-            record.setProperties(profileData.getProperties());
             database.updateRecord(profileID, record);
 
             profileData = createProfileData(database.getRecord(profileID));

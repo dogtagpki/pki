@@ -54,6 +54,7 @@ public class CSCfgRecord {
 
     public void setProperties(Map<String, String> properties) {
         this.properties.clear();
+        if (properties == null) return;
         this.properties.putAll(properties);
     }
 
