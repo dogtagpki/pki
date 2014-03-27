@@ -52,8 +52,9 @@ class RequestId(object):
 #pylint: disable-msg=R0903
 class KeyData(object):
     '''
-    This is the object that contains the wrapped secret
-    when that secret is retrieved.
+    This is the object that contains the encoded wrapped secret
+    when that secret is retrieved. It is used by the DRM
+    to send information of the key in the key retrieval requests.
     '''
 
     # pylint: disable-msg=C0103
@@ -63,21 +64,32 @@ class KeyData(object):
         self.nonceData = None
         self.size = None
         self.wrappedPrivateData = None
-        
-        # To store the unwrapped key information.
-        # Is not transferred in the response.
-        self.private_data = None
 
     @classmethod
     def from_json(cls, attr_list):
         ''' Return a KeyData object from a JSON dict '''
         key_data = cls()
         for key in attr_list:
-            if (key == "wrappedPrivateData") or (key == "nonceData"):
-                setattr(key_data, key, base64.decodestring(attr_list[key]))
-            else:
-                setattr(key_data, key, attr_list[key])
+            setattr(key_data, key, attr_list[key])
         return key_data
+
+class Key(object):
+    '''
+    An instance of this class stores the decoded encrypted secret
+    present in the KeyData object passed in the constructor.
+    All the key retrieval requests return this object.
+    '''
+    def __init__(self, key_data):
+        ''' Constructor '''
+        self.encrypted_data = base64.decodestring(key_data.wrappedPrivateData)
+        self.nonce_data = base64.decodestring(key_data.nonceData)
+        self.algorithm = key_data.algorithm
+        self.size = key_data.size
+
+        # To store the unwrapped key information.
+        # The decryption takes place on the client side.
+        self.data = None
+
 
 class KeyInfo(object):
     '''
@@ -542,14 +554,14 @@ class KeyClient(object):
         algorithm_oid = self.DES_EDE3_CBC_OID
         symkey_params = base64.encodestring(nonce_iv)
 
-        return self.archive_wrapped_data(client_key_id, data_type, wrapped_private_data,
+        return self.archive_encrypted_data(client_key_id, data_type, wrapped_private_data,
                                          trans_wrapped_session_key, algorithm_oid,
                                          symkey_params, key_algorithm=key_algorithm,
                                          key_size=key_size)
 
     @pki.handle_exceptions()
-    def archive_wrapped_data(self, client_key_id, data_type,
-                    wrapped_private_data, trans_wrapped_session_key,
+    def archive_encrypted_data(self, client_key_id, data_type,
+                    encrypted_data, trans_wrapped_session_key,
                     algorithm_oid, symkey_params,
                     key_algorithm=None, key_size=None):
         ''' Archive a secret (symmetric key or passphrase) on the DRM.
@@ -580,12 +592,12 @@ class KeyClient(object):
                 raise TypeError(
                         "For symmetric keys, key algorithm and key size must be specified")
 
-        if (wrapped_private_data is None) or (trans_wrapped_session_key is None) or \
+        if (encrypted_data is None) or (trans_wrapped_session_key is None) or \
            (algorithm_oid is None)  or (symkey_params is None):
             raise TypeError("All data and wrapping parameters must be specified")
 
         twsk = base64.encodestring(trans_wrapped_session_key)
-        data = base64.encodestring(wrapped_private_data)
+        data = base64.encodestring(encrypted_data)
         request = KeyArchivalRequest(client_key_id=client_key_id,
                             data_type=data_type,
                             wrapped_private_data=data,
@@ -598,7 +610,7 @@ class KeyClient(object):
         return self.create_request(request)
 
     @pki.handle_exceptions()
-    def archive_options_data(self, client_key_id, data_type, pki_archive_options,
+    def archive_pki_options(self, client_key_id, data_type, pki_archive_options,
                     key_algorithm=None, key_size=None):
         ''' Archive a secret (symmetric key or passphrase) on the DRM.
 
@@ -671,7 +683,8 @@ class KeyClient(object):
         url = self.key_url + '/retrieve'
         key_request = json.dumps(data, cls=encoder.CustomTypeEncoder, sort_keys=True)
         response = self.connection.post(url, key_request, self.headers)
-        return KeyData.from_json(response.json())
+        key_data = KeyData.from_json(response.json())
+        return Key(key_data)
 
     @pki.handle_exceptions()
     def retrieve_key(self, key_id, trans_wrapped_session_key=None):
@@ -721,13 +734,13 @@ class KeyClient(object):
                         request_id=request_id,
                         trans_wrapped_session_key=base64.encodestring(trans_wrapped_session_key))
 
-        key_data = self.retrieve_key_data(request)
+        key = self.retrieve_key_data(request)
         if not key_provided:
-            key_data.private_data = self.crypto.symmetric_unwrap(
-                                key_data.wrappedPrivateData,
+            key.data = self.crypto.symmetric_unwrap(
+                                key.encrypted_data,
                                 session_key,
-                                nonce_iv=key_data.nonceData)
-        return key_data
+                                nonce_iv=key.nonce_data)
+        return key
 
     @pki.handle_exceptions()
     def retrieve_key_by_passphrase(self, key_id, passphrase=None,

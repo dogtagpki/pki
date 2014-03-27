@@ -54,14 +54,14 @@ def print_key_info(key_info):
     print "Owner Name: " + str(key_info.ownerName)
     print "Size: " + str(key_info.size)
 
-def print_key_data(key_data):
+def print_key_data(key):
     ''' Prints the relevant fields of a KeyData object '''
-    print "Key Algorithm: " + str(key_data.algorithm)
-    print "Key Size: " + str(key_data.size)
-    print "Nonce Data: " + base64.encodestring(key_data.nonceData)
-    print "Wrapped Private Data: " + base64.encodestring(key_data.wrappedPrivateData)
-    if key_data.private_data is not None:
-        print "Private Data: " + base64.encodestring(key_data.private_data)
+    print "Key Algorithm: " + str(key.algorithm)
+    print "Key Size: " + str(key.size)
+    print "Nonce Data: " + base64.encodestring(key.nonce_data)
+    print "Wrapped Private Data: " + base64.encodestring(key.encrypted_data)
+    if key.data is not None:
+        print "Private Data: " + base64.encodestring(key.data)
 
 def main():
     ''' test code execution '''
@@ -139,15 +139,15 @@ def main():
     print "My key id is " + str(key_id)
     key_data = keyclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
-    unwrapped_key = crypto.symmetric_unwrap(key_data.wrappedPrivateData,
+    unwrapped_key = crypto.symmetric_unwrap(key_data.encrypted_data,
                                             session_key,
-                                            nonce_iv=key_data.nonceData)
+                                            nonce_iv=key_data.nonce_data)
     key1 = base64.encodestring(unwrapped_key)
 
     # Test 7: Recover key without providing trans_wrapped_session_key
     key_data = keyclient.retrieve_key(key_id)
     print_key_data(key_data)
-    key2 = base64.encodestring(key_data.private_data)
+    key2 = base64.encodestring(key_data.data)
 
     # Test 8 - Confirm that keys returned are the same
     if key1 == key2:
@@ -233,7 +233,7 @@ def main():
 
     key_data = keyclient.retrieve_key(key_info.get_key_id())
     print_key_data(key_data)
-    key2 = base64.encodestring(key_data.private_data)
+    key2 = base64.encodestring(key_data.data)
 
     if key1 == key2:
         print "Success: archived and recovered keys match"

@@ -1,17 +1,25 @@
 package com.netscape.certsrv.util;
 
+import java.io.CharConversionException;
 import java.io.File;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
 
 import org.mozilla.jss.CertDatabaseException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.KeyDatabaseException;
+import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
+import org.mozilla.jss.crypto.BadPaddingException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
@@ -119,7 +127,7 @@ public class NSSCryptoProvider extends CryptoProvider {
     }
 
     @Override
-    public byte[] wrapUsingSessionKey(String passphrase, byte[] iv, SymmetricKey key, String encryptionAlgorithm)
+    public byte[] wrapWithSessionKey(String passphrase, byte[] iv, SymmetricKey key, String encryptionAlgorithm)
             throws Exception {
         if (token == null) {
             throw new NotInitializedException();
@@ -129,7 +137,7 @@ public class NSSCryptoProvider extends CryptoProvider {
     }
 
     @Override
-    public String unwrapUsingSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
+    public byte[] unwrapWithSessionKey(byte[] wrappedRecoveredKey, SymmetricKey recoveryKey,
             String encryptionAlgorithm, byte[] nonceData) throws Exception {
         if (token == null) {
             throw new NotInitializedException();
@@ -140,7 +148,7 @@ public class NSSCryptoProvider extends CryptoProvider {
     }
 
     @Override
-    public String unWrapUsingPassphrase(String wrappedRecoveredKey, String recoveryPassphrase) throws Exception {
+    public byte[] unwrapWithPassphrase(byte[] wrappedRecoveredKey, String recoveryPassphrase) throws Exception {
         return CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
     }
 
@@ -199,6 +207,23 @@ public class NSSCryptoProvider extends CryptoProvider {
             throw new NoSuchAlgorithmException("No Algorithm named: " + encryptionAlgorithm);
         }
         return alg;
+    }
+
+    @Override
+    public byte[] createPKIArchiveOptions(String transportCert, SymmetricKey secret, String passphrase,
+            String keyAlgorithm, int symKeySize, byte[] nonceData) throws InvalidKeyException,
+            CertificateEncodingException, CharConversionException, NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException, IllegalStateException, TokenException, IOException,
+            IllegalBlockSizeException, BadPaddingException, InvalidBERException {
+
+        return CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, secret, passphrase,
+                getKeyGenAlgorithm(keyAlgorithm), symKeySize, new IVParameterSpec(nonceData));
+    }
+
+    @Override
+    public byte[] wrapWithSessionKey(SymmetricKey secret, SymmetricKey sessionKey, byte[] iv)
+            throws InvalidKeyException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, TokenException {
+        return CryptoUtil.wrapSymmetricKey(token, secret, sessionKey, new IVParameterSpec(iv));
     }
 
 }

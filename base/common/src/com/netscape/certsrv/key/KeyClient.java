@@ -49,7 +49,7 @@ public class KeyClient extends Client {
     public KeyClient(PKIClient client, String subsystem) throws Exception {
         super(client, subsystem, "key");
         init();
-        this.crypto=client.getCrypto();
+        this.crypto = client.getCrypto();
     }
 
     public void init() throws URISyntaxException {
@@ -70,6 +70,7 @@ public class KeyClient extends Client {
      * The HEADER and FOOTER should be removed from the string.
      * HEADER - CertData.HEADER
      * FOOTER - CertData.FOOTER
+     *
      * @param transportCert
      */
     public void setTransportCert(String transportCert) {
@@ -247,7 +248,7 @@ public class KeyClient extends Client {
      * @param data -- A KeyArchivalRequest/KeyRecoveryRequest/SymKeyGenerationRequest object
      * @return A KeyRequestResponse object
      */
-    public KeyRequestResponse createRequest(ResourceMessage request) {
+    private KeyRequestResponse createRequest(ResourceMessage request) {
         if (request == null) {
             throw new IllegalArgumentException("A Request object must be specified.");
         }
@@ -303,14 +304,14 @@ public class KeyClient extends Client {
      * @param data -- a KeyRecoveryRequest containing the keyId of the
      *            secret being retrieved, the request_id of the approved recovery
      *            request and a wrapping mechanism.
-     * @return A KeyData object containing the wrapped secret.
+     * @return A Key object containing the wrapped secret.
      */
-    public KeyData retrieveKeyData(KeyRecoveryRequest data) {
+    public Key retrieveKeyData(KeyRecoveryRequest data) {
         if (data == null) {
             throw new IllegalArgumentException("A KeyRecoveryRequest object must be specified");
         }
         Response response = keyClient.retrieveKey(data);
-        return client.getEntity(response, KeyData.class);
+        return new Key(client.getEntity(response, KeyData.class));
     }
 
     /**
@@ -321,27 +322,27 @@ public class KeyClient extends Client {
      * key of the DRM transport certificate before being sent to the DRM.
      *
      * This method will call CryptoUtil methods to generate the session key and wrap it
-     * with the DRM transport cert. The function will return the KeyData object, but with the secret
-     * set to the variable privateData. (The decryption of the wrappedPrivateData is done
+     * with the DRM transport cert. The function will return the Key object, but with the secret
+     * set to the variable data. (The decryption of the encryptedData is done
      * on the client side i.e. the secret is not transmitted as it is by the server.)
      *
      * @param keyId -- key id for secret
-     * @return A KeyData object containing the unwrapped secret.
+     * @return A Key object containing the unwrapped secret (set to the attribute data).
      * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
-     *                     CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException
+     *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
+     *             BadPaddingException, IllegalBlockSizeException
      */
-    public KeyData retrieveKey(KeyId keyId) throws Exception {
+    public Key retrieveKey(KeyId keyId) throws Exception {
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
         }
         SymmetricKey sessionKey = crypto.generateSessionKey();
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
 
-        KeyData data = retrieveKey(keyId, transWrappedSessionKey);
+        Key data = retrieveKey(keyId, transWrappedSessionKey);
 
-        data.setPrivateData(crypto.unwrapUsingSessionKey(
-                Utils.base64decode(data.getWrappedPrivateData()), sessionKey,
-                KeyRequestResource.DES3_ALGORITHM, Utils.base64decode(data.getNonceData())));
+        data.setData(crypto.unwrapWithSessionKey(data.getEncryptedData(), sessionKey,
+                KeyRequestResource.DES3_ALGORITHM, data.getNonceData()));
 
         return data;
     }
@@ -360,16 +361,17 @@ public class KeyClient extends Client {
      *
      * @param keyId -- key id for secret
      * @param transWrappedSessionKey -- session key wrapped by the transport cert.
-     * @return A KeyData object containing the wrapped secret.
+     * @return A Key object containing the wrapped secret.
      * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
-     *                     CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException
+     *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
+     *             BadPaddingException, IllegalBlockSizeException
      */
-    public KeyData retrieveKey(KeyId keyId, byte[] transWrappedSessionKey) throws Exception{
+    public Key retrieveKey(KeyId keyId, byte[] transWrappedSessionKey) throws Exception {
 
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
         }
-        if (transWrappedSessionKey == null){
+        if (transWrappedSessionKey == null) {
             throw new IllegalArgumentException("A transport cert wrapped session key cannot be null.");
         }
 
@@ -398,11 +400,12 @@ public class KeyClient extends Client {
      *
      * @param keyId -- key id of secret.
      * @param passphrase -- passphrase used to wrap the secret in the response.
-     * @return KeyData object with the secret wrapped with the passphrase.
+     * @return A Key object with the secret wrapped with the passphrase.
      * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
-     *                     CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException
+     *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
+     *             BadPaddingException, IllegalBlockSizeException
      */
-    public KeyData retrieveKeyByPassphrase(KeyId keyId, String passphrase) throws Exception{
+    public Key retrieveKeyByPassphrase(KeyId keyId, String passphrase) throws Exception {
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
         }
@@ -412,7 +415,7 @@ public class KeyClient extends Client {
         SymmetricKey sessionKey = crypto.generateSessionKey();
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
         byte[] nonceData = CryptoUtil.getNonceData(8);
-        byte[] sessionWrappedPassphrase = crypto.wrapUsingSessionKey(passphrase, nonceData, sessionKey,
+        byte[] sessionWrappedPassphrase = crypto.wrapWithSessionKey(passphrase, nonceData, sessionKey,
                 KeyRequestResource.DES3_ALGORITHM);
 
         return retrieveKeyUsingWrappedPassphrase(keyId, transWrappedSessionKey, sessionWrappedPassphrase, nonceData);
@@ -431,11 +434,12 @@ public class KeyClient extends Client {
      * @param transWrappedSessionKey -- Session key wrapped with the transport cert
      * @param sessionWrappedPassphrase -- Passphrase wrapped with the session key
      * @param nonceData -- nonce data used for encryption.
-     * @return A KeyData object with the secret wrapped by the passphrase provided.
+     * @return A Key object with the secret wrapped by the passphrase provided.
      * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
-     *                     CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException
+     *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
+     *             BadPaddingException, IllegalBlockSizeException
      */
-    public KeyData retrieveKeyUsingWrappedPassphrase(KeyId keyId, byte[] transWrappedSessionKey,
+    public Key retrieveKeyUsingWrappedPassphrase(KeyId keyId, byte[] transWrappedSessionKey,
             byte[] sessionWrappedPassphrase, byte[] nonceData) throws Exception {
 
         if (keyId == null) {
@@ -485,9 +489,9 @@ public class KeyClient extends Client {
      * @param keyId -- key id for secret
      * @param certificate -- the certificate associated with the private key
      * @param passphrase -- A passphrase for the pkcs12 file.
-     * @return A KeyData object with the wrapped secret
+     * @return A Key object with the wrapped secret
      */
-    public KeyData retrieveKeyByPKCS12(KeyId keyId, String certificate, String passphrase) {
+    public Key retrieveKeyByPKCS12(KeyId keyId, String certificate, String passphrase) {
         if (keyId == null || certificate == null || passphrase == null) {
             throw new IllegalArgumentException("KeyId, certificate and passphrase must be specified.");
         }
@@ -503,55 +507,61 @@ public class KeyClient extends Client {
     }
 
     /**
-     * Archive a secret (symmetric key or passphrase) on the DRM.
+     * Archive a passphrase on the DRM.
      *
      * Requires a user-supplied client ID. There can be only one active
      * key with a specified client ID. If a record for a duplicate active
      * key exists, a BadRequestException is thrown.
      *
-     * dataType can be one of the following:
-     * KeyClient.SYMMETRIC_KEY_TYPE,
-     * KeyClient.ASYMMETRIC_KEY_TYPE,
-     * KeyClient.PASS_PHRASE_TYPE
      *
      * @param clientKeyId -- Client Key Identfier
-     * @param dataType -- Type of the secret being archived.
-     * @param privateData -- the raw secret to be archived.
-     * @param keyAlgorithm
-     * @param keySize
-     *        keyAlgorithm and keySize are applicable to symmetric keys only.
-     *        If a symmetric key is being archived, these parameters are required.
+     * @param passphrase -- Secret passphrase to be archived
      * @return A KeyRequestResponse object with information about the request.
      * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
-     *         IOException, CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
-     *         BadPaddingException, IllegalBlockSizeException
+     *             IOException, CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
+     *             BadPaddingException, IllegalBlockSizeException
      */
-    public KeyRequestResponse archiveKey(String clientKeyId, String dataType, String privateData, String keyAlgorithm,
-            int keySize) throws Exception {
+    public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase) throws Exception {
 
-        if (clientKeyId == null || dataType == null) {
-            throw new IllegalArgumentException("Client key id and data type must be specified.");
-        }
-        if (dataType == KeyRequestResource.SYMMETRIC_KEY_TYPE) {
-            if (keyAlgorithm == null || keySize < 0) {
-                throw new IllegalArgumentException(
-                        "Key algorithm and key size must be specified for a symmetric key type request.");
-            }
-        }
-        if (privateData == null) {
-            throw new IllegalArgumentException("No data provided to archive. privateData must be specified.");
-        }
         // Default algorithm OID for DES_EDE3_CBC
         String algorithmOID = EncryptionAlgorithm.DES3_CBC.toOID().toString();
         byte[] nonceData = CryptoUtil.getNonceData(8);
-        String symAlgParams = Utils.base64encode(nonceData);
         SymmetricKey sessionKey = crypto.generateSessionKey();
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
-        byte[] wrappedPrivateData = crypto.wrapUsingSessionKey(privateData, nonceData,
+        byte[] encryptedData = crypto.wrapWithSessionKey(passphrase, nonceData,
                 sessionKey, KeyRequestResource.DES3_ALGORITHM);
 
-        return archiveWrappedData(clientKeyId, dataType, keyAlgorithm, keySize, algorithmOID,
-                symAlgParams, wrappedPrivateData, transWrappedSessionKey);
+        return archiveEncryptedData(clientKeyId, KeyRequestResource.PASS_PHRASE_TYPE, null, 0, algorithmOID,
+                nonceData, encryptedData, transWrappedSessionKey);
+    }
+
+    /**
+     * Archive a symmetric key on the DRM.
+     *
+     * Requires a user-supplied client ID. There can be only one active
+     * key with a specified client ID. If a record for a duplicate active
+     * key exists, a BadRequestException is thrown.
+     *
+     * @param clientKeyId -- Client Key Identifier
+     * @param keyAlgorithm -- Algorithm used by the symmetric key
+     * @param keySize -- Strength of the symmetric key (secret)
+     * @return A KeyRequestResponse object with information about the request.
+     * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
+     *             IOException, CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
+     *             BadPaddingException, IllegalBlockSizeException
+     */
+    public KeyRequestResponse archiveSymmetricKey(String clientKeyId, SymmetricKey secret, String keyAlgorithm,
+            int keySize) throws Exception {
+
+        // Default algorithm OID for DES_EDE3_CBC
+        String algorithmOID = EncryptionAlgorithm.DES3_CBC.toOID().toString();
+        SymmetricKey sessionKey = crypto.generateSessionKey();
+        byte[] nonceData = CryptoUtil.getNonceData(8);
+        byte[] encryptedData = crypto.wrapWithSessionKey(secret, sessionKey, nonceData);
+        byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
+
+        return archiveEncryptedData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE, keyAlgorithm, keySize,
+                algorithmOID, nonceData, encryptedData, transWrappedSessionKey);
     }
 
     /**
@@ -565,15 +575,16 @@ public class KeyClient extends Client {
      * @param dataType -- Type of secret being archived
      * @param keyAlgorithm -- Algorithm used - if the secret is a symmetric key
      * @param keySize -- Strength of the symmetric key (secret)
-     * @param algorithmOID -- string for the symmetric key wrap
+     * @param algorithmOID -- OID of the algorithm used for the symmetric key wrap
      * @param symAlgParams -- storing the value of Utils.base64encode(nonceData)
-     * @param wrappedPrivateData -- which is the secret wrapped by a session
-     *                              key (168 bit 3DES symmetric key)
+     * @param encryptedData -- which is the secret wrapped by a session
+     *            key (168 bit 3DES symmetric key)
      * @param transWrappedSessionKey -- session key wrapped by the transport cert.
      * @return A KeyRequestResponse object with information about the request.
      */
-    public KeyRequestResponse archiveWrappedData(String clientKeyId, String dataType, String keyAlgorithm, int keySize,
-            String algorithmOID, String symAlgParams, byte[] wrappedPrivateData, byte[] transWrappedSessionKey) {
+    public KeyRequestResponse archiveEncryptedData(String clientKeyId, String dataType, String keyAlgorithm,
+            int keySize,
+            String algorithmOID, byte[] nonceData, byte[] encryptedData, byte[] transWrappedSessionKey) {
 
         if (clientKeyId == null || dataType == null) {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
@@ -584,8 +595,8 @@ public class KeyClient extends Client {
                         "Key algorithm and key size must be specified for a symmetric key type request.");
             }
         }
-        if (wrappedPrivateData == null || transWrappedSessionKey == null || algorithmOID == null
-                || symAlgParams == null) {
+        if (encryptedData == null || transWrappedSessionKey == null || algorithmOID == null
+                || nonceData == null) {
             throw new IllegalArgumentException("All data and wrapping parameters must be specified.");
         }
         KeyArchivalRequest data = new KeyArchivalRequest();
@@ -595,8 +606,8 @@ public class KeyClient extends Client {
         data.setKeySize(keySize);
         data.setClientKeyId(clientKeyId);
         data.setAlgorithmOID(algorithmOID);
-        data.setSymmetricAlgorithmParams(symAlgParams);
-        String req1 = Utils.base64encode(wrappedPrivateData);
+        data.setSymmetricAlgorithmParams(Utils.base64encode(nonceData));
+        String req1 = Utils.base64encode(encryptedData);
         data.setWrappedPrivateData(req1);
         data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
 
@@ -615,7 +626,7 @@ public class KeyClient extends Client {
      * @return A KeyRequestResponse object with information about the request.
      * @throws Exception
      */
-    public KeyRequestResponse archiveOptionsData(String clientKeyId, String dataType, String keyAlgorithm, int keySize,
+    public KeyRequestResponse archivePKIOptions(String clientKeyId, String dataType, String keyAlgorithm, int keySize,
             byte[] pkiArchiveOptions) {
 
         if (clientKeyId == null || dataType == null) {

@@ -1551,12 +1551,11 @@ public class CryptoUtil {
         return iv;
     }
 
-    public static String unwrapUsingPassphrase(String wrappedRecoveredKey, String recoveryPassphrase)
+    public static byte[] unwrapUsingPassphrase(byte[] wrappedRecoveredKey, String recoveryPassphrase)
             throws IOException, InvalidBERException, InvalidKeyException, IllegalStateException,
             NoSuchAlgorithmException, InvalidAlgorithmParameterException, NotInitializedException, TokenException,
             IllegalBlockSizeException, BadPaddingException {
         EncryptedContentInfo cInfo = null;
-        String unwrappedData = null;
 
         //We have to do this to get the decoding to work.
         @SuppressWarnings("unused")
@@ -1566,20 +1565,16 @@ public class CryptoUtil {
         PasswordConverter passConverter = new
                     PasswordConverter();
 
-        byte[] encoded = Utils.base64decode(wrappedRecoveredKey);
-
-        ByteArrayInputStream inStream = new ByteArrayInputStream(encoded);
+        ByteArrayInputStream inStream = new ByteArrayInputStream(wrappedRecoveredKey);
         cInfo = (EncryptedContentInfo)
                       new EncryptedContentInfo.Template().decode(inStream);
 
         byte[] decodedData = cInfo.decrypt(pass, passConverter);
 
-        unwrappedData = Utils.base64encode(decodedData);
-
-        return unwrappedData;
+        return decodedData;
     }
 
-    public static String unwrapUsingSymmetricKey(CryptoToken token, IVParameterSpec IV, byte[] wrappedRecoveredKey,
+    public static byte[] unwrapUsingSymmetricKey(CryptoToken token, IVParameterSpec IV, byte[] wrappedRecoveredKey,
             SymmetricKey recoveryKey, EncryptionAlgorithm alg) throws NoSuchAlgorithmException, TokenException,
             BadPaddingException,
             IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
@@ -1587,9 +1582,8 @@ public class CryptoUtil {
         Cipher decryptor = token.getCipherContext(alg);
         decryptor.initDecrypt(recoveryKey, IV);
         byte[] unwrappedData = decryptor.doFinal(wrappedRecoveredKey);
-        String unwrappedS = Utils.base64encode(unwrappedData);
 
-        return unwrappedS;
+        return unwrappedData;
     }
 
     public static byte[] wrapPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk,
@@ -1620,6 +1614,28 @@ public class CryptoUtil {
         rsaWrap.initWrap(tcert.getPublicKey(), null);
         byte session_data[] = rsaWrap.wrap(sk);
         return session_data;
+    }
+
+    /**
+     * Wrap a symmetric Key with a SymmetricKey
+     *
+     * @param token
+     * @param secret
+     * @param wrapper
+     * @return
+     * @throws TokenException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     */
+    public static byte[] wrapSymmetricKey(CryptoToken token, SymmetricKey secret, SymmetricKey wrapper,
+            IVParameterSpec IV) throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
+            InvalidAlgorithmParameterException {
+        KeyWrapper wrapper1 = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+        wrapper1.initWrap(wrapper, IV);
+        byte[] keyData = wrapper1.wrap(secret);
+
+        return keyData;
     }
 
     public static byte[] createPKIArchiveOptions(CryptoManager manager, CryptoToken token, String transportCert,

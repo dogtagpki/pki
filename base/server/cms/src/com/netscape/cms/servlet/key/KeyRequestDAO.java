@@ -169,7 +169,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         boolean keyExists = doesKeyExist(clientKeyId, "active");
 
         if (keyExists == true) {
-            throw new EBaseException("Can not archive already active existing key!");
+            throw new BadRequestException("Can not archive already active existing key!");
         }
 
         IRequest request = queue.newRequest(IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);

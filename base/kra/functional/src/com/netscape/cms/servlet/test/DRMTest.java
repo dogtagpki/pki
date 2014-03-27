@@ -40,8 +40,8 @@ import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.Key;
 import com.netscape.certsrv.key.KeyClient;
-import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.key.KeyRequestInfoCollection;
@@ -148,13 +148,13 @@ public class DRMTest {
         String passphrase = null;
 
         // Session keys and passphrases for recovery
-        SymmetricKey recoveryKey = null;
+        SymmetricKey sessionKey = null;
         byte[] wrappedRecoveryKey = null;
         String recoveryPassphrase = null;
         byte[] wrappedRecoveryPassphrase = null;
 
         // retrieved data (should match archived data)
-        String wrappedRecoveredKey = null;
+        byte[] encryptedData = null;
         String recoveredKey = null;
 
         // various ids used in recovery/archival operations
@@ -164,7 +164,7 @@ public class DRMTest {
 
         // Variables for data structures from calls
         KeyRequestResponse requestResponse = null;
-        KeyData keyData = null;
+        Key keyData = null;
         KeyInfo keyInfo = null;
 
         // Initialize token
@@ -239,15 +239,14 @@ public class DRMTest {
         clientKeyId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
         try {
             vek = nssCrypto.generateSessionKey();
-            byte[] encoded = CryptoUtil.createPKIArchiveOptions(nssCrypto.getManager(), nssCrypto.getToken(),
-                    transportCert, vek, null,
-                    KeyGenAlgorithm.DES3, 0, new IVParameterSpec(iv));
+            byte[] encoded = nssCrypto.createPKIArchiveOptions(transportCert, vek, null,
+                    KeyRequestResource.DES3_ALGORITHM, 0, iv);
 
-            KeyRequestResponse info = keyClient.archiveOptionsData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE,
+            KeyRequestResponse info = keyClient.archivePKIOptions(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE,
                     KeyRequestResource.DES3_ALGORITHM, 0, encoded);
             log("Archival Results:");
             printRequestInfo(info.getRequestInfo());
-            keyId = info.getRequestInfo().getKeyId();
+            keyId = info.getKeyId();
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.getMessage());
             e.printStackTrace();
@@ -274,20 +273,20 @@ public class DRMTest {
         // Test 6: Submit a recovery request for the symmetric key using a session key
         log("Submitting a recovery request for the  symmetric key using session key");
         try {
-            recoveryKey = nssCrypto.generateSessionKey();
+            sessionKey = nssCrypto.generateSessionKey();
             wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(nssCrypto.getManager(), nssCrypto.getToken(),
-                    transportCert, recoveryKey);
+                    transportCert, sessionKey);
             keyData = keyClient.retrieveKey(keyId, wrappedRecoveryKey);
         } catch (Exception e) {
             log("Exception in recovering symmetric key using session key: " + e.getMessage());
         }
 
-        wrappedRecoveredKey = keyData.getWrappedPrivateData();
+        encryptedData = keyData.getEncryptedData();
 
         try {
-            recoveredKey = new String(Utils.base64decode(nssCrypto.unwrapUsingSessionKey(
-                    Utils.base64decode(wrappedRecoveredKey), recoveryKey,
-                    KeyRequestResource.DES3_ALGORITHM, Utils.base64decode(keyData.getNonceData()))));
+            recoveredKey = Utils.base64encode(nssCrypto.unwrapWithSessionKey(
+                    encryptedData, sessionKey,
+                    KeyRequestResource.DES3_ALGORITHM, keyData.getNonceData()));
         } catch (Exception e) {
             log("Exception in unwrapping key: " + e.toString());
             e.printStackTrace();
@@ -304,10 +303,10 @@ public class DRMTest {
         recoveryPassphrase = "Gimme me keys please";
 
         try {
-            recoveryKey = nssCrypto.generateSessionKey();
-            wrappedRecoveryPassphrase = nssCrypto.wrapUsingSessionKey(recoveryPassphrase, iv, recoveryKey,
+            sessionKey = nssCrypto.generateSessionKey();
+            wrappedRecoveryPassphrase = nssCrypto.wrapWithSessionKey(recoveryPassphrase, iv, sessionKey,
                     KeyRequestResource.DES3_ALGORITHM);
-            wrappedRecoveryKey = nssCrypto.wrapSessionKeyWithTransportCert(recoveryKey, transportCert);
+            wrappedRecoveryKey = nssCrypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
 
             keyData = keyClient.retrieveKeyUsingWrappedPassphrase(keyId, wrappedRecoveryKey, wrappedRecoveryPassphrase,
                     iv);
@@ -316,10 +315,10 @@ public class DRMTest {
             e.printStackTrace();
         }
 
-        wrappedRecoveredKey = keyData.getWrappedPrivateData();
+        encryptedData = keyData.getEncryptedData();
 
         try {
-            recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
+            recoveredKey = Utils.base64encode(nssCrypto.unwrapWithPassphrase(encryptedData, recoveryPassphrase));
         } catch (Exception e) {
             log("Error: unable to unwrap key using passphrase");
             e.printStackTrace();
@@ -335,12 +334,11 @@ public class DRMTest {
         // Test 8: Generate and archive a passphrase
         clientKeyId = "UUID: 123-45-6789 RKEK " + Calendar.getInstance().getTime().toString();
         try {
-            requestResponse = keyClient.archiveKey(clientKeyId, KeyRequestResource.PASS_PHRASE_TYPE, passphrase, null,
-                    0);
+            requestResponse = keyClient.archivePassphrase(clientKeyId, passphrase);
 
             log("Archival Results:");
             printRequestInfo(requestResponse.getRequestInfo());
-            keyId = requestResponse.getRequestInfo().getKeyId();
+            keyId = requestResponse.getKeyId();
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.toString());
             e.printStackTrace();
@@ -365,17 +363,16 @@ public class DRMTest {
 
         // Test 10: Submit a recovery request for the passphrase using a session key
         log("Submitting a recovery request for the passphrase using session key");
-        recoveryKey = null;
+        sessionKey = null;
         wrappedRecoveryKey = null;
         try {
             keyData = keyClient.retrieveKeyByPassphrase(keyId, recoveryPassphrase);
         } catch (Exception e) {
             log("Exception in recovering passphrase using session key: " + e.getMessage());
         }
-        wrappedRecoveredKey = keyData.getWrappedPrivateData();
+        encryptedData = keyData.getEncryptedData();
         try {
-            recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
-            recoveredKey = new String(Utils.base64decode(recoveredKey), "UTF-8");
+            recoveredKey = new String(nssCrypto.unwrapWithPassphrase(encryptedData, recoveryPassphrase), "UTF-8");
         } catch (Exception e) {
             log("Exception in unwrapping key: " + e.toString());
             e.printStackTrace();
@@ -389,9 +386,9 @@ public class DRMTest {
 
         // Test 11: Submit a recovery request for the passphrase using a passphrase
         try {
-            recoveryKey = nssCrypto.generateSessionKey();
-            wrappedRecoveryKey = nssCrypto.wrapSessionKeyWithTransportCert(recoveryKey, transportCert);
-            wrappedRecoveryPassphrase = nssCrypto.wrapUsingSessionKey(recoveryPassphrase, iv, recoveryKey,
+            sessionKey = nssCrypto.generateSessionKey();
+            wrappedRecoveryKey = nssCrypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
+            wrappedRecoveryPassphrase = nssCrypto.wrapWithSessionKey(recoveryPassphrase, iv, sessionKey,
                     KeyRequestResource.DES3_ALGORITHM);
             keyData = keyClient.retrieveKeyUsingWrappedPassphrase(keyId, wrappedRecoveryKey, wrappedRecoveryPassphrase,
                     iv);
@@ -400,10 +397,9 @@ public class DRMTest {
             System.out.println("Test 17: " + e1.getMessage());
             System.exit(-1);
         }
-        wrappedRecoveredKey = keyData.getWrappedPrivateData();
+        encryptedData = keyData.getEncryptedData();
         try {
-            recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
-            recoveredKey = new String(Utils.base64decode(recoveredKey), "UTF-8");
+            recoveredKey = new String(nssCrypto.unwrapWithPassphrase(encryptedData, recoveryPassphrase), "UTF-8");
         } catch (Exception e) {
             log("Error: cannot unwrap key using passphrase");
             e.printStackTrace();
@@ -422,10 +418,9 @@ public class DRMTest {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-        wrappedRecoveredKey = keyData.getWrappedPrivateData();
+        encryptedData = keyData.getEncryptedData();
         try {
-            recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
-            recoveredKey = new String(Utils.base64decode(recoveredKey), "UTF-8");
+            recoveredKey = new String(nssCrypto.unwrapWithPassphrase(encryptedData, recoveryPassphrase), "UTF-8");
         } catch (Exception e) {
             log("Error: Can't unwrap recovered key using passphrase");
             e.printStackTrace();
@@ -516,7 +511,7 @@ public class DRMTest {
                 KeyRequestResource.AES_ALGORITHM,
                 128, usages, null);
         printRequestInfo(genKeyResponse.getRequestInfo());
-        keyId = genKeyResponse.getRequestInfo().getKeyId();
+        keyId = genKeyResponse.getKeyId();
 
         // test 19: Get keyId for active key with client ID
         log("Getting key ID for symmetric key");
@@ -538,19 +533,19 @@ public class DRMTest {
         // Test 20: Submit a recovery request for the symmetric key using a session key
         log("Submitting a recovery request for the  symmetric key using session key");
         try {
-            recoveryKey = nssCrypto.generateSessionKey();
-            wrappedRecoveryKey = nssCrypto.wrapSessionKeyWithTransportCert(recoveryKey, transportCert);
+            sessionKey = nssCrypto.generateSessionKey();
+            wrappedRecoveryKey = nssCrypto.wrapSessionKeyWithTransportCert(sessionKey, transportCert);
             keyData = keyClient.retrieveKey(keyId, wrappedRecoveryKey);
         } catch (Exception e) {
             log("Exception in recovering symmetric key using session key: " + e.getMessage());
         }
 
-        wrappedRecoveredKey = keyData.getWrappedPrivateData();
+        encryptedData = keyData.getEncryptedData();
 
         try {
-            recoveredKey = new String(Utils.base64decode(nssCrypto.unwrapUsingSessionKey(
-                    Utils.base64decode(wrappedRecoveredKey), recoveryKey, KeyRequestResource.DES3_ALGORITHM,
-                    Utils.base64decode(keyData.getNonceData()))));
+            recoveredKey = new String(nssCrypto.unwrapWithSessionKey(
+                    encryptedData, sessionKey, KeyRequestResource.DES3_ALGORITHM,
+                    keyData.getNonceData()));
         } catch (Exception e) {
             log("Exception in unwrapping key: " + e.toString());
             e.printStackTrace();
@@ -587,11 +582,11 @@ public class DRMTest {
                     transportCert, vek, null,
                     KeyGenAlgorithm.DES3, 0, new IVParameterSpec(iv));
 
-            KeyRequestResponse response = keyClient.archiveOptionsData(clientKeyId,
+            KeyRequestResponse response = keyClient.archivePKIOptions(clientKeyId,
                     KeyRequestResource.SYMMETRIC_KEY_TYPE, KeyRequestResource.AES_ALGORITHM, 128, encoded);
             log("Archival Results:");
             printRequestInfo(response.getRequestInfo());
-            keyId = response.getRequestInfo().getKeyId();
+            keyId = response.getKeyId();
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.getMessage());
             e.printStackTrace();
@@ -626,7 +621,7 @@ public class DRMTest {
         // generates a session key, wraps it with transport cert and completes the request.
         // The encrypted data is then unwrapped using the temporary session key and set to
         // the attribute privateData.
-        recoveredKey = keyData.getPrivateData();
+        recoveredKey = Utils.base64encode(keyData.getData());
 
         if (!recoveredKey.equals(Utils.base64encode(vek.getEncoded()))) {
             log("Error: recovered and archived keys do not match!");
