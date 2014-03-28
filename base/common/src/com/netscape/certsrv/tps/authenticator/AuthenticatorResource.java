@@ -20,7 +20,6 @@ package com.netscape.certsrv.tps.authenticator;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -30,6 +29,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.base.PATCH;
 
 
 /**
@@ -57,7 +57,7 @@ public interface AuthenticatorResource {
     @ClientResponseType(entityType=AuthenticatorData.class)
     public Response addAuthenticator(AuthenticatorData authenticatorData);
 
-    @PUT
+    @PATCH
     @Path("{authenticatorID}")
     @ACLMapping("authenticators.modify")
     @ClientResponseType(entityType=AuthenticatorData.class)

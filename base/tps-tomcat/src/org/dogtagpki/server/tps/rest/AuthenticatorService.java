@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -205,23 +206,34 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
 
-            String status = record.getStatus();
-            if (!"Disabled".equals(status)) {
+            // only disabled authenticator can be updated
+            if (!"Disabled".equals(record.getStatus())) {
                 throw new ForbiddenException("Unable to update authenticator " + authenticatorID);
             }
 
-            status = authenticatorData.getStatus();
-            if (!"Enabled".equals(status)) {
-                throw new ForbiddenException("Invalid authenticator status: " + status);
+            // update status if specified
+            String status = authenticatorData.getStatus();
+            if (status != null && !"Disabled".equals(status)) {
+                if (!"Enabled".equals(status)) {
+                    throw new ForbiddenException("Invalid authenticator status: " + status);
+                }
+
+                // if user doesn't have rights, set to pending
+                Principal principal = servletRequest.getUserPrincipal();
+                if (database.requiresApproval() && !database.canApprove(principal)) {
+                    status = "Pending_Approval";
+                }
+
+                // enable authenticator
+                record.setStatus(status);
             }
 
-            Principal principal = servletRequest.getUserPrincipal();
-            if (database.requiresApproval() && !database.canApprove(principal)) {
-                status = "Pending_Approval";
+            // update properties if specified
+            Map<String, String> properties = authenticatorData.getProperties();
+            if (properties != null) {
+                record.setProperties(authenticatorData.getProperties());
             }
 
-            record.setStatus(status);
-            record.setProperties(authenticatorData.getProperties());
             database.updateRecord(authenticatorID, record);
 
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));

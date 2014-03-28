@@ -59,9 +59,11 @@ public class AuthenticatorCLI extends CLI {
         if (showProperties) {
             System.out.println("  Properties:");
             Map<String, String> properties = authenticatorData.getProperties();
-            for (String name : properties.keySet()) {
-                String value = properties.get(name);
-                System.out.println("    " + name + ": " + value);
+            if (properties != null) {
+                for (String name : properties.keySet()) {
+                    String value = properties.get(name);
+                    System.out.println("    " + name + ": " + value);
+                }
             }
         }
 
