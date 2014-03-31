@@ -57,7 +57,7 @@ public class ConnectionDatabase extends CSCfgDatabase<ConnectionRecord> {
 
         Collection<ConnectionRecord> result = new ArrayList<ConnectionRecord>();
         ConfigDatabase configDatabase = new ConfigDatabase();
-        ConfigRecord configRecord = configDatabase.getRecord("Subsystem_Connections");
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         for (String connectionID : configRecord.getKeys()) {
             if (filter != null && !connectionID.contains(filter)) continue;

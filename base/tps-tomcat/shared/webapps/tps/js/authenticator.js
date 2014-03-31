@@ -31,7 +31,7 @@ var AuthenticatorModel = Model.extend({
     },
     createRequest: function(attributes) {
         return {
-            id: attributes.profileID,
+            id: attributes.authenticatorID,
             Status: attributes.status,
             Properties: {
                 Property: attributes.properties
@@ -86,29 +86,44 @@ var AuthenticatorsTable = Table.extend({
     initialize: function(options) {
         var self = this;
         AuthenticatorsTable.__super__.initialize.call(self, options);
-        self.container = options.container;
+        self.parentPage = options.parentPage;
     },
     open: function(item) {
         var self = this;
 
-        var page = new DetailsPage({
-            el: self.container,
+        var page = new EntryPage({
+            el: self.parentPage.$el,
+            url: "authenticator.html",
             model: item.model
         });
 
-        self.container.load("authenticator.html", function(response, status, xhr) {
-            page.load();
+        page.open();
+    },
+    add: function() {
+        var self = this;
+
+        var page = new AddEntryPage({
+            el: self.parentPage.$el,
+            url: "authenticator.html",
+            model: new AuthenticatorModel(),
+            mode: "add",
+            parentPage: self.parentPage
         });
+
+        page.open();
     }
 });
 
 var AuthenticatorsPage = Page.extend({
-    load: function(container) {
+    load: function() {
+        var self = this;
+
         var table = new AuthenticatorsTable({
             el: $("table[name='authenticators']"),
             collection: new AuthenticatorCollection(),
-            container: container
+            parentPage: self
         });
+
         table.render();
     }
 });

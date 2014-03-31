@@ -31,7 +31,7 @@ var ConnectionModel = Model.extend({
     },
     createRequest: function(attributes) {
         return {
-            id: attributes.profileID,
+            id: attributes.connectionID,
             Status: attributes.status,
             Properties: {
                 Property: attributes.properties
@@ -86,29 +86,44 @@ var ConnectionsTable = Table.extend({
     initialize: function(options) {
         var self = this;
         ConnectionsTable.__super__.initialize.call(self, options);
-        self.container = options.container;
+        self.parentPage = options.parentPage;
     },
     open: function(item) {
         var self = this;
 
-        var page = new DetailsPage({
-            el: self.container,
+        var page = new EntryPage({
+            el: self.parentPage.$el,
+            url: "connection.html",
             model: item.model
         });
 
-        self.container.load("connection.html", function(response, status, xhr) {
-            page.load();
+        page.open();
+    },
+    add: function() {
+        var self = this;
+
+        var page = new AddEntryPage({
+            el: self.parentPage.$el,
+            url: "connection.html",
+            model: new ConnectionModel(),
+            mode: "add",
+            parentPage: self.parentPage
         });
+
+        page.open();
     }
 });
 
 var ConnectionsPage = Page.extend({
-    load: function(container) {
+    load: function() {
+        var self = this;
+
         var table = new ConnectionsTable({
             el: $("table[name='connections']"),
             collection: new ConnectionCollection(),
-            container: container
+            parentPage: self
         });
+
         table.render();
     }
 });

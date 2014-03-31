@@ -37,20 +37,20 @@
     <script src="/tps/js/user.js"></script>
     <script>
 $(function() {
+    var content = $("#content");
     var account = new Account();
     new Navigation({
         el: $("#navigation"),
-        content: $("#content"),
         pages: {
-            activities: new ActivityPage({ url: "activities.html" }),
-            authenticators: new AuthenticatorsPage({ url: "authenticators.html" }),
-            certs: new CertificatePage({ url: "certs.html" }),
-            connections: new ConnectionsPage({ url: "connections.html" }),
-            groups: new GroupPage({ url: "groups.html" }),
-            profiles: new ProfilesPage({ url: "profiles.html" }),
-            selftests: new SelfTestPage({ url: "selftests.html" }),
-            tokens: new TokenPage({ url: "tokens.html" }),
-            users: new UserPage({ url: "users.html" })
+            activities: new ActivityPage({ el: content, url: "activities.html" }),
+            authenticators: new AuthenticatorsPage({ el: content, url: "authenticators.html" }),
+            certs: new CertificatePage({ el: content, url: "certs.html" }),
+            connections: new ConnectionsPage({ el: content, url: "connections.html" }),
+            groups: new GroupPage({ el: content, url: "groups.html" }),
+            profiles: new ProfilesPage({ el: content, url: "profiles.html" }),
+            selftests: new SelfTestPage({ el: content, url: "selftests.html" }),
+            tokens: new TokenPage({ el: content, url: "tokens.html" }),
+            users: new UserPage({ el: content, url: "users.html" })
         },
         logout: function() {
             account.logout({

@@ -121,7 +121,9 @@ var UserDialog = Dialog.extend({
 });
 
 var UserPage = Page.extend({
-    load: function(container) {
+    load: function() {
+        var self = this;
+
         var addDialog = new UserDialog({
             el: $("#user-dialog"),
             title: "Add User",
@@ -142,6 +144,7 @@ var UserPage = Page.extend({
             addDialog: addDialog,
             editDialog: editDialog
         });
+
         table.render();
     }
 });

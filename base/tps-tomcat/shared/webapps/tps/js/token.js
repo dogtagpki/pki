@@ -74,7 +74,9 @@ var TokenCollection = Collection.extend({
 });
 
 var TokenPage = Page.extend({
-    load: function(container) {
+    load: function() {
+        var self = this;
+
         var addDialog = new Dialog({
             el: $("#token-dialog"),
             title: "Add Token",
@@ -97,6 +99,7 @@ var TokenPage = Page.extend({
             addDialog: addDialog,
             editDialog: editDialog
         });
+
         table.render();
     }
 });

@@ -131,7 +131,15 @@ var Page = Backbone.View.extend({
 
         self.url = options.url;
     },
-    load: function(container) {
+    open: function() {
+        var self = this;
+        // load template
+        self.$el.load(self.url, function(response, status, xhr) {
+            // load content
+            self.load();
+        });
+    },
+    load: function() {
     }
 });
 
@@ -140,7 +148,6 @@ var Navigation = Backbone.View.extend({
         var self = this;
         Navigation.__super__.initialize.call(self, options);
 
-        self.content = options.content;
         self.pages = options.pages;
         self.homePage = options.homePage;
 
@@ -167,14 +174,14 @@ var Navigation = Backbone.View.extend({
     },
     load: function(name) {
         var self = this;
+
         var page = self.pages[name];
         if (!page) {
             alert("Invalid page: " + name);
             return;
         }
-        self.content.load(page.url, function(response, status, xhr) {
-            page.load(self.content);
-        });
+
+        page.open();
     }
 });
 
@@ -408,7 +415,7 @@ var Table = Backbone.View.extend({
         self.tableItem = options.tableItem || TableItem;
 
         // number of table rows
-        self.pageSize = options.pageSize || 5;
+        self.pageSize = options.pageSize || 15;
 
         // current page: 1, 2, 3, ...
         self.page = 1;
@@ -818,12 +825,12 @@ var PropertiesTable = Table.extend({
     }
 });
 
-var DetailsPage = Page.extend({
+var EntryPage = Page.extend({
     initialize: function(options) {
         var self = this;
-        DetailsPage.__super__.initialize.call(self, options);
+        EntryPage.__super__.initialize.call(self, options);
         self.model = options.model;
-        self.mode = "view";
+        self.mode = options.mode || "view";
     },
     load: function() {
         var self = this;
@@ -880,8 +887,7 @@ var DetailsPage = Page.extend({
         });
 
         self.cancelButton.click(function(e) {
-            self.mode = "view";
-            self.render();
+            self.cancel();
             e.preventDefault();
         });
 
@@ -925,42 +931,72 @@ var DetailsPage = Page.extend({
     render: function() {
         var self = this;
 
+        // in add mode, render blank form
+        if (self.mode == "add") {
+            self.attributes = {};
+            self.propertiesTable.properties = [];
+            self.renderContent();
+            return;
+        }
+
+        // in view and edit modes, fetch entry then render the content
         self.model.fetch({
             success: function(model, response, options) {
-
                 self.attributes = _.clone(self.model.attributes);
                 self.propertiesTable.properties = self.attributes.properties;
-
-                self.$("span[name='id']").text(self.model.id);
-
-                var status = self.model.get("status");
-                if (status == "Disabled") {
-                    self.enableLink.show();
-                    self.disableLink.hide();
-                } else if (status == "Enabled") {
-                    self.enableLink.hide();
-                    self.disableLink.show();
-                }
-
-                if (self.mode == "view") {
-                    self.menu.show();
-                    self.buttons.hide();
-                    self.propertiesButtons.hide();
-
-                } else {
-                    self.menu.hide();
-                    self.buttons.show();
-                    self.propertiesButtons.show();
-                }
-
-                self.$(".pki-fields input").each(function(index) {
-                    var input = $(this);
-                    self.renderField(input);
-                });
-
-                self.propertiesTable.render();
+                self.renderContent();
             }
         });
+    },
+    renderContent: function() {
+        var self = this;
+
+        if (self.mode == "add") {
+            // In add mode all fields are editable.
+            self.$(".pki-fields input").each(function(index) {
+                var input = $(this);
+                input.removeAttr("readonly");
+            });
+
+        } else {
+            // In view and edit modes show entry ID in the title.
+            self.$("span[name='id']").text(self.attributes.id);
+
+            // In view mode all fields are read-only. In edit mode
+            // currently all fields are read-only too, but it might
+            // need to be changed later to suppot editable fields.
+            self.$(".pki-fields input").each(function(index) {
+                var input = $(this);
+                input.attr("readonly", "readonly");
+            });
+        }
+
+        var status = self.attributes.status;
+        if (status == "Disabled") {
+            self.enableLink.show();
+            self.disableLink.hide();
+        } else if (status == "Enabled") {
+            self.enableLink.hide();
+            self.disableLink.show();
+        }
+
+        if (self.mode == "view") {
+            self.menu.show();
+            self.buttons.hide();
+            self.propertiesButtons.hide();
+
+        } else {
+            self.menu.hide();
+            self.buttons.show();
+            self.propertiesButtons.show();
+        }
+
+        self.$(".pki-fields input").each(function(index) {
+            var input = $(this);
+            self.renderField(input);
+        });
+
+        self.propertiesTable.render();
     },
     renderField: function(input) {
         var self = this;
@@ -968,6 +1004,15 @@ var DetailsPage = Page.extend({
         var value = self.attributes[name];
         if (!value) value = "";
         input.val(value);
+    },
+    close: function() {
+        var self = this;
+        self.mode = "view";
+        self.render();
+    },
+    cancel: function() {
+        var self = this;
+        self.close();
     },
     save: function() {
         var self = this;
@@ -985,25 +1030,38 @@ var DetailsPage = Page.extend({
 
         attributes.properties = self.propertiesTable.properties;
 
-        // save changed attributes with PATCH
-        self.model.save(attributes, {
-            patch: true,
-            wait: true,
-            success: function(model, response, options) {
-                // redraw table after saving entries
-                self.mode = "view";
-                self.render();
-            },
-            error: function(model, response, options) {
-                if (response.status == 200) {
-                    // redraw table after saving entries
-                    self.mode = "view";
-                    self.render();
-                    return;
+        if (self.mode == "add") {
+            // save new entry with POST
+            self.model.save(attributes, {
+                wait: true,
+                success: function(model, response, options) {
+                    self.close();
+                },
+                error: function(model, response, options) {
+                    if (response.status == 201) {
+                        self.close();
+                        return;
+                    }
+                    alert("ERROR: " + response.responseText);
                 }
-                alert("ERROR: " + response.responseText);
-            }
-        });
+            });
+        } else {
+            // save changed attributes with PATCH
+            self.model.save(attributes, {
+                patch: true,
+                wait: true,
+                success: function(model, response, options) {
+                    self.close();
+                },
+                error: function(model, response, options) {
+                    if (response.status == 200) {
+                        self.close();
+                        return;
+                    }
+                    alert("ERROR: " + response.responseText);
+                }
+            });
+        }
     },
     saveField: function(input) {
         var self = this;
@@ -1011,3 +1069,18 @@ var DetailsPage = Page.extend({
         self.attributes[name] = input.val();
     }
 });
+
+var AddEntryPage = EntryPage.extend({
+    initialize: function(options) {
+        var self = this;
+        options.mode = "add";
+        AddEntryPage.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    close: function() {
+        var self = this;
+        self.parentPage.$el.load(self.parentPage.url, function(response, status, xhr) {
+            self.parentPage.load();
+        });
+    }
+});;

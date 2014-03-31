@@ -61,7 +61,9 @@ var SelfTestCollection = Collection.extend({
 });
 
 var SelfTestPage = Page.extend({
-    load: function(container) {
+    load: function() {
+        var self = this;
+
         var editDialog = new Dialog({
             el: $("#selftest-dialog"),
             title: "Edit Self Test",
@@ -73,6 +75,7 @@ var SelfTestPage = Page.extend({
             collection: new SelfTestCollection(),
             editDialog: editDialog
         });
+
         table.render();
     }
 });

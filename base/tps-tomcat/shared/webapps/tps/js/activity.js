@@ -67,7 +67,9 @@ var ActivityCollection = Collection.extend({
 });
 
 var ActivityPage = Page.extend({
-    load: function(container) {
+    load: function() {
+        var self = this;
+
         var editDialog = new Dialog({
             el: $("#activity-dialog"),
             title: "Edit Activity",
@@ -80,6 +82,7 @@ var ActivityPage = Page.extend({
             collection: new ActivityCollection(),
             editDialog: editDialog
         });
+
         table.render();
     }
 });

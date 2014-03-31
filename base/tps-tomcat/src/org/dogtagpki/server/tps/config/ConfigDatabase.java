@@ -156,6 +156,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
         String filter = createFilter(record, key);
         for (String name : properties.keySet()) {
             if (name.matches(filter)) continue;
+            CMS.debug("Property " + name + " doesn't match filter " + filter + ".");
             throw new BadRequestException("Invalid property: " + name);
         }
     }

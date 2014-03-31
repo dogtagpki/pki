@@ -86,29 +86,44 @@ var ProfilesTable = Table.extend({
     initialize: function(options) {
         var self = this;
         ProfilesTable.__super__.initialize.call(self, options);
-        self.container = options.container;
+        self.parentPage = options.parentPage;
     },
     open: function(item) {
         var self = this;
 
-        var page = new DetailsPage({
-            el: self.container,
+        var page = new EntryPage({
+            el: self.parentPage.$el,
+            url: "profile.html",
             model: item.model
         });
 
-        self.container.load("profile.html", function(response, status, xhr) {
-            page.load();
+        page.open();
+    },
+    add: function() {
+        var self = this;
+
+        var page = new AddEntryPage({
+            el: self.parentPage.$el,
+            url: "profile.html",
+            model: new ProfileModel(),
+            mode: "add",
+            parentPage: self.parentPage
         });
+
+        page.open();
     }
 });
 
 var ProfilesPage = Page.extend({
-    load: function(container) {
+    load: function() {
+        var self = this;
+
         var table = new ProfilesTable({
             el: $("table[name='profiles']"),
             collection: new ProfileCollection(),
-            container: container
+            parentPage: self
         });
+
         table.render();
     }
 });
