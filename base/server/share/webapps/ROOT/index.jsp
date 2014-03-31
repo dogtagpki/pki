@@ -214,13 +214,7 @@
 <tr valign="TOP">
     <td>
         <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/tps/agent/tps">Agent Services</a></font>
-    </td>
-</tr>
-<tr valign="TOP">
-    <td>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/tps/services">Admin Services</a></font>
+        <a href="/tps/">Agent and Admin Services</a></font>
     </td>
 </tr>
 </table>
