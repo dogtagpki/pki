@@ -20,7 +20,6 @@ package com.netscape.certsrv.tps.profile;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -30,6 +29,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.base.PATCH;
 
 
 /**
@@ -57,7 +57,7 @@ public interface ProfileMappingResource {
     @ClientResponseType(entityType=ProfileMappingData.class)
     public Response addProfileMapping(ProfileMappingData profileMappingData);
 
-    @PUT
+    @PATCH
     @Path("{profileMappingID}")
     @ACLMapping("profile-mappings.modify")
     @ClientResponseType(entityType=ProfileMappingData.class)
