@@ -155,19 +155,24 @@ table tfoot tr th {
   float: right;
 }
 
-.pki-table-actions span[name="info"] {
+.pki-table-actions .pki-table-info {
   line-height: 26px;
   margin: 4px;
   display: inline-block;
+  float: left;
 }
 
-table span[name="page-controls"] {
+.pki-table-actions .pki-page-controls {
   float: right;
 }
 
-table span[name="page-jump"] {
-  margin: 0 8px 0 0;
-  float: right;
+.pki-table-actions .pki-page-controls .pagination {
+  float: left;
+}
+
+.pki-table-actions .pki-page-controls .pki-page-jump {
+  margin: 0 10px 0 10px;
+  float: left;
 }
 
 #content {
