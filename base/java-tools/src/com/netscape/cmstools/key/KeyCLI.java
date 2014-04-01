@@ -18,9 +18,12 @@
 
 package com.netscape.cmstools.key;
 
+import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
+import com.netscape.certsrv.system.SystemCertClient;
+import com.netscape.certsrv.util.NSSCryptoProvider;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -30,6 +33,7 @@ import com.netscape.cmstools.cli.MainCLI;
 public class KeyCLI extends CLI {
 
     public KeyClient keyClient;
+    public SystemCertClient systemCertClient;
 
     public KeyCLI(CLI parent) {
         super("key", "Key management commands", parent);
@@ -39,6 +43,13 @@ public class KeyCLI extends CLI {
         addModule(new KeyShowCLI(this));
         addModule(new KeyRequestShowCLI(this));
         addModule(new KeyModifyCLI(this));
+        addModule(new KeyRequestTemplateFindCLI(this));
+        addModule(new KeyRequestTemplateShowCLI(this));
+        addModule(new KeyArchiveCLI(this));
+        addModule(new KeyRetrieveCLI(this));
+        addModule(new KeyGenerateCLI(this));
+        addModule(new KeyRecoverCLI(this));
+        addModule(new KeyRequestReviewCLI(this));
     }
 
     public String getFullName() {
@@ -56,10 +67,21 @@ public class KeyCLI extends CLI {
 
         // determine the subsystem
         String subsystem = client.getSubsystem();
-        if (subsystem == null) subsystem = "kra";
+        if (subsystem == null)
+            subsystem = "kra";
 
         // create new key client
         keyClient = new KeyClient(client, subsystem);
+        if ((client.getConfig().getCertDatabase() != null) && (client.getConfig().getCertPassword() != null)) {
+            keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));
+
+            // Set the transport cert for crypto operations
+            systemCertClient = new SystemCertClient(client, subsystem);
+            String transportCert = systemCertClient.getTransportCert().getEncoded();
+            transportCert = transportCert.substring(CertData.HEADER.length(),
+                    transportCert.indexOf(CertData.FOOTER));
+            keyClient.setTransportCert(transportCert);
+        }
 
         super.execute(args);
     }

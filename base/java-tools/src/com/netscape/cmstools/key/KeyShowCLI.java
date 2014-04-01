@@ -12,7 +12,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// (C) 2012 Red Hat, Inc.
+// (C) 2014 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
@@ -22,11 +22,11 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.cmstools.cli.CLI;
 
-public class KeyShowCLI extends CLI{
+public class KeyShowCLI extends CLI {
 
     public KeyCLI keyCLI;
 
-    public KeyShowCLI(KeyCLI keyCLI){
+    public KeyShowCLI(KeyCLI keyCLI) {
         super("show", "Get key", keyCLI);
         this.keyCLI = keyCLI;
     }
@@ -35,9 +35,9 @@ public class KeyShowCLI extends CLI{
         formatter.printHelp(getFullName() + " <Key Id>", options);
     }
 
-    public void execute(String[] args){
+    public void execute(String[] args) {
 
-        if (args.length != 1){
+        if (args.length != 1) {
             printHelp();
             System.exit(-1);
         }
