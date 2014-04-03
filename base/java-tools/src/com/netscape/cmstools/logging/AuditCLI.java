@@ -57,10 +57,13 @@ public class AuditCLI extends CLI {
         if (auditConfig.getBufferSize() != null) System.out.println("  Buffer size (bytes): " + auditConfig.getBufferSize());
 
         System.out.println("  Events:");
-        Map<String, Boolean> events = auditConfig.getOptionalEvents();
-        for (String name : events.keySet()) {
-            Boolean value = events.get(name);
-            System.out.println("    " + name + ": " + value);
+        Map<String, String> eventConfigs = auditConfig.getEventConfigs();
+        if (eventConfigs != null) {
+            for (Map.Entry<String, String> entry : eventConfigs.entrySet()) {
+                String name = entry.getKey();
+                String value = entry.getValue();
+                System.out.println("    " + name + ": " + value);
+            }
         }
 
         Link link = auditConfig.getLink();

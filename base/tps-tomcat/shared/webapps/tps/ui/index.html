@@ -28,6 +28,7 @@
     <script src="/tps/js/tps.js"></script>
     <script src="/tps/js/account.js"></script>
     <script src="/tps/js/activity.js"></script>
+    <script src="/tps/js/audit.js"></script>
     <script src="/tps/js/authenticator.js"></script>
     <script src="/tps/js/cert.js"></script>
     <script src="/tps/js/connection.js"></script>
@@ -62,6 +63,11 @@ $(function() {
     navigation.page("activities", new ActivityPage({
         el: content,
         url: "activities.html"
+    }));
+
+    navigation.page("audit", new AuditPage({
+        el: content,
+        url: "audit.html"
     }));
 
     navigation.page("authenticators", new AuthenticatorsPage({
@@ -167,6 +173,7 @@ $(function() {
         <li><a href="#connections">Subsystem Connections</a></li>
         <li><a href="#profiles">Profiles</a></li>
         <li><a href="#profileMappings">Profile Mappings</a></li>
+        <li><a href="#audit">Audit Logging</a></li>
       </ul>
     </li>
     </ul>

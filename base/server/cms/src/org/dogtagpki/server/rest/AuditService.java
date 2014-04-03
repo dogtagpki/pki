@@ -21,7 +21,9 @@ package org.dogtagpki.server.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -75,20 +77,24 @@ public class AuditService extends PKIService implements AuditResource {
         auditConfig.setInterval(cs.getInteger("log.instance.SignedAudit.flushInterval", 5));
         auditConfig.setBufferSize(cs.getInteger("log.instance.SignedAudit.bufferSize", 512));
 
-        // unselected events
+        Map<String, String> eventConfigs = new TreeMap<String, String>();
+
+        // unselected optional events
         for (String event : StringUtils.split(cs.getString("log.instance.SignedAudit.unselected.events", ""), ", ")) {
-            auditConfig.setOptionalEvent(event.trim(), false);
+            eventConfigs.put(event.trim(), "disabled");
         }
 
-        // in case of duplicates, selected events override unselected events
+        // selected optional events
         for (String event : StringUtils.split(cs.getString("log.instance.SignedAudit.events", ""), ", ")) {
-            auditConfig.setOptionalEvent(event.trim(), true);
+            eventConfigs.put(event.trim(), "enabled");
         }
 
-        // mandatory events
+        // always selected mandatory events
         for (String event : StringUtils.split(cs.getString("log.instance.SignedAudit.mandatory.events", ""), ", ")) {
-            auditConfig.addMandatoryEvent(event.trim());
+            eventConfigs.put(event.trim(), "mandatory");
         }
+
+        auditConfig.setEventConfigs(eventConfigs);
 
         URI uri = uriInfo.getBaseUriBuilder().path(AuditResource.class).build();
         auditConfig.setLink(new Link("self", uri));
@@ -121,6 +127,9 @@ public class AuditService extends PKIService implements AuditResource {
         CMS.debug("AuditService.updateAuditConfig()");
 
         try {
+            AuditConfig currentAuditConfig = createAuditConfig();
+            Map<String, String> currentEventConfigs = currentAuditConfig.getEventConfigs();
+
             IConfigStore cs = CMS.getConfigStore();
 
             if (auditConfig.getEnabled() != null) {
@@ -139,25 +148,58 @@ public class AuditService extends PKIService implements AuditResource {
                 cs.putInteger("log.instance.SignedAudit.bufferSize", auditConfig.getBufferSize());
             }
 
-            // update events selection
-            Collection<String> selected = new LinkedHashSet<String>();
-            Collection<String> unselected = new LinkedHashSet<String>();
+            Map<String, String> eventConfigs = auditConfig.getEventConfigs();
 
-            for (String name : auditConfig.getOptionalEvents().keySet()) {
-                Boolean value = auditConfig.getOptionalEvent(name);
+            if (eventConfigs != null) {
+                // update events if specified
 
-                if (value) {
-                    selected.add(name);
+                Collection<String> selected = new TreeSet<String>();
+                Collection<String> unselected = new TreeSet<String>();
 
-                } else {
-                    unselected.add(name);
+                for (Map.Entry<String, String> entry : eventConfigs.entrySet()) {
+                    String name = entry.getKey();
+                    String value = entry.getValue();
+                    String currentValue = currentEventConfigs.get(name);
+
+                    // make sure no event is added
+                    if (currentValue == null) {
+                        throw new PKIException("Unable to add event: " + name);
+                    }
+
+                    // make sure no optional event becomes mandatory
+                    if ("mandatory".equals(value)) {
+                        if (!"mandatory".equals(currentValue)) {
+                            throw new PKIException("Unable to add mandatory event: " + name);
+                        }
+                        continue;
+                    }
+
+                    // make sure no mandatory event becomes optional
+                    if ("mandatory".equals(currentValue)) {
+                        throw new PKIException("Unable to remove mandatory event: " + name);
+                    }
+
+                    if ("enabled".equals(value)) {
+                        selected.add(name);
+
+                    } else if ("disabled".equals(value)) {
+                        unselected.add(name);
+
+                    } else {
+                        throw new PKIException("Invalid event configuration: " + name + "=" + value);
+                    }
                 }
+
+                cs.putString("log.instance.SignedAudit.events", StringUtils.join(selected, ","));
+                cs.putString("log.instance.SignedAudit.unselected.events", StringUtils.join(unselected, ","));
             }
 
-            cs.putString("log.instance.SignedAudit.events", StringUtils.join(selected, ","));
-            cs.putString("log.instance.SignedAudit.unselected.events", StringUtils.join(unselected, ","));
-
-            // mandatory events cannot be updated
+            for (String name : currentEventConfigs.keySet()) {
+                // make sure no event is removed
+                if (!eventConfigs.containsKey(name)) {
+                    throw new PKIException("Unable to remove event: " + name);
+                }
+            }
 
             cs.commit(true);
 

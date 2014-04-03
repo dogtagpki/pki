@@ -21,16 +21,15 @@ package com.netscape.certsrv.logging;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -44,6 +43,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Audit")
+@XmlAccessorType(XmlAccessType.NONE)
 public class AuditConfig {
 
     public static Marshaller marshaller;
@@ -63,8 +63,8 @@ public class AuditConfig {
     Boolean signed;
     Integer interval;
     Integer bufferSize;
-    Collection<String> mandatoryEvents = new TreeSet<String>();
-    Map<String, Boolean> optionalEvents = new TreeMap<String, Boolean>();
+
+    Map<String, String> eventConfigs;
 
     Link link;
 
@@ -104,107 +104,50 @@ public class AuditConfig {
         this.bufferSize = bufferSize;
     }
 
-    @XmlElement(name="MandatoryEvents")
-    @XmlJavaTypeAdapter(MandatoryEventsAdapter.class)
-    public Collection<String> getMandatoryEvents() {
-        return mandatoryEvents;
+    @XmlElement(name="Events")
+    @XmlJavaTypeAdapter(EventConfigsAdapter.class)
+    public Map<String, String> getEventConfigs() {
+        return eventConfigs;
     }
 
-    public void setMandatoryEvents(Collection<String> mandatoryEvents) {
-        this.mandatoryEvents.clear();
-        this.mandatoryEvents.addAll(mandatoryEvents);
+    public void setEventConfigs(Map<String, String> eventConfigs) {
+        this.eventConfigs = eventConfigs;
     }
 
-    public void addMandatoryEvent(String event) {
-        mandatoryEvents.add(event);
-    }
+    public static class EventConfigsAdapter extends XmlAdapter<EventConfigList, Map<String, String>> {
 
-    public void removeMandatoryEvent(String event) {
-        mandatoryEvents.remove(event);
-    }
-
-    @XmlElement(name="OptionalEvents")
-    @XmlJavaTypeAdapter(OptionalEventsAdapter.class)
-    public Map<String, Boolean> getOptionalEvents() {
-        return optionalEvents;
-    }
-
-    public void setOptionalEvents(Map<String, Boolean> optionalEvents) {
-        this.optionalEvents.clear();
-        this.optionalEvents.putAll(optionalEvents);
-    }
-
-    public Collection<String> getOptionalEventNames() {
-        return optionalEvents.keySet();
-    }
-
-    public Boolean getOptionalEvent(String name) {
-        return optionalEvents.get(name);
-    }
-
-    public void setOptionalEvent(String name, Boolean value) {
-        optionalEvents.put(name, value);
-    }
-
-    public Boolean removeOptionalEvent(String name) {
-        return optionalEvents.remove(name);
-    }
-
-    public static class MandatoryEventsAdapter extends XmlAdapter<EventList, Collection<String>> {
-
-        public EventList marshal(Collection<String> input) {
-            EventList output = new EventList();
-            for (String name : input) {
-                Event event = new Event();
-                event.name = name;
-                output.entries.add(event);
-            }
-            return output;
-        }
-
-        public Collection<String> unmarshal(EventList input) {
-            Collection<String> output = new TreeSet<String>();
-            for (Event event : input.entries) {
-                output.add(event.name);
-            }
-            return output;
-        }
-    }
-
-    public static class OptionalEventsAdapter extends XmlAdapter<EventList, Map<String, Boolean>> {
-
-        public EventList marshal(Map<String, Boolean> map) {
-            EventList list = new EventList();
-            for (Map.Entry<String, Boolean> entry : map.entrySet()) {
-                Event event = new Event();
-                event.name = entry.getKey();
-                event.value = entry.getValue();
-                list.entries.add(event);
+        public EventConfigList marshal(Map<String, String> map) {
+            EventConfigList list = new EventConfigList();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                EventConfig eventConfig = new EventConfig();
+                eventConfig.name = entry.getKey();
+                eventConfig.value = entry.getValue();
+                list.entries.add(eventConfig);
             }
             return list;
         }
 
-        public Map<String, Boolean> unmarshal(EventList list) {
-            Map<String, Boolean> map = new LinkedHashMap<String, Boolean>();
-            for (Event event : list.entries) {
-                map.put(event.name, event.value);
+        public Map<String, String> unmarshal(EventConfigList list) {
+            Map<String, String> map = new TreeMap<String, String>();
+            for (EventConfig eventConfig : list.entries) {
+                map.put(eventConfig.name, eventConfig.value);
             }
             return map;
         }
     }
 
-    public static class EventList {
+    public static class EventConfigList {
         @XmlElement(name="Event")
-        public List<Event> entries = new ArrayList<Event>();
+        public List<EventConfig> entries = new ArrayList<EventConfig>();
     }
 
-    public static class Event {
+    public static class EventConfig {
 
         @XmlAttribute
         public String name;
 
         @XmlValue
-        public Boolean value;
+        public String value;
     }
 
     @XmlElement(name="Link")
@@ -222,10 +165,9 @@ public class AuditConfig {
         int result = 1;
         result = prime * result + ((bufferSize == null) ? 0 : bufferSize.hashCode());
         result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
-        result = prime * result + ((optionalEvents == null) ? 0 : optionalEvents.hashCode());
+        result = prime * result + ((eventConfigs == null) ? 0 : eventConfigs.hashCode());
         result = prime * result + ((interval == null) ? 0 : interval.hashCode());
         result = prime * result + ((link == null) ? 0 : link.hashCode());
-        result = prime * result + ((mandatoryEvents == null) ? 0 : mandatoryEvents.hashCode());
         result = prime * result + ((signed == null) ? 0 : signed.hashCode());
         return result;
     }
@@ -249,10 +191,10 @@ public class AuditConfig {
                 return false;
         } else if (!enabled.equals(other.enabled))
             return false;
-        if (optionalEvents == null) {
-            if (other.optionalEvents != null)
+        if (eventConfigs == null) {
+            if (other.eventConfigs != null)
                 return false;
-        } else if (!optionalEvents.equals(other.optionalEvents))
+        } else if (!eventConfigs.equals(other.eventConfigs))
             return false;
         if (interval == null) {
             if (other.interval != null)
@@ -263,11 +205,6 @@ public class AuditConfig {
             if (other.link != null)
                 return false;
         } else if (!link.equals(other.link))
-            return false;
-        if (mandatoryEvents == null) {
-            if (other.mandatoryEvents != null)
-                return false;
-        } else if (!mandatoryEvents.equals(other.mandatoryEvents))
             return false;
         if (signed == null) {
             if (other.signed != null)
@@ -304,10 +241,12 @@ public class AuditConfig {
         before.setSigned(false);
         before.setInterval(10);
         before.setBufferSize(512);
-        before.addMandatoryEvent("event1");
-        before.addMandatoryEvent("event2");
-        before.setOptionalEvent("event3", true);
-        before.setOptionalEvent("event4", false);
+
+        Map<String, String> eventConfigs = new TreeMap<String, String>();
+        eventConfigs.put("event1", "mandatory");
+        eventConfigs.put("event2", "enabled");
+        eventConfigs.put("event3", "disabled");
+        before.setEventConfigs(eventConfigs);
 
         String string = before.toString();
         System.out.println(string);
