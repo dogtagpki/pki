@@ -18,37 +18,50 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
-
 package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class ListObjects extends APDU {
-    public ListObjects(byte seq)
+public class SetPinAPDU extends APDU {
+    /**
+     * Constructs SetPin APDU.
+     *
+     * SecureSetPIN APDU format:
+     * CLA 0x80
+     * INS 0x04
+     * P1 <Pin number>
+     * P2 0x00
+     * lc <data length>
+     * DATA <New Pin Value>
+     *
+     * Connection requirement:
+     * Secure Channel
+     *
+     * Possible error Status Codes:
+     * 9C 06 - unauthorized
+     *
+     * @param p1 Pin number: 0x00 - 0x07
+     * @param p2 always 0x00
+     * @param data pin
+     * @see APDU
+     */
+    public SetPinAPDU(byte p1, byte p2, TPSBuffer theData)
     {
-        setCLA((byte) 0xB0);
-        setINS((byte) 0x58);
-        setP1(seq);
-        setP2((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x04);
+        setP1(p1);
+        setP2(p2);
+        setData(theData);
     }
 
-    @Override
+    public TPSBuffer getNewPIN()
+    {
+        return getData();
+    }
+
     public Type getType()
     {
-        return Type.APDU_LIST_OBJECTS;
+        return Type.APDU_SET_PIN;
     }
-
-    public TPSBuffer getEncoding()
-    {
-        TPSBuffer encoding = new TPSBuffer();
-
-        encoding.add(cla);
-        encoding.add(ins);
-        encoding.add(p1);
-        encoding.add(p2);
-        encoding.add((byte) 0x0E);
-
-        return encoding;
-    } /* Encode */
 
 }

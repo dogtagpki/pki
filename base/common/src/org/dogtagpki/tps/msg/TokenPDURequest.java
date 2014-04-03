@@ -18,7 +18,7 @@
 package org.dogtagpki.tps.msg;
 
 import org.dogtagpki.tps.apdu.APDU;
-import org.dogtagpki.tps.apdu.Select;
+import org.dogtagpki.tps.apdu.SelectAPDU;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
@@ -44,13 +44,13 @@ public class TokenPDURequest extends TPSMessage {
 
     public static void main(String[] args) {
 
-        Select apdu = null;
+        SelectAPDU apdu = null;
 
         byte[] select_aid = { (byte) 0xa0, 0x0, 0x0, 0x0, 0x3, 0x0, 0x0 };
 
         TPSBuffer select = new TPSBuffer(select_aid);
 
-        apdu = new Select((byte) 0x4, (byte) 0x0, select);
+        apdu = new SelectAPDU((byte) 0x4, (byte) 0x0, select);
 
         TokenPDURequest request = new TokenPDURequest(apdu);
 

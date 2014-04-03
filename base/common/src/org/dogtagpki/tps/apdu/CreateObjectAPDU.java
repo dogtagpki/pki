@@ -23,7 +23,7 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class CreateObject extends APDU {
+public class CreateObjectAPDU extends APDU {
     /**
      * Constructs a Create Object APDU. This APDU is usually sent right
      * before Write_Buffer_APDU is sent. This APDU only creates an Object
@@ -63,7 +63,7 @@ public class CreateObject extends APDU {
      * @see APDU
      */
 
-    public CreateObject(byte[] object_id, byte[] permissions, int len) {
+    public CreateObjectAPDU(byte[] object_id, byte[] permissions, int len) {
 
         if (object_id.length != 4)
             return;
@@ -108,7 +108,7 @@ public class CreateObject extends APDU {
         byte[] object_id = { 0x01, 0x02, 0x3, 0x4 };
         byte[] permisisons = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x6 };
 
-        CreateObject apdu = new CreateObject(object_id, permisisons, 56);
+        CreateObjectAPDU apdu = new CreateObjectAPDU(object_id, permisisons, 56);
 
         if (apdu != null) {
 

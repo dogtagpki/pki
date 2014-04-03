@@ -140,7 +140,6 @@ PK11SymKey * ReturnSymKey( PK11SlotInfo *slot, char *keyname)
 
     pwdata.source   = secuPWData::PW_NONE;
     pwdata.data     = (char *) NULL;
-    PR_fprintf(PR_STDOUT,"In ReturnSymKey name %s \n",keyname);
     if (keyname == NULL)
     {
         goto cleanup;
@@ -184,6 +183,102 @@ PK11SymKey * ReturnSymKey( PK11SlotInfo *slot, char *keyname)
 
     cleanup:
     return foundSymKey;
+}
+
+PK11SymKey *CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey) {
+
+    PK11SymKey *newKey = NULL;
+
+    CK_OBJECT_HANDLE keyhandle = 0;
+    PK11SymKey *firstEight = NULL;
+    PK11SymKey *concatKey = NULL;
+    PK11SymKey *internalOrigKey = NULL;
+    CK_ULONG bitPosition = 0;
+    SECItem paramsItem = { siBuffer, NULL, 0 };
+
+    PK11SlotInfo *internal = PK11_GetInternalSlot();
+    if (  slot == NULL || origKey == NULL || internal == NULL )
+        goto loser;
+
+    PR_fprintf(PR_STDOUT,"In SessionKey CreateDesKey24Bit!\n");
+
+    if( internal != slot ) {  //Make sure we do this on the NSS Generic Crypto services because concatanation
+        PR_fprintf(PR_STDOUT,"CreateDesKey24Bit! Input key not on internal slot!\n");
+        internalOrigKey = PK11_MoveSymKey( internal, CKA_ENCRYPT, 0, PR_FALSE, origKey );
+        if(internalOrigKey == NULL) {
+            PR_fprintf(PR_STDOUT,"CreateDesKey24Bit! Can't move input key to internal!\n");
+            goto loser;
+        }
+    }
+
+     // Extract first eight bytes from generated key into another key.
+    bitPosition = 0;
+    paramsItem.data = (CK_BYTE *) &bitPosition;
+    paramsItem.len = sizeof bitPosition;
+
+
+    if ( internalOrigKey)
+        firstEight = PK11_Derive(internalOrigKey, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem, CKA_ENCRYPT , CKA_DERIVE, EIGHT_BYTES);
+    else
+        firstEight = PK11_Derive(origKey, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem, CKA_ENCRYPT , CKA_DERIVE, EIGHT_BYTES);
+
+    if (firstEight  == NULL ) {
+        PR_fprintf(PR_STDOUT,"CreateDesKey24Bit! Can't extract first 8 bits of input key!\n");
+        goto loser;
+    }
+
+     //Concatenate 8 byte key to the end of the original key, giving new 24 byte key
+    keyhandle = PK11_GetSymKeyHandle(firstEight);
+
+    paramsItem.data=(unsigned char *) &keyhandle;
+    paramsItem.len=sizeof(keyhandle);
+
+    if ( internalOrigKey ) {
+        concatKey = PK11_Derive ( internalOrigKey , CKM_CONCATENATE_BASE_AND_KEY , &paramsItem ,CKM_DES3_ECB , CKA_DERIVE , 0);
+    } else {
+        concatKey = PK11_Derive ( origKey , CKM_CONCATENATE_BASE_AND_KEY , &paramsItem ,CKM_DES3_ECB , CKA_DERIVE , 0);
+    }
+        
+    if ( concatKey == NULL ) {
+         PR_fprintf(PR_STDOUT,"CreateDesKey24Bit: error concatenating 8 bytes on end of key.");
+        goto loser;
+    }   
+        
+    //Make sure we move this to the proper token, in case it got moved by NSS
+    //during the derive phase.
+        
+    newKey =  PK11_MoveSymKey ( slot, CKA_ENCRYPT, 0, PR_FALSE, concatKey);
+    
+    if ( newKey == NULL ) {
+       PR_fprintf(PR_STDOUT,"CreateDesKey24Bit: error moving key to original slot.");
+    }   
+
+loser:
+
+
+    if ( concatKey != NULL ) {
+        PK11_FreeSymKey( concatKey );
+        concatKey = NULL;
+    }
+
+    if ( firstEight != NULL ) {
+        PK11_FreeSymKey ( firstEight );
+        firstEight = NULL;
+    }
+
+    if ( internalOrigKey != NULL ) {
+       PK11_FreeSymKey ( internalOrigKey );
+       internalOrigKey = NULL;
+    }
+
+    //Caller will free the slot input slot object
+
+    if ( internal != NULL ) {
+       PK11_FreeSlot( internal);
+       internal = NULL;
+    }
+
+    return newKey; 
 }
 
 

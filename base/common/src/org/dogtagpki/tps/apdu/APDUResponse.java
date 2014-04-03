@@ -88,11 +88,25 @@ public class APDUResponse extends APDU {
     }
 
     //Get the two byte apdu return code
-    byte[] getResultBytes() {
+    public byte[] getResultCodeBytes() {
         byte[] result = new byte[2];
 
         result[0] = getSW1();
         result[1] = getSW2();
+        return result;
+    }
+
+    public TPSBuffer getResultDataNoCode() {
+
+        //Result code will be 2 bytes at the end.
+        TPSBuffer theData = getData();
+
+        TPSBuffer result = null;
+        int len = theData.size();
+        if (len > 2) {
+            result = theData.substr(0, len - 2);
+        }
+
         return result;
     }
 

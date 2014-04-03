@@ -18,25 +18,59 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
-
 package org.dogtagpki.tps.apdu;
 
-public class Lifecycle extends APDU {
+import org.dogtagpki.tps.main.TPSBuffer;
+
+public class GetIssuerInfoAPDU extends APDU {
     /**
-     * Constructs Lifecycle APDU.
+     * Constructs GetIssuer APDU.
+     *
+     * SecureGetIssuer APDU format:
+     * CLA 0x84
+     * INS 0xF6
+     * P1 0x00
+     * P2 0x00
+     * lc 0xE0
+     * DATA <Issuer Info>
+     *
+     * Connection requirement:
+     * Secure Channel
+     *
+     * Possible error Status Codes:
+     * 9C 06 - unauthorized
+     *
+     * @param p1 always 0x00
+     * @param p2 always 0x00
+     * @param data issuer info
+     * @see APDU
      */
-    public Lifecycle(byte lifecycle)
+    public GetIssuerInfoAPDU()
     {
         setCLA((byte) 0x84);
-        setINS((byte) 0xf0);
-        setP1(lifecycle);
+        setINS((byte) 0xF6);
+        setP1((byte) 0x00);
         setP2((byte) 0x00);
     }
 
     @Override
-    public Type getType()
+    public APDU.Type getType()
     {
-        return Type.APDU_LIFECYCLE;
+        return Type.APDU_GET_ISSUERINFO;
     }
+
+    @Override
+    public TPSBuffer getEncoding()
+    {
+        TPSBuffer encoding = new TPSBuffer();
+
+        encoding.add(cla);
+        encoding.add(ins);
+        encoding.add(p1);
+        encoding.add(p2);
+        encoding.add((byte) 0xe0);
+
+        return encoding;
+    } /* Encode */
 
 }

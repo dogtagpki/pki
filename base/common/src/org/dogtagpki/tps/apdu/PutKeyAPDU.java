@@ -18,44 +18,26 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
-
 package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class GenerateKey extends APDU {
-
-    public GenerateKey(byte theP1, byte theP2, byte alg,
-            int keysize, byte option,
-            byte type, TPSBuffer wrapped_challenge, TPSBuffer key_check) {
-
+public class PutKeyAPDU extends APDU {
+    /**
+     * Constructs Put Key APDU.
+     */
+    public PutKeyAPDU(byte p1, byte p2, TPSBuffer theData)
+    {
         setCLA((byte) 0x84);
-        setINS((byte) 0x0C);
-        setP1(theP1);
-        setP2(theP2);
-        data = new TPSBuffer();
-
-        data.add(alg);
-        data.add((byte) (keysize / 256));
-        data.add((byte) (keysize % 256));
-
-        data.add(option);
-
-        data.add(type);
-
-        data.add((byte) wrapped_challenge.size());
-        data.add(wrapped_challenge);
-
-        data.add((byte) key_check.size());
-
-        if (key_check.size() > 0) {
-            data.add(key_check);
-        }
-
+        setINS((byte) 0xd8);
+        setP1(p1);
+        setP2(p2);
+        setData(theData);
     }
 
-    public APDU.Type getType() {
-        return APDU.Type.APDU_GENERATE_KEY;
+    public Type getType()
+    {
+        return Type.APDU_PUT_KEY;
     }
 
 }

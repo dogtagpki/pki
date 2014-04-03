@@ -19,6 +19,9 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
+import org.mozilla.jss.pkcs11.PK11SymKey;
+
+import com.netscape.certsrv.base.EBaseException;
 
 public abstract class APDU {
 
@@ -140,8 +143,59 @@ public abstract class APDU {
         return encoding;
     }
 
-    public void getDataToMAC(TPSBuffer data) {
-        //ToDO
+    public TPSBuffer getDataToMAC() {
+        TPSBuffer mac = new TPSBuffer();
+
+        mac.add(cla);
+        mac.add(ins);
+        mac.add(p1);
+        mac.add(p2);
+        mac.add((byte) (data.size() + 8));
+        mac.add(data);
+
+        return mac;
+    }
+
+    public void secureMessage(PK11SymKey encKey) throws EBaseException {
+
+        if (encKey == null) {
+            throw new EBaseException("APDU.secureData: No input encrytion session key!");
+        }
+
+        int padNeeded = 0;
+
+        TPSBuffer dataToEnc = null;
+        TPSBuffer padding = null;
+        TPSBuffer dataEncrypted = null;
+
+        dataToEnc = new TPSBuffer();
+        dataToEnc.add((byte) data.size());
+        dataToEnc.add(data);
+
+        int dataSize = dataToEnc.size();
+        int rem = dataSize % 8;
+
+        if (rem == 0) {
+            padNeeded = 0;
+        } else if (dataSize < 8) {
+            padNeeded = 8 - dataSize;
+        } else {
+            padNeeded = 8 - rem;
+        }
+
+        if (padNeeded > 0) {
+            dataToEnc.add((byte) 0x80);
+            padNeeded--;
+
+            if (padNeeded > 0) {
+                padding = new TPSBuffer(padNeeded);
+                dataToEnc.add(padding);
+            }
+        }
+
+        dataEncrypted = Util.encryptData(dataToEnc, encKey);
+
+        data.set(dataEncrypted);
     }
 
     public Type getType() {

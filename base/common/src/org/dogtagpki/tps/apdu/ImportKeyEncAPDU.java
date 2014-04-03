@@ -23,7 +23,7 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class ImportKeyEnc extends APDU {
+public class ImportKeyEncAPDU extends APDU {
 
     /**
      * Constructs Import Key Encrypted APDU.
@@ -47,7 +47,7 @@ public class ImportKeyEnc extends APDU {
      * Import Parameters:
      * ...to be provided
      */
-    public ImportKeyEnc(byte p1, byte p2, TPSBuffer theData)
+    public ImportKeyEncAPDU(byte p1, byte p2, TPSBuffer theData)
     {
         setCLA((byte) 0x84);
         setINS((byte) 0x0A);

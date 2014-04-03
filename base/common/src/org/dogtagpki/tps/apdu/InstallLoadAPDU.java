@@ -23,9 +23,9 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class InstallLoad extends APDU {
+public class InstallLoadAPDU extends APDU {
 
-    public InstallLoad(TPSBuffer packageAID, TPSBuffer sdAID,
+    public InstallLoadAPDU(TPSBuffer packageAID, TPSBuffer sdAID,
             int fileLen)
     {
 
@@ -55,7 +55,7 @@ public class InstallLoad extends APDU {
     /**
      * Constructs Install Load APDU. Used when data was pre-constructed
      */
-    public InstallLoad(TPSBuffer theData)
+    public InstallLoadAPDU(TPSBuffer theData)
     {
         setCLA((byte) 0x84);
         setINS((byte) 0xE6);

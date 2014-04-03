@@ -22,38 +22,40 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class ReadBuffer extends APDU {
-    /**
-     * Constructs Read Buffer APDU.
-     */
-    public ReadBuffer(int len, int offset)
-    {
-        setCLA((byte) 0x84);
-        setINS((byte) 0x08);
-        setP1((byte) len);
-        setP2((byte) 0x00);
-        data = new TPSBuffer();
+public class GetDataAPDU extends APDU {
 
-        data.add((byte) (offset / 256));
-        data.add((byte) (offset % 256));
+    public GetDataAPDU()
+    {
+        setCLA((byte) 0x80);
+        setINS((byte) 0xCA);
+        setP1((byte) 0x9F);
+        setP2((byte) 0x7F);
     }
 
+    @Override
     public Type getType()
     {
-        return Type.APDU_READ_BUFFER;
+        return APDU.Type.APDU_GET_DATA;
     }
 
-    public int getLen()
+    @Override
+    public TPSBuffer getEncoding()
     {
-        return p1;
+        TPSBuffer encoding = new TPSBuffer();
+
+        encoding.add(cla);
+        encoding.add(ins);
+        encoding.add(p1);
+        encoding.add(p2);
+        encoding.add((byte) 0x2D);
+
+        return encoding;
+    } /* Encode */
+
+    public static void main(String[] args) {
+        GetDataAPDU get_data = new GetDataAPDU();
+
+        get_data.dump();
+
     }
-
-    public int getOffset()
-    {
-        byte a = data.at(0);
-        byte b = data.at(1);
-
-        return ((a << 8) + b);
-    }
-
 }

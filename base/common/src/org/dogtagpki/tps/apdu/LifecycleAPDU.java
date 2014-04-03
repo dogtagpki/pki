@@ -18,28 +18,25 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
+
 package org.dogtagpki.tps.apdu;
 
-import org.dogtagpki.tps.main.TPSBuffer;
-
-public class LoadFile extends APDU {
+public class LifecycleAPDU extends APDU {
     /**
-     * Constructs Load File APDU.
+     * Constructs Lifecycle APDU.
      */
-    public LoadFile(byte refControl, byte blockNum, TPSBuffer theData)
+    public LifecycleAPDU(byte lifecycle)
     {
         setCLA((byte) 0x84);
-        setINS((byte) 0xE8);
-        setP1(refControl);
-        setP2(blockNum);
-
-        setData(theData);
+        setINS((byte) 0xf0);
+        setP1(lifecycle);
+        setP2((byte) 0x00);
     }
 
     @Override
     public Type getType()
     {
-        return Type.APDU_LOAD_FILE;
+        return Type.APDU_LIFECYCLE;
     }
 
 }

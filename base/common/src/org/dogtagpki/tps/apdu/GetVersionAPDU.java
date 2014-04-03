@@ -20,21 +20,34 @@
  */
 package org.dogtagpki.tps.apdu;
 
-public class UnblockPin extends APDU {
-    /**
-     * Constructs Unblock Pin APDU.
-     */
-    public UnblockPin()
+import org.dogtagpki.tps.main.TPSBuffer;
+
+public class GetVersionAPDU extends APDU {
+    public GetVersionAPDU()
     {
-        setCLA((byte) 0x84);
-        setINS((byte) 0x02);
+        setCLA((byte) 0xB0);
+        setINS((byte) 0x70);
         setP1((byte) 0x00);
         setP2((byte) 0x00);
     }
 
-    public Type getType()
+    @Override
+    public APDU.Type getType()
     {
-        return Type.APDU_UNBLOCK_PIN;
+        return Type.APDU_GET_VERSION;
+    }
+
+    @Override
+    public TPSBuffer getEncoding()
+    {
+        TPSBuffer data = new TPSBuffer();
+        data.add(cla);
+        data.add(ins);
+        data.add(p1);
+        data.add(p2);
+        data.add((byte) 4);
+
+        return data;
     }
 
 }

@@ -18,29 +18,40 @@
 package org.dogtagpki.server.tps.processor;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
-import org.dogtagpki.server.tps.channel.SecureChannel.SecurityLevel;
+import org.dogtagpki.server.tps.channel.SecureChannel;
+import org.dogtagpki.server.tps.cms.TKSComputeRandomDataResponse;
+import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
+import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.apdu.APDU;
 import org.dogtagpki.tps.apdu.APDUResponse;
-import org.dogtagpki.tps.apdu.GetData;
-import org.dogtagpki.tps.apdu.GetStatus;
-import org.dogtagpki.tps.apdu.GetVersion;
-import org.dogtagpki.tps.apdu.Select;
+import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
+import org.dogtagpki.tps.apdu.GetDataAPDU;
+import org.dogtagpki.tps.apdu.GetStatusAPDU;
+import org.dogtagpki.tps.apdu.GetVersionAPDU;
+import org.dogtagpki.tps.apdu.InitializeUpdateAPDU;
+import org.dogtagpki.tps.apdu.SelectAPDU;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOp;
 import org.dogtagpki.tps.msg.EndOp.TPSStatus;
 import org.dogtagpki.tps.msg.TokenPDURequest;
 import org.dogtagpki.tps.msg.TokenPDUResponse;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.pkcs11.PK11SymKey;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.symkey.SessionKey;
 
 public class TPSProcessor {
 
@@ -51,13 +62,29 @@ public class TPSProcessor {
     public static final int CPLC_MSN_INDEX = 41;
     public static final int CPLC_MSN_SIZE = 4;
 
+    public static final int INIT_UPDATE_DATA_SIZE = 28;
+    public static final int DIVERSIFICATION_DATA_SIZE = 10;
+    public static final int CARD_CRYPTOGRAM_OFFSET = 20;
+    public static final int CARD_CRYPTOGRAM_SIZE = 8;
+    public static final int CARD_CHALLENGE_OFFSET = 12;
+    public static final int CARD_CHALLENGE_SIZE = 8;
+
     private boolean isExternalReg;
 
     private TPSSession session;
     private String selectedTokenType;
 
+    private String currentTokenOperation;
+
+
+
+
     public TPSProcessor(TPSSession session) {
         setSession(session);
+    }
+
+    protected void setCurrentTokenOperation(String op) {
+        currentTokenOperation = op;
     }
 
     protected void setSession(TPSSession session) {
@@ -148,7 +175,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        Select select_apdu = new Select(p1, p2, aid);
+        SelectAPDU select_apdu = new SelectAPDU(p1, p2, aid);
 
         //return the Response because the caller can
         //decide what to do, not every failure is fatal.
@@ -161,12 +188,12 @@ public class TPSProcessor {
 
         CMS.debug("In TPS_Processor.GetStatus.");
 
-        GetStatus get_status_apdu = new GetStatus();
+        GetStatusAPDU get_status_apdu = new GetStatusAPDU();
 
         return handleAPDURequest(get_status_apdu).getData();
     }
 
-    protected APDUResponse handleAPDURequest(APDU apdu) throws IOException, TPSException {
+    public APDUResponse handleAPDURequest(APDU apdu) throws IOException, TPSException {
 
         if (apdu == null) {
             throw new TPSException("TPSProcessor.handleAPDURequest: invalid incoming apdu!");
@@ -198,7 +225,7 @@ public class TPSProcessor {
     protected TPSBuffer getCplcData() throws IOException, TPSException {
         CMS.debug("In TPS_Processor.GetData");
 
-        GetData get_data_apdu = new GetData();
+        GetDataAPDU get_data_apdu = new GetDataAPDU();
 
         APDUResponse respApdu = handleAPDURequest(get_data_apdu);
 
@@ -220,7 +247,7 @@ public class TPSProcessor {
 
         CMS.debug("In TPSProcessor.getAppletVersion");
 
-        GetVersion get_version_apdu = new GetVersion();
+        GetVersionAPDU get_version_apdu = new GetVersionAPDU();
 
         APDUResponse respApdu = handleAPDURequest(get_version_apdu);
 
@@ -244,15 +271,244 @@ public class TPSProcessor {
 
     }
 
+    TPSBuffer computeRandomData(int dataSize, String connId) throws TPSException {
+
+        TKSRemoteRequestHandler tks = null;
+
+        TKSComputeRandomDataResponse data = null;
+
+        try {
+            tks = new TKSRemoteRequestHandler(connId);
+            data = tks.computeRandomData(dataSize);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.computeRandomData: Erorr getting random data from TKS!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        int status = data.getStatus();
+
+        if (status != 0) {
+            throw new TPSException("TPSProcessor.computeRandomData: Erorr getting random data from TKS!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        return data.getRandomData();
+    }
+
+    protected TPSBuffer initializeUpdate(byte keyVersion, byte keyIndex, TPSBuffer randomData) throws IOException,
+            TPSException {
+
+        CMS.debug("In TPS_Processor.initializeUpdate.");
+        InitializeUpdateAPDU initUpdate = new InitializeUpdateAPDU(keyVersion, keyIndex, randomData);
+
+        APDUResponse resp = handleAPDURequest(initUpdate);
+
+        if (!resp.checkResult()) {
+            CMS.debug("TPSProcessor.initializeUpdate: Failed intializeUpdate!");
+            throw new TPSException("TPSBuffer.initializeUpdate: Failed initializeUpdate!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+
+        }
+
+        TPSBuffer data = resp.getResultDataNoCode();
+
+        if (data.size() != INIT_UPDATE_DATA_SIZE) {
+            throw new TPSException("TPSBuffer.initializeUpdate: Invalid response from token!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        return data;
+
+    }
+
+    protected SecureChannel setupSecureChannel(byte keyVersion, byte keyIndex, SecurityLevel securityLevel,
+            String connId)
+            throws IOException, TPSException {
+
+        //Assume generating host challenge on TKS, we no longer support not involving the TKS.
+
+        TPSBuffer randomData = computeRandomData(8, connId);
+        CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData: " + randomData.toHexString());
+
+        TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
+
+        TPSBuffer key_diversification_data = initUpdateResp.substr(0, DIVERSIFICATION_DATA_SIZE);
+        CMS.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
+
+        TPSBuffer key_info_data = initUpdateResp.substr(DIVERSIFICATION_DATA_SIZE, 2);
+        CMS.debug("TPSProcessor.setupSecureChannel: key info data: " + key_info_data.toHexString());
+
+        TPSBuffer card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET, CARD_CRYPTOGRAM_SIZE);
+        CMS.debug("TPSProcessor.setupSecureChannel: card cryptogram: " + card_cryptogram.toHexString());
+
+        TPSBuffer card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET, CARD_CHALLENGE_SIZE);
+        CMS.debug("TPSProcessor.setupSecureChannel: card challenge: " + card_challenge.toHexString());
+
+        SecureChannel channel = null;
+
+        try {
+            channel = generateSecureChannel(connId, key_diversification_data, key_info_data, card_challenge,
+                    card_cryptogram,
+                    randomData);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.setupSecureChannel: Can't set up secure channel: " + e,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        return channel;
+
+    }
+
+    protected SecureChannel generateSecureChannel(String connId, TPSBuffer keyDiversificationData,
+            TPSBuffer keyInfoData, TPSBuffer cardChallenge, TPSBuffer cardCryptogram, TPSBuffer hostChallenge)
+            throws EBaseException, TPSException {
+
+        CMS.debug("TPSProcessor.generateSecureChannel: entering..");
+
+        TPSEngine engine = getTPSEngine();
+
+        SecureChannel channel = null;
+        TPSBuffer hostCryptogram = null;
+
+        TKSComputeSessionKeyResponse resp = engine.computeSessionKey(keyDiversificationData, keyInfoData,
+                cardChallenge, hostChallenge, cardCryptogram,
+                connId);
+
+        hostCryptogram = resp.getHostCryptogram();
+
+        if (hostCryptogram == null) {
+            new TPSException("TPSProcessor.generateSecureChannel: No host cryptogram returned from token!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+
+        }
+
+        PK11SymKey sharedSecret = null;
+
+        try {
+            sharedSecret = getSharedSecretTransportKey(connId);
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new TPSException("TPSProcessor.generateSecureChannel: Can't get shared secret key!: " + e,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        PK11SymKey sessionKey = null;
+        PK11SymKey encSessionKey = null;
+        String tokenName = "Internal Key Storage Token";
+
+        try {
+            TPSBuffer sessionKeyWrapped = resp.getSessionKey();
+            TPSBuffer encSessionKeyWrapped = resp.getEncSessionKey();
+
+            sessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
+                    sessionKeyWrapped.toBytesArray());
+
+            if (sessionKey == null) {
+                CMS.debug("TPSProcessor.generateSecureChannel: Can't extract session key!");
+                throw new TPSException("TPSProcessor.generateSecureChannel: Can't extract session key!",
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            }
+            CMS.debug("TPSProcessor.generateSecureChannel: retrieved session key: " + sessionKey);
+
+            encSessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
+                    encSessionKeyWrapped.toBytesArray());
+
+            if (encSessionKey == null) {
+                CMS.debug("TPSProcessor.generateSecureChannel: Can't extract enc session key!");
+                throw new TPSException("TPSProcessor.generateSecureChannel: Can't extract enc session key!",
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            }
+
+            CMS.debug("TPSProcessor.generateSecureChannel: retrieved enc session key: " + encSessionKey);
+        } catch (Exception e) {
+            CMS.debug(e);
+            e.printStackTrace();
+            throw new TPSException("TPSProcessor.generateSecureChannel: Problem extracting session keys! " + e,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        TPSBuffer drmDesKey = null;
+        TPSBuffer kekDesKey = null;
+        TPSBuffer keyCheck = null;
+
+        if (checkServerSideKeyGen(connId)) {
+            //ToDo handle server side keygen.
+
+        }
+
+        channel = new SecureChannel(this, sessionKey, encSessionKey, drmDesKey,
+                kekDesKey, keyCheck, keyDiversificationData, cardChallenge,
+                cardCryptogram, hostChallenge, hostCryptogram);
+
+        return channel;
+    }
+
     protected String upgradeApplet(String operation, String new_version, SecurityLevel securityLevel,
-            Map<String, String> extensions, int startProgress, int endProgress) throws TPSException {
+            Map<String, String> extensions, String connId, int startProgress, int endProgress) throws IOException,
+            TPSException {
 
         String newVersion = null;
         boolean appletUpgraded = false;
+        String NetKeyAID = null;
+        String NetKeyPAID = null;
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        try {
+            //These defaults are well known, it is safe to use them.
+
+            NetKeyAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_INSTANCE_AID,
+                    TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
+            CMS.debug("In TPS_Processor.upgradeApplet. CardManagerAID: " + " NetKeyAID: " + NetKeyAID);
+            NetKeyPAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_FILE_AID, TPSEngine.CFG_DEF_NETKEY_FILE_AID);
+
+        } catch (EBaseException e1) {
+            CMS.debug("TPS_Processor.upgradeApplet: Internal Error obtaining mandatory config values. Error: " + e1);
+            throw new TPSException("TPS error getting config values from config store.",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+        }
+
+        TPSBuffer netkeyAIDBuff = new TPSBuffer(NetKeyAID);
+        TPSBuffer netkeyPAIDBuff = new TPSBuffer(NetKeyPAID);
+
+        //Not all of these used yet, but will be
+        //ToDo
+        int channelBlockSize = getChannelBlockSize();
+        int channelInstanceSize = getChannelInstanceSize();
+        int channelAppletMemSize = getAppletMemorySize();
+        int defKeyVersion = getChannelDefKeyVersion();
+        int defKeyIndex = getChannelDefKeyIndex();
+        byte[] appletData = null;
 
         String directory = getAppletDirectory(operation);
 
         CMS.debug("TPSProcessor.upgradeApplet: applet target directory: " + directory);
+
+        String appletFileExt = getAppletExtension();
+
+        String appletFilePath = directory + "/" + new_version + "." + appletFileExt;
+
+        CMS.debug("TPSProcessor.upgradeApplet: targe applet file name: " + appletFilePath);
+
+        //Not ready to use this yet.
+        //ToDo
+
+        appletData = getAppletFileData(appletFilePath);
+
+        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
+
+        if (!select.checkResult()) {
+            throw new TPSException("TPSProcessor.format: Can't selelect the card manager!");
+        }
+
+        SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, securityLevel, connId);
+
+        channel.externalAuthenticate();
+        channel.deleteFileX(netkeyAIDBuff);
+        channel.deleteFileX(netkeyPAIDBuff);
+
+        // Next step will be to load the applet file to token.
+        // ToDo:
 
         //ToDo actually finish this later.
         if (appletUpgraded == false) {
@@ -261,6 +517,32 @@ public class TPSProcessor {
         }
 
         return newVersion;
+    }
+
+    protected byte[] getAppletFileData(String appletFilePath) throws IOException, TPSException {
+
+        if (appletFilePath == null) {
+            throw new TPSException("TPSProcessor.getAppletFileData: Invalid applet file name.",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+        }
+
+        byte[] contents = null;
+        try {
+            Path path = Paths.get(appletFilePath);
+            contents = Files.readAllBytes(path);
+
+        } catch (IOException e) {
+            CMS.debug("TPSProcessor.getAppletFileData: IOException " + e);
+            throw e;
+        } catch (Exception e) {
+            CMS.debug("PSProcessor.getAppletFileData: Exception: " + e);
+            throw new TPSException("TPSProcessor.getAppletFileData: Exception: " + e,
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+        }
+
+        CMS.debug("TPSProcessor.getAppletFileData: data: " + contents);
+
+        return contents;
     }
 
     protected void format(BeginOp message) throws TPSException, IOException {
@@ -276,6 +558,8 @@ public class TPSProcessor {
 
         String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
         boolean isExternalReg = false;
+
+        setCurrentTokenOperation("format");
 
         try {
             //These defaults are well known, it is safe to use them.
@@ -376,8 +660,10 @@ public class TPSProcessor {
 
         SecurityLevel secLevel = SecurityLevel.SECURE_MSG_MAC_ENC;
 
+        String tksConnId = getTKSConnectorID();
+
         String newKeyVersion = upgradeApplet(TPSEngine.OP_FORMAT_PREFIX, appletRequiredVersion, secLevel,
-                message.getExtensions(),
+                message.getExtensions(), tksConnId,
                 10, 90);
 
         CMS.debug("TPSProcessor.format: upgraded aplet version: " + newKeyVersion);
@@ -403,6 +689,22 @@ public class TPSProcessor {
             throw new TPSException("TPSProcessor.checkProfileStateOK: profile disabled!");
         }
 
+    }
+
+    boolean checkServerSideKeyGen(String connId) throws TPSException {
+
+        boolean result;
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String profileConfig = "conn." + connId + "." + ".serverKeygen";
+
+        try {
+            result = configStore.getBoolean(profileConfig, false);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor: checkServerSideKeyGen: Internal error obtaining config value!");
+        }
+
+        return result;
     }
 
     void checkAllowNoAppletToken(String operation) throws TPSException {
@@ -470,6 +772,42 @@ public class TPSProcessor {
 
     }
 
+    protected String getTKSConnectorID() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        String id = null;
+
+        String config = "op." + currentTokenOperation + "." + selectedTokenType + ".tks.conn";
+
+        try {
+            id = configStore.getString(config, "tks1");
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getTKSConnectorID: Internal error finding config value.");
+
+        }
+
+        CMS.debug("TPSProcessor.getTKSConectorID: returning: " + id);
+
+
+        return id;
+    }
+
+    protected String getAppletExtension() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        String extension = null;
+        String extensionConfig = TPSEngine.CFG_APPLET_EXTENSION;
+
+        try {
+            extension = configStore.getString(extensionConfig, "ijc");
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getAppletExtension: Internal error finding config value.");
+
+        }
+
+        CMS.debug("TPSProcessor.getAppletExtension: returning: " + extension);
+
+        return extension;
+    }
+
     protected String getAppletDirectory(String operation) throws TPSException {
 
         IConfigStore configStore = CMS.getConfigStore();
@@ -490,6 +828,146 @@ public class TPSProcessor {
 
         CMS.debug("getAppletDirectory: returning: " + directory);
         return directory;
+    }
+
+    protected int getChannelBlockSize() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        int blockSize = 0;
+        try {
+            blockSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_BLOCK_SIZE, TPSEngine.CFG_CHANNEL_DEF_BLOCK_SIZE);
+
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getChannelBlockSize: Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+
+        }
+
+        CMS.debug("TPSProcess.getChannelBlockSize: returning: " + blockSize);
+        return blockSize;
+
+    }
+
+    protected int getChannelInstanceSize() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        int instanceSize = 0;
+        try {
+            instanceSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_INSTANCE_SIZE,
+                    TPSEngine.CFG_CHANNEL_DEF_INSTANCE_SIZE);
+
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getChannelInstanceSize: Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+
+        }
+
+        CMS.debug("TPSProcess.getChannelInstanceSize: returning: " + instanceSize);
+
+        return instanceSize;
+
+    }
+
+    protected int getAppletMemorySize() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        int memSize = 0;
+        try {
+            memSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_APPLET_MEMORY_SIZE,
+                    TPSEngine.CFG_CHANNEL_DEF_APPLET_MEMORY_SIZE);
+
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getAppletMemorySize: Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+
+        }
+        CMS.debug("TPSProcess.getAppletMemorySize: returning: " + memSize);
+
+        return memSize;
+    }
+
+    protected int getChannelDefKeyVersion() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        int ver = 0;
+        try {
+            ver = configStore.getInteger(TPSEngine.CFG_CHANNEL_DEFKEY_VERSION, 0x0);
+
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getChannelDefKeyVersion: Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+
+        }
+
+        CMS.debug("TPSProcessor.getChannelDefKeyVersion: " + ver);
+
+        return ver;
+
+    }
+
+    protected int getChannelDefKeyIndex() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        int index = 0;
+        try {
+            index = configStore.getInteger(TPSEngine.CFG_CHANNEL_DEFKEY_INDEX, 0x0);
+
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getChannelDefKeyVersion: Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+
+        }
+
+        CMS.debug("TPSProcessor.getChannelDefKeyIndex: " + index);
+
+        return index;
+
+    }
+
+    protected PK11SymKey getSharedSecretTransportKey(String connId) throws TPSException, NotInitializedException {
+
+        IConfigStore configStore = CMS.getConfigStore();
+        String sharedSecretName = null;
+        try {
+            String configName = "conn." + connId + ".tksSharedSymKeyName";
+            sharedSecretName = configStore.getString(configName, "sharedSecret");
+
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getSharedSecretTransportKey: Internal error finding config value: "
+                    + e,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+
+        }
+
+        CMS.debug("TPSProcessor.getSharedSecretTransportKey: calculated key name: " + sharedSecretName);
+
+        String symmKeys = null;
+        boolean keyPresent = false;
+        try {
+            symmKeys = SessionKey.ListSymmetricKeys("internal");
+            CMS.debug("TPSProcessor.getSharedSecretTransportKey: symmKeys List: " + symmKeys);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            CMS.debug(e);
+        }
+
+        for (String keyName : symmKeys.split(",")) {
+            if (sharedSecretName.equals(keyName)) {
+                CMS.debug("TPSProcessor.getSharedSecret: shared secret key found!");
+                keyPresent = true;
+                break;
+            }
+
+        }
+
+        if (!keyPresent) {
+            throw new TPSException("TPSProcessor.getSharedSecret: Can't find shared secret!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        // We know for now that shared secret is on this token
+        String tokenName = "Internal Key Storage Token";
+        PK11SymKey sharedSecret = SessionKey.GetSymKeyByName(tokenName, sharedSecretName);
+
+        CMS.debug("TPSProcessor.getSharedSecret: SymKey returns: " + sharedSecret);
+
+        return sharedSecret;
+
     }
 
     public boolean getIsExternalReg() {
@@ -752,6 +1230,14 @@ public class TPSProcessor {
         //Set this once, it won't change for this session.
         setSelectedTokenType(targetTokenType);
         return targetTokenType;
+
+    }
+
+    public TPSEngine getTPSEngine() {
+        TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
+        return subsystem.getEngine();
 
     }
 

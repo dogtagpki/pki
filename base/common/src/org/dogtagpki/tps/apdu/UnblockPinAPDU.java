@@ -20,48 +20,21 @@
  */
 package org.dogtagpki.tps.apdu;
 
-import org.dogtagpki.tps.main.TPSBuffer;
-
-public class SetPin extends APDU {
+public class UnblockPinAPDU extends APDU {
     /**
-     * Constructs SetPin APDU.
-     *
-     * SecureSetPIN APDU format:
-     * CLA 0x80
-     * INS 0x04
-     * P1 <Pin number>
-     * P2 0x00
-     * lc <data length>
-     * DATA <New Pin Value>
-     *
-     * Connection requirement:
-     * Secure Channel
-     *
-     * Possible error Status Codes:
-     * 9C 06 - unauthorized
-     *
-     * @param p1 Pin number: 0x00 - 0x07
-     * @param p2 always 0x00
-     * @param data pin
-     * @see APDU
+     * Constructs Unblock Pin APDU.
      */
-    public SetPin(byte p1, byte p2, TPSBuffer theData)
+    public UnblockPinAPDU()
     {
         setCLA((byte) 0x84);
-        setINS((byte) 0x04);
-        setP1(p1);
-        setP2(p2);
-        setData(theData);
-    }
-
-    public TPSBuffer getNewPIN()
-    {
-        return getData();
+        setINS((byte) 0x02);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
     }
 
     public Type getType()
     {
-        return Type.APDU_SET_PIN;
+        return Type.APDU_UNBLOCK_PIN;
     }
 
 }

@@ -22,22 +22,46 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class PutKey extends APDU {
+public class SetIssuerInfoAPDU extends APDU {
     /**
-     * Constructs Put Key APDU.
+     * Constructs SetIssuer APDU.
+     *
+     * SecureSetIssuer APDU format:
+     * CLA 0x84
+     * INS 0xF4
+     * P1 0x00
+     * P2 0x00
+     * lc 0xE0
+     * DATA <Issuer Info>
+     *
+     * Connection requirement:
+     * Secure Channel
+     *
+     * Possible error Status Codes:
+     * 9C 06 - unauthorized
+     *
+     * @param p1 always 0x00
+     * @param p2 always 0x00
+     * @param data issuer info
+     * @see APDU
      */
-    public PutKey(byte p1, byte p2, TPSBuffer theData)
+    public SetIssuerInfoAPDU(byte p1, byte p2, TPSBuffer theData)
     {
         setCLA((byte) 0x84);
-        setINS((byte) 0xd8);
+        setINS((byte) 0xF4);
         setP1(p1);
         setP2(p2);
         setData(theData);
     }
 
+    public TPSBuffer getIssuerInfo()
+    {
+        return getData();
+    }
+
     public Type getType()
     {
-        return Type.APDU_PUT_KEY;
+        return Type.APDU_SET_ISSUERINFO;
     }
 
 }

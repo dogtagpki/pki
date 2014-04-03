@@ -53,12 +53,14 @@ public class TPSConnection {
 
         // read the first parameter
         while ((b = in.read()) >= 0) {
-            char c = (char)b;
-            if (c == '&') break;
+            char c = (char) b;
+            if (c == '&')
+                break;
             sb.append(c);
         }
 
-        if (b < 0) throw new IOException("Unexpected end of stream");
+        if (b < 0)
+            throw new IOException("Unexpected end of stream");
 
         // parse message size
         String nvp = sb.toString();
@@ -68,26 +70,26 @@ public class TPSConnection {
         sb.append('&');
 
         // read the rest of message
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
 
             b = in.read();
-            if (b < 0) throw new IOException("Unexpected end of stream");
+            if (b < 0)
+                throw new IOException("Unexpected end of stream");
 
-            char c = (char)b;
+            char c = (char) b;
             sb.append(c);
         }
 
         CMS.debug("TPSMessage.read: Reading:  " + sb.toString());
 
         // parse the entire message
-        return  TPSMessage.createMessage(sb.toString());
+        return TPSMessage.createMessage(sb.toString());
     }
 
     public void write(TPSMessage message) throws IOException {
         String s = message.encode();
 
         CMS.debug("TPSMessage.write: Writing: " + s);
-
 
         if (chunked) {
             // send message length + EOL
@@ -98,10 +100,17 @@ public class TPSConnection {
         // send message
         out.print(s);
 
+        /*
+         *
+         * Right now, tpsclient is counting the final crlf as part of the message and ruining the MAC calculations
+         * For now do this and figure out later how to handle this for both tpsclient and esc.
+         *
         if (chunked) {
             // send EOL
             out.print("\r\n");
         }
+
+        */
 
         out.flush();
     }

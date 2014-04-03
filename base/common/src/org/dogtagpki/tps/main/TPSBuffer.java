@@ -95,11 +95,18 @@ public class TPSBuffer {
     }
 
     public byte at(int i) {
-        if (i < 0 || i > size()) {
+        if (i < 0 || i >= size()) {
             return 0x0;
         }
 
         return buf[i];
+    }
+
+    public void setAt(int i, byte value) {
+        if (i < 0 || i >= size())
+            return;
+
+        buf[i] = value;
     }
 
     /**
@@ -124,6 +131,13 @@ public class TPSBuffer {
 
         byte[] addBytes = addend.toBytesArray();
         addBytes(addBytes);
+    }
+
+    public void set(TPSBuffer newContents) {
+        if (newContents == null)
+            return;
+
+        buf = newContents.toBytesArray();
     }
 
     /**
@@ -233,6 +247,7 @@ public class TPSBuffer {
 
             result.append(HEX_DIGITS.charAt((c & 0xF0) >> 4));
             result.append(HEX_DIGITS.charAt(c & 0x0F));
+            result.append("%");
 
         }
 

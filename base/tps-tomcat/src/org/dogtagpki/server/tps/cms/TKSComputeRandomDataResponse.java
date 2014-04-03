@@ -35,6 +35,7 @@ public class TKSComputeRandomDataResponse extends RemoteResponse
     }
 
     public TPSBuffer getRandomData() {
-        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_RandomData);
+        byte [] random = (byte[]) nameValTable.get(IRemoteRequest.TKS_RESPONSE_RandomData);
+        return new TPSBuffer(random);
     }
 }

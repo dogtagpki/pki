@@ -18,33 +18,23 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
-
 package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-/* Not sure this is used , provide stub right now. */
-
-public class FormatMuscleApplet extends APDU {
-    public FormatMuscleApplet(short memSize,
-            TPSBuffer PIN0, byte pin0Tries,
-            TPSBuffer unblockPIN0, byte unblock0Tries,
-            TPSBuffer PIN1, byte pin1Tries,
-            TPSBuffer unblockPIN1, byte unblock1Tries,
-            short objCreationPermissions,
-            short keyCreationPermissions,
-            short pinCreationPermissions) {
-
-        setCLA((byte) 0xB0);
-        setINS((byte) 0x2A);
-        setP1((byte) 0x00);
-        setP2((byte) 0x00);
-
+public class SelectAPDU extends APDU {
+    public SelectAPDU(byte p1, byte p2, TPSBuffer theData)
+    {
+        setCLA((byte) 0x00);
+        setINS((byte) 0xa4);
+        setP1(p1);
+        setP2(p2);
+        setData(theData);
     }
 
-    @Override
-    public APDU.Type getType() {
-        return APDU.Type.APDU_FORMAT_MUSCLE_APPLET;
+    public Type getType()
+    {
+        return Type.APDU_SELECT;
     }
 
 }

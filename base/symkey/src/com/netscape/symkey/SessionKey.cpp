@@ -1843,6 +1843,199 @@ finish:
     return handleBA;
 }
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+/*
+ * Class:     com_netscape_cms_servlet_tks_UnwrapSessionKeyWithSharedSecret
+ * Method:    UnwrapSessionKeyWithSharedSecret 
+ * Signature: ([B[B[B[B)[B
+ */
+    JNIEXPORT jobject JNICALL
+        Java_com_netscape_symkey_SessionKey_
+        (JNIEnv*, jclass, jstring, jobject,jbyteArray);
+#ifdef __cplusplus
+}
+#endif
+extern "C" JNIEXPORT jobject JNICALL
+Java_com_netscape_symkey_SessionKey_UnwrapSessionKeyWithSharedSecret
+(JNIEnv* env, jclass this2, jstring tokenName, jobject sharedSecretKey,jbyteArray sessionKeyBA)
+{
+    jobject keyObj = NULL;
+    PK11SymKey *sessionKey = NULL;
+    PK11SymKey *sharedSecret = NULL;
+    PK11SymKey *finalKey = NULL;
+    PK11SlotInfo *slot = NULL;
+    char *tokenNameChars = NULL;
+    PRStatus  r = PR_FAILURE;
+    int sessionKeyLen = 0;
+    jbyte *sessionKeyBytes = NULL;
+    SECItem *SecParam = PK11_ParamFromIV(CKM_DES3_ECB, NULL);
+    SECItem wrappedItem = {siBuffer , NULL, 0 };
+
+    PR_fprintf(PR_STDOUT,"In SessionKey.UnwrapSessionKeyWithSharedSecret!\n");
+
+    if( sharedSecretKey == NULL || sessionKeyBA == NULL) {
+        goto loser;
+    }
+
+    if (tokenName)
+    {
+        tokenNameChars = (char *)(env)->GetStringUTFChars(tokenName, NULL);
+        if ( tokenNameChars && !strcmp(tokenNameChars, "internal")) {
+            slot = PK11_GetInternalSlot();
+        } else {
+            slot = ReturnSlot(tokenNameChars);
+        }
+
+        PR_fprintf(PR_STDOUT,"SessionKey.UnwrapSessionKeyWithSharedSecret  slot %p  name %s tokenName %s  \n",slot, PK11_GetSlotName(slot), PK11_GetTokenName(slot));
+        (env)->ReleaseStringUTFChars(tokenName, (const char *)tokenNameChars);
+    } else {
+        slot = PK11_GetInternalKeySlot();
+    }
+
+    if(slot == NULL) {
+        goto loser;
+    }
+
+    sessionKeyBytes = (jbyte *)(env)->GetByteArrayElements(sessionKeyBA, NULL);
+    sessionKeyLen = (env)->GetArrayLength(sessionKeyBA); 
+
+    if(sessionKeyBytes == NULL) {
+        goto loser;
+    }
+
+    r = JSS_PK11_getSymKeyPtr(env, sharedSecretKey, &sharedSecret);
+
+    if (r != PR_SUCCESS) {
+        PR_fprintf(PR_STDOUT,"SessionKey: UnwrapSessionKeyWithSharedSecret Unable to get input shared secret sym key! \n"); 
+        goto loser;
+    }
+
+    wrappedItem.data = (unsigned char *) sessionKeyBytes;
+    wrappedItem.len =  sessionKeyLen;
+
+    sessionKey = PK11_UnwrapSymKey(sharedSecret,
+                          CKM_DES3_ECB,SecParam, &wrappedItem,
+                          CKM_DES3_ECB,
+                          CKA_UNWRAP,
+                          16);
+
+    PR_fprintf(PR_STDOUT,"SessionKey: UnwrapSessionKeyWithSharedSecret symKey: %p \n",sessionKey);
+
+    if(sessionKey == NULL) {
+         PR_fprintf(PR_STDOUT,"SessionKey:UnwrapSessionKeyWithSharedSecret  Error unwrapping a session key! \n");
+         goto loser;
+    }
+
+    // Done to be compat with current system. Current TPS does this.
+    finalKey = CreateDesKey24Byte(slot, sessionKey);
+
+    if(finalKey == NULL) {
+          PR_fprintf(PR_STDOUT,"SessionKey:UnwrapSessionKeyWithSharedSecret Error final unwrapped key! \n");
+          goto loser;
+
+    }
+
+     /* wrap the sesssion in java object. */
+    keyObj = JSS_PK11_wrapSymKey(env, &finalKey, NULL);
+
+loser:
+
+    if ( slot != NULL ) {
+       PK11_FreeSlot( slot);
+       slot = NULL;
+    }
+
+    if ( sessionKeyBA != NULL) {
+        (env)->ReleaseByteArrayElements( sessionKeyBA, sessionKeyBytes, 0);
+    }
+
+    if(sessionKey) {
+        PK11_FreeSymKey(sessionKey);
+        sessionKey = NULL; 
+    }
+
+    // Don't free finalKey ptr because wrapping routine takes that out of our hands.
+
+    return keyObj;
+}
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+/*
+ * Class:     com_netscape_cms_servlet_tks_GetSymKeyByName
+ * Method:    GetSymKeyByName
+ * Signature: ([B[B[B[B)[B
+ */
+    JNIEXPORT jobject JNICALL
+        Java_com_netscape_symkey_SessionKey_GetSymKeyByName
+        (JNIEnv*, jclass, jstring, jstring);
+#ifdef __cplusplus
+}
+#endif
+extern "C" JNIEXPORT jobject JNICALL
+Java_com_netscape_symkey_SessionKey_GetSymKeyByName
+(JNIEnv* env, jclass this2, jstring tokenName, jstring keyName)
+{
+
+    jobject keyObj = NULL;
+    PK11SymKey *key = NULL;
+    char *tokenNameChars = NULL;
+    char *keyNameChars = NULL;
+    PK11SlotInfo *slot = NULL;
+    CK_OBJECT_HANDLE keyhandle = 0;
+
+    PR_fprintf(PR_STDOUT,"In SessionKey GetSymKeyByName!\n");
+
+    if (keyName) {
+        keyNameChars = (char *)(env)->GetStringUTFChars(keyName,NULL);
+    }
+
+    if (tokenName)
+    {
+        tokenNameChars = (char *)(env)->GetStringUTFChars(tokenName, NULL);
+        if ( tokenNameChars && !strcmp(tokenNameChars, "internal")) {
+            slot = PK11_GetInternalSlot();
+        } else {
+            slot = ReturnSlot(tokenNameChars);
+        }
+
+        PR_fprintf(PR_STDOUT,"SessionKey: GetSymKeyByName slot %p  name %s tokenName %s keyName %s \n",slot, PK11_GetSlotName(slot), PK11_GetTokenName(slot),keyNameChars);
+        (env)->ReleaseStringUTFChars(tokenName, (const char *)tokenNameChars);
+    } else {
+        slot = PK11_GetInternalKeySlot();
+    }
+
+    if(slot == NULL)
+        goto finish;
+
+    key = ReturnSymKey( slot, keyNameChars);
+
+    PR_fprintf(PR_STDOUT,"SessionKey: GetSymKeyByName returned key %p \n",key);
+    if (key == NULL) {
+        goto finish;
+    }
+
+    /* wrap the symkey in java object. */
+    keyObj = JSS_PK11_wrapSymKey(env, &key, NULL);
+
+finish:
+
+    if (keyName) {
+        (env)->ReleaseStringUTFChars(keyName, (const char *)keyNameChars);
+    }
+
+    if(slot) {
+        PK11_FreeSlot(slot);
+        slot = NULL;
+    }
+
+    return keyObj;
+}
 
 #ifdef __cplusplus
 extern "C"

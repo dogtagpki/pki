@@ -23,40 +23,44 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class InitializeUpdate extends APDU {
+public class GenerateKeyECCAPDU extends APDU {
 
-    /**
-     * Constructs Initialize Update APDU.
-     */
-    public InitializeUpdate(byte key_version, byte key_index, TPSBuffer theData) {
-        setINS((byte) 0x50);
-        setP1(key_version);
-        setP2(key_index);
-        setData(theData);
+    public GenerateKeyECCAPDU(byte theP1, byte theP2, byte alg,
+            int keysize, byte option,
+            byte type, TPSBuffer wrapped_challenge, TPSBuffer key_check) {
+
+        setCLA((byte) 0x84);
+        setINS((byte) 0x0D);
+        setP1(theP1);
+        setP2(theP2);
+
+        TPSBuffer data1 = new TPSBuffer();
+
+        data1.add(alg);
+
+        data1.add((byte) (keysize / 256));
+
+        data1.add((byte) (keysize % 256));
+
+        data1.add(option);
+        data1.add(type);
+
+        data1.add((byte) wrapped_challenge.size());
+
+        data1.add(wrapped_challenge);
+
+        data1.add((byte) key_check.size());
+
+        if (key_check.size() > 0) {
+            data1.add(key_check);
+        }
+
+        setData(data1);
     }
 
-    public TPSBuffer getHostChallenge()
-    {
-        return getData();
+    @Override
+    public APDU.Type getType() {
+        return APDU.Type.APDU_GENERATE_KEY_ECC;
     }
-
-    public Type getType()
-    {
-        return Type.APDU_INITIALIZE_UPDATE;
-    }
-
-    public TPSBuffer getEncoding()
-    {
-        TPSBuffer data = new TPSBuffer();
-
-        data.add(cla);
-        data.add(ins);
-        data.add(p1);
-        data.add(p2);
-        data.add((byte) data.size());
-        data.add(data);
-
-        return data;
-    } /* Encode */
 
 }

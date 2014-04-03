@@ -23,9 +23,9 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class InstallApplet extends APDU {
+public class InstallAppletAPDU extends APDU {
 
-    public InstallApplet(TPSBuffer packageAID, TPSBuffer appletAID,
+    public InstallAppletAPDU(TPSBuffer packageAID, TPSBuffer appletAID,
             byte appPrivileges, int instanceSize, int appletMemorySize)
     {
         setCLA((byte) 0x84);
@@ -79,7 +79,7 @@ public class InstallApplet extends APDU {
     /**
      * Constructs Install Applet APDU.
      */
-    public InstallApplet(TPSBuffer theData)
+    public InstallAppletAPDU(TPSBuffer theData)
     {
         setCLA((byte) 0x84);
         setINS((byte) 0xE6);

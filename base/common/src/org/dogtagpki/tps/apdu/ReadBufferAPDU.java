@@ -18,41 +18,42 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
-
 package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class ListPins extends APDU {
-
-    private byte ret_size = 0;
-
-    public ListPins(byte theRet_size)
+public class ReadBufferAPDU extends APDU {
+    /**
+     * Constructs Read Buffer APDU.
+     */
+    public ReadBufferAPDU(int len, int offset)
     {
-        setCLA((byte) 0xB0);
-        setINS((byte) 0x48);
-        setP1((byte) 0x00);
+        setCLA((byte) 0x84);
+        setINS((byte) 0x08);
+        setP1((byte) len);
         setP2((byte) 0x00);
-        ret_size = theRet_size;
+        data = new TPSBuffer();
+
+        data.add((byte) (offset / 256));
+        data.add((byte) (offset % 256));
     }
 
     public Type getType()
     {
-        return Type.APDU_LIST_PINS;
+        return Type.APDU_READ_BUFFER;
     }
 
-    @Override
-    public TPSBuffer getEncoding()
+    public int getLen()
     {
-        TPSBuffer encoding = new TPSBuffer();
+        return p1;
+    }
 
-        encoding.add(cla);
-        encoding.add(ins);
-        encoding.add(p1);
-        encoding.add(p2);
-        encoding.add(ret_size);
+    public int getOffset()
+    {
+        byte a = data.at(0);
+        byte b = data.at(1);
 
-        return encoding;
-    } /* Encode */
+        return ((a << 8) + b);
+    }
 
 }

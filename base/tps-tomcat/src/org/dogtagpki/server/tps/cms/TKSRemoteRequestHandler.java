@@ -75,7 +75,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      * @return response TKSComputeSessionKeyResponse class object
      */
     public TKSComputeSessionKeyResponse computeSessionKey(
-            String cuid,
+            TPSBuffer cuid,
             TPSBuffer keyInfo,
             TPSBuffer card_challenge,
             TPSBuffer card_cryptogram,
@@ -104,16 +104,22 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
-        CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): sending request to tks.");
+
+        String requestString = IRemoteRequest.SERVER_SIDE_KEYGEN + "=" + serverKeygen +
+                "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
+                "&" + IRemoteRequest.TOKEN_CARD_CHALLENGE + "=" + Util.specialURLEncode(card_challenge) +
+                "&" + IRemoteRequest.TOKEN_HOST_CHALLENGE + "=" + Util.specialURLEncode(host_challenge) +
+                "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialURLEncode(keyInfo) +
+                "&" + IRemoteRequest.TOKEN_CARD_CRYPTOGRAM + "="
+                + Util.specialURLEncode(card_cryptogram.toBytesArray()) +
+                "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet;
+
+        CMS.debug("TKSRemoteRequestHandler.computeSessionKey: outgoing message: " + requestString);
+
         HttpResponse resp =
                 conn.send("computeSessionKey",
-                        IRemoteRequest.SERVER_SIDE_KEYGEN + "=" + serverKeygen +
-                                "&" + IRemoteRequest.TOKEN_CUID + "=" + cuid +
-                                "&" + IRemoteRequest.TOKEN_CARD_CHALLENGE + "=" + Util.specialEncode(card_challenge) +
-                                "&" + IRemoteRequest.TOKEN_HOST_CHALLENGE + "=" + Util.specialEncode(host_challenge) +
-                                "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialEncode(keyInfo) +
-                                "&" + IRemoteRequest.TOKEN_CARD_CRYPTOGRAM + "=" + Util.specialEncode(card_cryptogram) +
-                                "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet);
+                        requestString
+                        );
 
         String content = resp.getContent();
 
@@ -222,7 +228,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
     public TKSCreateKeySetDataResponse createKeySetData(
             TPSBuffer NewMasterVer,
             TPSBuffer version,
-            String cuid)
+            TPSBuffer cuid)
             throws EBaseException {
         CMS.debug("TKSRemoteRequestHandler: createKeySetData(): begins.");
         if (cuid == null || NewMasterVer == null || version == null) {
@@ -240,9 +246,9 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         CMS.debug("TKSRemoteRequestHandler: createKeySetData(): sending request to tks.");
         HttpResponse resp =
                 conn.send("createKeySetData",
-                        IRemoteRequest.TOKEN_NEW_KEYINFO + "=" + Util.specialEncode(NewMasterVer) +
-                                "&" + IRemoteRequest.TOKEN_CUID + "=" + cuid +
-                                "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialEncode(version) +
+                        IRemoteRequest.TOKEN_NEW_KEYINFO + "=" + Util.specialURLEncode(NewMasterVer) +
+                                "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
+                                "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialURLEncode(version) +
                                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet);
 
         String content = resp.getContent();
@@ -349,7 +355,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             } else {
                 CMS.debug("TKSRemoteRequestHandler: computeRandomData(): got IRemoteRequest.TKS_RESPONSE_RandomData = "
                         + value);
-                response.put(IRemoteRequest.TKS_RESPONSE_RandomData, Util.specialDecode(value));
+                response.put(IRemoteRequest.TKS_RESPONSE_RandomData, Util.uriDecodeFromHex(value));
             }
             CMS.debug("TKSRemoteRequestHandler: computeRandomData(): ends.");
 
@@ -378,7 +384,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      * @return response TKSEncryptDataResponse class object
      */
     public TKSEncryptDataResponse encryptData(
-            String cuid,
+            TPSBuffer cuid,
             TPSBuffer version,
             TPSBuffer inData)
             throws EBaseException {
@@ -399,9 +405,9 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         CMS.debug("TKSRemoteRequestHandler: encryptData(): sending request to tks.");
         HttpResponse resp =
                 conn.send("encryptData",
-                        IRemoteRequest.TOKEN_DATA + "=" + Util.specialEncode(inData) +
-                                "&" + IRemoteRequest.TOKEN_CUID + "=" + cuid +
-                                "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialEncode(version) +
+                        IRemoteRequest.TOKEN_DATA + "=" + Util.specialURLEncode(inData) +
+                                "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
+                                "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialURLEncode(version) +
                                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet);
 
         String content = resp.getContent();

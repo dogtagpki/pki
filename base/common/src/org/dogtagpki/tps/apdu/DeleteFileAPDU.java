@@ -19,14 +19,13 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class DeleteFile extends APDU {
+public class DeleteFileAPDU extends APDU {
 
-    public DeleteFile( TPSBuffer aid) {
+    public DeleteFileAPDU(TPSBuffer aid) {
         setCLA((byte) 0x84);
-        setINS((byte)0xE4);
-        setP1((byte)0x00);
-        setP2((byte)0x00);
-
+        setINS((byte) 0xE4);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
 
         TPSBuffer AIDTLV = new TPSBuffer();
 
@@ -43,7 +42,7 @@ public class DeleteFile extends APDU {
     public APDU.Type getType() {
         return APDU.Type.APDU_DELETE_FILE;
 
-     }
+    }
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub

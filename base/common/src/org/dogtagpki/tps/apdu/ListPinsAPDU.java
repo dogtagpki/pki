@@ -18,24 +18,27 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
+
 package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class GetData extends APDU {
+public class ListPinsAPDU extends APDU {
 
-    public GetData()
+    private byte ret_size = 0;
+
+    public ListPinsAPDU(byte theRet_size)
     {
-        setCLA((byte) 0x80);
-        setINS((byte) 0xCA);
-        setP1((byte) 0x9F);
-        setP2((byte) 0x7F);
+        setCLA((byte) 0xB0);
+        setINS((byte) 0x48);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
+        ret_size = theRet_size;
     }
 
-    @Override
     public Type getType()
     {
-        return APDU.Type.APDU_GET_DATA;
+        return Type.APDU_LIST_PINS;
     }
 
     @Override
@@ -47,15 +50,9 @@ public class GetData extends APDU {
         encoding.add(ins);
         encoding.add(p1);
         encoding.add(p2);
-        encoding.add((byte) 0x2D);
+        encoding.add(ret_size);
 
         return encoding;
     } /* Encode */
 
-    public static void main(String[] args) {
-        GetData get_data = new GetData();
-
-        get_data.dump();
-
-    }
 }

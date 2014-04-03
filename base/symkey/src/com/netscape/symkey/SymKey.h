@@ -47,6 +47,7 @@ PK11SlotInfo *ReturnSlot(char *tokenNameChars);
 PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotInfo *slot);
 PK11SymKey *CreateUnWrappedSymKeyOnToken( PK11SlotInfo *slot, PK11SymKey * unWrappingKey, BYTE *keyToBeUnWrapped, int sizeOfKeyToBeUnWrapped, PRBool isPerm);
 PK11SymKey *ReturnDeveloperSymKey(PK11SlotInfo *slot, char *keyType, char *keySet, Buffer &inputKey);
+PK11SymKey *CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey);
 
 char *GetSharedSecretKeyName(char *newKeyName);
 

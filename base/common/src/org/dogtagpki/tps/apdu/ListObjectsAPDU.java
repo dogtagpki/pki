@@ -23,44 +23,32 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class GenerateKeyECC extends APDU {
-
-    public GenerateKeyECC(byte theP1, byte theP2, byte alg,
-            int keysize, byte option,
-            byte type, TPSBuffer wrapped_challenge, TPSBuffer key_check) {
-
-        setCLA((byte) 0x84);
-        setINS((byte) 0x0D);
-        setP1(theP1);
-        setP2(theP2);
-
-        TPSBuffer data1 = new TPSBuffer();
-
-        data1.add(alg);
-
-        data1.add((byte) (keysize / 256));
-
-        data1.add((byte) (keysize % 256));
-
-        data1.add(option);
-        data1.add(type);
-
-        data1.add((byte) wrapped_challenge.size());
-
-        data1.add(wrapped_challenge);
-
-        data1.add((byte) key_check.size());
-
-        if (key_check.size() > 0) {
-            data1.add(key_check);
-        }
-
-        setData(data1);
+public class ListObjectsAPDU extends APDU {
+    public ListObjectsAPDU(byte seq)
+    {
+        setCLA((byte) 0xB0);
+        setINS((byte) 0x58);
+        setP1(seq);
+        setP2((byte) 0x00);
     }
 
     @Override
-    public APDU.Type getType() {
-        return APDU.Type.APDU_GENERATE_KEY_ECC;
+    public Type getType()
+    {
+        return Type.APDU_LIST_OBJECTS;
     }
+
+    public TPSBuffer getEncoding()
+    {
+        TPSBuffer encoding = new TPSBuffer();
+
+        encoding.add(cla);
+        encoding.add(ins);
+        encoding.add(p1);
+        encoding.add(p2);
+        encoding.add((byte) 0x0E);
+
+        return encoding;
+    } /* Encode */
 
 }

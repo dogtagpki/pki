@@ -22,22 +22,31 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class ReadObject extends APDU {
+public class WriteObjectAPDU extends APDU {
     /**
-     * Constructs Read Object APDU.
+     * Constructs Write Buffer APDU. This APDU is usually sent right after
+     * the Create_Object_APDU is sent. This APDU writes the actual object
+     * content into the object that was created with Create_Object_APDU.
+     * This APDU is used for both write and re-writes of data.
+     * The object data is stored starting from the byte specified by the
+     * offset parameter.
+     * Up to 240 bytes can be transferred with a single APDU. If more bytes
+     * need to be transferred, then multiple WriteObject commands must be
+     * used with different offsets.
      *
-     * ReadObject APDU format:
+     * WriteObject APDU format:
      * CLA 0x84
-     * INS 0x56
+     * INS 0x54
      * P1 0x00
      * P2 0x00
-     * lc 0x09
+     * lc Data Size + 9
      * DATA <Data Parameters>
      *
      * [DATA] Parameters are:
      * Long Object ID;
      * Long Offset
      * Byte Data Size;
+     * Byte[] Object Data
      *
      * Connection requirement:
      * Secure Channel
@@ -51,31 +60,37 @@ public class ReadObject extends APDU {
      * @param data
      * @see APDU
      */
-
-    public ReadObject(byte[] object_id, int offset, int len)
+    public WriteObjectAPDU(byte[] object_id, int offset, TPSBuffer data)
     {
+        if (object_id.length != 4) {
+            return;
+        }
+
         setCLA((byte) 0x84);
-        setINS((byte) 0x56);
+        setINS((byte) 0x54);
         setP1((byte) 0x00);
         setP2((byte) 0x00);
-        data = new TPSBuffer();
 
-        data.add(object_id[0]);
-        data.add(object_id[1]);
-        data.add(object_id[2]);
-        data.add(object_id[3]);
+        TPSBuffer data1 = new TPSBuffer();
 
-        data.add((byte) ((offset >> 24) & 0xff));
-        data.add((byte) ((offset >> 16) & 0xff));
-        data.add((byte) ((offset >> 8) & 0xff));
-        data.add((byte) (offset & 0xff));
-        data.add((byte) len);
+        data1.add(object_id[0]);
+        data1.add(object_id[1]);
+
+        data1.add(object_id[2]);
+        data1.add(object_id[3]);
+
+        data1.add((byte) ((offset >> 24) & 0xff));
+        data1.add((byte) ((offset >> 16) & 0xff));
+        data1.add((byte) ((offset >> 8) & 0xff));
+        data1.add((byte) (offset & 0xff));
+        data1.add((byte) data.size());
+        data1.add(data);
+        setData(data1);
     }
 
-    @Override
     public Type getType()
     {
-        return Type.APDU_READ_OBJECT;
+        return Type.APDU_WRITE_OBJECT;
     }
 
 }

@@ -17,6 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps.engine;
 
+import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
+import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
+import org.dogtagpki.tps.main.TPSBuffer;
+import org.dogtagpki.tps.main.TPSException;
+import org.dogtagpki.tps.msg.EndOp.TPSStatus;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+
 public class TPSEngine {
 
     public static final String CFG_DEBUG_ENABLE = "logging.debug.enable";
@@ -67,6 +76,13 @@ public class TPSEngine {
     public static final String CFG_ALLOW_NO_APPLET = "update.applet.emptyToken.enable";
     public static final String CFG_APPLET_UPDATE_REQUIRED_VERSION = "update.applet.requiredVersion";
     public static final String CFG_APPLET_DIRECTORY = "update.applet.directory";
+    public static final String CFG_APPLET_EXTENSION = "general.applet_ext";
+
+    public static final String CFG_CHANNEL_BLOCK_SIZE = "channel.blockSize";
+    public static final String CFG_CHANNEL_INSTANCE_SIZE = "channel.instanceSize";
+    public static final String CFG_CHANNEL_DEFKEY_VERSION = "channel.defKeyVersion";
+    public static final String CFG_CHANNEL_APPLET_MEMORY_SIZE = "channel.appletMemorySize";
+    public static final String CFG_CHANNEL_DEFKEY_INDEX = "channel.defKeyIndex";
 
     /* default values */
     public static final String CFG_DEF_CARDMGR_INSTANCE_AID = "A0000000030000";
@@ -75,7 +91,11 @@ public class TPSEngine {
     public static final String CFG_DEF_NETKEY_OLD_INSTANCE_AID = "A00000000101";
     public static final String CFG_DEF_NETKEY_OLD_FILE_AID = "A000000001";
     public static final String CFG_DEF_APPLET_SO_PIN = "000000000000";
-    public static final String CFG_ENABLED="Enabled";
+    public static final String CFG_ENABLED = "Enabled";
+
+    public static final int CFG_CHANNEL_DEF_BLOCK_SIZE = 242;
+    public static final int CFG_CHANNEL_DEF_INSTANCE_SIZE = 1800;
+    public static final int CFG_CHANNEL_DEF_APPLET_MEMORY_SIZE = 5000;
 
     /* External reg values */
 
@@ -97,6 +117,38 @@ public class TPSEngine {
         int rc = -1;
 
         return rc;
+    }
+
+    public TKSComputeSessionKeyResponse computeSessionKey(TPSBuffer cuid,
+            TPSBuffer keyInfo,
+            TPSBuffer card_challenge,
+            TPSBuffer host_challenge,
+            TPSBuffer card_cryptogram,
+
+            String connId) throws TPSException {
+
+        CMS.debug("TPSEngine.computeSessionKey");
+
+        TKSRemoteRequestHandler tks = null;
+
+        TKSComputeSessionKeyResponse resp = null;
+        try {
+            tks = new TKSRemoteRequestHandler(connId);
+            resp = tks.computeSessionKey(cuid, keyInfo, card_challenge, card_cryptogram, host_challenge);
+        } catch (EBaseException e) {
+            throw new TPSException("SecureChannel.computeSessionKey: Error computing session key!" + e,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        int status = resp.getStatus();
+        if (status != 0) {
+            CMS.debug("SecureChannel.computeSessionKey: Non zero status result: " + status);
+            throw new TPSException("SecureChannel.computeSessionKey: invalid returned status: " + status);
+
+        }
+
+        return resp;
+
     }
 
     public boolean isTokenPresent(String cuid) {

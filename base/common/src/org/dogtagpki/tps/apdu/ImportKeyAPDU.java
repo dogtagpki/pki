@@ -23,7 +23,7 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class ImportKey extends APDU {
+public class ImportKeyAPDU extends APDU {
     /**
      * Constructs Import Key APDU.
      *
@@ -46,7 +46,7 @@ public class ImportKey extends APDU {
      * Byte[] Additional parameters; // Optional
      * If KeyBlob's Encoding is BLOB_ENC_PLAIN(0x00), there are no additional parameters.
      */
-    public ImportKey(byte p1)
+    public ImportKeyAPDU(byte p1)
     {
         setCLA((byte) 0x84);
         setINS((byte) 0x32);

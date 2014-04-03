@@ -18,36 +18,33 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
+
 package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class GetStatus extends APDU {
-    public GetStatus()
-    {
+/* Not sure this is used , provide stub right now. */
+
+public class FormatMuscleAppletAPDU extends APDU {
+    public FormatMuscleAppletAPDU(short memSize,
+            TPSBuffer PIN0, byte pin0Tries,
+            TPSBuffer unblockPIN0, byte unblock0Tries,
+            TPSBuffer PIN1, byte pin1Tries,
+            TPSBuffer unblockPIN1, byte unblock1Tries,
+            short objCreationPermissions,
+            short keyCreationPermissions,
+            short pinCreationPermissions) {
+
         setCLA((byte) 0xB0);
-        setINS((byte) 0x3C);
+        setINS((byte) 0x2A);
         setP1((byte) 0x00);
         setP2((byte) 0x00);
+
     }
 
     @Override
-    public APDU.Type getType()
-    {
-        return Type.APDU_GET_STATUS;
+    public APDU.Type getType() {
+        return APDU.Type.APDU_FORMAT_MUSCLE_APPLET;
     }
-
-    @Override
-    public TPSBuffer getEncoding()
-    {
-        TPSBuffer encoding = new TPSBuffer();
-        encoding.add(cla);
-        encoding.add(ins);
-        encoding.add(p1);
-        encoding.add(p2);
-        encoding.add((byte) 16);
-
-        return encoding;
-    } /* Encode */
 
 }

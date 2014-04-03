@@ -22,46 +22,32 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class SetIssuerInfo extends APDU {
-    /**
-     * Constructs SetIssuer APDU.
-     *
-     * SecureSetIssuer APDU format:
-     * CLA 0x84
-     * INS 0xF4
-     * P1 0x00
-     * P2 0x00
-     * lc 0xE0
-     * DATA <Issuer Info>
-     *
-     * Connection requirement:
-     * Secure Channel
-     *
-     * Possible error Status Codes:
-     * 9C 06 - unauthorized
-     *
-     * @param p1 always 0x00
-     * @param p2 always 0x00
-     * @param data issuer info
-     * @see APDU
-     */
-    public SetIssuerInfo(byte p1, byte p2, TPSBuffer theData)
+public class GetStatusAPDU extends APDU {
+    public GetStatusAPDU()
     {
-        setCLA((byte) 0x84);
-        setINS((byte) 0xF4);
-        setP1(p1);
-        setP2(p2);
-        setData(theData);
+        setCLA((byte) 0xB0);
+        setINS((byte) 0x3C);
+        setP1((byte) 0x00);
+        setP2((byte) 0x00);
     }
 
-    public TPSBuffer getIssuerInfo()
+    @Override
+    public APDU.Type getType()
     {
-        return getData();
+        return Type.APDU_GET_STATUS;
     }
 
-    public Type getType()
+    @Override
+    public TPSBuffer getEncoding()
     {
-        return Type.APDU_SET_ISSUERINFO;
-    }
+        TPSBuffer encoding = new TPSBuffer();
+        encoding.add(cla);
+        encoding.add(ins);
+        encoding.add(p1);
+        encoding.add(p2);
+        encoding.add((byte) 16);
+
+        return encoding;
+    } /* Encode */
 
 }

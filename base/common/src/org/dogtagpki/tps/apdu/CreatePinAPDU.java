@@ -22,32 +22,25 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class GetVersion extends APDU {
-    public GetVersion()
-    {
-        setCLA((byte) 0xB0);
-        setINS((byte) 0x70);
-        setP1((byte) 0x00);
-        setP2((byte) 0x00);
+public class CreatePinAPDU  extends APDU {
+
+    public  CreatePinAPDU(byte theP1, byte theP2, TPSBuffer theData) {
+
+        setP1(theP1);
+        setP2(theP2);
+        setData(theData);
+
     }
 
     @Override
-    public APDU.Type getType()
-    {
-        return Type.APDU_GET_VERSION;
+    public APDU.Type getType() {
+        return APDU.Type.APDU_CREATE_PIN;
+
     }
 
-    @Override
-    public TPSBuffer getEncoding()
-    {
-        TPSBuffer data = new TPSBuffer();
-        data.add(cla);
-        data.add(ins);
-        data.add(p1);
-        data.add(p2);
-        data.add((byte) 4);
+    public static void main(String[] args) {
+        // TODO Auto-generated method stub
 
-        return data;
     }
 
 }

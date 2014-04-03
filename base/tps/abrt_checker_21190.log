@@ -1,0 +1,9 @@
+Uncaught java.lang.ClassNotFoundException exception in thread "main" in a method java.lang.ClassLoader.loadClass() with signature (Ljava/lang/String;Z)Ljava/lang/Class;
+Exception in thread "main" java.lang.ClassNotFoundException: .usr.lib64.eclipse..plugins.org.eclipse.equinox.launcher_1.3.0.v20130930-1720.jar
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:366) [jar:file:/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.60-2.4.2.9.fc20.x86_64/jre/lib/rt.jar!/java/net/URLClassLoader$1.class]
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:355) [jar:file:/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.60-2.4.2.9.fc20.x86_64/jre/lib/rt.jar!/java/net/URLClassLoader$1.class]
+	at java.security.AccessController.doPrivileged(Native Method) [jar:file:/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.60-2.4.2.9.fc20.x86_64/jre/lib/rt.jar!/java/security/AccessController.class]
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:354) [jar:file:/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.60-2.4.2.9.fc20.x86_64/jre/lib/rt.jar!/java/net/URLClassLoader.class]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:424) [jar:file:/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.60-2.4.2.9.fc20.x86_64/jre/lib/rt.jar!/java/lang/ClassLoader.class]
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:308) [jar:file:/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.60-2.4.2.9.fc20.x86_64/jre/lib/rt.jar!/sun/misc/Launcher$AppClassLoader.class]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:357) [jar:file:/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.60-2.4.2.9.fc20.x86_64/jre/lib/rt.jar!/java/lang/ClassLoader.class]

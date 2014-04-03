@@ -18,29 +18,46 @@
  * All rights reserved.
  * --- END COPYRIGHT BLOCK ---
  */
+
 package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class CreatePin extends APDU {
+public class InitializeUpdateAPDU extends APDU {
 
-    public CreatePin(byte theP1, byte theP2, TPSBuffer theData) {
-
-        setP1(theP1);
-        setP2(theP2);
+    /**
+     * Constructs Initialize Update APDU.
+     */
+    public InitializeUpdateAPDU(byte key_version, byte key_index, TPSBuffer theData) {
+        setCLA((byte) 0x80);
+        setINS((byte) 0x50);
+        setP1(key_version);
+        setP2(key_index);
         setData(theData);
-
     }
 
-    @Override
-    public APDU.Type getType() {
-        return APDU.Type.APDU_CREATE_PIN;
-
+    public TPSBuffer getHostChallenge()
+    {
+        return getData();
     }
 
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
+    public Type getType()
+    {
+        return Type.APDU_INITIALIZE_UPDATE;
     }
+
+    public TPSBuffer getEncoding()
+    {
+        TPSBuffer theData = new TPSBuffer();
+
+        theData.add(cla);
+        theData.add(ins);
+        theData.add(p1);
+        theData.add(p2);
+        theData.add((byte) data.size());
+        theData.add(data);
+
+        return theData;
+    } /* Encode */
 
 }
