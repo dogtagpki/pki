@@ -70,7 +70,7 @@ var SelfTestPage = Page.extend({
             readonly: ["id", "enabledAtStartup", "criticalAtStartup", "enabledOnDemand", "criticalOnDemand"]
         });
 
-        var table = new Table({
+        var table = new ModelTable({
             el: $("table[name='selftests']"),
             collection: new SelfTestCollection(),
             editDialog: editDialog

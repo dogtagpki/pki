@@ -82,7 +82,7 @@ var ConnectionCollection = Collection.extend({
     }
 });
 
-var ConnectionsTable = Table.extend({
+var ConnectionsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         ConnectionsTable.__super__.initialize.call(self, options);
@@ -91,10 +91,10 @@ var ConnectionsTable = Table.extend({
     open: function(item) {
         var self = this;
 
-        var page = new EntryPage({
+        var page = new EntryWithPropertiesPage({
             el: self.parentPage.$el,
             url: "connection.html",
-            model: item.model
+            model: self.collection.get(item.entry.id)
         });
 
         page.open();
@@ -102,7 +102,7 @@ var ConnectionsTable = Table.extend({
     add: function() {
         var self = this;
 
-        var page = new AddEntryPage({
+        var page = new EntryWithPropertiesPage({
             el: self.parentPage.$el,
             url: "connection.html",
             model: new ConnectionModel(),

@@ -82,7 +82,7 @@ var ProfileCollection = Collection.extend({
     }
 });
 
-var ProfilesTable = Table.extend({
+var ProfilesTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         ProfilesTable.__super__.initialize.call(self, options);
@@ -91,10 +91,10 @@ var ProfilesTable = Table.extend({
     open: function(item) {
         var self = this;
 
-        var page = new EntryPage({
+        var page = new EntryWithPropertiesPage({
             el: self.parentPage.$el,
             url: "profile.html",
-            model: item.model
+            model: self.collection.get(item.entry.id)
         });
 
         page.open();
@@ -102,7 +102,7 @@ var ProfilesTable = Table.extend({
     add: function() {
         var self = this;
 
-        var page = new AddEntryPage({
+        var page = new EntryWithPropertiesPage({
             el: self.parentPage.$el,
             url: "profile.html",
             model: new ProfileModel(),

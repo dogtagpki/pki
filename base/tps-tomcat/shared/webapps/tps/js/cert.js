@@ -83,7 +83,7 @@ var CertificatePage = Page.extend({
             "keyType", "status", "createTime", "modifyTime"]
         });
 
-        var table = new Table({
+        var table = new ModelTable({
             el: $("table[name='certificates']"),
             collection: new CertificateCollection(),
             editDialog: editDialog

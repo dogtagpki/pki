@@ -147,8 +147,7 @@ var Navigation = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
         Navigation.__super__.initialize.call(self, options);
-
-        self.pages = options.pages;
+        self.pages = options.pages || {};
         self.homePage = options.homePage;
 
         $("li", self.$el).each(function(index) {
@@ -169,8 +168,10 @@ var Navigation = Backbone.View.extend({
                 e.preventDefault();
             });
         });
-
-        if (self.homePage) self.load(self.homePage);
+    },
+    page: function(name, page) {
+        var self = this;
+        self.pages[name] = page;
     },
     load: function(name) {
         var self = this;
@@ -182,6 +183,10 @@ var Navigation = Backbone.View.extend({
         }
 
         page.open();
+    },
+    render: function() {
+        var self = this;
+        if (self.homePage) self.load(self.homePage);
     }
 });
 
@@ -233,7 +238,7 @@ var Dialog = Backbone.View.extend({
         self.$("input").each(function(index) {
             var input = $(this);
             var name = input.attr("name");
-            if ( _.contains(self.readonly, name)) {
+            if (_.contains(self.readonly, name)) {
                 input.attr("readonly", "readonly");
             } else {
                 input.removeAttr("readonly");
@@ -295,7 +300,7 @@ var Dialog = Backbone.View.extend({
         var self = this;
         var name = input.attr("name");
         var value = self.attributes[name];
-        if (!value) value = "";
+        if (value === undefined) value = "";
         input.val(value);
     },
     save: function() {
@@ -355,18 +360,19 @@ var TableItem = Backbone.View.extend({
             var name = td.attr("name");
 
             if (td.hasClass("pki-select-column")) {
-                // generate a unique id based on model id
-                var id = prefix + self.id();
+                // generate a unique input ID based on entry ID
+                var entryID = self.get("id")
+                var inputID = prefix + entryID;
 
-                // set the unique id and value for checkbox
+                // set the checkbox ID and value
                 var checkbox = $("input[type='checkbox']", td);
-                checkbox.attr("id", id);
+                checkbox.attr("id", inputID);
                 checkbox.attr("checked", false);
-                checkbox.val(self.id());
+                checkbox.val(entryID);
 
                 // point the label to the checkbox and make it visible
                 var label = $("label", td);
-                label.attr("for", id);
+                label.attr("for", inputID);
                 label.show();
 
             } else if (name == "id") {
@@ -377,9 +383,10 @@ var TableItem = Backbone.View.extend({
             }
         });
     },
-    id: function() {
+    get: function(name) {
         var self = this;
-        return self.model.id;
+        var attribute = self.table.columnMappings[name] || name;
+        return self.entry[attribute];
     },
     renderIDColumn: function(td) {
         var self = this;
@@ -388,7 +395,7 @@ var TableItem = Backbone.View.extend({
         td.empty();
         $("<a/>", {
             href: "#",
-            text: self.id(),
+            text: self.get("id"),
             click: function(e) {
                 self.table.open(self);
                 e.preventDefault();
@@ -400,7 +407,7 @@ var TableItem = Backbone.View.extend({
 
         // show content in plain text
         var name = td.attr("name");
-        td.text(self.model.get(name));
+        td.text(self.get(name));
     }
 });
 
@@ -409,6 +416,10 @@ var Table = Backbone.View.extend({
         var self = this;
 
         Table.__super__.initialize.call(self, options);
+        self.entries = options.entries || [];
+        self.columnMappings = options.columnMappings || {};
+        self.mode = options.mode || "view";
+
         self.addDialog = options.addDialog;
         self.editDialog = options.editDialog;
         self.viewDialog = options.viewDialog;
@@ -522,20 +533,147 @@ var Table = Backbone.View.extend({
             e.preventDefault();
         });
     },
-    readOnly: function(value) {
+    render: function() {
         var self = this;
-        if (value === undefined) {
-            var display = self.buttons.css("display");
-            value = display == "none";
 
-        } else if (value) {
+        // perform manual filter
+        var filter = self.searchField.val();
+        self.filteredEntries = [];
+
+        _(self.entries).each(function(item, index) {
+            if (!self.matchesFilter(item, filter)) return;
+            self.filteredEntries.push(item);
+        });
+
+        self.sort();
+
+        // update controls
+        self.renderControls();
+
+        // display entries
+        _(self.items).each(function(item, index) {
+            self.renderRow(item, index);
+        });
+    },
+    sort: function() {
+        var self = this;
+        // by default the list is not sorted
+    },
+    matchesFilter: function(entry, filter) {
+        var self = this;
+
+        // check filter against all values in the entry
+        var matches = false;
+        _(entry).each(function(value, key) {
+            if (entry.name.indexOf(filter) >= 0) matches = true;
+        });
+
+        return matches;
+    },
+    renderControls: function() {
+        var self = this;
+
+        if (self.mode == "view") {
             self.buttons.hide();
 
-        } else {
+        } else { // self.mode == "edit"
             self.buttons.show();
         }
 
-        return value;
+        // clear selection
+        self.selectAllCheckbox.attr("checked", false);
+
+        // display total entries
+        self.totalEntriesField.text(self.totalEntries());
+
+        // display current page number
+        self.pageField.val(self.page);
+
+        // calculate and display total number of pages
+        self.totalPages = Math.floor(Math.max(0, self.totalEntries() - 1) / self.pageSize) + 1;
+        self.totalPagesField.text(self.totalPages);
+    },
+    renderRow: function(item, index) {
+        var self = this;
+        var i = (self.page - 1) * self.pageSize + index;
+        if (i < self.filteredEntries.length) {
+            // show entry in existing row
+            item.entry = self.filteredEntries[i];
+            item.render();
+
+        } else {
+            // clear unused row
+            item.reset();
+        }
+    },
+    totalEntries: function() {
+        var self = this;
+        return self.filteredEntries.length;
+    },
+    open: function(item) {
+        var self = this;
+
+        var dialog;
+        if (self.mode == "view") {
+            dialog = self.viewDialog;
+
+        } else { // self.mode == "edit"
+            dialog = self.editDialog;
+
+            dialog.handler("save", function() {
+
+                // save changes
+                dialog.save();
+                _.extend(item.entry, dialog.attributes);
+
+                // redraw table
+                self.render();
+                dialog.close();
+            });
+        }
+
+        dialog.attributes = _.clone(item.entry);
+
+        dialog.open();
+    },
+    add: function() {
+        var self = this;
+
+        var dialog = self.addDialog;
+        dialog.attributes = {};
+
+        dialog.handler("add", function() {
+
+            // save new entry
+            dialog.save();
+            self.entries.push(dialog.attributes);
+
+            // redraw table
+            self.render();
+            dialog.close();
+        });
+
+        dialog.open();
+    },
+    remove: function(items) {
+        var self = this;
+
+        // remove selected entries
+        self.entries = _.reject(self.entries, function(entry) {
+            return _.contains(items, entry.id);
+        });
+
+        // redraw table
+        self.render();
+    }
+});
+
+var ModelTable = Table.extend({
+    initialize: function(options) {
+        var self = this;
+        options.mode = options.mode || "edit";
+        ModelTable.__super__.initialize.call(self, options);
+        self.collection = options.collection;
     },
     render: function() {
         var self = this;
@@ -565,27 +703,12 @@ var Table = Backbone.View.extend({
             }
         });
     },
-    renderControls: function() {
-        var self = this;
-
-        // clear selection
-        self.selectAllCheckbox.attr("checked", false);
-
-        // display total entries
-        self.totalEntriesField.text(self.totalEntries());
-
-        // display current page number
-        self.pageField.val(self.page);
-
-        // calculate and display total number of pages
-        self.totalPages = Math.floor(Math.max(0, self.totalEntries() - 1) / self.pageSize) + 1;
-        self.totalPagesField.text(self.totalPages);
-    },
     renderRow: function(item, index) {
         var self = this;
         if (index < self.collection.length) {
             // show entry in existing row
-            item.model = self.collection.at(index);
+            var model = self.collection.at(index);
+            item.entry = _.clone(model.attributes);
             item.render();
 
         } else {
@@ -600,9 +723,10 @@ var Table = Backbone.View.extend({
     open: function(item) {
         var self = this;
 
+        var model = self.collection.get(item.entry.id);
+
         var dialog = self.editDialog;
-        var model = item.model;
-        dialog.attributes = _.clone(model.attributes);
+        dialog.attributes = item.entry;
 
         dialog.handler("save", function() {
 
@@ -691,137 +815,15 @@ var Table = Backbone.View.extend({
         _.each(items, function(id, index) {
             var model = self.collection.get(id);
             model.destroy({
-                wait: true
-            });
-        });
-
-        self.render();
-    }
-});
-
-var PropertiesTableItem = TableItem.extend({
-    initialize: function(options) {
-        var self = this;
-        PropertiesTableItem.__super__.initialize.call(self, options);
-    },
-    id: function() {
-        var self = this;
-        return self.property.name;
-    },
-    renderColumn: function(td) {
-        var self = this;
-        td.text(self.property.value);
-    }
-});
-
-var PropertiesTable = Table.extend({
-    initialize: function(options) {
-        var self = this;
-        options.tableItem = options.tableItem || PropertiesTableItem;
-        PropertiesTable.__super__.initialize.call(self, options);
-        self.properties = options.properties;
-    },
-    render: function() {
-        var self = this;
-
-        // perform manual filter
-        var filter = self.searchField.val();
-        if (filter === "") {
-            self.entries = self.properties;
-
-        } else {
-            self.entries = [];
-            _(self.properties).each(function(item, index) {
-                // select properties whose names or values contain the filter
-                if (item.name.indexOf(filter) >= 0 || item.value.indexOf(filter) >= 0) {
-                    self.entries.push(item);
+                wait: true,
+                success: function(model, response, options) {
+                    self.render();
+                },
+                error: function(model, response, options) {
+                    alert("ERROR: " + response.responseText);
                 }
             });
-        }
-
-        self.renderControls();
-
-        _(self.items).each(function(item, index) {
-            self.renderRow(item, index);
         });
-    },
-    renderRow: function(item, index) {
-        var self = this;
-        var i = (self.page - 1) * self.pageSize + index;
-        if (i < self.entries.length) {
-            // show entry in existing row
-            item.property = self.entries[i];
-            item.render();
-
-        } else {
-            // clear unused row
-            item.reset();
-        }
-    },
-    totalEntries: function() {
-        var self = this;
-        return self.entries.length;
-    },
-    open: function(item) {
-        var self = this;
-
-        var dialog;
-        if (self.readOnly()) {
-            dialog = self.viewDialog;
-
-        } else {
-            dialog = self.editDialog;
-
-            dialog.handler("save", function() {
-
-                // save property changes
-                dialog.save();
-                _.extend(item.property, dialog.attributes);
-
-                // redraw table after saving property changes
-                self.render();
-                dialog.close();
-            });
-		}
-
-        dialog.attributes = _.clone(item.property);
-
-        dialog.open();
-    },
-    add: function() {
-        var self = this;
-
-        var dialog = self.addDialog;
-        dialog.attributes = {};
-
-        dialog.handler("add", function() {
-
-            // save new property
-            dialog.save();
-            self.properties.push(dialog.attributes);
-
-            // sort properties by name
-            self.properties = _.sortBy(self.properties, function(property) {
-                return property.name;
-            });
-
-            // redraw table after adding new property
-            self.render();
-            dialog.close();
-        });
-
-        dialog.open();
-    },
-    remove: function(items) {
-        var self = this;
-
-        // remove selected properties
-        self.properties = _.reject(self.properties, function(property) {
-            return _.contains(items, property.name);
-        });
-
-        // redraw table after removing properties
-        self.render();
     }
 });
 
@@ -831,14 +833,19 @@ var EntryPage = Page.extend({
         EntryPage.__super__.initialize.call(self, options);
         self.model = options.model;
         self.mode = options.mode || "view";
+        self.editable = options.editable || [];
     },
     load: function() {
         var self = this;
 
+        self.setup();
+        self.render();
+    },
+    setup: function() {
+        var self = this;
+
         self.menu = self.$(".pki-menu");
         self.editLink = $("a[name='edit']", self.menu);
-        self.enableLink = $("a[name='enable']", self.menu);
-        self.disableLink = $("a[name='disable']", self.menu);
 
         self.buttons = self.$(".pki-buttons");
         self.cancelButton = $("button[name='cancel']", self.buttons);
@@ -847,43 +854,10 @@ var EntryPage = Page.extend({
         self.idField = self.$("input[name='id']");
         self.statusField = self.$("input[name='status']");
 
-        var table = self.$("table[name='properties']");
-        self.propertiesButtons = $(".pki-table-buttons", table);
-        self.addButton = $("button[name='add']", self.propertiesButtons);
-        self.removeButton = $("button[name='remove']", self.propertiesButtons);
-
         self.editLink.click(function(e) {
             self.mode = "edit";
             self.render();
             e.preventDefault();
-        });
-
-        self.enableLink.click(function(e) {
-            var message = "Are you sure you want to enable this entry?";
-            if (!confirm(message)) return;
-            self.model.enable({
-                success: function(data,textStatus, jqXHR) {
-                    self.attributes = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert("ERROR: " + textStatus);
-                }
-            });
-        });
-
-        self.disableLink.click(function(e) {
-            var message = "Are you sure you want to disable this entry?";
-            if (!confirm(message)) return;
-            self.model.disable({
-                success: function(data,textStatus, jqXHR) {
-                    self.attributes = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert("ERROR: " + textStatus);
-                }
-            });
         });
 
         self.cancelButton.click(function(e) {
@@ -896,54 +870,17 @@ var EntryPage = Page.extend({
             e.preventDefault();
         });
 
-        var dialog = self.$("#property-dialog");
-
-        var addDialog = new Dialog({
-            el: dialog,
-            title: "Add Property",
-            actions: ["cancel", "add"]
-        });
-
-        var editDialog = new Dialog({
-            el: dialog,
-            title: "Edit Property",
-            readonly: ["name"],
-            actions: ["cancel", "save"]
-        });
-
-        var viewDialog = new Dialog({
-            el: dialog,
-            title: "Property",
-            readonly: ["name", "value"],
-            actions: ["close"]
-        });
-
-        self.propertiesTable = new PropertiesTable({
-            el: table,
-            addDialog: addDialog,
-            editDialog: editDialog,
-            viewDialog: viewDialog,
-            pageSize: 10
-        });
-
-        self.render();
     },
     render: function() {
         var self = this;
 
-        // in add mode, render blank form
         if (self.mode == "add") {
-            self.attributes = {};
-            self.propertiesTable.properties = [];
             self.renderContent();
             return;
         }
 
-        // in view and edit modes, fetch entry then render the content
         self.model.fetch({
             success: function(model, response, options) {
-                self.attributes = _.clone(self.model.attributes);
-                self.propertiesTable.properties = self.attributes.properties;
                 self.renderContent();
             }
         });
@@ -952,57 +889,62 @@ var EntryPage = Page.extend({
         var self = this;
 
         if (self.mode == "add") {
-            // In add mode all fields are editable.
+            // Use empty attributes.
+            self.attributes = {};
+
+            // All fields are editable.
             self.$(".pki-fields input").each(function(index) {
                 var input = $(this);
                 input.removeAttr("readonly");
             });
 
         } else {
-            // In view and edit modes show entry ID in the title.
+            // Use entry attributes.
+            self.attributes = _.clone(self.model.attributes);
+
+            // Show entry ID in the title.
             self.$("span[name='id']").text(self.attributes.id);
 
-            // In view mode all fields are read-only. In edit mode
-            // currently all fields are read-only too, but it might
-            // need to be changed later to suppot editable fields.
-            self.$(".pki-fields input").each(function(index) {
-                var input = $(this);
-                input.attr("readonly", "readonly");
-            });
-        }
+            if (self.mode == "edit") {
+                // Show editable fields.
+                self.$(".pki-fields input").each(function(index) {
+                    var input = $(this);
+                    var name = input.attr("name");
+                    if (_.contains(self.editable, name)) {
+                        input.removeAttr("readonly");
+                    } else {
+                        input.attr("readonly", "readonly");
+                    }
+                });
 
-        var status = self.attributes.status;
-        if (status == "Disabled") {
-            self.enableLink.show();
-            self.disableLink.hide();
-        } else if (status == "Enabled") {
-            self.enableLink.hide();
-            self.disableLink.show();
+            } else { // self.mode == "view"
+                // All fields are read-only.
+                self.$(".pki-fields input").each(function(index) {
+                    var input = $(this);
+                    input.attr("readonly", "readonly");
+                });
+            }
         }
 
         if (self.mode == "view") {
             self.menu.show();
             self.buttons.hide();
-            self.propertiesButtons.hide();
 
         } else {
             self.menu.hide();
             self.buttons.show();
-            self.propertiesButtons.show();
         }
 
         self.$(".pki-fields input").each(function(index) {
             var input = $(this);
             self.renderField(input);
         });
-
-        self.propertiesTable.render();
     },
     renderField: function(input) {
         var self = this;
         var name = input.attr("name");
         var value = self.attributes[name];
-        if (!value) value = "";
+        if (value === undefined) value = "";
         input.val(value);
     },
     close: function() {
@@ -1017,22 +959,11 @@ var EntryPage = Page.extend({
     save: function() {
         var self = this;
 
-        self.$(".pki-fields input").each(function(index) {
-            var input = $(this);
-            self.saveField(input);
-        });
-
-        var attributes = {};
-        _.each(self.attributes, function(value, name) {
-            if (value == "") return;
-            attributes[name] = value;
-        });
-
-        attributes.properties = self.propertiesTable.properties;
+        self.saveFields();
 
         if (self.mode == "add") {
             // save new entry with POST
-            self.model.save(attributes, {
+            self.model.save(self.attributes, {
                 wait: true,
                 success: function(model, response, options) {
                     self.close();
@@ -1047,7 +978,7 @@ var EntryPage = Page.extend({
             });
         } else {
             // save changed attributes with PATCH
-            self.model.save(attributes, {
+            self.model.save(self.attributes, {
                 patch: true,
                 wait: true,
                 success: function(model, response, options) {
@@ -1063,24 +994,23 @@ var EntryPage = Page.extend({
             });
         }
     },
+    saveFields: function() {
+        var self = this;
+
+        self.$(".pki-fields input").each(function(index) {
+            var input = $(this);
+            self.saveField(input);
+        });
+    },
     saveField: function(input) {
         var self = this;
+
         var name = input.attr("name");
-        self.attributes[name] = input.val();
+        var value = input.val();
+        if (value == "") {
+            delete self.attributes[name];
+        } else {
+            self.attributes[name] = value;
+        }
     }
 });
-
-var AddEntryPage = EntryPage.extend({
-    initialize: function(options) {
-        var self = this;
-        options.mode = "add";
-        AddEntryPage.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    close: function() {
-        var self = this;
-        self.parentPage.$el.load(self.parentPage.url, function(response, status, xhr) {
-            self.parentPage.load();
-        });
-    }
-});;

@@ -72,7 +72,7 @@ var GroupPage = Page.extend({
             actions: ["cancel", "save"]
         });
 
-        var table = new Table({
+        var table = new ModelTable({
             el: $("table[name='groups']"),
             collection: new GroupCollection(),
             addDialog: addDialog,

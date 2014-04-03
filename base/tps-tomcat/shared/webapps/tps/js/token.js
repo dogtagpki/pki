@@ -93,7 +93,7 @@ var TokenPage = Page.extend({
             actions: ["cancel", "save"]
         });
 
-        var table = new Table({
+        var table = new ModelTable({
             el: $("table[name='tokens']"),
             collection: new TokenCollection(),
             addDialog: addDialog,

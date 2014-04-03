@@ -138,7 +138,7 @@ var UserPage = Page.extend({
             actions: ["cancel", "save"]
         });
 
-        var table = new Table({
+        var table = new ModelTable({
             el: $("table[name='users']"),
             collection: new UserCollection(),
             addDialog: addDialog,

@@ -82,7 +82,7 @@ var AuthenticatorCollection = Collection.extend({
     }
 });
 
-var AuthenticatorsTable = Table.extend({
+var AuthenticatorsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         AuthenticatorsTable.__super__.initialize.call(self, options);
@@ -91,10 +91,10 @@ var AuthenticatorsTable = Table.extend({
     open: function(item) {
         var self = this;
 
-        var page = new EntryPage({
+        var page = new EntryWithPropertiesPage({
             el: self.parentPage.$el,
             url: "authenticator.html",
-            model: item.model
+            model: self.collection.get(item.entry.id)
         });
 
         page.open();
@@ -102,7 +102,7 @@ var AuthenticatorsTable = Table.extend({
     add: function() {
         var self = this;
 
-        var page = new AddEntryPage({
+        var page = new EntryWithPropertiesPage({
             el: self.parentPage.$el,
             url: "authenticator.html",
             model: new AuthenticatorModel(),

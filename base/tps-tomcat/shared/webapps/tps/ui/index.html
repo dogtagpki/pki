@@ -25,6 +25,7 @@
     <script src="/pki/js/backbone.js"></script>
     <script src="/pki/js/bootstrap.js"></script>
     <script src="/pki/js/pki-ui.js"></script>
+    <script src="/tps/js/tps.js"></script>
     <script src="/tps/js/account.js"></script>
     <script src="/tps/js/activity.js"></script>
     <script src="/tps/js/authenticator.js"></script>
@@ -38,22 +39,10 @@
     <script src="/tps/js/user.js"></script>
     <script>
 $(function() {
-    var content = $("#content");
     var account = new Account();
-    new Navigation({
+
+    var navigation = new Navigation({
         el: $("#navigation"),
-        pages: {
-            activities: new ActivityPage({ el: content, url: "activities.html" }),
-            authenticators: new AuthenticatorsPage({ el: content, url: "authenticators.html" }),
-            certs: new CertificatePage({ el: content, url: "certs.html" }),
-            connections: new ConnectionsPage({ el: content, url: "connections.html" }),
-            groups: new GroupPage({ el: content, url: "groups.html" }),
-            profiles: new ProfilesPage({ el: content, url: "profiles.html" }),
-            profileMappings: new ProfileMappingsPage({ el: content, url: "profile-mappings.html" }),
-            selftests: new SelfTestPage({ el: content, url: "selftests.html" }),
-            tokens: new TokenPage({ el: content, url: "tokens.html" }),
-            users: new UserPage({ el: content, url: "users.html" })
-        },
         logout: function() {
             account.logout({
                 success: function() {
@@ -67,6 +56,60 @@ $(function() {
         },
         homePage: "tokens"
     });
+
+    var content = $("#content");
+
+    navigation.page("activities", new ActivityPage({
+        el: content,
+        url: "activities.html"
+    }));
+
+    navigation.page("authenticators", new AuthenticatorsPage({
+        el: content,
+        url: "authenticators.html"
+    }));
+
+    navigation.page("certs", new CertificatePage({
+        el: content,
+        url: "certs.html"
+    }));
+
+    navigation.page("connections", new ConnectionsPage({
+        el: content,
+        url: "connections.html"
+    }));
+
+    navigation.page("groups", new GroupPage({
+        el: content,
+        url: "groups.html"
+    }));
+
+    navigation.page("profiles", new ProfilesPage({
+        el: content,
+        url: "profiles.html"
+    }));
+
+    navigation.page("profileMappings", new ProfileMappingsPage({
+        el: content,
+        url: "profile-mappings.html"
+    }));
+
+    navigation.page("selftests", new SelfTestPage({
+        el: content,
+        url: "selftests.html"
+    }));
+
+    navigation.page("tokens", new TokenPage({
+        el: content,
+        url: "tokens.html"
+    }));
+
+    navigation.page("users", new UserPage({
+        el: content,
+        url: "users.html"
+    }));
+
+    navigation.render();
 });
     </script>
 </head>

@@ -82,7 +82,7 @@ var ProfileMappingCollection = Collection.extend({
     }
 });
 
-var ProfileMappingsTable = Table.extend({
+var ProfileMappingsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         ProfileMappingsTable.__super__.initialize.call(self, options);
@@ -91,10 +91,10 @@ var ProfileMappingsTable = Table.extend({
     open: function(item) {
         var self = this;
 
-        var page = new EntryPage({
+        var page = new EntryWithPropertiesPage({
             el: self.parentPage.$el,
             url: "profile-mapping.html",
-            model: item.model
+            model: self.collection.get(item.entry.id)
         });
 
         page.open();
@@ -102,7 +102,7 @@ var ProfileMappingsTable = Table.extend({
     add: function() {
         var self = this;
 
-        var page = new AddEntryPage({
+        var page = new EntryWithPropertiesPage({
             el: self.parentPage.$el,
             url: "profile-mapping.html",
             model: new ProfileMappingModel(),
