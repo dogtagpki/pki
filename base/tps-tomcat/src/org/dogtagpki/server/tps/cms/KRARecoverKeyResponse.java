@@ -21,20 +21,31 @@ package org.dogtagpki.server.tps.cms;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
-import org.dogtagpki.tps.main.TPSBuffer;
 
 /**
- * TKSComputeRandomDataResponse is the class for the response to
- * TKS Remote Request: computeRandomData()
+ * KRARecoverKeyResponse is the class for the response to
+ * KRA Remote Request: recoverKey()
  *
  */
-public class TKSComputeRandomDataResponse extends RemoteResponse
+public class KRARecoverKeyResponse extends RemoteResponse
 {
-    public TKSComputeRandomDataResponse(Hashtable<String, Object> ht) {
+    public KRARecoverKeyResponse(Hashtable<String, Object> ht) {
         nameValTable = ht;
     }
 
-    public TPSBuffer getRandomData() {
-        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_RandomData);
+    public String getErrorString() {
+        return (String) nameValTable.get(IRemoteRequest.RESPONSE_ERROR_STRING);
+    }
+
+    public String getPublicKey() {
+        return (String) nameValTable.get(IRemoteRequest.KRA_RESPONSE_PublicKey);
+    }
+
+    public String getWrappedPrivKey() {
+        return (String) nameValTable.get(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
+    }
+
+    public String getIVParam() {
+        return (String) nameValTable.get(IRemoteRequest.KRA_RESPONSE_IV_Param);
     }
 }

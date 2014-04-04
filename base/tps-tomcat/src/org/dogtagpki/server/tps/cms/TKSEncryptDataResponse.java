@@ -28,7 +28,7 @@ import org.dogtagpki.tps.main.TPSBuffer;
  * TKS Remote Request: encryptData
  *
  */
-public class TKSEncryptDataResponse extends TKSResponse
+public class TKSEncryptDataResponse extends RemoteResponse
 {
 
     public TKSEncryptDataResponse(Hashtable<String, Object> ht) {

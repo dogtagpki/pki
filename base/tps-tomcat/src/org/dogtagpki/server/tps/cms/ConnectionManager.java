@@ -18,6 +18,8 @@
 
 package org.dogtagpki.server.tps.cms;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -35,13 +37,35 @@ import com.netscape.cmscore.connector.RemoteAuthority;
 /**
  * ConnectionManager is a class for connection management
  * of its Remote Authorities
+ *
  * @author cfu
  */
 public class ConnectionManager
 {
     private Hashtable<String, IConnector> connectors;
+    List<String> caList;
 
     public ConnectionManager() {
+        // initialize the ca list for revocation routing:
+        //    tps.connCAList=ca1,ca2...ca<n>
+        TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        IConfigStore conf = subsystem.getConfigStore();
+        String caListString;
+        try {
+            caListString = conf.getString("connCAList");
+            CMS.debug("ConnectionManager: ConnectionManager(): Initializing CA routing list");
+        } catch (EBaseException e) {
+            CMS.debug("ConnectionManager: ConnectionManager(): no connCAList for ca discovery.  No revocation routing");
+            return;
+        }
+
+        caList = Arrays.asList(caListString.split(","));
+        CMS.debug("ConnectionManager: ConnectionManager(): CA routing list initialized.");
+    }
+
+    public List<String> getCAList() {
+        return caList;
     }
 
     /*
@@ -70,16 +94,16 @@ public class ConnectionManager
     public void initConnectors() throws EBaseException {
         CMS.debug("ConnectionManager: initConnectors(): begins.");
         TPSSubsystem subsystem =
-            (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
         IConfigStore connectorSubstore = conf.getSubStore("connector");
         Enumeration<String> connector_enu = connectorSubstore.getSubStoreNames();
         connectors = new Hashtable<String, IConnector>();
         while (connector_enu.hasMoreElements()) {
             String connectorID = connector_enu.nextElement();
-            CMS.debug("ConnectionManager: initConnectors(): initializing connector "+connectorID);
+            CMS.debug("ConnectionManager: initConnectors(): initializing connector " + connectorID);
             IConfigStore connectorConfig =
-                connectorSubstore.getSubStore(connectorID);
+                    connectorSubstore.getSubStore(connectorID);
             IConnector conn = null;
             boolean enable = connectorConfig.getBoolean("enable", false);
             if (!enable) {
@@ -91,7 +115,7 @@ public class ConnectionManager
 
             connectors.put(connectorID, conn);
             CMS.debug("ConnectionManager: initConnectors(): connector "
-                    +connectorID+
+                    + connectorID +
                     " initialized.");
         }
         CMS.debug("ConnectionManager: initConnectors(): ends.");
@@ -108,7 +132,7 @@ public class ConnectionManager
         IConnector connector = null;
 
         CMS.debug("ConnectionManager: createConnector(): begins.");
-        if (conf== null || conf.size() <= 0) {
+        if (conf == null || conf.size() <= 0) {
             CMS.debug("ConnectionManager: createConnector(): conf null or empty.");
             throw new EBaseException("called with null config store");
         }
@@ -127,19 +151,20 @@ public class ConnectionManager
             CMS.debug("ConnectionManager: createConnector(): uri(s) not found in config.");
             throw new EBaseException("uri(s) not found in config");
         }
-        CMS.debug("ConnectionManager: createConnector(): uriSubstore name="+uriSubstore.getName()+" size =" +uriSubstore.size());
+        CMS.debug("ConnectionManager: createConnector(): uriSubstore name=" + uriSubstore.getName() + " size ="
+                + uriSubstore.size());
 
         Enumeration<String> uri_enu = uriSubstore.getPropertyNames();
         while (uri_enu.hasMoreElements()) {
             String op = uri_enu.nextElement();
             if ((op != null) && !op.equals(""))
-                CMS.debug("ConnectionManager: createConnector(): op name="+op);
+                CMS.debug("ConnectionManager: createConnector(): op name=" + op);
             else
                 continue;
 
             String uriValue = uriSubstore.getString(op);
             if ((uriValue != null) && !uriValue.equals(""))
-                CMS.debug("ConnectionManager: createConnector(): uri value="+uriValue);
+                CMS.debug("ConnectionManager: createConnector(): uri value=" + uriValue);
             else
                 continue;
             uris.put(op, uriValue);
@@ -147,7 +172,7 @@ public class ConnectionManager
 
         String nickname = conf.getString("nickName", null);
         if (nickname != null)
-            CMS.debug("ConnectionManager: createConnector(): nickName="+nickname);
+            CMS.debug("ConnectionManager: createConnector(): nickName=" + nickname);
         else {
             CMS.debug("ConnectionManager: createConnector(): nickName not found in config");
             throw new EBaseException("nickName not found in config");
@@ -157,15 +182,15 @@ public class ConnectionManager
         int resendInterval = -1;
         int timeout = conf.getInteger("timeout", 0);
         RemoteAuthority remauthority =
-            new RemoteAuthority(host, port, uris, timeout, MediaType.APPLICATION_FORM_URLENCODED);
+                new RemoteAuthority(host, port, uris, timeout, MediaType.APPLICATION_FORM_URLENCODED);
 
         CMS.debug("ConnectionManager: createConnector(): establishing HttpConnector");
         if (timeout == 0) {
             connector =
-                new HttpConnector(null, nickname, remauthority, resendInterval, conf);
+                    new HttpConnector(null, nickname, remauthority, resendInterval, conf);
         } else {
             connector =
-                new HttpConnector(null, nickname, remauthority, resendInterval, conf, timeout);
+                    new HttpConnector(null, nickname, remauthority, resendInterval, conf, timeout);
         }
 
         CMS.debug("ConnectionManager: createConnector(): ends.");

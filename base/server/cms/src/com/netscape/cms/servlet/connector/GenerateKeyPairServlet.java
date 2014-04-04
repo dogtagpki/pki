@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
+import org.dogtagpki.server.connector.IRemoteRequest;
+
 /**
  * GenerateKeyPairServlet
  * handles "server-side key pair generation" requests from the
@@ -134,13 +136,13 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
         CMS.debug("processServerSideKeyGen begins:");
 
-        String rCUID = req.getParameter("CUID");
-        String rUserid = req.getParameter("userid");
-        String rdesKeyString = req.getParameter("drm_trans_desKey");
-        String rArchive = req.getParameter("archive");
-        String rKeysize = req.getParameter("keysize");
-        String rKeytype = req.getParameter("keytype");
-        String rKeycurve = req.getParameter("eckeycurve");
+        String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
+        String rUserid = req.getParameter(IRemoteRequest.KRA_UserId);
+        String rdesKeyString = req.getParameter(IRemoteRequest.KRA_Trans_DesKey);
+        String rArchive = req.getParameter(IRemoteRequest.KRA_KEYGEN_Archive);
+        String rKeysize = req.getParameter(IRemoteRequest.KRA_KEYGEN_KeySize);
+        String rKeytype = req.getParameter(IRemoteRequest.KRA_KEYGEN_KeyType);
+        String rKeycurve = req.getParameter(IRemoteRequest.KRA_KEYGEN_EC_KeyCurve);
 
         if ((rCUID == null) || (rCUID.equals(""))) {
             CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: CUID");
@@ -215,7 +217,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
         String value = "";
 
-        resp.setContentType("text/html");
+        resp.setContentType("application/x-www-form-urlencoded");
 
         String wrappedPrivKeyString = "";
         String publicKeyString = "";
@@ -236,15 +238,15 @@ public class GenerateKeyPairServlet extends CMSServlet {
           status = "4";
         */
         if (!status.equals("0"))
-            value = "status=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS +"=" + status;
         else {
             StringBuffer sb = new StringBuffer();
-            sb.append("status=0&");
-            sb.append("wrapped_priv_key=");
+            sb.append(IRemoteRequest.RESPONSE_STATUS +"=0&");
+            sb.append(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey+ "=");
             sb.append(wrappedPrivKeyString);
-            sb.append("&iv_param=");
+            sb.append("&"+ IRemoteRequest.KRA_RESPONSE_IV_Param+ "=");
             sb.append(ivString);
-            sb.append("&public_key=");
+            sb.append("&"+ IRemoteRequest.KRA_RESPONSE_PublicKey+ "=");
             sb.append(publicKeyString);
             value = sb.toString();
 
@@ -294,7 +296,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         if (authzToken == null) {
 
             try {
-                resp.setContentType("text/html");
+                resp.setContentType("application/x-www-form-urlencoded");
                 String value = "unauthorized=";
                 CMS.debug("GenerateKeyPairServlet: Unauthorized");
 

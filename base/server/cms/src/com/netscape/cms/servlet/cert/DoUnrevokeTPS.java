@@ -53,6 +53,8 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+import org.dogtagpki.server.connector.IRemoteRequest;
+
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
  * take them off-hold)
@@ -169,9 +171,9 @@ public class DoUnrevokeTPS extends CMSServlet {
                 cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
                 o_status = "status=3";
                 errorString = "error=unauthorized";
-                String pp = o_status + "\n" + errorString;
+                String pp = o_status + "&" + errorString;
                 byte[] b = pp.getBytes();
-                resp.setContentType("text/html");
+                resp.setContentType("application/x-www-form-urlencoded");
                 resp.setContentLength(b.length);
                 OutputStream os = resp.getOutputStream();
                 os.write(b);
@@ -197,9 +199,9 @@ public class DoUnrevokeTPS extends CMSServlet {
                 errorString = "error=" + error.toString();
             }
 
-            String pp = o_status + "\n" + errorString;
+            String pp = o_status + "&" + errorString;
             byte[] b = pp.getBytes();
-            resp.setContentType("text/html");
+            resp.setContentType("application/x-www-form-urlencoded");
             resp.setContentLength(b.length);
             OutputStream os = resp.getOutputStream();
             os.write(b);
@@ -516,7 +518,7 @@ public class DoUnrevokeTPS extends CMSServlet {
 
     private BigInteger[] getSerialNumbers(HttpServletRequest req)
             throws NumberFormatException {
-        String serialNumString = req.getParameter("serialNumber");
+        String serialNumString = req.getParameter(IRemoteRequest.CA_UNREVOKE_SERIAL);
 
         StringTokenizer snList = new StringTokenizer(serialNumString, " ");
         Vector<BigInteger> biList = new Vector<BigInteger>();
@@ -569,7 +571,8 @@ public class DoUnrevokeTPS extends CMSServlet {
         String requesterID = null;
 
         // Obtain the requesterID
-        requesterID = req.getParameter("requestId");
+        // TODO: should use tps subsystem user id
+        requesterID = req.getParameter(IRemoteRequest.CA_REVOKE_REQUESTER_ID);
 
         if (requesterID != null) {
             requesterID = requesterID.trim();

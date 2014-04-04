@@ -21,20 +21,20 @@ package org.dogtagpki.server.tps.cms;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
-import org.dogtagpki.tps.main.TPSBuffer;
 
 /**
- * TKSComputeRandomDataResponse is the class for the response to
- * TKS Remote Request: computeRandomData()
+ * RemoteResponse is the base class for remote requests
  *
  */
-public class TKSComputeRandomDataResponse extends RemoteResponse
+public abstract class RemoteResponse
 {
-    public TKSComputeRandomDataResponse(Hashtable<String, Object> ht) {
-        nameValTable = ht;
-    }
+    protected Hashtable<String, Object> nameValTable;
 
-    public TPSBuffer getRandomData() {
-        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_RandomData);
+    public int getStatus() {
+        Integer iValue = (Integer) nameValTable.get(IRemoteRequest.RESPONSE_STATUS);
+        if (iValue == null)
+            return IRemoteRequest.RESPONSE_STATUS_NOT_FOUND;
+        else
+            return iValue.intValue();
     }
 }

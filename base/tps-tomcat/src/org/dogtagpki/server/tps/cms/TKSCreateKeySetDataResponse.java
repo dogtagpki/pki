@@ -28,7 +28,7 @@ import org.dogtagpki.tps.main.TPSBuffer;
  * TKS Remote Request: createKeySetData
  *
  */
-public class TKSCreateKeySetDataResponse extends TKSResponse
+public class TKSCreateKeySetDataResponse extends RemoteResponse
 {
 
     public TKSCreateKeySetDataResponse(Hashtable<String, Object> ht) {

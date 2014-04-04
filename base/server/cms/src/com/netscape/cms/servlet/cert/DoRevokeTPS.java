@@ -63,6 +63,8 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+import org.dogtagpki.server.connector.IRemoteRequest;
+
 /**
  * Revoke a Certificate
  *
@@ -184,24 +186,24 @@ public class DoRevokeTPS extends CMSServlet {
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         try {
-            if (req.getParameter("revocationReason") != null) {
+            if (req.getParameter(IRemoteRequest.CA_REVOCATION_REASON) != null) {
                 reason = Integer.parseInt(req.getParameter(
-                                "revocationReason"));
+                                IRemoteRequest.CA_REVOCATION_REASON));
             }
-            if (req.getParameter("totalRecordCount") != null) {
+            if (req.getParameter(IRemoteRequest.CA_REVOKE_COUNT) != null) {
                 totalRecordCount = Integer.parseInt(req.getParameter(
-                                "totalRecordCount"));
+                                IRemoteRequest.CA_REVOKE_COUNT));
             }
-            if (req.getParameter("invalidityDate") != null) {
+            if (req.getParameter(IRemoteRequest.CA_REVOKE_INVALID_DATE) != null) {
                 long l = Long.parseLong(req.getParameter(
-                            "invalidityDate"));
+                            IRemoteRequest.CA_REVOKE_INVALID_DATE));
 
                 if (l > 0) {
                     invalidityDate = new Date(l);
                 }
             }
-            revokeAll = req.getParameter("revokeAll");
-            String comments = req.getParameter(IRequest.REQUESTOR_COMMENTS);
+            revokeAll = req.getParameter(IRemoteRequest.CA_REVOKE_ALL);
+            String comments = req.getParameter(IRemoteRequest.CA_REVOKE_REQUESTER_COMMENTS);
 
             //for audit log.
             String initiative = null;
@@ -261,9 +263,9 @@ public class DoRevokeTPS extends CMSServlet {
                 errorString = "error=" + error.toString();
             }
 
-            String pp = o_status + "\n" + errorString;
+            String pp = o_status + "&" + errorString;
             byte[] b = pp.getBytes();
-            resp.setContentType("text/html");
+            resp.setContentType("application/x-www-form-urlencoded");
             resp.setContentLength(b.length);
             OutputStream os = resp.getOutputStream();
             os.write(b);
@@ -858,7 +860,8 @@ public class DoRevokeTPS extends CMSServlet {
         String requesterID = null;
 
         // Obtain the requesterID
-        requesterID = req.getParameter("requestId");
+        //TODO: should use tps subsystem user id
+        requesterID = req.getParameter(IRemoteRequest.CA_REVOKE_REQUESTER_ID);
 
         if (requesterID != null) {
             requesterID = requesterID.trim();

@@ -18,23 +18,35 @@
 
 package org.dogtagpki.server.tps.cms;
 
+import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
-import org.dogtagpki.tps.main.TPSBuffer;
 
 /**
- * TKSComputeRandomDataResponse is the class for the response to
- * TKS Remote Request: computeRandomData()
+ * CAEnrollCertResponse is the class for the response to
+ * CA Remote Request: enrollCertificate()
  *
  */
-public class TKSComputeRandomDataResponse extends RemoteResponse
+public class CAEnrollCertResponse extends RemoteResponse
 {
-    public TKSComputeRandomDataResponse(Hashtable<String, Object> ht) {
+    public CAEnrollCertResponse(Hashtable<String, Object> ht) {
         nameValTable = ht;
     }
 
-    public TPSBuffer getRandomData() {
-        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_RandomData);
+    public String getRenewedCertB64() {
+        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64);
+    }
+
+    public String getRenewedCertSerialHex() {
+        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial);
+    }
+
+    public String getRenewedCertSubjectDN() {
+        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_RenewedCertificate_SubjectDN);
+    }
+
+    public X509Certificate getRenewedCert() {
+        return (X509Certificate) nameValTable.get(IRemoteRequest.CA_RESPONSE_RenewedCertificate_x509);
     }
 }

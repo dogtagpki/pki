@@ -39,6 +39,8 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
+import org.dogtagpki.server.connector.IRemoteRequest;
+
 /**
  * TokenKeyRecoveryServlet
  * handles "key recovery service" requests from the
@@ -154,11 +156,11 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
         CMS.debug("processTokenKeyRecovery begins:");
 
-        String rCUID = req.getParameter("CUID");
-        String rUserid = req.getParameter("userid");
-        String rKeyid = req.getParameter("keyid");
-        String rdesKeyString = req.getParameter("drm_trans_desKey");
-        String rCert = req.getParameter("cert");
+        String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
+        String rUserid = req.getParameter(IRemoteRequest.KRA_UserId);
+        String rKeyid = req.getParameter(IRemoteRequest.KRA_RECOVERY_KEYID);
+        String rdesKeyString = req.getParameter(IRemoteRequest.KRA_Trans_DesKey);
+        String rCert = req.getParameter(IRemoteRequest.KRA_RECOVERY_CERT);
 
         if ((rCUID == null) || (rCUID.equals(""))) {
             CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: CUID");
@@ -218,7 +220,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
         String value = "";
 
-        resp.setContentType("text/html");
+        resp.setContentType("application/x-www-form-urlencoded");
 
         String wrappedPrivKeyString = "";
         String publicKeyString = "";
@@ -256,12 +258,12 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             value = "status=" + status;
         else {
             StringBuffer sb = new StringBuffer();
-            sb.append("status=0&");
-            sb.append("wrapped_priv_key=");
+            sb.append(IRemoteRequest.RESPONSE_STATUS +"=0&");
+            sb.append(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey +"=");
             sb.append(wrappedPrivKeyString);
-            sb.append("&public_key=");
+            sb.append("&"+ IRemoteRequest.KRA_RESPONSE_PublicKey +"=");
             sb.append(publicKeyString);
-            sb.append("&iv_param=");
+            sb.append("&"+ IRemoteRequest.KRA_RESPONSE_IV_Param +"=");
             sb.append(ivString);
             value = sb.toString();
 
@@ -310,7 +312,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         if (authzToken == null) {
 
             try {
-                resp.setContentType("text/html");
+                resp.setContentType("application/x-www-form-urlencoded");
                 String value = "unauthorized=";
                 CMS.debug("TokenKeyRecoveryServlet: Unauthorized");
 

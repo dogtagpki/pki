@@ -41,7 +41,13 @@ import com.netscape.cmsutil.http.HttpResponse;
  */
 public class TKSRemoteRequestHandler extends RemoteRequestHandler
 {
-    public TKSRemoteRequestHandler(String connID) {
+    public TKSRemoteRequestHandler(String connID)
+            throws EBaseException {
+
+        if (connID == null) {
+            throw new EBaseException("TKSRemoteRequestHandler: TKSRemoteRequestHandler(): connID null.");
+        }
+
         connid = connID;
     }
 
@@ -69,7 +75,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      * @return response TKSComputeSessionKeyResponse class object
      */
     public TKSComputeSessionKeyResponse computeSessionKey(
-            TPSBuffer cuid,
+            String cuid,
             TPSBuffer keyInfo,
             TPSBuffer card_challenge,
             TPSBuffer card_cryptogram,
@@ -77,10 +83,12 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throws EBaseException {
 
         CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): begins.");
+        if (cuid == null || keyInfo == null || card_challenge == null
+                || card_cryptogram == null || host_challenge == null) {
+            throw new EBaseException("TKSRemoteRequestHandler: computeSessionKey(): input parameter null.");
+        }
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-        IConfigStore conf = subsystem.getConfigStore();
+        IConfigStore conf = CMS.getConfigStore();
 
         /*
          * TODO: obtain the profile name from current session when available.
@@ -92,13 +100,15 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         String keySet =
                 conf.getString("connector." + connid + "keySet", "defKeySet");
 
-        CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): sending request to tks.");
+        TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): sending request to tks.");
         HttpResponse resp =
                 conn.send("computeSessionKey",
                         IRemoteRequest.SERVER_SIDE_KEYGEN + "=" + serverKeygen +
-                                "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialEncode(cuid) +
+                                "&" + IRemoteRequest.TOKEN_CUID + "=" + cuid +
                                 "&" + IRemoteRequest.TOKEN_CARD_CHALLENGE + "=" + Util.specialEncode(card_challenge) +
                                 "&" + IRemoteRequest.TOKEN_HOST_CHALLENGE + "=" + Util.specialEncode(host_challenge) +
                                 "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialEncode(keyInfo) +
@@ -117,9 +127,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * Note: serverKeygen and !serverKeygen returns different set of
              *     response values so "missing" might not be bad
              */
-            String value = null;
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): status not found.");
                 CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): got content = " + content);
@@ -213,22 +222,26 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
     public TKSCreateKeySetDataResponse createKeySetData(
             TPSBuffer NewMasterVer,
             TPSBuffer version,
-            TPSBuffer cuid)
+            String cuid)
             throws EBaseException {
         CMS.debug("TKSRemoteRequestHandler: createKeySetData(): begins.");
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-        IConfigStore conf = subsystem.getConfigStore();
+        if (cuid == null || NewMasterVer == null || version == null) {
+            throw new EBaseException("TKSRemoteRequestHandler: createKeySetData(): input parameter null.");
+        }
+
+        IConfigStore conf = CMS.getConfigStore();
         String keySet =
                 conf.getString("connector." + connid + "keySet", "defKeySet");
 
-        CMS.debug("TKSRemoteRequestHandler: createKeySetData(): sending request to tks.");
+        TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        CMS.debug("TKSRemoteRequestHandler: createKeySetData(): sending request to tks.");
         HttpResponse resp =
                 conn.send("createKeySetData",
                         IRemoteRequest.TOKEN_NEW_KEYINFO + "=" + Util.specialEncode(NewMasterVer) +
-                                "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialEncode(cuid) +
+                                "&" + IRemoteRequest.TOKEN_CUID + "=" + cuid +
                                 "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialEncode(version) +
                                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet);
 
@@ -246,9 +259,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            String value = null;
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: createKeySetData(): status not found.");
                 CMS.debug("TKSRemoteRequestHandler: createKeySetData(): got content = " + content);
@@ -319,9 +331,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            String value = null;
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: computeRandomData(): status not found.");
                 CMS.debug("TKSRemoteRequestHandler: computeRandomData(): got content = " + content);
@@ -367,26 +378,29 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      * @return response TKSEncryptDataResponse class object
      */
     public TKSEncryptDataResponse encryptData(
-            TPSBuffer cuid,
+            String cuid,
             TPSBuffer version,
             TPSBuffer inData)
             throws EBaseException {
         CMS.debug("TKSRemoteRequestHandler: encryptData(): begins.");
+        if (cuid == null || version == null || inData == null) {
+            throw new EBaseException("TKSRemoteRequestHandler: encryptData(): input parameter null.");
+        }
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-        IConfigStore conf = subsystem.getConfigStore();
+        IConfigStore conf = CMS.getConfigStore();
 
         String keySet =
                 conf.getString("connector." + connid + "keySet", "defKeySet");
 
-        CMS.debug("TKSRemoteRequestHandler: encryptData(): sending request to tks.");
+        TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        CMS.debug("TKSRemoteRequestHandler: encryptData(): sending request to tks.");
         HttpResponse resp =
                 conn.send("encryptData",
                         IRemoteRequest.TOKEN_DATA + "=" + Util.specialEncode(inData) +
-                                "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialEncode(cuid) +
+                                "&" + IRemoteRequest.TOKEN_CUID + "=" + cuid +
                                 "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialEncode(version) +
                                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet);
 
@@ -400,9 +414,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
              * When a value is not found in response, keep going so we know
              * what else is missing
              */
-            String value = null;
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
-            value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+            String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
             if (value == null) {
                 CMS.debug("TKSRemoteRequestHandler: encryptData(): status not found.");
                 CMS.debug("TKSRemoteRequestHandler: encryptData(): got content = " + content);

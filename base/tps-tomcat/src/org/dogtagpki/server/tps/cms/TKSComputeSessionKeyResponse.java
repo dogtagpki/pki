@@ -28,7 +28,7 @@ import org.dogtagpki.tps.main.TPSBuffer;
  * TKS Remote Request: computeSessionKey()
  *
  */
-public class TKSComputeSessionKeyResponse extends TKSResponse
+public class TKSComputeSessionKeyResponse extends RemoteResponse
 {
 
     public TKSComputeSessionKeyResponse(Hashtable<String, Object> ht) {
