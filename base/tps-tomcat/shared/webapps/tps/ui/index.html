@@ -31,6 +31,7 @@
     <script src="/tps/js/audit.js"></script>
     <script src="/tps/js/authenticator.js"></script>
     <script src="/tps/js/cert.js"></script>
+    <script src="/tps/js/config.js"></script>
     <script src="/tps/js/connection.js"></script>
     <script src="/tps/js/group.js"></script>
     <script src="/tps/js/profile.js"></script>
@@ -78,6 +79,11 @@ $(function() {
     navigation.page("certs", new CertificatePage({
         el: content,
         url: "certs.html"
+    }));
+
+    navigation.page("config", new ConfigPage({
+        el: content,
+        url: "config.html"
     }));
 
     navigation.page("connections", new ConnectionsPage({
@@ -169,6 +175,7 @@ $(function() {
         <b class="caret"></b>
       </a>
       <ul class="dropdown-menu">
+        <li><a href="#config">General</a></li>
         <li><a href="#authenticators">Authentication Sources</a></li>
         <li><a href="#connections">Subsystem Connections</a></li>
         <li><a href="#profiles">Profiles</a></li>

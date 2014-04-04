@@ -105,15 +105,17 @@ public class ConfigService extends PKIService implements ConfigResource {
             ConfigDatabase configDatabase = new ConfigDatabase();
             ConfigRecord configRecord = configDatabase.getRecord("Generals");
 
-            // validate new properties
             Map<String, String> properties = configData.getProperties();
-            configDatabase.validateProperties(configRecord, null, properties);
+            if (properties != null) {
+                // validate new properties
+                configDatabase.validateProperties(configRecord, null, properties);
 
-            // remove old properties
-            configDatabase.removeProperties(configRecord, null);
+                // remove old properties
+                configDatabase.removeProperties(configRecord, null);
 
-            // add new properties
-            configDatabase.addProperties(configRecord, null, properties);
+                // add new properties
+                configDatabase.addProperties(configRecord, null, properties);
+            }
 
             configDatabase.commit();
 

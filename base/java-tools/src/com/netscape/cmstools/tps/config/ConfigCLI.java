@@ -55,9 +55,11 @@ public class ConfigCLI extends CLI {
 
         System.out.println("  Properties:");
         Map<String, String> properties = configData.getProperties();
-        for (String name : properties.keySet()) {
-            String value = properties.get(name);
-            System.out.println("    " + name + ": " + value);
+        if (properties != null) {
+            for (String name : properties.keySet()) {
+                String value = properties.get(name);
+                System.out.println("    " + name + ": " + value);
+            }
         }
 
         Link link = configData.getLink();

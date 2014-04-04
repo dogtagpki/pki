@@ -130,7 +130,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
         CMS.debug("ConfigDatabase.getProperties(\"" + record.getID() + "\", \"" + key + "\")");
 
-        if (!record.containsKey(key)) {
+        if (key != null && !record.containsKey(key)) {
             throw new ResourceNotFoundException("Entry does not exist: " + key);
         }
 

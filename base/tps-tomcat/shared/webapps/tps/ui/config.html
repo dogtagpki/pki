@@ -1,0 +1,104 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2014 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<div class="pki-header">
+
+<span class="pki-title">General</span></span>
+
+<span class="pki-actions">
+
+<span class="pki-menu" style="display: none;">
+<a name="edit" href="#">Edit</a><br>
+</span>
+
+<span class="pki-buttons" style="display: none;">
+<button name="cancel">Cancel</button>
+<button name="save" class="primary">Save</button>
+</span>
+
+</span>
+
+</div>
+
+<table name="properties">
+<thead>
+    <tr>
+         <th class="pki-table-actions" colspan="3">
+             <span name="search">
+                 <input name="search" type="text" placeholder="Search...">
+             </span>
+             <span class="pki-table-buttons" style="display: none;">
+                 <button name="add">Add</button>
+                 <button name="remove">Remove</button>
+             </span>
+         </th>
+    </tr>
+    <tr>
+        <th class="pki-select-column"><input id="properties_selectall" type="checkbox"><label for="properties_selectall">&nbsp;</label></th>
+        <th class="pki-property-name-column">Name</th>
+        <th>Value</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td class="pki-select-column"><input id="properties_select" type="checkbox"><label for="properties_select">&nbsp;</label></td>
+        <td name="id" class="pki-property-name-column"><a href="#">&nbsp;</a></td>
+        <td name="value">&nbsp;</td>
+    </tr>
+</tbody>
+<tfoot>
+    <tr>
+         <th class="pki-table-actions" colspan="3">
+             <div class="pki-table-info">
+                 Total: <span name="totalEntries">0</span> entries
+             </div>
+             <div class="pki-page-controls">
+                 <ul class="pagination">
+                     <li><a href="#" name="first"><span class="i fa fa-angle-double-left"></span></a></li>
+                     <li><a href="#" name="prev"><span class="i fa fa-angle-left"></span></a></li>
+                 </ul>
+                 <span class="pki-page-jump">
+                     <input name="page" type="text" value="1"> of <span name="totalPages">1</span>
+                 </span>
+                 <ul class="pagination">
+                     <li><a href="#" name="next"><span class="i fa fa-angle-right"></span></a></li>
+                     <li><a href="#" name="last"><span class="i fa fa-angle-double-right"></span></a></li>
+                 </ul>
+             </div>
+         </th>
+    </tr>
+</tfoot>
+</table>
+
+<div id="property-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Edit Property</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Name</label><input name="name" type="text"><br>
+            <label>Value</label><input name="value" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="add" class="primary">Add</button>
+            <button name="save" class="primary">Save</button>
+            <button name="close" class="primary">Close</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>

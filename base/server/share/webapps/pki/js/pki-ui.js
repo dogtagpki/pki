@@ -341,10 +341,6 @@ var TableItem = Backbone.View.extend({
                 // hide checkbox by hiding the label
                 $("label", td).hide();
 
-            } else if (name == "id") {
-                // hide the content
-                td.children().hide();
-
             } else {
                 // empty the content
                 td.html("&nbsp;");

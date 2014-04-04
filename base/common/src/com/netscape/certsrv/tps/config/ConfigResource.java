@@ -18,7 +18,6 @@
 package com.netscape.certsrv.tps.config;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
@@ -26,6 +25,7 @@ import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
+import com.netscape.certsrv.base.PATCH;
 
 
 /**
@@ -40,7 +40,7 @@ public interface ConfigResource {
     @ClientResponseType(entityType=ConfigData.class)
     public Response getConfig();
 
-    @PUT
+    @PATCH
     @ClientResponseType(entityType=ConfigData.class)
     @ACLMapping("config.modify")
     public Response updateConfig(ConfigData configData);

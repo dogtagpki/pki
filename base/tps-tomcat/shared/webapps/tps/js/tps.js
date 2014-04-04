@@ -53,6 +53,8 @@ var EntryWithPropertiesPage = EntryPage.extend({
         var self = this;
         EntryWithPropertiesPage.__super__.initialize.call(self, options);
         self.parentPage = options.parentPage;
+        self.tableItem = options.tableItem;
+        self.tableSize = options.tableSize || 10;
     },
     setup: function() {
         var self = this;
@@ -121,7 +123,8 @@ var EntryWithPropertiesPage = EntryPage.extend({
             addDialog: addDialog,
             editDialog: editDialog,
             viewDialog: viewDialog,
-            pageSize: 10
+            tableItem: self.tableItem,
+            pageSize: self.tableSize
         });
     },
     renderContent: function() {

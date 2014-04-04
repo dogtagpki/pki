@@ -21,14 +21,16 @@ package com.netscape.certsrv.tps.config;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -42,6 +44,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
  * @author Endi S. Dewata
  */
 @XmlRootElement(name="Configuration")
+@XmlAccessorType(XmlAccessType.NONE)
 public class ConfigData {
 
     public static Marshaller marshaller;
@@ -58,7 +61,7 @@ public class ConfigData {
     }
 
     String status;
-    Map<String, String> properties = new LinkedHashMap<String, String>();
+    Map<String, String> properties;
 
     Link link;
 
@@ -78,24 +81,7 @@ public class ConfigData {
     }
 
     public void setProperties(Map<String, String> properties) {
-        this.properties.clear();
-        this.properties.putAll(properties);
-    }
-
-    public Collection<String> getPropertyNames() {
-        return properties.keySet();
-    }
-
-    public String getProperty(String name) {
-        return properties.get(name);
-    }
-
-    public void setProperty(String name, String value) {
-        properties.put(name, value);
-    }
-
-    public String removeProperty(String name) {
-        return properties.remove(name);
+        this.properties = properties;
     }
 
     public static class MapAdapter extends XmlAdapter<PropertyList, Map<String, String>> {
@@ -203,8 +189,11 @@ public class ConfigData {
 
         ConfigData before = new ConfigData();
         before.setStatus("ENABLED");
-        before.setProperty("param1", "value1");
-        before.setProperty("param2", "value2");
+
+        Map<String, String> properties = new TreeMap<String, String>();
+        properties.put("param1", "value1");
+        properties.put("param2", "value2");
+        before.setProperties(properties);
 
         String string = before.toString();
         System.out.println(string);
