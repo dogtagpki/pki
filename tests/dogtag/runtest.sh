@@ -53,6 +53,8 @@
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-bigInt.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-revoke.sh
 
 PACKAGE="pki-tools"
 
@@ -118,10 +120,31 @@ rlJournalStart
                 # Execute pki user-mem-del-ca tests
                   run_pki-user-cli-user-membership-del-ca_tests
         fi
+        CERT_CONFIG_CA_UPPERCASE=$(echo $CERT_CONFIG_CA | tr [a-z] [A-Z])
+        if [ "$CERT_CONFIG_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert tests
+                  run_pki_cert
+        fi
+        CERT_SHOW_CA_UPPERCASE=$(echo $CERT_SHOW_CA | tr [a-z] [A-Z])
+        if [ "$CERT_SHOW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-show tests
+                  run_pki_cert_show
+        fi
+        CERT_REQUEST_SHOW_CA_UPPERCASE=$(echo $CERT_REQUEST_SHOW_CA | tr [a-z] [A-Z])
+        if [ "$CERT_REQUEST_SHOW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-show tests
+                  run_pki_cert_request_show
+        fi
+        CERT_REVOKE_CA_UPPERCASE=$(echo $CERT_REVOKE_CA | tr [a-z] [A-Z])
+        if [ "$CERT_REVOKE_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-revoke tests
+                  run_pki_cert_revoke
+        fi
 	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
 	if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		#Execute pki cert tests
 		 run_pki_cert
+		 run_pki_cert_revoke
 		 run_pki_cert_show
 		 run_pki_cert_request_show
 	fi
