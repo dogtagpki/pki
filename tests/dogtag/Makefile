@@ -94,6 +94,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-bigInt.sh
+	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-revoke.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)
