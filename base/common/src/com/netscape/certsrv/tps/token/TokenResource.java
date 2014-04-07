@@ -74,6 +74,14 @@ public interface TokenResource {
             @PathParam("tokenID") String tokenID,
             TokenData tokenData);
 
+    @POST
+    @Path("{tokenID}")
+    @ClientResponseType(entityType=TokenData.class)
+    @ACLMapping("tokens.modify")
+    public Response changeTokenStatus(
+            @PathParam("tokenID") String tokenID,
+            @QueryParam("status") TokenStatus tokenStatus);
+
     @DELETE
     @Path("{tokenID}")
     @ClientResponseType(entityType=Void.class)

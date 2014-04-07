@@ -53,8 +53,8 @@ public class TokenData {
     String id;
     String tokenID;
     String userID;
-    String status;
-    String reason;
+    String type;
+    TokenStatus status;
     String appletID;
     String keyInfo;
     Date createTimestamp;
@@ -89,22 +89,22 @@ public class TokenData {
         this.userID = userID;
     }
 
+    @XmlElement(name="Type")
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @XmlElement(name="Status")
-    public String getStatus() {
+    public TokenStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TokenStatus status) {
         this.status = status;
-    }
-
-    @XmlElement(name="Reason")
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 
     @XmlElement(name="AppletID")
@@ -162,9 +162,9 @@ public class TokenData {
         result = prime * result + ((keyInfo == null) ? 0 : keyInfo.hashCode());
         result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((modifyTimestamp == null) ? 0 : modifyTimestamp.hashCode());
-        result = prime * result + ((reason == null) ? 0 : reason.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((tokenID == null) ? 0 : tokenID.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((userID == null) ? 0 : userID.hashCode());
         return result;
     }
@@ -208,20 +208,17 @@ public class TokenData {
                 return false;
         } else if (!modifyTimestamp.equals(other.modifyTimestamp))
             return false;
-        if (reason == null) {
-            if (other.reason != null)
-                return false;
-        } else if (!reason.equals(other.reason))
-            return false;
-        if (status == null) {
-            if (other.status != null)
-                return false;
-        } else if (!status.equals(other.status))
+        if (status != other.status)
             return false;
         if (tokenID == null) {
             if (other.tokenID != null)
                 return false;
         } else if (!tokenID.equals(other.tokenID))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
             return false;
         if (userID == null) {
             if (other.userID != null)
@@ -255,8 +252,8 @@ public class TokenData {
         TokenData before = new TokenData();
         before.setID("token1");
         before.setUserID("user1");
-        before.setStatus("revoked");
-        before.setReason("lost");
+        before.setType("userKey");
+        before.setStatus(TokenStatus.ACTIVE);
         before.setAppletID("APPLET1234");
         before.setKeyInfo("key info");
         before.setCreateTimestamp(new Date());

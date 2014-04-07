@@ -291,7 +291,14 @@ var Dialog = Backbone.View.extend({
     load: function() {
         var self = this;
 
+        // load input fields
         $("input", self.$el).each(function(index) {
+            var input = $(this);
+            self.loadField(input);
+        });
+
+        // load drop-down lists
+        $("select", self.$el).each(function(index) {
             var input = $(this);
             self.loadField(input);
         });
@@ -306,7 +313,14 @@ var Dialog = Backbone.View.extend({
     save: function() {
         var self = this;
 
+        // save input fields
         $("input", self.$el).each(function(index) {
+            var input = $(this);
+            self.saveField(input);
+        });
+
+        // save drop-down lists
+        $("select", self.$el).each(function(index) {
             var input = $(this);
             self.saveField(input);
         });

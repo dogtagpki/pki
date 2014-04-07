@@ -52,8 +52,8 @@ public class TokenCLI extends CLI {
     public static void printToken(TokenData token) {
         System.out.println("  Token ID: " + token.getID());
         if (token.getUserID() != null) System.out.println("  User ID: " + token.getUserID());
+        if (token.getType() != null) System.out.println("  Status: " + token.getType());
         if (token.getStatus() != null) System.out.println("  Status: " + token.getStatus());
-        if (token.getReason() != null) System.out.println("  Reason: " + token.getReason());
         if (token.getAppletID() != null) System.out.println("  Applet ID: " + token.getAppletID());
         if (token.getKeyInfo() != null) System.out.println("  Key Info: " + token.getKeyInfo());
         if (token.getCreateTimestamp() != null) System.out.println("  Date Created: " + token.getCreateTimestamp());

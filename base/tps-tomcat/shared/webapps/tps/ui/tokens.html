@@ -36,8 +36,8 @@
         <th class="pki-select-column"><input id="token_selectall" type="checkbox"><label for="token_selectall">&nbsp;</label></th>
         <th>Token ID</th>
         <th>User ID</th>
+        <th>Type</th>
         <th>Status</th>
-        <th>Reason</th>
         <th>Applet ID</th>
         <th>Key Info</th>
         <th>Created</th>
@@ -49,12 +49,12 @@
         <td class="pki-select-column"><input id="token_select" type="checkbox"><label for="token_select">&nbsp;</label></td>
         <td name="id"><a href="/tps/ui/tokens/${id}">${id}</a></td>
         <td name="userID">${userID}</td>
-        <td name="status"><a href="/tps/ui/tokens/${id}/status">${status}</a></td>
-        <td name="reason">${reason}</td>
+        <td name="type">${type}</td>
+        <td name="status"><a href="/tps/ui/tokens/${id}/status">${statusLabel}</a></td>
         <td name="appletID">${appletID}</td>
         <td name="keyInfo">${keyInfo}</td>
-        <td name="created">${created}</td>
-        <td name="modified">${modified}</td>
+        <td name="created">${createTimestamp}</td>
+        <td name="modified">${modifyTimestamp}</td>
     </tr>
 </tbody>
 <tfoot>
@@ -90,8 +90,8 @@
         <fieldset>
             <label>Token ID</label><input name="tokenID" type="text"><br>
             <label>User ID</label><input name="userID" type="text"><br>
-            <label>Status</label><input name="status" type="text"><br>
-            <label>Reason</label><input name="reason" type="text"><br>
+            <label>Type</label><input name="type" type="text"><br>
+            <label>Status</label><input name="statusLabel" type="text"><br>
             <label>Applet ID</label><input name="appletID" type="text"><br>
             <label>Key Info</label><input name="keyInfo" type="text"><br>
             <label>Created</label><input name="createTimestamp" type="text"><br>
@@ -101,6 +101,37 @@
             <button name="add" class="primary">Add</button>
             <button name="save" class="primary">Save</button>
             <button name="remove" class="primary">Remove</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>
+
+<div id="token-state-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Change Token Status</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Token ID</label><input name="tokenID" type="text"><br>
+            <label>User ID</label><input name="userID" type="text"><br>
+            <label>Type</label><input name="type" type="text"><br>
+            <label>Status</label>
+            <select name="status">
+            <option value="UNINITIALIZED">Uninitialized</option>
+            <option value="ACTIVE">Active</option>
+            <option value="TEMP_LOST">Temporarily lost</option>
+            <option value="PERM_LOST">Permanently lost</option>
+            <option value="DAMAGED">Physically damaged</option>
+            <option value="TERMINATED">Terminated</option>
+            </select><br>
+            <label>Applet ID</label><input name="appletID" type="text"><br>
+            <label>Key Info</label><input name="keyInfo" type="text"><br>
+            <label>Created</label><input name="createTimestamp" type="text"><br>
+            <label>Modified</label><input name="modifyTimestamp" type="text"><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
             <button name="cancel">Cancel</button>
         </footer>
     </div>

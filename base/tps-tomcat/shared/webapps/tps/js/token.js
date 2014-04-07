@@ -19,6 +19,15 @@
  * @author Endi S. Dewata
  */
 
+var TokenStatus = {
+    UNINITIALIZED: "Uninitialized",
+    ACTIVE: "Active",
+    TEMP_LOST: "Temporarily lost",
+    PERM_LOST: "Permanently lost",
+    DAMAGED: "Physically damaged",
+    TERMINATED: "Terminated"
+};
+
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
@@ -26,8 +35,9 @@ var TokenModel = Model.extend({
             id: response.id,
             tokenID: response.TokenID,
             userID: response.UserID,
+            type: response.Type,
             status: response.Status,
-            reason: response.Reason,
+            statusLabel: TokenStatus[response.Status],
             appletID: response.AppletID,
             keyInfo: response.KeyInfo,
             createTimestamp: response.CreateTimestamp,
@@ -39,13 +49,26 @@ var TokenModel = Model.extend({
             id: this.id,
             TokenID: attributes.tokenID,
             UserID: attributes.userID,
+            Type: attributes.type,
             Status: attributes.status,
-            Reason: attributes.reason,
             AppletID: attributes.appletID,
             KeyInfo: attributes.keyInfo,
             CreateTimestamp: attributes.createTimestamp,
             ModifyTimestamp: attributes.modifyTimestamp
         };
+    },
+    changeStatus: function(options) {
+        var self = this;
+        $.ajax({
+            type: "POST",
+            url: self.url() + "?status=" + options.status,
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            self.set(self.parseResponse(data));
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
     }
 });
 
@@ -63,13 +86,65 @@ var TokenCollection = Collection.extend({
             id: entry.id,
             tokenID: entry.TokenID,
             userID: entry.UserID,
+            type: entry.Type,
             status: entry.Status,
-            reason: entry.Reason,
+            statusLabel: TokenStatus[entry.Status],
             appletID: entry.AppletID,
             keyInfo: entry.KeyInfo,
-            created: entry.CreateTimestamp,
-            modified: entry.ModifyTimestamp
+            createTimestamp: entry.CreateTimestamp,
+            modifyTimestamp: entry.ModifyTimestamp
         });
+    }
+});
+
+var TokenTableItem = TableItem.extend({
+    initialize: function(options) {
+        var self = this;
+        PropertiesTableItem.__super__.initialize.call(self, options);
+    },
+    open: function(td) {
+        var self = this;
+
+        var name = td.attr("name");
+        if (name != "status") {
+            TokenTableItem.__super__.open.call(self, td);
+            return;
+        }
+
+        var dialog = new Dialog({
+            el: $("#token-state-dialog"),
+            title: "Change Token State",
+            readonly: ["tokenID", "userID", "type",
+                "appletID", "keyInfo", "createTimestamp", "modifyTimestamp"],
+            actions: ["cancel", "save"]
+        });
+
+        dialog.entry = _.clone(self.entry);
+
+        dialog.handler("save", function() {
+
+            // save changes
+            dialog.save();
+
+            // check if the status was changed
+            if (self.entry.status != dialog.entry.status) {
+
+                var model = self.table.collection.get(self.entry.id);
+                model.changeStatus({
+                    status: dialog.entry.status,
+                    success: function(data, textStatus, jqXHR) {
+                        self.table.render();
+                    },
+                    error: function(jqXHR, textStatus, errorThrow) {
+                        alert("ERROR: " + jqXHR.responseText);
+                    }
+                });
+            }
+
+            dialog.close();
+        });
+
+        dialog.open();
     }
 });
 
@@ -80,16 +155,14 @@ var TokenPage = Page.extend({
         var addDialog = new Dialog({
             el: $("#token-dialog"),
             title: "Add Token",
-            readonly: ["status", "reason", "appletID", "keyInfo",
-                "createTimestamp", "modifyTimestamp"],
+            readonly: ["statusLabel", "createTimestamp", "modifyTimestamp"],
             actions: ["cancel", "add"]
         });
 
         var editDialog = new Dialog({
             el: $("#token-dialog"),
             title: "Edit Token",
-            readonly: ["tokenID", "status", "reason", "appletID", "keyInfo",
-                "createTimestamp", "modifyTimestamp"],
+            readonly: ["tokenID", "statusLabel", "createTimestamp", "modifyTimestamp"],
             actions: ["cancel", "save"]
         });
 
@@ -97,7 +170,8 @@ var TokenPage = Page.extend({
             el: $("table[name='tokens']"),
             collection: new TokenCollection(),
             addDialog: addDialog,
-            editDialog: editDialog
+            editDialog: editDialog,
+            tableItem: TokenTableItem
         });
 
         table.render();

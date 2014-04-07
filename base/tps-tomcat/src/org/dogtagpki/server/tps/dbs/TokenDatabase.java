@@ -38,7 +38,6 @@ public class TokenDatabase extends LDAPDatabase<TokenRecord> {
 
     @Override
     public void addRecord(String id, TokenRecord tokenRecord) throws Exception {
-        tokenRecord.setStatus("ENABLED");
         tokenRecord.setCreateTimestamp(new Date());
 
         super.addRecord(id, tokenRecord);

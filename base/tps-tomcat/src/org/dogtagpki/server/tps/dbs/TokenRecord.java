@@ -34,6 +34,7 @@ public class TokenRecord extends DBRecord {
 
     String id;
     String userID;
+    String type;
     String status;
     String reason;
     String appletID;
@@ -57,6 +58,15 @@ public class TokenRecord extends DBRecord {
 
     public void setUserID(String userID) {
         this.userID = userID;
+    }
+
+    @DBAttribute("tokenType")
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @DBAttribute("tokenStatus")
@@ -124,6 +134,7 @@ public class TokenRecord extends DBRecord {
         result = prime * result + ((modifyTimestamp == null) ? 0 : modifyTimestamp.hashCode());
         result = prime * result + ((reason == null) ? 0 : reason.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((userID == null) ? 0 : userID.hashCode());
         return result;
     }
@@ -171,6 +182,11 @@ public class TokenRecord extends DBRecord {
             if (other.status != null)
                 return false;
         } else if (!status.equals(other.status))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
             return false;
         if (userID == null) {
             if (other.userID != null)
