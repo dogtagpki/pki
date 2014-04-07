@@ -299,7 +299,7 @@ var Dialog = Backbone.View.extend({
     loadField: function(input) {
         var self = this;
         var name = input.attr("name");
-        var value = self.attributes[name];
+        var value = self.entry[name];
         if (value === undefined) value = "";
         input.val(value);
     },
@@ -315,7 +315,7 @@ var Dialog = Backbone.View.extend({
         var self = this;
         var name = input.attr("name");
         var value = input.val();
-        self.attributes[name] = value;
+        self.entry[name] = value;
     }
 });
 
@@ -351,9 +351,11 @@ var TableItem = Backbone.View.extend({
         var self = this;
         var prefix = self.table.$el.attr("name") + "_select_";
 
+        var templateTDs = $("td", self.table.template);
         $("td", self.$el).each(function(index) {
             var td = $(this);
             var name = td.attr("name");
+            var templateTD = $(templateTDs[index]);
 
             if (td.hasClass("pki-select-column")) {
                 // generate a unique input ID based on entry ID
@@ -371,11 +373,8 @@ var TableItem = Backbone.View.extend({
                 label.attr("for", inputID);
                 label.show();
 
-            } else if (name == "id") {
-                self.renderIDColumn(td);
-
             } else {
-                self.renderColumn(td);
+                self.renderColumn(td, templateTD);
             }
         });
     },
@@ -384,26 +383,45 @@ var TableItem = Backbone.View.extend({
         var attribute = self.table.columnMappings[name] || name;
         return self.entry[attribute];
     },
-    renderIDColumn: function(td) {
+    renderColumn: function(td, templateTD) {
         var self = this;
 
-        // show content as link to open item
-        td.empty();
-        $("<a/>", {
-            href: "#",
-            text: self.get("id"),
-            click: function(e) {
-                self.table.open(self);
-                e.preventDefault();
+        // copy content from template
+        var content = templateTD.html();
+        var newContent = "";
+
+        // substitute ${attribute} with attribute value
+        var pattern = /\${([^}]*)}/;
+
+        while (content.length) {
+            // search for ${attribute} pattern
+            var index = content.search(pattern);
+            if (index < 0) {
+                newContent += content;
+                break;
             }
-        }).appendTo(td);
-    },
-    renderColumn: function(td) {
-        var self = this;
 
-        // show content in plain text
-        var name = td.attr("name");
-        td.text(self.get(name));
+            var name = RegExp.$1;
+            var value = self.get(name);
+
+            // replace pattern occurance with attribute value
+            newContent += content.substring(0, index) + (value === undefined ? "" : value);
+
+            // process the remaining content
+            content = content.substring(index + name.length + 3);
+        }
+
+        td.html(newContent);
+
+        // add link handler
+        $("a", td).click(function(e) {
+            self.open(td);
+            e.preventDefault();
+        });
+    },
+    open: function(td) {
+        var self = this;
+        self.table.open(self);
     }
 });
 
@@ -415,6 +433,7 @@ var Table = Backbone.View.extend({
         self.entries = options.entries || [];
         self.columnMappings = options.columnMappings || {};
         self.mode = options.mode || "view";
+        self.parent = options.parent;
 
         self.addDialog = options.addDialog;
         self.editDialog = options.editDialog;
@@ -620,7 +639,7 @@ var Table = Backbone.View.extend({
 
                 // save changes
                 dialog.save();
-                _.extend(item.entry, dialog.attributes);
+                _.extend(item.entry, dialog.entry);
 
                 // redraw table
                 self.render();
@@ -628,7 +647,7 @@ var Table = Backbone.View.extend({
             });
         }
 
-        dialog.attributes = _.clone(item.entry);
+        dialog.entry = _.clone(item.entry);
 
         dialog.open();
     },
@@ -636,13 +655,13 @@ var Table = Backbone.View.extend({
         var self = this;
 
         var dialog = self.addDialog;
-        dialog.attributes = {};
+        dialog.entry = {};
 
         dialog.handler("add", function() {
 
             // save new entry
             dialog.save();
-            self.entries.push(dialog.attributes);
+            self.entries.push(dialog.entry);
 
             // redraw table
             self.render();
@@ -722,13 +741,13 @@ var ModelTable = Table.extend({
         var model = self.collection.get(item.entry.id);
 
         var dialog = self.editDialog;
-        dialog.attributes = item.entry;
+        dialog.entry = item.entry;
 
         dialog.handler("save", function() {
 
             // save attribute changes
             dialog.save();
-            model.set(dialog.attributes);
+            model.set(dialog.entry);
 
             // if nothing has changed, return
             var changedAttributes = model.changedAttributes();
@@ -769,21 +788,21 @@ var ModelTable = Table.extend({
         var self = this;
 
         var dialog = self.addDialog;
-        dialog.attributes = {};
+        dialog.entry = {};
 
         dialog.handler("add", function() {
 
             // save new attributes
             dialog.save();
-            var attributes = {};
-            _.each(dialog.attributes, function(value, key) {
+            var entry = {};
+            _.each(dialog.entry, function(value, key) {
                 if (value == "") return;
-                attributes[key] = value;
+                entry[key] = value;
             });
 
             // save new entry with POST
             var model = new self.collection.model();
-            model.save(attributes, {
+            model.save(entry, {
                 wait: true,
                 success: function(model, response, options) {
                     // redraw table after adding new entry
@@ -885,8 +904,8 @@ var EntryPage = Page.extend({
         var self = this;
 
         if (self.mode == "add") {
-            // Use empty attributes.
-            self.attributes = {};
+            // Use blank entry.
+            self.entry = {};
 
             // All fields are editable.
             self.$(".pki-fields input").each(function(index) {
@@ -895,11 +914,11 @@ var EntryPage = Page.extend({
             });
 
         } else {
-            // Use entry attributes.
-            self.attributes = _.clone(self.model.attributes);
+            // Use fetched entry.
+            self.entry = _.clone(self.model.attributes);
 
             // Show entry ID in the title.
-            self.$("span[name='id']").text(self.attributes.id);
+            self.$("span[name='id']").text(self.entry.id);
 
             if (self.mode == "edit") {
                 // Show editable fields.
@@ -939,7 +958,7 @@ var EntryPage = Page.extend({
     renderField: function(input) {
         var self = this;
         var name = input.attr("name");
-        var value = self.attributes[name];
+        var value = self.entry[name];
         if (value === undefined) value = "";
         input.val(value);
     },
@@ -959,7 +978,7 @@ var EntryPage = Page.extend({
 
         if (self.mode == "add") {
             // save new entry with POST
-            self.model.save(self.attributes, {
+            self.model.save(self.entry, {
                 wait: true,
                 success: function(model, response, options) {
                     self.close();
@@ -973,8 +992,8 @@ var EntryPage = Page.extend({
                 }
             });
         } else {
-            // save changed attributes with PATCH
-            self.model.save(self.attributes, {
+            // save changed entry with PATCH
+            self.model.save(self.entry, {
                 patch: true,
                 wait: true,
                 success: function(model, response, options) {
@@ -1004,9 +1023,9 @@ var EntryPage = Page.extend({
         var name = input.attr("name");
         var value = input.val();
         if (value == "") {
-            delete self.attributes[name];
+            delete self.entry[name];
         } else {
-            self.attributes[name] = value;
+            self.entry[name] = value;
         }
     }
 });

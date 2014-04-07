@@ -19,6 +19,34 @@
  * @author Endi S. Dewata
  */
 
+var PropertiesTableItem = TableItem.extend({
+    initialize: function(options) {
+        var self = this;
+        PropertiesTableItem.__super__.initialize.call(self, options);
+    },
+    get: function(name) {
+        var self = this;
+
+        if (name.substring(0, 7) == "parent.") {
+            name = name.substring(7);
+            return self.table.parent.entry[name];
+        }
+
+        return PropertiesTableItem.__super__.get.call(self, name);
+    },
+    open: function(td) {
+        var self = this;
+
+        // in view mode all properties are read-only
+        if (self.table.mode == "view") {
+            return;
+        }
+
+        // in edit mode all properties are editable
+        PropertiesTableItem.__super__.open.call(self, td);
+    }
+});
+
 var PropertiesTable = Table.extend({
     initialize: function(options) {
         var self = this;
@@ -53,7 +81,7 @@ var EntryWithPropertiesPage = EntryPage.extend({
         var self = this;
         EntryWithPropertiesPage.__super__.initialize.call(self, options);
         self.parentPage = options.parentPage;
-        self.tableItem = options.tableItem;
+        self.tableItem = options.tableItem || PropertiesTableItem;
         self.tableSize = options.tableSize || 10;
     },
     setup: function() {
@@ -69,7 +97,7 @@ var EntryWithPropertiesPage = EntryPage.extend({
             if (!confirm(message)) return;
             self.model.enable({
                 success: function(data, textStatus, jqXHR) {
-                    self.attributes = _.clone(self.model.attributes);
+                    self.entry = _.clone(self.model.attributes);
                     self.render();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -83,7 +111,7 @@ var EntryWithPropertiesPage = EntryPage.extend({
             if (!confirm(message)) return;
             self.model.disable({
                 success: function(data, textStatus, jqXHR) {
-                    self.attributes = _.clone(self.model.attributes);
+                    self.entry = _.clone(self.model.attributes);
                     self.render();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -124,7 +152,8 @@ var EntryWithPropertiesPage = EntryPage.extend({
             editDialog: editDialog,
             viewDialog: viewDialog,
             tableItem: self.tableItem,
-            pageSize: self.tableSize
+            pageSize: self.tableSize,
+            parent: self
         });
     },
     renderContent: function() {
@@ -132,7 +161,7 @@ var EntryWithPropertiesPage = EntryPage.extend({
 
         EntryWithPropertiesPage.__super__.renderContent.call(self);
 
-        var status = self.attributes.status;
+        var status = self.entry.status;
         if (status == "Disabled") {
             self.enableLink.show();
             self.disableLink.hide();
@@ -147,11 +176,11 @@ var EntryWithPropertiesPage = EntryPage.extend({
 
         } else if (self.mode == "edit") {
             self.propertiesTable.mode = "edit";
-            self.propertiesTable.entries = self.attributes.properties;
+            self.propertiesTable.entries = self.entry.properties;
 
         } else { // self.mode == "view"
             self.propertiesTable.mode = "view";
-            self.propertiesTable.entries = self.attributes.properties;
+            self.propertiesTable.entries = self.entry.properties;
         }
 
         self.propertiesTable.render();
@@ -161,7 +190,7 @@ var EntryWithPropertiesPage = EntryPage.extend({
 
         EntryWithPropertiesPage.__super__.saveFields.call(self);
 
-        self.attributes.properties = self.propertiesTable.entries;
+        self.entry.properties = self.propertiesTable.entries;
     },
     close: function() {
         var self = this;

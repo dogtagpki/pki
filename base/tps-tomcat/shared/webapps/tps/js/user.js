@@ -96,7 +96,7 @@ var UserDialog = Dialog.extend({
             return;
         }
 
-        var attributes = self.attributes.attributes;
+        var attributes = self.entry.attributes;
         if (attributes) {
             var value = attributes.tpsProfiles;
             input.val(value);
@@ -107,14 +107,14 @@ var UserDialog = Dialog.extend({
 
         var name = input.attr("name");
         if (name != "tpsProfiles") {
-            UserDialog.__super__.saveField.call(self, input, attributes);
+            UserDialog.__super__.saveField.call(self, input);
             return;
         }
 
-        var attributes = self.attributes.attributes;
+        var attributes = self.entry.attributes;
         if (attributes == undefined) {
             attributes = {};
-            self.attributes.attributes = attributes;
+            self.entry.attributes = attributes;
         }
         attributes.tpsProfiles = input.val();
     }

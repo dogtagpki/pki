@@ -40,25 +40,6 @@ var ConfigModel = Model.extend({
     }
 });
 
-var PropertiesTableItem = TableItem.extend({
-    initialize: function(options) {
-        var self = this;
-        PropertiesTableItem.__super__.initialize.call(self, options);
-    },
-    renderIDColumn: function(td) {
-        var self = this;
-
-        // in view mode all properties are read-only
-        if (self.table.mode == "view") {
-            self.renderColumn(td);
-            return;
-        }
-
-        // in edit mode all properties are editable
-        PropertiesTableItem.__super__.renderIDColumn.call(self, td);
-    }
-});
-
 var ConfigPage = EntryWithPropertiesPage.extend({
     initialize: function(options) {
         var self = this;

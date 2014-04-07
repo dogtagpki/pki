@@ -51,24 +51,22 @@ var AuditTableItem = TableItem.extend({
         var self = this;
         AuditTableItem.__super__.initialize.call(self, options);
     },
-    renderIDColumn: function(td) {
+    open: function(td) {
         var self = this;
 
         // in view mode all events are read-only
         if (self.table.mode == "view") {
-            self.renderColumn(td);
             return;
         }
 
         // mandatory events are read-only
         var value = self.get("value");
         if (value == "mandatory") {
-            self.renderColumn(td);
             return;
         }
 
         // optional events are editable in edit mode
-        AuditTableItem.__super__.renderIDColumn.call(self, td);
+        AuditTableItem.__super__.open.call(self, td);
     }
 });
 
@@ -123,7 +121,7 @@ var AuditPage = EntryPage.extend({
             self.eventsTable.mode = "view";
         }
 
-        self.eventsTable.entries = self.attributes.events;
+        self.eventsTable.entries = self.entry.events;
         self.eventsTable.render();
     },
     saveFields: function() {
@@ -131,6 +129,6 @@ var AuditPage = EntryPage.extend({
 
         AuditPage.__super__.saveFields.call(self);
 
-        self.attributes.events = self.eventsTable.entries;
+        self.entry.events = self.eventsTable.entries;
     }
 });
