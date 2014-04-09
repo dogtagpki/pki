@@ -164,7 +164,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String pkiArchiveOptions = data.getPKIArchiveOptions();
         String dataType = data.getDataType();
         String keyAlgorithm = data.getKeyAlgorithm();
-        int keyStrength = data.getKeySize();
+        int keyStrength = dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE) ?
+                data.getKeySize(): 0;
 
         boolean keyExists = doesKeyExist(clientKeyId, "active");
 
