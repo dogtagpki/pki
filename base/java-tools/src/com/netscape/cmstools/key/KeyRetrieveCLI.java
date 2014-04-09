@@ -1,10 +1,12 @@
 package com.netscape.cmstools.key;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
@@ -20,6 +22,7 @@ import com.netscape.cmsutil.util.Utils;
 
 public class KeyRetrieveCLI extends CLI {
     public KeyCLI keyCLI;
+    private boolean clientEncryption = true;
 
     public KeyRetrieveCLI(KeyCLI keyCLI) {
         super("retrieve", "Retrieve key", keyCLI);
@@ -27,12 +30,12 @@ public class KeyRetrieveCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Request ID> [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS]", options);
     }
 
     public void execute(String[] args) {
 
-        Option option = new Option(null, "keyId", true, "Key Identifier for the secret to be recovered.");
+        Option option = new Option(null, "keyID", true, "Key Identifier for the secret to be recovered.");
         option.setArgName("Key Identifier");
         options.addOption(option);
 
@@ -42,6 +45,10 @@ public class KeyRetrieveCLI extends CLI {
 
         option = new Option(null, "input", true, "Location of the request template file.");
         option.setArgName("Input file path");
+        options.addOption(option);
+
+        option = new Option(null, "output", true, "Location to store the retrieved key information");
+        option.setArgName("File path to store key information");
         options.addOption(option);
 
         CommandLine cmd = null;
@@ -54,11 +61,16 @@ public class KeyRetrieveCLI extends CLI {
             System.exit(1);
         }
 
+        if(cmd.getOptions().length==0){
+            System.err.println("Error: Insufficient parameters provided.");
+            printHelp();
+            System.exit(-1);
+        }
         String requestFile = cmd.getOptionValue("input");
 
         Key keyData = null;
 
-        if ((requestFile != null) && (requestFile.trim().length() != 0)) {
+        if (requestFile != null) {
             try {
                 JAXBContext context = JAXBContext.newInstance(KeyRecoveryRequest.class);
                 Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -103,9 +115,14 @@ public class KeyRetrieveCLI extends CLI {
             }
 
         } else {
-            String keyId = cmd.getOptionValue("keyId");
+            String keyId = cmd.getOptionValue("keyID");
+            clientEncryption = false;
             try {
                 keyData = keyCLI.keyClient.retrieveKey(new KeyId(keyId));
+
+                // No need to return the encrypted data since encryption
+                //is done locally.
+                keyData.setEncryptedData(null);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 if (verbose)
@@ -113,18 +130,34 @@ public class KeyRetrieveCLI extends CLI {
                 System.exit(-1);
             }
         }
-        MainCLI.printMessage("Retrieve Key Information");
-        printKeyData(keyData);
+
+        String outputFilePath = cmd.getOptionValue("output");
+        if (outputFilePath != null) {
+            try {
+                JAXBContext context = JAXBContext.newInstance(Key.class);
+                Marshaller marshaller = context.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+                marshaller.marshal(keyData, new File(outputFilePath));
+            } catch (JAXBException e) {
+                System.err.println(e.getMessage());
+                if (verbose)
+                    e.printStackTrace();
+                System.exit(-1);
+            }
+        } else {
+            MainCLI.printMessage("Retrieve Key Information");
+            printKeyData(keyData);
+        }
     }
 
     public void printKeyData(Key key) {
         System.out.println("  Key Algorithm: " + key.getAlgorithm());
         System.out.println("  Key Size: " + key.getSize());
         System.out.println("  Nonce data: " + Utils.base64encode(key.getNonceData()));
-        System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData()));
-        if (key.getData() != null) {
+        if(clientEncryption)
+            System.out.println("  Encrypted Data:" + Utils.base64encode(key.getEncryptedData()));
+        if (!clientEncryption)
             System.out.println("  Actual archived data: " + Utils.base64encode(key.getData()));
-        }
         if (key.getP12Data() != null) {
             System.out.println("  Key data in PKCS12 format: " + key.getP12Data());
         }

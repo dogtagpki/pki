@@ -23,7 +23,7 @@ public class KeyRequestReviewCLI extends CLI {
 
     public void execute(String[] args) {
         Option option = new Option(null, "action", true,
-                "Action to be performed on the request.\n Available actions - [approve|reject|cancel].");
+                "Action to be performed on the request.\nValid values: approve, reject, cancel.");
         option.setArgName("Action to perform");
         option.setRequired(true);
         options.addOption(option);
@@ -40,7 +40,7 @@ public class KeyRequestReviewCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
         if (cmdArgs.length != 1) {
-            System.err.println("Error: Invalid arguements provided.");
+            System.err.println("Error: Invalid arguments provided.");
             printHelp();
             System.exit(1);
         }

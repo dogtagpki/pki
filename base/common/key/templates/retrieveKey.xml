@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<KeyRecoveryRequest>
+    <Attributes>
+	<Attribute name="description">Template for submitting a key retrieval or key recovery request.</Attribute>
+        <Attribute name="keyId">1</Attribute>
+        <Attribute name="requestId">1</Attribute>
+        <Attribute name="nonceData">Base64 encoded NonceData</Attribute>
+        <Attribute name="passphrase">Passphrase to encrypt the secret with/Passphrase for the PKCS12 file returned</Attribute>
+        <Attribute name="sessionWrappedPassphrase">Base64 encoded session key wrapped passphrase</Attribute>
+        <Attribute name="transWrappedSessionKey">Base64 encoded transport key wrapped session key</Attribute>
+        <Attribute name="certificate">Base64 certificate used for recoring the key.</Attribute>
+    </Attributes>
+    <ClassName>com.netscape.certsrv.key.KeyRecoveryRequest</ClassName>
+</KeyRecoveryRequest>

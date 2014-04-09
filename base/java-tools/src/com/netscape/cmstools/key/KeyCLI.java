@@ -43,8 +43,8 @@ public class KeyCLI extends CLI {
         addModule(new KeyShowCLI(this));
         addModule(new KeyRequestShowCLI(this));
         addModule(new KeyModifyCLI(this));
-        addModule(new KeyRequestTemplateFindCLI(this));
-        addModule(new KeyRequestTemplateShowCLI(this));
+        addModule(new KeyTemplateFindCLI(this));
+        addModule(new KeyTemplateShowCLI(this));
         addModule(new KeyArchiveCLI(this));
         addModule(new KeyRetrieveCLI(this));
         addModule(new KeyGenerateCLI(this));
@@ -72,7 +72,7 @@ public class KeyCLI extends CLI {
 
         // create new key client
         keyClient = new KeyClient(client, subsystem);
-        if ((client.getConfig().getCertDatabase() != null) && (client.getConfig().getCertPassword() != null)) {
+        if (client.getConfig().getCertDatabase() != null && client.getConfig().getCertPassword() != null) {
             keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));
 
             // Set the transport cert for crypto operations

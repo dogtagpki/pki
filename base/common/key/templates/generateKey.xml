@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SymKeyGenerationRequest>
+    <Attributes>
+        <Attribute name="description">Template for submitting a request for generating a symmetric key.</Attribute>
+        <Attribute name="clientKeyID"></Attribute>
+        <Attribute name="keyAlgorithm">[AES/DES/DES3/DESede/RC2/RC4]</Attribute>
+        <Attribute name="keySize">128</Attribute>
+        <Attribute name="keyUsage">wrap,unwrap,sign,verify,encrypt,decrypt</Attribute>
+    </Attributes>
+    <ClassName>com.netscape.certsrv.key.SymKeyGenerationRequest</ClassName>
+</SymKeyGenerationRequest>

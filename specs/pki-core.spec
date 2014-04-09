@@ -839,6 +839,7 @@ fi
 %{_datadir}/pki/VERSION
 %{_datadir}/pki/etc/
 %{_datadir}/pki/upgrade/
+%{_datadir}/pki/key/templates
 %dir %{_sysconfdir}/pki
 %config(noreplace) %{_sysconfdir}/pki/pki.conf
 %dir %{_javadir}/pki
@@ -1017,6 +1018,8 @@ fi
 - Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python
 - TRAC Ticket #840 - pkispawn requires policycoreutils-python
 - Updated requirements for resteasy
+- Added template files for archive, retrieve and generate key
+  requests to the client package.
 
 * Fri Nov 15 2013 Ade Lee <alee@redhat.com> 10.1.0-1
 - Trac Ticket 788 - Clean up spec files

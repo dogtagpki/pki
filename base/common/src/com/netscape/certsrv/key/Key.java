@@ -1,5 +1,10 @@
 package com.netscape.certsrv.key;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -10,18 +15,26 @@ import com.netscape.cmsutil.util.Utils;
  * @author akoneru
  *
  */
+@XmlRootElement(name="Key")
+@XmlAccessorType(XmlAccessType.NONE)
 public class Key {
 
+    @XmlElement
     private byte[] encryptedData;
 
+    @XmlElement
     private byte[] nonceData;
 
+    @XmlElement
     private String p12Data;
 
+    @XmlElement
     private String algorithm;
 
+    @XmlElement
     private Integer size;
 
+    @XmlElement
     private byte[] data;
 
     public Key() {

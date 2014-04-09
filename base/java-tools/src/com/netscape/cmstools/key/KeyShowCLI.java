@@ -32,7 +32,7 @@ public class KeyShowCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Key Id>", options);
+        formatter.printHelp(getFullName() + " <Key ID>", options);
     }
 
     public void execute(String[] args) {

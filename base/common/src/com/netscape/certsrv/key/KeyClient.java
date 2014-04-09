@@ -195,7 +195,8 @@ public class KeyClient extends Client {
         if (id == null || status == null) {
             throw new IllegalArgumentException("Key Id and status must be specified.");
         }
-        if ((!status.equalsIgnoreCase(KeyResource.KEY_STATUS_ACTIVE)) && (!status.equalsIgnoreCase(KeyResource.KEY_STATUS_INACTIVE))) {
+        if (!status.equalsIgnoreCase(KeyResource.KEY_STATUS_ACTIVE)
+                && !status.equalsIgnoreCase(KeyResource.KEY_STATUS_INACTIVE)) {
             throw new IllegalArgumentException("Invalid status value.");
         }
         Response response = keyClient.modifyKeyStatus(id, status);
@@ -670,7 +671,15 @@ public class KeyClient extends Client {
         if (clientKeyId == null) {
             throw new IllegalArgumentException("Client Key Identifier must be specified.");
         }
-
+        //Validate the usages list
+        List<String> validUsages = SymKeyGenerationRequest.getValidUsagesList();
+        if (usages != null) {
+            for (String usage : usages) {
+                if (!validUsages.contains(usage)) {
+                    throw new IllegalArgumentException("Invalid usage \"" + usage + "\" specified.");
+                }
+            }
+        }
         SymKeyGenerationRequest data = new SymKeyGenerationRequest();
         data.setClientKeyId(clientKeyId);
         data.setKeyAlgorithm(keyAlgorithm);

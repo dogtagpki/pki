@@ -21,7 +21,7 @@ public class KeyArchiveCLI extends CLI {
     public KeyCLI keyCLI;
 
     public KeyArchiveCLI(KeyCLI keyCLI) {
-        super("archive", "Archive a secret at the DRM.", keyCLI);
+        super("archive", "Archive a secret in the DRM.", keyCLI);
         this.keyCLI = keyCLI;
     }
 
@@ -31,7 +31,7 @@ public class KeyArchiveCLI extends CLI {
 
     public void execute(String[] args) {
 
-        Option option = new Option(null, "clientKeyId", true, "Unique client key identifier.");
+        Option option = new Option(null, "clientKeyID", true, "Unique client key identifier.");
         option.setArgName("Client Key Identifier");
         options.addOption(option);
 
@@ -58,7 +58,7 @@ public class KeyArchiveCLI extends CLI {
 
         KeyRequestResponse response = null;
 
-        if ((requestFile != null) && (requestFile.trim().length() != 0)) {
+        if (requestFile != null) {
             // Case where the request template file is used. For pre-encrypted data.
             try {
                 JAXBContext context = JAXBContext.newInstance(KeyArchivalRequest.class);
@@ -91,7 +91,7 @@ public class KeyArchiveCLI extends CLI {
 
         } else {
             // Simple case for archiving a passphrase
-            String clientKeyId = cmd.getOptionValue("clientKeyId");
+            String clientKeyId = cmd.getOptionValue("clientKeyID");
             String passphrase = cmd.getOptionValue("passphrase");
             if (clientKeyId == null) {
                 System.err.println("Error: Client Key Id is not specified.");

@@ -40,7 +40,7 @@ public class KeyModifyCLI extends CLI {
 
     public void execute(String[] args) {
 
-        Option option = new Option(null, "status", true, "Status of the key.\n Valid values:[active,inactive]");
+        Option option = new Option(null, "status", true, "Status of the key.\nValid values: active, inactive");
         option.setRequired(true);
         option.setArgName("status");
         options.addOption(option);
@@ -72,11 +72,6 @@ public class KeyModifyCLI extends CLI {
         keyCLI.keyClient.modifyKeyStatus(keyId, status);
 
         KeyInfo keyInfo = keyCLI.keyClient.getKeyInfo(keyId);
-        if (keyInfo.getStatus().equalsIgnoreCase(status)) {
-            System.out.println("Success!");
-            KeyCLI.printKeyInfo(keyInfo);
-        } else {
-            System.out.println("Failure! Key status not modified.");
-        }
+        KeyCLI.printKeyInfo(keyInfo);
     }
 }

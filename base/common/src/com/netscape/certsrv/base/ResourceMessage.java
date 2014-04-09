@@ -1,5 +1,8 @@
 package com.netscape.certsrv.base;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -158,6 +161,13 @@ public class ResourceMessage {
         return sw.toString();
     }
 
+    public void marshall(OutputStream os) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(this.getClass());
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.marshal(this, os);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T unmarshal(String string, Class<T> clazz) throws Exception {
         try {
@@ -166,6 +176,16 @@ public class ResourceMessage {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static <T> T unmarshall(Class<T> t, String filePath) throws JAXBException, FileNotFoundException {
+        JAXBContext context = JAXBContext.newInstance(t);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        FileInputStream fis = new FileInputStream(filePath);
+        @SuppressWarnings("unchecked")
+        T req = (T) unmarshaller.unmarshal(fis);
+
+        return req;
     }
 
 }

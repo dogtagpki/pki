@@ -32,7 +32,7 @@ public class KeyRequestShowCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Request Id>", options);
+        formatter.printHelp(getFullName() + " <Request ID>", options);
     }
 
     public void execute(String[] args) {

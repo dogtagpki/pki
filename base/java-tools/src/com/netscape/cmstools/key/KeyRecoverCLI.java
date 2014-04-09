@@ -22,17 +22,17 @@ public class KeyRecoverCLI extends CLI {
     public KeyCLI keyCLI;
 
     public KeyRecoverCLI(KeyCLI keyCLI) {
-        super("recover", "Recover key", keyCLI);
+        super("recover", "Create a key recovery request", keyCLI);
         this.keyCLI = keyCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Request ID> [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS]", options);
     }
 
     public void execute(String[] args) {
 
-        Option option = new Option(null, "keyId", true, "Key Identifier for the secret to be recovered.");
+        Option option = new Option(null, "keyID", true, "Key Identifier for the secret to be recovered.");
         option.setArgName("Key Identifier");
         options.addOption(option);
 
@@ -54,7 +54,7 @@ public class KeyRecoverCLI extends CLI {
 
         KeyRequestResponse response = null;
 
-        if ((requestFile != null) && (requestFile.trim().length() != 0)) {
+        if (requestFile != null) {
             try {
                 JAXBContext context = JAXBContext.newInstance(KeyRecoveryRequest.class);
                 Unmarshaller unmarshaller = context.createUnmarshaller();
@@ -77,11 +77,11 @@ public class KeyRecoverCLI extends CLI {
             }
 
         } else {
-            String keyId = cmd.getOptionValue("keyId");
+            String keyId = cmd.getOptionValue("keyID");
             response = keyCLI.keyClient.recoverKey(new KeyId(keyId), null, null, null, null);
         }
 
-        MainCLI.printMessage("Recovered Key Information");
+        MainCLI.printMessage("Key Recovery Request Information");
         KeyCLI.printKeyRequestInfo(response.getRequestInfo());
 
     }

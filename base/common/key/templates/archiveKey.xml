@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<KeyArchivalRequest>
+    <Attributes>
+        <Attribute name="description">Template for submitting a key archival request</Attribute>
+        <Attribute name="clientKeyID"></Attribute>
+        <Attribute name="dataType">symmetricKey/passphrase/asymmetricKey</Attribute>
+        <Attribute name="keyAlgorithm"></Attribute>
+        <Attribute name="keySize">0</Attribute>
+        <Attribute name="algorithmOID"></Attribute>
+        <Attribute name="symmetricAlgorithmParams">Base64 encoded NonceData</Attribute>
+        <Attribute name="wrappedPrivateData">Base64 encoded session key wrapped secret</Attribute>
+        <Attribute name="transWrappedSessionKey">Base64 encoded transport key wrapped session key</Attribute>
+        <Attribute name="pkiArchiveOptions">Base 64 encoded PKIArchiveOptions object</Attribute>
+    </Attributes>
+    <ClassName>com.netscape.certsrv.key.KeyArchivalRequest</ClassName>
+</KeyArchivalRequest>

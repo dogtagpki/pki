@@ -17,7 +17,7 @@ import com.netscape.certsrv.base.ResourceMessage;
  * @author alee
  *
  */
-@XmlRootElement(name="SymKeyGenerationRequest")
+@XmlRootElement(name = "SymKeyGenerationRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SymKeyGenerationRequest extends ResourceMessage {
 
@@ -37,7 +37,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
 
     public List<String> getUsages() {
         String usageString = attributes.get(KEY_USAGE);
-        if (! StringUtils.isBlank(usageString)) {
+        if (!StringUtils.isBlank(usageString)) {
             return new ArrayList<String>(Arrays.asList(usageString.split(",")));
         }
         return new ArrayList<String>();
@@ -49,8 +49,9 @@ public class SymKeyGenerationRequest extends ResourceMessage {
 
     public void addUsage(String usage) {
         List<String> usages = getUsages();
-        for (String u: usages) {
-            if (u.equals(usage)) return;
+        for (String u : usages) {
+            if (u.equals(usage))
+                return;
         }
         usages.add(usage);
         setUsages(usages);
@@ -69,7 +70,7 @@ public class SymKeyGenerationRequest extends ResourceMessage {
         attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
 
         String usageString = attributes.get(KEY_USAGE);
-        if (! StringUtils.isBlank(usageString)) {
+        if (!StringUtils.isBlank(usageString)) {
             setUsages(new ArrayList<String>(Arrays.asList(usageString.split(","))));
         }
         setClassName(getClass().getName());
@@ -154,6 +155,18 @@ public class SymKeyGenerationRequest extends ResourceMessage {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static List<String> getValidUsagesList() {
+        List<String> list = new ArrayList<String>();
+        list.add(WRAP_USAGE);
+        list.add(UWRAP_USAGE);
+        list.add(DECRYPT_USAGE);
+        list.add(ENCRYPT_USAGE);
+        list.add(KEY_USAGE);
+        list.add(SIGN_USAGE);
+
+        return list;
     }
 
     public static void main(String args[]) throws Exception {

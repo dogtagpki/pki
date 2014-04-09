@@ -1,6 +1,5 @@
 package com.netscape.cmstools.key;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,21 +26,23 @@ public class KeyGenerateCLI extends CLI {
 
     public void execute(String[] args) {
         Option option = new Option(null, "key-algorithm", true,
-                "Algorithm to be used to create a key.\n Supported types [AES,DES,DES3,RC2,RC4,DESede]");
-        option.setArgName("Key algorithm");
+                "Algorithm to be used to create a key.\nValid values: AES, DES, DES3, RC2, RC4, DESede.");
+        option.setArgName("algorithm");
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option(null, "key-size", true,
-                "Size of the key to be generated. Required for all algorithms AES and RC2.\n"
-                        + "Valid size values:\n   AES - 128, 192. 256.\n   RC2 - >=8, <=128");
-        option.setArgName("Key size");
+        option = new Option(
+                null,
+                "key-size",
+                true,
+                "Size of the key to be generated.\nThis is required for AES, RC2 and RC4.\n"
+                        + "Valid values for AES: 128, 192. 256.\nValid values for RC2: 8-128.\n Valid values for RC4: Any positive integer.");
+        option.setArgName("size");
         options.addOption(option);
 
-        option = new Option(null, "usages", true, "Comma seperated list of usages."
-                + "\n Usage1,Usage2,Usage3.. .\n "
-                + "Valid usages: [wrap, unwrap, sign, verify, encrypt, decrypt].");
-        option.setArgName("Usages");
+        option = new Option(null, "usages", true, "Comma separated list of usages."
+                + "\nValid values: wrap, unwrap, sign, verify, encrypt, decrypt.");
+        option.setArgName("list of usages");
         options.addOption(option);
 
         CommandLine cmd = null;
@@ -75,8 +76,6 @@ public class KeyGenerateCLI extends CLI {
                 keySize = "56";
                 break;
             case KeyRequestResource.RC4_ALGORITHM:
-                keySize = "0";
-                break;
             case KeyRequestResource.AES_ALGORITHM:
             case KeyRequestResource.RC2_ALGORITHM:
                 System.err.println("Error: Key size must be specified for the algorithm used.");
@@ -88,15 +87,14 @@ public class KeyGenerateCLI extends CLI {
                 System.exit(1);
             }
         }
-        List<String> usagesList = null;
-        if (cmd.getOptionValue("usages") != null) {
-            String[] usages = cmd.getOptionValue("usages").split(",");
-            usagesList = new ArrayList<String>(Arrays.asList(usages));
+        List<String> usages = null;
+        String givenUsages = cmd.getOptionValue("usages");
+        if (givenUsages != null) {
+            usages = Arrays.asList(givenUsages.split(","));
         }
-
         KeyRequestResponse response = keyCLI.keyClient.generateSymmetricKey(clientKeyId, keyAlgorithm,
                 Integer.parseInt(keySize),
-                usagesList, null);
+                usages, null);
 
         MainCLI.printMessage("Key generation request info");
         KeyCLI.printKeyRequestInfo(response.getRequestInfo());

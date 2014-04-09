@@ -57,6 +57,17 @@ install(
     PATTERN ".gitignore" EXCLUDE
 )
 
+install(
+    DIRECTORY
+        key
+    DESTINATION
+        ${DATA_INSTALL_DIR}/
+    FILE_PERMISSIONS
+        OWNER_READ
+        GROUP_READ
+        WORLD_READ
+)
+
 # install empty directories
 install(
     DIRECTORY
