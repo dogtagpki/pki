@@ -72,7 +72,7 @@ public class AuditService extends PKIService implements AuditResource {
         IConfigStore cs = CMS.getConfigStore();
 
         AuditConfig auditConfig = new AuditConfig();
-        auditConfig.setEnabled(cs.getBoolean("log.instance.SignedAudit.enable", false));
+        auditConfig.setStatus(cs.getBoolean("log.instance.SignedAudit.enable", false) ? "Enabled" : "Disabled");
         auditConfig.setSigned(cs.getBoolean("log.instance.SignedAudit.logSigning", false));
         auditConfig.setInterval(cs.getInteger("log.instance.SignedAudit.flushInterval", 5));
         auditConfig.setBufferSize(cs.getInteger("log.instance.SignedAudit.bufferSize", 512));
@@ -131,10 +131,6 @@ public class AuditService extends PKIService implements AuditResource {
             Map<String, String> currentEventConfigs = currentAuditConfig.getEventConfigs();
 
             IConfigStore cs = CMS.getConfigStore();
-
-            if (auditConfig.getEnabled() != null) {
-                cs.putBoolean("log.instance.SignedAudit.enable", auditConfig.getEnabled());
-            }
 
             if (auditConfig.getSigned() != null) {
                 cs.putBoolean("log.instance.SignedAudit.logSigning", auditConfig.getSigned());
@@ -204,6 +200,39 @@ public class AuditService extends PKIService implements AuditResource {
             cs.commit(true);
 
             auditConfig = createAuditConfig();
+
+            return createOKResponse(auditConfig);
+
+        } catch (PKIException e) {
+            throw e;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Response changeAuditStatus(String action) {
+
+        CMS.debug("AuditService.changeAuditStatus()");
+
+        try {
+            IConfigStore cs = CMS.getConfigStore();
+
+            if ("enable".equals(action)) {
+                cs.putBoolean("log.instance.SignedAudit.enable", true);
+
+            } else if ("disable".equals(action)) {
+                cs.putBoolean("log.instance.SignedAudit.enable", false);
+
+            } else {
+                throw new BadRequestException("Invalid action " + action);
+            }
+
+            cs.commit(true);
+
+            AuditConfig auditConfig = createAuditConfig();
 
             return createOKResponse(auditConfig);
 

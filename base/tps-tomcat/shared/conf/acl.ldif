@@ -22,6 +22,7 @@ resourceACLS: certServer.admin.request.enrollment:submit,read,execute:allow (sub
 resourceACLS: certServer.clone.configuration:read,modify:allow (modify,read) group="Enterprise CA Administrators" || group="Enterprise KRA Administrators" || group="Enterprise OCSP Administrators" || group="Enterprise TPS Administrators":Only Enterprise Administrators are allowed to clone the configuration.
 resourceACLS: certServer.tps.account:login,logout:allow (login,logout) user="anybody":Anybody can login and logout
 resourceACLS: certServer.tps.authenticators:read,add,modify,approve,remove:allow (read,add,modify,approve,remove) group="TUS Administrators":Only admins can access authenticators.
+resourceACLS: certServer.tps.audit:read,modify:allow (read,modify) group="TUS Administrators":Only admins can access configuration.
 resourceACLS: certServer.tps.config:read,modify:allow (read,modify) group="TUS Administrators":Only admins can access configuration.
 resourceACLS: certServer.tps.connections:read,add,modify,approve,remove:allow (read,add,modify,approve,remove) group="TUS Administrators":Only admins can access connections.
 resourceACLS: certServer.tps.groups:execute:allow (execute) group="TUS Administrators":Admins may execute group operations

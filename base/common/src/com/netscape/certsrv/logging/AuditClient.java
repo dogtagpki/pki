@@ -49,4 +49,9 @@ public class AuditClient extends Client {
         Response response = resource.updateAuditConfig(auditConfig);
         return client.getEntity(response, AuditConfig.class);
     }
+
+    public AuditConfig changeAuditStatus(String action) {
+        Response response = resource.changeAuditStatus(action);
+        return client.getEntity(response, AuditConfig.class);
+    }
 }

@@ -51,7 +51,7 @@ public class AuditCLI extends CLI {
 
     public static void printAuditConfig(AuditConfig auditConfig) throws IOException {
 
-        if (auditConfig.getEnabled() != null) System.out.println("  Enabled: " + auditConfig.getEnabled());
+        if (auditConfig.getStatus() != null) System.out.println("  Status: " + auditConfig.getStatus());
         if (auditConfig.getSigned() != null) System.out.println("  Signed: " + auditConfig.getSigned());
         if (auditConfig.getInterval() != null) System.out.println("  Interval (seconds): " + auditConfig.getInterval());
         if (auditConfig.getBufferSize() != null) System.out.println("  Buffer size (bytes): " + auditConfig.getBufferSize());

@@ -18,11 +18,15 @@
 package com.netscape.certsrv.logging;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
 
+import com.netscape.certsrv.acls.ACLMapping;
+import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.base.PATCH;
 
 
@@ -30,6 +34,8 @@ import com.netscape.certsrv.base.PATCH;
  * @author Endi S. Dewata
  */
 @Path("audit")
+@AuthMethodMapping("audit")
+@ACLMapping("audit.read")
 public interface AuditResource {
 
     @GET
@@ -38,5 +44,12 @@ public interface AuditResource {
 
     @PATCH
     @ClientResponseType(entityType=AuditConfig.class)
+    @ACLMapping("audit.modify")
     public Response updateAuditConfig(AuditConfig configData);
+
+    @POST
+    @ClientResponseType(entityType=AuditConfig.class)
+    @ACLMapping("audit.modify")
+    public Response changeAuditStatus(
+            @QueryParam("action") String action);
 }

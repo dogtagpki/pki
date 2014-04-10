@@ -59,7 +59,7 @@ public class AuditConfig {
         }
     }
 
-    Boolean enabled;
+    String status;
     Boolean signed;
     Integer interval;
     Integer bufferSize;
@@ -68,13 +68,13 @@ public class AuditConfig {
 
     Link link;
 
-    @XmlElement(name="Enabled")
-    public Boolean getEnabled() {
-        return enabled;
+    @XmlElement(name="Status")
+    public String getStatus() {
+        return status;
     }
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @XmlElement(name="Signed")
@@ -164,7 +164,7 @@ public class AuditConfig {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((bufferSize == null) ? 0 : bufferSize.hashCode());
-        result = prime * result + ((enabled == null) ? 0 : enabled.hashCode());
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((eventConfigs == null) ? 0 : eventConfigs.hashCode());
         result = prime * result + ((interval == null) ? 0 : interval.hashCode());
         result = prime * result + ((link == null) ? 0 : link.hashCode());
@@ -186,10 +186,10 @@ public class AuditConfig {
                 return false;
         } else if (!bufferSize.equals(other.bufferSize))
             return false;
-        if (enabled == null) {
-            if (other.enabled != null)
+        if (status == null) {
+            if (other.status != null)
                 return false;
-        } else if (!enabled.equals(other.enabled))
+        } else if (!status.equals(other.status))
             return false;
         if (eventConfigs == null) {
             if (other.eventConfigs != null)
@@ -237,7 +237,7 @@ public class AuditConfig {
     public static void main(String args[]) throws Exception {
 
         AuditConfig before = new AuditConfig();
-        before.setEnabled(true);
+        before.setStatus("Enabled");
         before.setSigned(false);
         before.setInterval(10);
         before.setBufferSize(512);

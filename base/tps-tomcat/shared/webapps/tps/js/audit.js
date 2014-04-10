@@ -26,7 +26,7 @@ var AuditModel = Model.extend({
     parseResponse: function(response) {
         return {
             id: "audit",
-            enabled: response.Enabled,
+            status: response.Status,
             signed: response.Signed,
             interval: response.Interval,
             bufferSize: response.BufferSize,
@@ -35,7 +35,7 @@ var AuditModel = Model.extend({
     },
     createRequest: function(entry) {
         return {
-            Enabled: entry.enabled,
+            Status: entry.status,
             Signed: entry.signed,
             Interval: entry.interval,
             BufferSize: entry.bufferSize,
@@ -43,6 +43,32 @@ var AuditModel = Model.extend({
                 Event: entry.events
             }
         };
+    },
+    enable: function(options) {
+        var self = this;
+        $.ajax({
+            type: "POST",
+            url: self.url() + "?action=enable",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            self.set(self.parseResponse(data));
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
+    },
+    disable: function(options) {
+        var self = this;
+        $.ajax({
+            type: "POST",
+            url: self.url() + "?action=disable",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            self.set(self.parseResponse(data));
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
     }
 });
 
@@ -74,13 +100,52 @@ var AuditPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
         options.model = new AuditModel();
-        options.editable = ["enabled", "signed", "interval", "bufferSize"];
+        options.editable = ["signed", "interval", "bufferSize"];
         AuditPage.__super__.initialize.call(self, options);
     },
     setup: function() {
         var self = this;
 
         AuditPage.__super__.setup.call(self);
+
+        self.enableLink = $("a[name='enable']", self.menu);
+        self.disableLink = $("a[name='disable']", self.menu);
+
+        self.enableLink.click(function(e) {
+            var message = "Are you sure you want to enable this entry?";
+            if (!confirm(message)) return;
+            self.model.enable({
+                success: function(data, textStatus, jqXHR) {
+                    self.entry = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
+                }
+            });
+        });
+
+        self.disableLink.click(function(e) {
+            var message = "Are you sure you want to disable this entry?";
+            if (!confirm(message)) return;
+            self.model.disable({
+                success: function(data, textStatus, jqXHR) {
+                    self.entry = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
+                }
+            });
+        });
 
         var eventDialog = self.$("#event-dialog");
 
@@ -113,6 +178,15 @@ var AuditPage = EntryPage.extend({
         var self = this;
 
         AuditPage.__super__.renderContent.call(self);
+
+        var status = self.entry.status;
+        if (status == "Disabled") {
+            self.enableLink.show();
+            self.disableLink.hide();
+        } else if (status == "Enabled") {
+            self.enableLink.hide();
+            self.disableLink.show();
+        }
 
         if (self.mode == "edit") {
             self.eventsTable.mode = "edit";

@@ -49,9 +49,12 @@ public class AuditModifyCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        Option option = new Option(null, "input", true, "Input file containing audit configuration.");
+        Option option = new Option(null, "action", true, "Action: update (default), enable, disable.");
+        option.setArgName("action");
+        options.addOption(option);
+
+        option = new Option(null, "input", true, "Input file containing audit configuration.");
         option.setArgName("file");
-        option.setRequired(true);
         options.addOption(option);
 
         option = new Option(null, "output", true, "Output file to store audit configuration.");
@@ -76,32 +79,39 @@ public class AuditModifyCLI extends CLI {
             System.exit(1);
         }
 
+        String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
         String output = cmd.getOptionValue("output");
 
-        if (input == null) {
-            System.err.println("Error: Input file is required.");
-            printHelp();
-            System.exit(1);
-        }
-
         AuditConfig auditConfig;
 
-        try (BufferedReader in = new BufferedReader(new FileReader(input));
-            StringWriter sw = new StringWriter();
-            PrintWriter out = new PrintWriter(sw, true)) {
+        if (action.equals("update")) {
 
-            String line;
-            while ((line = in.readLine()) != null) {
-                out.println(line);
+            if (input == null) {
+                System.err.println("Error: Input file is required.");
+                printHelp();
+                System.exit(1);
             }
 
-            auditConfig = AuditConfig.valueOf(sw.toString());
+            try (BufferedReader in = new BufferedReader(new FileReader(input));
+                StringWriter sw = new StringWriter();
+                PrintWriter out = new PrintWriter(sw, true)) {
+
+                String line;
+                while ((line = in.readLine()) != null) {
+                    out.println(line);
+                }
+
+                auditConfig = AuditConfig.valueOf(sw.toString());
+            }
+
+            auditConfig = auditCLI.auditClient.updateAuditConfig(auditConfig);
+
+        } else { // other actions
+            auditConfig = auditCLI.auditClient.changeAuditStatus(action);
         }
 
-        auditConfig = auditCLI.auditClient.updateAuditConfig(auditConfig);
-
-        MainCLI.printMessage("Updated audit configuration");
+        MainCLI.printMessage("Modified audit configuration");
 
         if (output == null) {
             AuditCLI.printAuditConfig(auditConfig);
