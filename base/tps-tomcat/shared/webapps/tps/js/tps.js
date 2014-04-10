@@ -101,7 +101,11 @@ var EntryWithPropertiesPage = EntryPage.extend({
                     self.render();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    alert("ERROR: " + textStatus);
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
                 }
             });
         });
@@ -115,7 +119,11 @@ var EntryWithPropertiesPage = EntryPage.extend({
                     self.render();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    alert("ERROR: " + textStatus);
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
                 }
             });
         });

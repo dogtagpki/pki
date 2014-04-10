@@ -178,7 +178,11 @@ var Navigation = Backbone.View.extend({
 
         var page = self.pages[name];
         if (!page) {
-            alert("Invalid page: " + name);
+            new ErrorDialog({
+                el: $("#error-dialog"),
+                title: "Error",
+                content: "Invalid page: " + name
+            }).open();
             return;
         }
 
@@ -330,6 +334,46 @@ var Dialog = Backbone.View.extend({
         var name = input.attr("name");
         var value = input.val();
         self.entry[name] = value;
+    }
+});
+
+var ErrorDialog = Backbone.View.extend({
+    initialize: function(options) {
+        var self = this;
+        ErrorDialog.__super__.initialize.call(self, options);
+
+        self.title = options.title;
+        self.content = options.content;
+    },
+    render: function() {
+        var self = this;
+
+        if (self.title) {
+            self.$(".pki-title").text(self.title);
+        }
+
+        if (self.content) {
+            self.$("span[name=content]").html(self.content);
+        }
+
+        self.$(".rcue-button-close").click(function(e) {
+            self.close();
+            e.preventDefault();
+        });
+
+        self.$("button[name=close]").click(function(e) {
+            self.close();
+            e.preventDefault();
+        });
+    },
+    open: function() {
+        var self = this;
+        self.render();
+        self.$el.show();
+    },
+    close: function() {
+        var self = this;
+        self.$el.hide();
     }
 });
 
@@ -728,7 +772,11 @@ var ModelTable = Table.extend({
                 });
             },
             error: function(collection, response, options) {
-                alert(response.statusText);
+                new ErrorDialog({
+                    el: $("#error-dialog"),
+                    title: "HTTP Error " + response.responseJSON.Code,
+                    content: response.responseJSON.Message
+                }).open();
             }
         });
     },
@@ -783,7 +831,11 @@ var ModelTable = Table.extend({
                         dialog.close();
                         return;
                     }
-                    alert("ERROR: " + response.responseText);
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + response.responseJSON.Code,
+                        content: response.responseJSON.Message
+                    }).open();
                 }
             });
         });
@@ -794,7 +846,11 @@ var ModelTable = Table.extend({
                 dialog.open();
             },
             error: function(model, response, options) {
-                alert("ERROR: " + response);
+                new ErrorDialog({
+                    el: $("#error-dialog"),
+                    title: "HTTP Error " + response.responseJSON.Code,
+                    content: response.responseJSON.Message
+                }).open();
             }
         });
     },
@@ -830,7 +886,11 @@ var ModelTable = Table.extend({
                         dialog.close();
                         return;
                     }
-                    alert("ERROR: " + response.responseText);
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + response.responseJSON.Code,
+                        content: response.responseJSON.Message
+                    }).open();
                 }
             });
         });
@@ -849,7 +909,11 @@ var ModelTable = Table.extend({
                     self.render();
                 },
                 error: function(model, response, options) {
-                    alert("ERROR: " + response.responseText);
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + response.responseJSON.Code,
+                        content: response.responseJSON.Message
+                    }).open();
                 }
             });
         });
@@ -1002,7 +1066,11 @@ var EntryPage = Page.extend({
                         self.close();
                         return;
                     }
-                    alert("ERROR: " + response.responseText);
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + response.responseJSON.Code,
+                        content: response.responseJSON.Message
+                    }).open();
                 }
             });
         } else {
@@ -1018,7 +1086,11 @@ var EntryPage = Page.extend({
                         self.close();
                         return;
                     }
-                    alert("ERROR: " + response.responseText);
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + response.responseJSON.Code,
+                        content: response.responseJSON.Message
+                    }).open();
                 }
             });
         }

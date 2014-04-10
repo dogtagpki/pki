@@ -136,7 +136,11 @@ var TokenTableItem = TableItem.extend({
                         self.table.render();
                     },
                     error: function(jqXHR, textStatus, errorThrow) {
-                        alert("ERROR: " + jqXHR.responseText);
+                        new ErrorDialog({
+                            el: $("#error-dialog"),
+                            title: "HTTP Error " + jqXHR.responseJSON.Code,
+                            content: jqXHR.responseJSON.Message
+                        }).open();
                     }
                 });
             }
