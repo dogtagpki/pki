@@ -70,15 +70,6 @@ var ActivityPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
         ActivityPage.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    close: function() {
-        var self = this;
-        if (self.parentPage) {
-            self.parentPage.open();
-        } else {
-            ActivityPage.__super__.close.call(self);
-        }
     }
 });
 
@@ -86,18 +77,6 @@ var ActivitiesTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         ActivitiesTable.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    open: function(item, column) {
-        var self = this;
-
-        var page = new ActivityPage({
-            el: self.parentPage.$el,
-            url: "activity.html",
-            model: self.collection.get(item.entry.id)
-        });
-
-        page.open();
     }
 });
 
@@ -107,8 +86,7 @@ var ActivitiesPage = Page.extend({
 
         var table = new ActivitiesTable({
             el: $("table[name='activities']"),
-            collection: new ActivityCollection(),
-            parentPage: self
+            collection: new ActivityCollection()
         });
 
         table.render();

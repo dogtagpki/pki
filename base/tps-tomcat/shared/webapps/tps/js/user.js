@@ -90,7 +90,6 @@ var UserPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
         UserPage.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
     },
     loadField: function(input) {
         var self = this;
@@ -122,14 +121,6 @@ var UserPage = EntryPage.extend({
             self.entry.attributes = attributes;
         }
         attributes.tpsProfiles = input.val();
-    },
-    close: function() {
-        var self = this;
-        if (self.parentPage) {
-            self.parentPage.open();
-        } else {
-            UserPage.__super__.close.call(self);
-        }
     }
 });
 
@@ -137,33 +128,11 @@ var UsersTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         UsersTable.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    open: function(item, column) {
-        var self = this;
-
-        var page = new UserPage({
-            el: self.parentPage.$el,
-            url: "user.html",
-            model: self.collection.get(item.entry.id),
-            editable: ["fullName", "email", "tpsProfiles"]
-        });
-
-        page.open();
     },
     add: function() {
         var self = this;
 
-        var page = new UserPage({
-            el: self.parentPage.$el,
-            url: "user.html",
-            model: new UserModel(),
-            mode: "add",
-            editable: ["userID", "fullName", "email", "tpsProfiles"],
-            parentPage: self.parentPage
-        });
-
-        page.open();
+        window.location.hash = "#new-user";
     }
 });
 
@@ -173,8 +142,7 @@ var UsersPage = Page.extend({
 
         var table = new UsersTable({
             el: $("table[name='users']"),
-            collection: new UserCollection(),
-            parentPage: self
+            collection: new UserCollection()
         });
 
         table.render();

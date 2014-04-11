@@ -101,7 +101,6 @@ var TokenPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
         TokenPage.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
     },
     setup: function() {
         var self = this;
@@ -111,6 +110,8 @@ var TokenPage = EntryPage.extend({
         self.changeStatusLink = $("a[name='changeStatus']", self.menu);
 
         self.changeStatusLink.click(function(e) {
+
+            e.preventDefault();
 
             var dialog = new Dialog({
                 el: $("#token-status-dialog"),
@@ -160,40 +161,31 @@ var TokenPage = EntryPage.extend({
         } else {
             self.changeStatusLink.show();
         }
-    },
-    close: function() {
-        var self = this;
-        if (self.parentPage) {
-            self.parentPage.open();
-        } else {
-            TokenPage.__super__.close.call(self);
-        }
     }
 });
 
-var TokensTable = ModelTable.extend({
+var TokenTableItem = TableItem.extend({
     initialize: function(options) {
         var self = this;
-        TokensTable.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
+        TokenTableItem.__super__.initialize.call(self, options);
     },
-    open: function(item, column) {
+    renderColumn: function(td, templateTD) {
         var self = this;
 
-        var model = self.collection.get(item.entry.id);
+        TokenTableItem.__super__.renderColumn.call(self, td, templateTD);
 
-        if (column == "id") {
-            var page = new TokenPage({
-                el: self.parentPage.$el,
-                url: "token.html",
-                model: model,
-                editable: ["userID", "type", "appletID", "keyInfo"]
+        var name = td.attr("name");
+        if (name == "status") {
+            $("a", td).click(function(e) {
+                e.preventDefault();
+                self.editStatus();
             });
-
-            page.open();
-
-            return;
         }
+    },
+    editStatus: function() {
+        var self = this;
+
+        var model = self.table.collection.get(self.entry.id);
 
         var dialog = new Dialog({
             el: $("#token-status-dialog"),
@@ -216,7 +208,7 @@ var TokensTable = ModelTable.extend({
                 model.changeStatus({
                     status: dialog.entry.status,
                     success: function(data, textStatus, jqXHR) {
-                        self.render();
+                        self.table.render();
                     },
                     error: function(jqXHR, textStatus, errorThrow) {
                         new ErrorDialog({
@@ -232,20 +224,19 @@ var TokensTable = ModelTable.extend({
         });
 
         dialog.open();
+    }
+});
+
+var TokensTable = ModelTable.extend({
+    initialize: function(options) {
+        var self = this;
+        options.tableItem = TokenTableItem;
+        TokensTable.__super__.initialize.call(self, options);
     },
     add: function() {
         var self = this;
 
-        var page = new TokenPage({
-            el: self.parentPage.$el,
-            url: "token.html",
-            model: new TokenModel(),
-            mode: "add",
-            editable: ["tokenID", "userID", "type", "appletID", "keyInfo"],
-            parentPage: self.parentPage
-        });
-
-        page.open();
+        window.location.hash = "#new-token";
     }
 });
 
@@ -255,8 +246,7 @@ var TokensPage = Page.extend({
 
         var table = new TokensTable({
             el: $("table[name='tokens']"),
-            collection: new TokenCollection(),
-            parentPage: self
+            collection: new TokenCollection()
         });
 
         table.render();

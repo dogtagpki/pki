@@ -86,32 +86,11 @@ var ProfileMappingsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         ProfileMappingsTable.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    open: function(item) {
-        var self = this;
-
-        var page = new EntryWithPropertiesPage({
-            el: self.parentPage.$el,
-            url: "profile-mapping.html",
-            model: self.collection.get(item.entry.id)
-        });
-
-        page.open();
     },
     add: function() {
         var self = this;
 
-        var page = new EntryWithPropertiesPage({
-            el: self.parentPage.$el,
-            url: "profile-mapping.html",
-            model: new ProfileMappingModel(),
-            mode: "add",
-            editable: ["profileMappingID"],
-            parentPage: self.parentPage
-        });
-
-        page.open();
+        window.location.hash = "#new-profile-mapping";
     }
 });
 
@@ -122,7 +101,7 @@ var ProfileMappingsPage = Page.extend({
         var table = new ProfileMappingsTable({
             el: $("table[name='profile-mappings']"),
             collection: new ProfileMappingCollection(),
-            parentPage: self
+            parent: self
         });
 
         table.render();

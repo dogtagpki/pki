@@ -40,7 +40,7 @@ var ConfigModel = Model.extend({
     }
 });
 
-var ConfigPage = EntryWithPropertiesPage.extend({
+var ConfigPage = ConfigEntryPage.extend({
     initialize: function(options) {
         var self = this;
         options.model = new ConfigModel();

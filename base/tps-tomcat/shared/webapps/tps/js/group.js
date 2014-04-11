@@ -59,15 +59,6 @@ var GroupPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
         GroupPage.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    close: function() {
-        var self = this;
-        if (self.parentPage) {
-            self.parentPage.open();
-        } else {
-            GroupPage.__super__.close.call(self);
-        }
     }
 });
 
@@ -75,33 +66,11 @@ var GroupsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         GroupsTable.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    open: function(item, column) {
-        var self = this;
-
-        var page = new GroupPage({
-            el: self.parentPage.$el,
-            url: "group.html",
-            model: self.collection.get(item.entry.id),
-            editable: ["description"]
-        });
-
-        page.open();
     },
     add: function() {
         var self = this;
 
-        var page = new GroupPage({
-            el: self.parentPage.$el,
-            url: "group.html",
-            model: new GroupModel(),
-            mode: "add",
-            editable: ["groupID", "description"],
-            parentPage: self.parentPage
-        });
-
-        page.open();
+        window.location.hash = "#new-group";
     }
 });
 
@@ -111,8 +80,7 @@ var GroupsPage = Page.extend({
 
         var table = new GroupsTable({
             el: $("table[name='groups']"),
-            collection: new GroupCollection(),
-            parentPage: self
+            collection: new GroupCollection()
         });
 
         table.render();

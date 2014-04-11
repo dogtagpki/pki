@@ -86,32 +86,11 @@ var AuthenticatorsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         AuthenticatorsTable.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    open: function(item) {
-        var self = this;
-
-        var page = new EntryWithPropertiesPage({
-            el: self.parentPage.$el,
-            url: "authenticator.html",
-            model: self.collection.get(item.entry.id)
-        });
-
-        page.open();
     },
     add: function() {
         var self = this;
 
-        var page = new EntryWithPropertiesPage({
-            el: self.parentPage.$el,
-            url: "authenticator.html",
-            model: new AuthenticatorModel(),
-            mode: "add",
-            editable: ["authenticatorID"],
-            parentPage: self.parentPage
-        });
-
-        page.open();
+        window.location.hash = "#new-authenticator";
     }
 });
 
@@ -122,7 +101,7 @@ var AuthenticatorsPage = Page.extend({
         var table = new AuthenticatorsTable({
             el: $("table[name='authenticators']"),
             collection: new AuthenticatorCollection(),
-            parentPage: self
+            parent: self
         });
 
         table.render();

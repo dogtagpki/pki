@@ -41,87 +41,283 @@
     <script src="/tps/js/user.js"></script>
     <script>
 $(function() {
-    var account = new Account();
-
-    var navigation = new Navigation({
-        el: $("#navigation"),
-        logout: function() {
-            account.logout({
-                success: function() {
-                    if (window.crypto) window.crypto.logout();
-                    window.location.href = "/tps";
-                },
-                error: function() {
-                    alert("Logout failed");
-                }
-            });
-        },
-        homePage: "tokens"
-    });
 
     var content = $("#content");
 
-    navigation.page("activities", new ActivitiesPage({
-        el: content,
-        url: "activities.html"
-    }));
+    var router = new Backbone.Router();
 
-    navigation.page("audit", new AuditPage({
-        el: content,
-        url: "audit.html"
-    }));
+    router.route("", "home", function() {
+        new Page({
+            el: content,
+            url: "home.html"
+        }).open();
+    });
 
-    navigation.page("authenticators", new AuthenticatorsPage({
-        el: content,
-        url: "authenticators.html"
-    }));
+    router.route("activities", "activities", function() {
+        new ActivitiesPage({
+            el: content,
+            url: "activities.html"
+        }).open();
+    });
 
-    navigation.page("certs", new CertificatesPage({
-        el: content,
-        url: "certs.html"
-    }));
+    router.route("activities/:id", "activity", function(id) {
+        new ActivityPage({
+            el: content,
+            url: "activity.html",
+            model: new ActivityModel({ id: id })
+        }).open();
+    });
 
-    navigation.page("config", new ConfigPage({
-        el: content,
-        url: "config.html"
-    }));
+    router.route("audit", "audit", function() {
+        new AuditPage({
+            el: content,
+            url: "audit.html"
+        }).open();
+    });
 
-    navigation.page("connections", new ConnectionsPage({
-        el: content,
-        url: "connections.html"
-    }));
+    router.route("authenticators", "authenticators", function() {
+        new AuthenticatorsPage({
+            el: content,
+            url: "authenticators.html"
+        }).open();
+    });
 
-    navigation.page("groups", new GroupsPage({
-        el: content,
-        url: "groups.html"
-    }));
+    router.route("authenticators/:id", "authenticator", function(id) {
+        new ConfigEntryPage({
+            el: content,
+            url: "authenticator.html",
+            model: new AuthenticatorModel({ id: id })
+        }).open();
+    });
 
-    navigation.page("profiles", new ProfilesPage({
-        el: content,
-        url: "profiles.html"
-    }));
+    router.route("new-authenticator", "new-authenticator", function() {
+        new ConfigEntryPage({
+            el: content,
+            url: "authenticator.html",
+            model: new AuthenticatorModel(),
+            mode: "add",
+            title: "New Authenticator",
+            editable: ["authenticatorID"],
+            parentHash: "#authenticators"
+        }).open();
+    });
 
-    navigation.page("profileMappings", new ProfileMappingsPage({
-        el: content,
-        url: "profile-mappings.html"
-    }));
+    router.route("certs", "certs", function() {
+        new CertificatesPage({
+            el: content,
+            url: "certs.html"
+        }).open();
+    });
 
-    navigation.page("selftests", new SelfTestsPage({
-        el: content,
-        url: "selftests.html"
-    }));
+    router.route("certs/:id", "cert", function(id) {
+        new CertificatePage({
+            el: content,
+            url: "cert.html",
+            model: new CertificateModel({ id: id })
+        }).open();
+    });
 
-    navigation.page("tokens", new TokensPage({
-        el: content,
-        url: "tokens.html"
-    }));
+    router.route("config", "config", function() {
+        new ConfigPage({
+            el: content,
+            url: "config.html"
+        }).open();
+    });
 
-    navigation.page("users", new UsersPage({
-        el: content,
-        url: "users.html"
-    }));
+    router.route("connections", "connections", function() {
+        new ConnectionsPage({
+            el: content,
+            url: "connections.html"
+        }).open();
+    });
 
-    navigation.render();
+    router.route("connections/:id", "connection", function(id) {
+        new ConfigEntryPage({
+            el: content,
+            url: "connection.html",
+            model: new ConnectionModel({ id: id })
+        }).open();
+    });
+
+    router.route("new-connection", "new-connection", function() {
+        new ConfigEntryPage({
+            el: content,
+            url: "connection.html",
+            model: new ConnectionModel(),
+            mode: "add",
+            title: "New Connection",
+            editable: ["connectionID"],
+            parentHash: "#connections"
+        }).open();
+    });
+
+    router.route("groups", "groups", function() {
+        new GroupsPage({
+            el: content,
+            url: "groups.html"
+        }).open();
+    });
+
+    router.route("groups/:id", "group", function(id) {
+        new GroupPage({
+            el: content,
+            url: "group.html",
+            model: new GroupModel({ id: id }),
+            editable: ["description"]
+        }).open();
+    });
+
+    router.route("new-group", "new-group", function() {
+        new GroupPage({
+            el: content,
+            url: "group.html",
+            model: new GroupModel(),
+            mode: "add",
+            title: "New Group",
+            editable: ["groupID", "description"],
+            parentHash: "#groups"
+        }).open();
+    });
+
+    router.route("profiles", "profiles", function() {
+        new ProfilesPage({
+            el: content,
+            url: "profiles.html"
+        }).open();
+    });
+
+    router.route("profiles/:id", "profile", function(id) {
+        new ConfigEntryPage({
+            el: content,
+            url: "profile.html",
+            model: new ProfileModel({ id: id })
+        }).open();
+    });
+
+    router.route("new-profile", "new-profile", function() {
+        new ConfigEntryPage({
+            el: content,
+            url: "profile.html",
+            model: new ProfileModel(),
+            mode: "add",
+            title: "New Profile",
+            editable: ["profileID"],
+            parentHash: "#profiles"
+        }).open();
+    });
+
+    router.route("profile-mappings", "profile-mappings", function() {
+        new ProfileMappingsPage({
+            el: content,
+            url: "profile-mappings.html"
+        }).open();
+    });
+
+    router.route("profile-mappings/:id", "profile-mapping", function(id) {
+        new ConfigEntryPage({
+            el: content,
+            url: "profile-mapping.html",
+            model: new ProfileMappingModel({ id: id }),
+        }).open();
+    });
+
+    router.route("new-profile-mapping", "new-profile-mapping", function() {
+        new ConfigEntryPage({
+            el: content,
+            url: "profile-mapping.html",
+            model: new ProfileMappingModel(),
+            mode: "add",
+            title: "New Profile Mapping",
+            editable: ["profileMappingID"],
+            parentHash: "#profile-mappings"
+        }).open();
+    });
+
+    router.route("selftests", "selftests", function() {
+        new SelfTestsPage({
+            el: content,
+            url: "selftests.html"
+        }).open();
+    });
+
+    router.route("selftests/:id", "selftest", function(id) {
+        new SelfTestPage({
+            el: content,
+            url: "selftest.html",
+            model: new SelfTestModel({ id: id })
+        }).open();
+    });
+
+    router.route("tokens", "tokens", function() {
+        new TokensPage({
+            el: content,
+            url: "tokens.html"
+        }).open();
+    });
+
+    router.route("tokens/:id", "token", function(id) {
+        new TokenPage({
+            el: content,
+            url: "token.html",
+            model: new TokenModel({ id: id }),
+            editable: ["userID", "type", "appletID", "keyInfo"]
+        }).open();
+    });
+
+    router.route("new-token", "new-token", function() {
+        new TokenPage({
+            el: content,
+            url: "token.html",
+            model: new TokenModel(),
+            mode: "add",
+            title: "New Token",
+            editable: ["tokenID", "userID", "type", "appletID", "keyInfo"],
+            parentHash: "#tokens"
+        }).open();
+    });
+
+    router.route("users", "users", function() {
+        new UsersPage({
+            el: content,
+            url: "users.html"
+        }).open();
+    });
+
+    router.route("users/:id", "user", function(id) {
+        new UserPage({
+            el: content,
+            url: "user.html",
+            model: new UserModel({ id: id }),
+            editable: ["fullName", "email", "tpsProfiles"]
+        }).open();
+    });
+
+    router.route("new-user", "new-user", function() {
+        new UserPage({
+            el: content,
+            url: "user.html",
+            model: new UserModel(),
+            mode: "add",
+            title: "New User",
+            editable: ["userID", "fullName", "email", "tpsProfiles"],
+            parentHash: "#users"
+        }).open();
+    });
+
+    router.route("logout", "logout", function() {
+        var account = new Account();
+        account.logout({
+            success: function() {
+                if (window.crypto) window.crypto.logout();
+                window.location.href = "/tps";
+            },
+            error: function() {
+                alert("Logout failed");
+            }
+        });
+    });
+
+    Backbone.history.start();
 });
     </script>
 </head>
@@ -153,10 +349,10 @@ $(function() {
     </li>
     </ul>
     <ul class="nav navbar-nav navbar-primary">
+    <li><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
     <li><a href="#tokens">Tokens</a></li>
     <li><a href="#certs">Certificates</a></li>
     <li><a href="#activities">Activities</a></li>
-    <li><a href="#selftests">SelfTests</a></li>
     <li class="dropdown context">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">
         Accounts
@@ -169,16 +365,17 @@ $(function() {
     </li>
     <li class="dropdown context">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-        Configuration
+        System
         <b class="caret"></b>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="#config">General</a></li>
+        <li><a href="#config">General Configuration</a></li>
         <li><a href="#authenticators">Authentication Sources</a></li>
         <li><a href="#connections">Subsystem Connections</a></li>
         <li><a href="#profiles">Profiles</a></li>
-        <li><a href="#profileMappings">Profile Mappings</a></li>
+        <li><a href="#profile-mappings">Profile Mappings</a></li>
         <li><a href="#audit">Audit Logging</a></li>
+        <li><a href="#selftests">Self Tests</a></li>
       </ul>
     </li>
     </ul>

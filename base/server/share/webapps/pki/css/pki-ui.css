@@ -29,6 +29,11 @@
   margin-bottom: 10px;
 }
 
+.pki-header .breadcrumb {
+  padding: 0;
+  margin-bottom: 5px;
+}
+
 .pki-title {
   font-family: "Open Sans",sans-serif;
   font-size: 25px;

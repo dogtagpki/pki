@@ -76,15 +76,6 @@ var CertificatePage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
         CertificatePage.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    close: function() {
-        var self = this;
-        if (self.parentPage) {
-            self.parentPage.open();
-        } else {
-            CertificatePage.__super__.close.call(self);
-        }
     }
 });
 
@@ -92,18 +83,6 @@ var CertificatesTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         CertificatesTable.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    open: function(item, column) {
-        var self = this;
-
-        var page = new CertificatePage({
-            el: self.parentPage.$el,
-            url: "cert.html",
-            model: self.collection.get(item.entry.id)
-        });
-
-        page.open();
     }
 });
 
@@ -113,8 +92,7 @@ var CertificatesPage = Page.extend({
 
         var table = new CertificatesTable({
             el: $("table[name='certificates']"),
-            collection: new CertificateCollection(),
-            parentPage: self
+            collection: new CertificateCollection()
         });
 
         table.render();

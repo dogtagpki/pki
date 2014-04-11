@@ -16,6 +16,11 @@
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
 <div class="pki-header">
+<ol class="breadcrumb">
+    <li><a href="#">Home</a></li>
+    <li class="active"><strong>Tokens</strong></li>
+</ol>
+
 <span class="pki-title">Tokens</span>
 </div>
 
@@ -47,10 +52,10 @@
 <tbody>
     <tr>
         <td class="pki-select-column"><input id="token_select" type="checkbox"><label for="token_select">&nbsp;</label></td>
-        <td name="id"><a href="/tps/ui/tokens/${id}">${id}</a></td>
+        <td name="id"><a href="#tokens/${id}">${id}</a></td>
         <td name="userID">${userID}</td>
         <td name="type">${type}</td>
-        <td name="status"><a href="/tps/ui/tokens/${id}/status">${statusLabel}</a></td>
+        <td name="status"><a href="#tokens/${id}/status">${statusLabel}</a></td>
         <td name="appletID">${appletID}</td>
         <td name="keyInfo">${keyInfo}</td>
         <td name="created">${createTimestamp}</td>

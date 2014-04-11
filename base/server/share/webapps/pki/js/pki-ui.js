@@ -19,6 +19,36 @@
  * @author Endi S. Dewata
  */
 
+var PKI = {
+    substitute: function(content, map) {
+
+        var newContent = "";
+
+        // substitute ${attribute} with attribute value
+        var pattern = /\${([^}]*)}/;
+
+        while (content.length) {
+            // search for ${attribute} pattern
+            var index = content.search(pattern);
+            if (index < 0) {
+                newContent += content;
+                break;
+            }
+
+            var name = RegExp.$1;
+            var value = map[name];
+
+            // replace pattern occurrence with attribute value
+            newContent += content.substring(0, index) + (value === undefined ? "" : value);
+
+            // process the remaining content
+            content = content.substring(index + name.length + 3);
+        }
+
+        return newContent;
+    }
+};
+
 var Model = Backbone.Model.extend({
     parseResponse: function(response) {
         return response;
@@ -140,57 +170,6 @@ var Page = Backbone.View.extend({
         });
     },
     load: function() {
-    }
-});
-
-var Navigation = Backbone.View.extend({
-    initialize: function(options) {
-        var self = this;
-        Navigation.__super__.initialize.call(self, options);
-        self.pages = options.pages || {};
-        self.homePage = options.homePage;
-
-        $("li", self.$el).each(function(index) {
-            var li = $(this);
-            var link = $("a", li);
-            var url = link.attr("href");
-            link.click(function(e) {
-                if (url == "#logout") {
-                    if (options.logout) {
-                        options.logout.call(self);
-                    }
-
-                } else if (url.charAt(0) == "#" && url.length > 1) {
-                    // get page name
-                    var name = url.substring(1);
-                    self.load(name);
-                }
-                e.preventDefault();
-            });
-        });
-    },
-    page: function(name, page) {
-        var self = this;
-        self.pages[name] = page;
-    },
-    load: function(name) {
-        var self = this;
-
-        var page = self.pages[name];
-        if (!page) {
-            new ErrorDialog({
-                el: $("#error-dialog"),
-                title: "Error",
-                content: "Invalid page: " + name
-            }).open();
-            return;
-        }
-
-        page.open();
-    },
-    render: function() {
-        var self = this;
-        if (self.homePage) self.load(self.homePage);
     }
 });
 
@@ -470,17 +449,6 @@ var TableItem = Backbone.View.extend({
         }
 
         td.html(newContent);
-
-        // add link handler
-        $("a", td).click(function(e) {
-            e.preventDefault();
-            self.open(td);
-        });
-    },
-    open: function(td) {
-        var self = this;
-        var column = td.attr("name");
-        self.table.open(self, column);
     }
 });
 
@@ -927,7 +895,10 @@ var EntryPage = Page.extend({
         EntryPage.__super__.initialize.call(self, options);
         self.model = options.model;
         self.mode = options.mode || "view";
+        self.title = options.title;
         self.editable = options.editable || [];
+        self.parentPage = options.parentPage;
+        self.parentHash = options.parentHash;
     },
     load: function() {
         var self = this;
@@ -986,12 +957,19 @@ var EntryPage = Page.extend({
             // Use blank entry.
             self.entry = {};
 
+            // Replace title.
+            self.$("span[name='title']").text(self.title);
+
         } else {
             // Use fetched entry.
             self.entry = _.clone(self.model.attributes);
 
-            // Show entry ID in the title.
-            self.$("span[name='id']").text(self.entry.id);
+            // Update title with entry attributes.
+            self.$("span[name='title']").each(function() {
+                var title = $(this);
+                var text = title.text();
+                title.text(PKI.substitute(text, self.entry));
+            });
 
         }
 
@@ -1036,8 +1014,17 @@ var EntryPage = Page.extend({
     },
     close: function() {
         var self = this;
-        self.mode = "view";
-        self.render();
+
+        if (self.parentHash) {
+            window.location.hash = self.parentHash;
+
+        } else if (self.parentPage) {
+            self.parentPage.open();
+
+        } else {
+            self.mode = "view";
+            self.render();
+        }
     },
     cancel: function() {
         var self = this;

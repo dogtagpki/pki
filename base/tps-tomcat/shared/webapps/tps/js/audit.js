@@ -77,22 +77,56 @@ var AuditTableItem = TableItem.extend({
         var self = this;
         AuditTableItem.__super__.initialize.call(self, options);
     },
-    open: function(td) {
+    renderColumn: function(td, templateTD) {
         var self = this;
 
-        // in view mode all events are read-only
-        if (self.table.mode == "view") {
-            return;
-        }
+        AuditTableItem.__super__.renderColumn.call(self, td, templateTD);
 
-        // mandatory events are read-only
+        $("a", td).click(function(e) {
+            e.preventDefault();
+            self.open();
+        });
+    },
+    open: function() {
+        var self = this;
+
         var value = self.get("value");
-        if (value == "mandatory") {
-            return;
+        var dialog;
+
+        if (self.table.mode == "view" || value == "mandatory") {
+            // In view mode all events are read-only.
+            // Mandatory events are always read-only.
+            dialog = new Dialog({
+                el: self.table.parent.$("#event-dialog"),
+                title: "Event",
+                readonly: ["name", "value"],
+                actions: ["close"]
+            });
+
+        } else if (self.table.mode == "edit" && value != "mandatory") {
+            // Optional events are editable in edit mode.
+            dialog = new Dialog({
+                el: self.table.parent.$("#event-dialog"),
+                title: "Edit Event",
+                readonly: ["name"],
+                actions: ["cancel", "save"]
+            });
+
+            dialog.handler("save", function() {
+
+                // save changes
+                dialog.save();
+                _.extend(self.entry, dialog.entry);
+
+                // redraw table
+                self.table.render();
+                dialog.close();
+            });
         }
 
-        // optional events are editable in edit mode
-        AuditTableItem.__super__.open.call(self, td);
+        dialog.entry = _.clone(self.entry);
+
+        dialog.open();
     }
 });
 
@@ -112,6 +146,9 @@ var AuditPage = EntryPage.extend({
         self.disableLink = $("a[name='disable']", self.menu);
 
         self.enableLink.click(function(e) {
+
+            e.preventDefault();
+
             var message = "Are you sure you want to enable this entry?";
             if (!confirm(message)) return;
             self.model.enable({
@@ -130,6 +167,9 @@ var AuditPage = EntryPage.extend({
         });
 
         self.disableLink.click(function(e) {
+
+            e.preventDefault();
+
             var message = "Are you sure you want to disable this entry?";
             if (!confirm(message)) return;
             self.model.disable({
@@ -147,31 +187,14 @@ var AuditPage = EntryPage.extend({
             });
         });
 
-        var eventDialog = self.$("#event-dialog");
-
-        var eventEditDialog = new Dialog({
-            el: eventDialog,
-            title: "Edit Event",
-            readonly: ["name"],
-            actions: ["cancel", "save"]
-        });
-
-        var eventViewDialog = new Dialog({
-            el: eventDialog,
-            title: "Event",
-            readonly: ["name", "value"],
-            actions: ["close"]
-        });
-
         self.eventsTable = new Table({
             el: self.$("table[name='events']"),
             columnMappings: {
                 id: "name"
             },
-            editDialog: eventEditDialog,
-            viewDialog: eventViewDialog,
             pageSize: 10,
-            tableItem: AuditTableItem
+            tableItem: AuditTableItem,
+            parent: self
         });
     },
     renderContent: function() {
@@ -183,6 +206,7 @@ var AuditPage = EntryPage.extend({
         if (status == "Disabled") {
             self.enableLink.show();
             self.disableLink.hide();
+
         } else if (status == "Enabled") {
             self.enableLink.hide();
             self.disableLink.show();

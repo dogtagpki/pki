@@ -34,16 +34,54 @@ var PropertiesTableItem = TableItem.extend({
 
         return PropertiesTableItem.__super__.get.call(self, name);
     },
-    open: function(td) {
+    renderColumn: function(td, templateTD) {
         var self = this;
 
-        // in view mode all properties are read-only
+        PropertiesTableItem.__super__.renderColumn.call(self, td, templateTD);
+
+        $("a", td).click(function(e) {
+            e.preventDefault();
+            self.open();
+        });
+    },
+    open: function() {
+        var self = this;
+
+        var dialog;
+
         if (self.table.mode == "view") {
-            return;
+            // In view mode all properties are read-only.
+            dialog = new Dialog({
+                el: self.table.parent.$("#property-dialog"),
+                title: "Property",
+                readonly: ["name", "value"],
+                actions: ["close"]
+            });
+
+        } else {
+            // In edit mode all properties are editable.
+            dialog = new Dialog({
+                el: self.table.parent.$("#property-dialog"),
+                title: "Edit Property",
+                readonly: ["name"],
+                actions: ["cancel", "save"]
+            });
+
+            dialog.handler("save", function() {
+
+                // save changes
+                dialog.save();
+                _.extend(self.entry, dialog.entry);
+
+                // redraw table
+                self.table.render();
+                dialog.close();
+            });
         }
 
-        // in edit mode all properties are editable
-        PropertiesTableItem.__super__.open.call(self, td);
+        dialog.entry = _.clone(self.entry);
+
+        dialog.open();
     }
 });
 
@@ -76,23 +114,25 @@ var PropertiesTable = Table.extend({
     }
 });
 
-var EntryWithPropertiesPage = EntryPage.extend({
+var ConfigEntryPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
-        EntryWithPropertiesPage.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
+        ConfigEntryPage.__super__.initialize.call(self, options);
         self.tableItem = options.tableItem || PropertiesTableItem;
         self.tableSize = options.tableSize || 10;
     },
     setup: function() {
         var self = this;
 
-        EntryWithPropertiesPage.__super__.setup.call(self);
+        ConfigEntryPage.__super__.setup.call(self);
 
         self.enableLink = $("a[name='enable']", self.menu);
         self.disableLink = $("a[name='disable']", self.menu);
 
         self.enableLink.click(function(e) {
+
+            e.preventDefault();
+
             var message = "Are you sure you want to enable this entry?";
             if (!confirm(message)) return;
             self.model.enable({
@@ -111,6 +151,9 @@ var EntryWithPropertiesPage = EntryPage.extend({
         });
 
         self.disableLink.click(function(e) {
+
+            e.preventDefault();
+
             var message = "Are you sure you want to disable this entry?";
             if (!confirm(message)) return;
             self.model.disable({
@@ -136,20 +179,6 @@ var EntryWithPropertiesPage = EntryPage.extend({
             actions: ["cancel", "add"]
         });
 
-        var editDialog = new Dialog({
-            el: dialog,
-            title: "Edit Property",
-            readonly: ["name"],
-            actions: ["cancel", "save"]
-        });
-
-        var viewDialog = new Dialog({
-            el: dialog,
-            title: "Property",
-            readonly: ["name", "value"],
-            actions: ["close"]
-        });
-
         var table = self.$("table[name='properties']");
         self.addButton = $("button[name='add']", table);
         self.removeButton = $("button[name='remove']", table);
@@ -157,8 +186,6 @@ var EntryWithPropertiesPage = EntryPage.extend({
         self.propertiesTable = new PropertiesTable({
             el: table,
             addDialog: addDialog,
-            editDialog: editDialog,
-            viewDialog: viewDialog,
             tableItem: self.tableItem,
             pageSize: self.tableSize,
             parent: self
@@ -167,12 +194,13 @@ var EntryWithPropertiesPage = EntryPage.extend({
     renderContent: function() {
         var self = this;
 
-        EntryWithPropertiesPage.__super__.renderContent.call(self);
+        ConfigEntryPage.__super__.renderContent.call(self);
 
         var status = self.entry.status;
         if (status == "Disabled") {
             self.enableLink.show();
             self.disableLink.hide();
+
         } else if (status == "Enabled") {
             self.enableLink.hide();
             self.disableLink.show();
@@ -196,16 +224,8 @@ var EntryWithPropertiesPage = EntryPage.extend({
     saveFields: function() {
         var self = this;
 
-        EntryWithPropertiesPage.__super__.saveFields.call(self);
+        ConfigEntryPage.__super__.saveFields.call(self);
 
         self.entry.properties = self.propertiesTable.entries;
-    },
-    close: function() {
-        var self = this;
-        if (self.parentPage) {
-            self.parentPage.open();
-        } else {
-            EntryWithPropertiesPage.__super__.close.call(self);
-        }
     }
 });

@@ -86,32 +86,11 @@ var ConnectionsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         ConnectionsTable.__super__.initialize.call(self, options);
-        self.parentPage = options.parentPage;
-    },
-    open: function(item) {
-        var self = this;
-
-        var page = new EntryWithPropertiesPage({
-            el: self.parentPage.$el,
-            url: "connection.html",
-            model: self.collection.get(item.entry.id)
-        });
-
-        page.open();
     },
     add: function() {
         var self = this;
 
-        var page = new EntryWithPropertiesPage({
-            el: self.parentPage.$el,
-            url: "connection.html",
-            model: new ConnectionModel(),
-            mode: "add",
-            editable: ["connectionID"],
-            parentPage: self.parentPage
-        });
-
-        page.open();
+        window.location.hash = "#new-connection";
     }
 });
 
@@ -122,7 +101,7 @@ var ConnectionsPage = Page.extend({
         var table = new ConnectionsTable({
             el: $("table[name='connections']"),
             collection: new ConnectionCollection(),
-            parentPage: self
+            parent: self
         });
 
         table.render();

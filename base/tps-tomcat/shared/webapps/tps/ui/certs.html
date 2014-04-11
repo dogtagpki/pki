@@ -16,6 +16,11 @@
      All rights reserved.
      --- END COPYRIGHT BLOCK --- -->
 <div class="pki-header">
+<ol class="breadcrumb">
+    <li><a href="#">Home</a></li>
+    <li class="active"><strong>Certificates</strong></li>
+</ol>
+
 <span class="pki-title">Certificates</span>
 </div>
 
@@ -46,7 +51,7 @@
 <tbody>
     <tr>
         <td class="pki-select-column"><input id="cert_select" type="checkbox"><label for="cert_select">&nbsp;</label></td>
-        <td name="id"><a href="/tps/ui/certs/${id}">${id}</a></td>
+        <td name="id"><a href="#certs/${id}">${id}</a></td>
         <td name="serialNumber">${serialNumber}</td>
         <td name="subject">${subject}</td>
         <td name="tokenID">${tokenID}</td>
