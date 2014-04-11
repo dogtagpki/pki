@@ -60,20 +60,49 @@ var SelfTestCollection = Collection.extend({
     }
 });
 
-var SelfTestPage = Page.extend({
+var SelfTestPage = EntryPage.extend({
+    initialize: function(options) {
+        var self = this;
+        SelfTestPage.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    close: function() {
+        var self = this;
+        if (self.parentPage) {
+            self.parentPage.open();
+        } else {
+            GroupPage.__super__.close.call(self);
+        }
+    }
+});
+
+var SelfTestsTable = ModelTable.extend({
+    initialize: function(options) {
+        var self = this;
+        SelfTestsTable.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    open: function(item, column) {
+        var self = this;
+
+        var page = new SelfTestPage({
+            el: self.parentPage.$el,
+            url: "selftest.html",
+            model: self.collection.get(item.entry.id)
+        });
+
+        page.open();
+    }
+});
+
+var SelfTestsPage = Page.extend({
     load: function() {
         var self = this;
 
-        var editDialog = new Dialog({
-            el: $("#selftest-dialog"),
-            title: "Edit Self Test",
-            readonly: ["id", "enabledAtStartup", "criticalAtStartup", "enabledOnDemand", "criticalOnDemand"]
-        });
-
-        var table = new ModelTable({
+        var table = new SelfTestsTable({
             el: $("table[name='selftests']"),
             collection: new SelfTestCollection(),
-            editDialog: editDialog
+            parentPage: self
         });
 
         table.render();
