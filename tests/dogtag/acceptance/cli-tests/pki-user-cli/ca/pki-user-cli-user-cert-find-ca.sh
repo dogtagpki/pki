@@ -73,21 +73,21 @@ cert_info="$TmpDir/cert_info"
      ##### Tests to find certs assigned to CA users ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user in CA --userid only - single page of certs"
-        i=1
-        l=0
+        i=0
+#        l=0
         k=2
         rlRun "pki -d $CERTDB_DIR \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$user1fullname\" $user1"
-        while [ $i -lt 5 ] ; do
-                rlRun "generate_cert_cert_find $cert_info $k $user1$i \"$user1fullname$i\" $i" 0  "Generating temp cert"
+        while [ $i -lt 4 ] ; do
+                rlRun "generate_cert_cert_find $cert_info $k $user1$(($i+1)) \"$user1fullname$(($i+1))\" $i" 0  "Generating temp cert"
                 local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
                 local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
-                serialhexuser1[$l]=$cert_serialNumber
-                serialdecuser1[$l]=$decimal_valid_serialNumber_pkcs10
+                serialhexuser1[$i]=$cert_serialNumber
+                serialdecuser1[$i]=$decimal_valid_serialNumber_pkcs10
                 rlLog "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -101,34 +101,34 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                             0 \
                             "Cert is added to the user $user1"
                 let i=$i+1
-                let l=$l+1
+                #let l=$l+1
         done
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n  \"admin_cert_nickname\"\
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 > $TmpDir/pki_user_cert_find_ca_002.out" \
                     0 \
                     "Finding certs assigned to $user1"
-        let i=$i-1
+        #let i=$i-1
         numcertsuser1=$i
         rlAssertGrep "$i entries matched" "$TmpDir/pki_user_cert_find_ca_002.out"
         rlAssertGrep "Number of entries returned $i" "$TmpDir/pki_user_cert_find_ca_002.out"
-        i=1
-        l=0
-        while [ $i -lt 5 ] ; do
-        rlAssertGrep "Cert ID: 2;${serialdecuser1[$l]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$i,E=$user1$i@example.org,CN=$user1fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
-        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_002.out"
-        rlAssertGrep "Serial Number: ${serialhexuser1[$l]}" "$TmpDir/pki_user_cert_find_ca_002.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_002.out"
-        rlAssertGrep "Subject: UID=$user1$i,E=$user1$i@example.org,CN=$user1fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
+        i=0
+        #l=0
+        while [ $i -lt 4 ] ; do
+        	rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))i@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
+        	rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_002.out"
+        	rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_002.out"
+        	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_002.out"
+        	rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
                 let i=$i+1
-                let l=$l+1
+                #let l=$l+1
 	done
 	rlPhaseEnd
 
@@ -149,7 +149,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
                 serialhexuser2[$l]=$cert_serialNumber
                 serialdecuser2[$l]=$decimal_valid_serialNumber_pkcs10
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n \"$admin_cert_nickname\" \
+                           -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                             user-cert-add $user2 --input $TmpDir/pki_user_cert_find_CA_validcert_003$i.pem  > $TmpDir/useraddcert__003_$i.out" \
@@ -159,12 +159,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
                 let l=$l+1
         done
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user2"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
 		   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_003.out" \
@@ -190,12 +190,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-004: Find the certs of a user in CA --userid only - user does not exist"
 
 	rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find tuser"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find tuser > $TmpDir/pki_user_cert_find_ca_004.out 2>&1" \
@@ -213,12 +213,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-005: Find the certs of a user i
                    -t ca \
                    user-add $user3 --fullName=\"$user3fullname\""
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user3"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user3 > $TmpDir/pki_user_cert_find_ca_005.out" \
@@ -233,12 +233,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-006: Find the certs of a user in CA --size - a number less than the actual number of certs"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --size=2"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --size=2 > $TmpDir/pki_user_cert_find_ca_006.out" \
@@ -262,12 +262,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-007: Find the certs of a user in CA --size=0"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --size=0"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --size=0 > $TmpDir/pki_user_cert_find_ca_007.out" \
@@ -280,12 +280,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-008: Find the certs of a user in CA --size=-1"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --size=-1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --size=-1 > $TmpDir/pki_user_cert_find_ca_008.out" \
@@ -298,12 +298,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-009: Find the certs of a user in CA --size - a number greater than number of certs assigned to the user"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --size=50"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --size=50 > $TmpDir/pki_user_cert_find_ca_009.out" \
@@ -329,12 +329,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-010: Find the certs of a user in CA --start - a number less than the actual number of certs"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --start=2"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --start=2 > $TmpDir/pki_user_cert_find_ca_010.out" \
@@ -359,12 +359,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-011: Find the certs of a user in CA --start=0"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --start=0"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --start=0 > $TmpDir/pki_user_cert_find_ca_011.out" \
@@ -388,12 +388,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-012: Find the certs of a user in CA --start=0 - multiple pages"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user2 --start=0"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user2 --start=0 > $TmpDir/pki_user_cert_find_ca_012.out" \
@@ -418,12 +418,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-013: Find the certs of a user in CA --start=-1"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --start=-1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --start=-1 > $TmpDir/pki_user_cert_find_ca_013.out" \
@@ -436,12 +436,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-014: Find the certs of a user in CA --start - a number greater than number of certs assigned to the user"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --start=50"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --start=50 > $TmpDir/pki_user_cert_find_ca_014.out" \
@@ -456,12 +456,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-015: Find the certs of a user in CA --start=0 --size=0"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --start=0 --size=0"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --start=0 --size=0 > $TmpDir/pki_user_cert_find_ca_015.out" \
@@ -474,12 +474,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016: Find the certs of a user in CA --start=1 --size=1"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --start=1 --size=1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --start=1 --size=1 > $TmpDir/pki_user_cert_find_ca_016.out" \
@@ -498,12 +498,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-017: Find the certs of a user in CA --start=-1 --size=-1"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1 --start=-1 --size=-1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 --start=-1 --size=-1 > $TmpDir/pki_user_cert_find_ca_017.out" \
@@ -517,12 +517,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-018: Find the certs of a user in CA --start --size equal to page size - default page size=20 entries"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user2 --start=20 --size=20"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user2 --start=20 --size=20 > $TmpDir/pki_user_cert_find_ca_018.out" \
@@ -547,12 +547,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-019: Find the certs of a user in CA --start=0 --size greater than default page size - default page size=20 entries"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user2 --start=0 --size=22"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user2 --start=0 --size=22 > $TmpDir/pki_user_cert_find_ca_019.out" \
@@ -576,12 +576,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-020: Find the certs of a user in CA --start - values greater than default page size --size=1"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user2 --start=22 --size=1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user2 --start=22 --size=1 > $TmpDir/pki_user_cert_find_ca_020.out" \
@@ -602,12 +602,12 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-021: Find the certs of a user in CA --start - values greater than default page size --size - value greater than the available number of certs from the start value"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n \"$admin_cert_nickname\" \
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user2 --start=22 --size=5"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user2 --start=22 --size=5 > $TmpDir/pki_user_cert_find_ca_021.out" \
@@ -645,12 +645,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to use
                             0 \
                             "Cert is added to the user $user1"
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n  \"admin_cert_nickname\"\
+                              -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
                                user-cert-find $user1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
                    user-cert-find $user1 > $TmpDir/pki_user_cert_find_ca_022.out" \
@@ -668,6 +668,65 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to use
         rlAssertGrep "Subject: UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_022.out"
 
         rlPhaseEnd
+
+	rlPhaseStartTest "pki_user_cli_user_cert-find-CA-023: Find the certs of a user as CA_agentV"
+
+        rlLog "Executing: pki -d $CERTDB_DIR/ \
+                              -n CA_agentV \
+                              -c $CERTDB_DIR_PASSWORD \
+                              -t ca \
+                               user-cert-find $user2"
+        rlRun "pki -d $CERTDB_DIR/ \
+                   -n CA_agentV \
+                   -c $CERTDB_DIR_PASSWORD \
+                   -t ca \
+                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_023.out" \
+                    0 \
+                    "Finding certs assigned to $user2 as CA_agentV"
+        rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_023.out"
+        rlAssertGrep "Number of entries returned 20" "$TmpDir/pki_user_cert_find_ca_023.out"
+        i=1
+        l=0
+        while [ $i -lt 25 ] ; do
+                rlAssertGrep "Cert ID: 2;${serialdecuser2[$l]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$i,E=$user2$i@example.org,CN=$user2fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_023.out"
+                rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_023.out"
+                rlAssertGrep "Serial Number: ${serialhexuser2[$l]}" "$TmpDir/pki_user_cert_find_ca_023.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_023.out"
+                rlAssertGrep "Subject: UID=$user2$i,E=$user2$i@example.org,CN=$user2fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_023.out"
+                let i=$i+1
+                let l=$l+1
+        done
+rlPhaseEnd
+
+rlPhaseStartTest "pki_user_cli_user_cert-find-CA-024: Find the certs of a user as CA_auditorV"
+
+        rlLog "Executing: pki -d $CERTDB_DIR/ \
+                              -n CA_auditorV \
+                              -c $CERTDB_DIR_PASSWORD \
+                              -t ca \
+                               user-cert-find $user2"
+        rlRun "pki -d $CERTDB_DIR/ \
+                   -n CA_auditorV \
+                   -c $CERTDB_DIR_PASSWORD \
+                   -t ca \
+                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_024.out" \
+                    0 \
+                    "Finding certs assigned to $user2 as CA_auditorV"
+        rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_024.out"
+        rlAssertGrep "Number of entries returned 20" "$TmpDir/pki_user_cert_find_ca_024.out"
+        i=1
+        l=0
+        while [ $i -lt 25 ] ; do
+                rlAssertGrep "Cert ID: 2;${serialdecuser2[$l]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$i,E=$user2$i@example.org,CN=$user2fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_024.out"
+                rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_024.out"
+                rlAssertGrep "Serial Number: ${serialhexuser2[$l]}" "$TmpDir/pki_user_cert_find_ca_024.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_024.out"
+                rlAssertGrep "Subject: UID=$user2$i,E=$user2$i@example.org,CN=$user2fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_024.out"
+                let i=$i+1
+                let l=$l+1
+        done
+rlPhaseEnd
+
 
 #===Deleting users===#
 rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
@@ -715,12 +774,12 @@ generate_cert_cert_find()
 
                 #Agent Approve the certificate after reviewing the cert for the user
                 rlLog "Executing: pki -d $CERTDB_DIR/ \
-                                      -n \"$admin_cert_nickname\" \
+                                      -n CA_agentV \
                                       -c $CERTDB_DIR_PASSWORD \
                                       -t ca \
                                       cert-request-review --action=approve $requestid"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n \"$admin_cert_nickname\" \
+                           -n CA_agentV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                            cert-request-review --action=approve $requestid > $TmpDir/pki_user_cert_find_CA_certapprove_00$file_no$num$ext" \

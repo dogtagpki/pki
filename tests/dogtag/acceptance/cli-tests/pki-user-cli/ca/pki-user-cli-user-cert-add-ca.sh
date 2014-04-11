@@ -200,6 +200,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-004: Adding expired cert to a us
                 else
                         rlLog "$packagename is installed"
                 fi
+		currdate=`date`
+		rlLog "$currdate"
                 rlRun "ntpdate clock.util.phx2.redhat.com" 0
                 rlRun "date -s '$cert_end_date'"
                 rlRun "date -s 'next day'"
@@ -221,6 +223,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-004: Adding expired cert to a us
          rlLog "Set the date back to it's original date & time"
         rlRun "date --set='1 day ago'"
         rlRun "date --set='$endDate ago'"
+	nowdate=`date`
+	rlLog "$nowdate"
         rlRun "ntpdate clock.util.phx2.redhat.com"
 
 rlPhaseEnd
@@ -235,7 +239,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-005: Add revoked cert to a user 
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
                 local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n \"$admin_cert_nickname\" \
+                           -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                             cert-revoke $cert_serialNumber --force > $TmpDir/pki_user_cert_add_CA_revokecert_005.out"
@@ -642,7 +646,6 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0018: Add cert to a user of type
 rlPhaseEnd
 
 
-rlPhaseEnd
 
 	##### Usability Tests #####
 	
@@ -771,6 +774,68 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0020: Add an Agent user agent_us
 
 rlPhaseEnd
 
+        ##### Adding a cert as an CA_agentV #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0021: Adding a cert as CA_agentV"
+        k=21
+	local userid="new_user1"
+        local userFullname="New User1"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_agentV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0021.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_agentV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0021.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0021.out 2>&1" \
+                            1 \
+                            "Cert is added to the user $userid"
+
+rlPhaseEnd
+
+        ##### Adding a cert as an CA_auditorV #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0022: Adding a cert as CA_auditorV"
+        k=22
+        local userid="new_user2"
+        local userFullname="New User2"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_auditorV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0022.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_auditorV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0022.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0022.out 2>&1" \
+                            1 \
+                            "Cert is added to the user $userid"
+
+rlPhaseEnd
+
 
 #===Deleting users===#
 rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
@@ -820,12 +885,12 @@ generate_cert_cert_add()
 
                 #Agent Approve the certificate after reviewing the cert for the user
                 rlLog "Executing: pki -d $CERTDB_DIR/ \
-                                      -n \"$admin_cert_nickname\" \
+                                      -n CA_agentV \
                                       -c $CERTDB_DIR_PASSWORD \
                                       -t ca \
                                       cert-request-review --action=approve $requestid"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n \"$admin_cert_nickname\" \
+                           -n CA_agentV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                            cert-request-review --action=approve $requestid > $TmpDir/pki_user_cert_add_CA_certapprove_00$file_no$num$ext" \
