@@ -86,13 +86,18 @@ var UserCollection = Collection.extend({
     }
 });
 
-var UserDialog = Dialog.extend({
+var UserPage = EntryPage.extend({
+    initialize: function(options) {
+        var self = this;
+        UserPage.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
     loadField: function(input) {
         var self = this;
 
         var name = input.attr("name");
         if (name != "tpsProfiles") {
-            UserDialog.__super__.loadField.call(self, input);
+            UserPage.__super__.loadField.call(self, input);
             return;
         }
 
@@ -107,7 +112,7 @@ var UserDialog = Dialog.extend({
 
         var name = input.attr("name");
         if (name != "tpsProfiles") {
-            UserDialog.__super__.saveField.call(self, input);
+            UserPage.__super__.saveField.call(self, input);
             return;
         }
 
@@ -117,32 +122,59 @@ var UserDialog = Dialog.extend({
             self.entry.attributes = attributes;
         }
         attributes.tpsProfiles = input.val();
+    },
+    close: function() {
+        var self = this;
+        if (self.parentPage) {
+            self.parentPage.open();
+        } else {
+            UserPage.__super__.close.call(self);
+        }
     }
 });
 
-var UserPage = Page.extend({
+var UsersTable = ModelTable.extend({
+    initialize: function(options) {
+        var self = this;
+        UsersTable.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    open: function(item, column) {
+        var self = this;
+
+        var page = new UserPage({
+            el: self.parentPage.$el,
+            url: "user.html",
+            model: self.collection.get(item.entry.id),
+            editable: ["fullName", "email", "tpsProfiles"]
+        });
+
+        page.open();
+    },
+    add: function() {
+        var self = this;
+
+        var page = new UserPage({
+            el: self.parentPage.$el,
+            url: "user.html",
+            model: new UserModel(),
+            mode: "add",
+            editable: ["userID", "fullName", "email", "tpsProfiles"],
+            parentPage: self.parentPage
+        });
+
+        page.open();
+    }
+});
+
+var UsersPage = Page.extend({
     load: function() {
         var self = this;
 
-        var addDialog = new UserDialog({
-            el: $("#user-dialog"),
-            title: "Add User",
-            readonly: ["type"],
-            actions: ["cancel", "add"]
-        });
-
-        var editDialog = new UserDialog({
-            el: $("#user-dialog"),
-            title: "Edit User",
-            readonly: ["userID", "type"],
-            actions: ["cancel", "save"]
-        });
-
-        var table = new ModelTable({
+        var table = new UsersTable({
             el: $("table[name='users']"),
             collection: new UserCollection(),
-            addDialog: addDialog,
-            editDialog: editDialog
+            parentPage: self
         });
 
         table.render();

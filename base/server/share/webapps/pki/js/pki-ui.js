@@ -1024,10 +1024,10 @@ var EntryPage = Page.extend({
 
         self.$(".pki-fields input").each(function(index) {
             var input = $(this);
-            self.renderField(input);
+            self.loadField(input);
         });
     },
-    renderField: function(input) {
+    loadField: function(input) {
         var self = this;
         var name = input.attr("name");
         var value = self.entry[name];
