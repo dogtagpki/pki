@@ -1,0 +1,83 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2014 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<div class="pki-header">
+
+<span class="pki-title">Token <span name="id"></span></span>
+
+<span class="pki-actions">
+
+<span class="pki-menu" style="display: none;">
+<a name="edit" href="#">Edit</a><br>
+<a name="changeStatus" href="#">Change Status</a><br>
+</span>
+
+<span class="pki-buttons" style="display: none;">
+<button name="cancel">Cancel</button>
+<button name="save" class="primary">Save</button>
+</span>
+
+</span>
+
+</div>
+
+<div name="token" class="pki-fields">
+<fieldset>
+    <label>Token ID</label>
+    <input name="tokenID" readonly="readonly"><br>
+    <label>User ID</label>
+    <input name="userID" readonly="readonly"><br>
+    <label>Type</label>
+    <input name="type" readonly="readonly"><br>
+    <label>Status</label>
+    <input name="statusLabel" readonly="readonly"><br>
+    <label>Applet ID</label>
+    <input name="appletID" readonly="readonly"><br>
+    <label>Key Info</label>
+    <input name="keyInfo" readonly="readonly"><br>
+    <label>Created</label>
+    <input name="createTimestamp" readonly="readonly"><br>
+    <label>Modified</label>
+    <input name="modifyTimestamp" readonly="readonly"><br>
+</fieldset>
+</div>
+
+<div id="token-status-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Change Token Status</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Token ID</label>
+            <input name="tokenID" readonly="readonly"><br>
+            <label>Status</label>
+            <select name="status">
+            <option value="UNINITIALIZED">Uninitialized</option>
+            <option value="ACTIVE">Active</option>
+            <option value="TEMP_LOST">Temporarily lost</option>
+            <option value="PERM_LOST">Permanently lost</option>
+            <option value="DAMAGED">Physically damaged</option>
+            <option value="TERMINATED">Terminated</option>
+            </select><br>
+        </fieldset>
+        <footer>
+            <button name="save" class="primary">Save</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>

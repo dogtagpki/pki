@@ -107,6 +107,7 @@ var ProfileMappingsTable = ModelTable.extend({
             url: "profile-mapping.html",
             model: new ProfileMappingModel(),
             mode: "add",
+            editable: ["profileMappingID"],
             parentPage: self.parentPage
         });
 

@@ -97,29 +97,113 @@ var TokenCollection = Collection.extend({
     }
 });
 
-var TokenTableItem = TableItem.extend({
+var TokenPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
-        PropertiesTableItem.__super__.initialize.call(self, options);
+        TokenPage.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
     },
-    open: function(td) {
+    setup: function() {
         var self = this;
 
-        var name = td.attr("name");
-        if (name != "status") {
-            TokenTableItem.__super__.open.call(self, td);
+        TokenPage.__super__.setup.call(self);
+
+        self.changeStatusLink = $("a[name='changeStatus']", self.menu);
+
+        self.changeStatusLink.click(function(e) {
+
+            var dialog = new Dialog({
+                el: $("#token-status-dialog"),
+                title: "Change Token Status",
+                readonly: ["tokenID"],
+                actions: ["cancel", "save"]
+            });
+
+            dialog.entry = _.clone(self.model.attributes);
+
+            dialog.handler("save", function() {
+
+                // save changes
+                dialog.save();
+
+                // check if the status was changed
+                if (dialog.entry.status != self.model.attributes.status) {
+
+                    self.model.changeStatus({
+                        status: dialog.entry.status,
+                        success: function(data, textStatus, jqXHR) {
+                            self.render();
+                        },
+                        error: function(jqXHR, textStatus, errorThrow) {
+                            new ErrorDialog({
+                                el: $("#error-dialog"),
+                                title: "HTTP Error " + jqXHR.responseJSON.Code,
+                                content: jqXHR.responseJSON.Message
+                            }).open();
+                        }
+                    });
+                }
+
+                dialog.close();
+            });
+
+            dialog.open();
+        });
+    },
+    renderContent: function() {
+        var self = this;
+
+        TokenPage.__super__.renderContent.call(self);
+
+        if (self.mode == "add") {
+            self.changeStatusLink.hide();
+        } else {
+            self.changeStatusLink.show();
+        }
+    },
+    close: function() {
+        var self = this;
+        if (self.parentPage) {
+            self.parentPage.open();
+        } else {
+            TokenPage.__super__.close.call(self);
+        }
+    }
+});
+
+var TokensTable = ModelTable.extend({
+    initialize: function(options) {
+        var self = this;
+        TokensTable.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    open: function(item, column) {
+        var self = this;
+
+        var model = self.collection.get(item.entry.id);
+
+        if (column == "id") {
+            var page = new TokenPage({
+                el: self.parentPage.$el,
+                url: "token.html",
+                model: model,
+                editable: ["userID", "type", "appletID", "keyInfo"]
+            });
+
+            page.open();
+
             return;
         }
 
         var dialog = new Dialog({
-            el: $("#token-state-dialog"),
-            title: "Change Token State",
+            el: $("#token-status-dialog"),
+            title: "Change Token Status",
             readonly: ["tokenID", "userID", "type",
                 "appletID", "keyInfo", "createTimestamp", "modifyTimestamp"],
             actions: ["cancel", "save"]
         });
 
-        dialog.entry = _.clone(self.entry);
+        dialog.entry = _.clone(model.attributes);
 
         dialog.handler("save", function() {
 
@@ -127,13 +211,12 @@ var TokenTableItem = TableItem.extend({
             dialog.save();
 
             // check if the status was changed
-            if (self.entry.status != dialog.entry.status) {
+            if (dialog.entry.status != model.attributes.status) {
 
-                var model = self.table.collection.get(self.entry.id);
                 model.changeStatus({
                     status: dialog.entry.status,
                     success: function(data, textStatus, jqXHR) {
-                        self.table.render();
+                        self.render();
                     },
                     error: function(jqXHR, textStatus, errorThrow) {
                         new ErrorDialog({
@@ -149,33 +232,31 @@ var TokenTableItem = TableItem.extend({
         });
 
         dialog.open();
+    },
+    add: function() {
+        var self = this;
+
+        var page = new TokenPage({
+            el: self.parentPage.$el,
+            url: "token.html",
+            model: new TokenModel(),
+            mode: "add",
+            editable: ["tokenID", "userID", "type", "appletID", "keyInfo"],
+            parentPage: self.parentPage
+        });
+
+        page.open();
     }
 });
 
-var TokenPage = Page.extend({
+var TokensPage = Page.extend({
     load: function() {
         var self = this;
 
-        var addDialog = new Dialog({
-            el: $("#token-dialog"),
-            title: "Add Token",
-            readonly: ["statusLabel", "createTimestamp", "modifyTimestamp"],
-            actions: ["cancel", "add"]
-        });
-
-        var editDialog = new Dialog({
-            el: $("#token-dialog"),
-            title: "Edit Token",
-            readonly: ["tokenID", "statusLabel", "createTimestamp", "modifyTimestamp"],
-            actions: ["cancel", "save"]
-        });
-
-        var table = new ModelTable({
+        var table = new TokensTable({
             el: $("table[name='tokens']"),
             collection: new TokenCollection(),
-            addDialog: addDialog,
-            editDialog: editDialog,
-            tableItem: TokenTableItem
+            parentPage: self
         });
 
         table.render();

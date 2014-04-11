@@ -88,7 +88,7 @@ var ProfilesTable = ModelTable.extend({
         ProfilesTable.__super__.initialize.call(self, options);
         self.parentPage = options.parentPage;
     },
-    open: function(item) {
+    open: function(item, column) {
         var self = this;
 
         var page = new EntryWithPropertiesPage({
@@ -107,6 +107,7 @@ var ProfilesTable = ModelTable.extend({
             url: "profile.html",
             model: new ProfileModel(),
             mode: "add",
+            editable: ["profileID"],
             parentPage: self.parentPage
         });
 

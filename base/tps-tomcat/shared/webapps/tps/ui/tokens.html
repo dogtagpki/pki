@@ -81,41 +81,19 @@
 </tfoot>
 </table>
 
-<div id="token-dialog" class="rcue-dialog-background">
-    <div class="rcue-dialog">
-        <header>
-            <h1>Token</h1>
-            <a class="rcue-button-close" href="#"></a>
-        </header>
-        <fieldset>
-            <label>Token ID</label><input name="tokenID" type="text"><br>
-            <label>User ID</label><input name="userID" type="text"><br>
-            <label>Type</label><input name="type" type="text"><br>
-            <label>Status</label><input name="statusLabel" type="text"><br>
-            <label>Applet ID</label><input name="appletID" type="text"><br>
-            <label>Key Info</label><input name="keyInfo" type="text"><br>
-            <label>Created</label><input name="createTimestamp" type="text"><br>
-            <label>Modified</label><input name="modifyTimestamp" type="text"><br>
-        </fieldset>
-        <footer>
-            <button name="add" class="primary">Add</button>
-            <button name="save" class="primary">Save</button>
-            <button name="remove" class="primary">Remove</button>
-            <button name="cancel">Cancel</button>
-        </footer>
-    </div>
-</div>
-
-<div id="token-state-dialog" class="rcue-dialog-background">
+<div id="token-status-dialog" class="rcue-dialog-background">
     <div class="rcue-dialog">
         <header>
             <h1>Change Token Status</h1>
             <a class="rcue-button-close" href="#"></a>
         </header>
         <fieldset>
-            <label>Token ID</label><input name="tokenID" type="text"><br>
-            <label>User ID</label><input name="userID" type="text"><br>
-            <label>Type</label><input name="type" type="text"><br>
+            <label>Token ID</label>
+            <input name="tokenID" readonly="readonly"><br>
+            <label>User ID</label>
+            <input name="userID" readonly="readonly"><br>
+            <label>Type</label>
+            <input name="type" readonly="readonly"><br>
             <label>Status</label>
             <select name="status">
             <option value="UNINITIALIZED">Uninitialized</option>
@@ -125,10 +103,14 @@
             <option value="DAMAGED">Physically damaged</option>
             <option value="TERMINATED">Terminated</option>
             </select><br>
-            <label>Applet ID</label><input name="appletID" type="text"><br>
-            <label>Key Info</label><input name="keyInfo" type="text"><br>
-            <label>Created</label><input name="createTimestamp" type="text"><br>
-            <label>Modified</label><input name="modifyTimestamp" type="text"><br>
+            <label>Applet ID</label>
+            <input name="appletID" readonly="readonly"><br>
+            <label>Key Info</label>
+            <input name="keyInfo" readonly="readonly"><br>
+            <label>Created</label>
+            <input name="createTimestamp" readonly="readonly"><br>
+            <label>Modified</label>
+            <input name="modifyTimestamp" readonly="readonly"><br>
         </fieldset>
         <footer>
             <button name="save" class="primary">Save</button>

@@ -107,6 +107,7 @@ var ConnectionsTable = ModelTable.extend({
             url: "connection.html",
             model: new ConnectionModel(),
             mode: "add",
+            editable: ["connectionID"],
             parentPage: self.parentPage
         });
 

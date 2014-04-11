@@ -107,6 +107,7 @@ var AuthenticatorsTable = ModelTable.extend({
             url: "authenticator.html",
             model: new AuthenticatorModel(),
             mode: "add",
+            editable: ["authenticatorID"],
             parentPage: self.parentPage
         });
 

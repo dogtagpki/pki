@@ -473,13 +473,14 @@ var TableItem = Backbone.View.extend({
 
         // add link handler
         $("a", td).click(function(e) {
-            self.open(td);
             e.preventDefault();
+            self.open(td);
         });
     },
     open: function(td) {
         var self = this;
-        self.table.open(self);
+        var column = td.attr("name");
+        self.table.open(self, column);
     }
 });
 
@@ -985,12 +986,6 @@ var EntryPage = Page.extend({
             // Use blank entry.
             self.entry = {};
 
-            // All fields are editable.
-            self.$(".pki-fields input").each(function(index) {
-                var input = $(this);
-                input.removeAttr("readonly");
-            });
-
         } else {
             // Use fetched entry.
             self.entry = _.clone(self.model.attributes);
@@ -998,33 +993,32 @@ var EntryPage = Page.extend({
             // Show entry ID in the title.
             self.$("span[name='id']").text(self.entry.id);
 
-            if (self.mode == "edit") {
-                // Show editable fields.
-                self.$(".pki-fields input").each(function(index) {
-                    var input = $(this);
-                    var name = input.attr("name");
-                    if (_.contains(self.editable, name)) {
-                        input.removeAttr("readonly");
-                    } else {
-                        input.attr("readonly", "readonly");
-                    }
-                });
-
-            } else { // self.mode == "view"
-                // All fields are read-only.
-                self.$(".pki-fields input").each(function(index) {
-                    var input = $(this);
-                    input.attr("readonly", "readonly");
-                });
-            }
         }
 
         if (self.mode == "view") {
-            self.menu.show();
+            // All fields are read-only.
+            self.$(".pki-fields input").each(function(index) {
+                var input = $(this);
+                input.attr("readonly", "readonly");
+            });
+
             self.buttons.hide();
+            self.menu.show();
 
         } else {
             self.menu.hide();
+
+            // Show editable fields.
+            self.$(".pki-fields input").each(function(index) {
+                var input = $(this);
+                var name = input.attr("name");
+                if (_.contains(self.editable, name)) {
+                    input.removeAttr("readonly");
+                } else {
+                    input.attr("readonly", "readonly");
+                }
+            });
+
             self.buttons.show();
         }
 
