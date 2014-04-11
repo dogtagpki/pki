@@ -72,21 +72,49 @@ var CertificateCollection = Collection.extend({
     }
 });
 
-var CertificatePage = Page.extend({
+var CertificatePage = EntryPage.extend({
+    initialize: function(options) {
+        var self = this;
+        CertificatePage.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    close: function() {
+        var self = this;
+        if (self.parentPage) {
+            self.parentPage.open();
+        } else {
+            CertificatePage.__super__.close.call(self);
+        }
+    }
+});
+
+var CertificatesTable = ModelTable.extend({
+    initialize: function(options) {
+        var self = this;
+        CertificatesTable.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    open: function(item, column) {
+        var self = this;
+
+        var page = new CertificatePage({
+            el: self.parentPage.$el,
+            url: "cert.html",
+            model: self.collection.get(item.entry.id)
+        });
+
+        page.open();
+    }
+});
+
+var CertificatesPage = Page.extend({
     load: function() {
         var self = this;
 
-        var editDialog = new Dialog({
-            el: $("#certificate-dialog"),
-            title: "Edit Certificate",
-            readonly: ["id", "serialNumber", "subject", "tokenID", "userID",
-            "keyType", "status", "createTime", "modifyTime"]
-        });
-
-        var table = new ModelTable({
+        var table = new CertificatesTable({
             el: $("table[name='certificates']"),
             collection: new CertificateCollection(),
-            editDialog: editDialog
+            parentPage: self
         });
 
         table.render();
