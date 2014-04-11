@@ -55,28 +55,64 @@ var GroupCollection = Collection.extend({
     }
 });
 
-var GroupPage = Page.extend({
+var GroupPage = EntryPage.extend({
+    initialize: function(options) {
+        var self = this;
+        GroupPage.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    close: function() {
+        var self = this;
+        if (self.parentPage) {
+            self.parentPage.open();
+        } else {
+            GroupPage.__super__.close.call(self);
+        }
+    }
+});
+
+var GroupsTable = ModelTable.extend({
+    initialize: function(options) {
+        var self = this;
+        GroupsTable.__super__.initialize.call(self, options);
+        self.parentPage = options.parentPage;
+    },
+    open: function(item, column) {
+        var self = this;
+
+        var page = new GroupPage({
+            el: self.parentPage.$el,
+            url: "group.html",
+            model: self.collection.get(item.entry.id),
+            editable: ["description"]
+        });
+
+        page.open();
+    },
+    add: function() {
+        var self = this;
+
+        var page = new GroupPage({
+            el: self.parentPage.$el,
+            url: "group.html",
+            model: new GroupModel(),
+            mode: "add",
+            editable: ["groupID", "description"],
+            parentPage: self.parentPage
+        });
+
+        page.open();
+    }
+});
+
+var GroupsPage = Page.extend({
     load: function() {
         var self = this;
 
-        var addDialog = new Dialog({
-            el: $("#group-dialog"),
-            title: "Add Group",
-            actions: ["cancel", "add"]
-        });
-
-        var editDialog = new Dialog({
-            el: $("#group-dialog"),
-            title: "Edit Group",
-            readonly: ["groupID"],
-            actions: ["cancel", "save"]
-        });
-
-        var table = new ModelTable({
+        var table = new GroupsTable({
             el: $("table[name='groups']"),
             collection: new GroupCollection(),
-            addDialog: addDialog,
-            editDialog: editDialog
+            parentPage: self
         });
 
         table.render();
