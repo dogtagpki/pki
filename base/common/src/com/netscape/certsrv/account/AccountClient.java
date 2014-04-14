@@ -41,10 +41,20 @@ public class AccountClient extends Client {
         resource = createProxy(AccountResource.class);
     }
 
-    public void login() {
+    public AccountInfo login() {
         Response response = resource.login();
-        client.getEntity(response, Void.class);
+        AccountInfo info = client.getEntity(response, AccountInfo.class);
         loggedIn = true;
+
+        if (client.verbose) {
+            System.out.println("Account:");
+            System.out.println(" - User ID: " + info.getID());
+            System.out.println(" - Full Name: " + info.getFullName());
+            System.out.println(" - Email: " + info.getEmail());
+            System.out.println(" - Roles: " + info.getRoles());
+        }
+
+        return info;
     }
 
     public void logout() {

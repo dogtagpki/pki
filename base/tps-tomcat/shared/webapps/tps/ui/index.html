@@ -42,6 +42,17 @@
     <script>
 $(function() {
 
+    var account = new Account();
+    account.login({
+        success: function(data, textStatus, jqXHR) {
+            var user = $("#user");
+            user.text(data.FullName);
+        },
+        error: function() {
+            window.location.href = "/tps";
+        }
+    });
+
     var content = $("#content");
 
     var router = new Backbone.Router();
@@ -305,7 +316,6 @@ $(function() {
     });
 
     router.route("logout", "logout", function() {
-        var account = new Account();
         account.logout({
             success: function() {
                 if (window.crypto) window.crypto.logout();
@@ -341,7 +351,7 @@ $(function() {
     <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
         <span class="rcueicon rcueicon-user"></span>
-        Administrator<b class="caret"></b>
+        <span id="user"></span><b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
         <li><a href="#logout">Logout</a></li>

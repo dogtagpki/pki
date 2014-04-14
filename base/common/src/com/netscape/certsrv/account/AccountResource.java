@@ -36,7 +36,7 @@ public interface AccountResource {
 
     @GET
     @Path("login")
-    @ClientResponseType(entityType=Void.class)
+    @ClientResponseType(entityType=AccountInfo.class)
     @ACLMapping("account.login")
     public Response login();
 

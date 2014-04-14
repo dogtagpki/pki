@@ -113,7 +113,7 @@ public class PKIRealm extends RealmBase {
 
     protected Principal getPrincipal(IUser user, IAuthToken authToken) throws EUsrGrpException {
         List<String> roles = getRoles(user);
-        return new PKIPrincipal(user.getUserID(), null, roles, authToken);
+        return new PKIPrincipal(user, null, roles, authToken);
     }
 
     protected IUser getUser(String username) throws EUsrGrpException {

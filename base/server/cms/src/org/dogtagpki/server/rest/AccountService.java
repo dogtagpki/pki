@@ -19,6 +19,7 @@
 package org.dogtagpki.server.rest;
 
 import java.security.Principal;
+import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -28,7 +29,12 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.netscape.certsrv.account.AccountInfo;
 import com.netscape.certsrv.account.AccountResource;
+import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
@@ -56,7 +62,25 @@ public class AccountService extends PKIService implements AccountResource {
         Principal principal = servletRequest.getUserPrincipal();
         System.out.println("Principal: "+principal);
 
-        return createNoContentResponse();
+        AccountInfo response = new AccountInfo();
+        String name = principal.getName();
+        response.setID(name);
+
+        if (principal instanceof PKIPrincipal) {
+            PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
+            IUser user = pkiPrincipal.getUser();
+
+            String fullName = user.getFullName();
+            if (!StringUtils.isEmpty(fullName)) response.setFullName(fullName);
+
+            String email = user.getEmail();
+            if (!StringUtils.isEmpty(email)) response.setEmail(email);
+
+            String[] roles = pkiPrincipal.getRoles();
+            response.setRoles(Arrays.asList(roles));
+        }
+
+        return createOKResponse(response);
     }
 
     @Override

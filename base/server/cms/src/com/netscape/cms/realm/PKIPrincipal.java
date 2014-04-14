@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.catalina.realm.GenericPrincipal;
 
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.usrgrp.IUser;
 
 /**
  * @author Endi S. Dewata
@@ -12,15 +13,17 @@ import com.netscape.certsrv.authentication.IAuthToken;
 
 public class PKIPrincipal extends GenericPrincipal {
 
+    IUser user;
     IAuthToken authToken;
 
-    public PKIPrincipal(String name, String password, List<String> roles, IAuthToken authToken) {
-        super(name, password, roles);
+    public PKIPrincipal(IUser user, String password, List<String> roles, IAuthToken authToken) {
+        super(user.getUserID(), password, roles);
+        this.user = user;
         this.authToken = authToken;
     }
 
-    public PKIPrincipal(String name, String password, List<String> roles) {
-        this(name, password, roles, null);
+    public IUser getUser() {
+        return user;
     }
 
     public IAuthToken getAuthToken() {

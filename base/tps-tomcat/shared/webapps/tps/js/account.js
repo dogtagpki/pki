@@ -24,7 +24,7 @@ function Account() {
     this.url = "/tps/rest/account";
 
     this.login = function(options) {
-        var jqxhr = $.get(this.url + "/login");
+        var jqxhr = $.get(this.url + "/login", null, null, "json");
         jqxhr.done(options.success);
         jqxhr.fail(options.error);
     };
