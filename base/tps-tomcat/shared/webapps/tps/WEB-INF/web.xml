@@ -92,6 +92,11 @@
     </servlet>
 
     <servlet>
+     <servlet-name>phoneHome</servlet-name>
+     <servlet-class>org.dogtagpki.server.tps.TPSPhoneHome</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>tps</servlet-name>
         <servlet-class>org.dogtagpki.server.tps.TPSServlet</servlet-class>
     </servlet>
@@ -152,6 +157,11 @@
     <servlet-mapping>
         <servlet-name>tpsGetStatus</servlet-name>
         <url-pattern>/admin/tps/getStatus</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>phoneHome</servlet-name>
+        <url-pattern>/phoneHome</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

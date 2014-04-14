@@ -92,6 +92,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.master_dict['pki_target_proxy_conf'])
                 deployer.file.apply_slot_substitution(
                     deployer.master_dict['pki_target_profileselect_template'])
+            elif deployer.master_dict['pki_subsystem'] == "TPS":
+                deployer.file.copy_with_slot_substitution(
+                    deployer.master_dict['pki_source_phone_home_xml'],
+                    deployer.master_dict['pki_target_phone_home_xml'])
         return self.rv
 
     def destroy(self, deployer):

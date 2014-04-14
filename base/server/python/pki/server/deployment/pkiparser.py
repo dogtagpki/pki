@@ -711,6 +711,12 @@ class PKIConfigParser:
                         os.path.join(self.pki_master_dict\
                                      ['pki_subsystem_configuration_path'],
                                      "transportCert.profile")
+                elif self.pki_master_dict['pki_subsystem'] == "TPS":
+                    self.pki_master_dict['pki_target_phone_home_xml'] = \
+                        os.path.join(
+                            self.pki_master_dict['pki_subsystem_configuration_path'],
+                            "phoneHome.xml")
+
             # Slot assignment name/value pairs
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
             self.pki_master_dict['PKI_INSTANCE_NAME_SLOT'] = \
