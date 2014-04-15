@@ -66,6 +66,8 @@ public class PKIService {
 
     public static MediaType resolveFormat(MediaType format) {
 
+        if (format == null) return null;
+
         for (MediaType supportedFormat : MESSAGE_FORMATS) {
             if (format.isCompatible(supportedFormat)) return supportedFormat;
         }
@@ -74,6 +76,8 @@ public class PKIService {
     }
 
     public static MediaType resolveFormat(List<MediaType> formats) {
+
+        if (formats == null) return null;
 
         for (MediaType acceptableFormat : formats) {
             MediaType supportedFormat = resolveFormat(acceptableFormat);
@@ -84,7 +88,22 @@ public class PKIService {
     }
 
     public MediaType getResponseFormat() {
-        MediaType responseFormat = resolveFormat(headers.getAcceptableMediaTypes());
+        MediaType contentType = headers.getMediaType();
+        List<MediaType> acceptableFormats = headers.getAcceptableMediaTypes();
+
+        MediaType responseFormat;
+        if (acceptableFormats == null || acceptableFormats.isEmpty()) {
+            // if the Accept header is missing
+            if (contentType == null) {
+                // and if the Content-type header is missing, use the default format
+                responseFormat = PKIService.MESSAGE_FORMATS.get(0);
+            } else {
+                // otherwise, use the Content-type header
+                responseFormat = resolveFormat(contentType);
+            }
+        } else {
+            responseFormat = resolveFormat(acceptableFormats);
+        }
         if (responseFormat == null) throw new PKIException(Response.Status.NOT_ACCEPTABLE);
         return responseFormat;
     }

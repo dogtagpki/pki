@@ -51,27 +51,36 @@ public class MessageFormatInterceptor implements ContainerRequestFilter {
         MediaType contentType = requestContext.getMediaType();
         CMS.debug("MessageFormatInterceptor: content-type: " + contentType);
 
+        List<MediaType> acceptableFormats = requestContext.getAcceptableMediaTypes();
+        CMS.debug("MessageFormatInterceptor: accept: " + acceptableFormats);
+
+        MediaType requestFormat = null;
         if (contentType != null) {
-            MediaType requestFormat = PKIService.resolveFormat(contentType);
+            requestFormat = PKIService.resolveFormat(contentType);
+            CMS.debug("MessageFormatInterceptor: request format: " + requestFormat);
 
             if (requestFormat == null) {
                 throw new WebApplicationException(Response.Status.UNSUPPORTED_MEDIA_TYPE);
             }
-
-            CMS.debug("MessageFormatInterceptor: request format: " + requestFormat);
         }
 
-        List<MediaType> acceptableFormats = requestContext.getAcceptableMediaTypes();
-        CMS.debug("MessageFormatInterceptor: acceptable formats: " + acceptableFormats);
-
-        if (acceptableFormats != null) {
-            MediaType responseFormat = PKIService.resolveFormat(acceptableFormats);
-
-            if (responseFormat == null) {
-                throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        MediaType responseFormat;
+        if (acceptableFormats == null || acceptableFormats.isEmpty()) {
+            // if the Accept header is missing
+            if (contentType == null) {
+                // and if the Content-type header is missing, use the default format
+                responseFormat = PKIService.MESSAGE_FORMATS.get(0);
+            } else {
+                // otherwise, use the Content-type header
+                responseFormat = requestFormat;
             }
+        } else {
+            responseFormat = PKIService.resolveFormat(acceptableFormats);
+        }
+        CMS.debug("MessageFormatInterceptor: response format: " + responseFormat);
 
-            CMS.debug("MessageFormatInterceptor: response format: " + responseFormat);
+        if (responseFormat == null) {
+            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
         }
     }
 }
