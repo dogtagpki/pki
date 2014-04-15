@@ -827,7 +827,9 @@ var ModelTable = Table.extend({
         var self = this;
 
         var dialog = self.addDialog;
-        dialog.entry = {};
+
+        var model = self.collection.model.call(self.collection);
+        dialog.entry = _.clone(model.attributes);
 
         dialog.handler("add", function() {
 
@@ -840,7 +842,6 @@ var ModelTable = Table.extend({
             });
 
             // save new entry with POST
-            var model = new self.collection.model();
             model.save(entry, {
                 wait: true,
                 success: function(model, response, options) {

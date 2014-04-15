@@ -377,18 +377,11 @@ public class GroupService extends PKIService implements GroupResource {
     }
 
     @Override
-    public Response addGroupMember(String groupID, String memberID) {
-
+    public Response addGroupMember(String groupID, GroupMemberData groupMemberData) {
         if (groupID == null) throw new BadRequestException("Group ID is null.");
-        if (memberID == null) throw new BadRequestException("Member ID is null.");
-
-        GroupMemberData groupMemberData = new GroupMemberData();
-        groupMemberData.setID(memberID);
+        if (groupMemberData.getID() == null) throw new BadRequestException("Member ID is null.");
         groupMemberData.setGroupID(groupID);
-        return addGroupMember(groupMemberData);
-    }
 
-    public Response addGroupMember(GroupMemberData groupMemberData) {
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);

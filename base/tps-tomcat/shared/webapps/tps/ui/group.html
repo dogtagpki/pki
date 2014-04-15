@@ -47,3 +47,73 @@
     <input name="description" readonly="readonly"><br>
 </fieldset>
 </div>
+
+<h2>Members</h2>
+
+<table name="members">
+<thead>
+    <tr>
+         <th class="pki-table-actions" colspan="2">
+             <span name="search">
+                 <input name="search" type="text" placeholder="Search...">
+             </span>
+             <span class="pki-table-buttons">
+                 <button name="add">Add</button>
+                 <button name="remove">Remove</button>
+             </span>
+         </th>
+    </tr>
+    <tr>
+        <th class="pki-select-column"><input id="members_selectall" type="checkbox"><label for="members_selectall">&nbsp;</label></th>
+        <th>User ID</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td class="pki-select-column"><input id="members_select" type="checkbox"><label for="members_select">&nbsp;</label></td>
+        <td name="id">${id}</td>
+    </tr>
+</tbody>
+<tfoot>
+    <tr>
+         <th class="pki-table-actions" colspan="2">
+             <div class="pki-table-info">
+                 Total: <span name="totalEntries">0</span> entries
+             </div>
+             <div class="pki-page-controls">
+                 <ul class="pagination">
+                     <li><a href="#" name="first"><span class="i fa fa-angle-double-left"></span></a></li>
+                     <li><a href="#" name="prev"><span class="i fa fa-angle-left"></span></a></li>
+                 </ul>
+                 <span class="pki-page-jump">
+                     <input name="page" type="text" value="1"> of <span name="totalPages">1</span>
+                 </span>
+                 <ul class="pagination">
+                     <li><a href="#" name="next"><span class="i fa fa-angle-right"></span></a></li>
+                     <li><a href="#" name="last"><span class="i fa fa-angle-double-right"></span></a></li>
+                 </ul>
+             </div>
+         </th>
+    </tr>
+</tfoot>
+</table>
+
+<div id="member-dialog" class="rcue-dialog-background">
+    <div class="rcue-dialog">
+        <header>
+            <h1>Group Member</h1>
+            <a class="rcue-button-close" href="#"></a>
+        </header>
+        <fieldset>
+            <label>Group ID</label>
+            <input name="groupID" readonly="readonly"><br>
+            <label>User ID</label>
+            <input name="memberID" readonly="readonly"><br>
+        </fieldset>
+        <footer>
+            <button name="add" class="primary">Add</button>
+            <button name="close" class="primary">Close</button>
+            <button name="cancel">Cancel</button>
+        </footer>
+    </div>
+</div>

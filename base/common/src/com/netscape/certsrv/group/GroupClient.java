@@ -76,7 +76,9 @@ public class GroupClient extends Client {
     }
 
     public GroupMemberData addGroupMember(String groupID, String memberID) {
-        Response response = groupClient.addGroupMember(groupID, memberID);
+        GroupMemberData data = new GroupMemberData();
+        data.setID(memberID);
+        Response response = groupClient.addGroupMember(groupID, data);
         return client.getEntity(response, GroupMemberData.class);
     }
 

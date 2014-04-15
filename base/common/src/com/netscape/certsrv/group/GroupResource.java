@@ -77,7 +77,7 @@ public interface GroupResource {
     @POST
     @Path("{groupID}/members")
     @ClientResponseType(entityType=GroupMemberData.class)
-    public Response addGroupMember(@PathParam("groupID") String groupID, String memberID);
+    public Response addGroupMember(@PathParam("groupID") String groupID, GroupMemberData groupMemberData);
 
     @GET
     @Path("{groupID}/members/{memberID}")
