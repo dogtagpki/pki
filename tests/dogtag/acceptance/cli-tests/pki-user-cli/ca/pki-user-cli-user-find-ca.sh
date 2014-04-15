@@ -36,6 +36,7 @@
 . /usr/bin/rhts-environment.sh
 . /usr/share/beakerlib/beakerlib.sh
 . /opt/rhqa_pki/rhcs-shared.sh
+. /opt/rhqa_pki/pki-cert-cli-lib.sh
 . /opt/rhqa_pki/env.sh
 
 ########################################################################
@@ -181,11 +182,11 @@ run_pki-user-cli-user-find-ca_tests(){
         rlAssertGrep "NumberFormatException: For input string: \"$size_noninteger\"" "$TmpDir/pki-user-find-ca-005.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-010: Find users, check for no input --size= "
+    rlPhaseStartTest "pki_user_cli_user_find-ca-010: Find users, check for no input --size="
         rlRun "pki -d $CERTDB_DIR \
                         -n \"CA_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
-                                user-find --size=  > $TmpDir/pki-user-find-ca-006.out 2>&1" \
+                        -c $CERTDB_DIR_PASSWORD \
+                         user-find --size=  > $TmpDir/pki-user-find-ca-006.out 2>&1" \
                          1 \
                         "No users returned, as --size= "
         rlAssertGrep "NumberFormatException: For input string: \"""\"" "$TmpDir/pki-user-find-ca-006.out"
@@ -349,6 +350,179 @@ run_pki-user-cli-user-find-ca_tests(){
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-user-find-ca-0014.out"
     rlPhaseEnd
 
+    rlPhaseStartTest "pki_user_cli_user_find-ca-021: Should not be able to find user using a revoked cert CA_adminR"
+        rlLog "Executing: pki -d $CERTDB_DIR \
+                   -n CA_adminR \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminR \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-revoke-adminR-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using a revoked admin cert"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-revoke-adminR-002.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-022: Should not be able to find users using an agent with revoked cert CA_agentR"
+        rlLog "Executing: pki -d $CERTDB_DIR \
+                   -n CA_agentR \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_agentR \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-revoke-agentR-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using a agent having revoked cert"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-revoke-agentR-002.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-023: Should not be able to find users using a valid agent CA_agentV user"
+        rlLog "Executing: pki -d $CERTDB_DIR \
+                   -n CA_agentV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_agentV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentV-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using a agent cert"
+        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-find-ca-agentV-002.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-024: Should not be able to find users using a CA_agentR user"
+        rlLog "Executing: pki -d $CERTDB_DIR \
+                   -n CA_agentR \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_agentR \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentR-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using a revoked agent cert"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-agentR-002.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-025: Should not be able to find users using admin user with expired cert CA_adminE"
+        rlRun "date --set='next day'" 0 "Set System date a day ahead"
+	rlRun "date --set='next day'" 0 "Set System date a day ahead"
+	rlRun "date"
+        rlLog "Executing: pki -d $CERTDB_DIR \
+                   -n CA_adminE \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminE \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-adminE-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using an expired admin cert"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-adminE-002.out"
+        rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
+        rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-026: Should not be able to find users using CA_agentE cert"
+        rlRun "date --set='next day'" 0 "Set System date a day ahead"
+	rlRun "date --set='next day'" 0 "Set System date a day ahead"
+	rlRun "date"
+        rlLog "Executing: pki -d $CERTDB_DIR \
+                   -n CA_agentE \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_agentE \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentE-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using an expired agent cert"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-agentE-002.out"
+        rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
+        rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+    rlPhaseEnd
+
+     rlPhaseStartTest "pki_user_cli_user_find-ca-027: Should not be able to find users using a CA_auditV"
+        rlLog "Executing: pki -d $CERTDB_DIR \
+                   -n CA_auditV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_auditV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-auditV-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using a audit cert"
+        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-find-ca-auditV-002.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-028: Should not be able to find users using a CA_operatorV"
+        rlLog "Executing: pki -d $CERTDB_DIR \
+                   -n CA_operatorV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_operatorV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-operatorV-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using a operator cert"
+        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-find-ca-operatorV-002.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-029: Should not be able to find user using a cert created from a untrusted CA CA_adminUTCA"
+        rlLog "Executing: pki -d /tmp/untrusted_cert_db \
+                   -n CA_adminUTCA \
+                   -c Password \
+                    user-find --start=1 --size=5"
+        rlRun "pki -d /tmp/untrusted_cert_db \
+                   -n CA_adminUTCA \
+                   -c Password \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-adminUTCA-002.out 2>&1" \
+                    1 \
+                    "Should not be able to find users using a untrusted cert"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-adminUTCA-002.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-030: Should not be able to find user using a user cert"
+	#Create a user cert
+        local TEMP_NSS_DB="$TmpDir/nssdb"
+        local ret_reqstatus
+        local ret_requestid
+        local valid_serialNumber
+        local temp_out="$TmpDir/usercert-show.out"
+        rlRun "create_cert_request $TEMP_NSS_DB Password pkcs10 rsa 2048 \"pki User1\" \"pkiUser1\" \
+                \"pkiuser1@example.org\" \"Engineering\" \"Example.Inc\" "US" "--" "ret_reqstatus" "ret_requestid"" 0 "Generating  pkcs10 Certificate Request"
+        rlLog "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
+                --action approve 1"
+        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
+                --action approve 1> $TmpDir/pki-approve-out" 0 "Approve Certificate requeset"
+        rlAssertGrep "Approved certificate request $ret_requestid" "$TmpDir/pki-approve-out"
+        rlLog "pki cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+        rlRun "pki cert-request-show $ret_requestid > $TmpDir/usercert-show1.out"
+        valid_serialNumber=`cat $TmpDir/usercert-show1.out | grep 'Certificate ID' | sed 's/ //g' | cut -d: -f2`
+        rlLog "valid_serialNumber=$valid_serialNumber"
+        #Import user certs to $TEMP_NSS_DB
+        rlRun "pki cert-show $valid_serialNumber --encoded > $temp_out" 0 "command pki cert-show $valid_serialNumber --encoded"
+        rlRun "certutil -d $TEMP_NSS_DB -A -n pkiUser1 -i $temp_out  -t "u,u,u""
+	local expfile="$TmpDir/expfile_pkiuser1.out"
+        rlLog "Executing: pki -d $TEMP_NSS_DB \
+                   -n pkiUser1 \
+                   -c Password \
+                    user-find --start=1 --size=5"
+        echo "spawn -noecho pki -d $TEMP_NSS_DB -n pkiUser1 -c Password user-find --start=1 --size=5" > $expfile
+        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=qeblade3.rhq.lab.eng.bos.redhat.com,O=rhq.lab.eng.bos.redhat.com Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=rhq.lab.eng.bos.redhat.com Security Domain'
+Import CA certificate (Y/n)? \"" >> $expfile
+        echo "send -- \"Y\r\"" >> $expfile
+        echo "expect \"CA server URI \[http://$HOSTNAME:$CA_UNSECURE_PORT/ca\]: \"" >> $expfile
+        echo "send -- \"\r\"" >> $expfile
+        echo "expect eof" >> $expfile
+        rlRun "/usr/bin/expect -f $expfile >  $TmpDir/pki-user-find-ca-pkiUser1-002.out 2>&1" 1 "Should not be able to find users using a user cert"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-pkiUser1-002.out"
+    rlPhaseEnd
+
     rlPhaseStartTest "pki_user_cli_user_cleanup-021: Deleting users"
         #===Deleting users created using CA_adminV cert===#
         i=1
@@ -375,5 +549,10 @@ run_pki-user-cli-user-find-ca_tests(){
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
+
+	#Delete temporary directory
+	rlRun "popd"
+	rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 }
+
