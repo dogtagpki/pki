@@ -53,7 +53,10 @@ public class KeyArchiveCLI extends CLI {
             printHelp();
             System.exit(1);
         }
-
+        if (cmd.hasOption("help")) {
+            printHelp();
+            System.exit(1);
+        }
         String requestFile = cmd.getOptionValue("input");
 
         KeyRequestResponse response = null;

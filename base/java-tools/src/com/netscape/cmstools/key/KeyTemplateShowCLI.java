@@ -49,6 +49,11 @@ public class KeyTemplateShowCLI extends CLI {
             System.exit(-1);
         }
 
+        if (cmd.hasOption("help")) {
+            printHelp();
+            System.exit(1);
+        }
+
         String templateId = cmdArgs[0];
         String writeToFile = cmd.getOptionValue("output-file");
         String templateDir = "/usr/share/pki/key/templates/";

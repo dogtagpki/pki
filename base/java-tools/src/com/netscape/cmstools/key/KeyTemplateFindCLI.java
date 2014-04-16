@@ -6,6 +6,9 @@ import java.util.ArrayList;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
+
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.key.KeyTemplate;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
@@ -27,6 +30,20 @@ public class KeyTemplateFindCLI extends CLI {
     }
 
     public void execute(String[] args) {
+
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+
+        } catch (ParseException e) {
+            System.err.println("Error: " + e.getMessage());
+            printHelp();
+            System.exit(1);
+        }
+        if (cmd.hasOption("help")) {
+            printHelp();
+            System.exit(1);
+        }
 
         try {
             createTemplateList();

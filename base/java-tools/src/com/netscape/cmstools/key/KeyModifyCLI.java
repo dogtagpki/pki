@@ -55,6 +55,11 @@ public class KeyModifyCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            printHelp();
+            System.exit(1);
+        }
+
         String status = cmd.getOptionValue("status");
         if (status == null) {
             System.out.println("No status:: " + status);

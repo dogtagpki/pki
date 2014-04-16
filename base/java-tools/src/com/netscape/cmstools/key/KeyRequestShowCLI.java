@@ -18,6 +18,9 @@
 
 package com.netscape.cmstools.key;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
+
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.CLI;
@@ -40,6 +43,19 @@ public class KeyRequestShowCLI extends CLI {
         if (args.length != 1) {
             printHelp();
             System.exit(-1);
+        }
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+
+        } catch (ParseException e) {
+            System.err.println("Error: " + e.getMessage());
+            printHelp();
+            System.exit(1);
+        }
+        if (cmd.hasOption("help")) {
+            printHelp();
+            System.exit(1);
         }
 
         RequestId requestId = new RequestId(args[0].trim());

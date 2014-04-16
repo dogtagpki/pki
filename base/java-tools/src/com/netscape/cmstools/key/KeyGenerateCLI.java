@@ -55,6 +55,11 @@ public class KeyGenerateCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            printHelp();
+            System.exit(1);
+        }
+
         String[] cmdArgs = cmd.getArgs();
         if (cmdArgs.length < 1) {
             System.err.println("Error: Missing the Client Key Id");
