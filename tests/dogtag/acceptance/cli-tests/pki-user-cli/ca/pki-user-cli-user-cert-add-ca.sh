@@ -61,7 +61,7 @@ testname="pki_user_cert_add"
 ##### pki_user_cli_user_cert_add_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-add-configtest-001: pki user-cert-add configuration test"
         rlRun "pki user-cert-add > $TmpDir/pki_user_cert_add_cfg.out" \
-                0 \
+                1 \
                 "User cert add configuration"
         rlAssertGrep "usage: user-cert-add <User ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_add_cfg.out"
         rlAssertGrep "--input <file>   Input file" "$TmpDir/pki_user_cert_add_cfg.out"
