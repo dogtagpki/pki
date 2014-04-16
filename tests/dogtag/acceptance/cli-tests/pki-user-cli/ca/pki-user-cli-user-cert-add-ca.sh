@@ -56,6 +56,8 @@ user1=testuser1
 user2=testuser2
 user1fullname="Test user1"
 user2fullname="Test user2"
+testname="pki_user_cert_add"
+
 ##### pki_user_cli_user_cert_add_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-add-configtest-001: pki user-cert-add configuration test"
         rlRun "pki user-cert-add > $TmpDir/pki_user_cert_add_cfg.out" \
@@ -75,7 +77,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-002: Add one cert to a user shou
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$user2fullname\" $user2"
 
-        rlRun "generate_cert_cert_add $cert_info $k $user2 \"$user2fullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$user2\" \"$user2fullname\" $user2@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -84,12 +86,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-002: Add one cert to a user shou
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add_CA_validcert_002.pem"
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_002.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add_CA_validcert_002.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_002.out" \
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_002.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_002.out" \
                             0 \
                             "Cert is added to the user $user2"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_002.out"
@@ -103,15 +105,15 @@ rlPhaseEnd
 	##### Add multiple certs to a user #####
 
     rlPhaseStartTest "pki_user_cli_user_cert-add-CA-003: Add multiple certs to a user should succeed"
-        i=1
+        i=0
 	k=3
         rlRun "pki -d $CERTDB_DIR \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$user1fullname\" $user1"
-        while [ $i -lt 5 ] ; do
+        while [ $i -lt 4 ] ; do
 		
-	rlRun "generate_cert_cert_add $cert_info $k $user1$i \"$user1fullname$i\" $i" 0  "Generating temp cert"
+	rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $i" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -121,20 +123,20 @@ rlPhaseEnd
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user1 --input $TmpDir/pki_user_cert_add_CA_validcert_003$i.pem"
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_add-CA_validcert_003$i.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user1 --input $TmpDir/pki_user_cert_add_CA_validcert_003$i.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out" \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_add-CA_validcert_003$i.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out" \
                             0 \
                             "Cert is added to the user $user1"
-                rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$i,E=$user1$i@example.org,CN=$user1fullname$i,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$i,E=$user1$i@example.org,CN=$user1fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
+                rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
-        rlAssertGrep "Subject: UID=$user1$i,E=$user1$i@example.org,CN=$user1fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
+        rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_useraddcert_003_$i.out"
                 let i=$i+1
         done
         rlPhaseEnd
@@ -185,24 +187,14 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-004: Adding expired cert to a us
                 rlAssertGrep "Certificate ID:" "$TmpDir/pki_user_cert_add_CA_certapprovedshow_004.out"
                 local certificate_serial_number=`cat $TmpDir/pki_user_cert_add_CA_certapprovedshow_004.out | grep "Certificate ID:" | awk '{print $3}'`
                 rlLog "Cerificate Serial Number=$certificate_serial_number"
-                serialhexuser2[$l]=$certificate_serial_number
-                serialdecuser2[$l]=`printf "%d" $certificate_serial_number`
                 #Verify the certificate is valid
                 rlRun "pki cert-show  $certificate_serial_number --encoded > $TmpDir/pki_user_cert_add_CA_certificate_show_004.out" 0 "Executing pki cert-show $certificate_serial_number"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_certificate_show_004.out"
                 rlAssertGrep "Status: VALID" "$TmpDir/pki_user_cert_add_CA_certificate_show_004.out"
                 rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_add_CA_certificate_show_004.out > $TmpDir/pki_user_cert_add_CA_validcert_004.pem"
-                local packagename="ntpdate"
-                rpm -qa | grep $packagename
-                if [ $? -eq 1 ] ; then
-                        rlLog "$packagename is not installed"
-                        yum -y install ntpdate
-                else
-                        rlLog "$packagename is installed"
-                fi
 		currdate=`date`
 		rlLog "$currdate"
-                rlRun "ntpdate clock.util.phx2.redhat.com" 0
+                rlRun "ntpdate $NTPDATE_SERVER" 0
                 rlRun "date -s '$cert_end_date'"
                 rlRun "date -s 'next day'"
 
@@ -225,7 +217,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-004: Adding expired cert to a us
         rlRun "date --set='$endDate ago'"
 	nowdate=`date`
 	rlLog "$nowdate"
-        rlRun "ntpdate clock.util.phx2.redhat.com"
+        rlRun "ntpdate $NTPDATE_SERVER"
 
 rlPhaseEnd
 
@@ -233,7 +225,7 @@ rlPhaseEnd
 	##### Add revoked cert to a user #####
 rlPhaseStartTest "pki_user_cli_user_cert-add-CA-005: Add revoked cert to a user should succeed"
                 k=5
-                rlRun "generate_cert_cert_add $cert_info $k revoke_$user2 \"Revoke $user2fullname\"" 0  "Generating temp cert"
+                rlRun "generate_user_cert $cert_info $k \"revoke_$user2\" \"Revoke $user2fullname\" revoke_$user2@example.org $testname" 0  "Generating temp cert"
                 local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -242,17 +234,17 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-005: Add revoked cert to a user 
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            cert-revoke $cert_serialNumber --force > $TmpDir/pki_user_cert_add_CA_revokecert_005.out"
+                            cert-revoke $cert_serialNumber --force > $TmpDir/pki_user_cert_add-CA_revokecert_005.out"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add_CA_validcert_005.pem"
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_005.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add_CA_validcert_005.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_005.out" \
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_005.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_005.out" \
                            0 \
                             "Revoked cert cannot be added to a user"
                 rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=revoke_$user2,E=revoke_$user2@example.org,CN=Revoke $user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_005.out"
@@ -269,17 +261,17 @@ rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-add-CA-006: Add one cert to a user should fail when USER ID is missing"
         	k=6
-		rlRun "generate_cert_cert_add $cert_info $k expired__$user2 \"Expired $user2fullname\"" 0  "Generating temp cert"
+		rlRun "generate_user_cert $cert_info $k \"expired__$user2\" \"Expired $user2fullname\" expired__$user2@example.org $testname" 0  "Generating temp cert"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add --input $TmpDir/pki_user_cert_add_CA_validcert_006.pem"
+                            user-cert-add --input $TmpDir/pki_user_cert_add-CA_validcert_006.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add --input $TmpDir/pki_user_cert_add_CA_validcert_006.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_006.out 2>&1" \
+                            user-cert-add --input $TmpDir/pki_user_cert_add-CA_validcert_006.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_006.out 2>&1" \
                             1 \
                             "UserID missing"
 		rlAssertGrep "usage: user-cert-add <User ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_add_CA_useraddcert_006.out"
@@ -333,20 +325,20 @@ rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-add-CA-009: Add one cert to a user should fail when the cert is invalid"
         	k=9
-		rlRun "generate_cert_cert_add $cert_info $k invalid_$user2 \"Inavlid $user2fullname\"" 0  "Generating temp cert"
-		rlRun "sed -i -e 's/-----BEGIN CERTIFICATE-----/BEGIN CERTIFICATE-----/g' $TmpDir/pki_user_cert_add_CA_validcert_009.pem"
+		rlRun "generate_user_cert $cert_info $k \"invalid_$user2\" \"Inavlid $user2fullname\" invalid_$user2@example.org $testname" 0  "Generating temp cert"
+		rlRun "sed -i -e 's/-----BEGIN CERTIFICATE-----/BEGIN CERTIFICATE-----/g' $TmpDir/pki_user_cert_add-CA_validcert_009.pem"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add_CA_validcert_009.pem"
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_009.pem"
 		rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add_CA_validcert_009.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_009.out 2>&1" \
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_009.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_009.out 2>&1" \
                             1 \
-                            "Invalid Certificate cnnot be added to a user"
+                            "Invalid Certificate cannot be added to a user"
 		rlAssertGrep "PKIException: Certificate exception" "$TmpDir/pki_user_cert_add_CA_useraddcert_009.out"
 rlPhaseEnd
 
@@ -373,7 +365,7 @@ rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0011: Add one cert to a user - Should be able to add certs with i18n characters in the Subject name of the cert"
                 k=11
-                rlRun "generate_cert_cert_add $cert_info $k \"Örjan Äke\" \"Örjan Äke\"" 0  "Generating temp cert"
+                rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname" 0  "Generating temp cert"
                 local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -383,12 +375,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0011: Add one cert to a user - S
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add_CA_validcert_0011.pem"
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_0011.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add_CA_validcert_0011.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0011.out" \
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_0011.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0011.out" \
                             0 \
                             "Subject name of the cert has i18n characters"
 		rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0011.out"
@@ -410,7 +402,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0012: Add cert to a user of type
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" --type=Auditors $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -419,12 +411,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0012: Add cert to a user of type
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0012.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0012.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0012.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0012.out" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0012.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0012.out" \
                             0 \
                             "Cert is added to the user $userid"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0012.out"
@@ -445,7 +437,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0013: Add cert to a user of type
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" --type=\"Certificate Manager Agents\" $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -454,12 +446,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0013: Add cert to a user of type
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0013.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0013.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0013.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0013.out" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0013.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0013.out" \
                             0 \
                             "Cert is added to the user $userid"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0013.out"
@@ -480,7 +472,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0014: Add cert to a user of type
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" --type=\"Registration Manager Agents\" $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -489,12 +481,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0014: Add cert to a user of type
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0014.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0014.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0014.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0014.out" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0014.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0014.out" \
                             0 \
                             "Cert is added to the user $userid"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0014.out"
@@ -515,7 +507,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0015: Add cert to a user of type
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" --type=\"Subsystem Group\" $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -524,12 +516,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0015: Add cert to a user of type
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0015.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0015.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0015.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0015.out" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0015.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0015.out" \
                             0 \
                             "Cert is added to the user $userid"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0015.out"
@@ -550,7 +542,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0016: Add cert to a user of type
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" --type=\"Security Domain Administrators\" $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -559,12 +551,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0016: Add cert to a user of type
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0016.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0016.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0016.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0016.out" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0016.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0016.out" \
                             0 \
                             "Cert is added to the user $userid"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0016.out"
@@ -585,7 +577,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0017: Add cert to a user of type
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" --type=ClonedSubsystems $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -594,12 +586,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0017: Add cert to a user of type
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0017.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0017.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0017.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0017.out" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0017.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0017.out" \
                             0 \
                             "Cert is added to the user $userid"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0017.out"
@@ -620,7 +612,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0018: Add cert to a user of type
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" --type=\"Trusted Managers\" $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -629,12 +621,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0018: Add cert to a user of type
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0018.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0018.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0018.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0018.out" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0018.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0018.out" \
                             0 \
                             "Cert is added to the user $userid"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0018.out"
@@ -664,7 +656,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0019: Add an Admin user "admin_u
                            -t ca \
                             group-member-add Administrators admin_user > $TmpDir/pki-user-add-ca-group0019.out"
 
-        rlRun "generate_cert_cert_add $cert_info $k admin_user \"Admin User\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"admin_user\" \"Admin User\" "admin_user@example.org" $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -673,12 +665,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0019: Add an Admin user "admin_u
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add admin_user --input $TmpDir/pki_user_cert_add_CA_validcert_0019.pem"
+                            user-cert-add admin_user --input $TmpDir/pki_user_cert_add-CA_validcert_0019.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add admin_user --input $TmpDir/pki_user_cert_add_CA_validcert_0019.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0019.out" \
+                            user-cert-add admin_user --input $TmpDir/pki_user_cert_add-CA_validcert_0019.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0019.out" \
                             0 \
                             "Cert is added to the user admin_user"
         rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=admin_user,E=admin_user@example.org,CN=Admin User,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0019.out"
@@ -717,7 +709,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0020: Add an Agent user agent_us
                            -t ca \
                             group-member-add \"Certificate Manager Agents\" agent_user > $TmpDir/pki-user-add-ca-group0020.out"
                 k=20
-                rlRun "generate_cert_cert_add $cert_info $k agent_user \"Agent User\"" 0  "Generating temp cert"
+                rlRun "generate_user_cert $cert_info $k \"agent_user\" \"Agent User\" "agent_user@example.org" $testname" 0  "Generating temp cert"
                 local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -726,12 +718,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0020: Add an Agent user agent_us
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add agent_user --input $TmpDir/pki_user_cert_add_CA_validcert_0020.pem"
+                            user-cert-add agent_user --input $TmpDir/pki_user_cert_add-CA_validcert_0020.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add agent_user --input $TmpDir/pki_user_cert_add_CA_validcert_0020.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0020.out" \
+                            user-cert-add agent_user --input $TmpDir/pki_user_cert_add-CA_validcert_0020.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0020.out" \
                            0 \
                             "Add cert to agent_user"
                 rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=agent_user,E=agent_user@example.org,CN=Agent User,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0020.out"
@@ -776,7 +768,7 @@ rlPhaseEnd
 
         ##### Adding a cert as an CA_agentV #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0021: Adding a cert as CA_agentV"
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0021: Adding a cert as CA_agentV should fail"
         k=21
 	local userid="new_user1"
         local userFullname="New User1"
@@ -785,7 +777,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0021: Adding a cert as CA_agentV
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -794,20 +786,21 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0021: Adding a cert as CA_agentV
                            -n CA_agentV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0021.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0021.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_agentV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0021.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0021.out 2>&1" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0021.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0021.out 2>&1" \
                             1 \
-                            "Cert is added to the user $userid"
+                            "Adding cert to a user as CA_agentV"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_add_CA_useraddcert_0021.out"
 
 rlPhaseEnd
 
         ##### Adding a cert as an CA_auditorV #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0022: Adding a cert as CA_auditorV"
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0022: Adding a cert as CA_auditorV should fail"
         k=22
         local userid="new_user2"
         local userFullname="New User2"
@@ -816,7 +809,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0022: Adding a cert as CA_audito
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$userFullname\" $userid"
 
-        rlRun "generate_cert_cert_add $cert_info $k $userid \"$userFullname\"" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -825,15 +818,55 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0022: Adding a cert as CA_audito
                            -n CA_auditorV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0022.pem"
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0022.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_auditorV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $userid --input $TmpDir/pki_user_cert_add_CA_validcert_0022.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0022.out 2>&1" \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0022.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0022.out 2>&1" \
                             1 \
                             "Cert is added to the user $userid"
+	rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0022.out"
+        rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
+rlPhaseEnd
+
+
+        ##### Adding a cert as an CA_adminE #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0023: Adding a cert as CA_adminE should fail"
+        k=23
+        local userid="new_user3"
+        local userFullname="New User3"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+	rlRun "date --set='next day'" 0 "Set System date a day ahead"
+        rlRun "date --set='next day'" 0 "Set System date a day ahead"
+        rlRun "date"
+
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_adminE \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0023.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminE \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0023.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0023.out 2>&1" \
+                            1 \
+                            "Cert is added to the user $userid"
+        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0023.out"
+        rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
 
 
@@ -858,59 +891,4 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
 }
 
 
-generate_cert_cert_add()
-{
-
-                local reqstatus
-                local requestid
-                local requestdn
-                local CERT_INFO="$1"
-                local file_no="$2"
-                local user_id="$3"
-                local userfullname="$4"
-                local ext=".out"
-                local cert_ext=".pem"
-                local num="$5"
-		if [ "$user_id" = "Örjan Äke" ] ; then
-			rlRun "create_cert_request $CERTDB_DIR redhat123 pkcs10 rsa 2048 \"Örjan Äke\" \"Örjan Äke\" "test@example.org" "Engineering" "Example" "US" "--" "reqstatus" "requestid" "requestdn""
-		else
-	                rlRun "create_cert_request $CERTDB_DIR redhat123 pkcs10 rsa 2048 \"$userfullname\" "$user_id" "$user_id@example.org" "Engineering" "Example" "US" "--" "reqstatus" "requestid" "requestdn""
-		fi
-
-                rlRun "pki cert-request-show $requestid > $TmpDir/pki_user_cert_add_CA_certrequestshow_00$file_no$num$ext" 0 "Executing pki cert-request-show $requestid"
-                rlAssertGrep "Request ID: $requestid" "$TmpDir/pki_user_cert_add_CA_certrequestshow_00$file_no$num$ext"
-                rlAssertGrep "Type: enrollment" "$TmpDir/pki_user_cert_add_CA_certrequestshow_00$file_no$num$ext"
-                rlAssertGrep "Status: pending" "$TmpDir/pki_user_cert_add_CA_certrequestshow_00$file_no$num$ext"
-                rlAssertGrep "Operation Result: success" "$TmpDir/pki_user_cert_add_CA_certrequestshow_00$file_no$num$ext"
-
-                #Agent Approve the certificate after reviewing the cert for the user
-                rlLog "Executing: pki -d $CERTDB_DIR/ \
-                                      -n CA_agentV \
-                                      -c $CERTDB_DIR_PASSWORD \
-                                      -t ca \
-                                      cert-request-review --action=approve $requestid"
-                rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_agentV \
-                           -c $CERTDB_DIR_PASSWORD \
-                           -t ca \
-                           cert-request-review --action=approve $requestid > $TmpDir/pki_user_cert_add_CA_certapprove_00$file_no$num$ext" \
-                           0 \
-                           "CA agent approve the cert"
-                rlAssertGrep "Approved certificate request $requestid" "$TmpDir/pki_user_cert_add_CA_certapprove_00$file_no$num$ext"
-                rlRun "pki cert-request-show $requestid > $TmpDir/pki_user_cert_add_CA_certapprovedshow_00$file_no$num$ext" 0 "Executing pki cert-request-show $requestid"
-                rlAssertGrep "Request ID: $requestid" "$TmpDir/pki_user_cert_add_CA_certapprovedshow_00$file_no$num$ext"
-                rlAssertGrep "Type: enrollment" "$TmpDir/pki_user_cert_add_CA_certapprovedshow_00$file_no$num$ext"
-                rlAssertGrep "Status: complete" "$TmpDir/pki_user_cert_add_CA_certapprovedshow_00$file_no$num$ext"
-                rlAssertGrep "Certificate ID:" "$TmpDir/pki_user_cert_add_CA_certapprovedshow_00$file_no$num$ext"
-                local certificate_serial_number=`cat $TmpDir/pki_user_cert_add_CA_certapprovedshow_00$file_no$num$ext | grep "Certificate ID:" | awk '{print $3}'`
-                rlLog "Cerificate Serial Number=$certificate_serial_number"
-                #Verify the certificate is valid
-                rlRun "pki cert-show  $certificate_serial_number --encoded > $TmpDir/pki_user_cert_add_CA_certificate_show_00$file_no$num$ext" 0 "Executing pki cert-show $certificate_serial_number"
-
-                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_add_CA_certificate_show_00$file_no$num$ext > $TmpDir/pki_user_cert_add_CA_validcert_00$file_no$num$cert_ext"
-	         rlRun "certutil -d $CERTDB_DIR -A -n \"$user_id\" -i $TmpDir/pki_user_cert_add_CA_validcert_00$file_no$num$cert_ext  -t "u,u,u""
-                echo cert_serialNumber-$certificate_serial_number > $CERT_INFO
-                echo cert_requestdn-$requestdn >> $CERT_INFO
-                return 0;
-}
 

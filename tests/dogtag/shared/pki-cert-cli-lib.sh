@@ -1,6 +1,7 @@
 #!/bin/sh
 #Include below files
 . /opt/rhqa_pki/rhcs-shared.sh
+. /opt/rhqa_pki/env.sh
 ########################################################################
 #  PKI CERT SHARED LIBRARY
 #######################################################################
@@ -292,7 +293,7 @@ create_new_cert_request()
 		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:\"" 0 "Setting Java CLASSPATH"
 		rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
 		rlLog "Execute generateCRMFRequest to generate CRMF Request"
-		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file 1> $dir/crmf.out" 0 "Execute generateCRMFRequest to generate CRMF Request"
+		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file 1> $dir/crmf.out" 0 "Execute generateCRMFRequest to generata CRMF Request"
 	fi
 	
 	if [ "$request_type" == "crmf" ] && [ "$archive" == "true" ];then
@@ -431,4 +432,60 @@ submit_new_request(){
 	
 	return 0;
 }
+
+generate_user_cert()
+{
+                local reqstatus
+                local requestid
+                local requestdn
+                local CERT_INFO="$1"
+                local file_no="$2"
+                local user_id="$3"
+                local userfullname="$4"
+                local ext=".out"
+                local cert_ext=".pem"
+                local req_email="$5"
+                local num="$7"
+                local file_name="$6"
+                        rlRun "create_cert_request $CERTDB_DIR redhat123 pkcs10 rsa 2048 \"$userfullname\" \"$user_id\" "$req_email" "Engineering" "Example" "US" "--" "reqstatus" "requestid" "requestdn""
+
+                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext" 0 "Executing pki cert-request-show $requestid"
+                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
+                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
+                rlAssertGrep "Status: pending" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
+                rlAssertGrep "Operation Result: success" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
+
+                #Agent Approve the certificate after reviewing the cert for the user
+                rlLog "Executing: pki -d $CERTDB_DIR/ \
+                                      -n CA_agentV \
+                                      -c $CERTDB_DIR_PASSWORD \
+                                      -t ca \
+                                      cert-request-review --action=approve $requestid"
+                rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_agentV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                           cert-request-review --action=approve $requestid > $TmpDir/$file_name-CA_certapprove_00$file_no$num$ext" \
+                           0 \
+                           "CA agent approve the cert"
+                rlAssertGrep "Approved certificate request $requestid" "$TmpDir/$file_name-CA_certapprove_00$file_no$num$ext"
+                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext" 0 "Executing pki cert-request-show $requestid"
+                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
+                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
+                rlAssertGrep "Status: complete" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
+                rlAssertGrep "Certificate ID:" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
+                local certificate_serial_number=`cat $TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext | grep "Certificate ID:" | awk '{print $3}'`
+                rlLog "Cerificate Serial Number=$certificate_serial_number"
+                #Verify the certificate is valid
+                rlRun "pki cert-show  $certificate_serial_number --encoded > $TmpDir/$file_name-CA_certificate_show_00$file_no$num$ext" 0 "Executing pki cert-show $certificate_serial_number"
+
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/$file_name-CA_certificate_show_00$file_no$num$ext > $TmpDir/$file_name-CA_validcert_00$file_no$num$cert_ext"
+                 rlRun "certutil -d $CERTDB_DIR -A -n \"$user_id\" -i $TmpDir/$file_name-CA_validcert_00$file_no$num$cert_ext  -t "u,u,u""
+                echo cert_serialNumber-$certificate_serial_number > $CERT_INFO
+                echo cert_requestdn-$requestdn >> $CERT_INFO
+                return 0;
+
+}
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #

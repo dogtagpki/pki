@@ -71,6 +71,7 @@ run_rhcs_install_subsystems() {
         TPS_SERVER_PACKAGES="pki-tps"
         RHELRHCS_PACKAGES="nuxwdog symkey mod-nss pki-native-tools redhat-pki-ca-ui redhat-pki-common-ui redhat-pki-console-ui redhat-pki-kra-ui redhat-pki-ocsp-ui redhat-pki-ra-ui redhat-pki-tks-ui redhat-pki-tps-ui"
         DOGTAG_PACKAGES="pki-tools pki-symkey dogtag-pki dogtag-pki-console-theme dogtag-pki-server-theme"
+	NTPDATE_PACKAGE="ntpdate"
 
 
         cat /etc/redhat-release | grep "Fedora"
@@ -98,6 +99,8 @@ run_rhcs_install_subsystems() {
 		yum -y install $COMMON_SERVER_PACKAGES
 		rlLog "yum -y install $CA_SERVER_PACKAGES"
 		yum -y install $CA_SERVER_PACKAGES
+		rlLog "yum -y install $NTPDATE_PACKAGE"
+                yum -y install $NTPDATE_PACKAGE
 		echo "export CA_SERVER_CERT_SUBJECT_NAME= CN=$HOSTNAME,O=redhat" >> /opt/rhqa_pki/env.sh
 		#codecoverage setup
 		CODE_COVERAGE_UPPERCASE=$(echo $CODE_COVERAGE | tr [a-z] [A-Z])
@@ -118,7 +121,7 @@ run_rhcs_install_subsystems() {
 		fi
 
 		if [ "$FLAVOR" == "Fedora" ] ; then
-			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $CA_SERVER_PACKAGES"
+			ALL_PACKAGES="$COMMON_SERVER_PACKAGES $CA_SERVER_PACKAGES $NTPDATE_PACKAGE"
 			for item in $ALL_PACKAGES ; do
 				rpm -qa | grep $item
 				if [ $? -eq 0 ] ; then
