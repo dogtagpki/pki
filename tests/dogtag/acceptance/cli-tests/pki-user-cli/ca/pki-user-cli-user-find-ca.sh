@@ -513,7 +513,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -c Password \
                     user-find --start=1 --size=5"
         echo "spawn -noecho pki -d $TEMP_NSS_DB -n pkiUser1 -c Password user-find --start=1 --size=5" > $expfile
-        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=qeblade3.rhq.lab.eng.bos.redhat.com,O=rhq.lab.eng.bos.redhat.com Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=rhq.lab.eng.bos.redhat.com Security Domain'
+	echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$CA_DOMAIN Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain'
 Import CA certificate (Y/n)? \"" >> $expfile
         echo "send -- \"Y\r\"" >> $expfile
         echo "expect \"CA server URI \[http://$HOSTNAME:$CA_UNSECURE_PORT/ca\]: \"" >> $expfile
