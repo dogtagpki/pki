@@ -1,0 +1,310 @@
+#!/bin/bash
+##  BEGIN COPYRIGHT BLOCK
+##  (C) 2014 Red Hat, Inc.
+##  All rights reserved.
+##  END COPYRIGHT BLOCK
+
+##################################################
+##  Always switch into this current working     ##
+##  directory prior to script execution so that ##
+##  all output is written to this directory     ##
+##################################################
+
+cd `dirname $0`
+
+##################################################
+##  Establish PKI CLI variables                 ##
+##################################################
+
+PKI=/usr/bin/pki
+
+PKI_OPTIONS=
+
+## To specify no log file, set 'PKI_CLI_LOGFILE=/dev/null'
+PKI_CLI_LOGFILE=`pwd`/pki_cli_help.log
+
+BANNER="\
+#############################################################################\n\
+#############################################################################\n\
+#############################################################################"
+
+PKI_CLI_SYSTEM_COMMAND_BANNER="\
+#############################################################################\n\
+###                 Top-Level PKI CLI System Command Usage                ###\n\
+#############################################################################"
+
+PKI_CLI_MODULES_BANNER="\
+#############################################################################\n\
+###                   Top-Level PKI CLI Module Commands                   ###\n\
+#############################################################################"
+
+
+
+##################################################
+##  Gather PKI CLI Modules and Commands         ##
+##################################################
+
+## NOTE:  This non-recursive script currently only runs
+##        against module commands of the following forms:
+##
+##        * module (e. g. - 'ca')
+##        * module-command (e. g. - 'ca-group')
+##        * module-command-subcommand (e. g. - 'ca-group-member')
+##        * module-command-subcommand-sublevel (e. g. - 'ca-group-member-show')
+
+## List 'cmd's before 'module's since both 'cmd's and 'module's will
+## be tested, and the 'module' may well be a substring of the 'cmd'
+## (e. g. - cmd 'ca-group-member' contains module 'ca')
+PKI_SUBCOMMANDS=(    \
+group-member         \
+user-cert            \
+user-membership      \
+ca-group-member      \
+ca-user-cert         \
+ca-user-membership   \
+ca                   \
+kra-group-member     \
+kra-user-cert        \
+kra-user-membership  \
+kra                  \
+ocsp-group-member    \
+ocsp-user-cert       \
+ocsp-user-membership \
+ocsp                 \
+tks-group-member     \
+tks-user-cert        \
+tks-user-membership  \
+tks                  \
+tps-group-member     \
+tps-profile-mapping  \
+tps-user-cert        \
+tps-user-membership  \
+tps                  \
+)
+
+## Gather the list of modules by:
+## * invoking '${PKI}',
+## * ignoring the 'usage' line,
+## * ignoring the ' -' options lines,
+## * ignoring the '  ' options lines,
+## * ignoring the blank lines,
+## * ignoring the 'Commands:' line,
+## * removing the initial space before each module, and
+## * removing the description after each module
+
+PKI_CLI_MODULES=(`${PKI} | grep -vE '(^usage|^ -|^  |^$|^Commands:)' | cut -b2- | cut -d' ' -f1`)
+
+
+
+##################################################
+##  Always start with a fresh log file          ##
+##################################################
+
+cat /dev/null > ${PKI_CLI_LOGFILE}
+
+
+
+##################################################
+##  Process Help for Top-Level PKI CLI commands ##
+##  logging output into the specified log file  ##
+##################################################
+
+printf "${PKI_CLI_SYSTEM_COMMAND_BANNER}\n"
+printf "${PKI_CLI_SYSTEM_COMMAND_BANNER}\n" >> ${PKI_CLI_LOGFILE} 2>&1
+printf "${TOP_LEVEL_PKI_CLI_COMMANDS}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+## Sans "--help" option
+printf "    Processing '${PKI} ${PKI_OPTIONS}' . . . "
+printf "# ${PKI} ${PKI_OPTIONS}\n" >> ${PKI_CLI_LOGFILE} 2>&1
+${PKI} ${PKI_OPTIONS} >> ${PKI_CLI_LOGFILE} 2>&1
+rv=$?
+if [ ${rv} -eq 0 ] ; then
+    printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    printf "SUCCESS.\n"
+else
+    printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    printf "FAILURE.\n"
+fi
+printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+## Specifying "--help" option
+printf "    Processing '${PKI} ${PKI_OPTIONS} --help' . . . "
+printf "# ${PKI} ${PKI_OPTIONS} --help\n" >> ${PKI_CLI_LOGFILE} 2>&1
+${PKI} ${PKI_OPTIONS} --help >> ${PKI_CLI_LOGFILE} 2>&1
+rv=$?
+if [ ${rv} -eq 0 ] ; then
+    printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    printf "SUCCESS.\n"
+else
+    printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    printf "FAILURE.\n"
+fi
+printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+## Specifying "help" option
+printf "    Processing '${PKI} ${PKI_OPTIONS} help' . . . "
+printf "# ${PKI} ${PKI_OPTIONS} help\n" >> ${PKI_CLI_LOGFILE} 2>&1
+${PKI} ${PKI_OPTIONS} help >> ${PKI_CLI_LOGFILE} 2>&1
+rv=$?
+if [ ${rv} -eq 0 ] ; then
+    printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    printf "SUCCESS.\n"
+else
+    printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    printf "FAILURE.\n"
+fi
+printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+
+
+
+##################################################
+##  Process Help for Top-Level PKI CLI modules  ##
+##  logging output into the specified log file  ##
+##################################################
+
+printf "${PKI_CLI_MODULES_BANNER}\n"
+printf "${PKI_CLI_MODULES_BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+for i in ${!PKI_CLI_MODULES[*]}; do
+    cmd=${PKI_CLI_MODULES[${i}]}
+    ## Sans "--help" option
+    printf "    Processing '${PKI} ${PKI_OPTIONS} ${cmd}' . . . "
+    printf "# ${PKI} ${PKI_OPTIONS} ${cmd}\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    ${PKI} ${PKI_OPTIONS} ${cmd} >> ${PKI_CLI_LOGFILE} 2>&1
+    rv=$?
+    if [ ${rv} -eq 0 ] ; then
+        printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+        printf "SUCCESS.\n"
+    else
+        printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+        printf "FAILURE.\n"
+    fi
+    printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    ## Specifying "--help" option
+    printf "    Processing '${PKI} ${PKI_OPTIONS} ${cmd} --help' . . . "
+    printf "# ${PKI} ${PKI_OPTIONS} ${cmd} --help\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    ${PKI} ${PKI_OPTIONS} ${cmd} --help >> ${PKI_CLI_LOGFILE} 2>&1
+    rv=$?
+    if [ ${rv} -eq 0 ] ; then
+        printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+        printf "SUCCESS.\n"
+    else
+        printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+        printf "FAILURE.\n"
+    fi
+    printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    ## Specifying "help" option
+    printf "    Processing '${PKI} ${PKI_OPTIONS} help ${cmd}' . . . "
+    printf "# ${PKI} ${PKI_OPTIONS} help ${cmd}\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    ${PKI} ${PKI_OPTIONS} help ${cmd} >> ${PKI_CLI_LOGFILE} 2>&1
+    rv=$?
+    if [ ${rv} -eq 0 ] ; then
+        printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+        printf "SUCCESS.\n"
+    else
+        printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+        printf "FAILURE.\n"
+    fi
+    printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+done
+
+
+
+##################################################
+##  Process Help for PKI CLI Command Modules    ##
+##  logging output into the specified log file  ##
+##################################################
+
+for i in ${!PKI_CLI_MODULES[*]}; do
+    module=${PKI_CLI_MODULES[${i}]}
+    if [ "${module}" = "help" ] ; then
+        continue;
+    fi
+    ## Gather the list of commands for each module by:
+    ## * invoking '${PKI} <module>',
+    ## * ignoring the 'Commands:' header,
+    ## * removing the initial space before each command, and
+    ## * removing the description after each command
+    commands=(`${PKI} ${module} | grep -v Commands: | cut -b2- | cut -d' ' -f1`)
+PKI_CLI_COMMAND_MODULES_BANNER="\
+#############################################################################\n\
+###                 PKI CLI ${module} Commands Usage\n\
+#############################################################################"
+    printf "${PKI_CLI_COMMAND_MODULES_BANNER}\n"
+    printf "${PKI_CLI_COMMAND_MODULES_BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+    for j in ${!commands[*]}; do
+        cmd=${commands[${j}]}
+        #############################
+        ## Specifying "--help" option
+        #############################
+        printf "    Processing '${PKI} ${PKI_OPTIONS} ${cmd} --help' . . . "
+        printf "# ${PKI} ${PKI_OPTIONS} ${cmd} --help\n" >> ${PKI_CLI_LOGFILE} 2>&1
+        ${PKI} ${PKI_OPTIONS} ${cmd} --help >> ${PKI_CLI_LOGFILE} 2>&1
+        rv=$?
+        if [ ${rv} -eq 0 ] ; then
+            printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+            printf "SUCCESS.\n"
+        else
+            printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+            printf "FAILURE.\n"
+        fi
+        printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+        ######################################################################
+        ## check to see if the cmd (first) or module (second) has a subcommand
+        ######################################################################
+        for subcommand in ${!PKI_SUBCOMMANDS[*]}; do
+            if [ "${cmd}" = "${PKI_SUBCOMMANDS[${subcommand}]}" ]  ||
+               [ "${module}" = "${PKI_SUBCOMMANDS[${subcommand}]}" ] ; then
+                ## Gather the list of subcommands for each cmd/module by:
+                ## * invoking '${PKI} <module>',
+                ## * ignoring the 'Commands:' header,
+                ## * removing the initial space before each command, and
+                ## * removing the description after each command
+                subcmds=(`${PKI} ${cmd} | grep -v Commands: | cut -b2- | cut -d' ' -f1`)
+                for k in ${!subcmds[*]}; do
+                    subcmd=${subcmds[${k}]}
+                    #############################
+                    ## Specifying "--help" option
+                    #############################
+                    printf "    Processing '${PKI} ${PKI_OPTIONS} ${subcmd} --help' . . . "
+                    printf "# ${PKI} ${PKI_OPTIONS} ${subcmd} --help\n" >> ${PKI_CLI_LOGFILE} 2>&1
+                    ${PKI} ${PKI_OPTIONS} ${subcmd} --help >> ${PKI_CLI_LOGFILE} 2>&1
+                    rv=$?
+                    if [ ${rv} -eq 0 ] ; then
+                        printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+                        printf "SUCCESS.\n"
+                    else
+                        printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+                        printf "FAILURE.\n"
+                    fi
+                    printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+                    ######################################################
+                    ## check to see if the subcmd has yet another sublevel
+                    ######################################################
+                    for sublevel in ${!PKI_SUBCOMMANDS[*]}; do
+                        if [ "${subcmd}" = "${PKI_SUBCOMMANDS[${sublevel}]}" ] ; then
+                            sublvls=(`${PKI} ${subcmd} | grep -v Commands: | cut -b2- | cut -d' ' -f1`)
+                            for m in ${!sublvls[*]}; do
+                                sublvl=${sublvls[${m}]}
+                                #############################
+                                ## Specifying "--help" option
+                                #############################
+                                printf "    Processing '${PKI} ${PKI_OPTIONS} ${sublvl} --help' . . . "
+                                printf "# ${PKI} ${PKI_OPTIONS} ${sublvl} --help\n" >> ${PKI_CLI_LOGFILE} 2>&1
+                                ${PKI} ${PKI_OPTIONS} ${sublvl} --help >> ${PKI_CLI_LOGFILE} 2>&1
+                                rv=$?
+                                if [ ${rv} -eq 0 ] ; then
+                                    printf "\nReturn Code:  '${rv}' (SUCCESS)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+                                    printf "SUCCESS.\n"
+                                else
+                                    printf "\nReturn Code:  '${rv}' (FAILURE)\n" >> ${PKI_CLI_LOGFILE} 2>&1
+                                    printf "FAILURE.\n"
+                                fi
+                                printf "\n\n\n${BANNER}\n\n\n" >> ${PKI_CLI_LOGFILE} 2>&1
+                            done
+                            break;
+                        fi
+                    done
+                done
+                break;
+            fi
+        done
+    done
+done
+
