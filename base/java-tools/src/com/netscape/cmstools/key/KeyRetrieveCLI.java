@@ -60,9 +60,11 @@ public class KeyRetrieveCLI extends CLI {
             printHelp();
             System.exit(1);
         }
+
         if (cmd.hasOption("help")) {
+            // Display usage
             printHelp();
-            System.exit(1);
+            System.exit(0);
         }
 
         if(cmd.getOptions().length==0){

@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.user;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
@@ -46,6 +47,13 @@ public class UserMembershipFindCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
+        // Check for "--help"
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);
@@ -63,6 +71,12 @@ public class UserMembershipFindCLI extends CLI {
             System.err.println("Error: " + e.getMessage());
             printHelp();
             System.exit(1);
+        }
+
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
         }
 
         String[] cmdArgs = cmd.getArgs();

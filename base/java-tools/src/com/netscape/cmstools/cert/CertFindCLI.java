@@ -67,8 +67,9 @@ public class CertFindCLI extends CLI {
         }
 
         if (cmd.hasOption("help")) {
+            // Display usage
             printHelp();
-            System.exit(1);
+            System.exit(0);
         }
 
         String fileName = null;
@@ -151,9 +152,6 @@ public class CertFindCLI extends CLI {
         option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);
-
-        //help
-        options.addOption(null, "help", false, "Show help options");
 
         //file input
         option = new Option(null, "input", true, "File containing the search constraints");

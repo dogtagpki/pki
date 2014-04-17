@@ -21,6 +21,7 @@ package com.netscape.cmstools.user;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -47,6 +48,13 @@ public class UserCertShowCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
+        // Check for "--help"
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         Option option = new Option(null, "output", true, "Output file");
         option.setArgName("file");
         options.addOption(option);
@@ -63,6 +71,12 @@ public class UserCertShowCLI extends CLI {
             System.err.println("Error: " + e.getMessage());
             printHelp();
             System.exit(1);
+        }
+
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
         }
 
         boolean showPrettyPrint = cmd.hasOption("pretty");

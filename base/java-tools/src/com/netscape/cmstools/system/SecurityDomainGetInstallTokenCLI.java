@@ -19,6 +19,7 @@
 package com.netscape.cmstools.system;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -44,6 +45,13 @@ public class SecurityDomainGetInstallTokenCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
+
+        // Check for "--help" prior to parsing due to required option
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         Option option = new Option(null, "hostname", true, "Hostname");
         option.setArgName("hostname");

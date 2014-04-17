@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.logging;
 
+import java.util.Arrays;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -48,6 +50,13 @@ public class AuditModifyCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
+
+        // Check for "--help" prior to parsing due to required option
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         Option option = new Option(null, "action", true, "Action: update (default), enable, disable.");
         option.setArgName("action");

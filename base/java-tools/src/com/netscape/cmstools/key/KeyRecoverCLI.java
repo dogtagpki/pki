@@ -51,9 +51,11 @@ public class KeyRecoverCLI extends CLI {
         }
 
         if (cmd.hasOption("help")) {
+            // Display usage
             printHelp();
-            System.exit(1);
+            System.exit(0);
         }
+
         String requestFile = cmd.getOptionValue("input");
 
         KeyRequestResponse response = null;

@@ -176,9 +176,10 @@ public class CLI {
 
     public void execute(String[] args) throws Exception {
 
-        if (args.length == 0) {
+        if ((args.length == 0) || (args[0].equals("--help"))) {
+            // Print commands associated with this module
             printHelp();
-            System.exit(1);
+            System.exit(0);
         }
 
         // A command consists of parts joined by dashes: <part 1>-<part 2>-...-<part N>.
@@ -257,6 +258,9 @@ public class CLI {
             moduleArgs = new String[args.length-1];
             System.arraycopy(args, 1, moduleArgs, 0, args.length-1);
         }
+
+        // Add "--help" option to all command modules
+        module.options.addOption(null, "help", false, "Show help options");
 
         module.execute(moduleArgs);
     }

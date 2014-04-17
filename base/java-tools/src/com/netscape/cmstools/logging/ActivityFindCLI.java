@@ -65,6 +65,12 @@ public class ActivityFindCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         String[] cmdArgs = cmd.getArgs();
         String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
 

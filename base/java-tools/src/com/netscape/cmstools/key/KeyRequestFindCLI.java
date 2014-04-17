@@ -88,8 +88,9 @@ public class KeyRequestFindCLI extends CLI {
         }
 
         if (cmd.hasOption("help")) {
+            // Display usage
             printHelp();
-            System.exit(1);
+            System.exit(0);
         }
 
         String status = cmd.getOptionValue("status");

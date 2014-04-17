@@ -316,12 +316,13 @@ public class MainCLI extends CLI {
 
         if (cmd.hasOption("version")) {
             printVersion();
-            System.exit(1);
+            System.exit(0);
         }
 
         if (cmdArgs.length == 0 || cmd.hasOption("help")) {
+            // Print 'pki' usage
             printHelp();
-            System.exit(1);
+            System.exit(0);
         }
 
         parseOptions(cmd);

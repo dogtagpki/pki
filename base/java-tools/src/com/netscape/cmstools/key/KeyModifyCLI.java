@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.key;
 
+import java.util.Arrays;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
@@ -40,6 +42,13 @@ public class KeyModifyCLI extends CLI {
 
     public void execute(String[] args) {
 
+        // Check for "--help" prior to parsing due to required option
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         Option option = new Option(null, "status", true, "Status of the key.\nValid values: active, inactive");
         option.setRequired(true);
         option.setArgName("status");
@@ -51,11 +60,6 @@ public class KeyModifyCLI extends CLI {
 
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
             printHelp();
             System.exit(1);
         }

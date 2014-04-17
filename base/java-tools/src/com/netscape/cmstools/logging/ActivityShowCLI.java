@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.logging;
 
+import java.util.Arrays;
+
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -39,6 +41,13 @@ public class ActivityShowCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
+
+        // Check for "--help"
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         if (args.length != 1) {
             printHelp();

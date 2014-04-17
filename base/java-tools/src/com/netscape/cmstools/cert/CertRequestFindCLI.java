@@ -60,8 +60,9 @@ public class CertRequestFindCLI extends CLI {
         }
 
         if (cmd.hasOption("help")) {
+            // Display usage
             printHelp();
-            System.exit(-1);
+            System.exit(0);
         }
 
         String s = cmd.getOptionValue("start");
@@ -134,8 +135,5 @@ public class CertRequestFindCLI extends CLI {
         option = new Option(null, "timeout", true, "Search timeout");
         option.setArgName("maxTime");
         options.addOption(option);
-
-        //help
-        options.addOption(null, "help", false, "Show help options");
     }
 }

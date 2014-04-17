@@ -40,9 +40,11 @@ public class KeyTemplateFindCLI extends CLI {
             printHelp();
             System.exit(1);
         }
+
         if (cmd.hasOption("help")) {
+            // Display usage
             printHelp();
-            System.exit(1);
+            System.exit(0);
         }
 
         try {

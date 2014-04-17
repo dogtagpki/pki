@@ -65,6 +65,12 @@ public class CertShowCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         boolean showPrettyPrint = cmd.hasOption("pretty");
         boolean showEncoded = cmd.hasOption("encoded");
 

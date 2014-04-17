@@ -110,7 +110,8 @@ def run_java_cli(args):
 
     command.extend(args)
 
-    subprocess.call(command)
+    rv = subprocess.call(command)
+    exit(rv)
 
 
 def run_python_cli(args):

@@ -68,6 +68,12 @@ public class ClientCertImportCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         client = parent.getClient();
 
         byte[] bytes = null;

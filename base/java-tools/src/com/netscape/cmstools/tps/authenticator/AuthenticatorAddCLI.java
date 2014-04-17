@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -47,6 +48,13 @@ public class AuthenticatorAddCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
+
+        // Check for "--help" prior to parsing due to required option
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         Option option = new Option(null, "input", true, "Input file containing authenticator properties.");
         option.setArgName("file");

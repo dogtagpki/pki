@@ -81,9 +81,11 @@ public class KeyFindCLI extends CLI {
             printHelp();
             System.exit(1);
         }
+
         if (cmd.hasOption("help")) {
+            // Display usage
             printHelp();
-            System.exit(1);
+            System.exit(0);
         }
 
         String clientKeyID = cmd.getOptionValue("client");

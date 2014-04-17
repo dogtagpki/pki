@@ -58,6 +58,12 @@ public class TPSConnectorAddCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         String tpsHost = cmd.getOptionValue("host");
         String tpsPort = cmd.getOptionValue("port");
 

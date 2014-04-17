@@ -58,6 +58,12 @@ public class ClientInitCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         MainCLI mainCLI = (MainCLI)parent.getParent();
 
         if (mainCLI.config.getCertPassword() == null) {

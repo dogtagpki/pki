@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.key;
 
+import java.util.Arrays;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
@@ -40,6 +42,13 @@ public class KeyShowCLI extends CLI {
 
     public void execute(String[] args) {
 
+        // Check for "--help"
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         if (args.length != 1) {
             printHelp();
             System.exit(-1);
@@ -50,10 +59,6 @@ public class KeyShowCLI extends CLI {
 
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(1);
-        }
-        if (cmd.hasOption("help")) {
             printHelp();
             System.exit(1);
         }

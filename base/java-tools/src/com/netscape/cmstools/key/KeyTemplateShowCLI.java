@@ -3,6 +3,7 @@ package com.netscape.cmstools.key;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.xml.bind.JAXBException;
 
@@ -30,6 +31,13 @@ public class KeyTemplateShowCLI extends CLI {
 
     public void execute(String[] args) {
 
+        // Check for "--help"
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         Option option = new Option(null, "output-file", true, "Location where the template has to be stored.");
         option.setArgName("File to write the template to.");
         options.addOption(option);
@@ -47,11 +55,6 @@ public class KeyTemplateShowCLI extends CLI {
         if (cmdArgs.length < 1) {
             printHelp();
             System.exit(-1);
-        }
-
-        if (cmd.hasOption("help")) {
-            printHelp();
-            System.exit(1);
         }
 
         String templateId = cmdArgs[0];

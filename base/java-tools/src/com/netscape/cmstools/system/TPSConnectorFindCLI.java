@@ -64,6 +64,12 @@ public class TPSConnectorFindCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         String s = cmd.getOptionValue("start");
         Integer start = s == null ? null : Integer.valueOf(s);
 

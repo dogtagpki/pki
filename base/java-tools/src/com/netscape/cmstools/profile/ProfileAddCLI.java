@@ -35,6 +35,12 @@ public class ProfileAddCLI extends CLI {
             System.exit(-1);
         }
 
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         String[] cLineArgs = cmd.getArgs();
 
         if (cLineArgs.length < 1) {

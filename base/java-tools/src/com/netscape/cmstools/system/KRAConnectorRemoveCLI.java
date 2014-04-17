@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
+import java.util.Arrays;
+
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -37,6 +39,13 @@ public class KRAConnectorRemoveCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
+
+        // Check for "--help"
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         if (args.length != 2) {
             printHelp();

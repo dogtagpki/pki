@@ -25,6 +25,14 @@ public class KeyGenerateCLI extends CLI {
     }
 
     public void execute(String[] args) {
+
+        // Check for "--help" prior to parsing due to required option
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         Option option = new Option(null, "key-algorithm", true,
                 "Algorithm to be used to create a key.\nValid values: AES, DES, DES3, RC2, RC4, DESede.");
         option.setArgName("algorithm");
@@ -51,11 +59,6 @@ public class KeyGenerateCLI extends CLI {
 
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
             printHelp();
             System.exit(1);
         }

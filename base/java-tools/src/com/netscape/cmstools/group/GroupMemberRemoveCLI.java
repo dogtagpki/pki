@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.group;
 
+import java.util.Arrays;
+
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -38,6 +40,13 @@ public class GroupMemberRemoveCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
+
+        // Check for "--help" prior to parsing due to required option
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         if (args.length != 2) {
             printHelp();

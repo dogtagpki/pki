@@ -58,6 +58,12 @@ public class GroupModifyCLI extends CLI {
             System.exit(1);
         }
 
+        if (cmd.hasOption("help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {

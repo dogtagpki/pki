@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.group;
 
+import java.util.Arrays;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
@@ -42,6 +44,13 @@ public class GroupAddCLI extends CLI {
     }
 
     public void execute(String[] args) throws Exception {
+
+        // Check for "--help" prior to parsing due to required option
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         Option option = new Option(null, "description", true, "Description");
         option.setArgName("description");
