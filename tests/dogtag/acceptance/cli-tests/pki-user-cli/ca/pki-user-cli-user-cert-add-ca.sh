@@ -60,11 +60,13 @@ testname="pki_user_cert_add"
 
 ##### pki_user_cli_user_cert_add_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-add-configtest-001: pki user-cert-add configuration test"
-        rlRun "pki user-cert-add > $TmpDir/pki_user_cert_add_cfg.out" \
-                1 \
+        rlRun "pki user-cert-add --help > $TmpDir/pki_user_cert_add_cfg.out 2>&1" \
+                0 \
                 "User cert add configuration"
         rlAssertGrep "usage: user-cert-add <User ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_add_cfg.out"
         rlAssertGrep "--input <file>   Input file" "$TmpDir/pki_user_cert_add_cfg.out"
+	rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/pki_user_cert_add_cfg.out"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
 
 	##### Tests to add certs to CA users ####
@@ -825,7 +827,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0022: Adding a cert as CA_audito
                            -t ca \
                             user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0022.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0022.out 2>&1" \
                             1 \
-                            "Cert is added to the user $userid"
+                            "Adding cert to $userid as CA_auditorV"
 	rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0022.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
@@ -863,10 +865,271 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0023: Adding a cert as CA_adminE
                            -t ca \
                             user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0023.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0023.out 2>&1" \
                             1 \
-                            "Cert is added to the user $userid"
+                            "Adding cert to the user $userid as CA_adminE"
         rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0023.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
+rlPhaseEnd
+
+        ##### Adding a cert as an CA_adminR #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0024: Adding a cert as CA_adminR should fail"
+        k=24
+        local userid="new_user4"
+        local userFullname="New User4"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_adminR \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0024.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminR \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0024.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0024.out 2>&1" \
+                            1 \
+                            "Adding cert to $userid as CA_adminR"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki_user_cert_add_CA_useraddcert_0024.out"
+
+rlPhaseEnd
+
+        ##### Adding a cert as an CA_agentR #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0025: Adding a cert as CA_agentR should fail"
+        k=25
+        local userid="new_user5"
+        local userFullname="New User5"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_agentR \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0025.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_agentR \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0025.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0025.out 2>&1" \
+                            1 \
+                            "Adding cert to $userid as CA_agentR"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki_user_cert_add_CA_useraddcert_0025.out"
+
+rlPhaseEnd
+
+        ##### Adding a cert as an CA_agentE #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0026: Adding a cert as CA_agentE should fail"
+        k=26
+        local userid="new_user6"
+        local userFullname="New User6"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlRun "date --set='next day'" 0 "Set System date a day ahead"
+        rlRun "date --set='next day'" 0 "Set System date a day ahead"
+        rlRun "date"
+
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_agentE \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0026.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_agentE \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0026.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0026.out 2>&1" \
+                            1 \
+                            "Adding cert to the user $userid as CA_agentE"
+        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0026.out"
+        rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+        rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
+rlPhaseEnd
+
+        ##### Adding a cert as CA_adminUTCA #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0027: Adding a cert as CA_adminUTCA should fail"
+        k=27
+        local userid="new_user7"
+        local userFullname="New User7"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_adminUTCA \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminUTCA \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0027.out 2>&1" \
+                            1 \
+                            "Adding cert to $userid as CA_adminUTCA"
+        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0027.out"
+        rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+
+rlPhaseEnd
+
+        ##### Adding a cert as CA_agentUTCA #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0028: Adding a cert as CA_agentUTCA should fail"
+        k=28
+        local userid="new_user8"
+        local userFullname="New User8"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_agentUTCA \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_agentUTCA \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0028.out 2>&1" \
+                            1 \
+                            "Adding cert to $userid as CA_agentUTCA"
+        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0028.out"
+        rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+
+rlPhaseEnd
+
+        ##### Adding a cert as an CA_operatorV #####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0029: Adding a cert as CA_operatorV should fail"
+        k=29
+        local userid="new_user9"
+        local userFullname="New User9"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_operatorV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0029.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_operatorV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0029.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0029.out 2>&1" \
+                            1 \
+                            "Adding cert to a user as CA_operatorV"
+        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_add_CA_useraddcert_0029.out"
+
+rlPhaseEnd
+
+        ##### Adding a cert as a user not associated with any group#####
+
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0030: Adding a cert as user not associated with an group, should fail"
+        k=30
+        local userid="new_user10"
+        local userFullname="New User10"
+        rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$userFullname\" $userid"
+
+        rlRun "generate_user_cert $cert_info $k \"$userid\" \"$userFullname\" $userid@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n $user1 \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0030.pem"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n $user1 \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0030.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0030.out 2>&1" \
+                            1 \
+                            "Adding cert to $userid as a user not associated with any group"
+        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0030.out"
+        rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+
+rlPhaseEnd
+
+        ##### Add one cert to a user - switching position of options #####
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0031: Add one cert to a user - switching position of options should succeed"
+        k=31
+
+        rlRun "generate_user_cert $cert_info $k \"$user2\" \"$user2fullname\" $user2@example.org $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlLog "Executing pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add --input $TmpDir/pki_user_cert_add-CA_validcert_0031.pem $user2"
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add --input $TmpDir/pki_user_cert_add-CA_validcert_0031.pem $user2 > $TmpDir/pki_user_cert_add_CA_useraddcert_0031.out" \
+                            0 \
+                            "Cert is added to the user $user2"
+        rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_add_CA_useraddcert_0031.out"
+        rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_useraddcert_0031.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_add_CA_useraddcert_0031.out"
+        rlAssertGrep "Serial Number: $cert_serialNumber" "$TmpDir/pki_user_cert_add_CA_useraddcert_0031.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_add_CA_useraddcert_0031.out"
+        rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_useraddcert_0031.out"
 rlPhaseEnd
 
 

@@ -70,14 +70,15 @@ run_pki-user-cli-user-mod-ca_tests(){
 
 ##### pki_user_cli_user_mod-configtest ####
      rlPhaseStartTest "pki_user_cli_user_mod-configtest-001: pki user-mod configuration test"
-        rlRun "pki user-mod > $TmpDir/pki_user_mod_cfg.out" \
-               1 \
+        rlRun "pki user-mod --help > $TmpDir/pki_user_mod_cfg.out 2>&1" \
+               0 \
                 "User modification configuration"
         rlAssertGrep "usage: user-mod <User ID> \[OPTIONS...\]" "$TmpDir/pki_user_mod_cfg.out"
         rlAssertGrep "\--email <email>         Email" "$TmpDir/pki_user_mod_cfg.out"
         rlAssertGrep "\--fullName <fullName>   Full name" "$TmpDir/pki_user_mod_cfg.out"
         rlAssertGrep "\--phone <phone>         Phone" "$TmpDir/pki_user_mod_cfg.out"
         rlAssertGrep "\--state <state>         State" "$TmpDir/pki_user_mod_cfg.out"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
 
 
