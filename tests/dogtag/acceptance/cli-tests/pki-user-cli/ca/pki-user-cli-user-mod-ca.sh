@@ -68,7 +68,14 @@ i18nuser_mod_fullname="kakskümmend"
 i18nuser_mod_email="kakskümmend@example.com"
 run_pki-user-cli-user-mod-ca_tests(){
 
-##### pki_user_cli_user_mod-configtest ####
+    #####Create temporary dir to save the output files #####
+    rlPhaseStartSetup "pki_user_cli_user_mod-ca-startup: Create temporary directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+    rlPhaseEnd
+
+
+	##### pki_user_cli_user_mod-configtest ####
      rlPhaseStartTest "pki_user_cli_user_mod-configtest-001: pki user-mod configuration test"
         rlRun "pki user-mod --help > $TmpDir/pki_user_mod_cfg.out 2>&1" \
                0 \
@@ -1006,6 +1013,10 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
+
+	#Delete temporary directory
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
 
     rlPhaseEnd
 }
