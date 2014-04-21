@@ -779,6 +779,44 @@ testname="pki_user_cert_show"
 		rlLog "FAIL: https://fedorahosted.org/pki/ticket/968"
         rlPhaseEnd
 
+### Tests to show certs assigned to CA users - i18n characters ####
+
+rlPhaseStartTest "pki_user_cli_user_cert-show-CA-033: Show certs assigned to user - Subject name has i18n Characters"
+        k=33
+        rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname" 0  "Generating temp cert"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_show-CA_validcert_0033.pem  > $TmpDir/pki_user_cert_show_CA_useraddcert_0033.out" \
+                            0 \
+                            "Cert is added to the user $user1"
+	rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_useraddcert_0033.out"
+        rlLog "Executing: pki -d $CERTDB_DIR/ \
+                              -n CA_adminV \
+                              -c $CERTDB_DIR_PASSWORD \
+                              -t ca \
+                               user-cert-show $user1 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\""
+        rlRun "pki -d $CERTDB_DIR/ \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                   -t ca \
+                   user-cert-show $user1 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_ca_0033.out" \
+                    0 \
+                    "Show certs assigned to $user1 with i18n chars"
+	rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_ca_0033.out"
+        rlAssertGrep "Serial Number: $cert_serialNumber" "$TmpDir/pki_user_cert_show_ca_0033.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_ca_0033.out"
+        rlAssertGrep "Subject: UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033.out"
+
+	
+        rlPhaseEnd
+
 
 #===Deleting users===#
 rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
@@ -796,7 +834,7 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                 let j=$j+1
         done
 
-	#Delete temporary directory
+	Delete temporary directory
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd

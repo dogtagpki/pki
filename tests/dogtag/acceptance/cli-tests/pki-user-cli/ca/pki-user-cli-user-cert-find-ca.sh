@@ -611,7 +611,7 @@ rlPhaseEnd
 
 ##### Tests to find certs assigned to CA users - i18n characters ####
 
-rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to user \"CN=Örjan Äke,UID=Örjan Äke\" i18n Characters"
+rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to user - Sunject Name has i18n Characters"
         k=22
         rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
