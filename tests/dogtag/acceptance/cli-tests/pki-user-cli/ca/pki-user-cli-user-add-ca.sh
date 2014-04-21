@@ -57,7 +57,7 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "user-cert               User certificate management commands" "$TmpDir/pki_user_cfg.out"
         rlAssertGrep "user-membership         User membership management commands" "$TmpDir/pki_user_cfg.out"
         rlAssertNotGrep "Error: Invalid module \"user---help\"." "$TmpDir/pki_user_cfg.out"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/519"
+        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/843"
      rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_add-configtest: pki user-add configuration test"
@@ -72,7 +72,7 @@ run_pki-user-cli-user-add-ca_tests(){
         rlAssertGrep "\--state <state>         State" "$TmpDir/pki_user_add_cfg.out"
         rlAssertGrep "\--type <type>           Type" "$TmpDir/pki_user_add_cfg.out"
         rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/pki_user_add_cfg.out"
-	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/519"
+	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
 
      ##### Tests to add CA users using a user of admin group with a valid cert####
@@ -751,8 +751,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-revoke-adminR-002.out 2>&1" \
                     1 \
                     "Should not be able to add user $user1 using a user having revoked cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-revoke-adminR-002.out"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/821"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-revoke-adminR-002.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_add-CA-042: Should not be able to add user using a agent with revoked cert CA_agentR"
@@ -767,8 +766,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-revoke-agentR-002.out 2>&1" \
                     1 \
                     "Should not be able to add user $user1 using a user having revoked cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-revoke-agentR-002.out"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/821"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-revoke-agentR-002.out"
     rlPhaseEnd
 
 
@@ -800,8 +798,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-agentR-002.out 2>&1" \
                     1 \
                     "Should not be able to add user $user1 using a agent cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-agentR-002.out"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/821"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-agentR-002.out"
     rlPhaseEnd
 
     ##### Tests to add users using expired cert#####
@@ -819,9 +816,9 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-adminE-002.out 2>&1" \
                     1 \
                     "Should not be able to add user $user1 using a agent cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-adminE-002.out"
-        rlAssertNotGrep "ResteasyIOException: IOException" "$TmpDir/pki-user-add-ca-adminE-002.out"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/821"
+        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-add-ca-adminE-002.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-add-ca-adminE-002.out"
+        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
@@ -840,8 +837,8 @@ run_pki-user-cli-user-add-ca_tests(){
                     1 \
                     "Should not be able to add user $user1 using a agent cert"
         rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-agentE-002.out"
-        rlAssertNotGrep "ResteasyIOException: IOException" "$TmpDir/pki-user-add-ca-agentE-002.out"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/821"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-add-ca-agentE-002.out"
+        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
@@ -891,8 +888,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-adminUTCA-002.out 2>&1" \
                     1 \
                     "Should not be able to add user $user1 using a untrusted cert"
-        rlAssertGrep "ClientResponseFailure: Error status 401 Unauthorized returned" "$TmpDir/pki-user-add-ca-adminUTCA-002.out"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/821"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-adminUTCA-002.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_add-CA-050: user id length exceeds maximum limit defined in the schema"
@@ -1083,16 +1079,8 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=test  --email='negyvenkettő@qetestsdomain.com' u31 > $TmpDir/pki-user-add-ca-001_58.out 2>&1" \
                     0 \
                     "Adding email negyvenkettő@qetestsdomain.com with i18n characters"
-        rlAssertGrep "Added user \"u31\"" "$TmpDir/pki-user-add-ca-001_58.out"
-	rlAssertGrep "Email: gyvenkettő@qetestsdomain.com" "$TmpDir/pki-user-add-ca-001_58.out"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u31 > $TmpDir/pki-user-add-ca-001_58_2.out" \
-                    0 \
-                    "Show user u31 with email in i18n characters"
-        rlAssertGrep "User \"u31\"" "$TmpDir/pki-user-add-ca-001_58_2.out"
-	rlAssertGrep "Email: negyvenkettő@qetestsdomain.com" "$TmpDir/pki-user-add-ca-001_58_2.out"
+        rlAssertGrep "PKIException: Unable to add user" "$TmpDir/pki-user-add-ca-001_58.out"
+	rlAssertNotGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-add-ca-001_58.out"
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"
     rlPhaseEnd
 
@@ -1108,16 +1096,8 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=test --email='četrdesmitdivi@qetestsdomain.com' u32 > $TmpDir/pki-user-add-ca-001_59.out 2>&1" \
                     0 \
                     "Adding email četrdesmitdivi@qetestsdomain.com with i18n characters"
-        rlAssertGrep "Added user \"u32\"" "$TmpDir/pki-user-add-ca-001_59.out"
-	rlAssertGrep "Email: četrdesmitdivi@qetestsdomain.com" "$TmpDir/pki-user-add-ca-001_59.out"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u32 > $TmpDir/pki-user-add-ca-001_59_2.out" \
-                    0 \
-                    "Show user u32 with email četrdesmitdivi@qetestsdomain.com in i18n characters"
-        rlAssertGrep "User \"u32\"" "$TmpDir/pki-user-add-ca-001_59_2.out"
-	rlAssertGrep "Email: četrdesmitdivi@qetestsdomain.com" "$TmpDir/pki-user-add-ca-001_59_2.out"
+	rlAssertGrep "PKIException: Unable to add user" "$TmpDir/pki-user-add-ca-001_59.out"
+	rlAssertNotGrep "PKIException: LDAP error (21): error result" "$TmpDir/pki-user-add-ca-001_59.out"
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"
     rlPhaseEnd
 
@@ -1126,21 +1106,21 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --password='šimtaskolmkümmend' u33"
+                    user-add --fullName=test --password='šimtaskolmkümmend' u31"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --password='šimtaskolmkümmend' u33 > $TmpDir/pki-user-add-ca-001_60.out 2>&1" \
+                    user-add --fullName=test --password='šimtaskolmkümmend' u31 > $TmpDir/pki-user-add-ca-001_60.out 2>&1" \
                     0 \
                     "Adding password šimtaskolmkümmend with i18n characters"
-        rlAssertGrep "Added user \"u33\"" "$TmpDir/pki-user-add-ca-001_60.out"
+        rlAssertGrep "Added user \"u31\"" "$TmpDir/pki-user-add-ca-001_60.out"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u33 > $TmpDir/pki-user-add-ca-001_60_2.out" \
+                    user-show u31 > $TmpDir/pki-user-add-ca-001_60_2.out" \
                     0 \
-                    "Show user u33 with password šimtaskolmkümmend in i18n characters"
-        rlAssertGrep "User \"u33\"" "$TmpDir/pki-user-add-ca-001_60_2.out"
+                    "Show user u31 with password šimtaskolmkümmend in i18n characters"
+        rlAssertGrep "User \"u31\"" "$TmpDir/pki-user-add-ca-001_60_2.out"
     rlPhaseEnd 
 
     rlPhaseStartTest "pki_user_cli_user_add-CA-061: password with i18n characters"
@@ -1148,21 +1128,21 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --password='двадцяттридцять' u34"
+                    user-add --fullName=test --password='двадцяттридцять' u32"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --password='двадцяттридцять' u34 > $TmpDir/pki-user-add-ca-001_61.out 2>&1" \
+                    user-add --fullName=test --password='двадцяттридцять' u32 > $TmpDir/pki-user-add-ca-001_61.out 2>&1" \
                     0 \
                     "Adding password двадцяттридцять with i18n characters"
-        rlAssertGrep "Added user \"u34\"" "$TmpDir/pki-user-add-ca-001_61.out"
+        rlAssertGrep "Added user \"u32\"" "$TmpDir/pki-user-add-ca-001_61.out"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u34 > $TmpDir/pki-user-add-ca-001_61_2.out" \
+                    user-show u32 > $TmpDir/pki-user-add-ca-001_61_2.out" \
                     0 \
-                    "Show user u34 with password двадцяттридцять in i18n characters"
-        rlAssertGrep "User \"u34\"" "$TmpDir/pki-user-add-ca-001_61_2.out"
+                    "Show user u32 with password двадцяттридцять in i18n characters"
+        rlAssertGrep "User \"u32\"" "$TmpDir/pki-user-add-ca-001_61_2.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_add-CA-062: type with i18n characters"
@@ -1170,22 +1150,22 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --type='tjugo-tvåhetvenhét' u35"
+                    user-add --fullName=test --type='tjugo-tvåhetvenhét' u33"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --type='tjugo-tvåhetvenhét' u35 > $TmpDir/pki-user-add-ca-001_62.out 2>&1" \
+                    user-add --fullName=test --type='tjugo-tvåhetvenhét' u33 > $TmpDir/pki-user-add-ca-001_62.out 2>&1" \
                     0 \
                     "Adding type tjugo-tvåhetvenhét with i18n characters"
-        rlAssertGrep "Added user \"u35\"" "$TmpDir/pki-user-add-ca-001_62.out"
+        rlAssertGrep "Added user \"u33\"" "$TmpDir/pki-user-add-ca-001_62.out"
 	rlAssertGrep "Type: tjugo-tvåhetvenhét" "$TmpDir/pki-user-add-ca-001_62.out"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u35 > $TmpDir/pki-user-add-ca-001_62_2.out" \
+                    user-show u33 > $TmpDir/pki-user-add-ca-001_62_2.out" \
                     0 \
-                    "Show user u35 with type tjugo-tvåhetvenhét in i18n characters"
-        rlAssertGrep "User \"u35\"" "$TmpDir/pki-user-add-ca-001_62_2.out"
+                    "Show user u33 with type tjugo-tvåhetvenhét in i18n characters"
+        rlAssertGrep "User \"u33\"" "$TmpDir/pki-user-add-ca-001_62_2.out"
 	rlAssertGrep "Type: tjugo-tvåhetvenhét" "$TmpDir/pki-user-add-ca-001_62_2.out"
     rlPhaseEnd
 
@@ -1194,22 +1174,22 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --type='мiльйонтридцять' u36"
+                    user-add --fullName=test --type='мiльйонтридцять' u34"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --type='мiльйонтридцять' u36 > $TmpDir/pki-user-add-ca-001_63.out 2>&1" \
+                    user-add --fullName=test --type='мiльйонтридцять' u34 > $TmpDir/pki-user-add-ca-001_63.out 2>&1" \
                     0 \
                     "Adding type мiльйонтридцять with i18n characters"
-        rlAssertGrep "Added user \"u36\"" "$TmpDir/pki-user-add-ca-001_63.out"
+        rlAssertGrep "Added user \"u34\"" "$TmpDir/pki-user-add-ca-001_63.out"
         rlAssertGrep "Type: мiльйонтридцять" "$TmpDir/pki-user-add-ca-001_63.out"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u36 > $TmpDir/pki-user-add-ca-001_63_2.out" \
+                    user-show u34 > $TmpDir/pki-user-add-ca-001_63_2.out" \
                     0 \
-                    "Show user u36 with type мiльйонтридцять in i18n characters"
-        rlAssertGrep "User \"u36\"" "$TmpDir/pki-user-add-ca-001_63_2.out"
+                    "Show user u34 with type мiльйонтридцять in i18n characters"
+        rlAssertGrep "User \"u34\"" "$TmpDir/pki-user-add-ca-001_63_2.out"
         rlAssertGrep "Type: мiльйонтридцять" "$TmpDir/pki-user-add-ca-001_63_2.out"
     rlPhaseEnd
 
@@ -1218,22 +1198,22 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --state='čå' u37"
+                    user-add --fullName=test --state='čå' u35"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --state='čå' u37 > $TmpDir/pki-user-add-ca-001_64.out 2>&1" \
+                    user-add --fullName=test --state='čå' u35 > $TmpDir/pki-user-add-ca-001_64.out 2>&1" \
                     0 \
                     "Adding state 'čå' with i18n characters"
-        rlAssertGrep "Added user \"u37\"" "$TmpDir/pki-user-add-ca-001_64.out"
+        rlAssertGrep "Added user \"u35\"" "$TmpDir/pki-user-add-ca-001_64.out"
         rlAssertGrep "State: čå" "$TmpDir/pki-user-add-ca-001_64.out"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u37 > $TmpDir/pki-user-add-ca-001_64_2.out" \
+                    user-show u35 > $TmpDir/pki-user-add-ca-001_64_2.out" \
                     0 \
-                    "Show user u37 with state čå in i18n characters"
-        rlAssertGrep "User \"u37\"" "$TmpDir/pki-user-add-ca-001_64_2.out"
+                    "Show user u35 with state čå in i18n characters"
+        rlAssertGrep "User \"u35\"" "$TmpDir/pki-user-add-ca-001_64_2.out"
         rlAssertGrep "State: čå" "$TmpDir/pki-user-add-ca-001_64_2.out"
     rlPhaseEnd
 
@@ -1242,30 +1222,67 @@ run_pki-user-cli-user-add-ca_tests(){
         rlLog "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --state='йč' u38"
+                    user-add --fullName=test --state='йč' u36"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test --state='йč' u38 > $TmpDir/pki-user-add-ca-001_65.out 2>&1" \
+                    user-add --fullName=test --state='йč' u36 > $TmpDir/pki-user-add-ca-001_65.out 2>&1" \
                     0 \
                     "Adding state 'йč' with i18n characters"
-        rlAssertGrep "Added user \"u38\"" "$TmpDir/pki-user-add-ca-001_65.out"
+        rlAssertGrep "Added user \"u36\"" "$TmpDir/pki-user-add-ca-001_65.out"
         rlAssertGrep "State: йč" "$TmpDir/pki-user-add-ca-001_65.out"
         rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-show u38 > $TmpDir/pki-user-add-ca-001_65_2.out" \
+                    user-show u36 > $TmpDir/pki-user-add-ca-001_65_2.out" \
                     0 \
-                    "Show user u38 with state йč in i18n characters"
-        rlAssertGrep "User \"u38\"" "$TmpDir/pki-user-add-ca-001_65_2.out"
+                    "Show user u36 with state йč in i18n characters"
+        rlAssertGrep "User \"u36\"" "$TmpDir/pki-user-add-ca-001_65_2.out"
         rlAssertGrep "State: йč" "$TmpDir/pki-user-add-ca-001_65_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_add-CA-066: Should not be able to add user using a user cert"
+        #Create a user cert
+        local TEMP_NSS_DB="$TmpDir/nssdb"
+        local ret_reqstatus
+        local ret_requestid
+        local valid_serialNumber
+        local temp_out="$TmpDir/usercert-show.out"
+        rlRun "create_cert_request $TEMP_NSS_DB Password pkcs10 rsa 2048 \"pki User1\" \"pkiUser1\" \
+                \"pkiuser1@example.org\" \"Engineering\" \"Example.Inc\" "US" "--" "ret_reqstatus" "ret_requestid"" 0 "Generating  pkcs10 Certificate Request"
+        rlLog "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
+                --action approve 1"
+        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
+                --action approve 1> $TmpDir/pki-approve-out" 0 "Approve Certificate requeset"
+        rlAssertGrep "Approved certificate request $ret_requestid" "$TmpDir/pki-approve-out"
+        rlLog "pki cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+        rlRun "pki cert-request-show $ret_requestid > $TmpDir/usercert-show1.out"
+        valid_serialNumber=`cat $TmpDir/usercert-show1.out | grep 'Certificate ID' | sed 's/ //g' | cut -d: -f2`
+        rlLog "valid_serialNumber=$valid_serialNumber"
+        #Import user certs to $TEMP_NSS_DB
+        rlRun "pki cert-show $valid_serialNumber --encoded > $temp_out" 0 "command pki cert-show $valid_serialNumber --encoded"
+        rlRun "certutil -d $TEMP_NSS_DB -A -n pkiUser1 -i $temp_out  -t "u,u,u""
+        local expfile="$TmpDir/expfile_pkiuser1.out"
+        rlLog "Executing: pki -d $TEMP_NSS_DB \
+                   -n pkiUser1 \
+                   -c Password \
+                    user-find --start=1 --size=5"
+        echo "spawn -noecho pki -d $TEMP_NSS_DB -n pkiUser1 -c Password user-add --fullName=test_user u39" > $expfile
+        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=qeblade3.rhq.lab.eng.bos.redhat.com,O=rhq.lab.eng.bos.redhat.com Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=rhq.lab.eng.bos.redhat.com Security Domain'
+Import CA certificate (Y/n)? \"" >> $expfile
+        echo "send -- \"Y\r\"" >> $expfile
+        echo "expect \"CA server URI \[http://$HOSTNAME:$CA_UNSECURE_PORT/ca\]: \"" >> $expfile
+        echo "send -- \"\r\"" >> $expfile
+        echo "expect eof" >> $expfile
+        rlRun "/usr/bin/expect -f $expfile >  $TmpDir/pki-user-add-ca-pkiUser1-002.out 2>&1" 1 "Should not be able to add users using a user cert"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-pkiUser1-002.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting users"
 
         #===Deleting users created using CA_adminV cert===#
         i=1
-        while [ $i -lt 39 ] ; do
+        while [ $i -lt 37 ] ; do
                rlRun "pki -d $CERTDB_DIR \
                           -n CA_adminV \
                           -c $CERTDB_DIR_PASSWORD \

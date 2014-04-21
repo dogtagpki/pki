@@ -68,6 +68,8 @@ user7=0
                0 \
                "pki user-show"
         rlAssertGrep "usage: user-show <User ID>" "$TmpDir/pki_user_show_cfg.out"
+        rlAssertNotGrep "Error: Certificate database not initialized." "$TmpDir/pki_user_show_cfg.out"
+	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/843"
     rlPhaseEnd
 
      ##### Tests to show CA users ####
@@ -795,6 +797,7 @@ user7=0
                     1 \
                     "Should not be able to show user u23 using an expired admin cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-adminE-002.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-show-ca-adminE-002.out"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
     rlPhaseEnd
@@ -814,6 +817,8 @@ user7=0
                     1 \
                     "Should not be able to show user u23 using a agent cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-agentE-002.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-show-ca-agentE-002.out"
+        rlAssertNotGrep "" "$TmpDir/pki-user-show-ca-agentE-002.out"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
     rlPhaseEnd

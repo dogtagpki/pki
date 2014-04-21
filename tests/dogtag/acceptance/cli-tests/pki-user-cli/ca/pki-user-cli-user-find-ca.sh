@@ -73,7 +73,7 @@ run_pki-user-cli-user-find-ca_tests(){
         rlAssertGrep "--size <size>     Page size" "$TmpDir/user_find.out"
         rlAssertGrep "--start <start>   Page start" "$TmpDir/user_find.out"
         rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/user_find.out"
-        rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/490"
+        rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/843"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-configtest-002: pki user-find configuration test"
@@ -421,6 +421,7 @@ run_pki-user-cli-user-find-ca_tests(){
                     1 \
                     "Should not be able to find users using an expired admin cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-adminE-002.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-find-ca-adminE-002.out"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
         rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
     rlPhaseEnd
@@ -440,6 +441,7 @@ run_pki-user-cli-user-find-ca_tests(){
                     1 \
                     "Should not be able to find users using an expired agent cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-agentE-002.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-find-ca-agentE-002.out"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
         rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
     rlPhaseEnd
@@ -555,4 +557,3 @@ Import CA certificate (Y/n)? \"" >> $expfile
 	rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 }
-
