@@ -58,6 +58,12 @@ user1fullname="Test user1"
 user2fullname="Test user2"
 testname="pki_user_cert_add"
 
+	##### Create a temporary directory to save output files #####
+   rlPhaseStartSetup "pki_user_cli_user_cert-add-ca-startup: Create temporary directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+    rlPhaseEnd
+
 ##### pki_user_cli_user_cert_add_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-add-configtest-001: pki user-cert-add configuration test"
         rlRun "pki user-cert-add --help > $TmpDir/pki_user_cert_add_cfg.out 2>&1" \
@@ -1148,6 +1154,10 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
+
+	#Delete temporary directory
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 
 
