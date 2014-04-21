@@ -38,6 +38,9 @@
 . /opt/rhqa_pki/saving_codecoverage_results.sh
 
 # Include tests
+
+#. ./acceptance/quickinstall/rhcs-set-time.sh
+. ./acceptance/quickinstall/rhcs-set-time.sh
 . ./acceptance/quickinstall/rhcs-install.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
@@ -58,6 +61,9 @@
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-bigInt.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-revoke.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-release-hold.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-hold.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-submit-ca.sh
 
 PACKAGE="pki-tools"
 
@@ -80,6 +86,7 @@ rlJournalStart
 	TEST_ALL_UPPERCASE=$(echo $TEST_ALL | tr [a-z] [A-Z])
 	QUICKINSTALL_UPPERCASE=$(echo $QUICKINSTALL | tr [a-z] [A-Z])
         if [ "$QUICKINSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+		  run_rhcs_set_time 
                   run_rhcs_install_subsystems
 		  run_pki-user-cli-user-ca_tests
         fi
@@ -141,30 +148,47 @@ rlJournalStart
         CERT_CONFIG_CA_UPPERCASE=$(echo $CERT_CONFIG_CA | tr [a-z] [A-Z])
         if [ "$CERT_CONFIG_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert tests
-                  run_pki_cert
+                  run_pki-cert-ca_tests
         fi
         CERT_SHOW_CA_UPPERCASE=$(echo $CERT_SHOW_CA | tr [a-z] [A-Z])
         if [ "$CERT_SHOW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-show tests
-                  run_pki_cert_show
+                  run_pki-cert-show-ca_tests
         fi
         CERT_REQUEST_SHOW_CA_UPPERCASE=$(echo $CERT_REQUEST_SHOW_CA | tr [a-z] [A-Z])
         if [ "$CERT_REQUEST_SHOW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
-                # Execute pki cert-show tests
-                  run_pki_cert_request_show
+                # Execute pki cert-request-show tests
+                  run_pki-cert-request-show-ca_tests
         fi
         CERT_REVOKE_CA_UPPERCASE=$(echo $CERT_REVOKE_CA | tr [a-z] [A-Z])
         if [ "$CERT_REVOKE_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-revoke tests
-                  run_pki_cert_revoke
+                  run_pki-cert-revoke-ca_tests
+        fi
+        CERT_RELEASE_HOLD_CA_UPPERCASE=$(echo $CERT_RELEASE_HOLD_CA | tr [a-z] [A-Z])
+        if [ "$CERT_RELEASE_HOLD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-release-hold tests
+                  run_pki-cert-release-hold-ca_tests
+        fi
+        CERT_HOLD_CA_UPPERCASE=$(echo $CERT_HOLD_CA | tr [a-z] [A-Z])
+        if [ "$CERT_HOLD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-hold tests
+                  run_pki-cert-hold-ca_tests
+        fi
+        CERT_REQUEST_SUBMIT_CA_UPPERCASE=$(echo $CERT_REQUEST_SUBMIT_CA | tr [a-z] [A-Z])
+        if [ "$CERT_REQUEST_SUBMIT_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-hold tests
+                  run_pki-cert-request-submit_tests
         fi
 	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
 	if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		#Execute pki cert tests
-		 run_pki_cert
-		 run_pki_cert_revoke
-		 run_pki_cert_show
-		 run_pki_cert_request_show
+		 run_pki-cert-ca_tests
+		 run_pki-cert-revoke-ca_tests
+		 run_pki-cert-show-ca_tests
+		 run_pki-cert-request-show-ca_tests
+		 run_pki-cert-release-hold-ca_tests
+		 run_pki-cert-hold-ca_tests
 	fi
 	BIG_INT_UPPERCASE=$(echo $BIG_INT | tr [a-z] [A-Z])
 	if [ "$BIG_INT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
