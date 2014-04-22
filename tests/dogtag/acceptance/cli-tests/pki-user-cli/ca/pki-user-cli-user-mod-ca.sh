@@ -85,7 +85,8 @@ run_pki-user-cli-user-mod-ca_tests(){
         rlAssertGrep "\--fullName <fullName>   Full name" "$TmpDir/pki_user_mod_cfg.out"
         rlAssertGrep "\--phone <phone>         Phone" "$TmpDir/pki_user_mod_cfg.out"
         rlAssertGrep "\--state <state>         State" "$TmpDir/pki_user_mod_cfg.out"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/843"
+	rlAssertGrep "\--help                  Show help options" "$TmpDir/pki_user_mod_cfg.out"
+	rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/pki_user_mod_cfg.out"
     rlPhaseEnd
 
 
@@ -440,10 +441,6 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-017:--phone with maximum length and s
 
 rlPhaseStartTest "pki_user_cli_user_mod-CA-018:--phone with maximum length and numbers only "
         randsym=`cat /dev/urandom | tr -dc '0-9' | fold -w 1024 | head -n 1`
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test usr1"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \

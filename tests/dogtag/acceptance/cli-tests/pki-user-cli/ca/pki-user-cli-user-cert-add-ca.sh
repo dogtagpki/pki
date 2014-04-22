@@ -239,7 +239,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-005: Add revoked cert to a user 
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
                 local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n \"$admin_cert_nickname\" \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                             cert-revoke $cert_serialNumber --force > $TmpDir/pki_user_cert_add-CA_revokecert_005.out"
