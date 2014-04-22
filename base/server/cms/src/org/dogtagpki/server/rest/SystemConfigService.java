@@ -39,6 +39,7 @@ import javax.ws.rs.core.UriInfo;
 import netscape.security.x509.X509CertImpl;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -259,187 +260,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Error in obtaining certificate chain from issuing CA: " + e);
         }
 
-        boolean generateServerCert = data.getGenerateServerCert().equalsIgnoreCase("false")? false : true;
-        boolean generateSubsystemCert = data.getGenerateSubsystemCert();
-
-        boolean hasSigningCert = false;
         Collection<Cert> certs = new ArrayList<Cert>();
-        try {
-            for (String ct : certList) {
-                String certStr;
-                boolean enable = cs.getBoolean("preop.cert." + ct + ".enable", true);
-                if (!enable) continue;
-
-                SystemCertData cdata = null;
-                for (SystemCertData systemCert : data.getSystemCerts()) {
-                    if (systemCert.getTag().equals(ct)) {
-                        cdata = systemCert;
-                        CMS.debug("Found data for '" + ct + "'");
-                        break;
-                    }
-                }
-                if (cdata == null) {
-                    CMS.debug("No data for '" + ct + "' was found!");
-                    throw new BadRequestException("No data for '" + ct + "' was found!");
-                }
-
-                if (data.getStandAlone() && data.getStepTwo()) {
-                    // Stand-alone PKI (Step 2)
-                    if (ct.equals("external_signing")) {
-                        String b64 = cdata.getCert();
-                        if ((b64!= null) && (b64.length()>0) && (!b64.startsWith("..."))) {
-                            hasSigningCert = true;
-                            if (data.getIssuingCA().equals("External CA")) {
-                                String nickname = (cdata.getNickname() != null) ? cdata.getNickname() : "caSigningCert External CA";
-                                String tokenName = cdata.getToken() != null ? cdata.getToken() : token;
-                                Cert certObj = new Cert(tokenName, nickname, ct);
-                                ConfigurationUtils.setExternalCACert(b64, csSubsystem, cs, certObj);
-                                CMS.debug("Step 2:  certStr for '" + ct + "' is " + b64);
-                                String certChainStr = cdata.getCertChain();
-                                if (certChainStr != null) {
-                                    ConfigurationUtils.setExternalCACertChain(certChainStr, csSubsystem, cs, certObj);
-                                    CMS.debug("Step 2:  certChainStr for '" + ct + "' is " + certChainStr);
-                                    certs.add(certObj);
-                                } else {
-                                    throw new BadRequestException("CertChain not provided");
-                                }
-                            }
-                            continue;
-                        }
-                    }
-                }
-
-                if (!generateServerCert && ct.equals("sslserver")) {
-                    updateConfiguration(data, cdata, "sslserver");
-                    continue;
-                }
-
-                if (!generateSubsystemCert && ct.equals("subsystem")) {
-                    // update the details for the shared subsystem cert here.
-                    updateConfiguration(data, cdata, "subsystem");
-
-                    // get parameters needed for cloning
-                    updateCloneConfiguration(cdata, "subsystem");
-                    continue;
-                }
-
-                String keytype = (cdata.getKeyType() != null) ? cdata.getKeyType() : "rsa";
-
-                String keyalgorithm = cdata.getKeyAlgorithm();
-                if (keyalgorithm == null) {
-                    keyalgorithm = (keytype.equals("ecc")) ? "SHA256withEC" : "SHA256withRSA";
-                }
-
-                String signingalgorithm = (cdata.getSigningAlgorithm() != null)?  cdata.getSigningAlgorithm(): keyalgorithm ;
-                String nickname = (cdata.getNickname() != null) ? cdata.getNickname() :
-                    cs.getString("preop.cert." + ct + ".nickname");
-                String dn = (cdata.getSubjectDN() != null)? cdata.getSubjectDN() :
-                    cs.getString("preop.cert." + ct + ".dn");
-
-
-                cs.putString("preop.cert." + ct + ".keytype", keytype);
-                cs.putString("preop.cert." + ct + ".keyalgorithm", keyalgorithm);
-                cs.putString("preop.cert." + ct + ".signingalgorithm", signingalgorithm);
-                cs.putString("preop.cert." + ct + ".nickname", nickname);
-                cs.putString("preop.cert." + ct + ".dn", dn);
-
-                if (!data.getStepTwo()) {
-                    if (keytype.equals("ecc")) {
-                        String curvename = (cdata.getKeyCurveName() != null) ?
-                                cdata.getKeyCurveName() : cs.getString("keys.ecc.curve.default");
-                        cs.putString("preop.cert." + ct + ".curvename.name", curvename);
-                        ConfigurationUtils.createECCKeyPair(token, curvename, cs, ct);
-                    } else {
-                        String keysize = cdata.getKeySize() != null ? cdata.getKeySize() : cs
-                                .getString("keys.rsa.keysize.default");
-                        cs.putString("preop.cert." + ct + ".keysize.size", keysize);
-                        ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, ct);
-                    }
-                } else {
-                    CMS.debug("configure(): step two selected.  keys will not be generated for '" + ct + "'");
-                }
-
-                String tokenName = cdata.getToken() != null ? cdata.getToken() : token;
-                Cert certObj = new Cert(tokenName, nickname, ct);
-                certObj.setDN(dn);
-                certObj.setSubsystem(cs.getString("preop.cert." + ct + ".subsystem"));
-                certObj.setType(cs.getString("preop.cert." + ct + ".type"));
-
-                if (!data.getStepTwo()) {
-                    ConfigurationUtils.configCert(null, null, null, certObj, null);
-                } else {
-                    String subsystem = cs.getString("preop.cert." + ct + ".subsystem");
-                    if (data.getStandAlone()) {
-                        // Stand-alone PKI (Step 2)
-                        certStr = cdata.getCert();
-                        certStr = CryptoUtil.stripCertBrackets(certStr.trim());
-                        certStr = CryptoUtil.normalizeCertStr(certStr);
-                        cs.putString(subsystem + "." + ct + ".cert", certStr);
-                    } else {
-                        certStr = cs.getString(subsystem + "." + ct + ".cert" );
-                    }
-
-                    certObj.setCert(certStr);
-                    CMS.debug("Step 2:  certStr for '" + ct + "' is " + certStr);
-                }
-
-                // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
-                if (data.getStandAlone()) {
-                    if (!data.getStepTwo()) {
-                        // Stand-alone PKI (Step 1)
-                        ConfigurationUtils.handleCertRequest(cs, ct, certObj);
-
-                        CMS.debug("Stand-alone " + csType + " Admin CSR");
-                        String adminSubjectDN = data.getAdminSubjectDN();
-                        String certreqStr = data.getAdminCertRequest();
-                        certreqStr = CryptoUtil.normalizeCertAndReq(certreqStr);
-                        cs.putString("preop.cert.admin.dn", adminSubjectDN);
-                        cs.putString(csSubsystem + ".admin.certreq", certreqStr);
-                        cs.putString(csSubsystem + ".admin.cert", "...paste certificate here...");
-                    }
-                } else {
-                    ConfigurationUtils.handleCertRequest(cs, ct, certObj);
-                }
-
-                if (data.getIsClone().equals("true")) {
-                    ConfigurationUtils.updateCloneConfig();
-                }
-
-                // to determine if we have the signing cert when using an external ca
-                // this will only execute on a ca or stand-alone pki
-                String b64 = cdata.getCert();
-                if ((ct.equals("signing") || ct.equals("external_signing")) && (b64!= null) && (b64.length()>0) && (!b64.startsWith("..."))) {
-                    hasSigningCert = true;
-                    if (data.getIssuingCA().equals("External CA")) {
-                        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-                        certObj.setCert(CryptoUtil.normalizeCertStr(b64));
-
-                        if (cdata.getCertChain() != null) {
-                            certObj.setCertChain(cdata.getCertChain());
-                        } else {
-                            throw new BadRequestException("CertChain not provided");
-                        }
-                    }
-                }
-
-                certs.add(certObj);
-            }
-            // make sure to commit changes here for step 1
-            cs.commit(false);
-
-        } catch (NumberFormatException e) {
-            // move these validations to validate()?
-            throw new BadRequestException("Non-integer value for key size");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new BadRequestException("Invalid algorithm " + e);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException("Error in setting certificate names and key sizes: " + e);
-        }
+        MutableBoolean hasSigningCert = new MutableBoolean();
+        processCerts(data, token, certList, certs, hasSigningCert);
 
         // non-Stand-alone PKI submitting CSRs to external ca
-        if (data.getIssuingCA() != null && data.getIssuingCA().equals("External CA") && !hasSigningCert) {
+        if (data.getIssuingCA() != null && data.getIssuingCA().equals("External CA") && !hasSigningCert.booleanValue()) {
             CMS.debug("Submit CSRs to external ca . . .");
             response.setSystemCerts(SystemCertDataFactory.create(certs));
             response.setStatus(SUCCESS);
@@ -642,6 +468,207 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         return certList;
+    }
+
+    public void processCerts(ConfigurationRequest request, String token, Collection<String> certList,
+            Collection<Cert> certs, MutableBoolean hasSigningCert) {
+
+        try {
+            boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
+            boolean generateSubsystemCert = request.getGenerateSubsystemCert();
+
+            hasSigningCert.setValue(false);
+
+            for (String tag : certList) {
+                boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
+                if (!enable) continue;
+
+                SystemCertData certData = null;
+
+                for (SystemCertData systemCert : request.getSystemCerts()) {
+                    if (systemCert.getTag().equals(tag)) {
+                        certData = systemCert;
+                        CMS.debug("Found data for '" + tag + "'");
+                        break;
+                    }
+                }
+
+                if (certData == null) {
+                    CMS.debug("No data for '" + tag + "' was found!");
+                    throw new BadRequestException("No data for '" + tag + "' was found!");
+                }
+
+                if (request.getStandAlone() && request.getStepTwo()) {
+                    // Stand-alone PKI (Step 2)
+                    if (tag.equals("external_signing")) {
+
+                        String b64 = certData.getCert();
+                        if (b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
+                            hasSigningCert.setValue(true);
+
+                            if (request.getIssuingCA().equals("External CA")) {
+                                String nickname = certData.getNickname() != null ? certData.getNickname() : "caSigningCert External CA";
+                                String tokenName = certData.getToken() != null ? certData.getToken() : token;
+                                Cert cert = new Cert(tokenName, nickname, tag);
+                                ConfigurationUtils.setExternalCACert(b64, csSubsystem, cs, cert);
+
+                                CMS.debug("Step 2:  certStr for '" + tag + "' is " + b64);
+                                String certChainStr = certData.getCertChain();
+
+                                if (certChainStr != null) {
+                                    ConfigurationUtils.setExternalCACertChain(certChainStr, csSubsystem, cs, cert);
+                                    CMS.debug("Step 2:  certChainStr for '" + tag + "' is " + certChainStr);
+                                    certs.add(cert);
+
+                                } else {
+                                    throw new BadRequestException("CertChain not provided");
+                                }
+                            }
+
+                            continue;
+                        }
+                    }
+                }
+
+                if (!generateServerCert && tag.equals("sslserver")) {
+                    updateConfiguration(request, certData, "sslserver");
+                    continue;
+                }
+
+                if (!generateSubsystemCert && tag.equals("subsystem")) {
+                    // update the details for the shared subsystem cert here.
+                    updateConfiguration(request, certData, "subsystem");
+
+                    // get parameters needed for cloning
+                    updateCloneConfiguration(certData, "subsystem");
+                    continue;
+                }
+
+                String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
+
+                String keyalgorithm = certData.getKeyAlgorithm();
+                if (keyalgorithm == null) {
+                    keyalgorithm = keytype.equals("ecc") ? "SHA256withEC" : "SHA256withRSA";
+                }
+
+                String signingalgorithm = certData.getSigningAlgorithm() != null ? certData.getSigningAlgorithm() : keyalgorithm;
+                String nickname = certData.getNickname() != null ? certData.getNickname() :
+                    cs.getString("preop.cert." + tag + ".nickname");
+                String dn = certData.getSubjectDN() != null ? certData.getSubjectDN() :
+                    cs.getString("preop.cert." + tag + ".dn");
+
+                cs.putString("preop.cert." + tag + ".keytype", keytype);
+                cs.putString("preop.cert." + tag + ".keyalgorithm", keyalgorithm);
+                cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
+                cs.putString("preop.cert." + tag + ".nickname", nickname);
+                cs.putString("preop.cert." + tag + ".dn", dn);
+
+                if (!request.getStepTwo()) {
+                    if (keytype.equals("ecc")) {
+                        String curvename = certData.getKeyCurveName() != null ?
+                                certData.getKeyCurveName() : cs.getString("keys.ecc.curve.default");
+                        cs.putString("preop.cert." + tag + ".curvename.name", curvename);
+                        ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
+
+                    } else {
+                        String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs
+                                .getString("keys.rsa.keysize.default");
+                        cs.putString("preop.cert." + tag + ".keysize.size", keysize);
+                        ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, tag);
+                    }
+
+                } else {
+                    CMS.debug("configure(): step two selected.  keys will not be generated for '" + tag + "'");
+                }
+
+                String tokenName = certData.getToken() != null ? certData.getToken() : token;
+                Cert cert = new Cert(tokenName, nickname, tag);
+                cert.setDN(dn);
+                cert.setSubsystem(cs.getString("preop.cert." + tag + ".subsystem"));
+                cert.setType(cs.getString("preop.cert." + tag + ".type"));
+
+                if (!request.getStepTwo()) {
+                    ConfigurationUtils.configCert(null, null, null, cert, null);
+
+                } else {
+                    String subsystem = cs.getString("preop.cert." + tag + ".subsystem");
+                    String certStr;
+
+                    if (request.getStandAlone()) {
+                        // Stand-alone PKI (Step 2)
+                        certStr = certData.getCert();
+                        certStr = CryptoUtil.stripCertBrackets(certStr.trim());
+                        certStr = CryptoUtil.normalizeCertStr(certStr);
+                        cs.putString(subsystem + "." + tag + ".cert", certStr);
+
+                    } else {
+                        certStr = cs.getString(subsystem + "." + tag + ".cert" );
+                    }
+
+                    cert.setCert(certStr);
+                    CMS.debug("Step 2:  certStr for '" + tag + "' is " + certStr);
+                }
+
+                // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
+                if (request.getStandAlone()) {
+                    if (!request.getStepTwo()) {
+                        // Stand-alone PKI (Step 1)
+                        ConfigurationUtils.handleCertRequest(cs, tag, cert);
+
+                        CMS.debug("Stand-alone " + csType + " Admin CSR");
+                        String adminSubjectDN = request.getAdminSubjectDN();
+                        String certreqStr = request.getAdminCertRequest();
+                        certreqStr = CryptoUtil.normalizeCertAndReq(certreqStr);
+
+                        cs.putString("preop.cert.admin.dn", adminSubjectDN);
+                        cs.putString(csSubsystem + ".admin.certreq", certreqStr);
+                        cs.putString(csSubsystem + ".admin.cert", "...paste certificate here...");
+                    }
+
+                } else {
+                    ConfigurationUtils.handleCertRequest(cs, tag, cert);
+                }
+
+                if (request.getIsClone().equals("true")) {
+                    ConfigurationUtils.updateCloneConfig();
+                }
+
+                // to determine if we have the signing cert when using an external ca
+                // this will only execute on a ca or stand-alone pki
+                String b64 = certData.getCert();
+                if ((tag.equals("signing") || tag.equals("external_signing")) && b64 != null && b64.length() > 0 && !b64.startsWith("...")) {
+                    hasSigningCert.setValue(true);
+
+                    if (request.getIssuingCA().equals("External CA")) {
+                        b64 = CryptoUtil.stripCertBrackets(b64.trim());
+                        cert.setCert(CryptoUtil.normalizeCertStr(b64));
+
+                        if (certData.getCertChain() != null) {
+                            cert.setCertChain(certData.getCertChain());
+
+                        } else {
+                            throw new BadRequestException("CertChain not provided");
+                        }
+                    }
+                }
+
+                certs.add(cert);
+            }
+
+            // make sure to commit changes here for step 1
+            cs.commit(false);
+
+        } catch (NumberFormatException e) {
+            // move these validations to validate()?
+            throw new BadRequestException("Non-integer value for key size");
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new BadRequestException("Invalid algorithm " + e);
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Error in setting certificate names and key sizes: " + e);
+        }
     }
 
     private void updateCloneConfiguration(SystemCertData cdata, String tag) throws NotInitializedException,
