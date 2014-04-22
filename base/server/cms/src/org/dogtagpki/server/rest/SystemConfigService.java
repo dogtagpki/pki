@@ -53,7 +53,6 @@ import org.mozilla.jss.util.IncorrectPasswordException;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -78,29 +77,29 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class SystemConfigService extends PKIService implements SystemConfigResource {
     @Context
-    private UriInfo uriInfo;
+    public UriInfo uriInfo;
 
     @Context
-    private HttpHeaders headers;
+    public HttpHeaders headers;
 
     @Context
-    private Request request;
+    public Request request;
 
     @Context
-    private HttpServletRequest servletRequest;
+    public HttpServletRequest servletRequest;
 
-    IConfigStore cs;
-    String csType;
-    String csSubsystem;
-    String csState;
-    boolean isMasterCA = false;
-    String instanceRoot;
+    public IConfigStore cs;
+    public String csType;
+    public String csSubsystem;
+    public String csState;
+    public boolean isMasterCA = false;
+    public String instanceRoot;
 
     public static String SUCCESS = "0";
     public static final String RESTART_SERVER_AFTER_CONFIGURATION =
             "restart_server_after_configuration";
 
-    public SystemConfigService() throws EPropertyNotFound, EBaseException {
+    public SystemConfigService() throws EBaseException {
         cs = CMS.getConfigStore();
         csType = cs.getString("cs.type");
         csSubsystem = csType.toLowerCase();
@@ -169,11 +168,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // Hierarchy Panel
         CMS.debug("=== Hierarchy Panel ===");
         configureHierarchy(data);
-
-        // TPS Panels
-        if (csType.equals("TPS")) {
-            configureTPSSubsystem(data);
-        }
 
         // Database Panel
         CMS.debug("=== Database Panel ===");
@@ -538,68 +532,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString(csSubsystem + "." + tag + ".certreq", cdata.getRequest());
         cs.putString(csSubsystem + "." + tag + ".cert", cdata.getCert());
         cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());
-    }
-
-    public void configureTPSSubsystem(ConfigurationRequest request) {
-
-        // get subsystem certificate nickname
-        String subsystemNick = null;
-        for (SystemCertData cdata : request.getSystemCerts()) {
-            if (cdata.getTag().equals("subsystem")) {
-                subsystemNick = cdata.getNickname();
-                break;
-            }
-        }
-
-        if (subsystemNick == null || subsystemNick.isEmpty()) {
-            throw new BadRequestException("No nickname provided for subsystem certificate");
-        }
-
-        // CA Info Panel
-        configureTPStoCAConnector(request, subsystemNick);
-
-        // TKS Info Panel
-        configureTPStoTKSConnector(request, subsystemNick);
-
-        //DRM Info Panel
-        configureTPStoKRAConnector(request, subsystemNick);
-
-        //AuthDBPanel
-        ConfigurationUtils.updateAuthdbInfo(request.getAuthdbBaseDN(),
-                request.getAuthdbHost(), request.getAuthdbPort(),
-                request.getAuthdbSecureConn());
-    }
-
-    public void configureTPStoCAConnector(ConfigurationRequest data, String subsystemNick) {
-        URI caUri = null;
-        try {
-            caUri = new URI(data.getCaUri());
-        } catch (URISyntaxException e) {
-            throw new BadRequestException("Invalid caURI " + caUri);
-        }
-        ConfigurationUtils.updateCAConnInfo(caUri, subsystemNick);
-    }
-
-    public void configureTPStoTKSConnector(ConfigurationRequest data, String subsystemNick) {
-        URI tksUri = null;
-        try {
-            tksUri = new URI(data.getTksUri());
-        } catch (URISyntaxException e) {
-            throw new BadRequestException("Invalid tksURI " + tksUri);
-        }
-
-        ConfigurationUtils.updateTKSConnInfo(tksUri, subsystemNick);
-    }
-
-    public void configureTPStoKRAConnector(ConfigurationRequest data, String subsystemNick) {
-        URI kraUri = null;
-        try {
-            kraUri = new URI(data.getCaUri());
-        } catch (URISyntaxException e) {
-            throw new BadRequestException("Invalid kraURI " + kraUri);
-        }
-        boolean keyGen = data.getEnableServerSideKeyGen().equalsIgnoreCase("true");
-        ConfigurationUtils.updateKRAConnInfo(keyGen, kraUri, subsystemNick);
     }
 
     public void backupKeys(ConfigurationRequest request) {
