@@ -165,17 +165,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         //subsystem panel
         CMS.debug("=== Subsystem Panel ===");
-        cs.putString("preop.subsystem.name", data.getSubsystemName());
-
-        // is this a clone of another subsystem?
-        if (data.getIsClone().equals("false")) {
-            cs.putString("preop.subsystem.select", "new");
-            cs.putString("subsystem.select", "New");
-        } else {
-            cs.putString("preop.subsystem.select", "clone");
-            cs.putString("subsystem.select", "Clone");
-            getCloningData(data, certList, token, domainXML);
-        }
+        configureSubsystem(data, certList, token, domainXML);
 
         // Hierarchy Panel
         CMS.debug("=== Hierarchy Panel ===");
@@ -183,82 +173,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // TPS Panels
         if (csType.equals("TPS")) {
-
-            // get subsystem certificate nickname
-            String subsystemNick = null;
-            for (SystemCertData cdata: data.getSystemCerts()) {
-                if (cdata.getTag().equals("subsystem")) {
-                    subsystemNick = cdata.getNickname();
-                    break;
-                }
-            }
-            if ((subsystemNick == null) || subsystemNick.isEmpty()) {
-                throw new BadRequestException("No nickname provided for subsystem certificate");
-            }
-
-            // CA Info Panel
-            caInfoPanel(data, subsystemNick);
-
-            // TKS Info Panel
-            tksInfoPanel(data, subsystemNick);
-
-            //DRM Info Panel
-            kraInfoPanel(data, subsystemNick);
-
-            //AuthDBPanel
-            ConfigurationUtils.updateAuthdbInfo(data.getAuthdbBaseDN(),
-                    data.getAuthdbHost(), data.getAuthdbPort(),
-                    data.getAuthdbSecureConn());
-
+            configureTPSSubsystem(data);
         }
 
         // Database Panel
         CMS.debug("=== Database Panel ===");
         databasePanel(data);
 
-        // SizePanel, NamePanel, CertRequestPanel
-        //handle the CA URL
-        CMS.debug("=== Size Panel, Name Panel, CertRequest Panel ===");
-        try {
-            if ((data.getHierarchy() == null) || (data.getHierarchy().equals("join"))) {
-                String url = data.getIssuingCA();
-                if (url.equals("External CA")) {
-                    CMS.debug("external CA selected");
-                    cs.putString("preop.ca.type", "otherca");
-                    cs.putString("preop.ca.pkcs7", "");
-                    cs.putInteger("preop.ca.certchain.size", 0);
-                    if (csType.equals("CA")) {
-                        cs.putString("preop.cert.signing.type", "remote");
-                    }
-                } else {
-                    CMS.debug("local CA selected");
-                    url = url.substring(url.indexOf("https"));
-                    cs.putString("preop.ca.url", url);
-
-                    URL urlx = new URL(url);
-                    String host = urlx.getHost();
-                    int port = urlx.getPort();
-                    int admin_port = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
-                            host, port, "CA", "SecurePort", "SecureAdminPort");
-
-                    cs.putString("preop.ca.type", "sdca");
-                    cs.putString("preop.ca.hostname", host);
-                    cs.putInteger("preop.ca.httpsport", port);
-                    cs.putInteger("preop.ca.httpsadminport", admin_port);
-
-                    if (!data.getIsClone().equals("true")) {
-                       ConfigurationUtils.importCertChain(host, admin_port, "/ca/admin/ca/getCertChain", "ca");
-                    }
-
-                    if (csType.equals("CA")) {
-                        cs.putString("preop.cert.signing.type", "remote");
-                        cs.putString("preop.cert.signing.profile","caInstallCACert");
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new PKIException("Error in obtaining certificate chain from issuing CA: " + e);
-        }
+        configureCACertChain(data, domainXML);
 
         Collection<Cert> certs = new ArrayList<Cert>();
         MutableBoolean hasSigningCert = new MutableBoolean();
@@ -292,12 +214,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // BackupKeyCertPanel/SavePKCS12Panel
         CMS.debug("=== BackupKeyCert Panel/SavePKCS12 Panel ===");
         if (data.getBackupKeys().equals("true")) {
-            try {
-                ConfigurationUtils.backupKeys(data.getBackupPassword(), data.getBackupFile());
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Error in creating pkcs12 to backup keys and certs: " + e);
-            }
+            backupKeys(data);
         }
 
         // AdminPanel
@@ -705,7 +622,37 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());
     }
 
-    private void caInfoPanel(ConfigurationRequest data, String subsystemNick) {
+    public void configureTPSSubsystem(ConfigurationRequest request) {
+
+        // get subsystem certificate nickname
+        String subsystemNick = null;
+        for (SystemCertData cdata : request.getSystemCerts()) {
+            if (cdata.getTag().equals("subsystem")) {
+                subsystemNick = cdata.getNickname();
+                break;
+            }
+        }
+
+        if (subsystemNick == null || subsystemNick.isEmpty()) {
+            throw new BadRequestException("No nickname provided for subsystem certificate");
+        }
+
+        // CA Info Panel
+        configureTPStoCAConnector(request, subsystemNick);
+
+        // TKS Info Panel
+        configureTPStoTKSConnector(request, subsystemNick);
+
+        //DRM Info Panel
+        configureTPStoKRAConnector(request, subsystemNick);
+
+        //AuthDBPanel
+        ConfigurationUtils.updateAuthdbInfo(request.getAuthdbBaseDN(),
+                request.getAuthdbHost(), request.getAuthdbPort(),
+                request.getAuthdbSecureConn());
+    }
+
+    public void configureTPStoCAConnector(ConfigurationRequest data, String subsystemNick) {
         URI caUri = null;
         try {
             caUri = new URI(data.getCaUri());
@@ -715,7 +662,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         ConfigurationUtils.updateCAConnInfo(caUri, subsystemNick);
     }
 
-    private void tksInfoPanel(ConfigurationRequest data, String subsystemNick) {
+    public void configureTPStoTKSConnector(ConfigurationRequest data, String subsystemNick) {
         URI tksUri = null;
         try {
             tksUri = new URI(data.getTksUri());
@@ -726,7 +673,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         ConfigurationUtils.updateTKSConnInfo(tksUri, subsystemNick);
     }
 
-    private void kraInfoPanel(ConfigurationRequest data, String subsystemNick) {
+    public void configureTPStoKRAConnector(ConfigurationRequest data, String subsystemNick) {
         URI kraUri = null;
         try {
             kraUri = new URI(data.getCaUri());
@@ -735,6 +682,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
         boolean keyGen = data.getEnableServerSideKeyGen().equalsIgnoreCase("true");
         ConfigurationUtils.updateKRAConnInfo(keyGen, kraUri, subsystemNick);
+    }
+
+    public void backupKeys(ConfigurationRequest request) {
+        try {
+            ConfigurationUtils.backupKeys(request.getBackupPassword(), request.getBackupFile());
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Error in creating pkcs12 to backup keys and certs: " + e);
+        }
     }
 
     private void adminPanel(ConfigurationRequest data, ConfigurationResponse response) {
@@ -919,6 +875,50 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
+    public void configureCACertChain(ConfigurationRequest data, String domainXML) {
+        if (data.getHierarchy() == null || data.getHierarchy().equals("join")) {
+            try {
+                String url = data.getIssuingCA();
+                if (url.equals("External CA")) {
+                    CMS.debug("external CA selected");
+                    cs.putString("preop.ca.type", "otherca");
+                    cs.putString("preop.ca.pkcs7", "");
+                    cs.putInteger("preop.ca.certchain.size", 0);
+                    if (csType.equals("CA")) {
+                        cs.putString("preop.cert.signing.type", "remote");
+                    }
+
+                } else {
+                    CMS.debug("local CA selected");
+                    url = url.substring(url.indexOf("https"));
+                    cs.putString("preop.ca.url", url);
+
+                    URL urlx = new URL(url);
+                    String host = urlx.getHost();
+                    int port = urlx.getPort();
+                    int admin_port = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
+                            host, port, "CA", "SecurePort", "SecureAdminPort");
+
+                    cs.putString("preop.ca.type", "sdca");
+                    cs.putString("preop.ca.hostname", host);
+                    cs.putInteger("preop.ca.httpsport", port);
+                    cs.putInteger("preop.ca.httpsadminport", admin_port);
+
+                    if (!data.getIsClone().equals("true")) {
+                        ConfigurationUtils.importCertChain(host, admin_port, "/ca/admin/ca/getCertChain", "ca");
+                    }
+
+                    if (csType.equals("CA")) {
+                        cs.putString("preop.cert.signing.type", "remote");
+                        cs.putString("preop.cert.signing.profile","caInstallCACert");
+                    }
+                }
+            } catch (Exception e) {
+                throw new PKIException("Error in obtaining certificate chain from issuing CA: " + e);
+            }
+        }
+    }
+
     private void getCloningData(ConfigurationRequest data, Collection<String> certList, String token, String domainXML) {
         for (String tag : certList) {
             if (tag.equals("sslserver")) {
@@ -1066,6 +1066,23 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
         }
         return domainXML;
+    }
+
+    public void configureSubsystem(ConfigurationRequest request,
+            Collection<String> certList, String token, String domainXML) {
+
+        cs.putString("preop.subsystem.name", request.getSubsystemName());
+
+        // is this a clone of another subsystem?
+        if (request.getIsClone().equals("false")) {
+            cs.putString("preop.subsystem.select", "new");
+            cs.putString("subsystem.select", "New");
+
+        } else {
+            cs.putString("preop.subsystem.select", "clone");
+            cs.putString("subsystem.select", "Clone");
+            getCloningData(request, certList, token, domainXML);
+        }
     }
 
     private void tokenPanel(ConfigurationRequest data, String token) {
