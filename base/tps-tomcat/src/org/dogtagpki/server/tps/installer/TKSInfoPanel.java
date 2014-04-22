@@ -1,4 +1,4 @@
-package com.netscape.cms.servlet.csadmin;
+package org.dogtagpki.server.tps.installer;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,23 +20,25 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.property.PropertySet;
 import com.netscape.certsrv.util.HttpInput;
+import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.WizardPanelBase;
 import com.netscape.cms.servlet.wizard.WizardServlet;
 
-public class DRMInfoPanel extends WizardPanelBase {
+public class TKSInfoPanel extends WizardPanelBase {
 
-    public DRMInfoPanel() {
+    public TKSInfoPanel() {
     }
 
     public void init(ServletConfig config, int panelno)
             throws ServletException {
         setPanelNo(panelno);
-        setName("DRM Information");
+        setName("TKS Information");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
             throws ServletException {
         setPanelNo(panelno);
-        setName("DRM Information");
+        setName("TKS Information");
         setId(id);
     }
 
@@ -46,14 +48,14 @@ public class DRMInfoPanel extends WizardPanelBase {
 
     public void cleanUp() throws IOException {
         IConfigStore cs = CMS.getConfigStore();
-        cs.putString("preop.krainfo.select", "");
+        cs.putString("preop.tksinfo.select", "");
     }
 
     public boolean isPanelDone() {
         IConfigStore cs = CMS.getConfigStore();
         try {
-            String s = cs.getString("preop.krainfo.select", "");
-            if (s != null && ! s.isEmpty()) {
+            String s = cs.getString("preop.tksinfo.select", "");
+            if (s != null && !s.isEmpty()) {
                 return true;
             }
         } catch (EBaseException e) {
@@ -65,45 +67,46 @@ public class DRMInfoPanel extends WizardPanelBase {
         return new PropertySet();
     }
 
+
     public void display(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {
         String errorString = "";
-        context.put("title", "DRM Information");
-        context.put("panel", "admin/console/config/drminfopanel.vm");
+        context.put("title", "TKS Information");
+        context.put("panel", "admin/console/config/tksinfopanel.vm");
         IConfigStore config = CMS.getConfigStore();
 
         if (isPanelDone()) {
-            //TODO - put selected entry in selection box.
-            //String s = config.getString("preop.krainfo.select");
+            // TODO - put selected URL in selection box
+            // String s = config.getString("preop.tksinfo.select");
         }
 
-        // get KRA URLs
+        // get TKS URLs
         Vector<String> v = null;
         try {
-            v = ConfigurationUtils.getUrlListFromSecurityDomain(config, "KRA", "SecurePort");
+            v = ConfigurationUtils.getUrlListFromSecurityDomain(config, "TKS", "SecureAdminPort");
             if (v == null) {
-                errorString = "No DRM found.  CA, TKS and optionally DRM " +
+                errorString = "No TKS found.  CA, TKS and optionally DRM " +
                               " must be installed prior to TPS installation";
                 context.put("errorString", errorString);
-                context.put("preop.krainfo.errorString", errorString);
+                context.put("preop.tksinfo.errorString", errorString);
                 return;
             }
 
-            config.putString("preop.kra.list", StringUtils.join(v,","));
+            config.putString("preop.tks.list", StringUtils.join(v,","));
             config.commit(false);
-        } catch (EBaseException | IOException | SAXException | ParserConfigurationException e1) {
-            e1.printStackTrace();
-            errorString = "Failed to get DRM information from security domain. " + e1;
+        } catch (EBaseException | IOException | SAXException | ParserConfigurationException e) {
+            e.printStackTrace();
+            errorString = "Failed to get TKS information from security domain. " + e;
             context.put("errorString", errorString);
-            context.put("preop.krainfo.errorString", errorString);
+            context.put("preop.tksinfo.errorString", errorString);
             return;
         }
 
         context.put("urls", v);
         context.put("urls_size", v.size());
         context.put("errorString", "");
-        context.put("preop.krainfo.errorString", "");
+        context.put("preop.tksinfo.errorString", "");
     }
 
     public void validate(HttpServletRequest request,
@@ -125,26 +128,20 @@ public class DRMInfoPanel extends WizardPanelBase {
 
         String url = HttpInput.getString(request, "urls");
         String parsedURI = url.substring(url.lastIndexOf("http"));
-        URI kraUri = null;
+        URI tksUri = null;
         try {
-            kraUri = new URI(parsedURI);
+            tksUri = new URI(parsedURI);
         } catch (URISyntaxException e) {
             throw new IOException("Invalid URI " + parsedURI);
         }
 
-        String choice = HttpInput.getString(request, "choice");
-        boolean keyGen = choice.equalsIgnoreCase("keygen");
-
-        ConfigurationUtils.updateKRAConnInfo(keyGen, kraUri, subsystemNick);
-
+        ConfigurationUtils.updateTKSConnInfo(tksUri, subsystemNick);
         context.put("updateStatus", "success");
     }
 
-    /**
-     * If validate() returns false, this method will be called.
-     */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {
     }
+
 }

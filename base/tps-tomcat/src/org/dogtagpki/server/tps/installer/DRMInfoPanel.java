@@ -1,9 +1,8 @@
-package com.netscape.cms.servlet.csadmin;
+package org.dogtagpki.server.tps.installer;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.cert.CertificateException;
 import java.util.Vector;
 
 import javax.servlet.ServletConfig;
@@ -14,8 +13,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
-import org.mozilla.jss.CryptoManager.NotInitializedException;
-import org.mozilla.jss.crypto.TokenException;
 import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.apps.CMS;
@@ -23,23 +20,25 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.property.PropertySet;
 import com.netscape.certsrv.util.HttpInput;
+import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.WizardPanelBase;
 import com.netscape.cms.servlet.wizard.WizardServlet;
 
-public class CAInfoPanel extends WizardPanelBase {
+public class DRMInfoPanel extends WizardPanelBase {
 
-    public CAInfoPanel() {
+    public DRMInfoPanel() {
     }
 
     public void init(ServletConfig config, int panelno)
             throws ServletException {
         setPanelNo(panelno);
-        setName("CA Information");
+        setName("DRM Information");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
             throws ServletException {
         setPanelNo(panelno);
-        setName("CA Information");
+        setName("DRM Information");
         setId(id);
     }
 
@@ -49,14 +48,14 @@ public class CAInfoPanel extends WizardPanelBase {
 
     public void cleanUp() throws IOException {
         IConfigStore cs = CMS.getConfigStore();
-        cs.putString("preop.cainfo.select", "");
+        cs.putString("preop.krainfo.select", "");
     }
 
     public boolean isPanelDone() {
         IConfigStore cs = CMS.getConfigStore();
         try {
-            String s = cs.getString("preop.cainfo.select", "");
-            if (s != null && !s.isEmpty()) {
+            String s = cs.getString("preop.krainfo.select", "");
+            if (s != null && ! s.isEmpty()) {
                 return true;
             }
         } catch (EBaseException e) {
@@ -72,42 +71,41 @@ public class CAInfoPanel extends WizardPanelBase {
             HttpServletResponse response,
             Context context) {
         String errorString = "";
-        context.put("title", "CA Information");
-        context.put("panel", "admin/console/config/cainfopanel.vm");
+        context.put("title", "DRM Information");
+        context.put("panel", "admin/console/config/drminfopanel.vm");
         IConfigStore config = CMS.getConfigStore();
 
         if (isPanelDone()) {
-            // TODO - put the selected URL in selection box.
-            // String s = config.getString("preop.cainfo.select");
+            //TODO - put selected entry in selection box.
+            //String s = config.getString("preop.krainfo.select");
         }
 
-        // get CA URLs
-        Vector<String> v;
+        // get KRA URLs
+        Vector<String> v = null;
         try {
-            v = null;
-            v = ConfigurationUtils.getUrlListFromSecurityDomain(config, "CA", "SecurePort");
+            v = ConfigurationUtils.getUrlListFromSecurityDomain(config, "KRA", "SecurePort");
             if (v == null) {
-                errorString = "No CA found.  CA, TKS and optionally DRM " +
+                errorString = "No DRM found.  CA, TKS and optionally DRM " +
                               " must be installed prior to TPS installation";
                 context.put("errorString", errorString);
-                context.put("preop.cainfo.errorString", errorString);
+                context.put("preop.krainfo.errorString", errorString);
                 return;
             }
 
-            config.putString("preop.ca.list", StringUtils.join(v,","));
+            config.putString("preop.kra.list", StringUtils.join(v,","));
             config.commit(false);
-        } catch (EBaseException | IOException | SAXException | ParserConfigurationException e) {
-            e.printStackTrace();
-            errorString = "Failed to get CA information from security domain. " + e;
+        } catch (EBaseException | IOException | SAXException | ParserConfigurationException e1) {
+            e1.printStackTrace();
+            errorString = "Failed to get DRM information from security domain. " + e1;
             context.put("errorString", errorString);
-            context.put("preop.cainfo.errorString", errorString);
+            context.put("preop.krainfo.errorString", errorString);
             return;
         }
 
         context.put("urls", v);
         context.put("urls_size", v.size());
         context.put("errorString", "");
-        context.put("preop.cainfo.errorString", "");
+        context.put("preop.krainfo.errorString", "");
     }
 
     public void validate(HttpServletRequest request,
@@ -128,37 +126,25 @@ public class CAInfoPanel extends WizardPanelBase {
         }
 
         String url = HttpInput.getString(request, "urls");
-        URI caUri = null;
         String parsedURI = url.substring(url.lastIndexOf("http"));
+        URI kraUri = null;
         try {
-            caUri = new URI(parsedURI);
+            kraUri = new URI(parsedURI);
         } catch (URISyntaxException e) {
             throw new IOException("Invalid URI " + parsedURI);
         }
-        ConfigurationUtils.updateCAConnInfo(caUri, subsystemNick);
 
-        String host = caUri.getHost();
-        int port = caUri.getPort();
+        String choice = HttpInput.getString(request, "choice");
+        boolean keyGen = choice.equalsIgnoreCase("keygen");
 
-        // Note -
-        // list contains EE port. If admin port is different, it needs to
-        // be obtained from security domain and used to get the cert chain
-
-        /* int admin_port = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
-                host, port, "CA", "SecurePort", "SecureAdminPort");
-        */
-
-        try {
-            ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "ca");
-        } catch (CertificateException | SAXException | ParserConfigurationException
-                | NotInitializedException | TokenException | EBaseException e) {
-            e.printStackTrace();
-            throw new IOException("Failed to import certificate chain from CA");
-        }
+        ConfigurationUtils.updateKRAConnInfo(keyGen, kraUri, subsystemNick);
 
         context.put("updateStatus", "success");
     }
 
+    /**
+     * If validate() returns false, this method will be called.
+     */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

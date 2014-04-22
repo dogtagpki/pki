@@ -114,6 +114,14 @@ find_file(SYMKEY_JAR
         /usr/share/java
 )
 
+find_file(VELOCITY_JAR
+    NAMES
+        velocity.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
 # build pki-tps
 javac(pki-tps-classes
     SOURCES
@@ -123,7 +131,7 @@ javac(pki-tps-classes
         ${LDAPJDK_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${VELOCITY_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
     OUTPUT_DIR
