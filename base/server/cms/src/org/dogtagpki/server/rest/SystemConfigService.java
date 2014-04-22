@@ -238,32 +238,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Error while updating security domain: " + e);
         }
 
-        // need to push connector information to the CA
-        String ca_host="";
-        try {
-            ca_host = cs.getString("preop.ca.hostname", "");
-        } catch (EBaseException e) {
-            e.printStackTrace();
-        }
-
         if (csType.equals("KRA")) {
             finalizeKRAConfiguration(data);
         }
 
-        // import the CA certificate into the OCSP
-        // configure the CRL Publishing to OCSP in CA
-        try {
-            if (csType.equals("OCSP") && (!ca_host.equals(""))) {
-                CMS.reinit(IOCSPAuthority.ID);
-                ConfigurationUtils.importCACertToOCSP();
-                if (!data.getStandAlone()) {
-                    ConfigurationUtils.updateOCSPConfig();
-                    ConfigurationUtils.setupClientAuthUser();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
+        if (csType.equals("OCSP")) {
+            finalizeOCSPConfiguration(data);
         }
 
         if (csType.equals("CA")) {
@@ -713,6 +693,28 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } catch (Exception e) {
             CMS.debug(e);
             throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
+        }
+    }
+
+    public void finalizeOCSPConfiguration(ConfigurationRequest request) {
+        try {
+            String ca_host = cs.getString("preop.ca.hostname", "");
+
+            // import the CA certificate into the OCSP
+            // configure the CRL Publishing to OCSP in CA
+            if (!ca_host.equals("")) {
+                CMS.reinit(IOCSPAuthority.ID);
+                ConfigurationUtils.importCACertToOCSP();
+
+                if (!request.getStandAlone()) {
+                    ConfigurationUtils.updateOCSPConfig();
+                    ConfigurationUtils.setupClientAuthUser();
+                }
+            }
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
         }
     }
 
