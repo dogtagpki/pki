@@ -258,38 +258,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         if (csType.equals("TPS")) {
-            try {
-                ConfigurationUtils.addProfilesToTPSUser(data.getAdminUID());
-
-                URI secdomainURI = new URI(data.getSecurityDomainUri());
-
-                // register TPS with CA
-                URI caURI = new URI(data.getCaUri());
-                ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
-
-                // register TPS with TKS
-                URI tksURI = new URI(data.getTksUri());
-                ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
-
-                if (data.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
-                    URI kraURI = new URI(data.getKraUri());
-                    ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
-                    String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
-                    ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
-                }
-
-                // generate shared secret from the tks
-                ConfigurationUtils.getSharedSecret(
-                        tksURI.getHost(),
-                        tksURI.getPort(),
-                        Boolean.getBoolean(data.getImportSharedSecret()));
-
-            } catch (URISyntaxException e) {
-                throw new BadRequestException("Invalid URI for CA, TKS or KRA");
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Errors in registering TPS to CA, TKS or KRA: " + e);
-            }
+            finalizeTPSConfiguration(data);
         }
 
         cs.putInteger("cs.state", 1);
@@ -715,6 +684,42 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } catch (Exception e) {
             CMS.debug(e);
             throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
+        }
+    }
+
+    public void finalizeTPSConfiguration(ConfigurationRequest request) {
+        try {
+            ConfigurationUtils.addProfilesToTPSUser(request.getAdminUID());
+
+            URI secdomainURI = new URI(request.getSecurityDomainUri());
+
+            // register TPS with CA
+            URI caURI = new URI(request.getCaUri());
+            ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
+
+            // register TPS with TKS
+            URI tksURI = new URI(request.getTksUri());
+            ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
+
+            if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
+                URI kraURI = new URI(request.getKraUri());
+                ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
+                String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
+                ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
+            }
+
+            // generate shared secret from the tks
+            ConfigurationUtils.getSharedSecret(
+                    tksURI.getHost(),
+                    tksURI.getPort(),
+                    Boolean.getBoolean(request.getImportSharedSecret()));
+
+        } catch (URISyntaxException e) {
+            throw new BadRequestException("Invalid URI for CA, TKS or KRA");
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in registering TPS to CA, TKS or KRA: " + e);
         }
     }
 
