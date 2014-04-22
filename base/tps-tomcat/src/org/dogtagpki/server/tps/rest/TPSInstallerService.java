@@ -23,8 +23,10 @@ import java.util.Collection;
 
 import org.dogtagpki.server.rest.SystemConfigService;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
@@ -114,5 +116,45 @@ public class TPSInstallerService extends SystemConfigService  {
         cs.putString("tokendb.certBaseDN", "ou=Certificates," + request.getBaseDN());
         cs.putString("tokendb.userBaseDN", request.getBaseDN());
         cs.putString("tokendb.hostport", request.getDsHost() + ":" + request.getDsPort());
+    }
+
+    @Override
+    public void finalizeConfiguration(ConfigurationRequest request) {
+
+        super.finalizeConfiguration(request);
+
+        try {
+            ConfigurationUtils.addProfilesToTPSUser(request.getAdminUID());
+
+            URI secdomainURI = new URI(request.getSecurityDomainUri());
+
+            // register TPS with CA
+            URI caURI = new URI(request.getCaUri());
+            ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
+
+            // register TPS with TKS
+            URI tksURI = new URI(request.getTksUri());
+            ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
+
+            if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
+                URI kraURI = new URI(request.getKraUri());
+                ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
+                String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
+                ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
+            }
+
+            // generate shared secret from the tks
+            ConfigurationUtils.getSharedSecret(
+                    tksURI.getHost(),
+                    tksURI.getPort(),
+                    Boolean.getBoolean(request.getImportSharedSecret()));
+
+        } catch (URISyntaxException e) {
+            throw new BadRequestException("Invalid URI for CA, TKS or KRA");
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in registering TPS to CA, TKS or KRA: " + e);
+        }
     }
 }

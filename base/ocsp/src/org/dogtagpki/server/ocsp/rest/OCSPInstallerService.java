@@ -19,7 +19,12 @@ package org.dogtagpki.server.ocsp.rest;
 
 import org.dogtagpki.server.rest.SystemConfigService;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 
 /**
  * @author alee
@@ -28,5 +33,31 @@ import com.netscape.certsrv.base.EBaseException;
 public class OCSPInstallerService extends SystemConfigService {
 
     public OCSPInstallerService() throws EBaseException {
+    }
+
+    @Override
+    public void finalizeConfiguration(ConfigurationRequest request) {
+
+        super.finalizeConfiguration(request);
+
+        try {
+            String ca_host = cs.getString("preop.ca.hostname", "");
+
+            // import the CA certificate into the OCSP
+            // configure the CRL Publishing to OCSP in CA
+            if (!ca_host.equals("")) {
+                CMS.reinit(IOCSPAuthority.ID);
+                ConfigurationUtils.importCACertToOCSP();
+
+                if (!request.getStandAlone()) {
+                    ConfigurationUtils.updateOCSPConfig();
+                    ConfigurationUtils.setupClientAuthUser();
+                }
+            }
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
+        }
     }
 }

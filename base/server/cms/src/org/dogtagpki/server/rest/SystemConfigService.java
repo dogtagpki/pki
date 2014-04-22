@@ -57,7 +57,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
@@ -239,28 +238,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Error while updating security domain: " + e);
         }
 
-        if (csType.equals("KRA")) {
-            finalizeKRAConfiguration(data);
-        }
-
-        if (csType.equals("OCSP")) {
-            finalizeOCSPConfiguration(data);
-        }
-
-        if (csType.equals("CA")) {
-            finalizeCAConfiguration(data);
-        }
-
         try {
             if (!data.getSharedDB()) ConfigurationUtils.setupDBUser();
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException("Errors in creating or updating dbuser: " + e);
         }
 
-        if (csType.equals("TPS")) {
-            finalizeTPSConfiguration(data);
-        }
+        finalizeConfiguration(data);
 
         cs.putInteger("cs.state", 1);
 
@@ -550,116 +535,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public void finalizeCAConfiguration(ConfigurationRequest request) {
-        try {
-             if (!request.getIsClone().equals("true")) {
-                 ConfigurationUtils.updateNextRanges();
-             }
-
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
-        }
-
-        try {
-            if (request.getIsClone().equals("true") && ConfigurationUtils.isSDHostDomainMaster(cs)) {
-                // cloning a domain master CA, the clone is also master of its domain
-                cs.putString("securitydomain.host", CMS.getEEHost());
-                cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
-                cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
-                cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
-                cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
-                cs.putString("securitydomain.select", "new");
-            }
-
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in determining if security domain host is a master CA");
-        }
-    }
-
-    public void finalizeKRAConfiguration(ConfigurationRequest request) {
-        try {
-            String ca_host = cs.getString("preop.ca.hostname", "");
-
-            // need to push connector information to the CA
-            if (!request.getStandAlone() && !ca_host.equals("")) {
-                ConfigurationUtils.updateConnectorInfo(CMS.getAgentHost(), CMS.getAgentPort());
-                ConfigurationUtils.setupClientAuthUser();
-            }
-
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in pushing KRA connector information to the CA: " + e);
-        }
-
-        try {
-             if (!request.getIsClone().equals("true")) {
-                 ConfigurationUtils.updateNextRanges();
-             }
-
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
-        }
-    }
-
-    public void finalizeOCSPConfiguration(ConfigurationRequest request) {
-        try {
-            String ca_host = cs.getString("preop.ca.hostname", "");
-
-            // import the CA certificate into the OCSP
-            // configure the CRL Publishing to OCSP in CA
-            if (!ca_host.equals("")) {
-                CMS.reinit(IOCSPAuthority.ID);
-                ConfigurationUtils.importCACertToOCSP();
-
-                if (!request.getStandAlone()) {
-                    ConfigurationUtils.updateOCSPConfig();
-                    ConfigurationUtils.setupClientAuthUser();
-                }
-            }
-
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
-        }
-    }
-
-    public void finalizeTPSConfiguration(ConfigurationRequest request) {
-        try {
-            ConfigurationUtils.addProfilesToTPSUser(request.getAdminUID());
-
-            URI secdomainURI = new URI(request.getSecurityDomainUri());
-
-            // register TPS with CA
-            URI caURI = new URI(request.getCaUri());
-            ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
-
-            // register TPS with TKS
-            URI tksURI = new URI(request.getTksUri());
-            ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
-
-            if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
-                URI kraURI = new URI(request.getKraUri());
-                ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
-                String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
-                ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
-            }
-
-            // generate shared secret from the tks
-            ConfigurationUtils.getSharedSecret(
-                    tksURI.getHost(),
-                    tksURI.getPort(),
-                    Boolean.getBoolean(request.getImportSharedSecret()));
-
-        } catch (URISyntaxException e) {
-            throw new BadRequestException("Invalid URI for CA, TKS or KRA");
-
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in registering TPS to CA, TKS or KRA: " + e);
-        }
+    public void finalizeConfiguration(ConfigurationRequest request) {
     }
 
     public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response) {
