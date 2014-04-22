@@ -156,12 +156,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if (token == null) {
             token = ConfigurationRequest.TOKEN_DEFAULT;
         }
-        tokenPanel(data, token);
+        loginToken(data, token);
 
         //configure security domain
         CMS.debug("=== Security Domain Panel ===");
-        String securityDomainType = data.getSecurityDomainType();
-        String domainXML = securityDomainPanel(data, securityDomainType);
+        String domainXML = configureSecurityDomain(data);
 
         //subsystem panel
         CMS.debug("=== Subsystem Panel ===");
@@ -169,7 +168,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // Hierarchy Panel
         CMS.debug("=== Hierarchy Panel ===");
-        hierarchyPanel(data);
+        configureHierarchy(data);
 
         // TPS Panels
         if (csType.equals("TPS")) {
@@ -178,7 +177,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // Database Panel
         CMS.debug("=== Database Panel ===");
-        databasePanel(data);
+        configureDatabase(data);
 
         configureCACertChain(data, domainXML);
 
@@ -219,12 +218,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // AdminPanel
         CMS.debug("=== Admin Panel ===");
-        adminPanel(data, response);
+        configureAdministrator(data, response);
 
         // Done Panel
         // Create or update security domain
         CMS.debug("=== Done Panel ===");
         try {
+            String securityDomainType = data.getSecurityDomainType();
             if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 ConfigurationUtils.createSecurityDomain();
             } else {
@@ -693,7 +693,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void adminPanel(ConfigurationRequest data, ConfigurationResponse response) {
+    public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response) {
         if (!data.getIsClone().equals("true")) {
             try {
                 X509CertImpl admincerts[] = new X509CertImpl[1];
@@ -753,7 +753,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void databasePanel(ConfigurationRequest data) {
+    public void configureDatabase(ConfigurationRequest data) {
         cs.putString("internaldb.ldapconn.host", data.getDsHost());
         cs.putString("internaldb.ldapconn.port", data.getDsPort());
         cs.putString("internaldb.database", data.getDatabase());
@@ -859,7 +859,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void hierarchyPanel(ConfigurationRequest data) {
+    public void configureHierarchy(ConfigurationRequest data) {
         if (csType.equals("CA") && data.getIsClone().equals("false")) {
             if (data.getHierarchy().equals("root")) {
                 cs.putString("preop.hierarchy.select", "root");
@@ -990,8 +990,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private String securityDomainPanel(ConfigurationRequest data, String securityDomainType) {
+    public String configureSecurityDomain(ConfigurationRequest data) {
+
         String domainXML = null;
+
+        String securityDomainType = data.getSecurityDomainType();
         String securityDomainName = data.getSecurityDomainName();
         String securityDomainURL = data.getSecurityDomainUri();
 
@@ -1085,7 +1088,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void tokenPanel(ConfigurationRequest data, String token) {
+    public void loginToken(ConfigurationRequest data, String token) {
         cs.putString("preop.module.token", token);
 
         if (! token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
