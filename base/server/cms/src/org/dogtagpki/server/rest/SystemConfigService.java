@@ -24,12 +24,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Random;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -126,40 +124,30 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
      * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(com.netscape.cms.servlet.csadmin.data.ConfigurationData)
      */
     @Override
-    public ConfigurationResponse configure(ConfigurationRequest data) {
+    public ConfigurationResponse configure(ConfigurationRequest request) {
         try {
-            return configureImpl(data);
+            ConfigurationResponse response = new ConfigurationResponse();
+            configure(request, response);
+            return response;
+
         } catch (Throwable t) {
             CMS.debug(t);
             throw t;
         }
     }
 
-    public ConfigurationResponse configureImpl(ConfigurationRequest data) {
+    public void configure(ConfigurationRequest data, ConfigurationResponse response) {
 
         if (csState.equals("1")) {
             throw new BadRequestException("System is already configured");
-        }
-
-        String certList;
-        try {
-            certList = cs.getString("preop.cert.list");
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException("Unable to get certList from config file");
         }
 
         CMS.debug("SystemConfigService(): configure() called");
         CMS.debug(data.toString());
 
         validateData(data);
-        ConfigurationResponse response = new ConfigurationResponse();
 
-        if (data.getStandAlone() && data.getStepTwo()) {
-                // Stand-alone PKI (Step 2)
-                // Special case to import the external CA and its Chain
-                certList = "external_signing" + "," + certList;
-        }
+        Collection<String> certList = getCertList(data);
 
         // specify module and log into token
         CMS.debug("=== Token Panel ===");
@@ -275,28 +263,22 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         boolean generateSubsystemCert = data.getGenerateSubsystemCert();
 
         boolean hasSigningCert = false;
-        Vector<Cert> certs = new Vector<Cert>();
+        Collection<Cert> certs = new ArrayList<Cert>();
         try {
-            StringTokenizer t = new StringTokenizer(certList, ",");
-            while (t.hasMoreTokens()) {
-                String ct = t.nextToken();
+            for (String ct : certList) {
                 String certStr;
                 boolean enable = cs.getBoolean("preop.cert." + ct + ".enable", true);
                 if (!enable) continue;
 
-                Collection<SystemCertData> certData = data.getSystemCerts();
-                Iterator<SystemCertData> iterator = certData.iterator();
                 SystemCertData cdata = null;
-                boolean cdata_found = false;
-                while (iterator.hasNext()) {
-                    cdata = iterator.next();
-                    if (cdata.getTag().equals(ct)) {
-                        cdata_found = true;
+                for (SystemCertData systemCert : data.getSystemCerts()) {
+                    if (systemCert.getTag().equals(ct)) {
+                        cdata = systemCert;
                         CMS.debug("Found data for '" + ct + "'");
                         break;
                     }
                 }
-                if (!cdata_found) {
+                if (cdata == null) {
                     CMS.debug("No data for '" + ct + "' was found!");
                     throw new BadRequestException("No data for '" + ct + "' was found!");
                 }
@@ -317,7 +299,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                                 if (certChainStr != null) {
                                     ConfigurationUtils.setExternalCACertChain(certChainStr, csSubsystem, cs, certObj);
                                     CMS.debug("Step 2:  certChainStr for '" + ct + "' is " + certChainStr);
-                                    certs.addElement(certObj);
+                                    certs.add(certObj);
                                 } else {
                                     throw new BadRequestException("CertChain not provided");
                                 }
@@ -440,7 +422,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     }
                 }
 
-                certs.addElement(certObj);
+                certs.add(certObj);
             }
             // make sure to commit changes here for step 1
             cs.commit(false);
@@ -457,16 +439,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         // non-Stand-alone PKI submitting CSRs to external ca
-        if ((data.getIssuingCA()!= null) && data.getIssuingCA().equals("External CA") && (!hasSigningCert)) {
+        if (data.getIssuingCA() != null && data.getIssuingCA().equals("External CA") && !hasSigningCert) {
             CMS.debug("Submit CSRs to external ca . . .");
             response.setSystemCerts(SystemCertDataFactory.create(certs));
             response.setStatus(SUCCESS);
-            return response;
+            return;
         }
 
-        Enumeration<Cert> c = certs.elements();
-        while (c.hasMoreElements()) {
-            Cert cert = c.nextElement();
+        for (Cert cert : certs) {
             int ret;
             try {
                 CMS.debug("Processing '" + cert.getCertTag() + "' certificate:");
@@ -640,7 +620,28 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         Utils.exec("chmod 00660 " + restart_server);
 
         response.setStatus(SUCCESS);
-        return response;
+    }
+
+    public Collection<String> getCertList(ConfigurationRequest request) {
+
+        Collection<String> certList = new ArrayList<String>();
+
+        if (request.getStandAlone() && request.getStepTwo()) {
+            // Stand-alone PKI (Step 2)
+            // Special case to import the external CA and its Chain
+            certList.add("external_signing");
+        }
+
+        try {
+            String value = cs.getString("preop.cert.list");
+            certList.addAll(Arrays.asList(value.split(",")));
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Unable to get certList from config file");
+        }
+
+        return certList;
     }
 
     private void updateCloneConfiguration(SystemCertData cdata, String tag) throws NotInitializedException,
@@ -891,10 +892,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void getCloningData(ConfigurationRequest data, String certList, String token, String domainXML) {
-        StringTokenizer t = new StringTokenizer(certList, ",");
-        while (t.hasMoreTokens()) {
-            String tag = t.nextToken();
+    private void getCloningData(ConfigurationRequest data, Collection<String> certList, String token, String domainXML) {
+        for (String tag : certList) {
             if (tag.equals("sslserver")) {
                 cs.putBoolean("preop.cert." + tag + ".enable", true);
             } else {
