@@ -51,6 +51,12 @@
 
 run_pki-user-cli-user-cert-show-ca_tests(){
 
+	##### Create temporary directory to save output files #####
+    rlPhaseStartSetup "pki_user_cli_user_cert-show-ca-startup: Create temporary directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+    rlPhaseEnd
+
 user1=testuser1
 user2=testuser2
 user1fullname="Test user1"
@@ -59,12 +65,6 @@ user3=testuser3
 user3fullname="Test user3"
 cert_info="$TmpDir/cert_info"
 testname="pki_user_cert_show"
-
-	##### Create temporary directory to save output files #####
-    rlPhaseStartSetup "pki_user_cli_user_cert-show-ca-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
 
 ##### pki_user_cli_user_cert_show_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-show-configtest-001: pki user-cert-show configuration test"
@@ -197,6 +197,7 @@ testname="pki_user_cert_show"
                             user-cert-show \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_006.out 2>&1" \
                         1 \
                         "Show cert assigned to user - no User ID provided"
+		rlAssertGrep "Error: required option <User ID>" "$TmpDir/pki_user_cert_show_CA_usershowcert_006.out"
 		rlAssertGrep "usage: user-cert-show <User ID> <Cert ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_show_CA_usershowcert_006.out"
 	        rlAssertGrep "--encoded         Base-64 encoded" "$TmpDir/pki_user_cert_show_CA_usershowcert_006.out"
         	rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_user_cert_show_CA_usershowcert_006.out"
@@ -219,6 +220,7 @@ testname="pki_user_cert_show"
                             user-cert-show $user1  > $TmpDir/pki_user_cert_show_CA_usershowcert_007.out 2>&1" \
                         1 \
                         "Show cert assigned to user - no Cert ID provided"
+		rlAssertGrep "Error: required option <Cert ID>" "$TmpDir/pki_user_cert_show_CA_usershowcert_007.out"
                 rlAssertGrep "usage: user-cert-show <User ID> <Cert ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_show_CA_usershowcert_007.out"
                 rlAssertGrep "--encoded         Base-64 encoded" "$TmpDir/pki_user_cert_show_CA_usershowcert_007.out"
                 rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_user_cert_show_CA_usershowcert_007.out"
@@ -268,6 +270,7 @@ testname="pki_user_cert_show"
                             user-cert-show \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded > $TmpDir/pki_user_cert_show_CA_usershowcert_009.out 2>&1" \
                         1 \
                         "Show cert assigned to user - no User ID provided with --encoded option"
+		rlAssertGrep "Error: required option <User ID>" "$TmpDir/pki_user_cert_show_CA_usershowcert_009.out"
                 rlAssertGrep "usage: user-cert-show <User ID> <Cert ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_show_CA_usershowcert_009.out"
                 rlAssertGrep "--encoded         Base-64 encoded" "$TmpDir/pki_user_cert_show_CA_usershowcert_009.out"
                 rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_user_cert_show_CA_usershowcert_009.out"
@@ -290,6 +293,7 @@ testname="pki_user_cert_show"
                             user-cert-show $user1 --encoded > $TmpDir/pki_user_cert_show_CA_usershowcert_0010.out 2>&1" \
                         1 \
                         "Show cert assigned to user - no Cert ID provided"
+		rlAsserGrep "Error: required option <Cert ID>" "$TmpDir/pki_user_cert_show_CA_usershowcert_0010.out"
                 rlAssertGrep "usage: user-cert-show <User ID> <Cert ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_show_CA_usershowcert_0010.out"
                 rlAssertGrep "--encoded         Base-64 encoded" "$TmpDir/pki_user_cert_show_CA_usershowcert_0010.out"
                 rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_user_cert_show_CA_usershowcert_0010.out"
@@ -341,6 +345,7 @@ testname="pki_user_cert_show"
                             user-cert-show \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/user_cert_show_output0012 > $TmpDir/pki_user_cert_show_CA_usershowcert_0012.out 2>&1" \
                         1 \
                         "Show cert assigned to user - no User ID provided with --output option"
+		rlAssertGrep "Error: required option <User ID>" "$TmpDir/pki_user_cert_show_CA_usershowcert_0012.out"
                 rlAssertGrep "usage: user-cert-show <User ID> <Cert ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_show_CA_usershowcert_0012.out"
                 rlAssertGrep "--encoded         Base-64 encoded" "$TmpDir/pki_user_cert_show_CA_usershowcert_0012.out"
                 rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_user_cert_show_CA_usershowcert_0012.out"
@@ -363,6 +368,7 @@ testname="pki_user_cert_show"
                             user-cert-show $user1 --output $TmpDir/user_cert_show_output0013 > $TmpDir/pki_user_cert_show_CA_usershowcert_0013.out 2>&1" \
                         1 \
                         "Show cert assigned to user - no Cert ID provided"
+		rlAsseetGrep "Error: required option <CertID>" "$TmpDir/pki_user_cert_show_CA_usershowcert_0013.out"
                 rlAssertGrep "usage: user-cert-show <User ID> <Cert ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_show_CA_usershowcert_0013.out"
                 rlAssertGrep "--encoded         Base-64 encoded" "$TmpDir/pki_user_cert_show_CA_usershowcert_0013.out"
                 rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_user_cert_show_CA_usershowcert_0013.out"
@@ -449,6 +455,7 @@ testname="pki_user_cert_show"
                             user-cert-show \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty > $TmpDir/pki_user_cert_show_CA_usershowcert_0017.out 2>&1" \
                         1 \
                         "Show cert assigned to user - no User ID provided with --pretty option"
+		rlAssertGrep "Error: required option <User ID>" "$TmpDir/pki_user_cert_show_CA_usershowcert_0017.out"
                 rlAssertGrep "usage: user-cert-show <User ID> <Cert ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_show_CA_usershowcert_0017.out"
                 rlAssertGrep "--encoded         Base-64 encoded" "$TmpDir/pki_user_cert_show_CA_usershowcert_0017.out"
                 rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_user_cert_show_CA_usershowcert_0017.out"
@@ -471,6 +478,7 @@ testname="pki_user_cert_show"
                             user-cert-show $user1 --pretty > $TmpDir/pki_user_cert_show_CA_usershowcert_0018.out 2>&1" \
                         1 \
                         "Show cert assigned to user - no Cert ID provided"
+		rlAssertGrep "Error: required option <Cert ID>" "$TmpDir/pki_user_cert_show_CA_usershowcert_0018.out"
                 rlAssertGrep "usage: user-cert-show <User ID> <Cert ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_show_CA_usershowcert_0018.out"
                 rlAssertGrep "--encoded         Base-64 encoded" "$TmpDir/pki_user_cert_show_CA_usershowcert_0018.out"
                 rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_user_cert_show_CA_usershowcert_0018.out"
@@ -545,7 +553,8 @@ testname="pki_user_cert_show"
                             user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_0021.out 2>&1" \
                         1 \
                         "Show cert assigned to user - as CA_auditorV"
-		rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0021.out"
+		rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0021.out"
+		rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_show_CA_usershowcert_0021.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
@@ -569,7 +578,8 @@ testname="pki_user_cert_show"
                         1 \
                         "Show cert assigned to user - as CA_adminE"
 		rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-		rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0022.out"
+		rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0022.out"
+		rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_show_CA_usershowcert_0022.out"
 		rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
@@ -612,7 +622,8 @@ testname="pki_user_cert_show"
                         1 \
                         "Show cert assigned to user - as CA_agentE"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-                rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0024.out"
+                rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0024.out"
+		rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_show_CA_usershowcert_0024.out"
                 rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
@@ -667,7 +678,8 @@ testname="pki_user_cert_show"
                             user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_0027.out 2>&1" \
                         1 \
                         "Show cert assigned to user - as CA_adminUTCA"
-                rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0027.out"
+                rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0027.out"
+		rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_show_CA_usershowcert_0027.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
@@ -686,7 +698,8 @@ testname="pki_user_cert_show"
                             user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_0028.out 2>&1" \
                         1 \
                         "Show cert assigned to user - as CA_agentUTCA"
-                rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0028.out"
+                rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0028.out"
+		rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_show_CA_usershowcert_0028.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
@@ -753,7 +766,8 @@ testname="pki_user_cert_show"
                             user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_0031.out 2>&1" \
                         1 \
                         "Show cert assigned to user - as a user not associated with any role"
-                rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0031.out"
+                rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_show_CA_usershowcert_0031.out"
+		rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_show_CA_usershowcert_0031.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
@@ -834,7 +848,7 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                 let j=$j+1
         done
 
-	Delete temporary directory
+	#Delete temporary directory
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd

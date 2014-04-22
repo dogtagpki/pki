@@ -51,18 +51,18 @@
 
 run_pki-user-cli-user-cert-add-ca_tests(){
 
+	##### Create a temporary directory to save output files #####
+   rlPhaseStartSetup "pki_user_cli_user_cert-add-ca-startup: Create temporary directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+    rlPhaseEnd
+
 local cert_info="$TmpDir/cert_info"
 user1=testuser1
 user2=testuser2
 user1fullname="Test user1"
 user2fullname="Test user2"
 testname="pki_user_cert_add"
-
-	##### Create a temporary directory to save output files #####
-   rlPhaseStartSetup "pki_user_cli_user_cert-add-ca-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
 
 ##### pki_user_cli_user_cert_add_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-add-configtest-001: pki user-cert-add configuration test"
@@ -834,7 +834,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0022: Adding a cert as CA_audito
                             user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0022.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0022.out 2>&1" \
                             1 \
                             "Adding cert to $userid as CA_auditorV"
-	rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0022.out"
+	rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0022.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_add_CA_useraddcert_0022.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
 rlPhaseEnd
@@ -872,7 +873,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0023: Adding a cert as CA_adminE
                             user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0023.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0023.out 2>&1" \
                             1 \
                             "Adding cert to the user $userid as CA_adminE"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0023.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0023.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_add_CA_useraddcert_0023.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
@@ -973,7 +975,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0026: Adding a cert as CA_agentE
                             user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0026.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0026.out 2>&1" \
                             1 \
                             "Adding cert to the user $userid as CA_agentE"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0026.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0026.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_add_CA_useraddcert_0026.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
@@ -1006,7 +1009,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0027: Adding a cert as CA_adminU
                             user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0027.out 2>&1" \
                             1 \
                             "Adding cert to $userid as CA_adminUTCA"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0027.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0027.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_add_CA_useraddcert_0027.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
 rlPhaseEnd
@@ -1039,7 +1043,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0028: Adding a cert as CA_agentU
                             user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0028.out 2>&1" \
                             1 \
                             "Adding cert to $userid as CA_agentUTCA"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0028.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0028.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_add_CA_useraddcert_0028.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
 rlPhaseEnd
@@ -1104,7 +1109,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0030: Adding a cert as user not 
                             user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0030.pem  > $TmpDir/pki_user_cert_add_CA_useraddcert_0030.out 2>&1" \
                             1 \
                             "Adding cert to $userid as a user not associated with any group"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0030.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_add_CA_useraddcert_0030.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_add_CA_useraddcert_0030.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
 rlPhaseEnd

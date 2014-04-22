@@ -51,6 +51,13 @@
 
 run_pki-user-cli-user-cert-find-ca_tests(){
 
+
+	#####Create temporary dir to save the output files #####
+    rlPhaseStartSetup "pki_user_cli_user_cert-find-ca-startup: Create temporary directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+    rlPhaseEnd
+
 user1=testuser1
 user2=testuser2
 user1fullname="Test user1"
@@ -59,12 +66,6 @@ user3=testuser3
 user3fullname="Test user3"
 cert_info="$TmpDir/cert_info"
 testname="pki_user_cert_find"
-
-	#####Create temporary dir to save the output files #####
-    rlPhaseStartSetup "pki_user_cli_user_cert-find-ca-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
 
 ##### pki_user_cli_user_cert_find_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-find-configtest-001: pki user-cert-find configuration test"
@@ -288,6 +289,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-008: Find the certs of a user i
                     1 \
                     "Finding certs assigned to $user1 - --size=-1"
         rlAssertGrep "The value for size shold be greater than or equal to 0" "$TmpDir/pki_user_cert_find_ca_008.out"
+	rlAssertNotGrep "Number of entries returned " "$TmpDir/pki_user_cert_find_ca_008.out"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/861"
 rlPhaseEnd
 
@@ -418,6 +420,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-013: Find the certs of a user i
                     1 \
                     "Finding certs assigned to $user1 - --start=-1"
         rlAssertGrep "The value for start shold be greater than or equal to 0" "$TmpDir/pki_user_cert_find_ca_013.out"
+	rlAssertNotGrep "Number of entries returned" "$TmpDir/pki_user_cert_find_ca_013.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/929"
 rlPhaseEnd
 
@@ -497,6 +500,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-017: Find the certs of a user i
                    user-cert-find $user1 --start=-1 --size=-1 > $TmpDir/pki_user_cert_find_ca_017.out" \
                     1 \
                     "Finding certs assigned to $user1 - --start=-1 --size=-1"
+	rlAssertNotGrep "Number of entries returned " "$TmpDir/pki_user_cert_find_ca_017.out"
         rlAssertGrep "The value for start and size shold be greater than or equal to 0" "$TmpDir/pki_user_cert_find_ca_017.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/929"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/861"
@@ -682,7 +686,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-024: Find the certs of a user a
                    user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_024.out 2>&1" \
                     1 \
                     "Finding certs assigned to $user2 as CA_auditorV"
-	rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_024.out"
+	rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_024.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_024.out"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
@@ -702,7 +707,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-025: Find the certs of a user a
                    user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_025.out 2>&1" \
                     1 \
                     "Finding certs assigned to $user2 as CA_adminE"
-	rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_025.out"
+	rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_025.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_025.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
@@ -723,7 +729,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-026: Find the certs of a user a
                    user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_026.out 2>&1" \
                     1 \
                     "Finding certs assigned to $user2 as CA_agentE"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_026.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_026.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_026.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
@@ -776,7 +783,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-029: Find the certs of a user a
                    user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_029.out 2>&1" \
                     1 \
                     "Finding certs assigned to $user2 as CA_adminUTCA"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_029.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_029.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_029.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
@@ -794,7 +802,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-030: Find the certs of a user a
                    user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_030.out 2>&1" \
                     1 \
                     "Finding certs assigned to $user2 as CA_agentUTCA"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_030.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_030.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_030.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
@@ -829,7 +838,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-032: Find the certs of a user a
                    user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_032.out 2>&1" \
                     1 \
                     "Finding certs assigned to $user2 as a user not associated with any role"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_032.out"
+        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_032.out"
+	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_032.out"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
