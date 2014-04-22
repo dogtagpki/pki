@@ -246,15 +246,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             e.printStackTrace();
         }
 
-        // need to push connector information to the CA
-        try {
-            if (csType.equals("KRA") && (!data.getStandAlone()) && (!ca_host.equals(""))) {
-                ConfigurationUtils.updateConnectorInfo(CMS.getAgentHost(), CMS.getAgentPort());
-                ConfigurationUtils.setupClientAuthUser();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException("Errors in pushing KRA connector information to the CA: " + e);
+        if (csType.equals("KRA")) {
+            finalizeKRAConfiguration(data);
         }
 
         // import the CA certificate into the OCSP
@@ -275,17 +268,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (csType.equals("CA")) {
             finalizeCAConfiguration(data);
-        }
-
-        if (!data.getIsClone().equals("true")) {
-            try {
-                if (csType.equals("KRA")) {
-                     ConfigurationUtils.updateNextRanges();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
-            }
         }
 
         try {
@@ -705,6 +687,32 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } catch (Exception e) {
             CMS.debug(e);
             throw new PKIException("Errors in determining if security domain host is a master CA");
+        }
+    }
+
+    public void finalizeKRAConfiguration(ConfigurationRequest request) {
+        try {
+            String ca_host = cs.getString("preop.ca.hostname", "");
+
+            // need to push connector information to the CA
+            if (!request.getStandAlone() && !ca_host.equals("")) {
+                ConfigurationUtils.updateConnectorInfo(CMS.getAgentHost(), CMS.getAgentPort());
+                ConfigurationUtils.setupClientAuthUser();
+            }
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in pushing KRA connector information to the CA: " + e);
+        }
+
+        try {
+             if (!request.getIsClone().equals("true")) {
+                 ConfigurationUtils.updateNextRanges();
+             }
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
         }
     }
 
