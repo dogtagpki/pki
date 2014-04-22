@@ -273,32 +273,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
         }
 
+        if (csType.equals("CA")) {
+            finalizeCAConfiguration(data);
+        }
+
         if (!data.getIsClone().equals("true")) {
             try {
-                if (csType.equals("CA") || csType.equals("KRA")) {
+                if (csType.equals("KRA")) {
                      ConfigurationUtils.updateNextRanges();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
             }
-        }
-
-        try {
-            if (data.getIsClone().equals("true") && csType.equalsIgnoreCase("CA")
-                    && ConfigurationUtils.isSDHostDomainMaster(cs)) {
-                // cloning a domain master CA, the clone is also master of its domain
-                cs.putString("securitydomain.host", CMS.getEEHost());
-                cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
-                cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
-                cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
-                cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
-                cs.putString("securitydomain.select", "new");
-
-            }
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            throw new PKIException("Errors in determining if security domain host is a master CA");
         }
 
         try {
@@ -690,6 +677,34 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } catch (Exception e) {
             CMS.debug(e);
             throw new PKIException("Error in creating pkcs12 to backup keys and certs: " + e);
+        }
+    }
+
+    public void finalizeCAConfiguration(ConfigurationRequest request) {
+        try {
+             if (!request.getIsClone().equals("true")) {
+                 ConfigurationUtils.updateNextRanges();
+             }
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
+        }
+
+        try {
+            if (request.getIsClone().equals("true") && ConfigurationUtils.isSDHostDomainMaster(cs)) {
+                // cloning a domain master CA, the clone is also master of its domain
+                cs.putString("securitydomain.host", CMS.getEEHost());
+                cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
+                cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
+                cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
+                cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
+                cs.putString("securitydomain.select", "new");
+            }
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in determining if security domain host is a master CA");
         }
     }
 
