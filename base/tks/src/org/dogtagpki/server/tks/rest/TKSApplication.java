@@ -13,7 +13,6 @@ import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SystemCertService;
-import org.dogtagpki.server.rest.SystemConfigService;
 import org.dogtagpki.server.rest.UserService;
 
 import com.netscape.certsrv.base.PKIException;
@@ -32,7 +31,7 @@ public class TKSApplication extends Application {
         classes.add(AuditService.class);
 
         // installer
-        classes.add(SystemConfigService.class);
+        classes.add(TKSInstallerService.class);
 
         // selftests
         classes.add(SelfTestService.class);

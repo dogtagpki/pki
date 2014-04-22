@@ -14,7 +14,6 @@ import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.SecurityDomainService;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SystemCertService;
-import org.dogtagpki.server.rest.SystemConfigService;
 import org.dogtagpki.server.rest.UserService;
 
 import com.netscape.certsrv.apps.CMS;
@@ -36,7 +35,7 @@ public class CAApplication extends Application {
         classes.add(AuditService.class);
 
         // installer
-        classes.add(SystemConfigService.class);
+        classes.add(CAInstallerService.class);
 
         // certs and requests
         classes.add(CertService.class);
