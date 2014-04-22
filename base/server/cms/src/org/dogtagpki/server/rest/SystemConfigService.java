@@ -171,7 +171,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // Database Panel
         CMS.debug("=== Database Panel ===");
-        configureDatabase(data);
+        try {
+            configureDatabase(data);
+            cs.commit(false);
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            throw new PKIException("Unable to commit config parameters to file");
+        }
+        initializeDatabase(data);
 
         configureCACertChain(data, domainXML);
 
@@ -723,21 +730,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("internaldb.ldapauth.bindDN", data.getBindDN());
         cs.putString("internaldb.ldapconn.secureConn", (data.getSecureConn().equals("on") ? "true" : "false"));
         cs.putString("preop.database.removeData", data.getRemoveData());
+    }
 
-        if (csType.equals("TPS")) {
-            cs.putString("tokendb.activityBaseDN", "ou=Activities," + data.getBaseDN());
-            cs.putString("tokendb.baseDN", "ou=Tokens," + data.getBaseDN());
-            cs.putString("tokendb.certBaseDN", "ou=Certificates," + data.getBaseDN());
-            cs.putString("tokendb.userBaseDN", data.getBaseDN());
-            cs.putString("tokendb.hostport", data.getDsHost() + ":" + data.getDsPort());
-        }
-
-        try {
-            cs.commit(false);
-        } catch (EBaseException e2) {
-            e2.printStackTrace();
-            throw new PKIException("Unable to commit config parameters to file");
-        }
+    public void initializeDatabase(ConfigurationRequest data) {
 
         if (data.getIsClone().equals("true")) {
             String masterhost = "";

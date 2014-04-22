@@ -103,4 +103,16 @@ public class TPSInstallerService extends SystemConfigService  {
         boolean keyGen = data.getEnableServerSideKeyGen().equalsIgnoreCase("true");
         ConfigurationUtils.updateKRAConnInfo(keyGen, kraUri, subsystemNick);
     }
+
+    @Override
+    public void configureDatabase(ConfigurationRequest request) {
+
+        super.configureDatabase(request);
+
+        cs.putString("tokendb.activityBaseDN", "ou=Activities," + request.getBaseDN());
+        cs.putString("tokendb.baseDN", "ou=Tokens," + request.getBaseDN());
+        cs.putString("tokendb.certBaseDN", "ou=Certificates," + request.getBaseDN());
+        cs.putString("tokendb.userBaseDN", request.getBaseDN());
+        cs.putString("tokendb.hostport", request.getDsHost() + ":" + request.getDsPort());
+    }
 }
