@@ -1001,6 +1001,7 @@ fi
 %{_datadir}/pki/tps/conf/
 %{_datadir}/pki/tps/setup/
 %{_datadir}/pki/tps/webapps/
+%{_mandir}/man5/pki-tps-connector.5.gz
 
 %if %{with javadoc}
 %files -n pki-javadoc

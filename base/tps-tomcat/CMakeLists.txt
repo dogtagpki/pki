@@ -6,6 +6,18 @@ add_subdirectory(src)
 add_subdirectory(setup)
 add_subdirectory(shared/conf)
 
+# install manual pages
+install(
+    DIRECTORY
+        man/
+    DESTINATION
+        ${MAN_INSTALL_DIR}
+    FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE
+        GROUP_READ
+        WORLD_READ
+)
+
 # install systemd scripts
 install(
     FILES

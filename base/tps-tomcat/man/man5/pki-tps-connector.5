@@ -1,0 +1,217 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-tps-connector 5 "April 22, 2014" "version 10.2" "PKI TPS Connector Configuration" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+PKI TPS Connector Configuration
+
+.SH LOCATION
+/var/lib/pki/<instance>/conf/tps/CS.cfg
+
+.SH DESCRIPTION
+
+TPS connector provides a mechanism for TPS to communicate with other PKI subsystems.
+There are three supported connector types: CA, KRA, and TKS. The connectors are
+defined using properties in the TPS configuration file.
+
+.SH CA CONNECTOR
+
+A CA connector is defined using properties that begin with tps.connector.ca<n> where
+n is a positive integer indicating the ID of the CA connector.
+
+.SS tps.connector.ca<n>.enable
+
+This property contains a boolean value indicating whether the connector is enabled.
+
+.SS tps.connector.ca<n>.host
+
+In no-failover configuration, the property contains the hostname of the CA.
+
+In failover configuration, the property contains a list of hostnames and port numbers
+of the CA subsystems. The format is hostname:port separated by spaces.
+
+.SS tps.connector.ca<n>.port
+
+In no-failover configuration, the property contains the port number of the CA.
+
+.SS tps.connector.ca<n>.nickName
+
+This property contains the nickname of the TPS subsystem certificate for SSL client
+authentication to the CA.
+
+.SS tps.connector.ca<n>.minHttpConns
+
+This property contains the minimum number of HTTP connections.
+
+.SS tps.connector.ca<n>.maxHttpConns
+
+This property contains the maximum number of HTTP connections.
+
+.SS tps.connector.ca<n>.uri.<op>
+
+This property contains the URI to contact CA for the operation <op>.
+Example ops: enrollment, renewal, revoke, unrevoke.
+
+.SS tps.connector.ca<n>.timeout
+
+This property contains the connection timeout.
+
+.SH KRA CONNECTOR
+
+A KRA connector is defined using properties that begin with tps.connector.kra<n> where
+n is a positive integer indicating the ID of the KRA connector.
+
+.SS tps.connector.kra<n>.enable
+
+This property contains a boolean value indicating whether the connector is enabled.
+
+.SS tps.connector.kra<n>.host
+
+In no-failover configuration, the property contains the hostname of the KRA.
+
+In failover configuration, the property contains a list of hostnames and port numbers
+of the KRA subsystems. The format is hostname:port separated by spaces.
+
+.SS tps.connector.kra<n>.port
+
+In no-failover configuration, the property contains the port number of the KRA.
+
+.SS tps.connector.kra<n>.nickName
+
+This property contains the nickname of the TPS subsystem certificate for SSL client
+authentication to the KRA.
+
+.SS tps.connector.kra<n>.minHttpConns
+
+This property contains the minimum number of HTTP connections.
+
+.SS tps.connector.kra<n>.maxHttpConns
+
+This property contains the maximum number of HTTP connections.
+
+.SS tps.connector.kra<n>.uri.<op>
+
+This property contains the URI to contact KRA for the operation <op>.
+Example ops: GenerateKeyPair, TokenKeyRecovery.
+
+.SS tps.connector.kra<n>.timeout
+
+This property contains the connection timeout.
+
+.SH TKS CONNECTOR
+
+A TKS connector is defined using properties that begin with tps.connector.tks<n> where
+n is a positive integer indicating the ID of the TKS connector.
+
+.SS tps.connector.tks<n>.enable
+
+This property contains a boolean value indicating whether the connector is enabled.
+
+.SS tps.connector.tks<n>.host
+
+In no-failover configuration, the property contains the hostname of the TKS.
+
+In failover configuration, the property contains a list of hostnames and port numbers
+of the TKS subsystems. The format is hostname:port separated by spaces.
+
+.SS tps.connector.tks<n>.port
+
+In no-failover configuration, the property contains the port number of the TKS.
+
+.SS tps.connector.tks<n>.nickName
+
+This property contains the nickname of the TPS subsystem certificate for SSL client
+authentication to the TKS.
+
+.SS tps.connector.tks<n>.minHttpConns
+
+This property contains the minimum number of HTTP connections.
+
+.SS tps.connector.tks<n>.maxHttpConns
+
+This property contains the maximum number of HTTP connections.
+
+.SS tps.connector.tks<n>.uri.<op>
+
+This property contains the URI to contact TKS for the operation <op>.
+Example ops: computeRandomData, computeSessionKey, createKeySetData, encryptData.
+
+.SS tps.connector.tks<n>.timeout
+
+This property contains the connection timeout.
+
+.SS tps.connector.tks<n>.generateHostChallenge
+
+This property contains a boolean value indicating whether to generate host challenge.
+
+.SS tps.connector.tks<n>.serverKeygen
+
+This property contains a boolean value indicating whether to generate keys on server side.
+
+.SS tps.connector.tks<n>.keySet
+
+This property contains the key set to be used on TKS.
+
+.SS tps.connector.tks<n>.tksSharedSymKeyName
+
+This property contains the shared secret key name.
+
+.SH EXAMPLE
+
+.nf
+tps.connector.ca1.enable=true
+tps.connector.ca1.host=server.example.com
+tps.connector.ca1.port=8443
+tps.connector.ca1.minHttpConns=1
+tps.connector.ca1.maxHttpConns=15
+tps.connector.ca1.nickName=subsystemCert cert-pki-tomcat TPS
+tps.connector.ca1.timeout=30
+tps.connector.ca1.uri.enrollment=/ca/ee/ca/profileSubmitSSLClient
+tps.connector.ca1.uri.renewal=/ca/ee/ca/profileSubmitSSLClient
+tps.connector.ca1.uri.revoke=/ca/ee/subsystem/ca/doRevoke
+tps.connector.ca1.uri.unrevoke=/ca/ee/subsystem/ca/doUnrevoke
+
+tps.connector.kra1.enable=true
+tps.connector.kra1.host=server.example.com
+tps.connector.kra1.port=8443
+tps.connector.kra1.minHttpConns=1
+tps.connector.kra1.maxHttpConns=15
+tps.connector.kra1.nickName=subsystemCert cert-pki-tomcat TPS
+tps.connector.kra1.timeout=30
+tps.connector.kra1.uri.GenerateKeyPair=/kra/agent/kra/GenerateKeyPair
+tps.connector.kra1.uri.TokenKeyRecovery=/kra/agent/kra/TokenKeyRecovery
+
+tps.connector.tks1.enable=true
+tps.connector.tks1.host=server.example.com
+tps.connector.tks1.port=8443
+tps.connector.tks1.minHttpConns=1
+tps.connector.tks1.maxHttpConns=15
+tps.connector.tks1.nickName=subsystemCert cert-pki-tomcat TPS
+tps.connector.tks1.timeout=30
+tps.connector.tks1.generateHostChallenge=true
+tps.connector.tks1.serverKeygen=false
+tps.connector.tks1.keySet=defKeySet
+tps.connector.tks1.tksSharedSymKeyName=sharedSecret
+tps.connector.tks1.uri.computeRandomData=/tks/agent/tks/computeRandomData
+tps.connector.tks1.uri.computeSessionKey=/tks/agent/tks/computeSessionKey
+tps.connector.tks1.uri.createKeySetData=/tks/agent/tks/createKeySetData
+tps.connector.tks1.uri.encryptData=/tks/agent/tks/encryptData
+.fi
+
+.SH AUTHORS
+Dogtag Team <pki-devel@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
