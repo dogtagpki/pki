@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 
 import org.dogtagpki.server.rest.SystemConfigService;
+import org.dogtagpki.server.tps.installer.TPSInstaller;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -37,6 +38,7 @@ import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
  */
 public class TPSInstallerService extends SystemConfigService  {
 
+
     public TPSInstallerService() throws EBaseException {
     }
 
@@ -47,26 +49,26 @@ public class TPSInstallerService extends SystemConfigService  {
         super.configureSubsystem(request, certList, token, domainXML);
 
         // get subsystem certificate nickname
-        String subsystemNick = null;
-        for (SystemCertData cdata : request.getSystemCerts()) {
-            if (cdata.getTag().equals("subsystem")) {
-                subsystemNick = cdata.getNickname();
+        String nickname = null;
+        for (SystemCertData cert : request.getSystemCerts()) {
+            if (cert.getTag().equals("subsystem")) {
+                nickname = cert.getNickname();
                 break;
             }
         }
 
-        if (subsystemNick == null || subsystemNick.isEmpty()) {
+        if (nickname == null || nickname.isEmpty()) {
             throw new BadRequestException("No nickname provided for subsystem certificate");
         }
 
         // CA Info Panel
-        configureTPStoCAConnector(request, subsystemNick);
+        configureCAConnector(request, nickname);
 
         // TKS Info Panel
-        configureTPStoTKSConnector(request, subsystemNick);
+        configureTKSConnector(request, nickname);
 
         //DRM Info Panel
-        configureTPStoKRAConnector(request, subsystemNick);
+        configureKRAConnector(request, nickname);
 
         //AuthDBPanel
         ConfigurationUtils.updateAuthdbInfo(request.getAuthdbBaseDN(),
@@ -74,36 +76,27 @@ public class TPSInstallerService extends SystemConfigService  {
                 request.getAuthdbSecureConn());
     }
 
-    public void configureTPStoCAConnector(ConfigurationRequest data, String subsystemNick) {
-        URI caUri = null;
-        try {
-            caUri = new URI(data.getCaUri());
-        } catch (URISyntaxException e) {
-            throw new BadRequestException("Invalid caURI " + caUri);
-        }
-        ConfigurationUtils.updateCAConnInfo(caUri, subsystemNick);
+    public void configureCAConnector(ConfigurationRequest request, String nickname) {
+
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureCAConnector(request.getCaUri(), nickname);
     }
 
-    public void configureTPStoTKSConnector(ConfigurationRequest data, String subsystemNick) {
-        URI tksUri = null;
-        try {
-            tksUri = new URI(data.getTksUri());
-        } catch (URISyntaxException e) {
-            throw new BadRequestException("Invalid tksURI " + tksUri);
-        }
+    public void configureTKSConnector(ConfigurationRequest request, String nickname) {
 
-        ConfigurationUtils.updateTKSConnInfo(tksUri, subsystemNick);
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureTKSConnector(request.getTksUri(), nickname);
     }
 
-    public void configureTPStoKRAConnector(ConfigurationRequest data, String subsystemNick) {
-        URI kraUri = null;
-        try {
-            kraUri = new URI(data.getCaUri());
-        } catch (URISyntaxException e) {
-            throw new BadRequestException("Invalid kraURI " + kraUri);
-        }
-        boolean keyGen = data.getEnableServerSideKeyGen().equalsIgnoreCase("true");
-        ConfigurationUtils.updateKRAConnInfo(keyGen, kraUri, subsystemNick);
+    public void configureKRAConnector(ConfigurationRequest request, String nickname) {
+
+        boolean keygen = request.getEnableServerSideKeyGen().equalsIgnoreCase("true");
+
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureKRAConnector(keygen, request.getKraUri(), nickname);
     }
 
     @Override
@@ -129,15 +122,15 @@ public class TPSInstallerService extends SystemConfigService  {
             URI secdomainURI = new URI(request.getSecurityDomainUri());
 
             // register TPS with CA
-            URI caURI = new URI(request.getCaUri());
+            URI caURI = request.getCaUri();
             ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
 
             // register TPS with TKS
-            URI tksURI = new URI(request.getTksUri());
+            URI tksURI = request.getTksUri();
             ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
 
             if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
-                URI kraURI = new URI(request.getKraUri());
+                URI kraURI = request.getKraUri();
                 ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
                 String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
                 ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);

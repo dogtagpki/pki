@@ -135,7 +135,10 @@ public class TKSInfoPanel extends WizardPanelBase {
             throw new IOException("Invalid URI " + parsedURI);
         }
 
-        ConfigurationUtils.updateTKSConnInfo(tksUri, subsystemNick);
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureTKSConnector(tksUri, subsystemNick);
+
         context.put("updateStatus", "success");
     }
 

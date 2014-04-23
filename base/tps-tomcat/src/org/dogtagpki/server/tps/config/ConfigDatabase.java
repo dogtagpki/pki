@@ -92,13 +92,13 @@ public class ConfigDatabase extends Database<ConfigRecord> {
         record.setID(configID);
 
         String displayName = configStore.get("target." + configID + ".displayname");
-        if (displayName == null) {
+        if (StringUtils.isEmpty(displayName)) {
             throw new ResourceNotFoundException("Configuration " + configID + " not found.");
         }
         record.setDisplayName(displayName);
 
         String pattern = configStore.get("target." + configID + ".pattern");
-        if (pattern == null) {
+        if (StringUtils.isEmpty(pattern)) {
             throw new ResourceNotFoundException("Missing pattern for " + configID + " configuration.");
         }
 
@@ -106,7 +106,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
         record.setPattern(pattern.replace("\\|",  "|"));
 
         String list = configStore.get("target." + configID + ".list");
-        if (list != null) {
+        if (!StringUtils.isEmpty(list)) {
             record.setKeys(Arrays.asList(list.split(",")));
         }
 

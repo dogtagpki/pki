@@ -137,7 +137,9 @@ public class DRMInfoPanel extends WizardPanelBase {
         String choice = HttpInput.getString(request, "choice");
         boolean keyGen = choice.equalsIgnoreCase("keygen");
 
-        ConfigurationUtils.updateKRAConnInfo(keyGen, kraUri, subsystemNick);
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureKRAConnector(keyGen, kraUri, subsystemNick);
 
         context.put("updateStatus", "success");
     }

@@ -3964,51 +3964,6 @@ public class ConfigurationUtils {
         return s;
     }
 
-    public static void updateCAConnInfo(URI caUri, String subsystemNick) {
-        IConfigStore cs = CMS.getConfigStore();
-
-        cs.putString("preop.cainfo.select", caUri.toString());
-        cs.putString("conn.ca1.clientNickname", subsystemNick);
-        cs.putString("conn.ca1.hostport", caUri.getHost() + ":" + caUri.getPort());
-        cs.putString("conn.ca1.hostagentport", caUri.getHost() + ":" + caUri.getPort());
-        cs.putString("conn.ca1.hostadminport", caUri.getHost() + ":" + caUri.getPort());
-    }
-
-    public static void updateKRAConnInfo(boolean enableServerSideKeyGen, URI kraUri, String subsystemNick) {
-        IConfigStore cs = CMS.getConfigStore();
-        if (enableServerSideKeyGen) {
-            cs.putString("preop.krainfo.select", kraUri.toString());
-            cs.putString("conn.drm1.clientNickname", subsystemNick);
-            cs.putString("conn.drm1.hostport", kraUri.getHost() + ":" + kraUri.getPort());
-            cs.putString("conn.tks1.serverKeygen", "true");
-            cs.putString("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "true");
-            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
-            cs.putString("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "true");
-            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "true");
-        } else {
-            // no keygen
-            cs.putString("conn.tks1.serverKeygen", "false");
-            cs.putString("op.enroll.userKey.keyGen.encryption.serverKeygen.enable", "false");
-            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.serverKeygen.enable", "false");
-            cs.putString("op.enroll.userKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
-            cs.putString("op.enroll.userKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
-            cs.putString("conn.drm1.clientNickname", "");
-            cs.putString("conn.drm1.hostport", "");
-            cs.putString("op.enroll.soKey.keyGen.encryption.serverKeygen.enable", "false");
-            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.serverKeygen.enable", "false");
-            cs.putString("op.enroll.soKey.keyGen.encryption.recovery.destroyed.scheme", "GenerateNewKey");
-            cs.putString("op.enroll.soKeyTemporary.keyGen.encryption.recovery.onHold.scheme", "GenerateNewKey");
-        }
-    }
-
-    public static void updateTKSConnInfo(URI tksUri, String subsystemNick) {
-        IConfigStore cs = CMS.getConfigStore();
-
-        cs.putString("preop.tksinfo.select", tksUri.toString());
-        cs.putString("conn.tks1.clientNickname", subsystemNick);
-        cs.putString("conn.tks1.hostport", tksUri.getHost() + ":" + tksUri.getPort());
-    }
-
     public static void updateAuthdbInfo(String basedn, String host, String port, String secureConn) {
         IConfigStore cs = CMS.getConfigStore();
 

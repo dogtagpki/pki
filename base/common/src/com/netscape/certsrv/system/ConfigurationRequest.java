@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -24,6 +26,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author alee
@@ -243,13 +249,16 @@ public class ConfigurationRequest {
     protected String authdbSecureConn;
 
     @XmlElement
-    protected String caUri;
+    @XmlJavaTypeAdapter(URIAdapter.class)
+    protected URI caUri;
 
     @XmlElement
-    protected String tksUri;
+    @XmlJavaTypeAdapter(URIAdapter.class)
+    protected URI tksUri;
 
     @XmlElement
-    protected String kraUri;
+    @XmlJavaTypeAdapter(URIAdapter.class)
+    protected URI kraUri;
 
     @XmlElement(defaultValue="false")
     protected String enableServerSideKeyGen;
@@ -270,7 +279,7 @@ public class ConfigurationRequest {
         // required for JAXB
     }
 
-    public ConfigurationRequest(MultivaluedMap<String, String> form) {
+    public ConfigurationRequest(MultivaluedMap<String, String> form) throws URISyntaxException {
         pin = form.getFirst(PIN);
         token = form.getFirst(TOKEN);
         tokenPassword = form.getFirst(TOKEN_PASSWORD);
@@ -318,9 +327,16 @@ public class ConfigurationRequest {
         authdbHost = form.getFirst(AUTHDB_HOST);
         authdbPort = form.getFirst(AUTHDB_PORT);
         authdbSecureConn = form.getFirst(AUTHDB_SECURE_CONN);
-        caUri = form.getFirst(CA_URI);
-        tksUri = form.getFirst(TKS_URI);
-        kraUri = form.getFirst(KRA_URI);
+
+        String value = form.getFirst(CA_URI);
+        if (!StringUtils.isEmpty(value)) setCaUri(new URI(value));
+
+        value = form.getFirst(TKS_URI);
+        if (!StringUtils.isEmpty(value)) setTksUri(new URI(value));
+
+        value = form.getFirst(KRA_URI);
+        if (!StringUtils.isEmpty(value)) setKraUri(new URI(value));
+
         enableServerSideKeyGen = form.getFirst(ENABLE_SERVER_SIDE_KEYGEN);
         importSharedSecret = form.getFirst(IMPORT_SHARED_SECRET);
 
@@ -883,27 +899,27 @@ public class ConfigurationRequest {
         this.authdbSecureConn = authdbSecureConn;
     }
 
-    public String getCaUri() {
+    public URI getCaUri() {
         return caUri;
     }
 
-    public void setCaUri(String caUri) {
+    public void setCaUri(URI caUri) {
         this.caUri = caUri;
     }
 
-    public String getTksUri() {
+    public URI getTksUri() {
         return tksUri;
     }
 
-    public void setTksUri(String tksUri) {
+    public void setTksUri(URI tksUri) {
         this.tksUri = tksUri;
     }
 
-    public String getKraUri() {
+    public URI getKraUri() {
         return kraUri;
     }
 
-    public void setKraUri(String kraUri) {
+    public void setKraUri(URI kraUri) {
         this.kraUri = kraUri;
     }
 
@@ -1006,4 +1022,16 @@ public class ConfigurationRequest {
                ", sharedDBUserDN=" + sharedDBUserDN +
                "]";
     }
+
+    public static class URIAdapter extends XmlAdapter<String, URI> {
+
+        public String marshal(URI uri) {
+            return uri == null ? null : uri.toString();
+        }
+
+        public URI unmarshal(String uri) throws URISyntaxException {
+            return uri == null ? null : new URI(uri);
+        }
+    }
+
 }

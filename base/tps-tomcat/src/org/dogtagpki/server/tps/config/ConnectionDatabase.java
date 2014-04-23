@@ -24,7 +24,6 @@ import java.util.Map;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.dbs.CSCfgDatabase;
 
 /**
@@ -34,7 +33,7 @@ import com.netscape.cmscore.dbs.CSCfgDatabase;
  */
 public class ConnectionDatabase extends CSCfgDatabase<ConnectionRecord> {
 
-    IConfigStore configStore = CMS.getConfigStore();
+    public String prefix = "tps.connector";
 
     public ConnectionDatabase() {
         super("Connection", "Subsystem_Connections");
@@ -142,5 +141,101 @@ public class ConnectionDatabase extends CSCfgDatabase<ConnectionRecord> {
         removeRecordStatus(connectionID);
 
         configDatabase.commit();
+    }
+
+    public String getNextID(String type) throws Exception {
+
+        ConfigDatabase configDatabase = new ConfigDatabase();
+        ConfigRecord configRecord = configDatabase.getRecord(substoreName);
+        Collection<String> keys = configRecord.getKeys();
+
+        String id;
+        int n = 1;
+
+        while (true) {
+            id = type + n;
+
+            if (keys.contains(id)) {
+                // ID is already used, find the next one.
+                n++;
+
+            } else {
+                // ID is available, use this one.
+                break;
+            }
+        }
+
+        return id;
+    }
+
+    public void addCAConnector(String hostname, Integer port, String nickname) throws Exception {
+
+        String id  = getNextID("ca");
+
+        ConnectionRecord record = new ConnectionRecord();
+        record.setID(id);
+        record.setStatus("Enabled");
+
+        record.setProperty(prefix + "." + id + ".enable", "true");
+        record.setProperty(prefix + "." + id + ".host", hostname);
+        record.setProperty(prefix + "." + id + ".port", port.toString());
+        record.setProperty(prefix + "." + id + ".minHttpConns", "1");
+        record.setProperty(prefix + "." + id + ".maxHttpConns", "15");
+        record.setProperty(prefix + "." + id + ".nickName", nickname);
+        record.setProperty(prefix + "." + id + ".timeout", "30");
+        record.setProperty(prefix + "." + id + ".uri.enrollment", "/ca/ee/ca/profileSubmitSSLClient");
+        record.setProperty(prefix + "." + id + ".uri.renewal", "/ca/ee/ca/profileSubmitSSLClient");
+        record.setProperty(prefix + "." + id + ".uri.revoke", "/ca/ee/subsystem/ca/doRevoke");
+        record.setProperty(prefix + "." + id + ".uri.unrevoke", "/ca/ee/subsystem/ca/doUnrevoke");
+
+        addRecord(id, record);
+    }
+
+    public void addKRAConnector(String hostname, Integer port, String nickname) throws Exception {
+
+        String id  = getNextID("kra");
+
+        ConnectionRecord record = new ConnectionRecord();
+        record.setID(id);
+        record.setStatus("Enabled");
+
+        record.setProperty(prefix + "." + id + ".enable", "true");
+        record.setProperty(prefix + "." + id + ".host", hostname);
+        record.setProperty(prefix + "." + id + ".port", port.toString());
+        record.setProperty(prefix + "." + id + ".minHttpConns", "1");
+        record.setProperty(prefix + "." + id + ".maxHttpConns", "15");
+        record.setProperty(prefix + "." + id + ".nickName", nickname);
+        record.setProperty(prefix + "." + id + ".timeout", "30");
+        record.setProperty(prefix + "." + id + ".uri.GenerateKeyPair", "/kra/agent/kra/GenerateKeyPair");
+        record.setProperty(prefix + "." + id + ".uri.TokenKeyRecovery", "/kra/agent/kra/TokenKeyRecovery");
+
+        addRecord(id, record);
+    }
+
+    public void addTKSConnector(String hostname, Integer port, String nickname, Boolean keygen) throws Exception {
+
+        String id  = getNextID("tks");
+
+        ConnectionRecord record = new ConnectionRecord();
+        record.setID(id);
+        record.setStatus("Enabled");
+
+        record.setProperty(prefix + "." + id + ".enable", "true");
+        record.setProperty(prefix + "." + id + ".host", hostname);
+        record.setProperty(prefix + "." + id + ".port", port.toString());
+        record.setProperty(prefix + "." + id + ".minHttpConns", "1");
+        record.setProperty(prefix + "." + id + ".maxHttpConns", "15");
+        record.setProperty(prefix + "." + id + ".nickName", nickname);
+        record.setProperty(prefix + "." + id + ".timeout", "30");
+        record.setProperty(prefix + "." + id + ".generateHostChallenge", "true");
+        record.setProperty(prefix + "." + id + ".serverKeygen", keygen.toString());
+        record.setProperty(prefix + "." + id + ".keySet", "defKeySet");
+        record.setProperty(prefix + "." + id + ".tksSharedSymKeyName", "sharedSecret");
+        record.setProperty(prefix + "." + id + ".uri.computeRandomData", "/tks/agent/tks/computeRandomData");
+        record.setProperty(prefix + "." + id + ".uri.computeSessionKey", "/tks/agent/tks/computeSessionKey");
+        record.setProperty(prefix + "." + id + ".uri.createKeySetData", "/tks/agent/tks/createKeySetData");
+        record.setProperty(prefix + "." + id + ".uri.encryptData", "/tks/agent/tks/encryptData");
+
+        addRecord(id, record);
     }
 }

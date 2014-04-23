@@ -137,7 +137,10 @@ public class CAInfoPanel extends WizardPanelBase {
         } catch (URISyntaxException e) {
             throw new IOException("Invalid URI " + parsedURI);
         }
-        ConfigurationUtils.updateCAConnInfo(caUri, subsystemNick);
+
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureCAConnector(caUri, subsystemNick);
 
         String host = caUri.getHost();
         int port = caUri.getPort();

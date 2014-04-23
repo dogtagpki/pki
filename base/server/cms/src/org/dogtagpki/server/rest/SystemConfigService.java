@@ -19,7 +19,6 @@ package org.dogtagpki.server.rest;
 
 import java.math.BigInteger;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -114,7 +113,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
      * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(javax.ws.rs.core.MultivaluedMap)
      */
     @Override
-    public ConfigurationResponse configure(MultivaluedMap<String, String> form) {
+    public ConfigurationResponse configure(MultivaluedMap<String, String> form) throws URISyntaxException {
         ConfigurationRequest data = new ConfigurationRequest(form);
         return configure(data);
     }
@@ -1166,35 +1165,17 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         if (csType.equals("TPS")) {
-            if ((data.getCaUri() == null) || data.getCaUri().isEmpty()) {
+            if (data.getCaUri() == null) {
                 throw new BadRequestException("CA URI not provided");
             }
-            try {
-                @SuppressWarnings("unused")
-                URI ca_uri = new URI(data.getCaUri());
-            } catch (URISyntaxException e) {
-                throw new BadRequestException("Invalid CA URI");
-            }
 
-            if ((data.getTksUri() == null) || data.getTksUri().isEmpty()) {
+            if (data.getTksUri() == null) {
                 throw new BadRequestException("TKS URI not provided");
-            }
-            try {
-                @SuppressWarnings("unused")
-                URI tks_uri = new URI(data.getTksUri());
-            } catch (URISyntaxException e) {
-                throw new BadRequestException("Invalid TKS URI");
             }
 
             if (data.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
-                if ((data.getKraUri() == null) || data.getKraUri().isEmpty()) {
+                if (data.getKraUri() == null) {
                     throw new BadRequestException("KRA URI required if server-side key generation requested");
-                }
-                try {
-                    @SuppressWarnings("unused")
-                    URI kra_uri = new URI(data.getKraUri());
-                } catch (URISyntaxException e) {
-                    throw new BadRequestException("Invalid KRA URI");
                 }
             }
 

@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
+import java.net.URISyntaxException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -33,7 +35,7 @@ public interface SystemConfigResource {
     @POST
     @Path("configure")
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
-    public ConfigurationResponse configure(MultivaluedMap<String, String> form);
+    public ConfigurationResponse configure(MultivaluedMap<String, String> form) throws URISyntaxException;
 
     @POST
     @Path("configure")
