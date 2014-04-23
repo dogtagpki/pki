@@ -451,6 +451,7 @@ public class TPSProcessor {
         boolean appletUpgraded = false;
         String NetKeyAID = null;
         String NetKeyPAID = null;
+        String CardMgrAID = null;
 
         IConfigStore configStore = CMS.getConfigStore();
 
@@ -461,6 +462,7 @@ public class TPSProcessor {
                     TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
             CMS.debug("In TPS_Processor.upgradeApplet. CardManagerAID: " + " NetKeyAID: " + NetKeyAID);
             NetKeyPAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_FILE_AID, TPSEngine.CFG_DEF_NETKEY_FILE_AID);
+            CardMgrAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
 
         } catch (EBaseException e1) {
             CMS.debug("TPS_Processor.upgradeApplet: Internal Error obtaining mandatory config values. Error: " + e1);
@@ -470,6 +472,7 @@ public class TPSProcessor {
 
         TPSBuffer netkeyAIDBuff = new TPSBuffer(NetKeyAID);
         TPSBuffer netkeyPAIDBuff = new TPSBuffer(NetKeyPAID);
+        TPSBuffer cardMgrAIDBuff = new TPSBuffer(CardMgrAID);
 
         //Not all of these used yet, but will be
         //ToDo
@@ -495,7 +498,7 @@ public class TPSProcessor {
 
         appletData = getAppletFileData(appletFilePath);
 
-        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
+        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, cardMgrAIDBuff);
 
         if (!select.checkResult()) {
             throw new TPSException("TPSProcessor.format: Can't selelect the card manager!");

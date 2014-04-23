@@ -90,28 +90,15 @@ public class TPSConnection {
         String s = message.encode();
 
         CMS.debug("TPSMessage.write: Writing: " + s);
-
-        if (chunked) {
-            // send message length + EOL
-            out.print(Integer.toHexString(s.length()));
-            out.print("\r\n");
-        }
-
         // send message
         out.print(s);
 
-        /*
-         *
-         * Right now, tpsclient is counting the final crlf as part of the message and ruining the MAC calculations
-         * For now do this and figure out later how to handle this for both tpsclient and esc.
-         *
-        if (chunked) {
-            // send EOL
-            out.print("\r\n");
-        }
+        // We don't have to send any specific chunk format here
+        // The output stream detects chunked encoding and sends
+        // the correct output to the other end.
 
-        */
 
         out.flush();
     }
+
 }

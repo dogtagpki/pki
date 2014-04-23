@@ -36,7 +36,14 @@ public class TPSServlet extends HttpServlet {
 
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        CMS.debug("Hello from tps.service " + request);
+        String encoding = request.getHeader("Transfer-Encoding");
+
+        CMS.debug("Encoding: " + encoding);
+
+        if (encoding.equals("chunked") == false) {
+            throw new IOException("TPSServlet.service: incorrect encoding! ");
+        }
+
         response.setHeader("Transfer-Encoding", "chunked");
 
         TPSConnection con = new TPSConnection(
