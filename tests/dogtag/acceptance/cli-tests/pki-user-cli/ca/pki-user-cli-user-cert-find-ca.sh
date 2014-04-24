@@ -89,23 +89,46 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$user1fullname\" $user1"
         while [ $i -lt 4 ] ; do
-                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $i" 0  "Generating temp cert"
-                local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+                cert_type="pkcs10"
+                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
                 local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
-                serialhexuser1[$i]=$cert_serialNumber
+                serialhexuser1[$i]=$cert_serialNumber_pkcs10
                 serialdecuser1[$i]=$decimal_valid_serialNumber_pkcs10
+
+                cert_type="crmf"
+                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
+                local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
+                local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+                serialhexuser1_crmf[$i]=$cert_serialNumber_crmf
+                serialdecuser1_crmf[$i]=$decimal_valid_serialNumber_crmf
                 rlLog "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002$i.pem"
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002pkcs10$i.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002$i.pem  > $TmpDir/useraddcert__002_$i.out" \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002pkcs10$i.pem  > $TmpDir/useraddcert__002_$i.out" \
+                            0 \
+                            "Cert is added to the user $user1"
+
+                rlLog "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002crmf$i.pem"
+                rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002crmf$i.pem  > $TmpDir/useraddcert__002_$i.out" \
                             0 \
                             "Cert is added to the user $user1"
                 let i=$i+1
@@ -122,9 +145,9 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                    user-cert-find $user1 > $TmpDir/pki_user_cert_find_ca_002.out" \
                     0 \
                     "Finding certs assigned to $user1"
-        numcertsuser1=$i
-        rlAssertGrep "$i entries matched" "$TmpDir/pki_user_cert_find_ca_002.out"
-        rlAssertGrep "Number of entries returned $i" "$TmpDir/pki_user_cert_find_ca_002.out"
+        let numcertsuser1=($i*2)
+        rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_002.out"
+        rlAssertGrep "Number of entries returned $numcertsuser1" "$TmpDir/pki_user_cert_find_ca_002.out"
         i=0
         while [ $i -lt 4 ] ; do
                 rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
@@ -132,9 +155,17 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                 rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
+
+                rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
+                rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_002.out"
+                rlAssertGrep "Serial Number: ${serialhexuser1_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_002.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_002.out"
+                rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
+
                let i=$i+1
         done
 rlPhaseEnd
+
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user in CA --userid only - multiple pages of certs"
         i=0
@@ -144,18 +175,34 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
                    -c $CERTDB_DIR_PASSWORD \
                    user-add --fullName=\"$user2fullname\" $user2"
         while [ $i -lt 24 ] ; do
-		rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $i" 0  "Generating temp cert"
-                local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
+		cert_type="pkcs10"
+		rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
                 local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
-                serialhexuser2[$i]=$cert_serialNumber
+                serialhexuser2[$i]=$cert_serialNumber_pkcs10
                 serialdecuser2[$i]=$decimal_valid_serialNumber_pkcs10
+		cert_type="crmf"
+                rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
+                local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
+                local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+                serialhexuser2_crmf[$i]=$cert_serialNumber_crmf
+                serialdecuser2_crmf[$i]=$decimal_valid_serialNumber_crmf
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user2 --input $TmpDir/pki_user_cert_find-CA_validcert_003$i.pem  > $TmpDir/useraddcert__003_$i.out" \
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_find-CA_validcert_003pkcs10$i.pem  > $TmpDir/useraddcert__003_$i.out" \
+                            0 \
+                            "Cert is added to the user $user2"
+		rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $user2 --input $TmpDir/pki_user_cert_find-CA_validcert_003crmf$i.pem  > $TmpDir/useraddcert__003crmf_$i.out" \
                             0 \
                             "Cert is added to the user $user2"
                 let i=$i+1
@@ -172,15 +219,21 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
 		   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_003.out" \
                     0 \
                     "Finding certs assigned to $user2"
-	numcertsuser2=$i
-        rlAssertGrep "$i entries matched" "$TmpDir/pki_user_cert_find_ca_003.out"
+	let numcertsuser2=($i*2)
+        rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_003.out"
         i=0
-        while [ $i -lt 20 ] ; do
+        while [ $i -lt 10 ] ; do
         rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_003.out"
+        rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_003.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_003.out"
+        rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
+
                 let i=$i+1
         done
 	rlAssertGrep "Number of entries returned 20" "$TmpDir/pki_user_cert_find_ca_003.out"
@@ -246,14 +299,16 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-006: Find the certs of a user i
         rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_006.out"
 	rlAssertGrep "Number of entries returned 2" "$TmpDir/pki_user_cert_find_ca_006.out"
 	i=0
-	while [ $i -lt 2 ] ; do
-        	rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
+        	rlAssertGrep "Cert ID: 2;${serialdecuser1[0]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
         	rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_006.out"
-        	rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_006.out"
+        	rlAssertGrep "Serial Number: ${serialhexuser1[0]}" "$TmpDir/pki_user_cert_find_ca_006.out"
         	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_006.out"
         	rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
-                let i=$i+1
-        done
+		rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[0]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
+                rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_006.out"
+                rlAssertGrep "Serial Number: ${serialhexuser1_crmf[0]}" "$TmpDir/pki_user_cert_find_ca_006.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_006.out"
+                rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-007: Find the certs of a user in CA --size=0"
@@ -316,6 +371,11 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-009: Find the certs of a user i
         rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_009.out"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_009.out"
         rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_009.out"
+        rlAssertGrep "Serial Number: ${serialhexuser1_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_009.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_009.out"
+        rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
                 let i=$i+1
         done
 rlPhaseEnd
@@ -339,15 +399,20 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-010: Find the certs of a user i
         rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_010.out"
 	let newnumcerts=$numcertsuser1-2
         rlAssertGrep "Number of entries returned $newnumcerts" "$TmpDir/pki_user_cert_find_ca_010.out"
-        i=2
-        while [ $i -lt 4 ] ; do
+	i=2
+	 while [ $i -lt 4 ] ; do
                 rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
-                let i=$i+1
-        done
+		rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
+                rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_010.out"
+                rlAssertGrep "Serial Number: ${serialhexuser1_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_010.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_010.out"
+                rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
+		let i=$i+1
+	done
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-011: Find the certs of a user in CA --start=0"
@@ -368,11 +433,16 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-011: Find the certs of a user i
         rlAssertGrep "Number of entries returned $numcertsuser1" "$TmpDir/pki_user_cert_find_ca_011.out"
 	i=0
         while [ $i -lt 4 ] ; do
-        rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
-        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_009.out"
-        rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_009.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_009.out"
-        rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
+        rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Serial Number: ${serialhexuser1_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
                 let i=$i+1
         done
 rlPhaseEnd
@@ -394,12 +464,18 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-012: Find the certs of a user i
         rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Number of entries returned 20" "$TmpDir/pki_user_cert_find_ca_012.out"
 	i=0
-        while [ $i -lt 20 ] ; do
+        while [ $i -lt 10 ] ; do
         rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_012.out"
+        rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_012.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_012.out"
+        rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
+
                 let i=$i+1
         done
 rlPhaseEnd
@@ -478,10 +554,10 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016: Find the certs of a user i
                     "Finding certs assigned to $user1 - --start=1 --size=1"
         rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_016.out"
         rlAssertGrep "Number of entries returned 1" "$TmpDir/pki_user_cert_find_ca_016.out"
-	i=2
-	rlAssertGrep "Cert ID: 2;${serialdecuser1[1]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$i,E=$user1$i@example.org,CN=$user1fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_016.out"
+	i=1
+	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[0]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$i,E=$user1$i@example.org,CN=$user1fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_016.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_016.out"
-        rlAssertGrep "Serial Number: ${serialhexuser1[1]}" "$TmpDir/pki_user_cert_find_ca_016.out"
+        rlAssertGrep "Serial Number: ${serialhexuser1_crmf[0]}" "$TmpDir/pki_user_cert_find_ca_016.out"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_016.out"
         rlAssertGrep "Subject: UID=$user1$i,E=$user1$i@example.org,CN=$user1fullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_016.out"
 rlPhaseEnd
@@ -521,13 +597,17 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-018: Find the certs of a user i
                     0 \
                     "Finding certs assigned to $user2 - --start=20 --size=20"
         rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_018.out"
-	let newnumcert=$numcertsuser2-20
-        rlAssertGrep "Number of entries returned $newnumcert" "$TmpDir/pki_user_cert_find_ca_018.out"
-	i=20
-        while [ $i -lt 24 ] ; do
+        rlAssertGrep "Number of entries returned 20" "$TmpDir/pki_user_cert_find_ca_018.out"
+	i=10
+        while [ $i -lt 20 ] ; do
         rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_018.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_018.out"
+        rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_018.out"
+        rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
                 let i=$i+1
@@ -551,10 +631,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-019: Find the certs of a user i
         rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Number of entries returned 22" "$TmpDir/pki_user_cert_find_ca_019.out"
         i=0
-        while [ $i -lt 22 ] ; do
+        while [ $i -lt 11 ] ; do
         rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_019.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_019.out"
+        rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_019.out"
+        rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
                 let i=$i+1
@@ -577,7 +662,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-020: Find the certs of a user i
                     "Finding certs assigned to $user2 - --start=22 --size=1"
         rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_020.out"
         rlAssertGrep "Number of entries returned 1" "$TmpDir/pki_user_cert_find_ca_020.out"
-        i=22
+        i=11
         rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_020.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_020.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_020.out"
@@ -592,32 +677,39 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-021: Find the certs of a user i
                               -n CA_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
-                               user-cert-find $user2 --start=22 --size=5"
+                               user-cert-find $user2 --start=40 --size=10"
         rlRun "pki -d $CERTDB_DIR/ \
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
-                   user-cert-find $user2 --start=22 --size=5 > $TmpDir/pki_user_cert_find_ca_021.out" \
+                   user-cert-find $user2 --start=40 --size=10 > $TmpDir/pki_user_cert_find_ca_021.out" \
                     0 \
-                    "Finding certs assigned to $user2 - --start=22 --size=5"
+                    "Finding certs assigned to $user2 - --start=40 --size=10"
         rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_021.out"
-        rlAssertGrep "Number of entries returned 2" "$TmpDir/pki_user_cert_find_ca_021.out"
-        i=22
+        rlAssertGrep "Number of entries returned 8" "$TmpDir/pki_user_cert_find_ca_021.out"
+        i=20
 	while [ $i -lt 24 ] ; do
         	rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
         	rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_021.out"
         	rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_021.out"
         	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_021.out"
         	rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
+		rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
+                rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_021.out"
+                rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_021.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_021.out"
+                rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
+
 		let i=$i+1
 	done
 rlPhaseEnd
 
 ##### Tests to find certs assigned to CA users - i18n characters ####
 
-rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to user - Sunject Name has i18n Characters"
+rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to user - Subject Name has i18n Characters"
         k=22
-        rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname" 0  "Generating temp cert"
+	cert_type="pkcs10"
+        rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname $cert_type" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -626,7 +718,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to use
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_0022.pem  > $TmpDir/useraddcert__0022.out" \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_0022pkcs10.pem  > $TmpDir/useraddcert__0022.out" \
                             0 \
                             "Cert is added to the user $user1"
         rlLog "Executing: pki -d $CERTDB_DIR/ \
@@ -861,8 +953,8 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         done 
 
 	#Delete temporary directory
-        rlRun "popd"
-        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        #rlRun "popd"
+        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 
 }
