@@ -39,7 +39,6 @@
 . /opt/rhqa_pki/env.sh
 
 ######################################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-add-ca.sh
 #pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-cert-find-ca.sh
 ######################################################################################
 
@@ -953,8 +952,8 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         done 
 
 	#Delete temporary directory
-        #rlRun "popd"
-        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 
 }

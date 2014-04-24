@@ -1300,8 +1300,8 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         done
 
 	#Delete temporary directory
-        #rlRun "popd"
-        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 
 }
