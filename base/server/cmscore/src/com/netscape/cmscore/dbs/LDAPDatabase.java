@@ -103,9 +103,9 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
         try (IDBSSession session = dbSubsystem.createSession()) {
             Collection<E> list = new ArrayList<E>();
-            filter = createFilter(filter);
-            CMS.debug("LDAPDatabase: searching " + baseDN + " with filter " + filter);
-            IDBSearchResults results = session.search(baseDN, filter);
+            String ldapFilter = createFilter(filter);
+            CMS.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
+            IDBSearchResults results = session.search(baseDN, ldapFilter);
 
             while (results.hasMoreElements()) {
                 @SuppressWarnings("unchecked")

@@ -53,6 +53,12 @@ public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
 
     @Override
     public String createFilter(String filter) {
-        return StringUtils.isEmpty(filter) ? "(id=*)" : "(id=*"+LDAPUtil.escapeFilter(filter)+"*)";
+
+        if (StringUtils.isEmpty(filter)) {
+            return "(id=*)";
+        }
+
+        filter = LDAPUtil.escapeFilter(filter);
+        return "(|(tokenID=*" + filter + "*)(userID=*" + filter + "*))";
     }
 }

@@ -60,6 +60,12 @@ public class TPSCertDatabase extends LDAPDatabase<TPSCertRecord> {
 
     @Override
     public String createFilter(String filter) {
-        return StringUtils.isEmpty(filter) ? "(id=*)" : "(id=*"+LDAPUtil.escapeFilter(filter)+"*)";
+
+        if (StringUtils.isEmpty(filter)) {
+            return "(id=*)";
+        }
+
+        filter = LDAPUtil.escapeFilter(filter);
+        return "(|(id=*" + filter + "*)(tokenID=*" + filter + "*)(userID=*" + filter + "*))";
     }
 }
