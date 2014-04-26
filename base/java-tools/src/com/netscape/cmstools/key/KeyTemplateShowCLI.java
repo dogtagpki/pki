@@ -22,27 +22,30 @@ public class KeyTemplateShowCLI extends CLI {
     public KeyTemplateShowCLI(KeyCLI keyCLI) {
         super("template-show", "Get request template", keyCLI);
         this.keyCLI = keyCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName()
-                + " <Template ID> [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " <Template ID> [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "output-file", true, "Location where the template has to be stored.");
+        option.setArgName("File to write the template to.");
+        options.addOption(option);
     }
 
     public void execute(String[] args) {
-
-        // Check for "--help"
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
             printHelp();
             System.exit(0);
         }
 
-        Option option = new Option(null, "output-file", true, "Location where the template has to be stored.");
-        option.setArgName("File to write the template to.");
-        options.addOption(option);
-
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
@@ -52,7 +55,9 @@ public class KeyTemplateShowCLI extends CLI {
         }
 
         String[] cmdArgs = cmd.getArgs();
+
         if (cmdArgs.length < 1) {
+            System.err.println("Error: No Template ID specified.");
             printHelp();
             System.exit(-1);
         }

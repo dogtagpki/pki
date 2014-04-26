@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -40,14 +41,15 @@ public class ProfileModifyCLI extends CLI {
     public ProfileModifyCLI(ProfileCLI profileCLI) {
         super("mod", "Modify profile", profileCLI);
         this.profileCLI = profileCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "action", true, "Action: update (default), approve, reject, enable, disable.");
         option.setArgName("action");
         options.addOption(option);
@@ -55,6 +57,15 @@ public class ProfileModifyCLI extends CLI {
         option = new Option(null, "input", true, "Input file containing profile properties.");
         option.setArgName("file");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -64,20 +75,15 @@ public class ProfileModifyCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No Profile ID specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String profileID = cmdArgs[0];
@@ -91,7 +97,7 @@ public class ProfileModifyCLI extends CLI {
             if (input == null) {
                 System.err.println("Error: Missing input file");
                 printHelp();
-                System.exit(1);
+                System.exit(-1);
                 return;
             }
 

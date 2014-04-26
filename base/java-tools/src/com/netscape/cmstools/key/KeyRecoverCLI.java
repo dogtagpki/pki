@@ -2,6 +2,7 @@ package com.netscape.cmstools.key;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,14 +25,15 @@ public class KeyRecoverCLI extends CLI {
     public KeyRecoverCLI(KeyCLI keyCLI) {
         super("recover", "Create a key recovery request", keyCLI);
         this.keyCLI = keyCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) {
-
+    public void createOptions() {
         Option option = new Option(null, "keyID", true, "Key Identifier for the secret to be recovered.");
         option.setArgName("Key Identifier");
         options.addOption(option);
@@ -39,21 +41,33 @@ public class KeyRecoverCLI extends CLI {
         option = new Option(null, "input", true, "Location of the request template file.");
         option.setArgName("Input file path");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
 
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String requestFile = cmd.getOptionValue("input");

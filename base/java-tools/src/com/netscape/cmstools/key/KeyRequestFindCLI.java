@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.key;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
@@ -40,14 +41,15 @@ public class KeyRequestFindCLI extends CLI {
     public KeyRequestFindCLI(KeyCLI keyCLI) {
         super("request-find", "Find key requests", keyCLI);
         this.keyCLI = keyCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) {
-
+    public void createOptions() {
         Option option = new Option(null, "status", true, "Request status");
         option.setArgName("status");
         options.addOption(option);
@@ -75,6 +77,15 @@ public class KeyRequestFindCLI extends CLI {
         option = new Option(null, "pageSize", true, "Page size");
         option.setArgName("page size");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -84,13 +95,15 @@ public class KeyRequestFindCLI extends CLI {
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String status = cmd.getOptionValue("status");

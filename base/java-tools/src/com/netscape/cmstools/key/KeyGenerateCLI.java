@@ -18,21 +18,15 @@ public class KeyGenerateCLI extends CLI {
     public KeyGenerateCLI(KeyCLI keyCLI) {
         super("generate", "Generate key", keyCLI);
         this.keyCLI = keyCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Client Key ID> [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " <Client Key ID> --key-algorithm <algorithm> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) {
-
-        // Check for "--help" prior to parsing due to required option
-        if (Arrays.asList(args).contains("--help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
+    public void createOptions() {
         Option option = new Option(null, "key-algorithm", true,
                 "Algorithm to be used to create a key.\nValid values: AES, DES, DES3, RC2, RC4, DESede.");
         option.setArgName("algorithm");
@@ -52,22 +46,33 @@ public class KeyGenerateCLI extends CLI {
                 + "\nValid values: wrap, unwrap, sign, verify, encrypt, decrypt.");
         option.setArgName("list of usages");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
 
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
+
         if (cmdArgs.length < 1) {
-            System.err.println("Error: Missing the Client Key Id");
+            System.err.println("Error: Missing Client Key Id.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String clientKeyId = cmdArgs[0];
@@ -88,11 +93,11 @@ public class KeyGenerateCLI extends CLI {
             case KeyRequestResource.RC2_ALGORITHM:
                 System.err.println("Error: Key size must be specified for the algorithm used.");
                 printHelp();
-                System.exit(1);
+                System.exit(-1);
             default:
                 System.err.println("Error: Algorithm not supported.");
                 printHelp();
-                System.exit(1);
+                System.exit(-1);
             }
         }
         List<String> usages = null;

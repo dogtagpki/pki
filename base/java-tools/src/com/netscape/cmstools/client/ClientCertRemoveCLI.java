@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.client;
 
+import java.util.Arrays;
+
 import org.apache.commons.cli.CommandLine;
 
 import com.netscape.cmstools.cli.CLI;
@@ -36,32 +38,34 @@ public class ClientCertRemoveCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <nickname>", options);
+        formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No nickname specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         client = parent.getClient();

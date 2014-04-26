@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.tps.authenticator;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
@@ -38,14 +39,15 @@ public class AuthenticatorFindCLI extends CLI {
     public AuthenticatorFindCLI(AuthenticatorCLI authenticatorCLI) {
         super("find", "Find authenticators", authenticatorCLI);
         this.authenticatorCLI = authenticatorCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " [FILTER] [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);
@@ -53,6 +55,15 @@ public class AuthenticatorFindCLI extends CLI {
         option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -62,13 +73,7 @@ public class AuthenticatorFindCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();

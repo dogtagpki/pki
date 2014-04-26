@@ -3,6 +3,7 @@ package com.netscape.cmstools.key;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.xml.bind.JAXBException;
 
@@ -26,25 +27,34 @@ public class KeyTemplateFindCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void execute(String[] args) {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
 
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         try {

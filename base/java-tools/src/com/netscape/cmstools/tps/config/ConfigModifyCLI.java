@@ -42,21 +42,15 @@ public class ConfigModifyCLI extends CLI {
     public ConfigModifyCLI(ConfigCLI configCLI) {
         super("mod", "Modify general properties", configCLI);
         this.configCLI = configCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " --input <file> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        // Check for "--help" prior to parsing due to required option
-        if (Arrays.asList(args).contains("--help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
+    public void createOptions() {
         Option option = new Option(null, "input", true, "Input file containing general properties.");
         option.setArgName("file");
         option.setRequired(true);
@@ -65,6 +59,15 @@ public class ConfigModifyCLI extends CLI {
         option = new Option(null, "output", true, "Output file to store general properties.");
         option.setArgName("file");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -74,24 +77,19 @@ public class ConfigModifyCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String input = cmd.getOptionValue("input");
         String output = cmd.getOptionValue("output");
-
-        if (input == null) {
-            System.err.println("Error: Input file is required.");
-            printHelp();
-            System.exit(1);
-        }
 
         ConfigData configData;
 

@@ -20,6 +20,7 @@ package com.netscape.cmstools.cert;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import netscape.security.x509.RevocationReason;
 
@@ -44,14 +45,15 @@ public class CertRevokeCLI extends CLI {
     public CertRevokeCLI(CertCLI certCLI) {
         super("revoke", "Revoke certificate", certCLI);
         this.certCLI = certCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         StringBuilder sb = new StringBuilder();
 
         for (RevocationReason reason : RevocationReason.INSTANCES) {
@@ -74,6 +76,15 @@ public class CertRevokeCLI extends CLI {
 
         options.addOption(null, "ca", false, "CA signing certificate");
         options.addOption(null, "force", false, "Force");
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -83,20 +94,15 @@ public class CertRevokeCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: Missing Serial Number.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         CertId certID = new CertId(cmdArgs[0]);
@@ -107,7 +113,7 @@ public class CertRevokeCLI extends CLI {
         if (reason == null) {
             System.err.println("Error: Invalid revocation reason: "+string);
             printHelp();
-            System.exit(1);
+            System.exit(-1);
             return;
         }
 
@@ -132,7 +138,7 @@ public class CertRevokeCLI extends CLI {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String line = reader.readLine();
             if (!line.equalsIgnoreCase("Y")) {
-                System.exit(1);
+                System.exit(-1);
             }
         }
 

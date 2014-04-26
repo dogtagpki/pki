@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.client;
 
+import java.util.Arrays;
+
 import org.apache.commons.cli.CommandLine;
 import org.mozilla.jss.crypto.X509Certificate;
 
@@ -34,30 +36,43 @@ public class ClientCertFindCLI extends CLI {
     public ClientCertFindCLI(ClientCLI clientCLI) {
         super("cert-find", "Find certificates in client security database", clientCLI);
         this.clientCLI = clientCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        options.addOption(null, "ca", false, "Find CA certificates only");
     }
 
     public void execute(String[] args) throws Exception {
-
-        options.addOption(null, "ca", false, "Find CA certificates only");
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         client = parent.getClient();

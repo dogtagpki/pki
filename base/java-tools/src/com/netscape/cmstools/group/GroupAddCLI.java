@@ -37,25 +37,28 @@ public class GroupAddCLI extends CLI {
     public GroupAddCLI(GroupCLI groupCLI) {
         super("add", "Add group", groupCLI);
         this.groupCLI = groupCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Group ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Group ID> --description <Description> [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "description", true, "Description");
+        option.setArgName("description");
+        option.setRequired(true);
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
-
-        // Check for "--help" prior to parsing due to required option
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
             printHelp();
             System.exit(0);
         }
-
-        Option option = new Option(null, "description", true, "Description");
-        option.setArgName("description");
-        option.setRequired(true);
-        options.addOption(option);
 
         CommandLine cmd = null;
 
@@ -65,14 +68,15 @@ public class GroupAddCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No Group ID specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String groupID = cmdArgs[0];

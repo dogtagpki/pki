@@ -1,6 +1,7 @@
 package com.netscape.cmstools.profile;
 
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 
 import javax.xml.bind.JAXBException;
 
@@ -21,10 +22,17 @@ public class ProfileModifyCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <file>", options);
+        formatter.printHelp(getFullName() + " <file> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         CommandLine cmd = null;
 
         try {
@@ -35,20 +43,15 @@ public class ProfileModifyCLI extends CLI {
             System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
+        String[] cmdArgs = cmd.getArgs();
 
-        String[] cLineArgs = cmd.getArgs();
-
-        if (cLineArgs.length < 1) {
+        if (cmdArgs.length < 1) {
             System.err.println("Error: No filename specified.");
             printHelp();
             System.exit(-1);
         }
-        String filename = cLineArgs[0];
+
+        String filename = cmdArgs[0];
         if (filename == null || filename.trim().length() == 0) {
             System.err.println("Error: Missing input file name.");
             printHelp();

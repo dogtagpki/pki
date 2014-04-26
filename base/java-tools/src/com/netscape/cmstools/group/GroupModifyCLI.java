@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.group;
 
+import java.util.Arrays;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
@@ -35,17 +37,27 @@ public class GroupModifyCLI extends CLI {
     public GroupModifyCLI(GroupCLI groupCLI) {
         super("mod", "Modify group", groupCLI);
         this.groupCLI = groupCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Group ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "description", true, "Description");
         option.setArgName("description");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -55,20 +67,15 @@ public class GroupModifyCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No Group ID specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String groupID = cmdArgs[0];

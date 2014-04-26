@@ -36,21 +36,15 @@ public class TPSConnectorShowCLI extends CLI {
     public TPSConnectorShowCLI(TPSConnectorCLI tpsConnectorCLI) {
         super("show", "Show TPS connector details on TKS", tpsConnectorCLI);
         this.tpsConnectorCLI = tpsConnectorCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " --host <host> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        // Check for "--help" prior to parsing due to required option
-        if (Arrays.asList(args).contains("--help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
+    public void createOptions() {
         Option option = new Option(null, "host", true, "TPS host");
         option.setArgName("host");
         option.setRequired(true);
@@ -59,6 +53,15 @@ public class TPSConnectorShowCLI extends CLI {
         option = new Option(null, "port", true, "TPS port");
         option.setArgName("port");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -68,7 +71,15 @@ public class TPSConnectorShowCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
+        }
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
+            printHelp();
+            System.exit(-1);
         }
 
         String tpsHost = cmd.getOptionValue("host");

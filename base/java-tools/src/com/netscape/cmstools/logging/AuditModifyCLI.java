@@ -43,21 +43,15 @@ public class AuditModifyCLI extends CLI {
     public AuditModifyCLI(AuditCLI auditCLI) {
         super("mod", "Modify audit configuration", auditCLI);
         this.auditCLI = auditCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        // Check for "--help" prior to parsing due to required option
-        if (Arrays.asList(args).contains("--help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
+    public void createOptions() {
         Option option = new Option(null, "action", true, "Action: update (default), enable, disable.");
         option.setArgName("action");
         options.addOption(option);
@@ -69,6 +63,15 @@ public class AuditModifyCLI extends CLI {
         option = new Option(null, "output", true, "Output file to store audit configuration.");
         option.setArgName("file");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -78,14 +81,15 @@ public class AuditModifyCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String action = cmd.getOptionValue("action", "update");
@@ -99,7 +103,7 @@ public class AuditModifyCLI extends CLI {
             if (input == null) {
                 System.err.println("Error: Input file is required.");
                 printHelp();
-                System.exit(1);
+                System.exit(-1);
             }
 
             try (BufferedReader in = new BufferedReader(new FileReader(input));

@@ -20,6 +20,8 @@ package com.netscape.cmstools.user;
 
 import java.util.Arrays;
 
+import org.apache.commons.cli.CommandLine;
+
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -36,21 +38,34 @@ public class UserMembershipRemoveCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <User ID> <Group ID>", options);
+        formatter.printHelp(getFullName() + " <User ID> <Group ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
-
-        // Check for "--help"
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
             printHelp();
             System.exit(0);
         }
 
-        if (args.length != 2) {
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
+        }
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 2) {
+            System.err.println("Error: Incorrect number of arguments specified.");
+            printHelp();
+            System.exit(-1);
         }
 
         String userID = args[0];

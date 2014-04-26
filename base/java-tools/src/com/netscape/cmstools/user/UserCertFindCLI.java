@@ -39,21 +39,15 @@ public class UserCertFindCLI extends CLI {
     public UserCertFindCLI(UserCertCLI userCertCLI) {
         super("find", "Find user certificates", userCertCLI);
         this.userCertCLI = userCertCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        // Check for "--help"
-        if (Arrays.asList(args).contains("--help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
+    public void createOptions() {
         Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);
@@ -61,6 +55,15 @@ public class UserCertFindCLI extends CLI {
         option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -70,20 +73,15 @@ public class UserCertFindCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No User ID specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String userID = cmdArgs[0];

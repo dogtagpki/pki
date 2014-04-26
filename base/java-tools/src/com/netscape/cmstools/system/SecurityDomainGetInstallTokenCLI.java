@@ -38,21 +38,15 @@ public class SecurityDomainGetInstallTokenCLI extends CLI {
     public SecurityDomainGetInstallTokenCLI(SecurityDomainCLI securityDomainCLI) {
         super("get-install-token", "Get install token", securityDomainCLI);
         this.securityDomainCLI = securityDomainCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " --subsystem <subsystem> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        // Check for "--help" prior to parsing due to required option
-        if (Arrays.asList(args).contains("--help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
+    public void createOptions() {
         Option option = new Option(null, "hostname", true, "Hostname");
         option.setArgName("hostname");
         options.addOption(option);
@@ -61,6 +55,15 @@ public class SecurityDomainGetInstallTokenCLI extends CLI {
         option.setArgName("subsystem");
         option.setRequired(true);
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -70,14 +73,15 @@ public class SecurityDomainGetInstallTokenCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String hostname = cmd.getOptionValue("hostname");

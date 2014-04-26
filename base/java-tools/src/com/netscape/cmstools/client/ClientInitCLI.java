@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
@@ -37,15 +38,25 @@ public class ClientInitCLI extends CLI {
 
     public ClientInitCLI(ClientCLI clientCLI) {
         super("init", "Initialize client security database", clientCLI);
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        options.addOption(null, "force", false, "Force database initialization.");
     }
 
     public void execute(String[] args) throws Exception {
-
-        options.addOption(null, "force", false, "Force database initialization.");
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -55,20 +66,22 @@ public class ClientInitCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
 
         if (mainCLI.config.getCertPassword() == null) {
             System.err.println("Error: Security database password is required.");
-            System.exit(1);
+            System.exit(-1);
         }
 
         boolean force = cmd.hasOption("force");

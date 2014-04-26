@@ -40,27 +40,30 @@ public class UserCertShowCLI extends CLI {
     public UserCertShowCLI(UserCertCLI userCertCLI) {
         super("show", "Show user certificate", userCertCLI);
         this.userCertCLI = userCertCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " <User ID> <Cert ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        // Check for "--help"
-        if (Arrays.asList(args).contains("--help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
+    public void createOptions() {
         Option option = new Option(null, "output", true, "Output file");
         option.setArgName("file");
         options.addOption(option);
 
         options.addOption(null, "pretty", false, "Pretty print");
         options.addOption(null, "encoded", false, "Base-64 encoded");
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -70,24 +73,19 @@ public class UserCertShowCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
-        boolean showPrettyPrint = cmd.hasOption("pretty");
-        boolean showEncoded = cmd.hasOption("encoded");
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 2) {
+            System.err.println("Error: Incorrect number of arguments specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
+
+        boolean showPrettyPrint = cmd.hasOption("pretty");
+        boolean showEncoded = cmd.hasOption("encoded");
 
         String userID = cmdArgs[0];
         String certID = cmdArgs[1];

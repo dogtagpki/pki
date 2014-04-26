@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
@@ -37,14 +38,15 @@ public class TPSConnectorFindCLI extends CLI {
     public TPSConnectorFindCLI(TPSConnectorCLI tpsConnectorCLI) {
         super("find", "Find TPS connectors on TKS", tpsConnectorCLI);
         this.tpsConnectorCLI = tpsConnectorCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);
@@ -52,6 +54,15 @@ public class TPSConnectorFindCLI extends CLI {
         option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -61,13 +72,15 @@ public class TPSConnectorFindCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String s = cmd.getOptionValue("start");

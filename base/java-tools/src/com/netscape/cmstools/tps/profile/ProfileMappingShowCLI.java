@@ -20,6 +20,7 @@ package com.netscape.cmstools.tps.profile;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -38,17 +39,27 @@ public class ProfileMappingShowCLI extends CLI {
     public ProfileMappingShowCLI(ProfileMappingCLI profileMappingCLI) {
         super("show", "Show profileMapping", profileMappingCLI);
         this.profileMappingCLI = profileMappingCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Profile Mapping ID>", options);
+        formatter.printHelp(getFullName() + " <Profile Mapping ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "output", true, "Output file to store profile mapping properties.");
         option.setArgName("file");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -58,20 +69,15 @@ public class ProfileMappingShowCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No Profile Mapping ID specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String profileMappingID = args[0];

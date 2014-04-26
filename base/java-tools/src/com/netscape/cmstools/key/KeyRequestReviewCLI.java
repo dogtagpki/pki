@@ -17,43 +17,49 @@ public class KeyRequestReviewCLI extends CLI {
     public KeyRequestReviewCLI(KeyCLI keyCLI) {
         super("request-review", "Review key request", keyCLI);
         this.keyCLI = keyCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Request ID> [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " <Request ID> --action <action> [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "action", true,
+                "Action to be performed on the request.\nValid values: approve, reject, cancel.");
+        option.setArgName("Action to perform");
+        option.setRequired(true);
+        options.addOption(option);
     }
 
     public void execute(String[] args) {
-
-        // Check for "--help" prior to parsing due to required option
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
             printHelp();
             System.exit(0);
         }
 
-        Option option = new Option(null, "action", true,
-                "Action to be performed on the request.\nValid values: approve, reject, cancel.");
-        option.setArgName("Action to perform");
-        option.setRequired(true);
-        options.addOption(option);
-
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
 
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
+
         if (cmdArgs.length != 1) {
-            System.err.println("Error: Invalid arguments provided.");
+            System.err.println("Error: Incorrect number of arguments specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
+
         RequestId reqId = new RequestId(cmdArgs[0]);
 
         String action = cmd.getOptionValue("action");
@@ -70,7 +76,7 @@ public class KeyRequestReviewCLI extends CLI {
         default:
             System.err.println("Error: Invalid action.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         KeyRequestInfo keyRequestInfo = keyCLI.keyClient.getRequestInfo(reqId);

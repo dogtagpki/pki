@@ -32,6 +32,8 @@ public class CertRequestReviewCLI extends CLI {
     public CertRequestReviewCLI(CertCLI certCLI) {
         super("request-review", "Review certificate request", certCLI);
         this.certCLI = certCLI;
+
+        createOptions();
     }
 
     @Override
@@ -39,10 +41,7 @@ public class CertRequestReviewCLI extends CLI {
         formatter.printHelp(getFullName() + " <Request ID> [OPTIONS...]", options);
     }
 
-    @Override
-    public void execute(String[] args) throws Exception {
-        CommandLine cmd = null;
-
+    public void createOptions() {
         Option option = new Option(null, "action", true, "Action: " + StringUtils.join(actions, ", "));
         option.setArgName("action");
         options.addOption(option);
@@ -50,6 +49,18 @@ public class CertRequestReviewCLI extends CLI {
         option = new Option(null, "file", true, "File to store the certificate request");
         option.setArgName("filename");
         options.addOption(option);
+    }
+
+    @Override
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
+        CommandLine cmd = null;
 
         try {
             cmd = parser.parse(options, args);
@@ -59,24 +70,19 @@ public class CertRequestReviewCLI extends CLI {
             System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
+        String[] cmdArgs = cmd.getArgs();
 
-        String[] cLineArgs = cmd.getArgs();
-        if (cLineArgs.length < 1) {
-            System.err.println("Error: Missing certificate request ID.");
+        if (cmdArgs.length < 1) {
+            System.err.println("Error: Missing Certificate Request ID.");
             printHelp();
             System.exit(-1);
         }
 
         RequestId requestId = null;
         try {
-            requestId = new RequestId(cLineArgs[0]);
+            requestId = new RequestId(cmdArgs[0]);
         } catch (NumberFormatException e) {
-            System.err.println("Error: Invalid certificate request ID " + cLineArgs[0] + ".");
+            System.err.println("Error: Invalid certificate request ID " + cmdArgs[0] + ".");
             System.exit(-1);
         }
 

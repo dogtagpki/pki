@@ -18,6 +18,7 @@
 package com.netscape.cmstools.system;
 
 import java.io.FileInputStream;
+import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -42,10 +43,16 @@ public class KRAConnectorAddCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <File Name>", options);
+        formatter.printHelp(getFullName() + " <File Name> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -57,21 +64,15 @@ public class KRAConnectorAddCLI extends CLI {
             System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
+        String[] cmdArgs = cmd.getArgs();
 
-        String[] cLineArgs = cmd.getArgs();
-
-        if (cLineArgs.length < 1) {
+        if (cmdArgs.length < 1) {
             System.err.println("Error: No file name specified.");
             printHelp();
             System.exit(-1);
         }
 
-        FileInputStream fis = new FileInputStream(cLineArgs[0].trim());
+        FileInputStream fis = new FileInputStream(cmdArgs[0].trim());
 
         JAXBContext context = JAXBContext.newInstance(KRAConnectorInfo.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();

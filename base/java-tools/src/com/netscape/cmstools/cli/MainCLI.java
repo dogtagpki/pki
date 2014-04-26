@@ -78,6 +78,8 @@ public class MainCLI extends CLI {
         addModule(new OCSPCLI(this));
         addModule(new TKSCLI(this));
         addModule(new TPSCLI(this));
+
+        createOptions();
     }
 
     public String getFullModuleName(String moduleName) {
@@ -113,7 +115,7 @@ public class MainCLI extends CLI {
         }
     }
 
-    public void createOptions(Options options) throws UnknownHostException {
+    public void createOptions() throws UnknownHostException {
 
         Option option = new Option("U", true, "Server URI");
         option.setArgName("uri");
@@ -303,8 +305,6 @@ public class MainCLI extends CLI {
 
     public void execute(String[] args) throws Exception {
 
-        createOptions(options);
-
         CommandLine cmd;
         try {
             cmd = parser.parse(options, args, true);
@@ -363,7 +363,7 @@ public class MainCLI extends CLI {
             } else {
                 System.err.println(t.getClass().getSimpleName()+": "+t.getMessage());
             }
-            System.exit(1);
+            System.exit(-1);
         }
     }
 }

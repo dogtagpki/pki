@@ -37,7 +37,7 @@ public class KeyRequestShowCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Request ID>", options);
+        formatter.printHelp(getFullName() + " <Request ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) {
@@ -49,18 +49,23 @@ public class KeyRequestShowCLI extends CLI {
             System.exit(0);
         }
 
-        if (args.length != 1) {
-            printHelp();
-            System.exit(-1);
-        }
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
 
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
+        }
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 1) {
+            System.err.println("Error: No Request ID specified.");
+            printHelp();
+            System.exit(-1);
         }
 
         RequestId requestId = new RequestId(args[0].trim());

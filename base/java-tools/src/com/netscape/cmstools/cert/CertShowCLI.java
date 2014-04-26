@@ -20,6 +20,7 @@ package com.netscape.cmstools.cert;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -39,20 +40,30 @@ public class CertShowCLI extends CLI {
     public CertShowCLI(CertCLI certCLI) {
         super("show", "Show certificate", certCLI);
         this.certCLI = certCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Serial Number> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "output", true, "Output file");
         option.setArgName("file");
         options.addOption(option);
 
         options.addOption(null, "pretty", false, "Pretty print");
         options.addOption(null, "encoded", false, "Base-64 encoded");
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -62,24 +73,19 @@ public class CertShowCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
-        boolean showPrettyPrint = cmd.hasOption("pretty");
-        boolean showEncoded = cmd.hasOption("encoded");
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: Missing Serial Number.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
+
+        boolean showPrettyPrint = cmd.hasOption("pretty");
+        boolean showEncoded = cmd.hasOption("encoded");
 
         CertId certID = new CertId(cmdArgs[0]);
         String file = cmd.getOptionValue("output");

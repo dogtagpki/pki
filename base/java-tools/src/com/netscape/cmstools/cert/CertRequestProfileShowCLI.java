@@ -1,5 +1,7 @@
 package com.netscape.cmstools.cert;
 
+import java.util.Arrays;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
@@ -16,18 +18,29 @@ public class CertRequestProfileShowCLI extends CLI {
     public CertRequestProfileShowCLI(CertCLI certCLI) {
         super("request-profile-show", "Get Enrollment template", certCLI);
         this.certCLI = certCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Profile ID>", options);
+        formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-        CommandLine cmd = null;
-
+    public void createOptions() {
         Option option = new Option(null, "output", true, "Output filename");
         option.setArgName("filename");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
+        CommandLine cmd = null;
 
         try {
             cmd = parser.parse(options, args);
@@ -37,20 +50,15 @@ public class CertRequestProfileShowCLI extends CLI {
             System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
+        String[] cmdArgs = cmd.getArgs();
 
-        String[] cLineArgs = cmd.getArgs();
-        if (cLineArgs.length < 1) {
-            System.err.println("Error: Missing profile ID.");
+        if (cmdArgs.length < 1) {
+            System.err.println("Error: Missing Profile ID.");
             printHelp();
             System.exit(-1);
         }
 
-        String profileId = cLineArgs[0];
+        String profileId = cmdArgs[0];
 
         String filename = null;
         if (cmd.hasOption("output")) {

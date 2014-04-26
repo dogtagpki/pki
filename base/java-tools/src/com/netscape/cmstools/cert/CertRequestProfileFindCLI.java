@@ -1,5 +1,6 @@
 package com.netscape.cmstools.cert;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
@@ -19,14 +20,15 @@ public class CertRequestProfileFindCLI extends CLI {
     public CertRequestProfileFindCLI(CertCLI certCLI) {
         super("request-profile-find", "List Enrollment templates", certCLI);
         this.certCLI = certCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Profile ID>", options);
+        formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);
@@ -34,6 +36,15 @@ public class CertRequestProfileFindCLI extends CLI {
         option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -43,13 +54,15 @@ public class CertRequestProfileFindCLI extends CLI {
         } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 1) {
+            System.err.println("Error: Missing Profile ID.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String s = cmd.getOptionValue("start");

@@ -37,25 +37,28 @@ public class TokenAddCLI extends CLI {
     public TokenAddCLI(TokenCLI tokenCLI) {
         super("add", "Add token", tokenCLI);
         this.tokenCLI = tokenCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Token ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Token ID> --user <User ID> [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "user", true, "User ID");
+        option.setArgName("User ID");
+        option.setRequired(true);
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
-
-        // Check for "--help" prior to parsing due to required option
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
             printHelp();
             System.exit(0);
         }
-
-        Option option = new Option(null, "user", true, "User ID");
-        option.setArgName("User ID");
-        option.setRequired(true);
-        options.addOption(option);
 
         CommandLine cmd = null;
 
@@ -65,14 +68,15 @@ public class TokenAddCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No Token ID specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String tokenID = cmdArgs[0];

@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.cert;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
@@ -40,17 +41,56 @@ public class CertRequestFindCLI extends CLI {
     public CertRequestFindCLI(CertCLI certCLI) {
         super("request-find", "Find certificate requests", certCLI);
         this.certCLI = certCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
+    public void createOptions() {
+        Option option = null;
 
-        addOptions();
+        // request state
+        option = new Option(null, "status", true, "Request status (pending, cancelled, rejected, complete, all)");
+        option.setArgName("status");
+        options.addOption(option);
+
+        // request type
+        option = new Option(null, "type", true, "Request type (enrollment, renewal, revocation, all)");
+        option.setArgName("type");
+        options.addOption(option);
+
+        //pagination options
+        option = new Option(null, "start", true, "Page start");
+        option.setArgName("start");
+        options.addOption(option);
+
+        option = new Option(null, "size", true, "Page size");
+        option.setArgName("size");
+        options.addOption(option);
+
+        //search limits
+        option = new Option(null, "maxResults", true, "Maximum number of results");
+        option.setArgName("maxResults");
+        options.addOption(option);
+
+        option = new Option(null, "timeout", true, "Search timeout");
+        option.setArgName("maxTime");
+        options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
+
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
@@ -59,10 +99,12 @@ public class CertRequestFindCLI extends CLI {
             System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String s = cmd.getOptionValue("start");
@@ -102,38 +144,5 @@ public class CertRequestFindCLI extends CLI {
         }
 
         MainCLI.printMessage("Number of entries returned " + entries.size());
-    }
-
-    public void addOptions() {
-
-        Option option = null;
-
-        // request state
-        option = new Option(null, "status", true, "Request status (pending, cancelled, rejected, complete, all)");
-        option.setArgName("status");
-        options.addOption(option);
-
-        // request type
-        option = new Option(null, "type", true, "Request type (enrollment, renewal, revocation, all)");
-        option.setArgName("type");
-        options.addOption(option);
-
-        //pagination options
-        option = new Option(null, "start", true, "Page start");
-        option.setArgName("start");
-        options.addOption(option);
-
-        option = new Option(null, "size", true, "Page size");
-        option.setArgName("size");
-        options.addOption(option);
-
-        //search limits
-        option = new Option(null, "maxResults", true, "Maximum number of results");
-        option.setArgName("maxResults");
-        options.addOption(option);
-
-        option = new Option(null, "timeout", true, "Search timeout");
-        option.setArgName("maxTime");
-        options.addOption(option);
     }
 }

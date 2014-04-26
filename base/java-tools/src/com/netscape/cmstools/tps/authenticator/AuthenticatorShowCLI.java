@@ -20,6 +20,7 @@ package com.netscape.cmstools.tps.authenticator;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -38,17 +39,27 @@ public class AuthenticatorShowCLI extends CLI {
     public AuthenticatorShowCLI(AuthenticatorCLI authenticatorCLI) {
         super("show", "Show authenticator", authenticatorCLI);
         this.authenticatorCLI = authenticatorCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Authenticator ID>", options);
+        formatter.printHelp(getFullName() + " <Authenticator ID> [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "output", true, "Output file to store authenticator properties.");
         option.setArgName("file");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -58,20 +69,15 @@ public class AuthenticatorShowCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No Authenticator ID specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String authenticatorID = args[0];

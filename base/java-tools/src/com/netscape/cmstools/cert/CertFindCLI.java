@@ -21,6 +21,7 @@ package com.netscape.cmstools.cert;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -46,102 +47,15 @@ public class CertFindCLI extends CLI {
     public CertFindCLI(CertCLI certCLI) {
         super("find", "Find certificates", certCLI);
         this.certCLI = certCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
-        addOptions();
-
-        CommandLine cmd = null;
-        CertSearchRequest searchData = null;
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage());
-            printHelp();
-            System.exit(1);
-        }
-
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
-
-        String fileName = null;
-
-        if (cmd.hasOption("input")) {
-            fileName = cmd.getOptionValue("input");
-            if (fileName == null || fileName.length() < 1) {
-                System.err.println("Error: No file name specified.");
-                printHelp();
-                System.exit(1);
-            }
-        }
-
-        if (fileName != null) {
-            FileReader reader = null;
-            try {
-                reader = new FileReader(fileName);
-                searchData = CertSearchRequest.valueOf(reader);
-
-            } catch (FileNotFoundException e) {
-                System.err.println("Error: " + e.getMessage());
-                System.exit(1);
-
-            } catch (JAXBException e) {
-                System.err.println("Error: " + e.getMessage());
-                System.exit(1);
-
-            } finally {
-                if (reader != null)
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-            }
-
-        } else {
-            searchData = new CertSearchRequest();
-            searchData.setSerialNumberRangeInUse(true);
-        }
-
-        String s = cmd.getOptionValue("start");
-        Integer start = s == null ? null : Integer.valueOf(s);
-
-        s = cmd.getOptionValue("size");
-        Integer size = s == null ? null : Integer.valueOf(s);
-
-        addSearchAttribute(cmd, searchData);
-
-        CertDataInfos certs = certCLI.certClient.findCerts(searchData, start, size);
-
-        MainCLI.printMessage(certs.getTotal() + " entries found");
-        if (certs.getTotal() == 0) return;
-
-        boolean first = true;
-
-        Collection<CertDataInfo> entries = certs.getEntries();
-        for (CertDataInfo cert : entries) {
-            if (first) {
-                first = false;
-            } else {
-                System.out.println();
-            }
-
-            CertCLI.printCertInfo(cert);
-        }
-
-        MainCLI.printMessage("Number of entries returned " + certs.getEntries().size());
-    }
-
-    public void addOptions() {
-
+    public void createOptions() {
         Option option = null;
 
         //pagination options
@@ -275,6 +189,101 @@ public class CertFindCLI extends CLI {
         option = new Option(null, "validityUnit", true, "Validity duration unit: day, week, month (default), year");
         option.setArgName("day|week|month|year");
         options.addOption(option);
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.err.println("Error: " + e.getMessage());
+            printHelp();
+            System.exit(-1);
+        }
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
+            printHelp();
+            System.exit(-1);
+        }
+
+        CertSearchRequest searchData = null;
+        String fileName = null;
+
+        if (cmd.hasOption("input")) {
+            fileName = cmd.getOptionValue("input");
+            if (fileName == null || fileName.length() < 1) {
+                System.err.println("Error: No file name specified.");
+                printHelp();
+                System.exit(-1);
+            }
+        }
+
+        if (fileName != null) {
+            FileReader reader = null;
+            try {
+                reader = new FileReader(fileName);
+                searchData = CertSearchRequest.valueOf(reader);
+
+            } catch (FileNotFoundException e) {
+                System.err.println("Error: " + e.getMessage());
+                System.exit(-1);
+
+            } catch (JAXBException e) {
+                System.err.println("Error: " + e.getMessage());
+                System.exit(-1);
+
+            } finally {
+                if (reader != null)
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            }
+
+        } else {
+            searchData = new CertSearchRequest();
+            searchData.setSerialNumberRangeInUse(true);
+        }
+
+        String s = cmd.getOptionValue("start");
+        Integer start = s == null ? null : Integer.valueOf(s);
+
+        s = cmd.getOptionValue("size");
+        Integer size = s == null ? null : Integer.valueOf(s);
+
+        addSearchAttribute(cmd, searchData);
+
+        CertDataInfos certs = certCLI.certClient.findCerts(searchData, start, size);
+
+        MainCLI.printMessage(certs.getTotal() + " entries found");
+        if (certs.getTotal() == 0) return;
+
+        boolean first = true;
+
+        Collection<CertDataInfo> entries = certs.getEntries();
+        for (CertDataInfo cert : entries) {
+            if (first) {
+                first = false;
+            } else {
+                System.out.println();
+            }
+
+            CertCLI.printCertInfo(cert);
+        }
+
+        MainCLI.printMessage("Number of entries returned " + certs.getEntries().size());
     }
 
     public Long convertValidityDurationUnit(String unit) {

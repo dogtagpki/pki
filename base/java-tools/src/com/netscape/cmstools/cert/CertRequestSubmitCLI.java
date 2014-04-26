@@ -2,6 +2,7 @@ package com.netscape.cmstools.cert;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Scanner;
 
@@ -26,11 +27,18 @@ public class CertRequestSubmitCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <filename>", options);
+        formatter.printHelp(getFullName() + " <filename> [OPTIONS...]", options);
     }
 
     @Override
     public void execute(String[] args) {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
+
         CommandLine cmd = null;
 
         try {
@@ -41,22 +49,16 @@ public class CertRequestSubmitCLI extends CLI {
             System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
-            printHelp();
-            System.exit(0);
-        }
+        String[] cmdArgs = cmd.getArgs();
 
-        String[] cLineArgs = cmd.getArgs();
-
-        if (cLineArgs.length < 1) {
+        if (cmdArgs.length < 1) {
             System.err.println("Error: No filename specified.");
             printHelp();
             System.exit(-1);
         }
 
         try {
-            CertEnrollmentRequest erd = getEnrollmentRequest(cLineArgs[0]);
+            CertEnrollmentRequest erd = getEnrollmentRequest(cmdArgs[0]);
             CertRequestInfos cri = certCLI.certClient.enrollRequest(erd);
             MainCLI.printMessage("Submitted certificate request");
             printRequestInformation(cri);

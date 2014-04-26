@@ -39,25 +39,28 @@ public class UserCertAddCLI extends CLI {
     public UserCertAddCLI(UserCertCLI userCertCLI) {
         super("add", "Add user certificate", userCertCLI);
         this.userCertCLI = userCertCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> --input <file> [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "input", true, "Input file");
+        option.setArgName("file");
+        option.setRequired(true);
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
-
-        // Check for "--help" prior to parsing due to required option
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
             printHelp();
             System.exit(0);
         }
-
-        Option option = new Option(null, "input", true, "Input file");
-        option.setArgName("file");
-        option.setRequired(true);
-        options.addOption(option);
 
         CommandLine cmd = null;
 
@@ -67,14 +70,15 @@ public class UserCertAddCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
+            System.err.println("Error: No User ID specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String userId = cmdArgs[0];

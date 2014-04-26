@@ -20,6 +20,7 @@ package com.netscape.cmstools.client;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -39,14 +40,15 @@ public class ClientCertImportCLI extends CLI {
     public ClientCertImportCLI(ClientCLI clientCLI) {
         super("cert-import", "Import certificate into client security database", clientCLI);
         this.clientCLI = clientCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
-    public void execute(String[] args) throws Exception {
-
+    public void createOptions() {
         Option option = new Option(null, "cert", true, "Import certificate file");
         option.setArgName("path");
         options.addOption(option);
@@ -56,6 +58,15 @@ public class ClientCertImportCLI extends CLI {
         options.addOption(option);
 
         options.addOption(null, "ca-server", false, "Import CA certificate from CA server");
+    }
+
+    public void execute(String[] args) throws Exception {
+        // Always check for "--help" prior to parsing
+        if (Arrays.asList(args).contains("--help")) {
+            // Display usage
+            printHelp();
+            System.exit(0);
+        }
 
         CommandLine cmd = null;
 
@@ -65,13 +76,15 @@ public class ClientCertImportCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
-        if (cmd.hasOption("help")) {
-            // Display usage
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(0);
+            System.exit(-1);
         }
 
         client = parent.getClient();
@@ -108,14 +121,14 @@ public class ClientCertImportCLI extends CLI {
         } else {
             System.err.println("Error: Missing certificate to import");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
 
         if (mainCLI.config.getCertNickname() == null) {
             System.err.println("Error: Certificate nickname is required.");
-            System.exit(1);
+            System.exit(-1);
         }
 
         File certDatabase = mainCLI.certDatabase;

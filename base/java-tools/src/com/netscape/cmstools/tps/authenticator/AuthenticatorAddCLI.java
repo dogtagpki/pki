@@ -41,25 +41,28 @@ public class AuthenticatorAddCLI extends CLI {
     public AuthenticatorAddCLI(AuthenticatorCLI authenticatorCLI) {
         super("add", "Add authenticator", authenticatorCLI);
         this.authenticatorCLI = authenticatorCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " --input <file> [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "input", true, "Input file containing authenticator properties.");
+        option.setArgName("file");
+        option.setRequired(true);
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
-
-        // Check for "--help" prior to parsing due to required option
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
             printHelp();
             System.exit(0);
         }
-
-        Option option = new Option(null, "input", true, "Input file containing authenticator properties.");
-        option.setArgName("file");
-        option.setRequired(true);
-        options.addOption(option);
 
         CommandLine cmd = null;
 
@@ -69,14 +72,15 @@ public class AuthenticatorAddCLI extends CLI {
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
-            System.exit(1);
+            System.exit(-1);
         }
 
         String input = cmd.getOptionValue("input");

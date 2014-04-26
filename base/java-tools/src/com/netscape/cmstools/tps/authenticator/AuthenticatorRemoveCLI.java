@@ -20,6 +20,8 @@ package com.netscape.cmstools.tps.authenticator;
 
 import java.util.Arrays;
 
+import org.apache.commons.cli.CommandLine;
+
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -36,21 +38,34 @@ public class AuthenticatorRemoveCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Authenticator ID>", options);
+        formatter.printHelp(getFullName() + " <Authenticator ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
-
-        // Check for "--help"
+        // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
             printHelp();
             System.exit(0);
         }
 
-        if (args.length != 1) {
+        CommandLine cmd = null;
+
+        try {
+            cmd = parser.parse(options, args);
+
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
             printHelp();
-            System.exit(1);
+            System.exit(-1);
+        }
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length != 1) {
+            System.err.println("Error: No Authenticator ID specified.");
+            printHelp();
+            System.exit(-1);
         }
 
         String authenticatorID = args[0];
