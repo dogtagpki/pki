@@ -45,9 +45,11 @@ public class InstallLoadAPDU extends APDU {
         inputData.add((byte) 0x04);
         inputData.add((byte) 0xC6);
         inputData.add((byte) 0x02);
-        fileLen += 24 + sdAID.size();
-        inputData.add((byte) ((fileLen >> 8) & 0xff));
-        inputData.add((byte) (fileLen & 0xff));
+        int finalLen = fileLen + 24 + sdAID.size();
+
+        inputData.add((byte) ((finalLen >> 8) & 0xff));
+        inputData.add((byte) (finalLen & 0xff));
+        inputData.add((byte) 0x0);
 
         setData(inputData);
     }

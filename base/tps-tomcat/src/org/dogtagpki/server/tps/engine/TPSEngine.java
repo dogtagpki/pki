@@ -83,6 +83,8 @@ public class TPSEngine {
     public static final String CFG_CHANNEL_DEFKEY_VERSION = "channel.defKeyVersion";
     public static final String CFG_CHANNEL_APPLET_MEMORY_SIZE = "channel.appletMemorySize";
     public static final String CFG_CHANNEL_DEFKEY_INDEX = "channel.defKeyIndex";
+    public static final String CFG_ISSUER_INFO_ENABLE = "issuerinfo.enable";
+    public static final String CFG_ISSUER_INFO_VALUE = "issuerinfo.value";
 
     /* default values */
     public static final String CFG_DEF_CARDMGR_INSTANCE_AID = "A0000000030000";
@@ -94,8 +96,9 @@ public class TPSEngine {
     public static final String CFG_ENABLED = "Enabled";
 
     public static final int CFG_CHANNEL_DEF_BLOCK_SIZE = 242;
-    public static final int CFG_CHANNEL_DEF_INSTANCE_SIZE = 1800;
+    public static final int CFG_CHANNEL_DEF_INSTANCE_SIZE = 18000;
     public static final int CFG_CHANNEL_DEF_APPLET_MEMORY_SIZE = 5000;
+
 
     /* External reg values */
 

@@ -77,7 +77,7 @@ public class TPSSession {
     }
 
     public void process() throws IOException {
-        EndOp.TPSStatus status = EndOp.TPSStatus.STATUS_ERROR_BAD_STATUS;
+        EndOp.TPSStatus status = EndOp.TPSStatus.STATUS_NO_ERROR;
         CMS.debug("In TPSSession.process()");
 
         TPSMessage firstMsg = read();

@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.tps.main.TPSBuffer;
+
 import com.netscape.certsrv.apps.CMS;
 
 public class TPSPhoneHome extends HttpServlet {
@@ -47,8 +49,13 @@ public class TPSPhoneHome extends HttpServlet {
             buf = new BufferedInputStream(input);
 
             int readBytes = 0;
-            while ((readBytes = buf.read()) != -1)
+            TPSBuffer readData = new TPSBuffer();
+            while ((readBytes = buf.read()) != -1) {
                 stream.write(readBytes);
+                readData.add((byte) readBytes);
+            }
+
+            CMS.debug("TPSPhoneHome.renderPhoneHome: data: " + readData.toHexString());
 
         } catch (IOException e) {
             CMS.debug("TPSPhoneHome.renderPhoneHome: Error encountered:  " + e);

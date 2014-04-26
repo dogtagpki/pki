@@ -300,6 +300,11 @@ public class TPSBuffer {
         TPSBuffer b6 = new TPSBuffer("A0000000030000");
         b6.dump();
 
+        TPSBuffer empty = new TPSBuffer();
+
+        int emptySize = empty.size();
+        System.out.println("empty buffer size: " + emptySize);
+
     }
 
 }

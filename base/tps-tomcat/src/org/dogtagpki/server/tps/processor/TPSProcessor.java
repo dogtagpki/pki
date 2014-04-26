@@ -42,6 +42,7 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOp;
 import org.dogtagpki.tps.msg.EndOp.TPSStatus;
+import org.dogtagpki.tps.msg.StatusUpdateRequest;
 import org.dogtagpki.tps.msg.TokenPDURequest;
 import org.dogtagpki.tps.msg.TokenPDUResponse;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -76,8 +77,7 @@ public class TPSProcessor {
 
     private String currentTokenOperation;
 
-
-
+    private BeginOp beginMsg;
 
     public TPSProcessor(TPSSession session) {
         setSession(session);
@@ -96,6 +96,14 @@ public class TPSProcessor {
 
     protected TPSSession getSession() {
         return session;
+    }
+
+    protected void setBeginMessage(BeginOp msg) {
+        beginMsg = msg;
+    }
+
+    public BeginOp getBeginMessage() {
+        return beginMsg;
     }
 
     protected void setSelectedTokenType(String theTokenType) {
@@ -443,12 +451,10 @@ public class TPSProcessor {
         return channel;
     }
 
-    protected String upgradeApplet(String operation, String new_version, SecurityLevel securityLevel,
+    protected void upgradeApplet(String operation, String new_version, SecurityLevel securityLevel,
             Map<String, String> extensions, String connId, int startProgress, int endProgress) throws IOException,
             TPSException {
 
-        String newVersion = null;
-        boolean appletUpgraded = false;
         String NetKeyAID = null;
         String NetKeyPAID = null;
         String CardMgrAID = null;
@@ -462,7 +468,8 @@ public class TPSProcessor {
                     TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
             CMS.debug("In TPS_Processor.upgradeApplet. CardManagerAID: " + " NetKeyAID: " + NetKeyAID);
             NetKeyPAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_FILE_AID, TPSEngine.CFG_DEF_NETKEY_FILE_AID);
-            CardMgrAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
+            CardMgrAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,
+                    TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
 
         } catch (EBaseException e1) {
             CMS.debug("TPS_Processor.upgradeApplet: Internal Error obtaining mandatory config values. Error: " + e1);
@@ -474,8 +481,6 @@ public class TPSProcessor {
         TPSBuffer netkeyPAIDBuff = new TPSBuffer(NetKeyPAID);
         TPSBuffer cardMgrAIDBuff = new TPSBuffer(CardMgrAID);
 
-        //Not all of these used yet, but will be
-        //ToDo
         int channelBlockSize = getChannelBlockSize();
         int channelInstanceSize = getChannelInstanceSize();
         int channelAppletMemSize = getAppletMemorySize();
@@ -493,9 +498,6 @@ public class TPSProcessor {
 
         CMS.debug("TPSProcessor.upgradeApplet: targe applet file name: " + appletFilePath);
 
-        //Not ready to use this yet.
-        //ToDo
-
         appletData = getAppletFileData(appletFilePath);
 
         APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, cardMgrAIDBuff);
@@ -511,15 +513,26 @@ public class TPSProcessor {
         channel.deleteFileX(netkeyPAIDBuff);
 
         // Next step will be to load the applet file to token.
-        // ToDo:
 
-        //ToDo actually finish this later.
-        if (appletUpgraded == false) {
-            throw new TPSException("TPSProcessor.upgradeApplet: Error upgrading applet",
+        TPSBuffer empty = new TPSBuffer();
+
+        channel.installLoad(netkeyPAIDBuff, empty, appletData.length);
+
+        TPSBuffer appletDataBuff = new TPSBuffer(appletData);
+
+        channel.loadFile(appletDataBuff, channelBlockSize, startProgress, endProgress);
+
+        channel.installApplet(netkeyPAIDBuff, netkeyAIDBuff, (byte) 0, channelInstanceSize, channelAppletMemSize);
+
+        //Now select our new applet
+
+        select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
+
+        if (!select.checkResult()) {
+            throw new TPSException("TPSProcessor.upgradeApplet: Cannot select newly created applet!",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
-        return newVersion;
     }
 
     protected byte[] getAppletFileData(String appletFilePath) throws IOException, TPSException {
@@ -548,7 +561,7 @@ public class TPSProcessor {
         return contents;
     }
 
-    protected void format(BeginOp message) throws TPSException, IOException {
+    protected void format() throws TPSException, IOException {
 
         IConfigStore configStore = CMS.getConfigStore();
 
@@ -632,7 +645,7 @@ public class TPSProcessor {
         }
 
         String tokenType = getTokenType(TPSEngine.OP_FORMAT_PREFIX, major_version, minor_version, cuid, msn,
-                message.getExtensions());
+                beginMsg.getExtensions());
 
         CMS.debug("TPS_Processor.format: calculated tokenType: " + tokenType);
 
@@ -665,11 +678,67 @@ public class TPSProcessor {
 
         String tksConnId = getTKSConnectorID();
 
-        String newKeyVersion = upgradeApplet(TPSEngine.OP_FORMAT_PREFIX, appletRequiredVersion, secLevel,
-                message.getExtensions(), tksConnId,
+        upgradeApplet(TPSEngine.OP_FORMAT_PREFIX, appletRequiredVersion, secLevel,
+                beginMsg.getExtensions(), tksConnId,
                 10, 90);
 
-        CMS.debug("TPSProcessor.format: upgraded aplet version: " + newKeyVersion);
+        CMS.debug("TPSProcessor.format: Completed applet upgrade.");
+
+        // Add issuer info to the token
+
+        if (checkIssuerInfoEnabled()) {
+
+            int defKeyIndex = getChannelDefKeyIndex();
+            int defKeyVersion = getChannelDefKeyVersion();
+
+            SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, secLevel, tksConnId);
+
+            channel.externalAuthenticate();
+
+            String issuer = getIssuerInfoValue();
+
+            // We know this better be ASCII value URL.
+            byte[] issuer_bytes = issuer.getBytes("US-ASCII");
+            TPSBuffer issuerInfoBuff = new TPSBuffer(issuer_bytes);
+
+            channel.setIssuerInfo(issuerInfoBuff);
+
+        }
+
+        if (requiresStatusUpdate()) {
+            statusUpdate(100, "PROGRESS_DONE");
+        }
+
+        //ToDo:  Symmetric Key Changeover
+
+        // ToDo: Update Token DB
+
+        // ToDo:  Revoke certificates
+
+    }
+
+    protected String getIssuerInfoValue() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        String info = null;
+
+        String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_ISSUER_INFO_VALUE;
+
+        CMS.debug("TPSProcessor.getIssuerInfoValue: config: " + config);
+        try {
+            info = configStore.getString(config, null);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getIssuerInfoValue: Internal error finding config value.");
+
+        }
+
+        if (info == null) {
+            throw new TPSException("TPSProcessor.getIssuerInfoValue: Can't find issuer info value in the config.",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+        }
+
+        CMS.debug("TPSProcessor.getIssuerInfoValue: returning: " + info);
+
+        return info;
     }
 
     void checkProfileStateOK() throws TPSException {
@@ -691,6 +760,32 @@ public class TPSProcessor {
             CMS.debug("TPSProcessor.checkProfileStateOK: profile specifically disabled.");
             throw new TPSException("TPSProcessor.checkProfileStateOK: profile disabled!");
         }
+
+    }
+
+    protected boolean checkIssuerInfoEnabled() throws TPSException {
+
+        CMS.debug("TPSProcessor.checkIssuerEnabled entering...");
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String issuerEnabledConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_ISSUER_INFO_ENABLE;
+
+        CMS.debug("TPSProcessor.checkIssuerEnabled config to check: " + issuerEnabledConfig);
+
+        boolean issuerInfoEnabled = false;
+
+        try {
+            issuerInfoEnabled = configStore.getBoolean(issuerEnabledConfig, false);
+        } catch (EBaseException e) {
+            //Default TPSException will return a "contact admin" error code.
+            throw new TPSException(
+                    "TPSProcessor.checkIssuerInfo: internal error in getting value from config.");
+        }
+
+        CMS.debug("TPSProcessor.checkIssuerEnabled returning: " + issuerInfoEnabled);
+        return issuerInfoEnabled;
 
     }
 
@@ -789,7 +884,6 @@ public class TPSProcessor {
         }
 
         CMS.debug("TPSProcessor.getTKSConectorID: returning: " + id);
-
 
         return id;
     }
@@ -978,7 +1072,27 @@ public class TPSProcessor {
     }
 
     public void process(BeginOp beginMsg) throws TPSException, IOException {
-        format(beginMsg);
+
+        if (beginMsg == null) {
+            throw new TPSException("TPSProcessor.process: invalid input data, not beginMsg provided.",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+        }
+        setBeginMessage(beginMsg);
+
+        format();
+    }
+
+    public void statusUpdate(int status, String info) throws IOException {
+
+        CMS.debug("In statusUpdate status: " + " info: " + info);
+
+        StatusUpdateRequest statusUpdate = new StatusUpdateRequest(status, info);
+        session.write(statusUpdate);
+
+        //We don't really care about the response, just that we get it.
+
+        session.read();
+
     }
 
     /* Return calculated token profile type.
@@ -1241,6 +1355,22 @@ public class TPSProcessor {
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
         return subsystem.getEngine();
+
+    }
+
+    // Do the incoming extensions support status update?
+    public boolean requiresStatusUpdate() {
+
+        boolean result = false;
+
+        // We can't get here without a begin message established.
+        String update = getBeginMessage().getExtension(BeginOp.STATUS_UPDATE_EXTENSION_NAME);
+
+        if (update != null && update.equals("true")) {
+            result = true;
+        }
+
+        return result;
 
     }
 

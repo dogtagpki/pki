@@ -85,6 +85,7 @@ public class TPSMessage {
     public static final String INFO_NAME = "next_task_name";
     public static final String REQUIRED_PARAMETER_NAME = "required_parameter";
     public static final String PARAMETER_NAME = "parameter";
+    public static final String STATUS_UPDATE_EXTENSION_NAME = "statusUpdate";
 
     private Map<String, String> map = new LinkedHashMap<String, String>();
 
@@ -466,6 +467,12 @@ public class TPSMessage {
         case MSG_STATUS_UPDATE_REQUEST:
             break;
         case MSG_STATUS_UPDATE_RESPONSE:
+
+            String statusValue = get(TPSMessage.STATUS_NAME);
+            CMS.debug("statusValue: " + statusValue);
+            int statusInt = Integer.parseInt(statusValue);
+            CMS.debug("statusInt: " + statusInt);
+            result = new StatusUpdateResponse(statusInt);
             break;
         case MSG_TOKEN_PDU_REQUEST:
             break;
@@ -474,6 +481,10 @@ public class TPSMessage {
             break;
         default:
             //Something was garbled with the message coming in
+            throw new IOException("TPSMessage.createMessage: Can't locate incoming TPS message!");
+        }
+
+        if(result == null) {
             throw new IOException("TPSMessage.createMessage: Can't create incoming TPS message!");
         }
 

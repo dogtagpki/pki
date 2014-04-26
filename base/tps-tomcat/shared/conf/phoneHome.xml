@@ -1,20 +1,11 @@
 <ServiceInfo>
-<IssuerName>
-Fedora Project
+<IssuerName>FedoraProject</IssuerName>
 </IssuerName>
 <Services>
-<Operation>
-https://[PKI_HOSTNAME]:[PKI_SECURE_PORT]/tps/tps
-</Operation>
-<UI>
-</UI>
-<EnrolledTokenBrowserURL>
-http://fedoraproject.org
-</EnrolledTokenBrowserURL>
-<EnrolledTokenURL>
-</EnrolledTokenURL>
-<TokenType>
-userKey
-</TokenType>
+<Operation>https://[PKI_HOSTNAME]:[PKI_SECURE_PORT]/tps/tps</Operation>
+<UI></UI>
+<EnrolledTokenBrowserURL>http://fedoraproject.org</EnrolledTokenBrowserURL>
+<EnrolledTokenURL></EnrolledTokenURL>
+<TokenType>userKey</TokenType>
 </Services>
 </ServiceInfo>
