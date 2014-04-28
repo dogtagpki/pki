@@ -19,6 +19,8 @@ package com.netscape.certsrv.system;
 
 import java.net.URISyntaxException;
 
+import javax.ws.rs.core.Response;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -40,10 +42,12 @@ public class SecurityDomainClient extends Client {
     }
 
     public InstallToken getInstallToken(String hostname, String subsystem) {
-        return securityDomainClient.getInstallToken(hostname, subsystem);
+        Response response = securityDomainClient.getInstallToken(hostname, subsystem);
+        return client.getEntity(response, InstallToken.class);
     }
 
     public DomainInfo getDomainInfo() {
-        return securityDomainClient.getDomainInfo();
+        Response response = securityDomainClient.getDomainInfo();
+        return client.getEntity(response, DomainInfo.class);
     }
 }

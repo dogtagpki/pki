@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -49,13 +50,15 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     private HttpServletRequest servletRequest;
 
     @Override
-    public InstallToken getInstallToken(String hostname, String subsystem) {
+    public Response getInstallToken(String hostname, String subsystem) {
         try {
             // Get uid from realm authentication.
             String user = servletRequest.getUserPrincipal().getName();
 
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
-            return processor.getInstallToken(user, hostname, subsystem);
+            InstallToken installToken = processor.getInstallToken(user, hostname, subsystem);
+            return createOKResponse(installToken);
+
 
         } catch (EBaseException e) {
             throw new PKIException(e.getMessage(), e);
@@ -63,10 +66,11 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
     }
 
     @Override
-    public DomainInfo getDomainInfo() throws PKIException {
+    public Response getDomainInfo() throws PKIException {
         try {
             SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(headers));
-            return processor.getDomainInfo();
+            DomainInfo domainInfo = processor.getDomainInfo();
+            return createOKResponse(domainInfo);
 
         } catch (EBaseException e) {
             throw new PKIException(e.getMessage(), e);
