@@ -3774,17 +3774,20 @@ public class ConfigurationUtils {
 
     public static void setupDBUser() throws CertificateException, LDAPException, EBaseException,
             NotInitializedException, ObjectNotFoundException, TokenException, IOException {
-        IUGSubsystem system =
-                (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
 
-        try {
-            @SuppressWarnings("unused")
-            Enumeration<IUser> dbusers = system.findUsers(DBUSER);
-            CMS.debug("DB User already exists: " + DBUSER);
+        IUGSubsystem system = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+
+        // checking existing user
+        IUser user = system.getUser(DBUSER);
+
+        if (user != null) {
+            // user found
+            CMS.debug("setupDBUser(): user already exists: " + DBUSER);
             return;
-        } catch (EUsrGrpException e) {
-            CMS.debug("Creating DB User: " + DBUSER);
         }
+
+        // user not found
+        CMS.debug("setupDBUser(): creating user: " + DBUSER);
 
         String b64 = getSubsystemCert();
         if (b64 == null) {
@@ -3792,18 +3795,21 @@ public class ConfigurationUtils {
             throw new EBaseException("setupDBUser(): failed to fetch subsystem cert");
         }
 
-        IUser user = system.createUser(DBUSER);
+        user = system.createUser(DBUSER);
         user.setFullName(DBUSER);
         user.setEmail("");
         user.setPassword("");
         user.setUserType("agentType");
         user.setState("1");
         user.setPhone("");
+
         X509CertImpl[] certs = new X509CertImpl[1];
         certs[0] = new X509CertImpl(CMS.AtoB(b64));
         user.setX509Certificates(certs);
+
         system.addUser(user);
         CMS.debug("setupDBUser(): successfully added the user");
+
         system.addUserCert(user);
         CMS.debug("setupDBUser(): successfully add the user certificate");
 
@@ -3811,7 +3817,7 @@ public class ConfigurationUtils {
         system.addCertSubjectDN(user);
 
         // remove old db users
-        CMS.debug("Removing seeAlso from old dbusers");
+        CMS.debug("setupDBUser(): removing seeAlso from old dbusers");
         removeOldDBUsers(certs[0].getSubjectDN().toString());
     }
 
