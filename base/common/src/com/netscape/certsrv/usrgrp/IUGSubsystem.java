@@ -46,10 +46,10 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
     /**
      * Retrieves a user from LDAP
      *
-     * @param userid the given user id
-     * @exception EUsrGrpException thrown when failed to find the user
+     * @param userID the given user ID
+     * @return the user object or null if user not found
      */
-    public IUser getUser(String userid) throws EUsrGrpException;
+    public IUser getUser(String userID) throws EUsrGrpException;
 
     /**
      * Searches for users that matches the filter.

@@ -190,45 +190,54 @@ public final class UGSubsystem implements IUGSubsystem {
     /**
      * Retrieves a user from LDAP
      */
-    public IUser getUser(String userid) throws EUsrGrpException {
-        if (userid == null) {
+    public IUser getUser(String userID) throws EUsrGrpException {
+
+        if (userID == null) {
             return null;
         }
 
-        try {
-            if (userid.indexOf('=') == -1) {
-                Enumeration<IUser> e = findUsers(userid);
+        String userDN;
 
-                if (e != null && e.hasMoreElements()) {
-                    IUser u = e.nextElement();
+        if (userID.indexOf('=') < 0) { // user ID is not a DN
+            userDN = getUserDN(userID);
 
-                    return u;
-                } else {
-                    throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USER_NOT_FOUND"));
-                }
-            } else {
-                LDAPConnection ldapconn = null;
-
-                try {
-                    ldapconn = getConn();
-                    // read DN
-                    LDAPSearchResults res =
-                            ldapconn.search(userid,
-                                    LDAPv2.SCOPE_SUB, "(objectclass=*)", null, false);
-                    Enumeration<IUser> e = buildUsers(res);
-
-                    if (e.hasMoreElements()) {
-                        return e.nextElement();
-                    }
-                } finally {
-                    if (ldapconn != null)
-                        returnConn(ldapconn);
-                }
-            }
-        } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_GET_USER", e.toString()));
-            // throws...
+        } else { // user ID is a DN
+            // TODO: use a separate method for user ID and DN
+            userDN = userID;
         }
+
+        try {
+            LDAPConnection ldapconn = null;
+
+            try {
+                ldapconn = getConn();
+
+                // use base search to find the exact user
+                LDAPSearchResults res = ldapconn.search(
+                        userDN,
+                        LDAPv2.SCOPE_BASE,
+                        "(objectclass=*)",
+                        null,
+                        false);
+
+                // throw EUsrGrpException if result is empty
+                Enumeration<IUser> e = buildUsers(res);
+
+                // user found
+                return e.nextElement();
+
+            } finally {
+                if (ldapconn != null)
+                    returnConn(ldapconn);
+            }
+
+        } catch (Exception e) {
+            // currently this will catch all exceptions
+            // TODO: catch user not found exception only, rethrow everything else
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_GET_USER", e.toString()));
+        }
+
+        // user not found or other error occurs
         return null;
     }
 
@@ -1900,6 +1909,10 @@ public final class UGSubsystem implements IUGSubsystem {
      */
     private String getUserBaseDN() {
         return "ou=People," + mBaseDN;
+    }
+
+    public String getUserDN(String userID) {
+        return "uid=" + LDAPUtil.escapeRDNValue(userID) + "," + getUserBaseDN();
     }
 
     /**
