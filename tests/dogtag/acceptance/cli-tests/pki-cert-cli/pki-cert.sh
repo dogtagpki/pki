@@ -39,9 +39,9 @@
 . /opt/rhqa_pki/env.sh
 
 # pki cert ran without any options should show all the command line options of pki cert
-run_pki-cert()
+run_pki-cert-ca_tests()
 {
-	rlPhaseStartSetup "Create Temporary Directory "
+	rlPhaseStartSetup "Create Temporary Directory"
 	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
 	rlRun "pushd $TmpDir"
 	rlPhaseEnd
@@ -61,14 +61,13 @@ run_pki-cert()
 	rlAssertGrep "cert-request-review     Review certificate request" "$temp_out"
 	rlAssertGrep "cert-request-profile-find List Enrollment templates" "$temp_out"
 	rlAssertGrep "cert-request-profile-show Get Enrollment template" "$temp_out"
-	rlLog "FAIL :: https://engineering.redhat.com/trac/pki-tests/ticket/490"
 	rlPhaseEnd
 	
 	rlPhaseStartTest "pki_cert001: pki cert with junk characters should return invalid module"
 	local temp_out1="$TmpDir/pki_cert001"
 	local rand=`cat /dev/urandom | tr -dc 'a-zA-Z0-9*?$@#!%^&*()' | fold -w 40 | head -n 1`
 	rlLog "Executing pki cert \"$junk\" characters"
-	rlRun "pki cert \"$rand\" 2> $temp_out1" 1 "Command pki cert with junk characters"
+	rlRun "pki cert \"$rand\" 2> $temp_out1" 1,255 "Command pki cert with junk characters"
 	rlAssertGrep "Error: Invalid module" "$temp_out1"
 	rlPhaseEnd
 	
