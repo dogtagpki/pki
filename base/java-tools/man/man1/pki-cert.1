@@ -144,11 +144,15 @@ Then, an agent needs to review the request by running the following command:
 
 .B pki <agent authentication> ca-cert-request-review <request ID> --file <file to store the certificate request>
 
-The certificate request, as well as the defaults and constraints of the enrollment profile, will be stored in the output file provided by the --file option.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
+The --file <filename> and --action <action> options are mutually exclusive (i. e. - only one or the other may be specified during command invocation).
+
+If the --file <filename> option is specified, the certificate request, as well as the defaults and constraints of the enrollment profile, will be retrieved and stored in the output file provided by the --file option.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
 
 .B Action (approve/reject/cancel/update/validate/assign/unassign):
 
-Alternatively, the agent can process the request in a single step with the following command:
+The request in the file will be read in, and the specified action will be applied against it.
+
+Alternatively, when no changes to the request are necessary, the agent can process the request in a single step using the --action <action> option with the following command:
 
 .B pki <agent authentication> ca-cert-request-review <request ID> --action <action>
 

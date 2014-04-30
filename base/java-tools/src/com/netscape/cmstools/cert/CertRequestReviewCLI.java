@@ -46,7 +46,9 @@ public class CertRequestReviewCLI extends CLI {
         option.setArgName("action");
         options.addOption(option);
 
-        option = new Option(null, "file", true, "File to store the certificate request");
+        option = new Option(null, "file", true,
+                            "File to store the retrieved certificate request.\n"
+                          + "Action will be prompted for to run against request read in from file.");
         option.setArgName("filename");
         options.addOption(option);
     }
@@ -86,6 +88,15 @@ public class CertRequestReviewCLI extends CLI {
             System.exit(-1);
         }
 
+        // Since "--action <action>" and "--file <filename>" are mutually
+        // exclusive, check to make certain that only one has been set
+        if (cmd.hasOption("action") && cmd.hasOption("file")) {
+            System.err.println("Error: The '--action <action>' and '--file <filename>' " +
+                               "options are mutually exclusive!");
+            printHelp();
+            System.exit(-1);
+        }
+
         String action = cmd.getOptionValue("action");
         String filename = null;
 
@@ -93,7 +104,7 @@ public class CertRequestReviewCLI extends CLI {
             if (cmd.hasOption("file")) {
                 filename = cmd.getOptionValue("file");
             } else {
-                System.err.println("Error: Missing output file name.");
+                System.err.println("Error: Missing '--action <action>' or '--file <filename>' option.");
                 printHelp();
                 System.exit(-1);
             }
