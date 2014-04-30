@@ -495,3 +495,120 @@ importP12FileNew()
                 fi                                                                                                                                                                            
         return $rc                                                                                                                                                                            
 }
+###############################################
+#set_time_source setups up chrony with a clocksource 
+#set_time_source $timeserver
+###############################
+set_time_source()
+{
+	# first stop the existing chrony daemon
+	local clocksource=$1
+	local chrony_config_file=/etc/chrony.conf
+	local chrony_config_backupfile=/etc/chrony.conf.backup
+	rlLog "Stopping chrony daemon"
+	rlRun "systemctl stop chronyd"
+	rlLog "Backup existing chrony config file"
+	rlRun "/usr/bin/cp -f $chrony_config_file $chrony_config_backupfile"
+	# we setup initial chrony configuration
+	echo -e "server $clocksource" > $chrony_config_file
+	echo -e "stratumweight 0" >> $chrony_config_file
+	echo -e "driftfile /var/lib/chrony/drift" >> $chrony_config_file
+	echo -e "rtcsync" >> $chrony_config_file
+	echo -e "makestep 10 3" >> $chrony_config_file
+	echo -e "bindcmdaddress 127.0.0.1" >> $chrony_config_file
+	echo -e "bindcmdaddress ::1" >> $chrony_config_file
+	echo -e "keyfile /etc/chrony.keys" >> $chrony_config_file
+	echo -e "commandkey 1" >> $chrony_config_file
+	echo -e "generatecommandkey" >> $chrony_config_file
+	echo -e "noclientlog" >> $chrony_config_file
+	echo -e "logchange 0.5" >> $chrony_config_file
+	echo -e "logdir /var/log/chrony" >> $chrony_config_file
+	echo -e "log measurements statistics tracking" >> $chrony_config_file
+	#restore the selinux context just in case
+	rlRun "restorecon -v $chrony_config_file"
+	rlRun "systemctl start chronyd"
+	#Run makestep to sync the time 
+	rlLog "Sync time"
+	rlRun "chronyc -a makestep 1> /tmp/chrony.out"
+	rlAssertGrep "200 OK" "/tmp/chrony.out"
+	
+}
+#################################################
+#cert-hold_expect_data <file where expect data will be written> <file_containing_certificate_details> 
+#<command line to be spawned>
+##################################################
+cert-hold_expect_data()
+{
+        local expfile=$1
+        local cert_info=$2
+        local cmdline=$3
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local start_date=$(cat $cert_info | grep cert_start_date | cut -d- -f2)
+        local end_date=$(cat $cert_info | grep cert_end_date | cut -d- -f2)
+        local requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
+        echo "set timeout 5" > $expfile
+        echo "spawn $cmdline" >> $expfile
+        echo "expect -exact \"Placing certificate on-hold:\\r" >> $expfile
+        echo "   Serial Number: $cert_serialNumber\\r" >> $expfile
+        echo "   Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain\\r" >> $expfile
+        echo "   Subject: $requestdn\\r" >> $expfile
+        echo "   Status: VALID\\r" >> $expfile
+        echo "   Not Before: $start_date\\r" >> $expfile
+        echo "   Not After: $end_date\\r" >> $expfile
+        echo "Are you sure \(Y/N\)? \"" >> $expfile
+        echo "send -- \"y\\r\"" >> $expfile
+        echo "expect eof" >> $expfile
+}
+#################################################
+#cert-revoke_expect_data <file where expect data will be written> <file_containing_certificate_details> 
+#<command line to be spawned>
+##################################################
+cert-revoke_expect_data()
+{
+        local expfile=$1
+        local cert_info=$2
+        local cmdline=$3
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local start_date=$(cat $cert_info | grep cert_start_date | cut -d- -f2)
+        local end_date=$(cat $cert_info | grep cert_end_date | cut -d- -f2)
+        local requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
+        local cmd=$cmdline
+        echo "set timeout 5" > $expfile
+        echo "spawn $cmdline" >> $expfile
+        echo "expect -exact \"Revoking certificate:\\r" >> $expfile
+        echo "   Serial Number: $cert_serialNumber\\r" >> $expfile
+        echo "   Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain\\r" >> $expfile
+        echo "   Subject: $requestdn\\r" >> $expfile
+        echo "   Status: VALID\\r" >> $expfile
+        echo "   Not Before: $start_date\\r" >> $expfile
+        echo "   Not After: $end_date\\r" >> $expfile
+        echo "Are you sure \(Y/N\)? \"" >> $expfile
+        echo "send -- \"y\\r\"" >> $expfile
+        echo "expect eof" >> $expfile
+}
+#################################################
+#cert-release-hold_expect_data <file where expect data will be written> <file_containing_certificate_details> 
+#<command line to be spawned>
+##################################################
+cert-release-hold_expect_data()
+{
+        local expfile=$1
+        local cert_info=$2
+        local cmdline=$3
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local start_date=$(cat $cert_info | grep cert_start_date | cut -d- -f2)
+        local end_date=$(cat $cert_info | grep cert_end_date | cut -d- -f2)
+        local requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
+        echo "set timeout 5" > $expfile
+        echo "spawn $cmdline" >> $expfile
+        echo "expect -exact \"Placing certificate off-hold:\\r" >> $expfile
+        echo "   Serial Number: $cert_serialNumber\\r" >> $expfile
+        echo "   Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain\\r" >> $expfile
+        echo "   Subject: $requestdn\\r" >> $expfile
+        echo "   Status: REVOKED\\r" >> $expfile
+        echo "   Not Before: $start_date\\r" >> $expfile
+        echo "   Not After: $end_date\\r" >> $expfile
+        echo "Are you sure \(Y/N\)? \"" >> $expfile
+        echo "send -- \"y\\r\"" >> $expfile
+        echo "expect eof" >> $expfile
+}
