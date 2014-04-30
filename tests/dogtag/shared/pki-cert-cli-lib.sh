@@ -189,12 +189,13 @@ local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
 	fi
 	
-	if [ "$profilename" != "CaDualCert" ] || \
-	[ "$profilename" != "caDirPinUserCert" ] || \
-	[ "$profilename" != "caDirUserCert" ] || \
-	[ "$profilename" != "caECDirUserCert" ] || \
+	if [ "$profilename" != "CaDualCert" ] && \
+	[ "$profilename" != "caDirPinUserCert" ] && \
+	[ "$profilename" != "caDirUserCert" ] && \
+	[ "$profilename" != "caECDirUserCert" ] && \
 	[ "$profilename" != "caAgentServerCert" ] && \
-        [ "$profilename" != "caUserCert" ]; then
+        [ "$profilename" != "caUserCert" ] && \
+	[ "$profilename" != "caUserSMIMEcapCert" ]; then
 		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
 		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $dir/$cert_request_file)\" $xml_profile_file"
 		rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_cn']/Value\" -v \"$cn\" $xml_profile_file"
@@ -222,6 +223,19 @@ local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 	return 0 
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+##############################
+#Function Usage create_new_cert_request() <Temporary NSS DB Directory> <NSS DB Directory Password> <pkcs10/crmf> <rsa/ec> \
+# <key size> <cn> <uid> <email> <ou> <org> <country> <archive> <cert_request_file> <cert_subject_file> <return_dn>
+#Example request:
+#"create_new_cert_request dir:$tmp_nss_db pass:Secret123 req_type:pkcs10 algo:rsa size:1024 cn: uid: email: ou: org: c: \
+#archive:false myreq:/tmp_nss_db/rand-request.pem subj:/tmp_nss_db/$rand-request-dn.txt"
+#values to the function are passed as <name>:<value> pair,  name can be of any meaningful name, function only takes vales
+#Anything after ":" is treated as an argument to function
+#To create a cert request that requires keys to be archived pass archive:true , else pass archive:false
+#Example:
+#"create_new_cert_request dir:$tmp_nss_db pass:Secret123 req_type:pkcs10 algo:rsa size:1024 cn: uid: email: ou: org: country
+#archive:true myreq:/tmp_nss_db/rand-request.pem subj:/tmp_nss_db/$rand-request-dn.txt"
+#############################
 create_new_cert_request()
 {
 	local dir=$(echo $1|cut -d: -f2)
@@ -299,7 +313,7 @@ create_new_cert_request()
 	if [ "$request_type" == "crmf" ] && [ "$archive" == "true" ];then
 		rlLog "Get Transport Cert"
 		rlRun "cat $CA_SERVER_ROOT/conf/CS.cfg | grep ca.connector.KRA.transportCert | awk -F \"=\" '{print \$2}' > transport.txt"
-		rlRun "CRMFPopClient  -d $dir -p $password -o $cert_request_file -n "$subject" -a $algo -l $key_size -u $uid -r $uid 1> $dir/CRMFPopClient.out" 0 "Executing CRMFPopClient"
+		rlRun "CRMFPopClient -d $dir -p $password -o $cert_request_file -n "$subject" -a $algo -l $key_size -u $uid -r $uid 1> $dir/CRMFPopClient.out" 0 "Executing CRMFPopClient"
 		RETVAL=$?
                 if [ $RETVAL != 0 ]; then
                         rlFail "CRMFPopClient Failed"
@@ -335,7 +349,17 @@ create_new_cert_request()
 	rlLog "Subject DN information for Certificate Requeset is saved in $cert_subject_file"
 	return 0
 }	
-
+#######################################################################################
+#submit_new_request sumbits the request to the CA for further action, this function only submits the request
+#approval of the request should be done as separate action. 
+#submit_new_request <temp_nss_db_dir:$path_to_directory> <temp_nss_db_dir_pwd:$nss_db_password> <target_host:$target_host> \
+#<protocol:HTTP/HTTPS> <port:8080/15080> <url:https://<server:port> <username:$username> <password:$password> <profile:$profilename> \
+#<cert_request_file:$file_containing_request_details> <subj_request_file:$file_containing_details_of_certsubject> <request_type:crmf/pkcs10> \
+#<output_file:$file_where_certificate_request_details_will_be_available>
+#Example:
+#submit_new_request dir:$tmp_nss_db pass:Secret123 cahost: nickname: protocol: port: url: username: userpwd: profile: \
+#myreq:$tmp_nss_db/$rand-request.pem subj:$tmp_nss_db/$rand-request-dn.txt out:$tmp_nss_db/$rand-request-result.txt"
+###############################################################################
 submit_new_request(){
 	local dir=$(echo $1|cut -d: -f2)
 	local dir_pwd=$(echo $2|cut -d: -f2)
@@ -356,11 +380,9 @@ submit_new_request(){
 	local email=$(cat $subj_request_file | grep ^"Email" | cut -d: -f2)
 	local ou=$(cat $subj_request_file | grep ^"OU" | cut -d: -f2)
 	local organization=$(cat $subj_request_file | grep ^"Org" | cut -d: -f2)
-	rlLog "organization=$organization"
 	local country=$(cat $subj_request_file | grep ^"Country" | cut -d: -f2)
 	local cert_request_dn=$(cat $subj_request_file | grep ^"Request_DN" | cut -d: -f2)
 	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-
 
         if [ "$target_host" == "" ]; then
                 target_host="$(hostname)"
@@ -397,12 +419,13 @@ submit_new_request(){
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
 	fi
 
-	 if [ "$profilename" != "CaDualCert" ] || \
-        [ "$profilename" != "caDirPinUserCert" ] || \
-        [ "$profilename" != "caDirUserCert" ] || \
-        [ "$profilename" != "caECDirUserCert" ] || \
+	 if [ "$profilename" != "CaDualCert" ] && \
+        [ "$profilename" != "caDirPinUserCert" ] && \
+        [ "$profilename" != "caDirUserCert" ] && \
+        [ "$profilename" != "caECDirUserCert" ] && \
         [ "$profilename" != "caAgentServerCert" ] && \
-	[ "$profilename" != "caUserCert" ]; then
+	[ "$profilename" != "caUserCert" ] && \
+	[ "$profilename" != "caUserSMIMEcapCert" ]; then
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $cert_request_file)\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$cn\" $xml_profile_file"
@@ -432,7 +455,6 @@ submit_new_request(){
 	
 	return 0;
 }
-
 generate_user_cert()
 {
                 local reqstatus
@@ -445,16 +467,15 @@ generate_user_cert()
                 local ext=".out"
                 local cert_ext=".pem"
                 local req_email="$5"
-                local num="$8"
+                local num="$7"
                 local file_name="$6"
-		local cert_type="$7"
-                        rlRun "create_cert_request $CERTDB_DIR redhat123 $cert_type rsa 2048 \"$userfullname\" \"$user_id\" "$req_email" "Engineering" "Example" "US" "--" "reqstatus" "requestid" "requestdn""
+                        rlRun "create_cert_request $CERTDB_DIR redhat123 pkcs10 rsa 2048 \"$userfullname\" \"$user_id\" "$req_email" "Engineering" "Example" "US" "--" "reqstatus" "requestid" "requestdn""
 
-                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext" 0 "Executing pki cert-request-show $requestid"
-                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
-                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
-                rlAssertGrep "Status: pending" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
-                rlAssertGrep "Operation Result: success" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
+                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext" 0 "Executing pki cert-request-show $requestid"
+                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
+                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
+                rlAssertGrep "Status: pending" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
+                rlAssertGrep "Operation Result: success" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
 
                 #Agent Approve the certificate after reviewing the cert for the user
                 rlLog "Executing: pki -d $CERTDB_DIR/ \
@@ -466,27 +487,264 @@ generate_user_cert()
                            -n CA_agentV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                           cert-request-review --action=approve $requestid > $TmpDir/$file_name-CA_certapprove_00$file_no$cert_type$num$ext" \
+                           cert-request-review --action=approve $requestid > $TmpDir/$file_name-CA_certapprove_00$file_no$num$ext" \
                            0 \
                            "CA agent approve the cert"
-                rlAssertGrep "Approved certificate request $requestid" "$TmpDir/$file_name-CA_certapprove_00$file_no$cert_type$num$ext"
-                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext" 0 "Executing pki cert-request-show $requestid"
-                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
-                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
-                rlAssertGrep "Status: complete" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
-                rlAssertGrep "Certificate ID:" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
-                local certificate_serial_number=`cat $TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext | grep "Certificate ID:" | awk '{print $3}'`
+                rlAssertGrep "Approved certificate request $requestid" "$TmpDir/$file_name-CA_certapprove_00$file_no$num$ext"
+                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext" 0 "Executing pki cert-request-show $requestid"
+                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
+                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
+                rlAssertGrep "Status: complete" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
+                rlAssertGrep "Certificate ID:" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
+                local certificate_serial_number=`cat $TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext | grep "Certificate ID:" | awk '{print $3}'`
                 rlLog "Cerificate Serial Number=$certificate_serial_number"
                 #Verify the certificate is valid
-                rlRun "pki cert-show  $certificate_serial_number --encoded > $TmpDir/$file_name-CA_certificate_show_00$file_no$cert_type$num$ext" 0 "Executing pki cert-show $certificate_serial_number"
+                rlRun "pki cert-show  $certificate_serial_number --encoded > $TmpDir/$file_name-CA_certificate_show_00$file_no$num$ext" 0 "Executing pki cert-show $certificate_serial_number"
 
-                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/$file_name-CA_certificate_show_00$file_no$cert_type$num$ext > $TmpDir/$file_name-CA_validcert_00$file_no$cert_type$num$cert_ext"
-                 rlRun "certutil -d $CERTDB_DIR -A -n \"$user_id\" -i $TmpDir/$file_name-CA_validcert_00$file_no$cert_type$num$cert_ext  -t "u,u,u""
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/$file_name-CA_certificate_show_00$file_no$num$ext > $TmpDir/$file_name-CA_validcert_00$file_no$num$cert_ext"
+                 rlRun "certutil -d $CERTDB_DIR -A -n \"$user_id\" -i $TmpDir/$file_name-CA_validcert_00$file_no$num$cert_ext  -t "u,u,u""
                 echo cert_serialNumber-$certificate_serial_number > $CERT_INFO
                 echo cert_requestdn-$requestdn >> $CERT_INFO
                 return 0;
 
 }
-
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+######################################################################
+#	Generate Certificate 
+#	Examples:
+#
+#1. Generate cert for profile caServerCert
+#  rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+#                myreq_type:pkcs10 algo:rsa key_size:1024 subject_cn:server1.example.org subject_uid: subject_email: \
+#                subject_ou: subject_o: subject_c: archive:false req_profile:caServerCert target_host: \
+#                protocol: port: cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+#                certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
+#
+#2. Generate cert for profile caUserCert
+#        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+#                myreq_type:pkcs10 algo:rsa key_size:1024 subject_cn:\"Idm User1\" subject_uid:idmuser1 subject_email:idmuser1@example.org \
+#                subject_ou:Engineering subject_o: subject_c: archive:false req_profile: target_host: \
+#                protocol: port: cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+#                certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
+#####################################################################
+generate_new_cert()
+{
+	local tmp_nss_db=$(echo $1| cut -d: -f2)
+	local tmp_nss_db_pwd=$(echo $2| cut -d: -f2)
+	local req_type=$(echo $3|cut -d: -f2)
+	local algo=$(echo $4|cut -d: -f2)
+	local key_size=$(echo $5|cut -d: -f2)
+	local subject_cn="$(echo $6|cut -d: -f2)"
+	local subject_uid="$(echo $7|cut -d: -f2)"
+	local subject_email="$(echo $8|cut -d: -f2)"
+	local subject_ou="$(echo $9|cut -d: -f2)"
+	local subject_o="$(echo ${10}|cut -d: -f2)"
+	local subject_c="$(echo ${11}|cut -d: -f2)"
+	local archive="$(echo ${12}|cut -d: -f2)"
+	local req_profile="$(echo ${13}|cut -d: -f2)"
+	local target_host="$(echo ${14}|cut -d: -f2)"
+	local target_protocol="$(echo ${15}|cut -d: -f2)"
+	local target_port="$(echo ${16}|cut -d: -f2)"
+	local cert_db_dir="$(echo ${17}|cut -d: -f2)"
+	local cert_db_pwd="$(echo ${18}|cut -d: -f2)"
+	local cert_db_nick="$(echo ${19}|cut -d: -f2)"
+	local target_cert_info="$(echo ${20}|cut -d: -f2)"
+	local certout="$tmp_nss_db/cert_out"
+	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	rlRun "create_new_cert_request \
+        dir:$tmp_nss_db \
+        pass:$tmp_nss_db_pwd \
+        req_type:$req_type \
+        algo:$algo \
+        size:$key_size \
+        cn:\"$subject_cn\" \
+        uid:$subject_uid \
+        email:$subject_email \
+        ou:$subject_ou \
+        org:$subject_o \
+        country:$subject_c \
+        archive:$archive \
+        myreq:$tmp_nss_db/$rand-request.pem \
+        subj:$tmp_nss_db/$rand-request-dn.txt"
+         if [ $? != 0 ]; then
+         {
+                 rlFail "Request Creation failed"
+                 return 1;
+         }
+         fi
+	rlRun "submit_new_request dir:$tmp_nss_db \
+		pass:$tmp_nss_db_pwd \
+		cahost:$target_host \
+		nickname:\"$cert_db_nick\" \
+		protocol:$target_protocol \
+		port:$target_port \
+		url: \
+		username: \
+		userpwd: \
+		profile:$req_profile \
+		myreq:$tmp_nss_db/$rand-request.pem \
+		subj:$tmp_nss_db/$rand-request-dn.txt \
+		out:$tmp_nss_db/$rand-request-result.txt"
+         if [ $? != 0 ]; then
+         {
+                 rlFail "Request Submission failed"
+                 return 1;
+         }
+         fi
+	rlAssertGrep "Request Status: pending" "$tmp_nss_db/$rand-request-result.txt"
+	rlAssertGrep "Operation Result: success" "$tmp_nss_db/$rand-request-result.txt"
+	local cert_requestid=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_ID_RETURNED" | cut -d":" -f2)
+	local cert_requestdn=$(cat $tmp_nss_db/$rand-request-result.txt |grep "REQUEST_DN" | cut -d":" -f2)
+	if [ "$target_host" == "" ]; then
+               target_host="$(hostname)"
+        fi
+        if [ "$target_port" == "" ]; then
+                target_port=8080
+        fi
+	rlRun "pki -d $cert_db_dir \
+                 -c $cert_db_pwd \
+		 -h $target_host \
+		 -p $target_port \
+                 -n \"$cert_db_nick\" \
+                 ca-cert-request-review $cert_requestid \
+                 --action approve 1> $tmp_nss_db/pki-req-approve-out" 0 "As $cert_db_nick Approve Certificate Request"
+	if [ $? != 0 ]; then
+	{
+        	rlFail "cert approval failed"
+		return 1;
+        }
+        fi
+        rlAssertGrep "Approved certificate request $cert_requestid" "$tmp_nss_db/pki-req-approve-out"
+        local valid_serialNumber=$(pki -h $target_host -p $target_port cert-request-show $cert_requestid | grep "Certificate ID" | sed 's/ //g' | cut -d: -f2)
+	local cert_start_date=$(pki -h $target_host -p $target_port cert-show $valid_serialNumber | grep "Not Before" | awk -F ": " '{print $2}')
+        local cert_end_date=$(pki -h $target_host -p $target_port cert-show $valid_serialNumber | grep "Not After" | awk -F ": " '{print $2}')
+	local cert_subject=$(pki -h $target_host -p $target_port cert-show $valid_serialNumber | grep "Subject" | awk -F ": " '{print $2}')
+	local STRIP_HEX=$(echo $valid_serialNumber | cut -dx -f2)
+        local CONV_UPP_VAL=${STRIP_HEX^^}
+        local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
+        echo cert_serialNumber-$valid_serialNumber > $cert_info
+        echo cert_start_date-$cert_start_date >> $cert_info
+        echo cert_end_date-$cert_end_date >> $cert_info
+        echo cert_subject-$cert_subject >> $cert_info
+	echo STRIP_HEX-$STRIP_HEX >> $cert_info
+	echo CONV_UPP_VAL-$CONV_UPP_VAL >> $cert_info
+	echo decimal_valid_serialNumber-$decimal_valid_serialNumber >> $cert_info
+	echo cert_requestid-$cert_requestid >> $cert_info
+	echo cert_requestdn-$cert_requestdn >> $cert_info
+	return 0;
+}
+#########################################################################
+#generate_modified_cert generates a cert with given validity period, this function
+#generates cert request based on validity period given as argument, Validity period should 
+#be either in days or months, but not both. This function can be used to get any cert modified
+#irrespective of CA
+#Example1: Generate Cert based on crmf request with caUserCert Profile
+#"generate_modified_cert validity_period:\"1 Day\" tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+#req_type:crmf algo:rsa key_size:2048 cn: uid: email: ou: org: country: archive:false host: port: profile: \
+#cert_db:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD admin_nick:\"$CA_agentV_user\" cert_info:$cert_info expect_data:$exp"
+#
+#Example2: Generate cert based on pkcs10 request with caServerCert profile
+#"generate_modified_cert validity_period:\"1 Day\" tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+#req_type:pkcs10 algo:rsa key_size:2048 cn:server1.example.org uid: email: ou: org: country: archive:false host: port: profile: \
+#cert_db:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD admin_nick:\"$CA_agentV_user\" cert_info:$cert_info expect_data:$exp" 
+########################################################################
+generate_modified_cert()
+{
+        local tmp_validity_period=$(echo $1|cut -d: -f2)
+        local tmp_nss_db=$(echo $2|cut -d: -f2)
+        local tmp_nss_db_pwd=$(echo $3|cut -d: -f2)
+        local tmp_req_type=$(echo $4|cut -d: -f2)
+        local tmp_algo=$(echo $5|cut -d: -f2)
+        local tmp_keysize=$(echo $6|cut -d: -f2)
+        local tmp_cn=$(echo $7|cut -d: -f2)
+        local tmp_uid=$(echo $8|cut -d: -f2)
+        local tmp_email=$(echo $9|cut -d: -f2)
+        local tmp_ou=$(echo ${10}|cut -d: -f2)
+        local tmp_org=$(echo ${11}|cut -d: -f2)
+        local tmp_country=$(echo ${12}|cut -d: -f2)
+        local tmp_archive=$(echo ${13}|cut -d: -f2)
+        local tmp_host=$(echo ${14}|cut -d: -f2)
+        local tmp_port=$(echo ${15}|cut -d: -f2)
+        local tmp_profile=$(echo ${16}|cut -d: -f2)
+        local tmp_cert_db=$(echo ${17}|cut -d: -f2)
+        local tmp_cert_db_pwd=$(echo ${18}|cut -d: -f2)
+        local tmp_cert_nick=$(echo ${19}|cut -d: -f2)
+        local tmp_cert_info=$(echo ${20}|cut -d: -f2)
+        local tmp_expfile=$(echo ${21}|cut -d: -f2)
+        rlRun "create_new_cert_request \
+                dir:$tmp_nss_db \
+                pass:$tmp_nss_db_pwd \
+                req_type:$tmp_req_type \
+                algo:$tmp_algo \
+                size:$tmp_keysize \
+                cn:\"$tmp_cn\" \
+                uid:$tmp_uid \
+                email:$tmp_email \
+                ou:$tmp_ou \
+                org:$tmp_org \
+                country:$tmp_country \
+                archive:$tmp_archive \
+                myreq:$tmp_nss_db/$rand-request.pem \
+                subj:$tmp_nss_db/$rand-request-dn.txt"
+        if [ $? != 0 ]; then
+        {
+                rlFail "Request Creation failed"
+                return 1
+        }
+        fi
+        rlRun "submit_new_request dir:$tmp_nss_db \
+                pass:$tmp_nss_db_pwd \
+                cahost:$tmp_host \
+                nickname: \
+                protocol: \
+                port:$tmp_port \
+                url: \
+                username: \
+                userpwd: \
+                profile:$tmp_profile \
+                myreq:$tmp_nss_db/$rand-request.pem \
+                subj:$tmp_nss_db/$rand-request-dn.txt \
+                out:$tmp_nss_db/$rand-request-result.txt"
+        if [ $? != 0 ]; then
+        {
+                rlFail "Request Submission failed"
+                return 1
+        }
+        fi
+        rlAssertGrep "Request Status: pending" "$tmp_nss_db/$rand-request-result.txt"
+        rlAssertGrep "Operation Result: success" "$tmp_nss_db/$rand-request-result.txt"
+        local tmp_requestid=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_ID_RETURNED" | cut -d":" -f2)
+        local tmp_requestdn=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_DN" | cut -d":" -f2)
+        local tmp_updated_date=$(date --date="$tmp_validity_period" +%Y-%m-%d)
+        if [ "$tmp_host" == "" ]; then
+               tmp_host="$(hostname)"
+        fi
+        if [ "$tmp_port" == "" ]; then
+                tmp_port=8080
+        fi
+        echo "set timeout 5" > $tmp_expfile
+        echo "set force_conservative 0" >> $tmp_expfile
+        echo "set send_slow {1 .1}" >> $tmp_expfile
+        echo "spawn -noecho pki -d $tmp_cert_db -h $tmp_host -p $tmp_port -n "$tmp_cert_nick" -c $tmp_cert_db_pwd  cert-request-review $tmp_requestid --file $tmp_nss_db/$tmp_requestid-req.xml" >> $tmp_expfile
+        echo "expect \"Action \(approve/reject/cancel/update/validate/assign/unassign\):\"" >> $tmp_expfile
+        echo "system \"xmlstarlet ed -L -u \\\"certReviewResponse/ProfilePolicySet/policies/def/policyAttribute\[\@name='notAfter'\]/Value\\\" -v \\\"$tmp_updated_date 00:00:10\\\" $tmp_nss_db/$tmp_requestid-req.xml\"" >> $tmp_expfile
+        echo "send -- \"approve\r\"" >> $tmp_expfile
+        echo "expect eof" >> $tmp_expfile
+        rlRun "/usr/bin/expect -f $tmp_expfile > $tmp_nss_db/expout 2>&1"
+        if [ $? != 0 ]; then
+        {
+                rlFail "Request Approval failed"
+                return 1;
+        }
+        fi
+        rlAssertGrep "Approved certificate request $tmp_requestid" "$tmp_nss_db/expout"
+        local valid_serialNumber=$(pki -h $tmp_host -p $tmp_port cert-request-show $tmp_requestid | grep "Certificate ID" | sed 's/ //g' | cut -d: -f2)
+        local cert_start_date=$(pki -h $tmp_host -p $tmp_port cert-show $valid_serialNumber | grep "Not Before" | awk -F ": " '{print $2}')
+        local cert_end_date=$(pki -h $tmp_host -p $tmp_port cert-show $valid_serialNumber | grep "Not After" | awk -F ": " '{print $2}')
+        local cert_subject=$(pki -h $tmp_host -p $tmp_port cert-show $valid_serialNumber | grep "Subject" | awk -F ": " '{print $2}')
+        echo cert_serialNumber-$valid_serialNumber > $cert_info
+        echo cert_start_date-$cert_start_date >> $cert_info
+        echo cert_end_date-$cert_end_date >> $cert_info
+        echo cert_subject-$cert_subject >> $cert_info
+        return 0;
+}
