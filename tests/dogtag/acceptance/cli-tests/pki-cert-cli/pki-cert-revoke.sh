@@ -38,7 +38,7 @@
 . /opt/rhqa_pki/pki-cert-cli-lib.sh
 . /opt/rhqa_pki/env.sh
 
-run_pki_cert_revoke()
+run_pki-cert-revoke-ca_tests()
 {
 
 	# local variables
@@ -60,18 +60,19 @@ run_pki_cert_revoke()
         local admin_cert_nickname="PKI Administrator for $CA_DOMAIN"
 
 	# Creating Temporary Directory for pki cert-revoke
-        rlPhaseStartSetup "pki cert-show Temporary Directory"
+        rlPhaseStartSetup "pki cert-revoke Temporary Directory"
         rlRun "TmpDir=\$(mktemp -d)" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
 
 	#local variables
 	local TEMP_NSS_DB="$TmpDir/nssdb"
+	local TEMP_NSS_DB_PWD="Secret123"
 	local exp="$TmpDir/expfile.out"
 	local expout="$TmpDir/exp_out"
 	local cert_info="$TmpDir/cert_info"
         rlPhaseEnd
-
-        # Setup SubCA for pki cert-revoke tests
+	
+	# Setup SubCA for pki cert-revoke tests
 	rlPhaseStartSetup "Setup a Subordinate CA for pki cert-revoke"
         local install_info=$TmpDir/install_info
         rlLog "Setting up a Subordinate CA instance $subca_instance_name"
@@ -87,9 +88,9 @@ run_pki_cert_revoke()
         local subca_serialNumber=$(pki cert-find  --name "SubCA-$subca_instance_name" --matchExactly | grep "Serial Number" | awk -F": " '{print $2}')
         local STRIP_HEX_PKCS10=$(echo $subca_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
-        local subca_deciamal_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        local subca_decimal_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
         rlPhaseEnd
-
+	
 	# pki cert cli config test
 	rlPhaseStartTest "pki_cert_cli-configtest: pki cert-revoke --help configuration test"
 	rlRun "pki cert-revoke --help > $TmpDir/cert-revoke.out 2>&1" 0 "pki cert-revoke --help"
@@ -110,19 +111,16 @@ run_pki_cert_revoke()
 	rlLog "FAIL :: https://engineering.redhat.com/trac/pki-tests/ticket/490"
 	rlPhaseEnd
 
-	# pki -d <temp_nss_db> -p <subca_port>  -h <host> -c <password> -n "admin cert" cert-revoke <serialNumber>
         rlPhaseStartTest "pki_cert_revoke_001: Revoke a cert using Agent with same serial as Subordinate CA(BZ-501088)"
         local admin_cert_nickname="PKI Administrator for $CA_DOMAIN"
         local i=1
         local upperlimit
-        let upperlimit=$subca_deciamal_serialNumber-3
+        let upperlimit=$subca_decimal_serialNumber-3
         while [ $i -ne $upperlimit ] ; do
-        rlRun "generate_cert2 $sub_ca_http_port \
-                \"$admin_cert_nickname\" \
-                $(hostname) \
-                $TEMP_NSS_DB \
-                $CA_CLIENT_PKCS12_PASSWORD \
-                \"Foo User$i\" "FooUser$i" "FooUser$i@example.org" $cert_info"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD  myreq_type:crmf \
+		algo:rsa key_size:1024 subject_cn:\"Foo User$i\" subject_uid:FooUser$i subject_email:FooUser$i@example.org \
+		subject_ou: subject_o: subject_c: archive:false req_profile: target_host: protocol: port:$sub_ca_http_port \
+		cert_db_dir:$TEMP_NSS_DB cert_db_pwd:$TEMP_NSS_DB_PWD certdb_nick:\"$admin_cert_nickname\" cert_info:$cert_info"
         let i=$i+1
         done
         local revoked_cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
@@ -130,33 +128,41 @@ run_pki_cert_revoke()
         rlRun "pki -d $TEMP_NSS_DB \
                 -p $sub_ca_http_port \
                 -h $(hostname) \
-                -c $CA_CLIENT_PKCS12_PASSWORD \
+                -c $TEMP_NSS_DB_PWD \
                 -n \"$admin_cert_nickname\" \
                 cert-revoke $revoked_cert_serialNumber --force --reason Certificate_Hold 1> $expout"
         rlAssertGrep "Placed certificate \"$revoked_cert_serialNumber\" on-hold" "$expout"
         rlAssertGrep "Serial Number: $revoked_cert_serialNumber" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
-
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber>
+	
 	rlPhaseStartTest "pki_cert_revoke_002: pki cert-revoke <serialNumber>"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generate Temorary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber"
-	rlRun "create_expect_data $exp $cert_info \"$cmd\""
+	rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
 	rlRun "/usr/bin/expect -f $exp > $expout 2>&1" 
 	rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
 	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
 	rlAssertGrep "Status: REVOKED" "$expout"
 	rlPhaseEnd
-	
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serilNumber> --comments "Test Comment1"
+
 	rlPhaseStartTest "pki_cert_revoke_003: pki cert-revoke <serialNumber> --comments \"Test Comment1\""
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --comments \"Test Comment1\""
-	rlRun "create_expect_data $exp $cert_info \"$cmd\""
+	rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
 	rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
 	rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -164,9 +170,13 @@ run_pki_cert_revoke()
 	rlAssertGrep "Status: REVOKED" "$expout"
 	rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force
         rlPhaseStartTest "pki_cert_revoke_004: pki cert-revoke <serialNumber> --force"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"	
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -178,13 +188,16 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 	
-
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason unspecified
         rlPhaseStartTest "pki_cert_revoke_005: pki cert-revoke <serialNumber> --reason unspecified"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason unspecified"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -192,12 +205,16 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason Key_Compromise
         rlPhaseStartTest "pki_cert_revoke_006: pki cert-revoke <serialNumber> --reason Key_Compromise"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Key_Compromise"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -205,12 +222,16 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
        
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason CA_Compromise
         rlPhaseStartTest "pki_cert_revoke_007: pki cert-revoke <serialNumber> --reason CA_Compromise"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason CA_Compromise"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -218,12 +239,16 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd	
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason Affiliation_Changed
         rlPhaseStartTest "pki_cert_revoke_008: pki cert-revoke <serialNumber> --reason Affiliation_Changed"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Affiliation_Changed"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -231,12 +256,16 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason Superseded
         rlPhaseStartTest "pki_cert_revoke_009: pki cert-revoke <serialNumber> --reason Superseded"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Superseded"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -244,12 +273,16 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason Cessation_of_Operation
         rlPhaseStartTest "pki_cert_revoke_0010: pki cert-revoke <serialNumber> --reason Cessation_of_Operation"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Cessation_of_Operation"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -257,12 +290,16 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason Certificate_Hold
         rlPhaseStartTest "pki_cert_revoke_0011: pki cert-revoke <serialNumber> --reason Certificate_Hold"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Certificate_Hold"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Placed certificate \"$cert_serialNumber\" on-hold" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -270,12 +307,16 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason Privilege_Withdrawn
         rlPhaseStartTest "pki_cert_revoke_0012: pki cert-revoke <serialNumber> --reason Privilege_Withdrawn"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Privilege_Withdrawn"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -283,16 +324,20 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason Remove_from_CRL
 	rlPhaseStartTest "pki_cert_revoke_0013: pki cert-revoke <serialNumber> --reason Remove_from_CRL"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" \
 		cert-revoke $cert_serialNumber --force --reason Certificate_Hold 1> $expout"
 	local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Remove_from_CRL"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Placed certificate \"$cert_serialNumber\" off-hold" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -300,20 +345,28 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: VALID" "$expout"
 	rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --reason Invalid revocation reason
         rlPhaseStartTest "pki_cert_revoke_0014: pki cert-revoke <serialNumber> --reason Invalid revocation reason"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" \
-		cert-revoke $cert_serialNumber --reason unknown_revocation_reason 2> $expout" 1
+		cert-revoke $cert_serialNumber --reason unknown_revocation_reason 2> $expout" 1,255
 	rlAssertGrep "Error: Invalid revocation reason: unknown_revocation_reason" "$expout"
         rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke  <revoked-serialNumber> 
 	rlPhaseStartTest "pki_cert_revoke_0015: pki cert-revoke <revoked-serialNumber>"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -321,15 +374,19 @@ run_pki_cert_revoke()
 		cert-revoke $cert_serialNumber --force --reason Key_Compromise 1> $expout" 0
 	rlAssertGrep "Status: REVOKED" "$expout"
 	local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Key_Compromise"
-	rlRun "create_expect_data $exp $cert_info \"$cmd\""
+	rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
 	rlRun "/usr/bin/expect -f $exp > $expout 2>&1"  
 	STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
 	rlAssertGrep "BadRequestException: certificate #$STRIP_HEX_PKCS10 has already been revoked" "$expout"
 	rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason unspecified
 	rlPhaseStartTest "pki_cert_revoke_0016: pki cert-revoke <serialNumber> --force --reason unspecified"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -341,9 +398,13 @@ run_pki_cert_revoke()
 	rlAssertGrep "Status: REVOKED" "$expout"
 	rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason Key_Compromise
 	rlPhaseStartTest "pki_cert_revoke_0017: pki cert-revoke <serialNumber> --force --reason Key_Compromise"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -355,9 +416,13 @@ run_pki_cert_revoke()
 	rlAssertGrep "Status: REVOKED" "$expout"
 	rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason CA_Compromise
         rlPhaseStartTest "pki_cert_revoke_0018: pki cert-revoke <serialNumber> --force --reason CA_Compromise"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -369,9 +434,13 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason Affiliation_Changed
 	rlPhaseStartTest "pki_cert_revoke_0019: pki cert-revoke <serialNumber> --force --reason Affiliation_Changed"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -383,9 +452,13 @@ run_pki_cert_revoke()
 	rlAssertGrep "Status: REVOKED" "$expout"
 	rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason Supersede
 	rlPhaseStartTest "pki_cert_revoke_0020: pki cert-revoke <serialNumber> --force --reason Superseded"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -397,9 +470,13 @@ run_pki_cert_revoke()
 	rlAssertGrep "Status: REVOKED" "$expout"
 	rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason Cessation_of_Operation
 	rlPhaseStartTest "pki_cert_revoke_0021: pki cert-revoke <serialNumber> --force --reason Cessation_of_Operation"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"	
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -411,9 +488,13 @@ run_pki_cert_revoke()
 	rlAssertGrep "Status: REVOKED" "$expout"
 	rlPhaseEnd
 
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason Certificate_Hold
 	rlPhaseStartTest "pki_cert_revoke_0022: pki cert-revoke <serialNumber> --force --reason Certificate_Hold"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -425,9 +506,13 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 
-	#pki cert-revoke <serialNumber> --force --reason Privilege_Withdrawn
 	rlPhaseStartTest "pki_cert_revoke_0023: pki cert-revoke <serialNumber> --force --reason Privilege_Withdrawn"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -439,20 +524,28 @@ run_pki_cert_revoke()
 	rlAssertGrep "Status: REVOKED" "$expout"
 	rlPhaseEnd
 	
-	#pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason Invalid revocation reason
         rlPhaseStartTest "pki_cert_revoke_0024: pki cert-revoke <serialNumber> --force --reason Invalid revocation reason"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" \
-		cert-revoke $cert_serialNumber --force --reason unknown_revocation_reason 2> $expout" 1
+		cert-revoke $cert_serialNumber --force --reason unknown_revocation_reason 2> $expout" 1,255
         rlAssertGrep "Error: Invalid revocation reason: unknown_revocation_reason" "$expout"
         rlPhaseEnd
 
-	#pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <serialNumber> --force --reason Remove_from_CRL
         rlPhaseStartTest "pki_cert_revoke_0025: pki cert-revoke <serialNumber> --force --reason Remove_from_CRL"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -469,32 +562,39 @@ run_pki_cert_revoke()
         rlAssertGrep "Status: VALID" "$expout"
         rlPhaseEnd	
 
-	#pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <non_CA_signing_Cert_serialNumber> --ca
 	rlPhaseStartTest "pki_cert_revoke_0026: Revoke a non CA signing Cert using pki cert-revoke --ca" 
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --ca --reason unspecified"
-        rlRun "create_expect_data $exp $cert_info \"$cmd\""
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
 	rlAssertGrep "UnauthorizedException: Certificate $cert_serialNumber is not a CA signing certificate" "$expout"
         rlPhaseEnd
 
-	#pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <non_CA_signing_Cert_serialNumber> --ca --force
         rlPhaseStartTest "pki_cert_revoke_0027: Revoke a non CA signing Cert using pki cert-revoke --ca --force"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" \
-		cert-revoke $cert_serialNumber --force --ca --reason unspecified 2> $expout" 1
+		cert-revoke $cert_serialNumber --force --ca --reason unspecified 2> $expout" 1,255
         rlAssertGrep "UnauthorizedException: Certificate $cert_serialNumber is not a CA signing certificate" "$expout"
         rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <CA_signing_cert_serialNumber> --ca 
 	rlPhaseStartTest "pki_cert_revoke_0028: Revoke a CA signing Cert using pki cert-revoke --ca"
 	cert_serialNumber=0x1
 	local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --ca --reason Certificate_Hold"
-	rlRun "create_expect_data $exp $cert_info \"$cmd\""
+	rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
         rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
         rlAssertGrep "Placed certificate \"$cert_serialNumber\" on-hold" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
@@ -506,59 +606,202 @@ run_pki_cert_revoke()
 		cert-release-hold $cert_serialNumber --force" 0 "Release Certificate Hold of CA Signing Certificate"
         rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "Revoked Agent" <serialNumber> --force unspecified
 	rlPhaseStartTest "pki_cert_revoke_0029: Revoke a cert using Revoked CA Agent Cert"
-	rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	rlRun "pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_adminR_user\" cert-revoke $cert_serialNumber \
-		--force --reason unspecified 2> $expout" 1
+		--force --reason unspecified 2> $expout" 1,255
 	rlAssertGrep "PKIException: Unauthorized" "$expout"
 	rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "CA Audit" cert-revoke <serialNumber> --force --reason unspecified
         rlPhaseStartTest "pki_cert_revoke_0030: Revoke a cert using CA Audit Cert"
-        rlRun "generate_cert1 $TEMP_NSS_DB $cert_info" 0 "Generating Temporary Certificate"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_audit_user\" \
-		cert-revoke $cert_serialNumber --force --reason unspecified 2> $expout" 1
+		cert-revoke $cert_serialNumber --force --reason unspecified 2> $expout" 1,255
         rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.certs, operation: execute" "$expout"	
 	rlPhaseEnd
 	
-	# pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <invalid serialNumber> --force --reason unspecified
 	rlPhaseStartTest "pki_cert_revoke_0031: Revoke cert with with Invalid serialNumber"
 	rlRun "pki -d $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" \
-		cert-revoke $invalid_serialNumber --force --reason unspecified 2> $expout" 1
+		cert-revoke $invalid_serialNumber --force --reason unspecified 2> $expout" 1,255
 	rlAssertGrep "CertNotFoundException:" "$expout"
 	rlPhaseEnd
 
-	#pki -d <certdb> -c <password> -n "CA Agent" cert-revoke <expried_cert_serialNumber> --force --reason Key_Compromise
-        rlPhaseStartTest "pki_cert_revoke_0032: Revoke an expired cert"
-        local endDate="1 month"
-        rlRun "modify_cert $TEMP_NSS_DB $cert_info $exp \"$endDate\"" 0 "Generate Modified Cert"
-        local cert_end_date=$(cat $cert_info| grep cert_end_date | cut -d- -f2)
-        rlRun "date -s '$cert_end_date'"
-        rlRun "date -s 'next day'"
+	rlPhaseStartTest "pki_cert_revoke_0032: Revoke a cert and verify revoked cert is added to CRL"
+        rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
-		-c $CERTDB_DIR_PASSWORD \
-		-n \"$CA_agentV_user\" \
-		cert-revoke $cert_serialNumber --force --reason Key_Compromise 1> $expout" 0
+                -c $CERTDB_DIR_PASSWORD \
+                -n \"$CA_agentV_user\" \
+                cert-revoke $cert_serialNumber --force --reason unspecified 1> $expout" 0 "Revoke cert with reason unspecified"
+	rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
+        rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Status: REVOKED" "$expout"
+	rlFail "Unable to query CRL to verify revoked cert is added CRL: https://fedorahosted.org/pki/ticket/944"
+	rlPhaseEnd
+	
+	rlPhaseStartTest "pki_cert_revoke_0033: Test-1 Revoke cert with i18n characters"
+	local profile=caUserSMIMEcapCert
+	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+		myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"Örjan Äke\" subject_uid:\"ÖrjanÄke\" \
+		subject_email:test@example.org subject_ou:Foo_Example_IT subject_org:FooBar.Org subject_c:US \
+		archive:false req_profile:$profile target_host:$(hostname) protocol: port:8080 cert_db_dir:$CERTDB_DIR \
+              cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
+	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        rlRun "pki -d  $CERTDB_DIR \
+                -c $CERTDB_DIR_PASSWORD \
+                -n \"$CA_agentV_user\" \
+                cert-revoke $cert_serialNumber --force --reason unspecified 1> $expout" 0 "Revoke cert with reason unspecified"
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Status: REVOKED" "$expout"
+        rlPhaseEnd
+	
+        rlPhaseStartTest "pki_cert_revoke_0034: Test-2 Revoke cert with i18n characters"
+        local profile=caDualCert
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:crmf algo:rsa key_size:2048 subject_cn:\"Éric Têko\" subject_uid:FooBar \
+                subject_email:test@example.org subject_ou:Foo_Example_IT subject_org:FooBar.Org subject_c:US \
+                archive:true req_profile:$profile target_host:$(hostname) protocol: port:8080 cert_db_dir:$CERTDB_DIR \
+              cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        rlRun "pki -d  $CERTDB_DIR \
+                -c $CERTDB_DIR_PASSWORD \
+                -n \"$CA_agentV_user\" \
+                cert-revoke $cert_serialNumber --force --reason Key_Compromise 1> $expout" 0 "Revoke cert with reason Key_Compromise"
+        rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
+        rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
-	rlLog "Set the date back to it's original date & time"
-	rlRun "date --set='1 day ago'" 
-	rlRun "date --set='$endDate ago'"
+        rlPhaseEnd
+	
+        rlPhaseStartTest "pki_cert_revoke_0035: Test-3 Revoke cert with i18n characters"
+        local profile=caTPSCert
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"éénentwintig dvidešimt.example.org\" subject_uid: \
+                subject_email:test@example.org subject_ou:Foo_Example_IT subject_org:FooBar.Org subject_c:US \
+                archive:false req_profile:$profile target_host:$(hostname) protocol: port:8080 cert_db_dir:$CERTDB_DIR \
+              cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        rlRun "pki -d  $CERTDB_DIR \
+                -c $CERTDB_DIR_PASSWORD \
+                -n \"$CA_agentV_user\" \
+                cert-revoke $cert_serialNumber --force --reason CA_Compromise 1> $expout" 0 "Revoke cert with reason CA_Compromise"
+        rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
+        rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Status: REVOKED" "$expout"
         rlPhaseEnd
 
-	# Remove SubCA instance and DS instance used by SubCA	
+        rlPhaseStartTest "pki_cert_revoke_0036: Test-4 Revoke cert with i18n characters"
+        local profile=caSignedLogCert
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"двадцять один тридцять Signed Log Certificate\" subject_uid: \
+                subject_email:test@example.org subject_ou:Foo_Example_IT subject_org:FooBar.Org subject_c:US \
+                archive:false req_profile:$profile target_host:$(hostname) protocol: port:8080 cert_db_dir:$CERTDB_DIR \
+              cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        rlRun "pki -d  $CERTDB_DIR \
+                -c $CERTDB_DIR_PASSWORD \
+                -n \"$CA_agentV_user\" \
+                cert-revoke $cert_serialNumber --force --reason Affiliation_Changed 1> $expout" 0 "Revoke cert with reason Affiliation_Changed"
+        rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
+        rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Status: REVOKED" "$expout"
+        rlPhaseEnd
+
+        rlPhaseStartTest "pki_cert_revoke_0037: Test-5 Revoke cert with i18n characters"
+        local profile=caServerCert
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"kakskümmend üks.example.org\" subject_uid: \
+                subject_email:test@example.org subject_ou:Foo_Example_IT subject_org:FooBar.Org subject_c:US \
+                archive:false req_profile:$profile target_host:$(hostname) protocol: port:8080 cert_db_dir:$CERTDB_DIR \
+              cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        rlRun "pki -d  $CERTDB_DIR \
+                -c $CERTDB_DIR_PASSWORD \
+                -n \"$CA_agentV_user\" \
+                cert-revoke $cert_serialNumber --force --reason Superseded 1> $expout" 0 "Revoke cert with reason Superseded"
+        rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
+        rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Status: REVOKED" "$expout"
+        rlPhaseEnd
+
+	rlPhaseStartTest "pki_cert_revoke_0038: Revoke a already revoked cert"
+	rlLog "Generating temporary certificate"
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+                myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
+                subject_email: subject_ou: subject_o: subject_c: archive:false \
+                req_profile: target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local cmd="pki -d  $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-revoke $cert_serialNumber --reason Certificate_Hold"
+        rlRun "cert-revoke_expect_data $exp $cert_info \"$cmd\""
+        rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
+        rlAssertGrep "Placed certificate \"$cert_serialNumber\" on-hold" "$expout"
+        rlAssertGrep "Status: REVOKED" "$expout"
+        rlRun "pki -d  $CERTDB_DIR \
+                -c $CERTDB_DIR_PASSWORD \
+                -n \"$CA_agentV_user\" \
+                cert-revoke $cert_serialNumber --force --reason Superseded 2> $expout" 1,255 "Revoke already revoked cert"
+	local certsno=$(echo $cert_serialNumber | awk -F "0x" '{print $2}')
+	rlAssertGrep "BadRequestException: certificate #$certsno has already been revoked" "$expout"
+	rlPhaseEnd
+
+        rlPhaseStartTest "pki_cert_revoke_0039: Revoke an expired cert"
+	local validityperiod="1 day"
+	rlLog "Generate cert with validity period of $validityperiod"
+	rlRun "generate_modified_cert validity_period:\"$validityperiod\" tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+		req_type:crmf algo:rsa key_size:2048 cn: uid: email: ou: org: country: archive:false host: port: profile: \
+		cert_db:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD admin_nick:\"$CA_agentV_user\" cert_info:$cert_info expect_data:$exp"
+        local cert_end_date=$(cat $cert_info| grep cert_end_date | cut -d- -f2)
+        local cur_date=$(date) # Save current date
+	rlLog "Date & Time before Modifying system date: $cur_date"
+	rlRun "chronyc -a 'manual on' 1> $TmpDir/chrony.out" 0 "Set chrony to manual"
+	rlAssertGrep "200 OK" "$TmpDir/chrony.out"
+	rlRun "chronyc -a -m 'offline' 'settime $cert_end_date + 1 day' 'makestep' 'manual reset' 1> $TmpDir/chrony.out" 
+	rlAssertGrep "200 OK" "$TmpDir/chrony.out"
+	rlLog "Date after modifying using chrony: $(date)"
+        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        rlRun "pki -d  $CERTDB_DIR \
+                -c $CERTDB_DIR_PASSWORD \
+                -n \"$CA_agentV_user\" \
+                cert-revoke $cert_serialNumber --force --reason Key_Compromise 1> $expout" 0
+        rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
+        rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Status: REVOKED" "$expout"
+        rlLog "Set the date back to it's original date & time"
+	rlRun "chronyc -a -m 'settime $cur_date + 10 seconds' 'makestep' 'manual reset' 'online' 1> $TmpDir/chrony.out" 
+	rlAssertGrep "200 OK" "$TmpDir/chrony.out"
+	rlLog "Date after running chrony: $(date)"
+        rlPhaseEnd
+	
 	rlPhaseStartCleanup "Destroy SubCA & DS instance"
 	rlRun "pkidestroy -s CA -i $subca_instance_name > $TmpDir/$subca_instance_name-ca-clean.out"
 	rlAssertGrep "Uninstalling CA from /var/lib/pki/$subca_instance_name" "$TmpDir/$subca_instance_name-ca-clean.out"
@@ -566,168 +809,11 @@ run_pki_cert_revoke()
 	rlRun "remove-ds.pl -i slapd-$subca_instance_name > $TmpDir/subca_instance_name-ds-clean.out"
 	rlAssertGrep "Instance slapd-$subca_instance_name removed" "$TmpDir/subca_instance_name-ds-clean.out"
 	rlPhaseEnd
-
+	
 	rlPhaseStartCleanup "pki cert-revoke cleanup: Delete temp dir"
 	rlRun "popd"
 	rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     	rlPhaseEnd
-}
-generate_cert1()
-{
-        local tmp_nss_db="$1"
-        local cert_info="$2"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-	rlRun "create_new_cert_request dir:$tmp_nss_db pass:Secret123 req_type:pkcs10 algo:rsa size:1024 cn: uid: email: ou: org: c: archive:false myreq:$tmp_nss_db/$rand-request.pem subj:$tmp_nss_db/$rand-request-dn.txt"
-        if [ $? != 0 ]; then
-        {
-                rlFail "Request Creation failed"
-                return 1
-        }
-	fi
-	rlRun "submit_new_request dir:$tmp_nss_db pass:Secret123 cahost: nickname: protocol: port: url: username: userpwd: profile: myreq:$tmp_nss_db/$rand-request.pem subj:$tmp_nss_db/$rand-request-dn.txt out:$tmp_nss_db/$rand-request-result.txt"
-	if [ $? != 0 ]; then
-	{
-		rlFail "Request Submission failed"
-		return 1
-	}
-        fi
-        rlAssertGrep "Request Status: pending" "$tmp_nss_db/$rand-request-result.txt"
-        rlAssertGrep "Operation Result: success" "$tmp_nss_db/$rand-request-result.txt"
-	pkcs10_requestid=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_ID_RETURNED" | cut -d":" -f2)
-        pkcs10_requestdn=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_DN" | cut -d":" -f2)
-        rlRun "pki -d $CERTDB_DIR \
-                -c $CERTDB_DIR_PASSWORD \
-                -n \"$CA_agentV_user\" \
-                ca-cert-request-review $pkcs10_requestid \
-                --action approve 1> $tmp_nss_db/pki-pkcs10-approve-out" 0 "As $CA_agentV_user Approve Certificate Request"
-        if [ $? != 0 ]; then
-        {
-                rlFail "cert approval failed"
-                return 1
-        }
-        fi
-        rlAssertGrep "Approved certificate request $pkcs10_requestid" "$tmp_nss_db/pki-pkcs10-approve-out"
-        local valid_pkcs10_serialNumber=$(pki cert-request-show $pkcs10_requestid | grep "Certificate ID" | sed 's/ //g' | cut -d: -f2)
-        local cert_end_date=$(pki cert-show $valid_pkcs10_serialNumber | grep "Not After" | awk -F ": " '{print $2}')
-        echo cert_serialNumber-$valid_pkcs10_serialNumber > $cert_info
-        echo cert_start_date-$cert_start_date >> $cert_info
-        echo cert_end_date-$cert_end_date >> $cert_info
-        echo cert_requestdn-$pkcs10_requestdn >> $cert_info
-        return 0;
-}
-create_expect_data()
-{
-	local expfile=$1
-	local cert_info=$2
-	local cmdline=$3
-	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-	local start_date=$(cat $cert_info | grep cert_start_date | cut -d- -f2)
-	local end_date=$(cat $cert_info | grep cert_end_date | cut -d- -f2)
-	local requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
-	local cmd=$cmdline
-	echo "set timeout 5" > $expfile
-        echo "spawn $cmdline" >> $expfile
-        echo "expect -exact \"Revoking certificate:\\r" >> $expfile
-        echo "   Serial Number: $cert_serialNumber\\r" >> $expfile
-        echo "   Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain\\r" >> $expfile
-        echo "   Subject: $requestdn\\r" >> $expfile
-        echo "   Status: VALID\\r" >> $expfile
-        echo "   Not Before: $start_date\\r" >> $expfile
-        echo "   Not After: $end_date\\r" >> $expfile
-        echo "Are you sure \(Y/N\)? \"" >> $expfile
-        echo "send -- \"y\\r\"" >> $expfile
-        echo "expect eof" >> $expfile
-}
-# This function creates a modified Certificate , Currently we modify End date(notAfter) of cert request and approve the cert
-modify_cert()
-{
-        local tmp_nss_db="$1"
-	local cert_info="$2"
-	local expfile="$3"
-	local mytime="$4"
-        rlRun "create_new_cert_request dir:$tmp_nss_db pass:Secret123 req_type:pkcs10 algo:rsa size:1024 cn: uid: email: ou: org: c: archive:false myreq:$tmp_nss_db/$rand-request.pem subj:$tmp_nss_db/$rand-request-dn.txt"
-        if [ $? != 0 ]; then
-        {
-                rlFail "Request Creation failed"
-                return 1
-        }
-        fi
-        rlRun "submit_new_request dir:$tmp_nss_db pass:Secret123 cahost: nickname: protocol: port: url: username: userpwd: profile: myreq:$tmp_nss_db/$rand-request.pem subj:$tmp_nss_db/$rand-request-dn.txt out:$tmp_nss_db/$rand-request-result.txt"
-        if [ $? != 0 ]; then
-        {
-                rlFail "Request Submission failed"
-                return 1
-        }
-        fi
-        rlAssertGrep "Request Status: pending" "$tmp_nss_db/$rand-request-result.txt"
-        rlAssertGrep "Operation Result: success" "$tmp_nss_db/$rand-request-result.txt"
-        pkcs10_requestid=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_ID_RETURNED" | cut -d":" -f2)
-        pkcs10_requestdn=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_DN" | cut -d":" -f2)
-	updateddate=$(date --date="$mytime" +%Y-%m-%d)
-	echo "set timeout 5" > $expfile
-	echo "set force_conservative 0" >> $expfile
-	echo "set send_slow {1 .1}" >> $expfile
-	echo "spawn -noecho pki -d /opt/rhqa_pki/certs_db -n "CA_agentV" -c redhat123  cert-request-review $pkcs10_requestid --file $tmp_nss_db/$pkcs10_requestid-req.xml" >> $expfile
-	echo "expect \"Action \(approve/reject/cancel/update/validate/assign/unassign\):\"" >> $expfile
-	echo "system \"xmlstarlet ed -L -u \\\"certReviewResponse/ProfilePolicySet/policies/def/policyAttribute\[\@name='notAfter'\]/Value\\\" -v \\\"$updateddate 13:37:56\\\" $tmp_nss_db/$pkcs10_requestid-req.xml\"" >> $expfile
-	echo "send -- \"approve\r\"" >> $expfile
-	echo "expect eof" >> $expfile
-	rlRun "/usr/bin/expect -f $exp > $expout 2>&1"
-        if [ $? != 0 ]; then
-        {
-                rlFail "Request Approval failed"
-                return 1;
-        }
-        fi
-        rlAssertGrep "Approved certificate request $pkcs10_requestid" "$expout"
-        local valid_pkcs10_serialNumber=$(pki cert-request-show $pkcs10_requestid | grep "Certificate ID" | sed 's/ //g' | cut -d: -f2)
-        local cert_start_date=$(pki cert-show $valid_pkcs10_serialNumber | grep "Not Before" | awk -F ": " '{print $2}')
-        local cert_end_date=$(pki cert-show $valid_pkcs10_serialNumber | grep "Not After" | awk -F ": " '{print $2}')
-        echo cert_serialNumber-$valid_pkcs10_serialNumber > $cert_info
-        echo cert_start_date-$cert_start_date >> $cert_info
-        echo cert_end_date-$cert_end_date >> $cert_info
-        echo cert_requestdn-$pkcs10_requestdn >> $cert_info
-        return 0;
-}
-generate_cert2()
-{
-        local tmp_http_port=$1
-        local tmp_admin_nick=$2
-        local tmp_host=$3
-        local tmp_nss_db=$4
-        local tmp_nss_db_pass=$5
-        local subject_cn=$6
-        local subject_uid=$7
-        local subject_email=$8
-        local CERT_INFO=$9
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-
-        rlRun "create_new_cert_request dir:$tmp_nss_db pass:$tmp_nss_db_pass req_type:pkcs10 algo:rsa size:1024 cn:\"$subject_cn\" uid:$subject_uid email:$subject_email ou: org: c: archive:false myreq:$tmp_nss_db/$rand-request.pem subj:$tmp_nss_db/$rand-request-dn.txt"
-        rlRun "submit_new_request dir:$tmp_nss_db pass:$tmp_nss_db_pass cahost: nickname:\"$tmp_admin_nick\" protocol: port:$tmp_http_port url: username: userpwd: profile: myreq:$tmp_nss_db/$rand-request.pem subj:$tmp_nss_db/$rand-request-dn.txt out:$tmp_nss_db/$rand-request-result.txt"
-        if [ $? != 0 ]; then
-        {
-                rlFail "Request Creation failed"
-                return 1;
-        }
-        fi
-        pkcs10_requestid=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_ID_RETURNED" | cut -d":" -f2)
-        pkcs10_requestdn=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_DN" | cut -d":" -f2)
-        rlRun "pki -d $tmp_nss_db -p $tmp_http_port -c $tmp_nss_db_pass -n \"$tmp_admin_nick\" ca-cert-request-review $pkcs10_requestid --action approve 1> $tmp_nss_db/pki-pkcs10-approve-out"
-        if [ $? != 0 ]; then
-        {
-                rlFail "Approving cert failed"
-                return 1;
-        }
-        fi
-        rlAssertGrep "Approved certificate request $pkcs10_requestid" "$tmp_nss_db/pki-pkcs10-approve-out"
-        local valid_pkcs10_serialNumber=$(pki -p $tmp_http_port cert-request-show $pkcs10_requestid | grep "Certificate ID" | sed 's/ //g' | cut -d: -f2)
-        rlRun "pki -p $tmp_http_port cert-show  $valid_pkcs10_serialNumber --encoded > $tmp_nss_db/$rand-cert-show.info"
-        rlAssertGrep "Subject: $pkcs10_requestdn" "$tmp_nss_db/$rand-cert-show.info"
-        rlAssertGrep "Status: VALID" "$tmp_nss_db/$rand-cert-show.info"
-        local cert_start_date=$(pki cert-show $valid_pkcs10_serialNumber | grep "Not Before" | awk -F ": " '{print $2}')
-        local cert_end_date=$(pki cert-show $valid_pkcs10_serialNumber | grep "Not After" | awk -F ": " '{print $2}')
-        echo cert_serialNumber-$valid_pkcs10_serialNumber > $CERT_INFO
-        return 0;
 
 }
 rhcs_install_subca-BZ-501088()
@@ -827,4 +913,3 @@ rhcs_install_subca-BZ-501088()
         rlRun "importP12FileNew $SUBCA_ADMIN_CERT_LOCATION $CA_CLIENT_PKCS12_PASSWORD $SUBCA_CERTDB_DIR $CA_CLIENT_PKCS12_PASSWORD $admin_cert_nickname"
         return 0
 }
-
