@@ -38,6 +38,8 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 import netscape.security.x509.X509CertImpl;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -328,25 +330,40 @@ public final class UGSubsystem implements IUGSubsystem {
      * Searchs for identities that matches the filter.
      */
     public Enumeration<IUser> findUsers(String filter) throws EUsrGrpException {
-        if (filter == null) {
-            return null;
+
+        String ldapFilter;
+        if (StringUtils.isEmpty(filter)) {
+            ldapFilter = "(uid=*)";
+
+        } else {
+            filter = LDAPUtil.escapeFilter(filter);
+            ldapFilter = "(|(uid=*" + filter + "*)(cn=*" + filter + "*)(mail=*" + filter + "*))";
         }
 
         LDAPConnection ldapconn = null;
 
         try {
             ldapconn = getConn();
-            LDAPSearchResults res = ldapconn.search(getUserBaseDN(),
-                    LDAPv2.SCOPE_SUB, "(uid=" + filter + ")",
-                    null, false);
 
+            // use one-level search to search users in flat tree
+            LDAPSearchResults res = ldapconn.search(
+                    getUserBaseDN(),
+                    LDAPv2.SCOPE_ONE,
+                    ldapFilter,
+                    null,
+                    false);
+
+            // throw EUsrGrpException if result is empty
             Enumeration<IUser> e = buildUsers(res);
 
             return e;
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USERS", e.toString()));
+
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USERS", e.toString()));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);

@@ -76,7 +76,6 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -135,7 +134,6 @@ public class UserService extends PKIService implements UserResource {
     public Response findUsers(String filter, Integer start, Integer size) {
         UserCollection response = new UserCollection();
         try {
-            filter = StringUtils.isEmpty(filter) ? "*" : "*"+LDAPUtil.escapeFilter(filter)+"*";
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
 
