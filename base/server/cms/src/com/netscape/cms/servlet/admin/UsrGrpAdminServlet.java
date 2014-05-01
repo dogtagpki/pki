@@ -555,7 +555,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         Enumeration<IGroup> e = null;
 
         try {
-            e = mMgr.listGroups("*");
+            e = mMgr.listGroups(null);
         } catch (Exception ex) {
             ex.printStackTrace();
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_INTERNAL_ERROR"), null, resp);
@@ -2068,6 +2068,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
         return false;
     }
 
+    /**
+     * TODO: replace this with GroupMemberProcessor.isDuplicate()
+     */
     private boolean isDuplicate(String groupName, String memberName) {
         Enumeration<IGroup> groups = null;
 
@@ -2082,7 +2085,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return false;
         }
         try {
-            groups = mMgr.listGroups("*");
+            groups = mMgr.listGroups(null);
             while (groups.hasMoreElements()) {
                 IGroup group = groups.nextElement();
                 String name = group.getName();

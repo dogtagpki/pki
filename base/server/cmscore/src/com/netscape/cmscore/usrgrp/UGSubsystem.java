@@ -1378,33 +1378,46 @@ public final class UGSubsystem implements IUGSubsystem {
      * group names and description.
      */
     public Enumeration<IGroup> listGroups(String filter) throws EUsrGrpException {
+
+        String ldapFilter;
+
         if (filter == null) {
-            return null;
+            ldapFilter = "(objectclass=groupofuniquenames)";
+
+        } else {
+            filter = LDAPUtil.escapeFilter(filter);
+            ldapFilter = "(&(objectclass=groupofuniquenames)(cn=*" + filter + "*))";
         }
+
+        String attrs[] = new String[2];
+        attrs[0] = "cn";
+        attrs[1] = "description";
 
         LDAPConnection ldapconn = null;
 
         try {
-            String attrs[] = new String[2];
-
-            attrs[0] = "cn";
-            attrs[1] = "description";
-
             ldapconn = getConn();
-            LDAPSearchResults res =
-                    ldapconn.search(getGroupBaseDN(), LDAPv2.SCOPE_SUB,
-                            "(&(objectclass=groupofuniquenames)(cn=" + filter + "))",
-                            attrs, false);
+            LDAPSearchResults res = ldapconn.search(
+                    getGroupBaseDN(),
+                    LDAPv2.SCOPE_ONE,
+                    ldapFilter,
+                    attrs,
+                    false);
 
+            // doesn't throw exception if result is empty
             return buildGroups(res);
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
         }
+
         return null;
     }
 

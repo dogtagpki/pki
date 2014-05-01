@@ -300,7 +300,7 @@ public class GroupMemberProcessor extends Processor {
         }
 
         try {
-            Enumeration<IGroup> groups = userGroupManager.listGroups("*");
+            Enumeration<IGroup> groups = userGroupManager.listGroups(null);
             while (groups.hasMoreElements()) {
                 IGroup group = groups.nextElement();
                 String name = group.getName();

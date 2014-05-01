@@ -51,7 +51,6 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author Endi S. Dewata
@@ -104,7 +103,6 @@ public class GroupService extends PKIService implements GroupResource {
     @Override
     public Response findGroups(String filter, Integer start, Integer size) {
         try {
-            filter = StringUtils.isEmpty(filter) ? "*" : "*"+LDAPUtil.escapeFilter(filter)+"*";
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
 
