@@ -65,5 +65,5 @@ public interface CertResource {
     @ClientResponseType(entityType=CertRequestInfo.class)
     @ACLMapping("certs")
     @AuthMethodMapping("certs")
-    public Response unrevokeCert(@PathParam("id") CertId id, CertUnrevokeRequest request);
+    public Response unrevokeCert(@PathParam("id") CertId id);
 }

@@ -296,6 +296,7 @@ public class RevocationProcessor extends CertProcessor {
     public void createRevocationRequest() throws EBaseException {
 
         request = requestQueue.newRequest(IRequest.REVOCATION_REQUEST);
+        setRequestID(request.getRequestId());
 
         request.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
 
@@ -376,6 +377,7 @@ public class RevocationProcessor extends CertProcessor {
     public void createUnrevocationRequest() throws EBaseException {
 
         request = requestQueue.newRequest(IRequest.UNREVOCATION_REQUEST);
+        setRequestID(request.getRequestId());
 
         request.setExtData(IRequest.REQ_TYPE, IRequest.UNREVOCATION_REQUEST);
 

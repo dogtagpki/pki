@@ -34,8 +34,6 @@ import netscape.security.x509.RevocationReason;
 import netscape.security.x509.RevocationReasonAdapter;
 
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestIdAdapter;
 import com.netscape.certsrv.util.DateAdapter;
 
 /**
@@ -58,24 +56,12 @@ public class CertRevokeRequest {
         }
     }
 
-    RequestId requestID;
     RevocationReason reason;
     Date invalidityDate;
     String comments;
     String encoded;
     Long nonce;
 
-
-    @XmlElement(name="RequestID")
-    @FormParam("requestId")
-    @XmlJavaTypeAdapter(RequestIdAdapter.class)
-    public RequestId getRequestID() {
-        return requestID;
-    }
-
-    public void setRequestID(RequestId requestID) {
-        this.requestID = requestID;
-    }
 
     @XmlElement(name="Reason")
     @FormParam("revocationReason")
@@ -138,7 +124,6 @@ public class CertRevokeRequest {
         result = prime * result + ((invalidityDate == null) ? 0 : invalidityDate.hashCode());
         result = prime * result + ((nonce == null) ? 0 : nonce.hashCode());
         result = prime * result + ((reason == null) ? 0 : reason.hashCode());
-        result = prime * result + ((requestID == null) ? 0 : requestID.hashCode());
         return result;
     }
 
@@ -176,11 +161,6 @@ public class CertRevokeRequest {
                 return false;
         } else if (!reason.equals(other.reason))
             return false;
-        if (requestID == null) {
-            if (other.requestID != null)
-                return false;
-        } else if (!requestID.equals(other.requestID))
-            return false;
         return true;
     }
 
@@ -206,7 +186,6 @@ public class CertRevokeRequest {
     public static void main(String args[]) throws Exception {
 
         CertRevokeRequest before = new CertRevokeRequest();
-        before.setRequestID(new RequestId("42323234"));
         before.setReason(RevocationReason.CERTIFICATE_HOLD);
         before.setInvalidityDate(new Date());
         before.setComments("test");

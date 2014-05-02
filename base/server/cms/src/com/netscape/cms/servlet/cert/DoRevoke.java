@@ -381,7 +381,6 @@ public class DoRevoke extends CMSServlet {
         processor.setStartTime(startTime);
         processor.setInitiative(initiative);
         processor.setSerialNumber(eeSerialNumber == null ? null : new CertId(eeSerialNumber));
-        processor.setRequestID(auditRequesterID(req));
 
         RevocationReason revReason = RevocationReason.fromInt(reason);
         processor.setRevocationReason(revReason);
@@ -749,26 +748,6 @@ public class DoRevoke extends CMSServlet {
             processor.auditChangeRequestProcessed(ILogger.FAILURE);
 
             throw e;
-        }
-    }
-
-    /**
-     * Signed Audit Log Requester ID
-     *
-     * This method is called to obtain the "RequesterID" for
-     * a signed audit log message.
-     * <P>
-     *
-     * @param req HTTP request
-     * @return id string containing the signed audit log message RequesterID
-     */
-    private RequestId auditRequesterID(HttpServletRequest req) {
-        String requesterID = req.getParameter("requestId");
-
-        if (requesterID != null) {
-            return new RequestId(requesterID.trim());
-        } else {
-            return null;
         }
     }
 

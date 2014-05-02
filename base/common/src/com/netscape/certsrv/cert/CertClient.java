@@ -75,8 +75,8 @@ public class CertClient extends Client {
         return client.getEntity(response, CertRequestInfo.class);
     }
 
-    public CertRequestInfo unrevokeCert(CertId id, CertUnrevokeRequest request) {
-        Response response = certClient.unrevokeCert(id, request);
+    public CertRequestInfo unrevokeCert(CertId id) {
+        Response response = certClient.unrevokeCert(id);
         return client.getEntity(response, CertRequestInfo.class);
     }
 

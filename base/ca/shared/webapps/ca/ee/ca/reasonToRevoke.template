@@ -457,10 +457,6 @@ function revokeCert(serialNumber)
         document.writeln("<INPUT TYPE=hidden name=verifiedRecordCount value=\"" +
                          result.header.verifiedRecordCount +"\">");
         document.writeln("<INPUT TYPE=hidden name=invalidityDate value=\"0\">");
-        if (result.header.request != null) {
-            document.writeln("<INPUT TYPE=hidden name=requestId value=\"" +
-                             result.header.request +"\">");
-        }
         if (result.header.b64eCertificate != null) {
             document.writeln("<INPUT TYPE=hidden name=b64eCertificate value=\"" +
                              result.header.b64eCertificate +"\">");

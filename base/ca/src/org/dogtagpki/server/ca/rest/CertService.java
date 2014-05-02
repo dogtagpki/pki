@@ -67,7 +67,6 @@ import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.cert.CertRetrievalRequest;
 import com.netscape.certsrv.cert.CertRevokeRequest;
 import com.netscape.certsrv.cert.CertSearchRequest;
-import com.netscape.certsrv.cert.CertUnrevokeRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -181,9 +180,7 @@ public class CertService extends PKIService implements CertResource {
 
         RevocationReason revReason = request.getReason();
         if (revReason == RevocationReason.REMOVE_FROM_CRL) {
-            CertUnrevokeRequest unrevRequest = new CertUnrevokeRequest();
-            unrevRequest.setRequestID(request.getRequestID());
-            return unrevokeCert(id, unrevRequest);
+            return unrevokeCert(id);
         }
 
         RevocationProcessor processor;
@@ -195,7 +192,6 @@ public class CertService extends PKIService implements CertResource {
             processor.setInitiative(AuditFormat.FROMAGENT);
 
             processor.setSerialNumber(id);
-            processor.setRequestID(request.getRequestID());
 
             processor.setRevocationReason(revReason);
             processor.setRequestType(revReason == RevocationReason.CERTIFICATE_HOLD
@@ -301,7 +297,7 @@ public class CertService extends PKIService implements CertResource {
     }
 
     @Override
-    public Response unrevokeCert(CertId id, CertUnrevokeRequest request) {
+    public Response unrevokeCert(CertId id) {
         if (id == null) {
             CMS.debug("unrevokeCert: id is null");
             throw new BadRequestException("Unable to unrevoke cert: invalid id");
@@ -324,7 +320,6 @@ public class CertService extends PKIService implements CertResource {
             processor.setInitiative(AuditFormat.FROMAGENT);
 
             processor.setSerialNumber(id);
-            processor.setRequestID(request.getRequestID());
             processor.setRevocationReason(RevocationReason.CERTIFICATE_HOLD);
             processor.setAuthority(authority);
 

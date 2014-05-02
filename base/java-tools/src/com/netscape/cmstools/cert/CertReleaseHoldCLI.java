@@ -26,7 +26,6 @@ import org.apache.commons.cli.CommandLine;
 
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertRequestInfo;
-import com.netscape.certsrv.cert.CertUnrevokeRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmstools.cli.CLI;
@@ -101,9 +100,7 @@ public class CertReleaseHoldCLI extends CLI {
             }
         }
 
-        CertUnrevokeRequest request = new CertUnrevokeRequest();
-
-        CertRequestInfo certRequestInfo = certCLI.certClient.unrevokeCert(certID, request);
+        CertRequestInfo certRequestInfo = certCLI.certClient.unrevokeCert(certID);
 
         if (verbose) {
             CertCLI.printCertRequestInfo(certRequestInfo);

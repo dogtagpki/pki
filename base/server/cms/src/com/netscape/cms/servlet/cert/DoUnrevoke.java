@@ -49,7 +49,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -242,7 +241,6 @@ public class DoUnrevoke extends CMSServlet {
 
         processor.setInitiative(initiative);
         processor.setSerialNumber(auditSerialNumber(serialNumbers[0].toString()));
-        processor.setRequestID(auditRequesterID(req));
 
         processor.setRevocationReason(RevocationReason.CERTIFICATE_HOLD);
         processor.setRequestType(RevocationProcessor.OFF_HOLD);
@@ -458,26 +456,6 @@ public class DoUnrevoke extends CMSServlet {
         }
 
         return biNumbers;
-    }
-
-    /**
-     * Signed Audit Log Requester ID
-     *
-     * This method is called to obtain the "RequesterID" for
-     * a signed audit log message.
-     * <P>
-     *
-     * @param req HTTP request
-     * @return id string containing the signed audit log message RequesterID
-     */
-    private RequestId auditRequesterID(HttpServletRequest req) {
-        String requesterID = req.getParameter("requestId");
-
-        if (requesterID != null) {
-            return new RequestId(requesterID.trim());
-        } else {
-            return null;
-        }
     }
 
     /**
