@@ -44,4 +44,4 @@ class SystemCertClient(object):
         url = self.cert_url +  '/transport'
         response = self.connection.get(url, self.headers)
         cert_data = CertData.from_json(response.json())
-        return cert_data.Encoded
+        return cert_data.encoded

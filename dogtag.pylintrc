@@ -36,7 +36,8 @@ load-plugins=
 # W0105 (pointless-string-statement):
 #  	String statement has no effect Used when a string is used as a statement (which of course has no effect). This is a particular case of W0104 with its own message so you can easily disable it if you’re   #       using those strings as documentation, instead of comments.
 # W0511 (fixme): Used when a warning note as FIXME or XXX is detected.
-disable=W0511,W0105
+# W0142: Used when a function or method is called using *args or **kwargs to dispatch arguments. This doesn't improve readability and should be used with care.
+disable=W0511,W0105,W0142
 
 
 [REPORTS]

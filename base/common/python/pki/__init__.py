@@ -359,3 +359,18 @@ class PropertyFile(object):
                 return value
 
         return None
+
+
+class Link:
+    """
+        Stores the information of the  resteasy's Link object sent by the server for a resource.
+    """
+    def __init__(self):
+        pass
+
+    @classmethod
+    def from_json(cls, attr_list):
+        link = cls()
+        for attr in attr_list:
+            setattr(link, attr, attr_list[attr])
+        return link

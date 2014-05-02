@@ -54,12 +54,13 @@ class PKIConnection:
             raise Exception("No path for the certificate specified.")
         self.session.cert = pem_cert_path
 
-    def get(self, path, headers=None, params=None):
+    def get(self, path, headers=None, params=None, payload=None):
         r = self.session.get(
             self.serverURI + path,
             verify=False,
             headers=headers,
-            params=params)
+            params=params,
+            data=payload)
         r.raise_for_status()
         return r
 
