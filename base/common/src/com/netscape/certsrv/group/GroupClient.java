@@ -65,8 +65,12 @@ public class GroupClient extends Client {
         client.getEntity(response, Void.class);
     }
 
-    public GroupMemberCollection findGroupMembers(String groupID, Integer start, Integer size) {
-        Response response = groupClient.findGroupMembers(groupID, start, size);
+    public GroupMemberCollection findGroupMembers(
+            String groupID,
+            String filter,
+            Integer start,
+            Integer size) {
+        Response response = groupClient.findGroupMembers(groupID, filter, start, size);
         return client.getEntity(response, GroupMemberCollection.class);
     }
 

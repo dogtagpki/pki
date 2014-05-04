@@ -336,14 +336,16 @@ public class GroupService extends PKIService implements GroupResource {
     }
 
     @Override
-    public Response findGroupMembers(String groupID, Integer start, Integer size) {
+    public Response findGroupMembers(String groupID, String filter, Integer start, Integer size) {
+
+        CMS.debug("GroupService.findGroupMembers(" + groupID + ", " + filter + ")");
 
         if (groupID == null) throw new BadRequestException("Group ID is null.");
 
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));
             processor.setUriInfo(uriInfo);
-            return createOKResponse(processor.findGroupMembers(groupID, start, size));
+            return createOKResponse(processor.findGroupMembers(groupID, filter, start, size));
 
         } catch (PKIException e) {
             throw e;

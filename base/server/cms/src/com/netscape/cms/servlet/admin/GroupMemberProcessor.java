@@ -19,7 +19,9 @@ package com.netscape.cms.servlet.admin;
 
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -94,7 +96,8 @@ public class GroupMemberProcessor extends Processor {
         return groupMemberData;
     }
 
-    public GroupMemberCollection findGroupMembers(String groupID, Integer start, Integer size) {
+    public GroupMemberCollection findGroupMembers(String groupID, String filter, Integer start, Integer size) {
+
         try {
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
@@ -113,28 +116,29 @@ public class GroupMemberProcessor extends Processor {
             GroupMemberCollection response = new GroupMemberCollection();
 
             Enumeration<String> members = group.getMemberNames();
+            List<String> results = new ArrayList<String>();
 
-            int i = 0;
-
-            // skip to the start of the page
-            for ( ; i<start && members.hasMoreElements(); i++) members.nextElement();
-
-            // return entries up to the page size
-            for ( ; i<start+size && members.hasMoreElements(); i++) {
+            // filter members
+            while (members.hasMoreElements()) {
                 String memberID = members.nextElement();
+                if (filter == null || memberID.contains(filter)) results.add(memberID);
+            }
+
+            // return entries in the page
+            for (int i = start; i < start+size && i < results.size(); i++) {
+                String memberID = results.get(i);
                 response.addEntry(createGroupMemberData(groupID, memberID));
             }
 
-            // count the total entries
-            for ( ; members.hasMoreElements(); i++) members.nextElement();
-            response.setTotal(i);
+            // return the total entries
+            response.setTotal(results.size());
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start+size < i) {
+            if (start+size < results.size()) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
                 response.addLink(new Link("next", uri));
             }

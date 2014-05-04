@@ -71,6 +71,7 @@ public interface GroupResource {
     @ClientResponseType(entityType=GroupMemberCollection.class)
     public Response findGroupMembers(
             @PathParam("groupID") String groupID,
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
