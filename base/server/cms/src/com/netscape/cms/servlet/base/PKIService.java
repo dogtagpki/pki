@@ -87,7 +87,7 @@ public class PKIService {
         return null;
     }
 
-    public MediaType getResponseFormat() {
+    public static MediaType getResponseFormat(HttpHeaders headers) {
         MediaType contentType = headers.getMediaType();
         List<MediaType> acceptableFormats = headers.getAcceptableMediaTypes();
 
@@ -104,8 +104,16 @@ public class PKIService {
         } else {
             responseFormat = resolveFormat(acceptableFormats);
         }
-        if (responseFormat == null) throw new PKIException(Response.Status.NOT_ACCEPTABLE);
+
+        if (responseFormat == null) {
+            throw new PKIException(Response.Status.NOT_ACCEPTABLE);
+        }
+
         return responseFormat;
+    }
+
+    public MediaType getResponseFormat() {
+        return getResponseFormat(headers);
     }
 
     public Response createOKResponse() {

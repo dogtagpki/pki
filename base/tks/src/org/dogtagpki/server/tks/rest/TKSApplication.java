@@ -10,12 +10,11 @@ import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuditService;
 import org.dogtagpki.server.rest.AuthMethodInterceptor;
 import org.dogtagpki.server.rest.GroupService;
+import org.dogtagpki.server.rest.PKIExceptionMapper;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.SelfTestService;
 import org.dogtagpki.server.rest.SystemCertService;
 import org.dogtagpki.server.rest.UserService;
-
-import com.netscape.certsrv.base.PKIException;
 
 public class TKSApplication extends Application {
 
@@ -47,7 +46,7 @@ public class TKSApplication extends Application {
         classes.add(TPSConnectorService.class);
 
         // exception mapper
-        classes.add(PKIException.Mapper.class);
+        classes.add(PKIExceptionMapper.class);
 
         // interceptors
         singletons.add(new AuthMethodInterceptor());

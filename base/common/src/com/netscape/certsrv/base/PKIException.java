@@ -18,8 +18,6 @@
 package com.netscape.certsrv.base;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlElement;
@@ -92,18 +90,6 @@ public class PKIException extends RuntimeException {
 
         @XmlElement(name="Message")
         public String message;
-    }
-
-    @Provider
-    public static class Mapper implements ExceptionMapper<PKIException> {
-
-        public Response toResponse(PKIException exception) {
-            // convert PKIException into HTTP response
-            return Response
-                    .status(exception.getCode())
-                    .entity(exception.getData())
-                    .build();
-        }
     }
 
     public static void main(String args[]) throws Exception {
