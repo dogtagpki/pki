@@ -44,7 +44,7 @@ public class UserMembershipFindCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> [FILTER] [OPTIONS...]", options);
     }
 
     public void createOptions() {
@@ -78,13 +78,14 @@ public class UserMembershipFindCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 1) {
-            System.err.println("Error: No User ID specified.");
+        if (cmdArgs.length < 1 || cmdArgs.length > 2) {
+            System.err.println("Error: Incorrect number of arguments specified.");
             printHelp();
             System.exit(-1);
         }
 
         String userID = cmdArgs[0];
+        String filter = cmdArgs.length < 2 ? null : cmdArgs[1];
 
         String s = cmd.getOptionValue("start");
         Integer start = s == null ? null : Integer.valueOf(s);
@@ -92,7 +93,7 @@ public class UserMembershipFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        UserMembershipCollection response = userMembershipCLI.userClient.findUserMemberships(userID, start, size);
+        UserMembershipCollection response = userMembershipCLI.userClient.findUserMemberships(userID, filter, start, size);
 
         MainCLI.printMessage(response.getTotal() + " entries matched");
         if (response.getTotal() == 0) return;

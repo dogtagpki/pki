@@ -104,6 +104,7 @@ public interface UserResource {
     @ClientResponseType(entityType=UserMembershipCollection.class)
     public Response findUserMemberships(
             @PathParam("userID") String userID,
+            @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

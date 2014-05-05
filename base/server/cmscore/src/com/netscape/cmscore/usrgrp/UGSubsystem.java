@@ -1421,34 +1421,52 @@ public final class UGSubsystem implements IUGSubsystem {
         return null;
     }
 
-    public Enumeration<IGroup> findGroupsByUser(String userDn) throws EUsrGrpException {
+    public Enumeration<IGroup> findGroupsByUser(String userDn, String filter) throws EUsrGrpException {
+
         if (userDn == null) {
             return null;
         }
+
+        // search groups where the user is a member
+        String ldapFilter = "(&(objectclass=groupofuniquenames)(uniqueMember=" + LDAPUtil.escapeFilter(userDn) + ")";
+
+        if (!StringUtils.isEmpty(filter)) {
+            // combine search filter if specified
+            filter = LDAPUtil.escapeFilter(filter);
+            ldapFilter += "(cn=*" + filter + "*)";
+        }
+
+        ldapFilter += ")";
 
         LDAPConnection ldapconn = null;
 
         try {
             String attrs[] = new String[2];
-
             attrs[0] = "cn";
             attrs[1] = "description";
 
             ldapconn = getConn();
-            LDAPSearchResults res =
-                    ldapconn.search(getGroupBaseDN(), LDAPv2.SCOPE_SUB,
-                            "(&(objectclass=groupofuniquenames)(uniqueMember=" + LDAPUtil.escapeFilter(userDn) + "))",
-                            attrs, false);
+
+            LDAPSearchResults res = ldapconn.search(
+                    getGroupBaseDN(),
+                    LDAPv2.SCOPE_ONE,
+                    ldapFilter,
+                    attrs,
+                    false);
 
             return buildGroups(res);
+
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
         }
+
         return null;
     }
 

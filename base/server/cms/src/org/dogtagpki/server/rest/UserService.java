@@ -1049,7 +1049,10 @@ public class UserService extends PKIService implements UserResource {
     }
 
     @Override
-    public Response findUserMemberships(String userID, Integer start, Integer size) {
+    public Response findUserMemberships(String userID, String filter, Integer start, Integer size) {
+
+        CMS.debug("UserService.findUserMemberships(" + userID + ", " + filter + ")");
+
         try {
             start = start == null ? 0 : start;
             size = size == null ? DEFAULT_SIZE : size;
@@ -1066,7 +1069,7 @@ public class UserService extends PKIService implements UserResource {
                 throw new UserNotFoundException(userID);
             }
 
-            Enumeration<IGroup> groups = userGroupManager.findGroupsByUser(user.getUserDN());
+            Enumeration<IGroup> groups = userGroupManager.findGroupsByUser(user.getUserDN(), filter);
 
             UserMembershipCollection response = new UserMembershipCollection();
             int i = 0;

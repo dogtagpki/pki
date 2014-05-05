@@ -132,10 +132,11 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
      * Finds groups that contain the user.
      *
      * @param userDn the user DN
+     * @param filter the search filter
      * @return a list of groups that contain the given user
      * @throws EUsrGrpException
      */
-    public Enumeration<IGroup> findGroupsByUser(String userDn) throws EUsrGrpException;
+    public Enumeration<IGroup> findGroupsByUser(String userDn, String filter) throws EUsrGrpException;
 
     /**
      * Find a group for the given name

@@ -85,8 +85,8 @@ public class UserClient extends Client {
         client.getEntity(response, Void.class);
     }
 
-    public UserMembershipCollection findUserMemberships(String userID, Integer start, Integer size) {
-        Response response = userClient.findUserMemberships(userID, start, size);
+    public UserMembershipCollection findUserMemberships(String userID, String filter, Integer start, Integer size) {
+        Response response = userClient.findUserMemberships(userID, filter, start, size);
         return client.getEntity(response, UserMembershipCollection.class);
     }
 

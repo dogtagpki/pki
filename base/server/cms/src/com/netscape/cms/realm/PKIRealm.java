@@ -128,7 +128,7 @@ public class PKIRealm extends RealmBase {
         List<String> roles = new ArrayList<String>();
 
         IUGSubsystem ugSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
-        Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN());
+        Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
         logDebug("Roles:");
         while (groups.hasMoreElements()) {
