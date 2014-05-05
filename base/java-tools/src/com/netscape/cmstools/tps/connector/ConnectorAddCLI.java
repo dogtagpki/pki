@@ -16,15 +16,17 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.tps.connection;
+package com.netscape.cmstools.tps.connector;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.tps.connection.ConnectionCollection;
 import com.netscape.certsrv.tps.connection.ConnectionData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -32,28 +34,25 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectionFindCLI extends CLI {
+public class ConnectorAddCLI extends CLI {
 
-    public ConnectionCLI connectionCLI;
+    public ConnectorCLI connectorCLI;
 
-    public ConnectionFindCLI(ConnectionCLI connectionCLI) {
-        super("find", "Find connections", connectionCLI);
-        this.connectionCLI = connectionCLI;
+    public ConnectorAddCLI(ConnectorCLI connectorCLI) {
+        super("add", "Add connector", connectorCLI);
+        this.connectorCLI = connectorCLI;
 
         createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [FILTER] [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " --input <file> [OPTIONS...]", options);
     }
 
     public void createOptions() {
-        Option option = new Option(null, "start", true, "Page start");
-        option.setArgName("start");
-        options.addOption(option);
-
-        option = new Option(null, "size", true, "Page size");
-        option.setArgName("size");
+        Option option = new Option(null, "input", true, "Input file containing connector properties.");
+        option.setArgName("file");
+        option.setRequired(true);
         options.addOption(option);
     }
 
@@ -77,33 +76,33 @@ public class ConnectionFindCLI extends CLI {
         }
 
         String[] cmdArgs = cmd.getArgs();
-        String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
 
-        String s = cmd.getOptionValue("start");
-        Integer start = s == null ? null : Integer.valueOf(s);
-
-        s = cmd.getOptionValue("size");
-        Integer size = s == null ? null : Integer.valueOf(s);
-
-        ConnectionCollection result = connectionCLI.connectionClient.findConnections(filter, start, size);
-
-        MainCLI.printMessage(result.getTotal() + " entries matched");
-        if (result.getTotal() == 0) return;
-
-        Collection<ConnectionData> connections = result.getEntries();
-        boolean first = true;
-
-        for (ConnectionData connectionData : connections) {
-
-            if (first) {
-                first = false;
-            } else {
-                System.out.println();
-            }
-
-            ConnectionCLI.printConnectionData(connectionData, false);
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
+            printHelp();
+            System.exit(-1);
         }
 
-        MainCLI.printMessage("Number of entries returned " + connections.size());
+        String input = cmd.getOptionValue("input");
+
+        ConnectionData connectionData;
+
+        try (BufferedReader in = new BufferedReader(new FileReader(input));
+            StringWriter sw = new StringWriter();
+            PrintWriter out = new PrintWriter(sw, true)) {
+
+            String line;
+            while ((line = in.readLine()) != null) {
+                out.println(line);
+            }
+
+            connectionData = ConnectionData.valueOf(sw.toString());
+        }
+
+        connectionData = connectorCLI.connectionClient.addConnection(connectionData);
+
+        MainCLI.printMessage("Added connector \"" + connectionData.getID() + "\"");
+
+        ConnectorCLI.printConnectionData(connectionData, true);
     }
 }

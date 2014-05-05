@@ -16,12 +16,10 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.tps.connection;
+package com.netscape.cmstools.tps.connector;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
@@ -34,25 +32,24 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectionAddCLI extends CLI {
+public class ConnectorShowCLI extends CLI {
 
-    public ConnectionCLI connectionCLI;
+    public ConnectorCLI connectorCLI;
 
-    public ConnectionAddCLI(ConnectionCLI connectionCLI) {
-        super("add", "Add connection", connectionCLI);
-        this.connectionCLI = connectionCLI;
+    public ConnectorShowCLI(ConnectorCLI connectorCLI) {
+        super("show", "Show connector", connectorCLI);
+        this.connectorCLI = connectorCLI;
 
         createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " --input <file> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Connector ID> [OPTIONS...]", options);
     }
 
     public void createOptions() {
-        Option option = new Option(null, "input", true, "Input file containing connection properties.");
+        Option option = new Option(null, "output", true, "Output file to store connector properties.");
         option.setArgName("file");
-        option.setRequired(true);
         options.addOption(option);
     }
 
@@ -77,32 +74,26 @@ public class ConnectionAddCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 0) {
-            System.err.println("Error: Too many arguments specified.");
+        if (cmdArgs.length != 1) {
+            System.err.println("Error: No Connector ID specified.");
             printHelp();
             System.exit(-1);
         }
 
-        String input = cmd.getOptionValue("input");
+        String connectorID = args[0];
+        String output = cmd.getOptionValue("output");
 
-        ConnectionData connectionData;
+        ConnectionData connectionData = connectorCLI.connectionClient.getConnection(connectorID);
 
-        try (BufferedReader in = new BufferedReader(new FileReader(input));
-            StringWriter sw = new StringWriter();
-            PrintWriter out = new PrintWriter(sw, true)) {
+        if (output == null) {
+            MainCLI.printMessage("Connector \"" + connectorID + "\"");
+            ConnectorCLI.printConnectionData(connectionData, true);
 
-            String line;
-            while ((line = in.readLine()) != null) {
-                out.println(line);
+        } else {
+            try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
+                out.println(connectionData);
             }
-
-            connectionData = ConnectionData.valueOf(sw.toString());
+            MainCLI.printMessage("Stored connector \"" + connectorID + "\" into " + output);
         }
-
-        connectionData = connectionCLI.connectionClient.addConnection(connectionData);
-
-        MainCLI.printMessage("Added connection \"" + connectionData.getID() + "\"");
-
-        ConnectionCLI.printConnectionData(connectionData, true);
     }
 }

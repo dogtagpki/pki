@@ -16,15 +16,15 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.tps.connection;
+package com.netscape.cmstools.tps.connector;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import com.netscape.certsrv.tps.connection.ConnectionCollection;
 import com.netscape.certsrv.tps.connection.ConnectionData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -32,24 +32,28 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectionShowCLI extends CLI {
+public class ConnectorFindCLI extends CLI {
 
-    public ConnectionCLI connectionCLI;
+    public ConnectorCLI connectorCLI;
 
-    public ConnectionShowCLI(ConnectionCLI connectionCLI) {
-        super("show", "Show connection", connectionCLI);
-        this.connectionCLI = connectionCLI;
+    public ConnectorFindCLI(ConnectorCLI connectorCLI) {
+        super("find", "Find connectors", connectorCLI);
+        this.connectorCLI = connectorCLI;
 
         createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Connection ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [FILTER] [OPTIONS...]", options);
     }
 
     public void createOptions() {
-        Option option = new Option(null, "output", true, "Output file to store connection properties.");
-        option.setArgName("file");
+        Option option = new Option(null, "start", true, "Page start");
+        option.setArgName("start");
+        options.addOption(option);
+
+        option = new Option(null, "size", true, "Page size");
+        option.setArgName("size");
         options.addOption(option);
     }
 
@@ -73,27 +77,33 @@ public class ConnectionShowCLI extends CLI {
         }
 
         String[] cmdArgs = cmd.getArgs();
+        String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
 
-        if (cmdArgs.length != 1) {
-            System.err.println("Error: No Connection ID specified.");
-            printHelp();
-            System.exit(-1);
-        }
+        String s = cmd.getOptionValue("start");
+        Integer start = s == null ? null : Integer.valueOf(s);
 
-        String connectionID = args[0];
-        String output = cmd.getOptionValue("output");
+        s = cmd.getOptionValue("size");
+        Integer size = s == null ? null : Integer.valueOf(s);
 
-        ConnectionData connectionData = connectionCLI.connectionClient.getConnection(connectionID);
+        ConnectionCollection result = connectorCLI.connectionClient.findConnections(filter, start, size);
 
-        if (output == null) {
-            MainCLI.printMessage("Connection \"" + connectionID + "\"");
-            ConnectionCLI.printConnectionData(connectionData, true);
+        MainCLI.printMessage(result.getTotal() + " entries matched");
+        if (result.getTotal() == 0) return;
 
-        } else {
-            try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
-                out.println(connectionData);
+        Collection<ConnectionData> connections = result.getEntries();
+        boolean first = true;
+
+        for (ConnectionData connectionData : connections) {
+
+            if (first) {
+                first = false;
+            } else {
+                System.out.println();
             }
-            MainCLI.printMessage("Stored connection \"" + connectionID + "\" into " + output);
+
+            ConnectorCLI.printConnectionData(connectionData, false);
         }
+
+        MainCLI.printMessage("Number of entries returned " + connections.size());
     }
 }

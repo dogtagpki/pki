@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.tps.connection;
+package com.netscape.cmstools.tps.connector;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,18 +30,18 @@ import com.netscape.cmstools.cli.CLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectionCLI extends CLI {
+public class ConnectorCLI extends CLI {
 
     public ConnectionClient connectionClient;
 
-    public ConnectionCLI(CLI parent) {
-        super("connection", "Connection management commands", parent);
+    public ConnectorCLI(CLI parent) {
+        super("connector", "Connector management commands", parent);
 
-        addModule(new ConnectionAddCLI(this));
-        addModule(new ConnectionFindCLI(this));
-        addModule(new ConnectionModifyCLI(this));
-        addModule(new ConnectionRemoveCLI(this));
-        addModule(new ConnectionShowCLI(this));
+        addModule(new ConnectorAddCLI(this));
+        addModule(new ConnectorFindCLI(this));
+        addModule(new ConnectorModifyCLI(this));
+        addModule(new ConnectorRemoveCLI(this));
+        addModule(new ConnectorShowCLI(this));
     }
 
     public void execute(String[] args) throws Exception {
@@ -53,7 +53,7 @@ public class ConnectionCLI extends CLI {
     }
 
     public static void printConnectionData(ConnectionData connectionData, boolean showProperties) throws IOException {
-        System.out.println("  Connection ID: " + connectionData.getID());
+        System.out.println("  Connector ID: " + connectionData.getID());
         if (connectionData.getStatus() != null) System.out.println("  Status: " + connectionData.getStatus());
 
         if (showProperties) {

@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.tps.connection;
+package com.netscape.cmstools.tps.connector;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -34,19 +34,19 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectionModifyCLI extends CLI {
+public class ConnectorModifyCLI extends CLI {
 
-    public ConnectionCLI connectionCLI;
+    public ConnectorCLI connectorCLI;
 
-    public ConnectionModifyCLI(ConnectionCLI connectionCLI) {
-        super("mod", "Modify connection", connectionCLI);
-        this.connectionCLI = connectionCLI;
+    public ConnectorModifyCLI(ConnectorCLI connectorCLI) {
+        super("mod", "Modify connector", connectorCLI);
+        this.connectorCLI = connectorCLI;
 
         createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Connection ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Connector ID> [OPTIONS...]", options);
     }
 
     public void createOptions() {
@@ -54,7 +54,7 @@ public class ConnectionModifyCLI extends CLI {
         option.setArgName("action");
         options.addOption(option);
 
-        option = new Option(null, "input", true, "Input file containing connection properties.");
+        option = new Option(null, "input", true, "Input file containing connector properties.");
         option.setArgName("file");
         options.addOption(option);
     }
@@ -81,12 +81,12 @@ public class ConnectionModifyCLI extends CLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
-            System.err.println("Error: No Connection ID specified.");
+            System.err.println("Error: No Connector ID specified.");
             printHelp();
             System.exit(-1);
         }
 
-        String connectionID = cmdArgs[0];
+        String connectorID = cmdArgs[0];
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
@@ -113,14 +113,14 @@ public class ConnectionModifyCLI extends CLI {
                 connectionData = ConnectionData.valueOf(sw.toString());
             }
 
-            connectionData = connectionCLI.connectionClient.updateConnection(connectionID, connectionData);
+            connectionData = connectorCLI.connectionClient.updateConnection(connectorID, connectionData);
 
         } else { // other actions
-            connectionData = connectionCLI.connectionClient.changeConnectionStatus(connectionID, action);
+            connectionData = connectorCLI.connectionClient.changeConnectionStatus(connectorID, action);
         }
 
-        MainCLI.printMessage("Modified connection \"" + connectionID + "\"");
+        MainCLI.printMessage("Modified connector \"" + connectorID + "\"");
 
-        ConnectionCLI.printConnectionData(connectionData, true);
+        ConnectorCLI.printConnectionData(connectionData, true);
     }
 }

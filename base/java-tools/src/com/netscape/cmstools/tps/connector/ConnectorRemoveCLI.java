@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.tps.connection;
+package com.netscape.cmstools.tps.connector;
 
 import java.util.Arrays;
 
@@ -28,17 +28,17 @@ import com.netscape.cmstools.cli.MainCLI;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectionRemoveCLI extends CLI {
+public class ConnectorRemoveCLI extends CLI {
 
-    public ConnectionCLI connectionCLI;
+    public ConnectorCLI connectorCLI;
 
-    public ConnectionRemoveCLI(ConnectionCLI connectionCLI) {
-        super("del", "Remove connection", connectionCLI);
-        this.connectionCLI = connectionCLI;
+    public ConnectorRemoveCLI(ConnectorCLI connectorCLI) {
+        super("del", "Remove connector", connectorCLI);
+        this.connectorCLI = connectorCLI;
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Connection ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Connector ID> [OPTIONS...]", options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -63,15 +63,15 @@ public class ConnectionRemoveCLI extends CLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 1) {
-            System.err.println("Error: No Connection ID specified.");
+            System.err.println("Error: No Connector ID specified.");
             printHelp();
             System.exit(-1);
         }
 
-        String connectionID = args[0];
+        String connectorID = args[0];
 
-        connectionCLI.connectionClient.removeConnection(connectionID);
+        connectorCLI.connectionClient.removeConnection(connectorID);
 
-        MainCLI.printMessage("Deleted connection \"" + connectionID + "\"");
+        MainCLI.printMessage("Deleted connector \"" + connectorID + "\"");
     }
 }
