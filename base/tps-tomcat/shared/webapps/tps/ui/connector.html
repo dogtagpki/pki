@@ -18,7 +18,7 @@
 <div class="pki-header">
 <ol class="breadcrumb">
     <li><a href="#">Home</a></li>
-    <li><a href="#connections">Subsystem Connections</a></li>
+    <li><a href="#connectors">Subsystem Connections</a></li>
     <li class="active"><strong><span name="title">Subsystem Connection ${id}</span></strong></li>
 </ol>
 
@@ -40,10 +40,10 @@
 
 </div>
 
-<div name="connection" class="pki-fields">
+<div name="connector" class="pki-fields">
 <fieldset>
-    <label>Connection ID</label>
-    <input name="connectionID" readonly="readonly">
+    <label>Connector ID</label>
+    <input name="connectorID" readonly="readonly">
     <br>
     <label>Status</label>
     <input name="status" readonly="readonly">
@@ -67,15 +67,15 @@
          </th>
     </tr>
     <tr>
-        <th class="pki-select-column"><input id="connection_selectall" type="checkbox"><label for="connection_selectall">&nbsp;</label></th>
+        <th class="pki-select-column"><input id="connector_selectall" type="checkbox"><label for="connector_selectall">&nbsp;</label></th>
         <th class="pki-property-name-column">Name</th>
         <th>Value</th>
     </tr>
 </thead>
 <tbody>
     <tr>
-        <td class="pki-select-column"><input id="connection_select" type="checkbox"><label for="connection_select">&nbsp;</label></td>
-        <td name="id" class="pki-property-name-column"><a href="/tps/ui/connections/${parent.id}/properties/${id}">${id}</a></td>
+        <td class="pki-select-column"><input id="connector_select" type="checkbox"><label for="connector_select">&nbsp;</label></td>
+        <td name="id" class="pki-property-name-column"><a href="/tps/ui/connectors/${parent.id}/properties/${id}">${id}</a></td>
         <td name="value">${value}</td>
     </tr>
 </tbody>

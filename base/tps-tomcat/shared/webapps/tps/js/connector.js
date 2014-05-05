@@ -19,19 +19,19 @@
  * @author Endi S. Dewata
  */
 
-var ConnectionModel = Model.extend({
+var ConnectorModel = Model.extend({
     urlRoot: "/tps/rest/connections",
     parseResponse: function(response) {
         return {
             id: response.id,
-            connectionID: response.id,
+            connectorID: response.id,
             status: response.Status,
             properties: response.Properties.Property
         };
     },
     createRequest: function(attributes) {
         return {
-            id: attributes.connectionID,
+            id: attributes.connectorID,
             Status: attributes.status,
             Properties: {
                 Property: attributes.properties
@@ -66,7 +66,7 @@ var ConnectionModel = Model.extend({
     }
 });
 
-var ConnectionCollection = Collection.extend({
+var ConnectorCollection = Collection.extend({
     urlRoot: "/tps/rest/connections",
     getEntries: function(response) {
         return response.entries;
@@ -75,32 +75,32 @@ var ConnectionCollection = Collection.extend({
         return response.Link;
     },
     parseEntry: function(entry) {
-        return new ConnectionModel({
+        return new ConnectorModel({
             id: entry.id,
             status: entry.Status
         });
     }
 });
 
-var ConnectionsTable = ModelTable.extend({
+var ConnectorsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
-        ConnectionsTable.__super__.initialize.call(self, options);
+        ConnectorsTable.__super__.initialize.call(self, options);
     },
     add: function() {
         var self = this;
 
-        window.location.hash = "#new-connection";
+        window.location.hash = "#new-connector";
     }
 });
 
-var ConnectionsPage = Page.extend({
+var ConnectorsPage = Page.extend({
     load: function() {
         var self = this;
 
-        var table = new ConnectionsTable({
-            el: $("table[name='connections']"),
-            collection: new ConnectionCollection(),
+        var table = new ConnectorsTable({
+            el: $("table[name='connectors']"),
+            collection: new ConnectorCollection(),
             parent: self
         });
 

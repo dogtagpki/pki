@@ -32,7 +32,7 @@
     <script src="/tps/js/authenticator.js"></script>
     <script src="/tps/js/cert.js"></script>
     <script src="/tps/js/config.js"></script>
-    <script src="/tps/js/connection.js"></script>
+    <script src="/tps/js/connector.js"></script>
     <script src="/tps/js/group.js"></script>
     <script src="/tps/js/profile.js"></script>
     <script src="/tps/js/profile-mapping.js"></script>
@@ -135,30 +135,30 @@ $(function() {
         }).open();
     });
 
-    router.route("connections", "connections", function() {
-        new ConnectionsPage({
+    router.route("connectors", "connectors", function() {
+        new ConnectorsPage({
             el: content,
-            url: "connections.html"
+            url: "connectors.html"
         }).open();
     });
 
-    router.route("connections/:id", "connection", function(id) {
+    router.route("connectors/:id", "connector", function(id) {
         new ConfigEntryPage({
             el: content,
-            url: "connection.html",
-            model: new ConnectionModel({ id: id })
+            url: "connector.html",
+            model: new ConnectorModel({ id: id })
         }).open();
     });
 
-    router.route("new-connection", "new-connection", function() {
+    router.route("new-connector", "new-connector", function() {
         new ConfigEntryPage({
             el: content,
-            url: "connection.html",
-            model: new ConnectionModel(),
+            url: "connector.html",
+            model: new ConnectorModel(),
             mode: "add",
-            title: "New Connection",
-            editable: ["connectionID"],
-            parentHash: "#connections"
+            title: "New Connector",
+            editable: ["connectorID"],
+            parentHash: "#connectors"
         }).open();
     });
 
@@ -381,7 +381,7 @@ $(function() {
       <ul class="dropdown-menu">
         <li><a href="#config">General Configuration</a></li>
         <li><a href="#authenticators">Authentication Sources</a></li>
-        <li><a href="#connections">Subsystem Connections</a></li>
+        <li><a href="#connectors">Subsystem Connections</a></li>
         <li><a href="#profiles">Profiles</a></li>
         <li><a href="#profile-mappings">Profile Mappings</a></li>
         <li><a href="#audit">Audit Logging</a></li>
