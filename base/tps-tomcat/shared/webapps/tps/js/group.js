@@ -187,12 +187,21 @@ var GroupPage = EntryPage.extend({
             // In page edit mode, the members tables is read-only.
             self.membersTable.mode = "view";
 
+            self.membersTable.collection = new GroupMemberCollection(null, { groupID: self.entry.id });
+
+        } else if (self.mode == "add") {
+            // In page add mode, the members table is read-only.
+            self.membersTable.mode = "view";
+
+            // self.membersTable.collection is undefined for new group
+
         } else { // self.mode == "view"
             // In page view mode, the members table is editable.
             self.membersTable.mode = "edit";
+
+            self.membersTable.collection = new GroupMemberCollection(null, { groupID: self.entry.id });
         }
 
-        self.membersTable.collection = new GroupMemberCollection(null, { groupID: self.entry.id });
         self.membersTable.render();
     }
 });

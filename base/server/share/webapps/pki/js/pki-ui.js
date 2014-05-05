@@ -720,6 +720,12 @@ var ModelTable = Table.extend({
     render: function() {
         var self = this;
 
+        // if collection is undefined, don't fetch data, just draw the controls
+        if (!self.collection) {
+            self.renderControls();
+            return;
+        }
+
         // set query based on current page, page size, and filter
         self.collection.query({
             start: (self.page - 1) * self.pageSize,
