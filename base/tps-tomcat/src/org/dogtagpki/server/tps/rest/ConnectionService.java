@@ -41,9 +41,9 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.tps.connection.ConnectionCollection;
-import com.netscape.certsrv.tps.connection.ConnectionData;
-import com.netscape.certsrv.tps.connection.ConnectionResource;
+import com.netscape.certsrv.tps.connector.ConnectionResource;
+import com.netscape.certsrv.tps.connector.ConnectorCollection;
+import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
@@ -69,28 +69,28 @@ public class ConnectionService extends PKIService implements ConnectionResource 
         CMS.debug("ConnectionService.<init>()");
     }
 
-    public ConnectionData createConnectionData(ConnectionRecord connectionRecord) throws UnsupportedEncodingException {
+    public ConnectorData createConnectorData(ConnectionRecord connectionRecord) throws UnsupportedEncodingException {
 
         String connectionID = connectionRecord.getID();
 
-        ConnectionData connectionData = new ConnectionData();
-        connectionData.setID(connectionID);
-        connectionData.setStatus(connectionRecord.getStatus());
-        connectionData.setProperties(connectionRecord.getProperties());
+        ConnectorData connectorData = new ConnectorData();
+        connectorData.setID(connectionID);
+        connectorData.setStatus(connectionRecord.getStatus());
+        connectorData.setProperties(connectionRecord.getProperties());
 
         connectionID = URLEncoder.encode(connectionID, "UTF-8");
         URI uri = uriInfo.getBaseUriBuilder().path(ConnectionResource.class).path("{connectionID}").build(connectionID);
-        connectionData.setLink(new Link("self", uri));
+        connectorData.setLink(new Link("self", uri));
 
-        return connectionData;
+        return connectorData;
     }
 
-    public ConnectionRecord createConnectionRecord(ConnectionData connectionData) {
+    public ConnectionRecord createConnectionRecord(ConnectorData connectorData) {
 
         ConnectionRecord connectionRecord = new ConnectionRecord();
-        connectionRecord.setID(connectionData.getID());
-        connectionRecord.setStatus(connectionData.getStatus());
-        connectionRecord.setProperties(connectionData.getProperties());
+        connectionRecord.setID(connectorData.getID());
+        connectionRecord.setStatus(connectorData.getStatus());
+        connectionRecord.setProperties(connectorData.getProperties());
 
         return connectionRecord;
     }
@@ -109,7 +109,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
             Iterator<ConnectionRecord> connections = database.findRecords(filter).iterator();
 
-            ConnectionCollection response = new ConnectionCollection();
+            ConnectorCollection response = new ConnectorCollection();
             int i = 0;
 
             // skip to the start of the page
@@ -117,7 +117,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
             // return entries up to the page size
             for ( ; i<start+size && connections.hasNext(); i++) {
-                response.addEntry(createConnectionData(connections.next()));
+                response.addEntry(createConnectorData(connections.next()));
             }
 
             // count the total entries
@@ -156,7 +156,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            return createOKResponse(createConnectionData(database.getRecord(connectionID)));
+            return createOKResponse(createConnectorData(database.getRecord(connectionID)));
 
         } catch (PKIException e) {
             throw e;
@@ -168,20 +168,20 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public Response addConnection(ConnectionData connectionData) {
+    public Response addConnection(ConnectorData connectorData) {
 
-        if (connectionData == null) throw new BadRequestException("Connection data is null.");
+        if (connectorData == null) throw new BadRequestException("Connector data is null.");
 
-        CMS.debug("ConnectionService.addConnection(\"" + connectionData.getID() + "\")");
+        CMS.debug("ConnectionService.addConnection(\"" + connectorData.getID() + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            database.addRecord(connectionData.getID(), createConnectionRecord(connectionData));
-            connectionData = createConnectionData(database.getRecord(connectionData.getID()));
+            database.addRecord(connectorData.getID(), createConnectionRecord(connectorData));
+            connectorData = createConnectorData(database.getRecord(connectorData.getID()));
 
-            return createCreatedResponse(connectionData, connectionData.getLink().getHref());
+            return createCreatedResponse(connectorData, connectorData.getLink().getHref());
 
         } catch (PKIException e) {
             throw e;
@@ -193,10 +193,10 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public Response updateConnection(String connectionID, ConnectionData connectionData) {
+    public Response updateConnection(String connectionID, ConnectorData connectorData) {
 
         if (connectionID == null) throw new BadRequestException("Connection ID is null.");
-        if (connectionData == null) throw new BadRequestException("Connection data is null.");
+        if (connectorData == null) throw new BadRequestException("Connector data is null.");
 
         CMS.debug("ConnectionService.updateConnection(\"" + connectionID + "\")");
 
@@ -212,7 +212,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             }
 
             // update status if specified
-            String status = connectionData.getStatus();
+            String status = connectorData.getStatus();
             if (status != null && !"Disabled".equals(status)) {
                 if (!"Enabled".equals(status)) {
                     throw new ForbiddenException("Invalid connection status: " + status);
@@ -229,16 +229,16 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             }
 
             // update properties if specified
-            Map<String, String> properties = connectionData.getProperties();
+            Map<String, String> properties = connectorData.getProperties();
             if (properties != null) {
                 record.setProperties(properties);
             }
 
             database.updateRecord(connectionID, record);
 
-            connectionData = createConnectionData(database.getRecord(connectionID));
+            connectorData = createConnectorData(database.getRecord(connectionID));
 
-            return createOKResponse(connectionData);
+            return createOKResponse(connectorData);
 
         } catch (PKIException e) {
             throw e;
@@ -294,9 +294,9 @@ public class ConnectionService extends PKIService implements ConnectionResource 
             record.setStatus(status);
             database.updateRecord(connectionID, record);
 
-            ConnectionData connectionData = createConnectionData(database.getRecord(connectionID));
+            ConnectorData connectorData = createConnectorData(database.getRecord(connectionID));
 
-            return createOKResponse(connectionData);
+            return createOKResponse(connectorData);
 
         } catch (PKIException e) {
             throw e;

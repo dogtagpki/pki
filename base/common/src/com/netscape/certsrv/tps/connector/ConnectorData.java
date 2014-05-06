@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.certsrv.tps.connection;
+package com.netscape.certsrv.tps.connector;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -42,18 +42,18 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Connection")
+@XmlRootElement(name="Connector")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ConnectionData {
+public class ConnectorData {
 
     public static Marshaller marshaller;
     public static Unmarshaller unmarshaller;
 
     static {
         try {
-            marshaller = JAXBContext.newInstance(ConnectionData.class).createMarshaller();
+            marshaller = JAXBContext.newInstance(ConnectorData.class).createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            unmarshaller = JAXBContext.newInstance(ConnectionData.class).createUnmarshaller();
+            unmarshaller = JAXBContext.newInstance(ConnectorData.class).createUnmarshaller();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -157,7 +157,7 @@ public class ConnectionData {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ConnectionData other = (ConnectionData) obj;
+        ConnectorData other = (ConnectorData) obj;
         if (id == null) {
             if (other.id != null)
                 return false;
@@ -192,9 +192,9 @@ public class ConnectionData {
         }
     }
 
-    public static ConnectionData valueOf(String string) throws Exception {
+    public static ConnectorData valueOf(String string) throws Exception {
         try {
-            return (ConnectionData)unmarshaller.unmarshal(new StringReader(string));
+            return (ConnectorData)unmarshaller.unmarshal(new StringReader(string));
         } catch (Exception e) {
             return null;
         }
@@ -202,8 +202,8 @@ public class ConnectionData {
 
     public static void main(String args[]) throws Exception {
 
-        ConnectionData before = new ConnectionData();
-        before.setID("connection1");
+        ConnectorData before = new ConnectorData();
+        before.setID("connector1");
         before.setStatus("ENABLED");
 
         Map<String, String> properties = new LinkedHashMap<String, String>();
@@ -214,7 +214,7 @@ public class ConnectionData {
         String string = before.toString();
         System.out.println(string);
 
-        ConnectionData after = ConnectionData.valueOf(string);
+        ConnectorData after = ConnectorData.valueOf(string);
         System.out.println(before.equals(after));
     }
 }

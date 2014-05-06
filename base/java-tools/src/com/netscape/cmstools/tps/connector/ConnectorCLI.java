@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.tps.connection.ConnectionClient;
-import com.netscape.certsrv.tps.connection.ConnectionData;
+import com.netscape.certsrv.tps.connector.ConnectorData;
+import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.cmstools.cli.CLI;
 
 /**
@@ -32,7 +32,7 @@ import com.netscape.cmstools.cli.CLI;
  */
 public class ConnectorCLI extends CLI {
 
-    public ConnectionClient connectionClient;
+    public ConnectorClient connectorClient;
 
     public ConnectorCLI(CLI parent) {
         super("connector", "Connector management commands", parent);
@@ -47,18 +47,18 @@ public class ConnectorCLI extends CLI {
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();
-        connectionClient = (ConnectionClient)parent.getClient("connection");
+        connectorClient = (ConnectorClient)parent.getClient("connector");
 
         super.execute(args);
     }
 
-    public static void printConnectionData(ConnectionData connectionData, boolean showProperties) throws IOException {
-        System.out.println("  Connector ID: " + connectionData.getID());
-        if (connectionData.getStatus() != null) System.out.println("  Status: " + connectionData.getStatus());
+    public static void printConnectorData(ConnectorData connectorData, boolean showProperties) throws IOException {
+        System.out.println("  Connector ID: " + connectorData.getID());
+        if (connectorData.getStatus() != null) System.out.println("  Status: " + connectorData.getStatus());
 
         if (showProperties) {
             System.out.println("  Properties:");
-            Map<String, String> properties = connectionData.getProperties();
+            Map<String, String> properties = connectorData.getProperties();
             if (properties != null) {
                 for (String name : properties.keySet()) {
                     String value = properties.get(name);
@@ -67,7 +67,7 @@ public class ConnectorCLI extends CLI {
             }
         }
 
-        Link link = connectionData.getLink();
+        Link link = connectorData.getLink();
         if (verbose && link != null) {
             System.out.println("  Link: " + link.getHref());
         }

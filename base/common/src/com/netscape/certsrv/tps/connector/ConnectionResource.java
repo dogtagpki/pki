@@ -15,7 +15,7 @@
 // (C) 2013 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.tps.connection;
+package com.netscape.certsrv.tps.connector;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -41,7 +41,7 @@ import com.netscape.certsrv.base.PATCH;
 public interface ConnectionResource {
 
     @GET
-    @ClientResponseType(entityType=ConnectionCollection.class)
+    @ClientResponseType(entityType=ConnectorCollection.class)
     public Response findConnections(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
@@ -49,26 +49,26 @@ public interface ConnectionResource {
 
     @GET
     @Path("{connectionID}")
-    @ClientResponseType(entityType=ConnectionData.class)
+    @ClientResponseType(entityType=ConnectorData.class)
     public Response getConnection(@PathParam("connectionID") String connectionID);
 
     @POST
     @ACLMapping("connections.add")
-    @ClientResponseType(entityType=ConnectionData.class)
-    public Response addConnection(ConnectionData connectionData);
+    @ClientResponseType(entityType=ConnectorData.class)
+    public Response addConnection(ConnectorData connectorData);
 
     @PATCH
     @Path("{connectionID}")
     @ACLMapping("connections.modify")
-    @ClientResponseType(entityType=ConnectionData.class)
+    @ClientResponseType(entityType=ConnectorData.class)
     public Response updateConnection(
             @PathParam("connectionID") String connectionID,
-            ConnectionData connectionData);
+            ConnectorData connectorData);
 
     @POST
     @Path("{connectionID}")
     @ACLMapping("connections.approve")
-    @ClientResponseType(entityType=ConnectionData.class)
+    @ClientResponseType(entityType=ConnectorData.class)
     public Response changeConnectionStatus(
             @PathParam("connectionID") String connectionID,
             @QueryParam("action") String action);

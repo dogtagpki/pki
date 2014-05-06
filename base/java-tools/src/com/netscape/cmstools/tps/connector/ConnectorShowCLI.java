@@ -25,7 +25,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.tps.connection.ConnectionData;
+import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -83,15 +83,15 @@ public class ConnectorShowCLI extends CLI {
         String connectorID = args[0];
         String output = cmd.getOptionValue("output");
 
-        ConnectionData connectionData = connectorCLI.connectionClient.getConnection(connectorID);
+        ConnectorData connectorData = connectorCLI.connectorClient.getConnector(connectorID);
 
         if (output == null) {
             MainCLI.printMessage("Connector \"" + connectorID + "\"");
-            ConnectorCLI.printConnectionData(connectionData, true);
+            ConnectorCLI.printConnectorData(connectorData, true);
 
         } else {
             try (PrintWriter out = new PrintWriter(new FileWriter(output))) {
-                out.println(connectionData);
+                out.println(connectorData);
             }
             MainCLI.printMessage("Stored connector \"" + connectorID + "\" into " + output);
         }

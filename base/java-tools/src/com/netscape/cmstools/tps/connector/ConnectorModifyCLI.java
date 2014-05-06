@@ -27,7 +27,7 @@ import java.util.Arrays;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.tps.connection.ConnectionData;
+import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -90,7 +90,7 @@ public class ConnectorModifyCLI extends CLI {
         String action = cmd.getOptionValue("action", "update");
         String input = cmd.getOptionValue("input");
 
-        ConnectionData connectionData;
+        ConnectorData connectorData;
 
         if (action.equals("update")) {
 
@@ -110,17 +110,17 @@ public class ConnectorModifyCLI extends CLI {
                     out.println(line);
                 }
 
-                connectionData = ConnectionData.valueOf(sw.toString());
+                connectorData = ConnectorData.valueOf(sw.toString());
             }
 
-            connectionData = connectorCLI.connectionClient.updateConnection(connectorID, connectionData);
+            connectorData = connectorCLI.connectorClient.updateConnector(connectorID, connectorData);
 
         } else { // other actions
-            connectionData = connectorCLI.connectionClient.changeConnectionStatus(connectorID, action);
+            connectorData = connectorCLI.connectorClient.changeConnectorStatus(connectorID, action);
         }
 
         MainCLI.printMessage("Modified connector \"" + connectorID + "\"");
 
-        ConnectorCLI.printConnectionData(connectionData, true);
+        ConnectorCLI.printConnectorData(connectorData, true);
     }
 }

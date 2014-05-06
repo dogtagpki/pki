@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.certsrv.tps.connection;
+package com.netscape.certsrv.tps.connector;
 
 import java.util.Collection;
 
@@ -28,11 +28,11 @@ import com.netscape.certsrv.base.DataCollection;
 /**
  * @author Endi S. Dewata
  */
-@XmlRootElement(name="Connections")
-public class ConnectionCollection extends DataCollection<ConnectionData> {
+@XmlRootElement(name="Connectors")
+public class ConnectorCollection extends DataCollection<ConnectorData> {
 
     @XmlElementRef
-    public Collection<ConnectionData> getEntries() {
+    public Collection<ConnectorData> getEntries() {
         return super.getEntries();
     }
 }

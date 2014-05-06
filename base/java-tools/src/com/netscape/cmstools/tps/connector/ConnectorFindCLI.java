@@ -24,8 +24,8 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import com.netscape.certsrv.tps.connection.ConnectionCollection;
-import com.netscape.certsrv.tps.connection.ConnectionData;
+import com.netscape.certsrv.tps.connector.ConnectorCollection;
+import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -85,15 +85,15 @@ public class ConnectorFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        ConnectionCollection result = connectorCLI.connectionClient.findConnections(filter, start, size);
+        ConnectorCollection result = connectorCLI.connectorClient.findConnectors(filter, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;
 
-        Collection<ConnectionData> connections = result.getEntries();
+        Collection<ConnectorData> connectors = result.getEntries();
         boolean first = true;
 
-        for (ConnectionData connectionData : connections) {
+        for (ConnectorData connectorData : connectors) {
 
             if (first) {
                 first = false;
@@ -101,9 +101,9 @@ public class ConnectorFindCLI extends CLI {
                 System.out.println();
             }
 
-            ConnectorCLI.printConnectionData(connectionData, false);
+            ConnectorCLI.printConnectorData(connectorData, false);
         }
 
-        MainCLI.printMessage("Number of entries returned " + connections.size());
+        MainCLI.printMessage("Number of entries returned " + connectors.size());
     }
 }

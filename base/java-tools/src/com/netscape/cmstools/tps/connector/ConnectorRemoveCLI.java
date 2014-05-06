@@ -70,7 +70,7 @@ public class ConnectorRemoveCLI extends CLI {
 
         String connectorID = args[0];
 
-        connectorCLI.connectionClient.removeConnection(connectorID);
+        connectorCLI.connectorClient.removeConnector(connectorID);
 
         MainCLI.printMessage("Deleted connector \"" + connectorID + "\"");
     }

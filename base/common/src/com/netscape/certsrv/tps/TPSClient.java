@@ -28,7 +28,7 @@ import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorClient;
 import com.netscape.certsrv.tps.cert.TPSCertClient;
 import com.netscape.certsrv.tps.config.ConfigClient;
-import com.netscape.certsrv.tps.connection.ConnectionClient;
+import com.netscape.certsrv.tps.connector.ConnectorClient;
 import com.netscape.certsrv.tps.profile.ProfileClient;
 import com.netscape.certsrv.tps.profile.ProfileMappingClient;
 import com.netscape.certsrv.tps.token.TokenClient;
@@ -50,7 +50,7 @@ public class TPSClient extends SubsystemClient {
         addClient(new AuthenticatorClient(client, name));
         addClient(new TPSCertClient(client, name));
         addClient(new ConfigClient(client, name));
-        addClient(new ConnectionClient(client, name));
+        addClient(new ConnectorClient(client, name));
         addClient(new GroupClient(client, name));
         addClient(new ProfileClient(client, name));
         addClient(new ProfileMappingClient(client, name));
