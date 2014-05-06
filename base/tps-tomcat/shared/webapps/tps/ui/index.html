@@ -18,12 +18,13 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/pki/css/rcue.css" rel="stylesheet" media="screen, print">
+    <link href="/pki/css/patternfly.css" rel="stylesheet" media="screen, print">
     <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
     <script src="/pki/js/jquery.js"></script>
     <script src="/pki/js/underscore.js"></script>
     <script src="/pki/js/backbone.js"></script>
     <script src="/pki/js/bootstrap.js"></script>
+    <script src="/pki/js/patternfly.js"></script>
     <script src="/pki/js/pki-ui.js"></script>
     <script src="/tps/js/tps.js"></script>
     <script src="/tps/js/account.js"></script>
@@ -333,7 +334,7 @@ $(function() {
 </head>
 <body>
 
-<nav id="navigation" class="navbar navbar-default navbar-rcue" role="navigation">
+<nav id="navigation" class="navbar navbar-default navbar-pf" role="navigation">
 <div class="navbar-header">
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-1">
         <span class="sr-only">Toggle navigation</span>
@@ -350,7 +351,7 @@ $(function() {
     <li><a href="#">Status</a></li>
     <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-        <span class="rcueicon rcueicon-user"></span>
+        <span class="pficon pficon-user"></span>
         <span id="user"></span><b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
@@ -395,18 +396,24 @@ $(function() {
 <div id="content">
 </div>
 
-<div id="error-dialog" class="rcue-dialog-background">
-    <div class="rcue-dialog">
-        <header>
-            <span class="pki-title">Error</span>
-            <a class="rcue-button-close" href="#"></a>
-        </header>
-        <fieldset>
-            <span name="content"></span>
-        </fieldset>
-        <footer>
-            <button name="close" class="primary">Close</button>
-        </footer>
+<div id="error-dialog" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <span class="pficon pficon-close"></span>
+                </button>
+                <h4 class="modal-title">Error</h4>
+            </div>
+            <div class="modal-body">
+		        <fieldset>
+		            <span name="content"></span>
+		        </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button name="close" class="btn btn-primary">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 

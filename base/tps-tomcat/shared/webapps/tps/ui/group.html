@@ -98,22 +98,28 @@
 </tfoot>
 </table>
 
-<div id="member-dialog" class="rcue-dialog-background">
-    <div class="rcue-dialog">
-        <header>
-            <h1>Group Member</h1>
-            <a class="rcue-button-close" href="#"></a>
-        </header>
-        <fieldset>
-            <label>Group ID</label>
-            <input name="groupID" readonly="readonly"><br>
-            <label>User ID</label>
-            <input name="memberID" readonly="readonly"><br>
-        </fieldset>
-        <footer>
-            <button name="add" class="primary">Add</button>
-            <button name="close" class="primary">Close</button>
-            <button name="cancel">Cancel</button>
-        </footer>
+<div id="member-dialog" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <span class="pficon pficon-close"></span>
+                </button>
+                <h4 class="modal-title">Group Member</h4>
+            </div>
+            <div class="modal-body">
+		        <fieldset>
+		            <label>Group ID</label>
+		            <input name="groupID" readonly="readonly"><br>
+		            <label>User ID</label>
+		            <input name="memberID" readonly="readonly"><br>
+		        </fieldset>
+            </div>
+            <div class="modal-footer">
+	            <button name="add" class="btn btn-primary">Add</button>
+	            <button name="close" class="btn btn-primary">Close</button>
+	            <button name="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
     </div>
 </div>

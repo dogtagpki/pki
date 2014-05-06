@@ -188,7 +188,7 @@ var Dialog = Backbone.View.extend({
         if (self.actions == undefined) {
             // by default all buttons are active
             self.actions = [];
-            self.$("button").each(function(index) {
+            self.$(".modal-footer button").each(function(index) {
                 var button = $(this);
                 var action = button.attr("name");
                 self.actions.push(action);
@@ -204,21 +204,18 @@ var Dialog = Backbone.View.extend({
         self.handlers["close"] = function() {
             self.close();
         };
+
+        self.$el.modal({ show: false });
     },
     render: function() {
         var self = this;
 
         if (self.title) {
-            self.$("header h1").text(self.title);
+            self.$(".modal-title").text(self.title);
         }
 
-        self.$(".rcue-button-close").click(function(e) {
-            self.close();
-            e.preventDefault();
-        });
-
         // setup input fields
-        self.$("input").each(function(index) {
+        self.$(".modal-body input").each(function(index) {
             var input = $(this);
             var name = input.attr("name");
             if (_.contains(self.readonly, name)) {
@@ -229,7 +226,7 @@ var Dialog = Backbone.View.extend({
         });
 
         // setup buttons
-        self.$("button").each(function(index) {
+        self.$(".modal-footer button").each(function(index) {
             var button = $(this);
             var action = button.attr("name");
 
@@ -257,15 +254,14 @@ var Dialog = Backbone.View.extend({
     open: function() {
         var self = this;
         self.render();
-        self.$el.show();
+        self.$el.modal("show");
     },
     close: function() {
         var self = this;
-        self.$el.hide();
+        self.$el.modal("hide");
 
         // remove event handlers
-        self.$(".rcue-button-close").off("click");
-        self.$("button").each(function(index) {
+        self.$(".modal-footer button").each(function(index) {
             var button = $(this);
             button.off("click");
         });
@@ -275,13 +271,13 @@ var Dialog = Backbone.View.extend({
         var self = this;
 
         // load input fields
-        $("input", self.$el).each(function(index) {
+        self.$(".modal-body input").each(function(index) {
             var input = $(this);
             self.loadField(input);
         });
 
         // load drop-down lists
-        $("select", self.$el).each(function(index) {
+        self.$(".modal-body select").each(function(index) {
             var input = $(this);
             self.loadField(input);
         });
@@ -297,13 +293,13 @@ var Dialog = Backbone.View.extend({
         var self = this;
 
         // save input fields
-        $("input", self.$el).each(function(index) {
+        self.$(".modal-body input").each(function(index) {
             var input = $(this);
             self.saveField(input);
         });
 
         // save drop-down lists
-        $("select", self.$el).each(function(index) {
+        self.$(".modal-body select").each(function(index) {
             var input = $(this);
             self.saveField(input);
         });
@@ -328,17 +324,12 @@ var ErrorDialog = Backbone.View.extend({
         var self = this;
 
         if (self.title) {
-            self.$(".pki-title").text(self.title);
+            self.$(".modal-title").text(self.title);
         }
 
         if (self.content) {
             self.$("span[name=content]").html(self.content);
         }
-
-        self.$(".rcue-button-close").click(function(e) {
-            self.close();
-            e.preventDefault();
-        });
 
         self.$("button[name=close]").click(function(e) {
             self.close();

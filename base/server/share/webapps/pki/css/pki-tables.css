@@ -8,7 +8,7 @@ table {
 table caption {
   text-align: left;
   font-weight: bold;
-  padding: 11.5px;
+  padding: 11px;
 }
 
 table tbody tr:nth-child(even) {
@@ -20,35 +20,10 @@ table tbody tr td,
 table thead tr th {
   font-weight: normal;
   padding: 6px 15px;
-  font-size: 11.5px;
+  font-size: 11px;
   border-top: 1px #ebebeb;
   border-right: 1px #dcdcdc solid;
   text-align: left;
-}
-
-.rcue-table-actions {
-  padding: 1px;
-  border-top: none;
-}
-
-.rcue-table-actions span:last-child {
-  float: right;
-}
-
-.rcue-table-actions {
-  padding: 1px;
-}
-
-.rcue-table-actions button {
-  padding: 3px 8px;
-  font-size: 11px;
-  box-shadow: 1px 2px 2px #e3e3e3;
-  margin: 4px;
-}
-
-.rcue-table-number {
-  text-align: right;
-  width: 100px;
 }
 
 table thead tr th {

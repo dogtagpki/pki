@@ -19,11 +19,8 @@
  * @author Endi S. Dewata
  */
 
-@import url("pki-common.css");
-@import url("pki-tabs.css");
 @import url("pki-forms.css");
 @import url("pki-tables.css");
-@import url("pki-dialogs.css");
 
 .pki-header {
   margin-bottom: 10px;
@@ -53,37 +50,10 @@
   margin-bottom: 5px;
 }
 
-.pki-fields fieldset label {
-  min-width: 100px;
+fieldset label {
+  min-width: 150px;
   display: inline-block;
   line-height: 30px;
-}
-
-.rcue-dialog-background {
-  display: none;
-}
-
-.rcue-dialog header {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  margin: 0;
-  padding: 16px 16px 0 22px;
-}
-
-.rcue-dialog fieldset {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 75px;
-  bottom: 60px;
-  padding: 16px 16px 16px 44px;
-}
-
-.rcue-dialog footer {
-  right: 0;
-  padding: 0 16px 16px 22px;
 }
 
 input[readonly="readonly"] {
