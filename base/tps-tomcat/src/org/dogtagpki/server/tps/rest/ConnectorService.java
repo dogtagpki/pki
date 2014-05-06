@@ -33,8 +33,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
-import org.dogtagpki.server.tps.config.ConnectionDatabase;
-import org.dogtagpki.server.tps.config.ConnectionRecord;
+import org.dogtagpki.server.tps.config.ConnectorDatabase;
+import org.dogtagpki.server.tps.config.ConnectorRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
@@ -69,7 +69,7 @@ public class ConnectorService extends PKIService implements ConnectorResource {
         CMS.debug("ConnectorService.<init>()");
     }
 
-    public ConnectorData createConnectorData(ConnectionRecord connectionRecord) throws UnsupportedEncodingException {
+    public ConnectorData createConnectorData(ConnectorRecord connectionRecord) throws UnsupportedEncodingException {
 
         String connectorID = connectionRecord.getID();
 
@@ -85,9 +85,9 @@ public class ConnectorService extends PKIService implements ConnectorResource {
         return connectorData;
     }
 
-    public ConnectionRecord createConnectorRecord(ConnectorData connectorData) {
+    public ConnectorRecord createConnectorRecord(ConnectorData connectorData) {
 
-        ConnectionRecord connectorRecord = new ConnectionRecord();
+        ConnectorRecord connectorRecord = new ConnectorRecord();
         connectorRecord.setID(connectorData.getID());
         connectorRecord.setStatus(connectorData.getStatus());
         connectorRecord.setProperties(connectorData.getProperties());
@@ -105,9 +105,9 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             size = size == null ? DEFAULT_SIZE : size;
 
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-            ConnectionDatabase database = subsystem.getConnectionDatabase();
+            ConnectorDatabase database = subsystem.getConnectorDatabase();
 
-            Iterator<ConnectionRecord> connections = database.findRecords(filter).iterator();
+            Iterator<ConnectorRecord> connections = database.findRecords(filter).iterator();
 
             ConnectorCollection response = new ConnectorCollection();
             int i = 0;
@@ -154,7 +154,7 @@ public class ConnectorService extends PKIService implements ConnectorResource {
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-            ConnectionDatabase database = subsystem.getConnectionDatabase();
+            ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             return createOKResponse(createConnectorData(database.getRecord(connectorID)));
 
@@ -176,7 +176,7 @@ public class ConnectorService extends PKIService implements ConnectorResource {
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-            ConnectionDatabase database = subsystem.getConnectionDatabase();
+            ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             database.addRecord(connectorData.getID(), createConnectorRecord(connectorData));
             connectorData = createConnectorData(database.getRecord(connectorData.getID()));
@@ -202,9 +202,9 @@ public class ConnectorService extends PKIService implements ConnectorResource {
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-            ConnectionDatabase database = subsystem.getConnectionDatabase();
+            ConnectorDatabase database = subsystem.getConnectorDatabase();
 
-            ConnectionRecord record = database.getRecord(connectorID);
+            ConnectorRecord record = database.getRecord(connectorID);
 
             // only disabled connector can be updated
             if (!"Disabled".equals(record.getStatus())) {
@@ -259,9 +259,9 @@ public class ConnectorService extends PKIService implements ConnectorResource {
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-            ConnectionDatabase database = subsystem.getConnectionDatabase();
+            ConnectorDatabase database = subsystem.getConnectorDatabase();
 
-            ConnectionRecord record = database.getRecord(connectorID);
+            ConnectorRecord record = database.getRecord(connectorID);
             String status = record.getStatus();
 
             if ("Disabled".equals(status)) {
@@ -316,9 +316,9 @@ public class ConnectorService extends PKIService implements ConnectorResource {
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-            ConnectionDatabase database = subsystem.getConnectionDatabase();
+            ConnectorDatabase database = subsystem.getConnectorDatabase();
 
-            ConnectionRecord record = database.getRecord(connectorID);
+            ConnectorRecord record = database.getRecord(connectorID);
             String status = record.getStatus();
 
             if (!"Disabled".equals(status)) {

@@ -19,7 +19,7 @@ package org.dogtagpki.server.tps;
 
 import org.dogtagpki.server.tps.cms.ConnectionManager;
 import org.dogtagpki.server.tps.config.ConfigDatabase;
-import org.dogtagpki.server.tps.config.ConnectionDatabase;
+import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
@@ -61,7 +61,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public AuthenticatorDatabase authenticatorDatabase;
     public TPSCertDatabase certDatabase;
     public ConfigDatabase configDatabase;
-    public ConnectionDatabase connectionDatabase;
+    public ConnectorDatabase connectorDatabase;
     public ProfileDatabase profileDatabase;
     public ProfileMappingDatabase profileMappingDatabase;
     public TokenDatabase tokenDatabase;
@@ -97,7 +97,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         configDatabase = new ConfigDatabase();
         authenticatorDatabase = new AuthenticatorDatabase();
-        connectionDatabase = new ConnectionDatabase();
+        connectorDatabase = new ConnectorDatabase();
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
         engine = new TPSEngine();
@@ -169,8 +169,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         return configDatabase;
     }
 
-    public ConnectionDatabase getConnectionDatabase() {
-        return connectionDatabase;
+    public ConnectorDatabase getConnectorDatabase() {
+        return connectorDatabase;
     }
 
     public ProfileDatabase getProfileDatabase() {

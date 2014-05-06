@@ -20,8 +20,8 @@ package org.dogtagpki.server.tps.installer;
 import java.net.URI;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
-import org.dogtagpki.server.tps.config.ConnectionDatabase;
-import org.dogtagpki.server.tps.config.ConnectionRecord;
+import org.dogtagpki.server.tps.config.ConnectorDatabase;
+import org.dogtagpki.server.tps.config.ConnectorRecord;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -43,7 +43,7 @@ public class TPSInstaller {
     public void configureCAConnector(URI uri, String nickname) {
 
         TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-        ConnectionDatabase database = subsystem.getConnectionDatabase();
+        ConnectorDatabase database = subsystem.getConnectorDatabase();
         IConfigStore cs = CMS.getConfigStore();
 
         // TODO: see if this is only needed by wizard-based installation
@@ -60,7 +60,7 @@ public class TPSInstaller {
     public void configureTKSConnector(URI uri, String nickname) {
 
         TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-        ConnectionDatabase database = subsystem.getConnectionDatabase();
+        ConnectorDatabase database = subsystem.getConnectorDatabase();
         IConfigStore cs = CMS.getConfigStore();
 
         // TODO: see if this is only needed by wizard-based installation
@@ -77,7 +77,7 @@ public class TPSInstaller {
     public void configureKRAConnector(Boolean keygen, URI uri, String nickname) {
 
         TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
-        ConnectionDatabase database = subsystem.getConnectionDatabase();
+        ConnectorDatabase database = subsystem.getConnectorDatabase();
         IConfigStore cs = CMS.getConfigStore();
 
         if (keygen) {
@@ -113,7 +113,7 @@ public class TPSInstaller {
             String id = "tks1"; // there is only one default TKS connector
 
             // update keygen in TKS connector
-            ConnectionRecord record = database.getRecord(id);
+            ConnectorRecord record = database.getRecord(id);
             record.setProperty(database.prefix + "." + id + ".serverKeygen", keygen.toString());
             database.updateRecord(id, record);
 

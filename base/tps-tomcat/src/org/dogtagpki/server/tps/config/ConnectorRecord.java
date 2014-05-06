@@ -24,5 +24,5 @@ import com.netscape.cmscore.dbs.CSCfgRecord;
 /**
  * @author Endi S. Dewata
  */
-public class ConnectionRecord extends CSCfgRecord {
+public class ConnectorRecord extends CSCfgRecord {
 }

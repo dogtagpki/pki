@@ -31,114 +31,114 @@ import com.netscape.cmscore.dbs.CSCfgDatabase;
  *
  * @author Endi S. Dewata
  */
-public class ConnectionDatabase extends CSCfgDatabase<ConnectionRecord> {
+public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
 
     public String prefix = "tps.connector";
 
-    public ConnectionDatabase() {
-        super("Connection", "Subsystem_Connections");
+    public ConnectorDatabase() {
+        super("Connector", "Subsystem_Connections");
     }
 
-    public ConnectionRecord createConnectionRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String connectionID) throws EBaseException {
-        ConnectionRecord connectionRecord = new ConnectionRecord();
-        connectionRecord.setID(connectionID);
+    public ConnectorRecord createConnectorRecord(ConfigDatabase configDatabase, ConfigRecord configRecord, String connectorID) throws EBaseException {
+        ConnectorRecord connectorRecord = new ConnectorRecord();
+        connectorRecord.setID(connectorID);
 
-        String status = getRecordStatus(connectionID);
-        connectionRecord.setStatus(status);
+        String status = getRecordStatus(connectorID);
+        connectorRecord.setStatus(status);
 
-        Map<String, String> properties = configDatabase.getProperties(configRecord, connectionID);
-        connectionRecord.setProperties(properties);
-        return connectionRecord;
+        Map<String, String> properties = configDatabase.getProperties(configRecord, connectorID);
+        connectorRecord.setProperties(properties);
+        return connectorRecord;
     }
 
     @Override
-    public Collection<ConnectionRecord> findRecords(String filter) throws Exception {
+    public Collection<ConnectorRecord> findRecords(String filter) throws Exception {
 
-        Collection<ConnectionRecord> result = new ArrayList<ConnectionRecord>();
+        Collection<ConnectorRecord> result = new ArrayList<ConnectorRecord>();
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
-        for (String connectionID : configRecord.getKeys()) {
-            if (filter != null && !connectionID.contains(filter)) continue;
-            ConnectionRecord connectionRecord = createConnectionRecord(configDatabase, configRecord, connectionID);
-            result.add(connectionRecord);
+        for (String connectorID : configRecord.getKeys()) {
+            if (filter != null && !connectorID.contains(filter)) continue;
+            ConnectorRecord connectorRecord = createConnectorRecord(configDatabase, configRecord, connectorID);
+            result.add(connectorRecord);
         }
 
         return result;
     }
 
     @Override
-    public ConnectionRecord getRecord(String connectionID) throws Exception {
+    public ConnectorRecord getRecord(String connectionID) throws Exception {
 
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
-        return createConnectionRecord(configDatabase, configRecord, connectionID);
+        return createConnectorRecord(configDatabase, configRecord, connectionID);
     }
 
     @Override
-    public void addRecord(String connectionID, ConnectionRecord connectionRecord) throws Exception {
+    public void addRecord(String connectorID, ConnectorRecord connectorRecord) throws Exception {
 
-        CMS.debug("ConnectionDatabase.addRecord(\"" + connectionID + "\")");
+        CMS.debug("ConnectorDatabase.addRecord(\"" + connectorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // validate new properties
-        Map<String, String> properties = connectionRecord.getProperties();
-        configDatabase.validateProperties(configRecord, connectionID, properties);
+        Map<String, String> properties = connectorRecord.getProperties();
+        configDatabase.validateProperties(configRecord, connectorID, properties);
 
-        // add new connection
-        configRecord.addKey(connectionID);
+        // add new connector
+        configRecord.addKey(connectorID);
         configDatabase.updateRecord(substoreName, configRecord);
 
         // store new properties
-        configDatabase.addProperties(configRecord, connectionID, properties);
+        configDatabase.addProperties(configRecord, connectorID, properties);
 
         // create status
-        createRecordStatus(connectionID, connectionRecord.getStatus());
+        createRecordStatus(connectorID, connectorRecord.getStatus());
 
         configDatabase.commit();
     }
 
     @Override
-    public void updateRecord(String connectionID, ConnectionRecord connectionRecord) throws Exception {
+    public void updateRecord(String connectorID, ConnectorRecord connectorRecord) throws Exception {
 
-        CMS.debug("ConnectionDatabase.updateRecord(\"" + connectionID + "\")");
+        CMS.debug("ConnectorDatabase.updateRecord(\"" + connectorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // validate new properties
-        Map<String, String> properties = connectionRecord.getProperties();
-        configDatabase.validateProperties(configRecord, connectionID, properties);
+        Map<String, String> properties = connectorRecord.getProperties();
+        configDatabase.validateProperties(configRecord, connectorID, properties);
 
         // remove old properties
-        configDatabase.removeProperties(configRecord, connectionID);
+        configDatabase.removeProperties(configRecord, connectorID);
 
         // add new properties
-        configDatabase.addProperties(configRecord, connectionID, properties);
+        configDatabase.addProperties(configRecord, connectorID, properties);
 
         // update status
-        setRecordStatus(connectionID, connectionRecord.getStatus());
+        setRecordStatus(connectorID, connectorRecord.getStatus());
 
         configDatabase.commit();
     }
 
     @Override
-    public void removeRecord(String connectionID) throws Exception {
+    public void removeRecord(String connectorID) throws Exception {
 
-        CMS.debug("ConnectionDatabase.removeRecord(\"" + connectionID + "\")");
+        CMS.debug("ConnectorDatabase.removeRecord(\"" + connectorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
         // remove properties
-        configDatabase.removeProperties(configRecord, connectionID);
+        configDatabase.removeProperties(configRecord, connectorID);
 
-        // remove connection
-        configRecord.removeKey(connectionID);
+        // remove connector
+        configRecord.removeKey(connectorID);
         configDatabase.updateRecord(substoreName, configRecord);
 
         // remove status
-        removeRecordStatus(connectionID);
+        removeRecordStatus(connectorID);
 
         configDatabase.commit();
     }
@@ -172,7 +172,7 @@ public class ConnectionDatabase extends CSCfgDatabase<ConnectionRecord> {
 
         String id  = getNextID("ca");
 
-        ConnectionRecord record = new ConnectionRecord();
+        ConnectorRecord record = new ConnectorRecord();
         record.setID(id);
         record.setStatus("Enabled");
 
@@ -195,7 +195,7 @@ public class ConnectionDatabase extends CSCfgDatabase<ConnectionRecord> {
 
         String id  = getNextID("kra");
 
-        ConnectionRecord record = new ConnectionRecord();
+        ConnectorRecord record = new ConnectorRecord();
         record.setID(id);
         record.setStatus("Enabled");
 
@@ -216,7 +216,7 @@ public class ConnectionDatabase extends CSCfgDatabase<ConnectionRecord> {
 
         String id  = getNextID("tks");
 
-        ConnectionRecord record = new ConnectionRecord();
+        ConnectorRecord record = new ConnectorRecord();
         record.setID(id);
         record.setStatus("Enabled");
 
