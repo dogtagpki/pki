@@ -246,8 +246,8 @@
 
     <security-constraint>
         <web-resource-collection>
-            <web-resource-name>Connections</web-resource-name>
-            <url-pattern>/rest/connections/*</url-pattern>
+            <web-resource-name>Connectors</web-resource-name>
+            <url-pattern>/rest/connectors/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>

@@ -41,15 +41,15 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.tps.connector.ConnectionResource;
 import com.netscape.certsrv.tps.connector.ConnectorCollection;
 import com.netscape.certsrv.tps.connector.ConnectorData;
+import com.netscape.certsrv.tps.connector.ConnectorResource;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
  * @author Endi S. Dewata
  */
-public class ConnectionService extends PKIService implements ConnectionResource {
+public class ConnectorService extends PKIService implements ConnectorResource {
 
     @Context
     private UriInfo uriInfo;
@@ -65,40 +65,40 @@ public class ConnectionService extends PKIService implements ConnectionResource 
 
     public final static int DEFAULT_SIZE = 20;
 
-    public ConnectionService() {
-        CMS.debug("ConnectionService.<init>()");
+    public ConnectorService() {
+        CMS.debug("ConnectorService.<init>()");
     }
 
     public ConnectorData createConnectorData(ConnectionRecord connectionRecord) throws UnsupportedEncodingException {
 
-        String connectionID = connectionRecord.getID();
+        String connectorID = connectionRecord.getID();
 
         ConnectorData connectorData = new ConnectorData();
-        connectorData.setID(connectionID);
+        connectorData.setID(connectorID);
         connectorData.setStatus(connectionRecord.getStatus());
         connectorData.setProperties(connectionRecord.getProperties());
 
-        connectionID = URLEncoder.encode(connectionID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ConnectionResource.class).path("{connectionID}").build(connectionID);
+        connectorID = URLEncoder.encode(connectorID, "UTF-8");
+        URI uri = uriInfo.getBaseUriBuilder().path(ConnectorResource.class).path("{connectorID}").build(connectorID);
         connectorData.setLink(new Link("self", uri));
 
         return connectorData;
     }
 
-    public ConnectionRecord createConnectionRecord(ConnectorData connectorData) {
+    public ConnectionRecord createConnectorRecord(ConnectorData connectorData) {
 
-        ConnectionRecord connectionRecord = new ConnectionRecord();
-        connectionRecord.setID(connectorData.getID());
-        connectionRecord.setStatus(connectorData.getStatus());
-        connectionRecord.setProperties(connectorData.getProperties());
+        ConnectionRecord connectorRecord = new ConnectionRecord();
+        connectorRecord.setID(connectorData.getID());
+        connectorRecord.setStatus(connectorData.getStatus());
+        connectorRecord.setProperties(connectorData.getProperties());
 
-        return connectionRecord;
+        return connectorRecord;
     }
 
     @Override
-    public Response findConnections(String filter, Integer start, Integer size) {
+    public Response findConnectors(String filter, Integer start, Integer size) {
 
-        CMS.debug("ConnectionService.findConnections()");
+        CMS.debug("ConnectorService.findConnectors()");
 
         try {
             start = start == null ? 0 : start;
@@ -146,17 +146,17 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public Response getConnection(String connectionID) {
+    public Response getConnector(String connectorID) {
 
-        if (connectionID == null) throw new BadRequestException("Connection ID is null.");
+        if (connectorID == null) throw new BadRequestException("Connector ID is null.");
 
-        CMS.debug("ConnectionService.getConnection(\"" + connectionID + "\")");
+        CMS.debug("ConnectorService.getConnector(\"" + connectorID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            return createOKResponse(createConnectorData(database.getRecord(connectionID)));
+            return createOKResponse(createConnectorData(database.getRecord(connectorID)));
 
         } catch (PKIException e) {
             throw e;
@@ -168,17 +168,17 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public Response addConnection(ConnectorData connectorData) {
+    public Response addConnector(ConnectorData connectorData) {
 
         if (connectorData == null) throw new BadRequestException("Connector data is null.");
 
-        CMS.debug("ConnectionService.addConnection(\"" + connectorData.getID() + "\")");
+        CMS.debug("ConnectorService.addConnector(\"" + connectorData.getID() + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            database.addRecord(connectorData.getID(), createConnectionRecord(connectorData));
+            database.addRecord(connectorData.getID(), createConnectorRecord(connectorData));
             connectorData = createConnectorData(database.getRecord(connectorData.getID()));
 
             return createCreatedResponse(connectorData, connectorData.getLink().getHref());
@@ -193,29 +193,29 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public Response updateConnection(String connectionID, ConnectorData connectorData) {
+    public Response updateConnector(String connectorID, ConnectorData connectorData) {
 
-        if (connectionID == null) throw new BadRequestException("Connection ID is null.");
+        if (connectorID == null) throw new BadRequestException("Connector ID is null.");
         if (connectorData == null) throw new BadRequestException("Connector data is null.");
 
-        CMS.debug("ConnectionService.updateConnection(\"" + connectionID + "\")");
+        CMS.debug("ConnectorService.updateConnector(\"" + connectorID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            ConnectionRecord record = database.getRecord(connectionID);
+            ConnectionRecord record = database.getRecord(connectorID);
 
-            // only disabled connection can be updated
+            // only disabled connector can be updated
             if (!"Disabled".equals(record.getStatus())) {
-                throw new ForbiddenException("Unable to update connection " + connectionID);
+                throw new ForbiddenException("Unable to update connector " + connectorID);
             }
 
             // update status if specified
             String status = connectorData.getStatus();
             if (status != null && !"Disabled".equals(status)) {
                 if (!"Enabled".equals(status)) {
-                    throw new ForbiddenException("Invalid connection status: " + status);
+                    throw new ForbiddenException("Invalid connector status: " + status);
                 }
 
                 // if user doesn't have rights, set to pending
@@ -224,7 +224,7 @@ public class ConnectionService extends PKIService implements ConnectionResource 
                     status = "Pending_Approval";
                 }
 
-                // enable connection
+                // enable connector
                 record.setStatus(status);
             }
 
@@ -234,9 +234,9 @@ public class ConnectionService extends PKIService implements ConnectionResource 
                 record.setProperties(properties);
             }
 
-            database.updateRecord(connectionID, record);
+            database.updateRecord(connectorID, record);
 
-            connectorData = createConnectorData(database.getRecord(connectionID));
+            connectorData = createConnectorData(database.getRecord(connectorID));
 
             return createOKResponse(connectorData);
 
@@ -250,18 +250,18 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public Response changeConnectionStatus(String connectionID, String action) {
+    public Response changeConnectorStatus(String connectorID, String action) {
 
-        if (connectionID == null) throw new BadRequestException("Connection ID is null.");
+        if (connectorID == null) throw new BadRequestException("Connector ID is null.");
         if (action == null) throw new BadRequestException("Action is null.");
 
-        CMS.debug("ConnectionService.changeConnectionStatus(\"" + connectionID + "\")");
+        CMS.debug("ConnectorService.changeConnectorStatus(\"" + connectorID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            ConnectionRecord record = database.getRecord(connectionID);
+            ConnectionRecord record = database.getRecord(connectorID);
             String status = record.getStatus();
 
             if ("Disabled".equals(status)) {
@@ -288,13 +288,13 @@ public class ConnectionService extends PKIService implements ConnectionResource 
                 }
 
             } else {
-                throw new PKIException("Invalid connection status: " + status);
+                throw new PKIException("Invalid connector status: " + status);
             }
 
             record.setStatus(status);
-            database.updateRecord(connectionID, record);
+            database.updateRecord(connectorID, record);
 
-            ConnectorData connectorData = createConnectorData(database.getRecord(connectionID));
+            ConnectorData connectorData = createConnectorData(database.getRecord(connectorID));
 
             return createOKResponse(connectorData);
 
@@ -308,24 +308,24 @@ public class ConnectionService extends PKIService implements ConnectionResource 
     }
 
     @Override
-    public Response removeConnection(String connectionID) {
+    public Response removeConnector(String connectorID) {
 
-        if (connectionID == null) throw new BadRequestException("Connection ID is null.");
+        if (connectorID == null) throw new BadRequestException("Connector ID is null.");
 
-        CMS.debug("ConnectionService.removeConnection(\"" + connectionID + "\")");
+        CMS.debug("ConnectorService.removeConnector(\"" + connectorID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectionDatabase database = subsystem.getConnectionDatabase();
 
-            ConnectionRecord record = database.getRecord(connectionID);
+            ConnectionRecord record = database.getRecord(connectorID);
             String status = record.getStatus();
 
             if (!"Disabled".equals(status)) {
-                throw new ForbiddenException("Unable to delete connection " + connectionID);
+                throw new ForbiddenException("Unable to delete connector " + connectorID);
             }
 
-            database.removeRecord(connectionID);
+            database.removeRecord(connectorID);
 
             return createNoContentResponse();
 

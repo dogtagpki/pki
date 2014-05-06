@@ -73,7 +73,7 @@ public class TPSApplication extends Application {
         classes.add(ConfigService.class);
 
         // connections
-        classes.add(ConnectionService.class);
+        classes.add(ConnectorService.class);
 
         // profiles
         classes.add(ProfileService.class);

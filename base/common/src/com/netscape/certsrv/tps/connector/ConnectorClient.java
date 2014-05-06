@@ -29,7 +29,7 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class ConnectorClient extends Client {
 
-    public ConnectionResource resource;
+    public ConnectorResource resource;
 
     public ConnectorClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "connector");
@@ -37,36 +37,36 @@ public class ConnectorClient extends Client {
     }
 
     public void init() throws URISyntaxException {
-        resource = createProxy(ConnectionResource.class);
+        resource = createProxy(ConnectorResource.class);
     }
 
     public ConnectorCollection findConnectors(String filter, Integer start, Integer size) {
-        Response response = resource.findConnections(filter, start, size);
+        Response response = resource.findConnectors(filter, start, size);
         return client.getEntity(response, ConnectorCollection.class);
     }
 
     public ConnectorData getConnector(String connectorID) {
-        Response response = resource.getConnection(connectorID);
+        Response response = resource.getConnector(connectorID);
         return client.getEntity(response, ConnectorData.class);
     }
 
     public ConnectorData addConnector(ConnectorData connectorData) {
-        Response response = resource.addConnection(connectorData);
+        Response response = resource.addConnector(connectorData);
         return client.getEntity(response, ConnectorData.class);
     }
 
     public ConnectorData updateConnector(String connectorID, ConnectorData connectorData) {
-        Response response = resource.updateConnection(connectorID, connectorData);
+        Response response = resource.updateConnector(connectorID, connectorData);
         return client.getEntity(response, ConnectorData.class);
     }
 
     public ConnectorData changeConnectorStatus(String connectorID, String action) {
-        Response response = resource.changeConnectionStatus(connectorID, action);
+        Response response = resource.changeConnectorStatus(connectorID, action);
         return client.getEntity(response, ConnectorData.class);
     }
 
     public void removeConnector(String connectorID) {
-        Response response = resource.removeConnection(connectorID);
+        Response response = resource.removeConnector(connectorID);
         client.getEntity(response, Void.class);
     }
 }

@@ -35,47 +35,47 @@ import com.netscape.certsrv.base.PATCH;
 /**
  * @author Endi S. Dewata
  */
-@Path("connections")
-@AuthMethodMapping("connections")
-@ACLMapping("connections.read")
-public interface ConnectionResource {
+@Path("connectors")
+@AuthMethodMapping("connectors")
+@ACLMapping("connectors.read")
+public interface ConnectorResource {
 
     @GET
     @ClientResponseType(entityType=ConnectorCollection.class)
-    public Response findConnections(
+    public Response findConnectors(
             @QueryParam("filter") String filter,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
     @GET
-    @Path("{connectionID}")
+    @Path("{connectorID}")
     @ClientResponseType(entityType=ConnectorData.class)
-    public Response getConnection(@PathParam("connectionID") String connectionID);
+    public Response getConnector(@PathParam("connectorID") String connectorID);
 
     @POST
-    @ACLMapping("connections.add")
+    @ACLMapping("connectors.add")
     @ClientResponseType(entityType=ConnectorData.class)
-    public Response addConnection(ConnectorData connectorData);
+    public Response addConnector(ConnectorData connectorData);
 
     @PATCH
-    @Path("{connectionID}")
-    @ACLMapping("connections.modify")
+    @Path("{connectorID}")
+    @ACLMapping("connectors.modify")
     @ClientResponseType(entityType=ConnectorData.class)
-    public Response updateConnection(
-            @PathParam("connectionID") String connectionID,
+    public Response updateConnector(
+            @PathParam("connectorID") String connectorID,
             ConnectorData connectorData);
 
     @POST
-    @Path("{connectionID}")
-    @ACLMapping("connections.approve")
+    @Path("{connectorID}")
+    @ACLMapping("connectors.approve")
     @ClientResponseType(entityType=ConnectorData.class)
-    public Response changeConnectionStatus(
-            @PathParam("connectionID") String connectionID,
+    public Response changeConnectorStatus(
+            @PathParam("connectorID") String connectorID,
             @QueryParam("action") String action);
 
     @DELETE
-    @Path("{connectionID}")
+    @Path("{connectorID}")
     @ClientResponseType(entityType=Void.class)
-    @ACLMapping("connections.remove")
-    public Response removeConnection(@PathParam("connectionID") String connectionID);
+    @ACLMapping("connectors.remove")
+    public Response removeConnector(@PathParam("connectorID") String connectorID);
 }

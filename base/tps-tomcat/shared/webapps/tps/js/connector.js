@@ -20,7 +20,7 @@
  */
 
 var ConnectorModel = Model.extend({
-    urlRoot: "/tps/rest/connections",
+    urlRoot: "/tps/rest/connectors",
     parseResponse: function(response) {
         return {
             id: response.id,
@@ -67,7 +67,7 @@ var ConnectorModel = Model.extend({
 });
 
 var ConnectorCollection = Collection.extend({
-    urlRoot: "/tps/rest/connections",
+    urlRoot: "/tps/rest/connectors",
     getEntries: function(response) {
         return response.entries;
     },
