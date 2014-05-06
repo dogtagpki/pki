@@ -2,28 +2,28 @@
   font-family: "Open Sans";
   font-style: normal;
   font-weight: normal;
-  src: url("/pki/font/OpenSans-Regular-webfont.woff");
+  src: url("/pki/fonts/OpenSans-Regular-webfont.woff");
 }
 
 @font-face {
   font-family: "Open Sans";
   font-style: normal;
   font-weight: bold;
-  src: url("/pki/font/OpenSans-Bold-webfont.woff");
+  src: url("/pki/fonts/OpenSans-Bold-webfont.woff");
 }
 
 @font-face {
   font-family: "Open Sans";
   font-style: italic;
   font-weight: normal;
-  src: url("/pki/font/OpenSans-Italic-webfont.woff");
+  src: url("/pki/fonts/OpenSans-Italic-webfont.woff");
 }
 
 @font-face {
   font-family: "Open Sans";
   font-style: italic;
   font-weight: bold;
-  src: url("/pki/font/OpenSans-BoldItalic-webfont.woff");
+  src: url("/pki/fonts/OpenSans-BoldItalic-webfont.woff");
 }
 
 
