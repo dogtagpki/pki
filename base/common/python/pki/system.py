@@ -20,24 +20,24 @@
 #
 
 import pki.encoder as encoder
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ETree
 import os
 
 SYSTEM_TYPE = "Fedora/RHEL"
 if os.path.exists("/etc/debian_version"):
     SYSTEM_TYPE = "debian"
 
-class SecurityDomainInfo(object):
 
+class SecurityDomainInfo(object):
     def __init__(self):
         self.name = None
 
-class SecurityDomainClient(object):
 
+class SecurityDomainClient(object):
     def __init__(self, connection):
         self.connection = connection
 
-    def getSecurityDomainInfo(self):
+    def get_security_domain_info(self):
         response = self.connection.get('/rest/securityDomain/domainInfo')
 
         info = SecurityDomainInfo()
@@ -45,17 +45,17 @@ class SecurityDomainClient(object):
 
         return info
 
-    def getOldSecurityDomainInfo(self):
+    def get_old_security_domain_info(self):
         response = self.connection.get('/admin/ca/getDomainXML')
-        root = ET.fromstring(response.text)
-        domaininfo = ET.fromstring(root.find("DomainInfo").text)
+        root = ETree.fromstring(response.text)
+        domaininfo = ETree.fromstring(root.find("DomainInfo").text)
         info = SecurityDomainInfo()
         info.name = domaininfo.find("Name").text
 
         return info
 
-class ConfigurationRequest(object):
 
+class ConfigurationRequest(object):
     def __init__(self):
         self.token = "Internal Key Storage Token"
         self.isClone = "false"
@@ -63,18 +63,18 @@ class ConfigurationRequest(object):
         self.importAdminCert = "false"
         self.generateServerCert = "true"
 
-class ConfigurationResponse(object):
 
+class ConfigurationResponse(object):
     def __init__(self):
         pass
+
 
 class SystemCertData(object):
-
     def __init__(self):
         pass
 
-class SystemConfigClient(object):
 
+class SystemConfigClient(object):
     def __init__(self, connection):
         self.connection = connection
 
@@ -84,14 +84,14 @@ class SystemConfigClient(object):
         response = self.connection.post('/rest/installer/configure', data, headers)
         return response.json()
 
-class SystemStatusClient(object):
 
+class SystemStatusClient(object):
     def __init__(self, connection):
         self.connection = connection
 
-    def getStatus(self):
-        response = self.connection.get('/admin/' + \
-                self.connection.subsystem + '/getStatus')
+    def get_status(self):
+        response = self.connection.get('/admin/' +
+                                       self.connection.subsystem + '/getStatus')
         return response.text
 
 

@@ -988,7 +988,7 @@ class Instance:
         # pylint: disable-msg=W0703
         try:
             client = pki.system.SystemStatusClient(connection)
-            response = client.getStatus()
+            response = client.get_status()
             config.pki_log.debug(response,
                 extra=config.PKI_INDENTATION_LEVEL_3)
 

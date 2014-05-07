@@ -460,13 +460,13 @@ class PKIConfigParser:
     def sd_get_info(self):
         sd = pki.system.SecurityDomainClient(self.sd_connection)
         try:
-            info = sd.getSecurityDomainInfo()
+            info = sd.get_security_domain_info()
         except requests.exceptions.HTTPError as e:
             config.pki_log.info(
                 "unable to access security domain through REST interface.  " + \
                 "Trying old interface. " + str(e),
                  extra=config.PKI_INDENTATION_LEVEL_2)
-            info = sd.getOldSecurityDomainInfo()
+            info = sd.get_old_security_domain_info()
         return info
 
     def sd_authenticate(self):
@@ -523,7 +523,7 @@ class PKIConfigParser:
                    port=str(parse.port),
                    subsystem=system_type)
         client = pki.system.SystemStatusClient(conn)
-        response = client.getStatus()
+        response = client.get_status()
         root = ET.fromstring(response)
         return root.findtext("Status")
 
