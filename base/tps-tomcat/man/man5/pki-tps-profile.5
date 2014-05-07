@@ -1,0 +1,204 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-tps-connector 5 "May 6, 2014" "version 10.2" "PKI TPS Profile Configuration" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+PKI TPS Profile Configuration
+
+.SH LOCATION
+/var/lib/pki/<instance>/conf/tps/CS.cfg
+
+.SH DESCRIPTION
+
+Token profiles are defined using properties in the TPS configuration file.
+
+.SS Enrollment Operation For CoolKey
+
+The following property sets the size of the key the token should generate:
+
+.B op.enroll.<tokenType>.keyGen.<keyType>.keySize=1024
+
+The maximum value is 1024.
+
+The following properties specify the PKCS11 attributes to set on the token:
+
+.nf
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.encrypt=false
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.sign=true
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.signRecover=true
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.decrypt=false
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.derive=false
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.unwrap=false
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.wrap=false
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.verifyRecover=true
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.verify=true
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.sensitive=true
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.private=true
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.token=true
+.fi
+
+The following property specifies the CUID shown in the certificate:
+
+.B op.enroll.<tokenType>.keyGen.<keyType>.cuid_label
+
+The following property specifies the token name:
+
+.B op.enroll.<tokenType>.keyGen.<keyType>.label
+
+The following variables can be used in the token name:
+  \fB$pretty_cuid$\fR - Pretty Print CUID (i.e. 4090-0062-FF02-0000-0B9C)
+  \fB$cuid$\fR - CUID (i.e. 40900062FF0200000B9C)
+  \fB$msn$\fR - MSN
+  \fB$userid$\fR - User ID
+  \fB$profileId$\fR - Profile ID
+
+All resulting labels for co-existing keys on the same token must be unique.
+
+The following property determines whether TPS will overwrite key and certificate if they already exist:
+
+.B op.enroll.<tokenType>.keyGen.<keyType>.overwrite=true|false
+
+The following properties specify name PKCS11 object IDs:
+
+.nf
+.B op.enroll.<tokenType>.keyGen.<keyType>.certId=C1
+.B op.enroll.<tokenType>.keyGen.<keyType>.certAttrId=c1
+.B op.enroll.<tokenType>.keyGen.<keyType>.privateKeyAttrId=k2
+.B op.enroll.<tokenType>.keyGen.<keyType>.publicKeyAttrId=k3
+.B op.enroll.<tokenType>.keyGen.<keyType>.privateKeyNumber=2
+.B op.enroll.<tokenType>.keyGen.<keyType>.publicKeyNumber=3
+.fi
+
+Lower case letters signify objects containing PKCS11 object attributes
+in the format described below:
+  \fBc\fR - An object containing PKCS11 attributes for a certificate.
+  \fBk\fR - An object containing PKCS11 attributes for a public or private key
+  \fBr\fR - An object containing PKCS11 attributes for an "reader".
+
+Upper case letters signify objects containing raw data corresponding to
+the lower case letters described above. For example, object \fBC0\fR
+contains raw data corresponding to object \fBc0\fR.
+  \fBC\fR - This object contains an entire DER cert, and nothing else.
+  \fBK\fR - This object contains a MUSCLE "key blob". TPS does not use this.
+
+The following properties specify the algorithm, the key size, the key usage,
+and which PIN user should be granted:
+
+.nf
+.B op.enroll.<tokenType>.keyGen.<keyType>.alg=2
+.B op.enroll.<tokenType>.keyGen.<keyType>.keySize=1024
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyUsage=0
+.B op.enroll.<tokenType>.keyGen.<keyType>.keyUser=0
+.fi
+
+The valid algorithms are:
+  \fB2\fR - RSA
+  \fB5\fR - ECC
+
+For ECC, the valid key sizes are 256 and 384.
+
+Use privilege of the generated private key, or 15 if all users have use privilege for the private key.
+Valid usages: (only specifies the usage for the private key)
+  \fB0\fR - default usage (Signing only for this APDU)
+  \fB1\fR - signing only
+  \fB2\fR - decryption only
+  \fB3\fR - signing and decryption
+
+The following property determines whether to enable writing of PKCS11 cache object to the token:
+
+.B op.enroll.<tokenType>.pkcs11obj.enable=true|false
+
+The following property determines whether to enable compression for writing of PKCS11 cache object to the token:
+
+.B op.enroll.<tokenType>.pkcs11obj.compress.enable=true|false
+
+The following property determines the maximum number of retries before blocking the token:
+
+.B op.enroll.<tokenType>.pinReset.pin.maxRetries=127
+
+The maximum value is 127.
+
+There is a special case of tokenType userKeyTemporary.
+Make sure the profile specified by the profileId to have
+short validity period (e.g. 7 days) for the certificate.
+
+.nf
+.B op.enroll.userKey.keyGen.<keyType>.publisherId=fileBasedPublisher
+.B op.enroll.userKeyTemporary.keyGen.<keyType>.publisherId=fileBasedPublisher
+.fi
+
+The folowing property describes the scheme used for recovery:
+
+.nf
+.B op.enroll.<tokenType>.keyGen.<keyType>.recovery.<tokenState>.scheme=GenerateNewKey
+.fi
+
+The three recovery schemes supported are:
+  \fBGenerateNewKey\fR - Generate a new cert for the encryption cert.
+  \fBRecoverLast\fR - Recover the most recent cert for the encryption cert.
+  \fBGenerateNewKeyandRecoverLast\fR - Generate new cert AND recover last for encryption cert.
+
+.SS Token Renewal
+
+The following properties are used to define token renewal:
+
+.B op.enroll.<tokenType>.renewal.*
+
+For each token in TPS UI, set the following to trigger renewal operations:
+
+.B RENEW=YES
+
+Optional grace period enforcement must coincide exactly with what the CA enforces.
+
+In case of renewal, encryption certId values are for completeness only,
+server code calculates actual values used.
+
+.SS Format Operation For tokenKey
+
+The following property determines whether to update applet if the token is empty:
+
+.B op.format.<tokenType>.update.applet.emptyToken.enable=false
+
+The property is applicable to:
+ - CoolKey
+ - HouseKey
+ - HouseKey with Legacy Applet
+
+.SS Certificate Chain Imports
+
+.nf
+.B op.enroll.certificates.num=1
+.B op.enroll.certificates.value.0=caCert
+.B op.enroll.certificates.caCert.nickName=caCert0 pki-tps
+.B op.enroll.certificates.caCert.certId=C5
+.B op.enroll.certificates.caCert.certAttrId=c5
+.B op.enroll.certificates.caCert.label=caCert Label
+.fi
+
+.SS Pin Reset Operation For CoolKey
+
+The following property determines whether to update applet if the token is empty:
+
+.B op.pinReset.<tokenType>.update.applet.emptyToken.enable=false
+
+The property is not applicable to:
+ - HouseKey
+ - HouseKey with Legacy Applet
+
+.SH AUTHORS
+Dogtag Team <pki-devel@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

@@ -275,7 +275,6 @@ op.enroll.mapping.2.filter.tokenCUID.start=
 op.enroll.mapping.2.filter.tokenType=
 op.enroll.mapping.2.target.tokenType=userKey
 op.enroll.mapping.order=0,1,2
-op.enroll.soKey._079=#op.enroll.userKey.keyGen.signing.publisherId=fileBasedPublisher
 op.enroll.soKey.auth.enable=true
 op.enroll.soKey.auth.id=ldap2
 op.enroll.soKey.cardmgr_instance=A0000000030000
@@ -557,99 +556,6 @@ op.enroll.soKey.update.applet.encryption=true
 op.enroll.soKey.update.applet.requiredVersion=1.4.4d40a449
 op.enroll.soKey.update.symmetricKeys.enable=false
 op.enroll.soKey.update.symmetricKeys.requiredVersion=1
-op.enroll.userKey._000=#########################################
-op.enroll.userKey._001=# Enrollment Operation For CoolKey
-op.enroll.userKey._002=#
-op.enroll.userKey._003=# op.enroll.<tokenType>.keyGen.<keyType>.keySize=1024
-op.enroll.userKey._004=#  - size of the key the token should generate
-op.enroll.userKey._005=#  - max value: 1024
-op.enroll.userKey._006=#
-op.enroll.userKey._007=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.encrypt=false
-op.enroll.userKey._008=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.sign=true
-op.enroll.userKey._009=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.signRecover=true
-op.enroll.userKey._010=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.decrypt=false
-op.enroll.userKey._011=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.derive=false
-op.enroll.userKey._012=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.unwrap=false
-op.enroll.userKey._013=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.wrap=false
-op.enroll.userKey._014=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.verifyRecover=true
-op.enroll.userKey._015=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.verify=true
-op.enroll.userKey._016=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.sensitive=true
-op.enroll.userKey._017=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.private=true
-op.enroll.userKey._018=# op.enroll.<tokenType>.keyGen.<keyType>.keyCapabilities.token=true
-op.enroll.userKey._019=#  - specify the PKCS11 attributes to set on the token
-op.enroll.userKey._020=#
-op.enroll.userKey._021=# op.enroll.userKey.keyGen.signing.cuid_label
-op.enroll.userKey._022=#  - specify the CUID shown in the certificate
-op.enroll.userKey._023=#
-op.enroll.userKey._024=# op.enroll.userKey.keyGen.signing.label
-op.enroll.userKey._025=#  - specify the token name. all resulting labels for co-existing keys
-op.enroll.userKey._026=#    on the same token must be unique
-op.enroll.userKey._027=#  - $pretty_cuid$ - Pretty Print CUID (i.e. 4090-0062-FF02-0000-0B9C)
-op.enroll.userKey._028=#  - $cuid$ - CUID (i.e. 40900062FF0200000B9C)
-op.enroll.userKey._029=#  - $msn$ - MSN
-op.enroll.userKey._030=#  - $userid$ - User ID
-op.enroll.userKey._031=#  - $profileId$ - Profile ID
-op.enroll.userKey._032=#
-op.enroll.userKey._033=# op.enroll.<tokenType>.keyGen.<keyType>.overwrite=true|false
-op.enroll.userKey._034=#  - if key and certificate exist, should RA overwrite them
-op.enroll.userKey._035=#
-op.enroll.userKey._036=# op.enroll.<tokenType>.keyGen.<keyType>.certId=C1
-op.enroll.userKey._037=# op.enroll.<tokenType>.keyGen.<keyType>.certAttrId=c1
-op.enroll.userKey._038=# op.enroll.<tokenType>.keyGen.<keyType>.privateKeyAttrId=k2
-op.enroll.userKey._039=# op.enroll.<tokenType>.keyGen.<keyType>.publicKeyAttrId=k3
-op.enroll.userKey._040=# op.enroll.<tokenType>.keyGen.<keyType>.privateKeyNumber=2
-op.enroll.userKey._041=# op.enroll.<tokenType>.keyGen.<keyType>.publicKeyNumber=3
-op.enroll.userKey._042=#  - specify name PKCS11 object IDs
-op.enroll.userKey._043=#  - Lower case letters signify objects containing PKCS11 object attributes,
-op.enroll.userKey._044=#    in the format described below.
-op.enroll.userKey._045=#    'c' An object containing PKCS11 attributes for a certificate.
-op.enroll.userKey._046=#    'k' An object containing PKCS11 attributes for a public or private key
-op.enroll.userKey._047=#    'r' An object containing PKCS11 attributes for an "reader".
-op.enroll.userKey._048=#  - Upper case letters signify objects containing raw data corresponding to
-op.enroll.userKey._049=#    the lower case letters described above.  For example, object "C0"
-op.enroll.userKey._050=#    contains raw data corresponding to object "c0".
-op.enroll.userKey._051=#   'C' This object contains an entire DER cert, and nothing else.
-op.enroll.userKey._052=#   'K' This object contains a MUSCLE "key blob".  TPS does not use this.
-op.enroll.userKey._053=#
-op.enroll.userKey._054=# op.enroll.<tokenType>.keyGen.<keyType>.keyUsage=0
-op.enroll.userKey._055=# op.enroll.<tokenType>.keyGen.<keyType>.keyUser=0
-op.enroll.userKey._056=#  - user specifies which PIN user should be granted
-op.enroll.userKey._057=#    use privilege of the generated private key, or
-op.enroll.userKey._058=#    15 if all users have use privilege for the private key
-op.enroll.userKey._059=#  - Valid uage: (only specifies the usage for the private key)
-op.enroll.userKey._060=#    0 - default usage (Signing only for this APDU)
-op.enroll.userKey._061=#    1 - signing only
-op.enroll.userKey._062=#    2 - decryption only
-op.enroll.userKey._063=#    3 - signing and decryption
-op.enroll.userKey._064=#
-op.enroll.userKey._065=# op.enroll.<tokenType>.pkcs11obj.enable=true|false
-op.enroll.userKey._066=#  - enable writing of PKCS11 cache object to the token
-op.enroll.userKey._067=#
-op.enroll.userKey._068=# op.enroll.<tokenType>.pkcs11obj.compress.enable=true|false
-op.enroll.userKey._069=#  - enable compression for writing of PKCS11 cache object to the token
-op.enroll.userKey._070=#
-op.enroll.userKey._071=# op.enroll.<tokenType>.pinReset.pin.maxRetries=127
-op.enroll.userKey._072=#  - max number of retries before blocking the token
-op.enroll.userKey._073=#  - max value: 127
-op.enroll.userKey._074=#
-op.enroll.userKey._075=# There is a special case of tokenType userKeyTemporary.
-op.enroll.userKey._076=# Make sure the profile specified by the profileId to have
-op.enroll.userKey._077=# short validity period (eg, 7 days) for the certificate.
-op.enroll.userKey._078=#
-op.enroll.userKey._079=#op.enroll.userKey.keyGen.signing.publisherId=fileBasedPublisher
-op.enroll.userKey._079=# The three recovery schemes supported are:
-op.enroll.userKey._080=#
-op.enroll.userKey._080=#op.enroll.userKeyTemporary.keyGen.signing.publisherId=fileBasedPublisher
-op.enroll.userKey._081=# * GenerateNewKey               - Generate a new
-op.enroll.userKey._082=#                                  cert for the
-op.enroll.userKey._083=#                                  encryption cert.
-op.enroll.userKey._084=# * RecoverLast                  - Recover the most
-op.enroll.userKey._085=#                                  recent cert for the
-op.enroll.userKey._086=#                                  encryption cert.
-op.enroll.userKey._087=# * GenerateNewKeyandRecoverLast - Generate new cert AND
-op.enroll.userKey._088=#                                  recover last for
-op.enroll.userKey._089=#                                  encryption cert.
-op.enroll.userKey._090=#########################################
 op.enroll.userKey.auth.enable=true
 op.enroll.userKey.auth.id=ldap1
 op.enroll.userKey.cardmgr_instance=A0000000030000
@@ -772,24 +678,6 @@ op.enroll.userKey.pinReset.pin.maxRetries=127
 op.enroll.userKey.pinReset.pin.minLen=4
 op.enroll.userKey.pkcs11obj.compress.enable=true
 op.enroll.userKey.pkcs11obj.enable=true
-op.enroll.userKey.renewal._000=#########################################
-op.enroll.userKey.renewal._001=# Token Renewal.
-op.enroll.userKey.renewal._002=#
-op.enroll.userKey.renewal._003=# For each token in TPS UI, set the
-op.enroll.userKey.renewal._004=# following to trigger renewal
-op.enroll.userKey.renewal._005=# operations:
-op.enroll.userKey.renewal._006=#
-op.enroll.userKey.renewal._007=#     RENEW=YES
-op.enroll.userKey.renewal._008=#
-op.enroll.userKey.renewal._009=# Optional grace period enforcement
-op.enroll.userKey.renewal._010=# must coincide exactly with what
-op.enroll.userKey.renewal._011=# the CA enforces.
-op.enroll.userKey.renewal._012=#
-op.enroll.userKey.renewal._013=# In case of renewal, encryption certId
-op.enroll.userKey.renewal._014=# values are for completeness only, server
-op.enroll.userKey.renewal._015=# code calculates actual values used.
-op.enroll.userKey.renewal._016=#
-op.enroll.userKey.renewal._017=#########################################
 op.enroll.userKey.renewal.encryption.ca.conn=ca1
 op.enroll.userKey.renewal.encryption.ca.profileId=caTokenUserEncryptionKeyRenewal
 op.enroll.userKey.renewal.encryption.certAttrId=c2
@@ -967,16 +855,6 @@ op.enroll.userKey.update.applet.encryption=true
 op.enroll.userKey.update.applet.requiredVersion=1.4.4d40a449
 op.enroll.userKey.update.symmetricKeys.enable=false
 op.enroll.userKey.update.symmetricKeys.requiredVersion=1
-op.format._000=#########################################
-op.format._001=# Format Operation For tokenKey
-op.format._002=#
-op.format._003=# op.format.tokenKey.update.applet.emptyToken.enable=false
-op.format._004=#  - update applet or not if token is empty
-op.format._005=#
-op.format._006=# - applicable to CoolKey
-op.format._007=# - applicable to HouseKey
-op.format._008=# - applicable to HouseKey with Legacy Applet
-op.format._009=#########################################
 op.format.allowUnknownToken=true
 op.format.cleanToken.auth.enable=false
 op.format.cleanToken.auth.id=ldap1
@@ -1132,25 +1010,6 @@ op.format.userKey.update.applet.encryption=true
 op.format.userKey.update.applet.requiredVersion=1.4.4d40a449
 op.format.userKey.update.symmetricKeys.enable=false
 op.format.userKey.update.symmetricKeys.requiredVersion=1
-op.pinReset._000=#########################################
-op.pinReset._001=# Certificate Chain Imports
-op.pinReset._002=#
-op.pinReset._003=# op.enroll.certificates.num=1
-op.pinReset._004=# op.enroll.certificates.value.0=caCert
-op.pinReset._005=# op.enroll.certificates.caCert.nickName=caCert0 pki-tps
-op.pinReset._006=# op.enroll.certificates.caCert.certId=C5
-op.pinReset._007=# op.enroll.certificates.caCert.certAttrId=c5
-op.pinReset._008=# op.enroll.certificates.caCert.label=caCert Label
-op.pinReset._009=#########################################
-op.pinReset._010=#########################################
-op.pinReset._011=# Pin Reset Operation For CoolKey
-op.pinReset._012=#
-op.pinReset._013=# op.pinReset.userKey.update.applet.emptyToken.enable=false
-op.pinReset._014=#  - update applet or not if token is empty
-op.pinReset._015=#
-op.pinReset._016=# - N/A for HouseKey
-op.pinReset._017=# - N/A for HouseKey with Legacy Applet
-op.pinReset._018=#########################################
 op.pinReset.mapping.0.filter.appletMajorVersion=
 op.pinReset.mapping.0.filter.appletMinorVersion=
 op.pinReset.mapping.0.filter.tokenATR=
