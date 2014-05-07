@@ -95,7 +95,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
         configDatabase.addProperties(configRecord, connectorID, properties);
 
         // create status
-        createRecordStatus(connectorID, connectorRecord.getStatus());
+        setRecordStatus(connectorID, connectorRecord.getStatus());
 
         configDatabase.commit();
     }

@@ -94,7 +94,7 @@ public class ProfileMappingDatabase extends CSCfgDatabase<ProfileMappingRecord> 
         configDatabase.addProperties(configRecord, profileMappingID, properties);
 
         // create status
-        createRecordStatus(profileMappingID, profileMappingRecord.getStatus());
+        setRecordStatus(profileMappingID, profileMappingRecord.getStatus());
 
         configDatabase.commit();
     }

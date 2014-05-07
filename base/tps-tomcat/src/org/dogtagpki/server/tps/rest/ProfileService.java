@@ -180,6 +180,14 @@ public class ProfileService extends PKIService implements ProfileResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
+            String status = profileData.getStatus();
+            Principal principal = servletRequest.getUserPrincipal();
+
+            if (status == null || database.requiresApproval() && !database.canApprove(principal)) {
+                // if status is unspecified or user doesn't have rights to approve, the entry is disabled
+                profileData.setStatus("Disabled");
+            }
+
             database.addRecord(profileData.getID(), createProfileRecord(profileData));
 
             profileData = createProfileData(database.getRecord(profileData.getID()));

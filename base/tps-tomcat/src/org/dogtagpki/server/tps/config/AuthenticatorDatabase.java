@@ -16,14 +16,11 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.tps.dbs;
+package org.dogtagpki.server.tps.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-
-import org.dogtagpki.server.tps.config.ConfigDatabase;
-import org.dogtagpki.server.tps.config.ConfigRecord;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -96,7 +93,7 @@ public class AuthenticatorDatabase extends CSCfgDatabase<AuthenticatorRecord> {
         configDatabase.addProperties(configRecord, authenticatorID, properties);
 
         // create status
-        createRecordStatus(authenticatorID, authenticatorRecord.getStatus());
+        setRecordStatus(authenticatorID, authenticatorRecord.getStatus());
 
         configDatabase.commit();
     }

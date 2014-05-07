@@ -33,8 +33,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
-import org.dogtagpki.server.tps.dbs.AuthenticatorDatabase;
-import org.dogtagpki.server.tps.dbs.AuthenticatorRecord;
+import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
+import org.dogtagpki.server.tps.config.AuthenticatorRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
@@ -179,6 +179,14 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
+
+            String status = authenticatorData.getStatus();
+            Principal principal = servletRequest.getUserPrincipal();
+
+            if (status == null || database.requiresApproval() && !database.canApprove(principal)) {
+                // if status is unspecified or user doesn't have rights to approve, the entry is disabled
+                authenticatorData.setStatus("Disabled");
+            }
 
             database.addRecord(authenticatorData.getID(), createAuthenticatorRecord(authenticatorData));
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorData.getID()));

@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package org.dogtagpki.server.tps.dbs;
+package org.dogtagpki.server.tps.config;
 
 import com.netscape.cmscore.dbs.CSCfgRecord;
 

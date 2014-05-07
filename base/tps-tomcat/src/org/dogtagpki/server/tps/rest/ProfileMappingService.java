@@ -176,6 +176,14 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
+            String status = profileMappingData.getStatus();
+            Principal principal = servletRequest.getUserPrincipal();
+
+            if (status == null || database.requiresApproval() && !database.canApprove(principal)) {
+                // if status is unspecified or user doesn't have rights to approve, the entry is disabled
+                profileMappingData.setStatus("Disabled");
+            }
+
             database.addRecord(profileMappingData.getID(), createProfileMappingRecord(profileMappingData));
             profileMappingData = createProfileMappingData(database.getRecord(profileMappingData.getID()));
 

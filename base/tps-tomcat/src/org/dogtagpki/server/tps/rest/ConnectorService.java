@@ -180,6 +180,14 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
+            String status = connectorData.getStatus();
+            Principal principal = servletRequest.getUserPrincipal();
+
+            if (status == null || database.requiresApproval() && !database.canApprove(principal)) {
+                // if status is unspecified or user doesn't have rights to approve, the entry is disabled
+                connectorData.setStatus("Disabled");
+            }
+
             database.addRecord(connectorData.getID(), createConnectorRecord(connectorData));
             connectorData = createConnectorData(database.getRecord(connectorData.getID()));
 

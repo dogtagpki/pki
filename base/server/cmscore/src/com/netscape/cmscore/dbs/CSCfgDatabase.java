@@ -62,11 +62,6 @@ public class CSCfgDatabase<E extends CSCfgRecord> extends Database<E> {
         return configStore.getString("config." + substoreName + "." + recordID + ".state", "Disabled");
     }
 
-    public void createRecordStatus(String recordID, String status) throws EBaseException {
-        if (status == null || requiresApproval()) status = "Disabled";
-        setRecordStatus(recordID, status);
-    }
-
     public void setRecordStatus(String recordID, String status) throws EBaseException {
         configStore.put("config." + substoreName + "." + recordID + ".state", status);
         configStore.put("config." + substoreName + "." + recordID + ".timestamp",

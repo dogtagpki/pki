@@ -94,7 +94,7 @@ public class ProfileDatabase extends CSCfgDatabase<ProfileRecord> {
         configDatabase.addProperties(configRecord, profileID, properties);
 
         // create status
-        createRecordStatus(profileID, profileRecord.getStatus());
+        setRecordStatus(profileID, profileRecord.getStatus());
 
         configDatabase.commit();
     }

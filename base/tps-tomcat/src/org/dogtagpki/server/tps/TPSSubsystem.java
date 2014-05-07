@@ -19,12 +19,12 @@ package org.dogtagpki.server.tps;
 
 import org.dogtagpki.server.tps.authentication.AuthenticationManager;
 import org.dogtagpki.server.tps.cms.ConnectionManager;
+import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
-import org.dogtagpki.server.tps.dbs.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.engine.TPSEngine;
