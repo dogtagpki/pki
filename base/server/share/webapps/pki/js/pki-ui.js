@@ -46,6 +46,22 @@ var PKI = {
         }
 
         return newContent;
+    },
+    logout: function(options) {
+        options = options || {};
+        if (window.crypto && typeof window.crypto.logout === "function") { // Firefox
+            window.crypto.logout();
+            if (options.success) options.success.call();
+
+        } else {
+            var result = document.execCommand("ClearAuthenticationCache", false);
+            if (result) { // IE
+                if (options.success) options.success.call();
+
+            } else { // logout not supported
+                if (options.error) options.error.call();
+            }
+        }
     }
 };
 

@@ -31,7 +31,7 @@ $(function() {
                 window.location.href = "/tps/ui";
             },
             error: function() {
-                if (window.crypto) window.crypto.logout();
+                PKI.logout();
             }
         });
         e.preventDefault();

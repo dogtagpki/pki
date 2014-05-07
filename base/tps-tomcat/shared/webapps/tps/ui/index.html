@@ -317,13 +317,21 @@ $(function() {
     });
 
     router.route("logout", "logout", function() {
+        // destroy server session
         account.logout({
             success: function() {
-                if (window.crypto) window.crypto.logout();
-                window.location.href = "/tps";
+                // clear browser cache
+                PKI.logout({
+                    success: function() {
+                        window.location.href = "/tps";
+                    },
+                    error: function() {
+                        alert("Logout failed. Please close the browser.");
+                    }
+                });
             },
             error: function() {
-                alert("Logout failed");
+                alert("Logout failed. Please close the browser.");
             }
         });
     });
