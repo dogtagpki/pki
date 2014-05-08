@@ -33,6 +33,8 @@ public class ExtendedLoginRequest extends TPSMessage {
         put(INVALID_PWD_NAME, invalid_pw);
         put(BLOCKED_NAME, blocked);
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_EXTENDED_LOGIN_REQUEST));
+        put(TITLE_NAME, title);
+        put (DESCRIPTION_NAME, description);
         this.params = params;
 
     }

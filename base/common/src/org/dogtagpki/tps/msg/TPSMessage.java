@@ -69,6 +69,8 @@ public class TPSMessage {
     public static final String SCREEN_NAME_NAME = "screen_name";
     public static final String PASSWORD_NAME = "password";
     public static final String PIN_REQUIRED_NAME = "pin_required";
+    public static final String TITLE_NAME = "title";
+    public static final String DESCRIPTION_NAME = "description";
     public static final String NEXT_VALUE_NAME = "next_value";
     public static final String VALUE_NAME = "value";
     public static final String PIN_NAME = "pin";
@@ -451,10 +453,18 @@ public class TPSMessage {
         case MSG_EXTENDED_LOGIN_REQUEST:
             break;
         case MSG_EXTENDED_LOGIN_RESPONSE:
+            result =
+                new ExtendedLoginResponse(op_val,
+                    get(SCREEN_NAME_NAME),
+                    get(PASSWORD_NAME),
+                    extsMap);
             break;
         case MSG_LOGIN_REQUEST:
             break;
         case MSG_LOGIN_RESPONSE:
+            result =
+                new LoginResponse(get(SCREEN_NAME_NAME),
+                    get(PASSWORD_NAME));
             break;
         case MSG_NEW_PIN_REQUEST:
             break;

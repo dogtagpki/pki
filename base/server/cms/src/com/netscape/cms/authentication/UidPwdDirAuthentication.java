@@ -154,9 +154,11 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
 
             return userdn;
         } catch (ELdapException e) {
+            CMS.debug("Authenticating: User authentication failure: "+e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CANNOT_CONNECT_LDAP", e.toString()));
             throw e;
         } catch (LDAPException e) {
+            CMS.debug("Authenticating: User authentication failure: "+e);
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
             case LDAPException.LDAP_PARTIAL_RESULTS:

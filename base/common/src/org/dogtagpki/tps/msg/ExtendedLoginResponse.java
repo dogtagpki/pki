@@ -32,6 +32,16 @@ public class ExtendedLoginResponse extends TPSMessage {
         //ToDo process the actual params
     }
 
+    public ExtendedLoginResponse(OpType theOp, String uid, String password, Map<String, String> theExtensions) {
+
+        put(OPERATION_TYPE_NAME, opTypeToInt(theOp));
+        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_EXTENDED_LOGIN_RESPONSE));
+        authParams = theExtensions;
+        put(SCREEN_NAME_NAME, uid);
+        put(PASSWORD_NAME, password);
+
+    }
+
     public static void main(String[] args) {
 
     }

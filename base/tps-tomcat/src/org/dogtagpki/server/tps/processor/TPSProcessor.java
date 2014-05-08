@@ -21,10 +21,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
+import org.dogtagpki.server.tps.authentication.AuthUIParameter;
+import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.cms.TKSComputeRandomDataResponse;
 import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
@@ -42,13 +47,21 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOp;
 import org.dogtagpki.tps.msg.EndOp.TPSStatus;
+import org.dogtagpki.tps.msg.ExtendedLoginRequest;
+import org.dogtagpki.tps.msg.ExtendedLoginResponse;
+import org.dogtagpki.tps.msg.LoginRequest;
+import org.dogtagpki.tps.msg.LoginResponse;
 import org.dogtagpki.tps.msg.StatusUpdateRequest;
+import org.dogtagpki.tps.msg.TPSMessage;
 import org.dogtagpki.tps.msg.TokenPDURequest;
 import org.dogtagpki.tps.msg.TokenPDUResponse;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthCredentials;
+import com.netscape.certsrv.authentication.IAuthManager;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -561,6 +574,237 @@ public class TPSProcessor {
         return contents;
     }
 
+    /**
+     * getAuthentication gets Authentication per configuration
+     *
+     * @param prefix config prefix for tokenType
+     * @param tokenType the tokenType(profile)
+     * @return Authentication
+     */
+    public TPSAuthenticator getAuthentication(String prefix, String tokenType)
+            throws EBaseException {
+        CMS.debug("TPSProcessor.getAuthentication");
+        if (prefix.isEmpty() || tokenType.isEmpty()) {
+            CMS.debug("TPSProcessor.getAuthentication: missing parameters: prefix or tokenType");
+            throw new EBaseException("TPSProcessor.getAuthentication: missing parameters: prefix or tokenType");
+        }
+        IConfigStore configStore = CMS.getConfigStore();
+        String configName = prefix + "." + tokenType + ".auth.id";
+        String authId;
+
+        CMS.debug("TPSProcessor.getAuthentication: getting config: " +
+                configName);
+        authId = configStore.getString(configName);
+
+        TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSAuthenticator authInst =
+                subsystem.getAuthenticationManager().getAuthInstance(authId);
+        return authInst;
+    }
+
+    /**
+     * authenticateUser authenticates a user using specified authentication
+     *
+     * @param op "enrollment", "format", or "pinReset" //TODO: for tokendb activity log
+     * @param prefix "op.enroll", "op.format", or "op.pinReset"
+     * @param tokenType the profile name
+     * @param userCred IAuthCredentials obtained from a successful requestUserId call
+     */
+    public void authenticateUser(
+            String op,
+            TPSAuthenticator userAuth,
+            IAuthCredentials userCred)
+            throws EBaseException, TPSException {
+        /**
+         * TODO: isExternalReg is not handled until decision made
+         */
+        CMS.debug("TPSProcessor.authenticateUser");
+        if (op.isEmpty() || userAuth == null || userCred == null) {
+            CMS.debug("TPSProcessor.authenticateUser: missing parameter(s): op, userAuth, or userCred");
+            throw new EBaseException("TPSProcessor.getAuthentication: missing parameter(s): op, userAuth, or userCred");
+        }
+        IAuthManager auth = userAuth.getAuthManager();
+
+        try {
+            // Authenticate user
+            IAuthToken aToken = auth.authenticate(userCred);
+            if (aToken != null)
+                CMS.debug("TPSProcessor.authenticateUser: authentication success");
+            else {
+                CMS.debug("TPSProcessor.authenticateUser: authentication failure with aToken null");
+                throw new TPSException("TPS error user authentication failed.",
+                        TPSStatus.STATUS_ERROR_LOGIN);
+            }
+        } catch (EBaseException e) {
+            CMS.debug("TPSProcessor.authenticateUser: authentication failure:" + e);
+            throw new TPSException("TPS error user authentication failed.",
+                    TPSStatus.STATUS_ERROR_LOGIN);
+        }
+    }
+
+    /**
+     * requestUserId sends message to client to request for user credential
+     * per authentication plugin
+     *
+     * @param op "enrollment", "format", or "pinReset" //TODO: for tokendb activity log
+     * @param cuid token CUID //TODO: for tokendb activity log
+     * @param extensions message extensions
+     * @return IAuthCredentials containing user credential needed for authentication
+     */
+    IAuthCredentials requestUserId(String op, String cuid, TPSAuthenticator auth, Map<String, String> extensions)
+            throws IOException, TPSException, EBaseException {
+        CMS.debug("TPSProcessor.requestUserId");
+        if (op.isEmpty() ||
+                cuid.isEmpty() || auth == null || extensions == null) {
+            CMS.debug("TPSProcessor.requestUserId: missing parameter(s): op, cuid, auth, or extensions");
+            throw new EBaseException("TPSProcessor.requestUserId: missing parameter(s): op, cuid, auth, or extensions");
+        }
+
+        IAuthCredentials login;
+        if (extensions != null &&
+                extensions.get("extendedLoginRequest") != null) {
+            // default locale will be "en"
+            String locale = extensions.get("locale");
+            if (extensions.get("locale") == null) {
+                locale = "en";
+            }
+            // title
+            String title = auth.getUiTitle(locale);
+            if (title.isEmpty())
+                title = auth.getUiTitle("en");
+	    // description
+            String description = auth.getUiDescription(locale);
+            if (description.isEmpty())
+                description = auth.getUiTitle("en");
+            // parameters
+            HashMap<String, AuthUIParameter> authParamSet = auth.getUiParamSet();
+            Set<String> params = new HashSet<String>();
+            for (Map.Entry<String, AuthUIParameter> entry: authParamSet.entrySet()) {
+                params.add(auth.getUiParam(entry.getKey()).toString(locale));
+                CMS.debug("TPSProcessor.requestUserId: for extendedLoginRequest, added param: " +
+                        auth.getUiParam(entry.getKey()).toString(locale));
+            }
+
+            login = requestExtendedLogin(0 /* invalid_pw */, 0 /* blocked */,
+                    params, title, description, auth);
+        } else {
+            login = requestLogin(0 /* invalid_pw */, 0 /* blocked */, auth);
+        }
+
+        return login;
+    }
+
+    /**
+     * mapCredFromMsgResponse fills up authManager required auth credentials
+     * with mapped values from client
+     * configuration example:
+     *
+     * auths.instance.ldap1.ui.id.UID.credMap.msgCred=screen_name
+     * auths.instance.ldap1.ui.id.UID.credMap.authCred=uid
+     *
+     * auths.instance.ldap1.ui.id.PASSWORD.credMap.msgCred=password
+     * auths.instance.ldap1.ui.id.PASSWORD.credMap.authCred=pwd
+     *
+     * @param response the message response to be mapped
+     * @param auth the authentication for mapping consultation
+     * @return IAuthCredentials auth credential for auth manager
+     */
+    public IAuthCredentials mapCredFromMsgResponse(TPSMessage response, TPSAuthenticator auth)
+            throws EBaseException {
+        CMS.debug("TPSProcessor.mapCredFromMsgResponse");
+        if (response == null || auth == null) {
+            CMS.debug("TPSProcessor.mapCredFromMsgResponse: missing parameter(s): response or auth");
+            throw new EBaseException("TPSProcessor.mapCredFromMsgResponse: missing parameter(s): response or auth");
+        }
+        IAuthCredentials login =
+                new com.netscape.certsrv.authentication.AuthCredentials();
+
+        String[] requiredCreds = auth.getAuthManager().getRequiredCreds();
+        for (String cred : requiredCreds) {
+            String name = auth.getCredMap(cred);
+            login.set(cred, response.get(name));
+        }
+
+        return login;
+    }
+
+    /**
+     * Requests login ID and password from user.
+     */
+    public IAuthCredentials requestExtendedLogin(int invalidPW, int blocked,
+            Set<String> parameters,
+            String title,
+            String description,
+            TPSAuthenticator auth)
+            throws IOException, TPSException, EBaseException {
+
+        CMS.debug("TPSProcessor.requestExtendedLogin");
+        if (parameters == null || title.isEmpty() ||
+                description.isEmpty() || auth == null) {
+            CMS.debug("TPSProcessor.requestExtendedLogin: missing parameter(s): parameters, title, description, or auth");
+            throw new EBaseException(
+                    "TPSProcessor.requestExtendedLogin: missing parameter(s): parameters, title, description, or auth");
+        }
+        ExtendedLoginRequest loginReq =
+                new ExtendedLoginRequest(invalidPW, blocked, parameters, title, description);
+
+        try {
+            session.write(loginReq);
+        } catch (IOException e) {
+            CMS.debug("TPSProcessor.requestExtendedLogin failed WriteMsg: " + e.toString());
+            throw e;
+        }
+        CMS.debug("TPSProcessor.requestExtendedLogin: extendedLoginRequest sent");
+
+        ExtendedLoginResponse loginResp = null;
+        try {
+            loginResp = (ExtendedLoginResponse) session.read();
+        } catch (IOException e) {
+            CMS.debug("TPSProcessor.requestExtendedLogin failed ReadMsg: " + e.toString());
+            throw e;
+        }
+
+        IAuthCredentials login = mapCredFromMsgResponse(loginResp, auth);
+
+        return login;
+    }
+
+    /**
+     * Requests login ID and password from user.
+     */
+    public IAuthCredentials requestLogin(int invalidPW, int blocked,
+            TPSAuthenticator auth)
+            throws IOException, TPSException, EBaseException {
+
+        CMS.debug("TPSProcessor.requestLogin");
+        if (auth == null) {
+            CMS.debug("TPSProcessor.requestLogin: missing parameter(s): parameters, title, description, or auth");
+            throw new EBaseException(
+                    "TPSProcessor.requestLogin: missing parameter(s): parameters, title, description, or auth");
+        }
+        LoginRequest loginReq = new LoginRequest(invalidPW, blocked);
+
+        try {
+            session.write(loginReq);
+        } catch (IOException e) {
+            CMS.debug("TPSProcessor.requestLogin failed WriteMsg: " + e.toString());
+            throw e;
+        }
+        CMS.debug("TPSProcessor.requestLogin: loginRequest sent");
+
+        LoginResponse loginResp = null;
+        try {
+            loginResp = (LoginResponse) session.read();
+        } catch (IOException e) {
+            CMS.debug("TPSProcessor.requestLogin failed ReadMsg: " + e.toString());
+            throw e;
+        }
+
+        IAuthCredentials login = mapCredFromMsgResponse(loginResp, auth);
+        return login;
+    }
+
     protected void format() throws TPSException, IOException {
 
         IConfigStore configStore = CMS.getConfigStore();
@@ -585,7 +829,7 @@ public class TPSProcessor {
                     TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
             CMS.debug("In TPS_Processor.Format. CardManagerAID: " + CardManagerAID + " NetKeyAID: " + NetKeyAID);
             this.isExternalReg = configStore.getBoolean(External_Reg_Cfg, false);
-            CMS.debug("In TPS_Processor.Format isExternalReg: " + isExternalReg);
+            CMS.debug("In TPSProcessor.format isExternalReg: " + isExternalReg);
         } catch (EBaseException e1) {
             CMS.debug("TPS_Processor.Format: Internal Error obtaining mandatory config values. Error: " + e1);
             throw new TPSException("TPS error getting config values from config store.",
@@ -638,16 +882,52 @@ public class TPSProcessor {
         CMS.debug("TPSProcessor.format: major_version " + major_version + " minor_version: " + minor_version
                 + " app_major_version: " + app_major_version + " app_minor_version: " + app_minor_version);
 
+        String tokenType;
+        IAuthCredentials userCred;
         if (isExternalReg) {
             //ToDo, do some external Reg stuff along with authentication
+            tokenType = "externalRegAddToToken";
         } else {
-            //ToDo, Do some authentication
+            CMS.debug("In TPSProcessor.format isExternalReg: OFF");
+            tokenType = getTokenType(TPSEngine.OP_FORMAT_PREFIX, major_version, minor_version, cuid, msn,
+                    beginMsg.getExtensions());
+
+            CMS.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
+
         }
 
-        String tokenType = getTokenType(TPSEngine.OP_FORMAT_PREFIX, major_version, minor_version, cuid, msn,
-                beginMsg.getExtensions());
+        // isExternalReg : user already authenticated earlier
+        if (!isExternalReg) {
+            // authenticate per profile/tokenType configuration
+            String configName = TPSEngine.OP_FORMAT_PREFIX + "." + tokenType + ".auth.enable";
+            boolean isAuthRequired;
+            try {
+                CMS.debug("TPSProcessor.format: getting config: " + configName);
+                isAuthRequired = configStore.getBoolean(configName, true);
+            } catch (EBaseException e) {
+                CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
+                throw new TPSException("TPS error getting config values from config store.",
+                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+            if (isAuthRequired) {
+                try {
+                    TPSAuthenticator userAuth =
+                            getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);
+                    userCred = requestUserId("format", cuid, userAuth, beginMsg.getExtensions());
+                    authenticateUser("format", userAuth, userCred);
+                } catch (Exception e) {
+                    // all exceptions are considered login failure
+                    CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
+                    throw new TPSException("TPS error user authentication failed.",
+                            TPSStatus.STATUS_ERROR_LOGIN);
+                }
+            }
+        }
 
-        CMS.debug("TPS_Processor.format: calculated tokenType: " + tokenType);
+        /**
+         * TODO:
+         * isExternalReg is not handled beyond this point until decided
+         */
 
         //Now check provided profile
 
