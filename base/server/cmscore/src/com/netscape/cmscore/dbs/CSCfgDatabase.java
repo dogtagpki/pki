@@ -55,7 +55,7 @@ public class CSCfgDatabase<E extends CSCfgRecord> extends Database<E> {
         }
 
         PKIPrincipal pkiPrincipal = (PKIPrincipal)principal;
-        return pkiPrincipal.hasRole("TUS Agents");
+        return pkiPrincipal.hasRole("TPS Agents");
     }
 
     public String getRecordStatus(String recordID) throws EBaseException {

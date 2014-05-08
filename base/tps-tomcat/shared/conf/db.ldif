@@ -29,26 +29,26 @@ objectclass: top
 objectclass: organizationalunit
 ou: Groups
 
-dn: cn=TUS Agents,ou=Groups,{rootSuffix}
+dn: cn=TPS Agents,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: TUS Agents
-description: Agents for TUS
+cn: TPS Agents
+description: Agents for TPS
 
-dn: cn=TUS Officers,ou=Groups,{rootSuffix}
+dn: cn=TPS Officers,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: TUS Officers
-description: Security Officers for TUS
+cn: TPS Officers
+description: Security Officers for TPS
 
-dn: cn=TUS Administrators,ou=Groups,{rootSuffix}
+dn: cn=Administrators,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: TUS Administrators
-description: Administrators for TUS
+cn: Administrators
+description: Administrators for TPS
 
-dn: cn=TUS Operators,ou=Groups,{rootSuffix}
+dn: cn=TPS Operators,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames
-cn: TUS Operators
-description: Operators for TUS
+cn: TPS Operators
+description: Operators for TPS
