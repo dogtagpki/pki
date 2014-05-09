@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import netscape.security.x509.BasicConstraintsExtension;
 import netscape.security.x509.X509CertImpl;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -107,25 +109,28 @@ public class RenewalProcessor extends CertProcessor {
             String serial = data.getSerialNum();
             BigInteger certSerial = null;
 
-            if (serial != null) {
+            if (StringUtils.isNotEmpty(serial)) {
                 // if serial number is sent with request, then the authentication
                 // method is not ssl client auth.  In this case, an alternative
                 // authentication method is used (default: ldap based)
                 // usr_origreq evaluator should be used to authorize ownership
                 // of the cert
-                CMS.debug("RenewalSubmitter: renewal: found serial_num");
+                CMS.debug("RenewalSubmitter: renewal: serial number: " + serial);
                 certSerial = new BigInteger(serial);
+
             } else {
                 // ssl client auth is to be used
                 // this is not authentication. Just use the cert to search
                 // for orig request and find the right profile
                 CMS.debug("RenewalSubmitter: renewal: serial_num not found, must do ssl client auth");
                 certSerial = getSerialNumberFromCert(request);
+
                 if (certSerial == null) {
-                    CMS.debug(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
-                    throw new EBaseException(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+                    CMS.debug(CMS.getUserMessage(locale, "CMS_GW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
+                    throw new EBaseException(CMS.getUserMessage(locale, "CMS_GW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
                 }
             }
+
             CMS.debug("processRenewal: serial number of cert to renew:" + certSerial.toString());
             ICertRecord rec = certdb.readCertificateRecord(certSerial);
             if (rec == null) {

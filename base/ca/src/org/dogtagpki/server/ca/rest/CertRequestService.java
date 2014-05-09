@@ -144,6 +144,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new BadRequestException(e.toString());
         } catch (EBaseException e) {
             throw new PKIException(e.toString());
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException(e.toString());
         }
 
         // this will return an error code of 200, instead of 201
