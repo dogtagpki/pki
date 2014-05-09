@@ -66,8 +66,6 @@ public class TokenService extends PKIService implements TokenResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public Map<TokenStatus, Collection<TokenStatus>> transitions = new HashMap<TokenStatus, Collection<TokenStatus>>();
 
     public TokenService() throws Exception {
@@ -202,10 +200,14 @@ public class TokenService extends PKIService implements TokenResource {
 
         CMS.debug("TokenService.findTokens()");
 
-        try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
+        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
+            throw new BadRequestException("Filter is too short.");
+        }
 
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
+        try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 

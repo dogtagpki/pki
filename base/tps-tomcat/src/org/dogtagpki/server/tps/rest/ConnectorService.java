@@ -63,8 +63,6 @@ public class ConnectorService extends PKIService implements ConnectorResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public ConnectorService() {
         CMS.debug("ConnectorService.<init>()");
     }
@@ -100,10 +98,14 @@ public class ConnectorService extends PKIService implements ConnectorResource {
 
         CMS.debug("ConnectorService.findConnectors()");
 
-        try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
+        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
+            throw new BadRequestException("Filter is too short.");
+        }
 
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
+        try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 

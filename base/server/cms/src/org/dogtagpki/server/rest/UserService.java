@@ -96,8 +96,6 @@ public class UserService extends PKIService implements UserResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public final static String BACK_SLASH = "\\";
     public final static String SYSTEM_USER = "$System$";
 
@@ -132,11 +130,17 @@ public class UserService extends PKIService implements UserResource {
      */
     @Override
     public Response findUsers(String filter, Integer start, Integer size) {
-        UserCollection response = new UserCollection();
-        try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
 
+        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
+            throw new BadRequestException("Filter is too short.");
+        }
+
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
+        UserCollection response = new UserCollection();
+
+        try {
             Enumeration<IUser> users = userGroupManager.findUsers(filter);
 
             int i = 0;
@@ -1053,15 +1057,19 @@ public class UserService extends PKIService implements UserResource {
 
         CMS.debug("UserService.findUserMemberships(" + userID + ", " + filter + ")");
 
+        if (userID == null) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+            throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
+        }
+
+        if (filter != null && filter.length() < 3) {
+            throw new BadRequestException("Filter is too short.");
+        }
+
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
         try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
-
-            if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-                throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
-            }
-
             IUser user = userGroupManager.getUser(userID);
 
             if (user == null) {

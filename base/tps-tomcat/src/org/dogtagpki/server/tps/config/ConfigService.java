@@ -55,8 +55,6 @@ public class ConfigService extends PKIService implements ConfigResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public ConfigService() {
         CMS.debug("ConfigService.<init>()");
     }

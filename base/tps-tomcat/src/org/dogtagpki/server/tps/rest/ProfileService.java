@@ -63,8 +63,6 @@ public class ProfileService extends PKIService implements ProfileResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public ProfileService() {
         CMS.debug("ProfileService.<init>()");
     }
@@ -100,10 +98,14 @@ public class ProfileService extends PKIService implements ProfileResource {
 
         CMS.debug("ProfileService.findProfiles()");
 
-        try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
+        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
+            throw new BadRequestException("Filter is too short.");
+        }
 
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
+        try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 

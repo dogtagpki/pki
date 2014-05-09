@@ -69,8 +69,6 @@ public class GroupService extends PKIService implements GroupResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
     public GroupData createGroupData(IGroup group) throws Exception {
@@ -102,10 +100,15 @@ public class GroupService extends PKIService implements GroupResource {
      */
     @Override
     public Response findGroups(String filter, Integer start, Integer size) {
-        try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
 
+        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
+            throw new BadRequestException("Filter is too short.");
+        }
+
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
+        try {
             Enumeration<IGroup> groups = userGroupManager.listGroups(filter);
 
             GroupCollection response = new GroupCollection();
@@ -341,6 +344,10 @@ public class GroupService extends PKIService implements GroupResource {
         CMS.debug("GroupService.findGroupMembers(" + groupID + ", " + filter + ")");
 
         if (groupID == null) throw new BadRequestException("Group ID is null.");
+
+        if (filter != null && filter.length() < 3) {
+            throw new BadRequestException("Filter is too short.");
+        }
 
         try {
             GroupMemberProcessor processor = new GroupMemberProcessor(getLocale(headers));

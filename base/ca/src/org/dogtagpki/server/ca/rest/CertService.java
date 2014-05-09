@@ -108,7 +108,6 @@ public class CertService extends PKIService implements CertResource {
 
     public static final int DEFAULT_MAXTIME = 0;
     public static final int DEFAULT_MAXRESULTS = 20;
-    public final static int DEFAULT_SIZE = 20;
 
     public CertService() {
         authority = (ICertificateAuthority) CMS.getSubsystem("ca");

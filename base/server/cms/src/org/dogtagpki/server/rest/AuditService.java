@@ -61,8 +61,6 @@ public class AuditService extends PKIService implements AuditResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public AuditService() {
         CMS.debug("AuditService.<init>()");
     }

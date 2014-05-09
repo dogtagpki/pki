@@ -61,8 +61,6 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public SelfTestService() {
         CMS.debug("SelfTestService.<init>()");
     }
@@ -99,10 +97,14 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         CMS.debug("SelfTestService.findSelfTests()");
 
-        try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
+        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
+            throw new BadRequestException("Filter is too short.");
+        }
 
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
+        try {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
 
             // filter self tests

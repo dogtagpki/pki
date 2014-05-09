@@ -97,8 +97,6 @@ public class ProfileService extends PKIService implements ProfileResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
     private IConfigStore cs = CMS.getConfigStore().getSubStore("profile");

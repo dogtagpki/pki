@@ -58,6 +58,9 @@ public class PKIService {
             MediaType.APPLICATION_JSON_TYPE
     );
 
+    public final static int MIN_FILTER_LENGTH = 3;
+    public final static int DEFAULT_SIZE = 20;
+
     @Context
     private HttpHeaders headers;
 

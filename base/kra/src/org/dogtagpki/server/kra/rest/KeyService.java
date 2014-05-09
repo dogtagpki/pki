@@ -95,7 +95,6 @@ public class KeyService extends PKIService implements KeyResource {
 
     public static final int DEFAULT_MAXRESULTS = 100;
     public static final int DEFAULT_MAXTIME = 10;
-    public final static int DEFAULT_SIZE = 20;
 
     private IKeyRepository repo;
     private IKeyRecoveryAuthority kra;

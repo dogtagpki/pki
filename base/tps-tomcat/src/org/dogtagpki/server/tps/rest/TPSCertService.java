@@ -60,8 +60,6 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public TPSCertService() {
         System.out.println("TPSCertService.<init>()");
     }
@@ -114,10 +112,14 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         System.out.println("TPSCertService.findCerts()");
 
-        try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
+        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
+            throw new BadRequestException("Filter is too short.");
+        }
 
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
+        try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 

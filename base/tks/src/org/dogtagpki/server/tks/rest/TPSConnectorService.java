@@ -54,8 +54,6 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
     @Override

@@ -60,8 +60,6 @@ public class ActivityService extends PKIService implements ActivityResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public final static int DEFAULT_SIZE = 20;
-
     public ActivityService() {
         CMS.debug("ActivityService.<init>()");
     }
@@ -104,10 +102,14 @@ public class ActivityService extends PKIService implements ActivityResource {
 
         CMS.debug("ActivityService.findActivities()");
 
-        try {
-            start = start == null ? 0 : start;
-            size = size == null ? DEFAULT_SIZE : size;
+        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
+            throw new BadRequestException("Filter is too short.");
+        }
 
+        start = start == null ? 0 : start;
+        size = size == null ? DEFAULT_SIZE : size;
+
+        try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
