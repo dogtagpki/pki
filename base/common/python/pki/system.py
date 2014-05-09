@@ -28,9 +28,52 @@ if os.path.exists("/etc/debian_version"):
     SYSTEM_TYPE = "debian"
 
 
+class SecurityDomainHost(object):
+    def __init__(self):
+        """ constructor """
+        self.id = None
+        self.clone = False
+        self.domain_manager = False
+        self.hostname = None
+        self.unsecure_port = None
+        self.admin_port = None
+        self.agent_port = None
+        self.ee_client_auth_port = None
+        self.secure_port = None
+        self.subsystem_name = None
+
+    @classmethod
+    def from_json(cls, json_value):
+        host = cls()
+        host.admin_port = json_value['SecureAdminPort']
+        host.agent_port = json_value['SecureAgentPort']
+        host.clone = json_value['Clone']
+        host.domain_manager = json_value['DomainManager']
+        host.ee_client_auth_port = json_value['SecureEEClientAuthPort']
+        host.hostname = json_value['Hostname']
+        host.id = json_value['id']
+        host.secure_port = json_value['SecurePort']
+        host.subsystem_name = json_value['SubsystemName']
+        host.unsecure_port = json_value['Port']
+        return host
+
+
 class SecurityDomainInfo(object):
     def __init__(self):
         self.name = None
+        self.systems = {}
+
+    @classmethod
+    def from_json(cls, json_value):
+        ret = cls()
+        ret.name = json_value['id']
+        for slist in json_value['Subsystem']:
+            system_type = slist['id']
+            system_list = []
+            for host in slist['Host']:
+                system_list.append(SecurityDomainHost.from_json(host))
+            ret.systems[system_type] = system_list
+        return ret
 
 
 class SecurityDomainClient(object):
@@ -39,10 +82,7 @@ class SecurityDomainClient(object):
 
     def get_security_domain_info(self):
         response = self.connection.get('/rest/securityDomain/domainInfo')
-
-        info = SecurityDomainInfo()
-        info.name = response.json()['id']
-
+        info = SecurityDomainInfo.from_json(response.json())
         return info
 
     def get_old_security_domain_info(self):
@@ -51,7 +91,6 @@ class SecurityDomainClient(object):
         domaininfo = ETree.fromstring(root.find("DomainInfo").text)
         info = SecurityDomainInfo()
         info.name = domaininfo.find("Name").text
-
         return info
 
 
