@@ -24,7 +24,7 @@ import java.io.CharConversionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -1447,8 +1447,8 @@ public class ConfigurationUtils {
             PrintStream ps = null;
             BufferedReader in = null;
 
-            in = new BufferedReader(new FileReader(token));
-            ps = new PrintStream(new FileOutputStream(filename, false));
+            in = new BufferedReader(new InputStreamReader(new FileInputStream(token), "UTF-8"));
+            ps = new PrintStream(filename, "UTF-8");
             while (in.ready()) {
                 String s = in.readLine();
                 int n = s.indexOf("{");
@@ -2490,7 +2490,7 @@ public class ConfigurationUtils {
             if (!token.equals("Internal Key Storage Token")) {
                 serverCertNickname = token + ":" + nickname;
             }
-            PrintStream ps = new PrintStream(new FileOutputStream(path + "/conf/serverCertNick.conf"));
+            PrintStream ps = new PrintStream(path + "/conf/serverCertNick.conf", "UTF-8");
             ps.println(serverCertNickname);
             ps.close();
         }
@@ -3293,7 +3293,7 @@ public class ConfigurationUtils {
             String dir = instanceRoot + File.separator + "conf" + File.separator + "admin.b64";
             cs.putString("preop.admincert.b64", dir);
 
-            PrintStream ps = new PrintStream(new FileOutputStream(dir));
+            PrintStream ps = new PrintStream(dir, "UTF-8");
             ps.println(b64);
             ps.flush();
             ps.close();
