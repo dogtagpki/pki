@@ -69,15 +69,16 @@ run_pki-user-cli-user-find-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-configtest-001: pki user-find --help configuration test"
         rlRun "pki user-find --help > $TmpDir/user_find.out 2>&1" 0 "pki user-find --help"
-        rlAssertGrep "usage: user-find [FILTER] [OPTIONS...]" "$TmpDir/user_find.out"
-        rlAssertGrep "--size <size>     Page size" "$TmpDir/user_find.out"
-        rlAssertGrep "--start <start>   Page start" "$TmpDir/user_find.out"
+        rlAssertGrep "usage: user-find \[FILTER\] \[OPTIONS...\]" "$TmpDir/user_find.out"
+        rlAssertGrep "\--size <size>     Page size" "$TmpDir/user_find.out"
+        rlAssertGrep "\--start <start>   Page start" "$TmpDir/user_find.out"
+        rlAssertGrep "\--help            Show help options" "$TmpDir/user_find.out"
         rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/user_find.out"
         rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/843"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-configtest-002: pki user-find configuration test"
-        rlRun "pki user-find > $TmpDir/user_find_2.out 2>&1" 0 "pki user-find"
+        rlRun "pki user-find > $TmpDir/user_find_2.out 2>&1" 255 "pki user-find"
         rlAssertNotGrep "ResteasyIOException: IOException" "$TmpDir/user_find_2.out"
         rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/821"
     rlPhaseEnd
@@ -146,13 +147,13 @@ run_pki-user-cli-user-find-ca_tests(){
         maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
         rlLog "pki -d $CERTDB_DIR \
                         -n \"CA_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
-                                user-find --size=$maximum_check"
+                        -c $CERTDB_DIR_PASSWORD \
+                         user-find --size=$maximum_check"
         rlRun "pki -d $CERTDB_DIR \
                         -n \"CA_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
-                                user-find --size=$maximum_check  > $TmpDir/pki-user-find-ca-003_3.out 2>&1" \
-                         1 \
+                        -c $CERTDB_DIR_PASSWORD \
+                         user-find --size=$maximum_check  > $TmpDir/pki-user-find-ca-003_3.out 2>&1" \
+                         255 \
                         "More than maximum possible value as input"
         rlAssertGrep "NumberFormatException: For input string: \"$maximum_check\"" "$TmpDir/pki-user-find-ca-003_3.out"
     rlPhaseEnd
@@ -160,8 +161,8 @@ run_pki-user-cli-user-find-ca_tests(){
     rlPhaseStartTest "pki_user_cli_user_find-ca-008: Find users, check for negative input --size=-1"
         rlRun "pki -d $CERTDB_DIR \
                         -n \"CA_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
-                                user-find --size=-1  > $TmpDir/pki-user-find-ca-004.out 2>&1" \
+                        -c $CERTDB_DIR_PASSWORD \
+                         user-find --size=-1  > $TmpDir/pki-user-find-ca-004.out 2>&1" \
                          0 \
                         "No users returned as the size entered is negative value"
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-user-find-ca-004.out"
@@ -171,13 +172,13 @@ run_pki-user-cli-user-find-ca_tests(){
         size_noninteger="abc"
 	rlLog "Executing: pki -d $CERTDB_DIR \
                         -n \"CA_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
-                                user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1"
+                        -c $CERTDB_DIR_PASSWORD \
+                         user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1"
 	rlRun "pki -d $CERTDB_DIR \
                         -n \"CA_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
-                                user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1" \
-                         1 \
+                        -c $CERTDB_DIR_PASSWORD \
+                         user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1" \
+                         255 \
                         "No users returned"
         rlAssertGrep "NumberFormatException: For input string: \"$size_noninteger\"" "$TmpDir/pki-user-find-ca-005.out"
     rlPhaseEnd
@@ -187,7 +188,7 @@ run_pki-user-cli-user-find-ca_tests(){
                         -n \"CA_adminV\" \
                         -c $CERTDB_DIR_PASSWORD \
                          user-find --size=  > $TmpDir/pki-user-find-ca-006.out 2>&1" \
-                         1 \
+                         255 \
                         "No users returned, as --size= "
         rlAssertGrep "NumberFormatException: For input string: \"""\"" "$TmpDir/pki-user-find-ca-006.out"
     rlPhaseEnd
@@ -259,7 +260,7 @@ run_pki-user-cli-user-find-ca_tests(){
                         -n \"CA_adminV\" \
                                 -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=$maximum_check  > $TmpDir/pki-user-find-ca-008_3.out 2>&1" \
-                         1 \
+                         255 \
                         "Find users, --start with more than maximum possible input"
         rlAssertGrep "NumberFormatException: For input string: \"$maximum_check\"" "$TmpDir/pki-user-find-ca-008_3.out"
     rlPhaseEnd
@@ -290,7 +291,7 @@ run_pki-user-cli-user-find-ca_tests(){
                         -n \"CA_adminV\" \
                                 -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=$size_noninteger  > $TmpDir/pki-user-find-ca-0011.out 2>&1" \
-                         1 \
+                         255 \
                         "Incorrect input to find user"
         rlAssertGrep "NumberFormatException: For input string: \"$size_noninteger\"" "$TmpDir/pki-user-find-ca-0011.out"
     rlPhaseEnd
@@ -300,7 +301,7 @@ run_pki-user-cli-user-find-ca_tests(){
                         -n \"CA_adminV\" \
                                 -c $CERTDB_DIR_PASSWORD \
                                 user-find --start=  > $TmpDir/pki-user-find-ca-0012.out 2>&1" \
-                         1 \
+                         255 \
                         "No users returned, as --start= "
         rlAssertGrep "NumberFormatException: For input string: \"""\"" "$TmpDir/pki-user-find-ca-0012.out"
     rlPhaseEnd
@@ -359,7 +360,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_adminR \
                    -c $CERTDB_DIR_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-revoke-adminR-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using a revoked admin cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-revoke-adminR-002.out"
     rlPhaseEnd
@@ -373,7 +374,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_agentR \
                    -c $CERTDB_DIR_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-revoke-agentR-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using a agent having revoked cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-revoke-agentR-002.out"
     rlPhaseEnd
@@ -387,7 +388,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_agentV \
                    -c $CERTDB_DIR_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentV-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using a agent cert"
         rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-find-ca-agentV-002.out"
     rlPhaseEnd
@@ -401,7 +402,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_agentR \
                    -c $CERTDB_DIR_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentR-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using a revoked agent cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-agentR-002.out"
     rlPhaseEnd
@@ -418,7 +419,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_adminE \
                    -c $CERTDB_DIR_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-adminE-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using an expired admin cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-adminE-002.out"
         rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-find-ca-adminE-002.out"
@@ -438,7 +439,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_agentE \
                    -c $CERTDB_DIR_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentE-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using an expired agent cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-agentE-002.out"
         rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-find-ca-agentE-002.out"
@@ -455,7 +456,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_auditV \
                    -c $CERTDB_DIR_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-auditV-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using a audit cert"
         rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-find-ca-auditV-002.out"
     rlPhaseEnd
@@ -469,7 +470,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_operatorV \
                    -c $CERTDB_DIR_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-operatorV-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using a operator cert"
         rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-find-ca-operatorV-002.out"
     rlPhaseEnd
@@ -483,7 +484,7 @@ run_pki-user-cli-user-find-ca_tests(){
                    -n CA_adminUTCA \
                    -c Password \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-adminUTCA-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to find users using a untrusted cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-adminUTCA-002.out"
     rlPhaseEnd
@@ -521,8 +522,56 @@ Import CA certificate (Y/n)? \"" >> $expfile
         echo "expect \"CA server URI \[http://$HOSTNAME:$CA_UNSECURE_PORT/ca\]: \"" >> $expfile
         echo "send -- \"\r\"" >> $expfile
         echo "expect eof" >> $expfile
-        rlRun "/usr/bin/expect -f $expfile >  $TmpDir/pki-user-find-ca-pkiUser1-002.out 2>&1" 1 "Should not be able to find users using a user cert"
+	echo "catch wait result" >> $expfile
+        echo "exit [lindex \$result 3]" >> $expfile
+        rlRun "/usr/bin/expect -f $expfile >  $TmpDir/pki-user-find-ca-pkiUser1-002.out 2>&1" 255 "Should not be able to find users using a user cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-pkiUser1-002.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-031: find users when user id has i18n characters"
+	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
+        rlLog "user-add userid ÖrjanÄke with i18n characters"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='Örjan Äke' 'ÖrjanÄke' > $TmpDir/pki-user-find-ca-001_31.out 2>&1" \
+                    0 \
+                    "Adding uid ÖrjanÄke with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --size=$maximum_check "
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --size=$maximum_check > $TmpDir/pki-user-show-ca-001_31_2.out" \
+                    0 \
+                    "Find user with max size"
+        rlAssertGrep "User ID: ÖrjanÄke" "$TmpDir/pki-user-show-ca-001_31_2.out"
+        rlAssertGrep "Full name: Örjan Äke" "$TmpDir/pki-user-show-ca-001_31_2.out"
+    rlPhaseEnd
+
+    rlPhaseStartTest "pki_user_cli_user_find-ca-032: find users when userid has i18n characters"
+	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
+        rlLog "user-add userid ÉricTêko with i18n characters"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-add --fullName='Éric Têko' 'ÉricTêko' > $TmpDir/pki-user-show-ca-001_32.out 2>&1" \
+                    0 \
+                    "Adding user id ÉricTêko with i18n characters"
+        rlLog "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --size=$maximum_check"
+        rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-find --size=$maximum_check > $TmpDir/pki-user-show-ca-001_32_2.out" \
+                    0 \
+                    "Find user with max size"
+        rlAssertGrep "User ID: ÉricTêko" "$TmpDir/pki-user-show-ca-001_32_2.out"
+        rlAssertGrep "Full name: Éric Têko" "$TmpDir/pki-user-show-ca-001_32_2.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_cleanup-021: Deleting users"
@@ -551,6 +600,23 @@ Import CA certificate (Y/n)? \"" >> $expfile
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
+
+	#===Deleting i18n users created using CA_adminV cert===#
+        rlRun "pki -d $CERTDB_DIR \
+                -n CA_adminV \
+                -c $CERTDB_DIR_PASSWORD \
+                user-del 'ÖrjanÄke' > $TmpDir/pki-user-del-ca-user-i18n_1.out" \
+                0 \
+                "Deleted user ÖrjanÄke"
+        rlAssertGrep "Deleted user \"ÖrjanÄke\"" "$TmpDir/pki-user-del-ca-user-i18n_1.out"
+
+        rlRun "pki -d $CERTDB_DIR \
+                -n CA_adminV \
+                -c $CERTDB_DIR_PASSWORD \
+                user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-user-i18n_2.out" \
+                0 \
+                "Deleted user ÉricTêko"
+        rlAssertGrep "Deleted user \"ÉricTêko\"" "$TmpDir/pki-user-del-ca-user-i18n_2.out"
 
 	#Delete temporary directory
 	rlRun "popd"

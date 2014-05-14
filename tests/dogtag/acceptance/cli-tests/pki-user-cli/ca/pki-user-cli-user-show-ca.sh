@@ -50,14 +50,16 @@
 
 ########################################################################
 run_pki-user-cli-user-show-ca_tests(){
-user1=ca_agent2
-user1fullname="Test ca_agent"
-user2=abcdefghijklmnopqrstuvwxyx12345678
-user3=abc#
-user4=abc$
-user5=abc@
-user6=abc?
-user7=0
+    #local variables
+    user1=ca_agent2
+    user1fullname="Test ca_agent"
+    user2=abcdefghijklmnopqrstuvwxyx12345678
+    user3=abc#
+    user4=abc$
+    user5=abc@
+    user6=abc?
+    user7=0
+
     rlPhaseStartSetup "pki_user_cli_user_show-ca-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
@@ -67,7 +69,8 @@ user7=0
         rlRun "pki user-show --help > $TmpDir/pki_user_show_cfg.out 2>&1" \
                0 \
                "pki user-show"
-        rlAssertGrep "usage: user-show <User ID>" "$TmpDir/pki_user_show_cfg.out"
+        rlAssertGrep "usage: user-show <User ID> \[OPTIONS...\]" "$TmpDir/pki_user_show_cfg.out"
+        rlAssertGrep "\--help   Show help options" "$TmpDir/pki_user_show_cfg.out"
         rlAssertNotGrep "Error: Certificate database not initialized." "$TmpDir/pki_user_show_cfg.out"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/843"
     rlPhaseEnd
@@ -697,14 +700,11 @@ user7=0
 
     #Negative Cases
     rlPhaseStartTest "pki_user_cli_user_show-CA-031: Missing required option user id"
-	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                    user-show  > $TmpDir/pki-user-show-ca-001_34.out 2>&1" \
-                    1 \
-                    "Cannot show user without user id"
-	rlAssertGrep "usage: user-show <User ID>" "$TmpDir/pki-user-show-ca-001_34.out"
+	command="pki -d $CERTDB_DIR  -n CA_adminV  -c $CERTDB_DIR_PASSWORD -t ca user-show" 
+        rlLog "Executing $command"
+        errmsg="Error: No User ID specified."
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot show user without user id"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-032: Checking if user id case sensitive "
@@ -725,132 +725,79 @@ user7=0
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-033: Should not be able to show user using a revoked cert CA_adminR"
-
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_adminR \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminR \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23 > $TmpDir/pki-user-show-ca-revoke-adminR-002.out 2>&1" \
-                    1 \
-                    "Should not be able to show user u23 using a admin having revoked cert"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-revoke-adminR-002.out"
+        command="pki -d $CERTDB_DIR -n CA_adminR -c $CERTDB_DIR_PASSWORD user-show u23"
+        rlLog "Executing $command"
+        errmsg="PKIException: Unauthorized"
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a admin having revoked cert"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-034: Should not be able to show user using a agent with revoked cert CA_agentR"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_agentR \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_agentR \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23 > $TmpDir/pki-user-show-ca-revoke-agentR-002.out 2>&1" \
-                    1 \
-                    "Should not be able to show user u23 using a agent having revoked cert"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-revoke-agentR-002.out"
+        command="pki -d $CERTDB_DIR  -n CA_agentR -c $CERTDB_DIR_PASSWORD user-show u23"
+        rlLog "Executing $command"
+        errmsg="PKIException: Unauthorized"
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a agent having revoked cert"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-035: Should not be able to show user using a valid agent CA_agentV user"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_agentV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_agentV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23 > $TmpDir/pki-user-show-ca-agentV-002.out 2>&1" \
-                    1 \
-                    "Should not be able to show user u23 using a agent cert"
-        rlAssertGrep "ForbiddenException: Authorization failed" "$TmpDir/pki-user-show-ca-agentV-002.out"
+        command="pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD user-show u23"
+        rlLog "Executing $command"
+        errmsg="ForbiddenException: Authorization failed"
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a agent cert"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/965"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-036: Should not be able to show user using a CA_agentR user"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_agentR \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_agentR \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23 > $TmpDir/pki-user-show-ca-agentR-002.out 2>&1" \
-                    1 \
-                    "Should not be able to show user u23 using a revoked agent cert"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-agentR-002.out"
+        command="pki -d $CERTDB_DIR -n CA_agentR -c $CERTDB_DIR_PASSWORD user-show u23"
+        rlLog "Executing $command"
+        errmsg="PKIException: Unauthorized"
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a revoked agent cert"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-037: Should not be able to show user using admin user with expired cert CA_adminE"
-        rlRun "date --set='next day'" 0 "Set System date a day ahead"
-	rlRun "date --set='next day'" 0 "Set System date a day ahead"
+	#Set datetime 2 days ahead
+        rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_adminE \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminE \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23 > $TmpDir/pki-user-show-ca-adminE-002.out 2>&1" \
-                    1 \
-                    "Should not be able to show user u23 using an expired admin cert"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-adminE-002.out"
-        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-show-ca-adminE-002.out"
+        command="pki -d $CERTDB_DIR -n CA_adminE -c $CERTDB_DIR_PASSWORD user-show u23"
+        rlLog "Executing $command"
+        errmsg="PKIException: Unauthorized"
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using an expired admin cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-038: Should not be able to show user using CA_agentE cert"
-        rlRun "date --set='next day'" 0 "Set System date a day ahead"
-	rlRun "date --set='next day'" 0 "Set System date a day ahead"
+	#Set datetime 2 days ahead
+        rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_agentE \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_agentE \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23 > $TmpDir/pki-user-show-ca-agentE-002.out 2>&1" \
-                    1 \
-                    "Should not be able to show user u23 using a agent cert"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-agentE-002.out"
-        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-show-ca-agentE-002.out"
-        rlAssertNotGrep "" "$TmpDir/pki-user-show-ca-agentE-002.out"
+        command="pki -d $CERTDB_DIR -n CA_agentE -c $CERTDB_DIR_PASSWORD user-show u23"
+        rlLog "Executing $command"
+        errmsg="PKIException: Unauthorized"
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a agent cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-039: Should not be able to show user using a CA_auditV"
-
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_auditV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_auditV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23 > $TmpDir/pki-user-show-ca-auditV-002.out 2>&1" \
-                    1 \
-                    "Should not be able to show user u23 using a audit cert"
-        rlAssertGrep "ForbiddenException: Authorization failed" "$TmpDir/pki-user-show-ca-auditV-002.out"
+        command="pki -d $CERTDB_DIR -n CA_auditV -c $CERTDB_DIR_PASSWORD user-show u23"
+        rlLog "Executing $command"
+        errmsg="ForbiddenException: Authorization failed"
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a audit cert"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/965"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-040: Should not be able to show user using a CA_operatorV"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_operatorV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_operatorV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show u23 > $TmpDir/pki-user-show-ca-operatorV-002.out 2>&1" \
-                    1 \
-                    "Should not be able to show user u23 using a operator cert"
-        rlAssertGrep "ForbiddenException: Authorization failed" "$TmpDir/pki-user-show-ca-operatorV-002.out"
+        command="pki -d $CERTDB_DIR -n CA_operatorV -c $CERTDB_DIR_PASSWORD user-show u23"
+        rlLog "Executing $command"
+        errmsg="ForbiddenException: Authorization failed"
+        errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a operator cert"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/965"
     rlPhaseEnd
 
@@ -863,7 +810,7 @@ user7=0
                    -n CA_adminUTCA \
                    -c Password \
                     user-show u23 > $TmpDir/pki-user-show-ca-adminUTCA-002.out 2>&1" \
-                    1 \
+                    255 \
                     "Should not be able to show user u23 using a untrusted cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-adminUTCA-002.out"
     rlPhaseEnd
@@ -901,7 +848,9 @@ Import CA certificate (Y/n)? \"" >> $expfile
         echo "expect \"CA server URI \[http://$HOSTNAME:$CA_UNSECURE_PORT/ca\]: \"" >> $expfile
         echo "send -- \"\r\"" >> $expfile
         echo "expect eof" >> $expfile
-        rlRun "/usr/bin/expect -f $expfile >  $TmpDir/pki-user-show-ca-pkiUser1-002.out 2>&1" 1 "Should not be able to find users using a user cert"
+	echo "catch wait result" >> $expfile
+        echo "exit [lindex \$result 3]" >> $expfile
+        rlRun "/usr/bin/expect -f $expfile >  $TmpDir/pki-user-show-ca-pkiUser1-002.out 2>&1" 255 "Should not be able to find users using a user cert"
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-pkiUser1-002.out"
     rlPhaseEnd
 
@@ -915,7 +864,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                     user-show \"$user_length_exceed_max\" > $TmpDir/pki-user-show-ca-001_50.out 2>&1" \
-                    1 \
+                    255 \
                     "Show user using CA_adminV with user id length exceed maximum defined in ldap schema"
         rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-show-ca-001_50.out"
     rlPhaseEnd
@@ -992,6 +941,23 @@ Import CA certificate (Y/n)? \"" >> $expfile
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
+
+	#===Deleting i18n users created using CA_adminV cert===#
+        rlRun "pki -d $CERTDB_DIR \
+                -n CA_adminV \
+                -c $CERTDB_DIR_PASSWORD \
+                user-del 'ÖrjanÄke' > $TmpDir/pki-user-del-ca-user-i18n_1.out" \
+                0 \
+                "Deleted user ÖrjanÄke"
+        rlAssertGrep "Deleted user \"ÖrjanÄke\"" "$TmpDir/pki-user-del-ca-user-i18n_1.out"
+
+        rlRun "pki -d $CERTDB_DIR \
+                -n CA_adminV \
+                -c $CERTDB_DIR_PASSWORD \
+                user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-user-i18n_2.out" \
+                0 \
+                "Deleted user ÉricTêko"
+        rlAssertGrep "Deleted user \"ÉricTêko\"" "$TmpDir/pki-user-del-ca-user-i18n_2.out"
 
 	#Delete temporary directory
         rlRun "popd"

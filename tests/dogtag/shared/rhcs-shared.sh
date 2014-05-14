@@ -30,6 +30,7 @@ verifyErrorMsg()
 {
    local command="$1"
    local expmsg=$2
+   local expErrorCode=$3
    local rc=0
 
    rm -rf /tmp/errormsg.out /tmp/errormsg_clean.out
@@ -40,22 +41,31 @@ verifyErrorMsg()
         rlLog "ERROR: Expected \"$command\" to fail."
         rc=1
    else
-	rlLog "\"$command\" failed as expected."
+        rlLog "\"$command\" failed as expected."
         $command 2> /tmp/errormsg.out
-	sed 's/"//g' /tmp/errormsg.out > /tmp/errormsg_clean.out
+        sed 's/"//g' /tmp/errormsg.out > /tmp/errormsg_clean.out
         actual=`cat /tmp/errormsg_clean.out`
         if [[ "$actual" = "$expmsg" ]] ; then
                 rlPass "Error message as expected: $actual"
-		return 0
+                if [ $expErrorCode ] ; then
+                        if [[ "$rc" = "$expErrorCode" ]] ; then
+                                rlPass "Error code as expected: $rc"
+                                return 0
+                        else
+                                rlLog "ERROR: Error code is not expected. GOT: $rc EXP: $expErrorCode"
+                                return 1
+                        fi
+                else
+                        rlLog "Error code validation is not selected."
+                        return 0
+                fi
         else
                 rlFail "ERROR: Message not as expected. GOT: $actual  EXP: $expmsg"
                 return 1
         fi
   fi
-
   return $rc
 }
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   rhcs_quick_uninstall
