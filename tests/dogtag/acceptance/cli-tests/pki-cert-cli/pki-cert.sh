@@ -46,7 +46,7 @@ run_pki-cert-ca_tests()
 	rlRun "pushd $TmpDir"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_cert --help Test: Show all the options of pki cert"
+	rlPhaseStartTest "pki_cert config test: pki cert-release-hold --help configuration test"
 	local temp_out="$TmpDir/pki_cert"
 	rlLog "Executing pki cert --help"
 	rlRun "pki cert --help 1> $temp_out" 0 "pki cert --help"

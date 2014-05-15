@@ -104,7 +104,7 @@ run_pki-cert-hold-ca_tests()
 
 	
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <invalid serialnumber>
-	rlPhaseStartTest "pki_cert_hold_002: Hold invalid cert(hexadecimal) using Agent cert"
+	rlPhaseStartTest "pki_cert_hold_003: Hold invalid cert(hexadecimal) using Agent cert"
 	invalid_cert_serialNumber=0x$invalid_Number
 	rlRun "pki -d $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -113,7 +113,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 	
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <valid-serialNumber-in decimal>
-	rlPhaseStartTest "pki_cert_hold_003: Hold valid Cert(decimal) using Agent Cert"
+	rlPhaseStartTest "pki_cert_hold_004: Hold valid Cert(decimal) using Agent Cert"
 	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
 		myreq_type:crmf algo:rsa key_size:1024 subject_cn: subject_uid: \
 		subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -133,7 +133,7 @@ run_pki-cert-hold-ca_tests()
         rlPhaseEnd	
 	
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <invalid-serialNumber in decimal>
-	rlPhaseStartTest "pki_cert_hold_004: Hold invalid cert(decimalNumber) using Agent cert"
+	rlPhaseStartTest "pki_cert_hold_005: Hold invalid cert(decimalNumber) using Agent cert"
 	rlRun "pki -d $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" cert-hold $invalid_Number 2> $certout" 1,255 "hold invalid cert as agent cert"
@@ -144,7 +144,7 @@ run_pki-cert-hold-ca_tests()
 
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <valid-serialNumber in hex> --force
-	rlPhaseStartTest "pki_cert_hold_005: Hold valid cert(hexadecimal) using Agent cert(--force)"
+	rlPhaseStartTest "pki_cert_hold_006: Hold valid cert(hexadecimal) using Agent cert(--force)"
 	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:crmf algo:rsa key_size:1024 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -164,7 +164,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <serialNumber in decimal>  --force --comments
-	rlPhaseStartTest "pki_cert_hold_006: Hold valid cert(decimal) using Agent cert(--force) and pass comments with --comments"
+	rlPhaseStartTest "pki_cert_hold_007: Hold valid cert(decimal) using Agent cert(--force) and pass comments with --comments"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:crmf algo:rsa key_size:1024 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -185,7 +185,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <valid serialNumber>
-	rlPhaseStartTest "pki_cert_hold_007: Test-1 Hold valid cert created using i18n characters"
+	rlPhaseStartTest "pki_cert_hold_008: Test-1 Hold valid cert created using i18n characters"
 	local profile=caUserSMIMEcapCert
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
               myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"Örjan Äke\" subject_uid:\"ÖrjanÄke\" \
@@ -206,7 +206,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 	
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <valid serialNumber>
-	rlPhaseStartTest "pki_cert_hold_008: Test-2 Hold valid cert created using i18n characters"
+	rlPhaseStartTest "pki_cert_hold_009: Test-2 Hold valid cert created using i18n characters"
 	local profile=caDualCert
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:crmf algo:rsa key_size:2048 subject_cn:\"Éric Têko\" subject_uid:FooBar \
@@ -227,7 +227,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 	
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <valid serialNumber>
-	rlPhaseStartTest "pki_cert_hold_009: Test-3 Hold valid cert created using i18n characters"
+	rlPhaseStartTest "pki_cert_hold_0010: Test-3 Hold valid cert created using i18n characters"
         local profile=caTPSCert
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"éénentwintig dvidešimt.example.org\" subject_uid: \
@@ -248,7 +248,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 	
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <valid serialNumber>
-	rlPhaseStartTest "pki_cert_hold_0010: Test-4 Hold valid cert created using i18n characters"
+	rlPhaseStartTest "pki_cert_hold_0011: Test-4 Hold valid cert created using i18n characters"
         local profile=caSignedLogCert
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"двадцять один тридцять Signed Log Certificate\" subject_uid: \
@@ -269,7 +269,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 	
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <valid serialNumber> --force
-	rlPhaseStartTest "pki_cert_hold_0011: Test-5 Hold valid cert created using i18n characters (use --force)"
+	rlPhaseStartTest "pki_cert_hold_0012: Test-5 Hold valid cert created using i18n characters (use --force)"
         local profile=caServerCert
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"kakskümmend üks.example.org\" subject_uid: \
@@ -290,7 +290,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 	
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <SerialNumber in Junk Characters>
-	rlPhaseStartTest "pki_cert_hold_0012: Hold in-valid cert(serialNumber in Junk characters) using Agent cert"
+	rlPhaseStartTest "pki_cert_hold_0013: Hold in-valid cert(serialNumber in Junk characters) using Agent cert"
 	rlRun "pki -d $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" cert-hold \"$junk\" \
@@ -299,7 +299,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent Certificate"> cert-hold <Serial Number Junk Characters> --force
-        rlPhaseStartTest "pki_cert_hold_0013: Hold in-valid cert(serialNumber in Junk characters) using Agent cert(--force)"
+        rlPhaseStartTest "pki_cert_hold_0014: Hold in-valid cert(serialNumber in Junk characters) using Agent cert(--force)"
         rlRun "pki -d $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" cert-hold \"$junk\" \
@@ -308,7 +308,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Admin Certificate"> cert-hold <valid-serialNumber> --force
-        rlPhaseStartTest "pki_cert_hold_0014: Hold valid cert(SerialNumber in hexadecimal)using Admin Certificate (--force)"
+        rlPhaseStartTest "pki_cert_hold_0015: Hold valid cert(SerialNumber in hexadecimal)using Admin Certificate (--force)"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:crmf algo:rsa key_size:1024 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -323,7 +323,7 @@ run_pki-cert-hold-ca_tests()
         rlPhaseEnd
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Revoked Admin Certificate"> cert-hold <valid-serialNumber> --force
-        rlPhaseStartTest "pki_cert_hold_0015: Hold valid cert(SerialNumber in hexadecimal) using Admin Cert(--force)"
+        rlPhaseStartTest "pki_cert_hold_0016: Hold valid cert(SerialNumber in hexadecimal) using Admin Cert(--force)"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -338,7 +338,7 @@ run_pki-cert-hold-ca_tests()
         rlPhaseEnd
 
         #pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Revoked Agent Certificate"> cert-hold <valid-serialNumber> --force
-        rlPhaseStartTest "pki_cert_hold_0016: Hold valid cert(SerialNumber in hexadecimal) using Revoked Agent cert (--force)"
+        rlPhaseStartTest "pki_cert_hold_0017: Hold valid cert(SerialNumber in hexadecimal) using Revoked Agent cert (--force)"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -353,7 +353,7 @@ run_pki-cert-hold-ca_tests()
         rlPhaseEnd
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Audit Certificate"> cert-hold <valid-serialNumber> --force
-        rlPhaseStartTest "pki_cert_hold_0017: Hold valid certificate on Hold using Audit cert (--force)"
+        rlPhaseStartTest "pki_cert_hold_0018: Hold valid certificate on Hold using Audit cert (--force)"
 	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -368,7 +368,7 @@ run_pki-cert-hold-ca_tests()
         rlPhaseEnd
 
         #pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Operator cert"> cert-hold <valid-serialNumber> --force
-        rlPhaseStartTest "pki_cert_hold_0018: Hold valid certificate on Hold using CA Operator cert (--force)"
+        rlPhaseStartTest "pki_cert_hold_0019: Hold valid certificate on Hold using CA Operator cert (--force)"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -383,7 +383,7 @@ run_pki-cert-hold-ca_tests()
         rlPhaseEnd
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Agent cert"> cert-hold <Revoked_with_keycompromise_serialNumber>
-        rlPhaseStartTest "pki_cert_hold_0019: Hold already Revoked cert revoked using Agent cert"
+        rlPhaseStartTest "pki_cert_hold_0020: Hold already Revoked cert revoked using Agent cert"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -405,7 +405,7 @@ run_pki-cert-hold-ca_tests()
         rlPhaseEnd
 	
 	# pki -d <TEMP_NSS_DB> -c <TEMP_NSS_DB_PWD> -n <"User Cert"> cert-hold <valid cert serialNumber>
-	rlPhaseStartTest "pki_cert_hold_0020: Hold a cert using a normal user without any privileges"
+	rlPhaseStartTest "pki_cert_hold_0021: Hold a cert using a normal user without any privileges"
         local profile=caUserCert
         local pki_user="pki_user_$rand"
         local pki_user_fullName="Pki User $rand"
@@ -459,7 +459,7 @@ run_pki-cert-hold-ca_tests()
 	rlPhaseEnd
 	        
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Expired Agent Certificate"> cert-hold <valid-serialNumber> --force
-        rlPhaseStartTest "pki_cert_hold_0020: Hold valid certificate(hexadecimal) on Hold using Expired Agent cert(--force)"
+        rlPhaseStartTest "pki_cert_hold_0022: Hold valid certificate(hexadecimal) on Hold using Expired Agent cert(--force)"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
@@ -487,7 +487,7 @@ run_pki-cert-hold-ca_tests()
         rlPhaseEnd
 
 	#pki -d <CERTDB_DIR> -c <CERTDB_PASSWORD> -n <"Expired Admin Certificate"> cert-hold <valid-SerialNumber> --force
-        rlPhaseStartTest "pki_cert_hold_0021: Hold valid cert(SerialNumber in hexadecimal)using Expired Admin Certificate (--force)"
+        rlPhaseStartTest "pki_cert_hold_0023: Hold valid cert(SerialNumber in hexadecimal)using Expired Admin Certificate (--force)"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn: subject_uid: \
                 subject_email: subject_ou: subject_o: subject_c: archive:false \
