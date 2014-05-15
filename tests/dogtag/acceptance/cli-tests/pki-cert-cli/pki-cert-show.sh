@@ -161,7 +161,7 @@ run_pki-cert-show-ca_tests()
         rlLog "Get the Subject Name of the Certificate with $valid_pkcs10_serialNumber"
         rlLog "$(cat $temp_out | grep Subject | awk -F":" '{print $2}')"
 	rlRun "openssl x509 -in $temp_out -noout -serial 1> $temp_out-openssl" 0 "Run openssl to verify PEM output"
-	rlAssertGrep "serial=0$CONV_UPP_VAL_PKCS10" "$temp_out-openssl"
+	rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$temp_out-openssl"
 	rlPhaseEnd
 		
 	#Run pki cert-show --encoded with No serial Number
@@ -185,7 +185,7 @@ run_pki-cert-show-ca_tests()
 	rlAssertGrep "-----BEGIN CERTIFICATE-----" "$temp_out"
 	rlAssertGrep "\-----END CERTIFICATE-----" "$temp_out"
 	rlRun "openssl x509 -in $temp_out -noout -serial 1> $temp_out-openssl" 0 "Run openssl x509 on the output file"
-	rlAssertGrep "serial=0$CONV_UPP_VAL_PKCS10" "$temp_out-openssl"
+	rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$temp_out-openssl"
 	rlPhaseEnd
 
 	#Run pki cert-show <valid serialNumber> --output <filename> (crmf)
@@ -194,7 +194,7 @@ run_pki-cert-show-ca_tests()
 	rlAssertGrep "-----BEGIN CERTIFICATE-----" "$temp_out"
 	rlAssertGrep "\-----END CERTIFICATE-----" "$temp_out"
 	rlRun "openssl x509 -in $temp_out -noout -serial 1> $temp_out-openssl" 0 "Run openssl x509 on the output file"
-	rlAssertGrep "serial=0$CONV_UPP_VAL_CRMF" "$temp_out-openssl"
+	rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$temp_out-openssl"
 	rlPhaseEnd
 	
 	# Run pki cert-show <invalid-serial-number> --output 
