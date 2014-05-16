@@ -18,7 +18,7 @@
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
-dn: cn=tokenUserID,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+dn: cn=tokenUserID,cn=index,cn={database},cn=ldbm database,cn=plugins,cn=config
 objectclass: top
 objectclass: nsIndex
 cn: tokenUserID
@@ -27,7 +27,7 @@ nsindextype: pres
 nsindextype: sub
 nssystemindex: false
 
-dn: cn=tokenID,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+dn: cn=tokenID,cn=index,cn={database},cn=ldbm database,cn=plugins,cn=config
 objectclass: top
 objectclass: nsIndex
 cn: tokenID
@@ -36,7 +36,7 @@ nsindextype: pres
 nsindextype: sub
 nssystemindex: false
 
-dn: cn=dateOfCreate,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+dn: cn=dateOfCreate,cn=index,cn={database},cn=ldbm database,cn=plugins,cn=config
 objectclass: top
 objectclass: nsIndex
 cn: dateOfCreate
@@ -45,7 +45,7 @@ nsindextype: pres
 nsindextype: sub
 nssystemindex: false
 
-dn: cn=dateOfModify,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+dn: cn=dateOfModify,cn=index,cn={database},cn=ldbm database,cn=plugins,cn=config
 objectclass: top
 objectclass: nsIndex
 cn: dateOfModify
@@ -54,23 +54,31 @@ nsindextype: pres
 nsindextype: sub
 nssystemindex: false
 
-dn: cn=userCertificate,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+dn: cn=userCertificate,cn=index,cn={database},cn=ldbm database,cn=plugins,cn=config
 objectclass: top
 objectclass: nsIndex
 cn: userCertificate
 nsindextype: eq
 nssystemindex: false
 
-dn: cn=tokenSerial,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+dn: cn=tokenSerial,cn=index,cn={database},cn=ldbm database,cn=plugins,cn=config
 objectclass: top
 objectclass: nsIndex
 cn: tokenSerial
 nsindextype: eq
 nssystemindex: false
 
-dn: cn=tokenKeyType,cn=index,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
+dn: cn=tokenKeyType,cn=index,cn={database},cn=ldbm database,cn=plugins,cn=config
 objectclass: top
 objectclass: nsIndex
 cn: tokenKeyType
 nsindextype: eq
 nssystemindex: false
+
+dn: cn=description,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsIndexType: pres
+nsSystemIndex: false
+cn: description
