@@ -132,11 +132,13 @@ def prepare_for_an_external_java_debugger(instance):
     print
     print PKI_DEPLOYMENT_INTERRUPT_BANNER
     print
-    print "The following 'JAVA_OPTS' MUST be enabled (uncommented) in"
+    print "The following 'JAVA_OPTS' MUST be edited in"
     print "'%s':" % instance
     print
-    print "    JAVA_OPTS=\"-Xdebug -Xrunjdwp:transport=dt_socket,\""
-    print "              \"address=8000,server=y,suspend\""
+    print "    JAVA_OPTS=\"-DRESTEASY_LIB=/usr/share/java/resteasy \""
+    print "              \"-Xdebug -Xrunjdwp:transport=dt_socket,\""
+    print "              \"address=8000,server=y,suspend=n \""
+    print "              \"-Djava.awt.headless=true -Xmx128M\""
     print
     raw_input("Enable external java debugger 'JAVA_OPTS' "\
               "and press return to continue  . . . ")
