@@ -3568,22 +3568,28 @@ public class ConfigurationUtils {
             certs[0] = new X509CertImpl(CMS.AtoB(b64));
             user.setX509Certificates(certs);
             try {
+                CMS.debug("setupClientAuthUser: adding user: " + id);
                 system.addUser(user);
             } catch (ConflictingOperationException e) {
-                // ignore if
+                // ignore exception
+                CMS.debug("setupClientAuthUser: User already exists: " + e);
             }
-            CMS.debug("DonePanel display: successfully add the user");
-            system.addUserCert(user);
-            CMS.debug("DonePanel display: successfully add the user certificate");
+            try {
+                CMS.debug("setupClientAuthUser: Adding cert to user: " + id);
+                system.addUserCert(user);
+            } catch(ConflictingOperationException e) {
+                // ignore exception
+                CMS.debug("setupClientAuthUser: Cert already added: " + e);
+            }
             cs.commit(false);
         }
 
         String groupName = "Trusted Managers";
         IGroup group = system.getGroupFromName(groupName);
         if (!group.isMember(id)) {
+            CMS.debug("setupClientAuthUser: adding user to the trusted managers group.");
             group.addMemberName(id);
             system.modifyGroup(group);
-            CMS.debug("DonePanel display: successfully added the user to the group.");
         }
 
     }
