@@ -8,6 +8,8 @@ Created on May 13,, 2014
 import types
 
 import pki
+import pki.client as client
+import pki.account as account
 
 
 class ProfileDataInfo(object):
@@ -325,7 +327,8 @@ class ProfileOutput(object):
         profile_output = cls()
         profile_output.profile_output_id = json_value['id']
         profile_output.name = json_value['name']
-        profile_output.text = json_value['text']
+        if 'text' in json_value:
+            profile_output.text = json_value['text']
         profile_output.class_id = json_value['classId']
         attributes = json_value['attributes']
         if not isinstance(attributes, types.ListType):
@@ -575,3 +578,355 @@ class ProfilePolicySet(object):
                 policy_set.policies.append(ProfilePolicy.from_json(policy))
 
         return policy_set
+
+
+class PolicySet(object):
+    """
+    An object of this class contains a name value pair of the
+    policy name and the ProfilePolicy object.
+    """
+    def __init__(self, name=None, policy_list=None):
+        self.name = name
+        if policy_list is None:
+            self.policy_list = []
+        else:
+            self.policy_list = policy_list
+
+    @property
+    def name(self):
+        return getattr(self, 'id')
+
+    @name.setter
+    def name(self, value):
+        setattr(self, 'id', value)
+
+    @property
+    def policy_list(self):
+        return getattr(self, 'value')
+
+    @policy_list.setter
+    def policy_list(self, value):
+        setattr(self, 'value', value)
+
+    @classmethod
+    def from_json(cls, json_value):
+        policy_set = cls()
+
+        policy_set.name = json_value['id']
+        policies = json_value['value']
+        if not isinstance(policies, types.ListType):
+            policy_set.policy_list.append(ProfilePolicy.from_json(policies))
+        else:
+            for policy in policies:
+                policy_set.policy_list.append(ProfilePolicy.from_json(policy))
+
+
+class PolicySetList(object):
+    """
+    An object of this class stores a list of ProfileSet objects.
+    """
+
+    def __init__(self, policy_sets=None):
+        if policy_sets is None:
+            self.policy_sets = []
+        else:
+            self.policy_sets = policy_sets
+
+    @property
+    def policy_sets(self):
+        return getattr(self, 'PolicySet')
+
+    @policy_sets.setter
+    def policy_sets(self, value):
+        setattr(self, 'PolicySet', value)
+
+    @classmethod
+    def from_json(cls, json_value):
+        policy_set_list = cls()
+        policy_sets = json_value['PolicySet']
+        if not isinstance(policy_sets, types.ListType):
+            policy_set_list.policy_sets.append(PolicySet.from_json(policy_sets))
+        else:
+            for policy_set in policy_sets:
+                policy_set_list.policy_sets.append(PolicySet.from_json(policy_set))
+
+
+class ProfileData(object):
+    """
+    This class represents an enrollment profile.
+    """
+
+    def __init__(self, profile_id=None, class_id=None, name=None, description=None, enabled=None, visible=None,
+                 enabled_by=None, authenticator_id=None, authorization_acl=None, renewal=None, xml_output=None,
+                 inputs=None, outputs=None, policy_sets=None, link=None):
+
+        self.profile_id = profile_id
+        self.name = name
+        self.class_id = class_id
+        self.description = description
+        self.enabled = enabled
+        self.visible = visible
+        self.enabled_by = enabled_by
+        self.authenticator_id = authenticator_id
+        self.authorization_acl = authorization_acl
+        self.renewal = renewal
+        self.xml_output = xml_output
+        if inputs is None:
+            self.inputs = []
+        else:
+            self.inputs = inputs
+        if outputs is None:
+            self.outputs = []
+        else:
+            self.outputs = outputs
+        if policy_sets is None:
+            self.policy_sets = []
+        else:
+            self.policy_sets = policy_sets
+        self.link = link
+
+    @property
+    def profile_id(self):
+        return getattr(self, 'id')
+
+    @profile_id.setter
+    def profile_id(self, value):
+        setattr(self, 'id', value)
+
+    @property
+    def class_id(self):
+        return getattr(self, 'classId')
+
+    @class_id.setter
+    def class_id(self, value):
+        setattr(self, 'classId', value)
+
+    @property
+    def enabled_by(self):
+        return getattr(self, 'enabledBy')
+
+    @enabled_by.setter
+    def enabled_by(self, value):
+        setattr(self, 'enabledBy', value)
+
+    @property
+    def authenticator_id(self):
+        return getattr(self, 'authenticatorId')
+
+    @authenticator_id.setter
+    def authenticator_id(self, value):
+        setattr(self, 'authenticatorId', value)
+
+    @property
+    def authorization_acl(self):
+        return getattr(self, 'authzAcl')
+
+    @authorization_acl.setter
+    def authorization_acl(self, value):
+        setattr(self, 'authzAcl', value)
+
+    @property
+    def xml_output(self):
+        return getattr(self, 'xmlOutput')
+
+    @xml_output.setter
+    def xml_output(self, value):
+        setattr(self, 'xmlOutput', value)
+
+    @property
+    def inputs(self):
+        return getattr(self, 'Input')
+
+    @inputs.setter
+    def inputs(self, value):
+        setattr(self, 'Input', value)
+
+    @property
+    def outputs(self):
+        return getattr(self, 'Output')
+
+    @outputs.setter
+    def outputs(self, value):
+        setattr(self, 'Output', value)
+
+    @property
+    def policy_sets(self):
+        return getattr(self, 'PolicySets')
+
+    @policy_sets.setter
+    def policy_sets(self, value):
+        setattr(self, 'PolicySets', value)
+
+    @classmethod
+    def from_json(cls, json_value):
+        profile_data = cls()
+        profile_data.profile_id = json_value['id']
+        profile_data.class_id = json_value['classId']
+        profile_data.name = json_value['name']
+        profile_data.description = json_value['description']
+        profile_data.enabled = json_value['enabled']
+        profile_data.visible = json_value['visible']
+        if 'enabledBy' in json_value:
+            profile_data.enabled_by = json_value['enabledBy']
+        if 'authenticatorId' in json_value:
+            profile_data.authenticator_id = json_value['authenticatorId']
+        profile_data.authorization_acl = json_value['authzAcl']
+        profile_data.renewal = json_value['renewal']
+        profile_data.xml_output = json_value['xmlOutput']
+
+        profile_inputs = json_value['Input']
+        if not isinstance(profile_inputs, types.ListType):
+            profile_data.inputs.append(ProfileInput.from_json(profile_inputs))
+        else:
+            for profile_input in profile_inputs:
+                profile_data.policy_sets.append(ProfileInput.from_json(profile_input))
+
+        profile_outputs = json_value['Output']
+        if not isinstance(profile_outputs, types.ListType):
+            profile_data.outputs.append(ProfileOutput.from_json(profile_outputs))
+        else:
+            for profile_output in profile_outputs:
+                profile_data.policy_sets.append(ProfileOutput.from_json(profile_output))
+
+        policy_sets = json_value['PolicySets']
+        if not isinstance(policy_sets, types.ListType):
+            profile_data.policy_sets.append(PolicySetList.from_json(policy_sets))
+        else:
+            for policy_set in policy_sets:
+                profile_data.policy_sets.append(PolicySetList.from_json(policy_set))
+
+        profile_data.link = pki.Link.from_json(json_value['link'])
+
+        return profile_data
+
+
+class ProfileClient(object):
+    """
+    This class consists of methods for accessing the ProfileResource.
+    """
+    def __init__(self, connection):
+        self.connection = connection
+        self.headers = {'Content-type': 'application/json',
+                        'Accept': 'application/json'}
+        self.profiles_url = '/rest/profiles'
+        self.account_client = account.AccountClient(connection)
+
+    def _get(self, url, query_params=None, payload=None):
+        self.account_client.login()
+        r = self.connection.get(url, self.headers, query_params, payload)
+        self.account_client.logout()
+        return r
+
+    def _post(self, url, payload=None, query_params=None):
+        self.account_client.login()
+        r = self.connection.post(url, payload, self.headers, query_params)
+        self.account_client.logout()
+        return r
+
+    @pki.handle_exceptions()
+    def list_profiles(self, start=None, size=None):
+        """
+        Fetches the list of profiles.
+        The start and size arguments provide pagination support.
+        Returns a ProfileDataInfoCollection object.
+        """
+        query_params = {
+            'start': start,
+            'size': size
+        }
+        r = self._get(self.profiles_url, query_params)
+        return ProfileDataInfoCollection.from_json(r.json())
+
+    @pki.handle_exceptions()
+    def get_profile(self, profile_id):
+        """
+        Fetches information for the profile for the given profile id.
+        Returns a ProfileData object.
+        """
+        if profile_id is None:
+            raise ValueError("Profile ID must be specified.")
+        url = self.profiles_url + '/' + str(profile_id)
+        r = self._get(url)
+        return ProfileData.from_json(r.json())
+
+    def _modify_profile_state(self, profile_id, action):
+        """
+        Internal method used to modify the profile state.
+        """
+        if profile_id is None:
+            raise ValueError("Profile ID must be specified.")
+        if action is None:
+            raise ValueError("A valid action(enable/disable) must be specified.")
+
+        url = self.profiles_url + '/' + str(profile_id)
+        params = {'action': action}
+        self._post(url, query_params=params)
+
+    @pki.handle_exceptions()
+    def enable_profile(self, profile_id):
+        """
+        Enables a profile.
+        """
+        return self._modify_profile_state(profile_id, 'enable')
+
+    @pki.handle_exceptions()
+    def disable_profile(self, profile_id):
+        """
+        Disables a profile.
+        """
+        return self._modify_profile_state(profile_id, 'disable')
+
+
+def main():
+    # Initialize a PKIConnection object for the CA
+    connection = client.PKIConnection('https', 'localhost', '8443', 'ca')
+
+    # The pem file used for authentication. Created from a p12 file using the command -
+    # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
+    connection.set_authentication_cert("/tmp/auth.pem")
+
+    #Initialize the ProfileClient class
+    profile_client = ProfileClient(connection)
+
+    #Fetching a list of profiles
+    profile_data_infos = profile_client.list_profiles()
+    print('List of profiles:')
+    print('-----------------')
+    for profile_data_info in profile_data_infos.profile_data_list:
+        print('  Profile ID: ' + profile_data_info.profile_id)
+        print('  Profile Name: ' + profile_data_info.profile_name)
+        print('  Profile Description: ' + profile_data_info.profile_description)
+    print
+
+    # Get a specific profile
+    profile_data = profile_client.get_profile('caUserCert')
+    print('Profile Data for caUserCert:')
+    print('----------------------------')
+    print('  Profile ID: ' + profile_data.profile_id)
+    print('  Profile Name: ' + profile_data.name)
+    print('  Profile Description: ' + profile_data.description)
+    print('  Is profile enabled? ' + str(profile_data.enabled))
+    print('  Is profile visible? ' + str(profile_data.visible))
+    print
+
+    # Disabling a profile
+    print('Disabling a profile:')
+    print('--------------------')
+    profile_client.disable_profile('caUserCert')
+    profile = profile_client.get_profile('caUserCert')
+    print('  Profile ID: ' + profile.profile_id)
+    print('  Is profile enabled? ' + str(profile.enabled))
+    print
+
+    # Disabling a profile
+    print('Enabling a profile:')
+    print('-------------------')
+    profile_client.enable_profile('caUserCert')
+    profile = profile_client.get_profile('caUserCert')
+    print('  Profile ID: ' + profile_data.profile_id)
+    print('  Is profile enabled? ' + str(profile.enabled))
+    print
+
+
+if __name__ == "__main__":
+    main()
