@@ -901,6 +901,7 @@ fi
 %defattr(-,root,root,-)
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/server/LICENSE
+%doc base/server/README
 %{_sysconfdir}/pki/default.cfg
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
