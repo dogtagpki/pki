@@ -21,14 +21,24 @@ pki-key \- Command-Line Interface for managing Certificate System keys.
 .nf
 \fBpki\fR [CLI options] \fB<subsystem>-key\fR
 \fBpki\fR [CLI options] \fB<subsystem>-key-find\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-show\fR <Key ID> [command options]
 \fBpki\fR [CLI options] \fB<subsystem>-key-request-find\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-request-show\fR <Request ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-mod\fR <Key ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-template-find\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-template-show <Template ID>\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-archive\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-retrieve\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-generate\fR <Client Key ID> --key-algorithm <algorithm> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-recover\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-key-request-review\fR <Request ID> --action <action>[command options]
 .fi
 
 .SH DESCRIPTION
 .PP
 The \fBpki-key\fR commands provide command-line interfaces to manage keys on the KRA.
 .PP
-The only valid subsystem is \fBkra\fR. The \fB<subsystem>-\fR prefix may be omitted.
+The only valid subsystem is \fBkra\fR. The \fBkra-\fR prefix may be omitted.
 .PP
 \fBpki\fR [CLI options] \fB<subsystem>-key\fR
 .RS 4
@@ -40,9 +50,59 @@ This command is to list available key commands.
 This command is to list keys.
 .RE
 .PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-show\fR <Key ID> [command options]
+.RS 4
+This command is to view the details of a key in the KRA.
+.RE
+.PP
 \fBpki\fR [CLI options] \fB<subsystem>-key-request-find\fR [command options]
 .RS 4
 This command is to list key requests.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-request-show\fR <Request ID> [command options]
+.RS 4
+This command is to view the details of a key request submitted to the KRA.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-mod\fR <Key ID> --status <status>[command options]
+.RS 4
+This command is to modify the status of a particular key in the KRA.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-template-find\fR [command options]
+.RS 4
+This command is to list the templates for all types of requests in the system.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-template-show\fR <Template ID> [command options]
+.RS 4
+This command is to view details of the template of a specific key request.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-archive\fR [command options]
+.RS 4
+This command is to archive a secret in the DRM.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-retrieve\fR [command options]
+.RS 4
+This command is to retrieve a secret stored in the DRM.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-generate\fR <Client Key ID> --key-algorithm <algorithm> [command options]
+.RS 4
+This command is to generate a key in the DRM.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-recover\fR [command options]
+.RS 4
+This command is to recover details of a key in the DRM.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-key-request-review\fR [command options]
+.RS 4
+This command is to review a key request submitted ot the DRM.
 .RE
 
 .SH OPTIONS
@@ -51,10 +111,237 @@ The CLI options are described in \fBpki\fR(1).
 .SH OPERATIONS
 To view available key commands, type \fBpki <subsystem>-key\fP. To view each command's usage, type \fB pki <subsystem>-key-<command> --help\fP.
 
-This will be documented in more detail at a later time.
+All the key commands require agent authentication.
+
+.SS Viewing the keys
+
+To view the keys stored in DRM:
+
+.B pki <agent authentication> key-find
+
+To view all active keys for a specific client key ID:
+
+.B pki <agent authentication> key-find --client <Client ID> --status active
+
+To view details of a specific key:
+
+.B pki <agent authentication> key-show <KeyID>
+
+.SS Archiving a key
+
+To archive a passphrase in the DRM:
+
+.B pki <agent authentication> key-archive --clientKeyID <Client ID> --passphrase <Passphrase>
+
+A symmetric key can be archived using the "archiveKey" request template.
+
+To archive a secret using the request template stored in a file:
+
+.B pki <agent authentication> key-archive --input <path to the template file>
+
+.SS Retrieving a key
+
+To retrieve a key using the key ID:
+
+.B pki <agent authentication> key-retrieve --keyID <Key Identifier>
+
+To retrieve a key using a recovery request template:
+
+.B pki <agent authentication> key-retrieve --input <path_to_the_template_file>
+
+To retrieve a key encrypted in a custom password:
+
+.B pki <agent authentication> key-retrieve --keyID <Key Identifier> --passphrase <passphrase>
+
+The returned output contains the secret wrapped in the provided passphrase, using DES3 algorithm, and the nonce used for encryption.
+
+To store the key information to an output file, use the --output option for the command.
+
+.SS Recovering a key
+
+To initiate a key recovery:
+
+.B pki <agent authentication> key-recover --keyID <Key Identifier>
+
+The request ID returned by this operation must be approved using the \fBkey-request-review\fR command before the actual key retrieval.
+
+This step is performed internally by the key-retrieve command.
+
+.SS Generating a Symmetric Key
+
+To generate a symmetric key using the DES3 algorithm:
+
+.B pki <agent authentication> key-generate <Client Key ID> --key-algorithm DES3 --usages wrap,unwrap
+
+There are other algorithms to generate symmetric keys such as the AES, DES, DESede, RC2, RC4.
+
+In case of using any of the AES/RC2/RC4 algorithms, the key size has to be specified using the key-size option of the command.
+
+Generation of asymmetric keys is currently not implemented.
+
+.SS Reviewing a key request
+
+To approve a key request:
+
+.B pki <agent authentication> key-request-review <Request ID> --action approve
+
+On successful authentication, the request with the given request ID will be approved.
+
+There other actions that can be performed by an agent are reject/cancel.
+
+.SS Viewing a request template
+
+To list all the key request templates:
+
+.B pki <agent authentication> key-template-find
+
+To view a key archival request template:
+
+.B pki <agent authentication> key-template-show archiveKey
+
+.SH EXAMPLES
+
+The following pki client examples show the usage of the above operations for a basic CA and KRA server installation.
+
+A basic installation of CA and KRA servers can be done by running pkispawn in interactive mode and selecting the default parameters (see the section \fBINTERACTIVE MODE\fR in pkispawn(8))
+
+or using a configuration file with basic parameters(see the section \fBEXAMPLES\fR in pkispawn(8)).
+
+Only an agent can perform operations on the \fBkey\fR resource. An agent certificate must be used for authentication. This can be done by importing an agent certificate into
+an NSS database and passing the values to relevant options provided by the pki CLI framework.
+
+Running the following commands will set up the NSS database for use by a pki client and import the agent's certificate into the database and list information( including the nickname) of the certificate
+stored in the database.
+
+    - certutil -N -d <CERT_DB_DIR_PATH>
+
+    - pk12util -i <Agent_Cert_P12_FILE_PATH> -d <CERT_DB_DIR_PATH>
+
+    - certutil -L -d <CERT_DB_DIR_PATH>
+
+The first command creates an NSS database. It asks to enter a password for the database.
+The second command imports the agent certificate in a PKCS12 format into the database. It prompts for the passwords of the PKCS12 file and the NSS database.
+The third command shows the information about the imported certificate.(including the nickname)
+
+For demonstration purposes, the administrator certificate can be used to perform agent authentication.
+In a basic installation setup, the admin cert can be found at /root/.dogtag/pki-tomcat/ca_admin_cert.p12.
+Since the installation can only be performed by a root user, this file must be copied to a location where other users can access it, with valid permissions.
+
+On completion of the setup, and, when issuing the first command using the authentication parameters, a user may be greeted with a warning message which indicates that an untrusted issuer was encountered.
+Simply reply 'Y' to import the CA certificate, and, presuming that the displayed CA server URI is valid, press the carriage return.
+
+To list all the keys and key requests stored in KRA:
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-find
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-request-find
+
+To view information of a specific key or a key request stored in KRA:
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-show <Key ID>
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-request-show <Request ID>
+
+Creating a request for archiving/retrieving/recovering a key
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-archive --clientKeyID "vek12345" --passphrase "SampleSecret"
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-retrieve --keyID <Key ID of the archived secret>
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-recover --keyID <Key ID of the archived secret>
+
+Generating a symmetric key
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-generate "vek123456" --key-algorithm DES3 --usages "encrypt,decrypt"
+
+Reviewing a key request
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-request-review <Request ID> --action <approve/reject/cancel>
+
+.SH Using templates for creating requests (for advanced users)
+
+The messages for communication between the CLI framework and KRA for accessing the key resource are always encrypted.
+
+In the case of the above mentioned examples, the encryption and decryption of the secrets is done internally by the Dogtag client API.
+
+But, applications using the CLI framework to create various requests and also use local encryption, so the xml templates can be used to supply data to the create a request.
+
+All the templates can be listed by executing:
+
+.B pki key-template-find
+
+.SS Creating a key-archival request
+
+To fetch the template for key archival:
+
+.B pki key-template-show archiveKey --output-file <File_Path_to_store_the_template>
+
+This command gets the template for a key archival request and stores it in an output file.
+
+Following is the description of the various parameters in the key archival template:
+
+    -- clientKeyID - Unique identifier for the secret.
+    -- dataType - Type of the data to be stored which can be passphrase/symmetricKey/asymmetricKey.
+    -- keyAlgorithm - Algorithm used to create a symmetric key. (Not required if the dataType is passphrase)
+    -- keySize - Size used to generate the symmetric key. (Not required if the dataType is passphrase)
+    -- algorithmOID - Key Algorithm object identifier
+    -- symmetricAlgorithmParams - Base64 encoded nonce data. Nonce used while encrypting the secret.
+    -- wrappedPrivateData - Secret encrypted using a session key(A symmetric key) encoded using Base64. This entity contains the secret which is encrypted using a session key.
+    -- transWrappedSessionKey - The session key used to encrypt the secret, wrapped using the DRM transport key, and encoded in Base64 format.
+    -- pkiArchiveOptions - An object of type PKIArchiveOptions provided by the NSS/JSS library to securely transport a secret encoded in Base64 format.
+
+To create an archival request using the template file:
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-archive --input <Path_to_template_file>
+
+.SS Creating a key-retrieval request
+
+To fetch the template for key retrieval:
+
+.B pki key-template-show retrieveKey --output-file <File_Path_to_store_the_template>
+
+This command gets the template for a key retrieval request and stores it in an output file.
+
+Following is the description of the various parameters in the key retrieval template:
+
+    -- keyID - Key identifier
+    -- requestID - Key request identifier
+    -- nonceData - Base64 encoded string of nonce used during encryption
+    -- passphrase - passphrase to encrypt the secret with/ passphrase for the PKCS12 file returned
+    -- sessionWrappedpassphrase - Base64 encoded string of - Passphrase encrypted with a session key.
+    -- transWrapedSessionKey - Base64 encoded string of - session key encrypted with KRA's transport key.
+    -- certificate - Base64 encoded certificate for recovering the key.
+
+To create a retrieval request using the template file:
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-retrieve --input <Path_to_template_file>
+
+.SS Creating a symmetric key generation request
+
+To fetch the template for symmetric key generation:
+:q!:
+.B pki key-template-show generateKey --output-file <File_Path_to_store_the_template>
+
+This command gets the template for a symmetric key generation request and stores it in an output file.
+
+Following is the description of the various parameters in the key retrieval template:
+
+    -- clientKeyID - Client specified unique key identifier
+    -- keyAlgorithm - Algorithm to be used to generate key (AES/DES/DES3/DESede/RC2/RC4)
+    -- keySize - Value for the size of the key to be generated.
+    -- keyUsage - usages of the generated key(wrap,unwrap,sign,verify,encrypt,decrypt)
+
+To create a key generation request using the template file:
+
+.B pki -d <CERT_DB_DIR_PATH> -c <CERT_DB_PWD> -n <Certificate_Nickname> key-generate --input <Path_to_template_file>
+
 
 .SH AUTHORS
-Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.
+Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, Matthew Harmsen <mharmsen@redhat.com> and Abhishek Koneru <akoneru@redhat.com>.
 
 .SH COPYRIGHT
 Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pkispawn(8),
+.BR pki(1)

@@ -135,14 +135,20 @@ public class KeyRetrieveCLI extends CLI {
             }
 
         } else {
+            // Using command line options.
             String keyId = cmd.getOptionValue("keyID");
-            clientEncryption = false;
+            String passphrase = cmd.getOptionValue("passphrase");
             try {
-                keyData = keyCLI.keyClient.retrieveKey(new KeyId(keyId));
+                if (passphrase != null) {
+                    keyData = keyCLI.keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
+                } else {
+                    keyData = keyCLI.keyClient.retrieveKey(new KeyId(keyId));
+                    clientEncryption = false;
 
-                // No need to return the encrypted data since encryption
-                //is done locally.
-                keyData.setEncryptedData(null);
+                    // No need to return the encrypted data since encryption
+                    //is done locally.
+                    keyData.setEncryptedData(null);
+                }
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 if (verbose)

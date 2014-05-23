@@ -8,7 +8,7 @@
         <Attribute name="passphrase">Passphrase to encrypt the secret with/Passphrase for the PKCS12 file returned</Attribute>
         <Attribute name="sessionWrappedPassphrase">Base64 encoded session key wrapped passphrase</Attribute>
         <Attribute name="transWrappedSessionKey">Base64 encoded transport key wrapped session key</Attribute>
-        <Attribute name="certificate">Base64 certificate used for recoring the key.</Attribute>
+        <Attribute name="certificate">Base64 certificate used for recovering the key.</Attribute>
     </Attributes>
     <ClassName>com.netscape.certsrv.key.KeyRecoveryRequest</ClassName>
 </KeyRecoveryRequest>
