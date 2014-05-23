@@ -18,6 +18,7 @@
 # Copyright (C) 2013 Red Hat, Inc.
 # All rights reserved.
 #
+import pki
 
 
 class AccountClient:
@@ -25,8 +26,10 @@ class AccountClient:
     def __init__(self, connection):
         self.connection = connection
 
+    @pki.handle_exceptions()
     def login(self):
         self.connection.get('/rest/account/login')
 
+    @pki.handle_exceptions()
     def logout(self):
         self.connection.get('/rest/account/logout')

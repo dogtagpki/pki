@@ -14,11 +14,23 @@ import pki.account as account
 
 class ProfileDataInfo(object):
     """Stores information about a profile"""
+
     def __init__(self):
         self.profile_id = None
         self.profile_name = None
         self.profile_description = None
         self.profile_url = None
+
+    def __repr__(self):
+        attributes = {
+            "ProfileDataInfo": {
+                'profile_id': self.profile_id,
+                'name': self.profile_name,
+                'description': self.profile_description,
+                'url': self.profile_url
+            }
+        }
+        return str(attributes)
 
     @classmethod
     def from_json(cls, attr_list):
@@ -41,15 +53,20 @@ class ProfileDataInfoCollection(object):
         self.profile_data_list = []
         self.links = []
 
+    def __iter__(self):
+        return iter(self.profile_data_list)
+
     @classmethod
     def from_json(cls, json_value):
         ret = cls()
         profile_data_infos = json_value['entries']
         if not isinstance(profile_data_infos, types.ListType):
-            ret.profile_data_list.append(ProfileDataInfo.from_json(profile_data_infos))
+            ret.profile_data_list.append(
+                ProfileDataInfo.from_json(profile_data_infos))
         else:
             for profile_info in profile_data_infos:
-                ret.profile_data_list.append(ProfileDataInfo.from_json(profile_info))
+                ret.profile_data_list.append(
+                    ProfileDataInfo.from_json(profile_info))
 
         links = json_value['Link']
         if not isinstance(links, types.ListType):
@@ -64,10 +81,12 @@ class ProfileDataInfoCollection(object):
 class Descriptor(object):
     """
     This class represents the description of a ProfileAttribute.
-    It stores information such as the syntax, constraint and default value of a profile attribute.
+    It stores information such as the syntax, constraint and default value of
+    a profile attribute.
     """
 
-    def __init__(self, syntax=None, constraint=None, description=None, default_value=None):
+    def __init__(self, syntax=None, constraint=None, description=None,
+                 default_value=None):
         self.syntax = syntax
         self.constraint = constraint
         self.description = description
@@ -118,6 +137,7 @@ class ProfileAttribute(object):
     """
     Represents a profile attribute of a ProfileInput.
     """
+
     def __init__(self, name=None, value=None, descriptor=None):
         self.name = name
         self.value = value
@@ -158,8 +178,8 @@ class ProfileInput(object):
     Ex. Subject name, Requestor Information etc.
     """
 
-    def __init__(self, profile_input_id=None, class_id=None, name=None, text=None, attributes=None,
-                 config_attributes=None):
+    def __init__(self, profile_input_id=None, class_id=None, name=None,
+                 text=None, attributes=None, config_attributes=None):
 
         self.profile_input_id = profile_input_id
         self.class_id = class_id
@@ -261,17 +281,21 @@ class ProfileInput(object):
 
         attributes = json_value['Attribute']
         if not isinstance(attributes, types.ListType):
-            profile_input.attributes.append(ProfileAttribute.from_json(attributes))
+            profile_input.attributes.append(
+                ProfileAttribute.from_json(attributes))
         else:
             for profile_info in attributes:
-                profile_input.attributes.append(ProfileAttribute.from_json(profile_info))
+                profile_input.attributes.append(
+                    ProfileAttribute.from_json(profile_info))
 
         config_attributes = json_value['ConfigAttribute']
         if not isinstance(config_attributes, types.ListType):
-            profile_input.config_attributes.append(ProfileAttribute.from_json(config_attributes))
+            profile_input.config_attributes.append(
+                ProfileAttribute.from_json(config_attributes))
         else:
             for config_attribute in config_attributes:
-                profile_input.config_attributes.append(ProfileAttribute.from_json(config_attribute))
+                profile_input.config_attributes.append(
+                    ProfileAttribute.from_json(config_attribute))
 
         return profile_input
 
@@ -282,7 +306,8 @@ class ProfileOutput(object):
     using a profile.
     """
 
-    def __init__(self, profile_output_id=None, name=None, text=None, class_id=None, attributes=None):
+    def __init__(self, profile_output_id=None, name=None, text=None,
+                 class_id=None, attributes=None):
         self.profile_output_id = profile_output_id
         self.name = name
         self.text = text
@@ -332,15 +357,16 @@ class ProfileOutput(object):
         profile_output.class_id = json_value['classId']
         attributes = json_value['attributes']
         if not isinstance(attributes, types.ListType):
-            profile_output.attributes.append(ProfileAttribute.from_json(attributes))
+            profile_output.attributes.append(
+                ProfileAttribute.from_json(attributes))
         else:
             for profile_info in attributes:
-                profile_output.attributes.append(ProfileAttribute.from_json(profile_info))
+                profile_output.attributes.append(
+                    ProfileAttribute.from_json(profile_info))
         return profile_output
 
 
 class ProfileParameter(object):
-
     def __init__(self, name=None, value=None):
         self.name = name
         self.value = value
@@ -355,10 +381,12 @@ class ProfileParameter(object):
 
 class PolicyDefault(object):
     """
-    An object of this class contains information of the default usage of a specific ProfileInput.
+    An object of this class contains information of the default usage of a
+    specific ProfileInput.
     """
 
-    def __init__(self, name=None, class_id=None, description=None, policy_attributes=None, policy_params=None):
+    def __init__(self, name=None, class_id=None, description=None,
+                 policy_attributes=None, policy_params=None):
         self.name = name
         self.class_id = class_id
         self.description = description
@@ -415,24 +443,27 @@ class PolicyDefault(object):
         if 'policyAttribute' in json_value:
             attributes = json_value['policyAttribute']
             if not isinstance(attributes, types.ListType):
-                policy_def.policy_attributes.append(ProfileAttribute.from_json(attributes))
+                policy_def.policy_attributes.append(
+                    ProfileAttribute.from_json(attributes))
             else:
                 for attr in attributes:
-                    policy_def.policy_attributes.append(ProfileAttribute.from_json(attr))
+                    policy_def.policy_attributes.append(
+                        ProfileAttribute.from_json(attr))
 
         if 'params' in json_value:
             params = json_value['params']
             if not isinstance(params, types.ListType):
-                policy_def.policy_params.append(ProfileParameter.from_json(params))
+                policy_def.policy_params.append(
+                    ProfileParameter.from_json(params))
             else:
                 for param in params:
-                    policy_def.policy_params.append(ProfileParameter.from_json(param))
+                    policy_def.policy_params.append(
+                        ProfileParameter.from_json(param))
 
         return policy_def
 
 
 class PolicyConstraintValue(object):
-
     def __init__(self, name=None, value=None, descriptor=None):
         self.name = name
         self.value = value
@@ -460,11 +491,12 @@ class PolicyConstraintValue(object):
 
 class PolicyConstraint(object):
     """
-    An object of this class contains the policy constraints applied to a ProfileInput
-    used by a certificate enrollment request.
+    An object of this class contains the policy constraints applied to a
+    ProfileInput used by a certificate enrollment request.
     """
 
-    def __init__(self, name=None, description=None, class_id=None, policy_constraint_values=None):
+    def __init__(self, name=None, description=None, class_id=None,
+                 policy_constraint_values=None):
         self.name = name
         self.description = description
         self.class_id = class_id
@@ -509,10 +541,12 @@ class PolicyConstraint(object):
         if 'constraint' in json_value:
             constraints = json_value['constraint']
             if not isinstance(constraints, types.ListType):
-                policy_constraint.policy_constraint_values.append(PolicyConstraintValue.from_json(constraints))
+                policy_constraint.policy_constraint_values.append(
+                    PolicyConstraintValue.from_json(constraints))
             else:
                 for constraint in constraints:
-                    policy_constraint.policy_constraint_values.append(PolicyConstraintValue.from_json(constraint))
+                    policy_constraint.policy_constraint_values.append(
+                        PolicyConstraintValue.from_json(constraint))
 
         return policy_constraint
 
@@ -520,11 +554,13 @@ class PolicyConstraint(object):
 class ProfilePolicy(object):
     """
     This class represents the policy a profile adheres to.
-    An object of this class stores the default values for profile and the constraints present on the
-    values of the attributes of the profile submitted for an enrollment request.
+    An object of this class stores the default values for profile and the
+    constraints present on the values of the attributes of the profile submitted
+    for an enrollment request.
     """
 
-    def __init__(self, policy_id=None, policy_default=None, policy_constraint=None):
+    def __init__(self, policy_id=None, policy_default=None,
+                 policy_constraint=None):
         self.policy_id = policy_id
         self.policy_default = policy_default
         self.policy_constraint = policy_constraint
@@ -563,6 +599,7 @@ class ProfilePolicySet(object):
     """
     Stores a list of ProfilePolicy objects.
     """
+
     def __init__(self):
         self.policies = []
 
@@ -585,6 +622,7 @@ class PolicySet(object):
     An object of this class contains a name value pair of the
     policy name and the ProfilePolicy object.
     """
+
     def __init__(self, name=None, policy_list=None):
         self.name = name
         if policy_list is None:
@@ -620,6 +658,8 @@ class PolicySet(object):
             for policy in policies:
                 policy_set.policy_list.append(ProfilePolicy.from_json(policy))
 
+        return policy_set
+
 
 class PolicySetList(object):
     """
@@ -648,7 +688,8 @@ class PolicySetList(object):
             policy_set_list.policy_sets.append(PolicySet.from_json(policy_sets))
         else:
             for policy_set in policy_sets:
-                policy_set_list.policy_sets.append(PolicySet.from_json(policy_set))
+                policy_set_list.policy_sets.append(
+                    PolicySet.from_json(policy_set))
 
 
 class ProfileData(object):
@@ -656,9 +697,11 @@ class ProfileData(object):
     This class represents an enrollment profile.
     """
 
-    def __init__(self, profile_id=None, class_id=None, name=None, description=None, enabled=None, visible=None,
-                 enabled_by=None, authenticator_id=None, authorization_acl=None, renewal=None, xml_output=None,
-                 inputs=None, outputs=None, policy_sets=None, link=None):
+    def __init__(self, profile_id=None, class_id=None, name=None,
+                 description=None, enabled=None, visible=None, enabled_by=None,
+                 authenticator_id=None, authorization_acl=None, renewal=None,
+                 xml_output=None, inputs=None, outputs=None, policy_sets=None,
+                 link=None):
 
         self.profile_id = profile_id
         self.name = name
@@ -779,31 +822,49 @@ class ProfileData(object):
             profile_data.inputs.append(ProfileInput.from_json(profile_inputs))
         else:
             for profile_input in profile_inputs:
-                profile_data.policy_sets.append(ProfileInput.from_json(profile_input))
+                profile_data.inputs.append(
+                    ProfileInput.from_json(profile_input))
 
         profile_outputs = json_value['Output']
         if not isinstance(profile_outputs, types.ListType):
-            profile_data.outputs.append(ProfileOutput.from_json(profile_outputs))
+            profile_data.outputs.append(
+                ProfileOutput.from_json(profile_outputs))
         else:
             for profile_output in profile_outputs:
-                profile_data.policy_sets.append(ProfileOutput.from_json(profile_output))
+                profile_data.outputs.append(
+                    ProfileOutput.from_json(profile_output))
 
         policy_sets = json_value['PolicySets']
         if not isinstance(policy_sets, types.ListType):
-            profile_data.policy_sets.append(PolicySetList.from_json(policy_sets))
+            profile_data.policy_sets.append(
+                PolicySetList.from_json(policy_sets))
         else:
             for policy_set in policy_sets:
-                profile_data.policy_sets.append(PolicySetList.from_json(policy_set))
+                profile_data.policy_sets.append(
+                    PolicySetList.from_json(policy_set))
 
         profile_data.link = pki.Link.from_json(json_value['link'])
 
         return profile_data
+
+    def __repr__(self):
+        attributes = {
+            "ProfileData": {
+                'profile_id': self.profile_id,
+                'name': self.name,
+                'description': self.description,
+                'status': ('enabled' if self.enabled else 'disabled'),
+                'visible': self.visible
+            }
+        }
+        return str(attributes)
 
 
 class ProfileClient(object):
     """
     This class consists of methods for accessing the ProfileResource.
     """
+
     def __init__(self, connection):
         self.connection = connection
         self.headers = {'Content-type': 'application/json',
@@ -856,7 +917,8 @@ class ProfileClient(object):
         if profile_id is None:
             raise ValueError("Profile ID must be specified.")
         if action is None:
-            raise ValueError("A valid action(enable/disable) must be specified.")
+            raise ValueError("A valid action(enable/disable) must be "
+                             "specified.")
 
         url = self.profiles_url + '/' + str(profile_id)
         params = {'action': action}
@@ -881,7 +943,8 @@ def main():
     # Initialize a PKIConnection object for the CA
     connection = client.PKIConnection('https', 'localhost', '8443', 'ca')
 
-    # The pem file used for authentication. Created from a p12 file using the command -
+    # The pem file used for authentication. Created from a p12 file using the
+    # command -
     # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
     connection.set_authentication_cert("/tmp/auth.pem")
 
@@ -892,7 +955,7 @@ def main():
     profile_data_infos = profile_client.list_profiles()
     print('List of profiles:')
     print('-----------------')
-    for profile_data_info in profile_data_infos.profile_data_list:
+    for profile_data_info in profile_data_infos:
         print('  Profile ID: ' + profile_data_info.profile_id)
         print('  Profile Name: ' + profile_data_info.profile_name)
         print('  Profile Description: ' + profile_data_info.profile_description)

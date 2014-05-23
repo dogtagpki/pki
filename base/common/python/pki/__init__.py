@@ -21,6 +21,7 @@
 """
 This module contains top-level classes and functions used by the Dogtag project.
 """
+from functools import wraps
 import os
 import re
 import requests
@@ -245,6 +246,7 @@ def handle_exceptions():
     def exceptions_decorator(fn_call):
         """ The actual decorator handler."""
 
+        @wraps(fn_call)
         def handler(inst, *args, **kwargs):
             """ Decorator to catch and re-throw PKIExceptions."""
             try:
@@ -392,8 +394,10 @@ class PropertyFile(object):
 
 class Link:
     """
-        Stores the information of the  resteasy's Link object sent by the server for a resource.
+        Stores the information of the  resteasy's Link object sent by the server
+        for a resource.
     """
+
     def __init__(self):
         pass
 
