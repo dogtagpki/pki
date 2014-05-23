@@ -57,6 +57,19 @@ class SecurityDomainHost(object):
         host.unsecure_port = json_value['Port']
         return host
 
+class SecurityDomainSubsystem(object):
+    def __init__(self):
+        self.name = None
+        self.hosts = {}
+
+    @classmethod
+    def from_json(cls, json_value):
+        ret = cls()
+        ret.name = json_value['id']
+        for host in json_value['Host']:
+            ret.hosts[host['id']] = SecurityDomainHost.from_json(host)
+        return ret
+
 
 class SecurityDomainInfo(object):
     def __init__(self):
@@ -68,11 +81,8 @@ class SecurityDomainInfo(object):
         ret = cls()
         ret.name = json_value['id']
         for slist in json_value['Subsystem']:
-            system_type = slist['id']
-            system_list = []
-            for host in slist['Host']:
-                system_list.append(SecurityDomainHost.from_json(host))
-            ret.systems[system_type] = system_list
+            subsystem = SecurityDomainSubsystem.from_json(slist)
+            ret.systems[slist['id']] = subsystem
         return ret
 
 

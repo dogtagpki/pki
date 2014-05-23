@@ -67,16 +67,18 @@ class KeyData(object):
     def __init__(self):
         """ Constructor """
         self.algorithm = None
-        self.nonceData = None
+        self.nonce_data = None
         self.size = None
-        self.wrappedPrivateData = None
+        self.wrapped_private_data = None
 
     @classmethod
     def from_json(cls, attr_list):
         """ Return a KeyData object from a JSON dict """
         key_data = cls()
-        for key in attr_list:
-            setattr(key_data, key, attr_list[key])
+        key_data.algorithm = attr_list['algorithm']
+        key_data.nonce_data = attr_list['nonceData']
+        key_data.size = attr_list['size']
+        key_data.wrapped_private_data = attr_list['wrappedPrivateData']
         return key_data
 
 
@@ -89,8 +91,8 @@ class Key(object):
 
     def __init__(self, key_data):
         """ Constructor """
-        self.encrypted_data = base64.decodestring(key_data.wrappedPrivateData)
-        self.nonce_data = base64.decodestring(key_data.nonceData)
+        self.encrypted_data = base64.decodestring(key_data.wrapped_private_data)
+        self.nonce_data = base64.decodestring(key_data.nonce_data)
         self.algorithm = key_data.algorithm
         self.size = key_data.size
 
@@ -109,26 +111,30 @@ class KeyInfo(object):
     # pylint: disable-msg=C0103
     def __init__(self):
         """ Constructor """
-        self.clientKeyID = None
-        self.keyURL = None
+        self.client_key_id = None
+        self.key_url = None
         self.algorithm = None
         self.status = None
-        self.ownerName = None
+        self.owner_name = None
         self.size = None
 
     @classmethod
     def from_json(cls, attr_list):
         """ Return KeyInfo from JSON dict """
         key_info = cls()
-        for key in attr_list:
-            setattr(key_info, key, attr_list[key])
+        key_info.client_key_id = attr_list['clientKeyID']
+        key_info.key_url = attr_list['keyURL']
+        key_info.algorithm = attr_list['algorithm']
+        key_info.status = attr_list['status']
+        key_info.owner_name = attr_list['ownerName']
+        key_info.size = attr_list['size']
         return key_info
 
     def get_key_id(self):
         """ Return the key ID as parsed from key URL """
-        if self.keyURL is not None:
-            indx = str(self.keyURL).rfind("/") + 1
-            return str(self.keyURL)[indx:]
+        if self.key_url is not None:
+            indx = str(self.key_url).rfind("/") + 1
+            return str(self.key_url)[indx:]
         return None
 
 
@@ -166,31 +172,33 @@ class KeyRequestInfo(object):
     # pylint: disable-msg=C0103
     def __init__(self):
         """ Constructor """
-        self.requestURL = None
-        self.requestType = None
-        self.keyURL = None
-        self.requestStatus = None
+        self.request_url = None
+        self.request_type = None
+        self.key_url = None
+        self.request_status = None
 
     @classmethod
     def from_json(cls, attr_list):
         """ Return a KeyRequestInfo object from a JSON dict. """
         key_request_info = cls()
-        for key in attr_list:
-            setattr(key_request_info, key, attr_list[key])
+        key_request_info.request_url = attr_list['requestURL']
+        key_request_info.request_type = attr_list['requestType']
+        key_request_info.key_url = attr_list['keyURL']
+        key_request_info.request_status = attr_list['requestStatus']
         return key_request_info
 
     def get_request_id(self):
         """ Return the request ID by parsing the request URL. """
-        if self.requestURL is not None:
-            indx = str(self.requestURL).rfind("/") + 1
-            return str(self.requestURL)[indx:]
+        if self.request_url is not None:
+            indx = str(self.request_url).rfind("/") + 1
+            return str(self.request_url)[indx:]
         return None
 
     def get_key_id(self):
         """ Return the ID of the secret referred to by this request. """
-        if self.keyURL is not None:
-            indx = str(self.keyURL).rfind("/") + 1
-            return str(self.keyURL)[indx:]
+        if self.key_url is not None:
+            indx = str(self.key_url).rfind("/") + 1
+            return str(self.key_url)[indx:]
         return None
 
 
@@ -231,8 +239,8 @@ class KeyRequestResponse(object):
     # pylint: disable-msg=C0103
     def __init__(self):
         """ Constructor """
-        self.requestInfo = None
-        self.keyData = None
+        self.request_info = None
+        self.key_data = None
 
     @classmethod
     def from_json(cls, json_value):
@@ -240,19 +248,19 @@ class KeyRequestResponse(object):
         ret = cls()
 
         if 'RequestInfo' in json_value:
-            ret.requestInfo = KeyRequestInfo.from_json(json_value['RequestInfo'])
+            ret.request_info = KeyRequestInfo.from_json(json_value['RequestInfo'])
 
         if 'KeyData' in json_value:
-            ret.keyData = KeyData.from_json(json_value['KeyData'])
+            ret.key_data = KeyData.from_json(json_value['KeyData'])
         return ret
 
     def get_key_id(self):
         """ Return the id for the key archived, recovered or generated """
-        return self.requestInfo.get_key_id()
+        return self.request_info.get_key_id()
 
     def get_request_id(self):
         """ Return the id for the created request """
-        return self.requestInfo.get_request_id()
+        return self.request_info.get_request_id()
 
 
 class KeyArchivalRequest(pki.ResourceMessage):
@@ -511,6 +519,7 @@ class KeyClient(object):
 
         if trans_wrapped_session_key is not None:
             twsk = base64.encodestring(trans_wrapped_session_key)
+            # noinspection PyUnusedLocal
             request = SymKeyGenerationRequest(
                 client_key_id=client_key_id,
                 key_size=size,
