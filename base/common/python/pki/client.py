@@ -21,14 +21,11 @@
 
 import requests
 
+
 class PKIConnection:
 
-    def __init__(self,
-            protocol='http',
-            hostname='localhost',
-            port='8080',
-            subsystem='ca',
-            accept='application/json'):
+    def __init__(self, protocol='http', hostname='localhost', port='8080',
+                 subsystem='ca', accept='application/json'):
 
         self.protocol = protocol
         self.hostname = hostname
@@ -66,17 +63,19 @@ class PKIConnection:
 
     def post(self, path, payload, headers=None, params=None):
         r = self.session.post(
-                self.serverURI + path,
-                verify=False,
-                data=payload,
-                headers=headers,
-                params=params)
+            self.serverURI + path,
+            verify=False,
+            data=payload,
+            headers=headers,
+            params=params)
         r.raise_for_status()
         return r
+
+
 def main():
     conn = PKIConnection()
     headers = {'Content-type': 'application/json',
-                        'Accept': 'application/json'}
+               'Accept': 'application/json'}
     conn.set_authentication_cert('/root/temp4.pem')
     print conn.get("", headers).json()
 

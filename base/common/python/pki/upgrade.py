@@ -73,25 +73,22 @@ class Version(object):
         else:
             raise Exception('Unsupported version type: ' + str(type(obj)))
 
-
     # release is ignored in comparisons
-
     def __eq__(self, other):
         return (self.major == other.major and
-            self.minor == other.minor and
-            self.patch == other.patch)
+                self.minor == other.minor and
+                self.patch == other.patch)
 
     def __lt__(self, other):
         if self.major < other.major:
             return True
 
-        if (self.major == other.major and
-            self.minor < other.minor):
+        if self.major == other.major and self.minor < other.minor:
             return True
 
         if (self.major == other.major and
-            self.minor == other.minor and
-            self.patch < other.patch):
+                self.minor == other.minor and
+                self.patch < other.patch):
             return True
 
         return False
@@ -99,12 +96,12 @@ class Version(object):
     def __repr__(self):
         return self.version
 
+
 class PKIUpgradeTracker(object):
 
-    def __init__(self, name, filename,
-        delimiter='=',
-        version_key='PKI_VERSION',
-        index_key='PKI_UPGRADE_INDEX'):
+    def __init__(self, name, filename, delimiter='=',
+                 version_key='PKI_VERSION',
+                 index_key='PKI_UPGRADE_INDEX'):
 
         self.name = name
         self.filename = filename
@@ -128,7 +125,8 @@ class PKIUpgradeTracker(object):
     def set(self, version):
 
         if verbose:
-            print 'Setting ' + self.name + ' tracker to version ' + str(version) + '.'
+            print 'Setting ' + self.name + ' tracker to version ' +\
+                  str(version) + '.'
 
         self.set_version(version)
         self.remove_index()
@@ -181,7 +179,7 @@ class PKIUpgradeTracker(object):
                 length = len(self.properties.lines)
                 if length > 0 and self.properties.lines[length - 1] != '':
                     self.properties.insert_line(length, '')
-                    length = length + 1
+                    length += 1
 
                 # add index
                 self.properties.set(self.index_key, str(index), index=length)
@@ -221,7 +219,7 @@ class PKIUpgradeTracker(object):
             length = len(self.properties.lines)
             if length > 0 and self.properties.lines[length - 1] != '':
                 self.properties.insert_line(length, '')
-                length = length + 1
+                length += 1
 
             # add version
             self.properties.set(self.version_key, str(version), index=length)
@@ -295,25 +293,32 @@ class PKIUpgradeScriptlet(object):
 
         try:
             if not self.can_upgrade():
-                if verbose: print 'Skipping system.'
+                if verbose:
+                    print 'Skipping system.'
                 return
 
-            if verbose: print 'Upgrading system.'
+            if verbose:
+                print 'Upgrading system.'
             self.upgrade_system()
             self.update_tracker()
 
         except Exception as e:
 
-            if verbose: traceback.print_exc()
-            else: print 'ERROR: ' + e.message
+            if verbose:
+                traceback.print_exc()
+            else:
+                print 'ERROR: ' + e.message
 
             message = 'Failed upgrading system.'
             if self.upgrader.silent:
                 print message
             else:
-                result = pki.read_text(message + ' Continue (Yes/No)',
-                    options=['Y', 'N'], default='Y', delimiter='?', case_sensitive=False).lower()
-                if result == 'y': return
+                result = pki.read_text(
+                    message + ' Continue (Yes/No)',
+                    options=['Y', 'N'], default='Y', delimiter='?',
+                    case_sensitive=False).lower()
+                if result == 'y':
+                    return
 
             raise pki.PKIException('Upgrade failed: ' + e.message, e)
 
@@ -328,20 +333,24 @@ class PKIUpgradeScriptlet(object):
         if os.path.exists(oldfiles):
 
             # restore all backed up files
-            for sourcepath, _, filenames in os.walk(oldfiles):  #unused item _ for dirnames
+            for sourcepath, _, filenames in os.walk(oldfiles):
+                #unused item _ for dirnames
 
                 destpath = sourcepath[len(oldfiles):]
-                if destpath == '': destpath = '/'
+                if destpath == '':
+                    destpath = '/'
 
                 if not os.path.isdir(destpath):
-                    if verbose: print 'Restoring ' + destpath
+                    if verbose:
+                        print 'Restoring ' + destpath
                     pki.util.copydirs(sourcepath, destpath)
 
                 for filename in filenames:
                     sourcefile = os.path.join(sourcepath, filename)
                     targetfile = os.path.join(destpath, filename)
 
-                    if verbose: print 'Restoring ' + targetfile
+                    if verbose:
+                        print 'Restoring ' + targetfile
                     pki.util.copyfile(sourcefile, targetfile)
 
         newfiles = backup_dir + '/newfiles'
@@ -358,8 +367,10 @@ class PKIUpgradeScriptlet(object):
             paths.reverse()
             for path in paths:
 
-                if not os.path.exists(path): continue
-                if verbose: print 'Deleting ' + path
+                if not os.path.exists(path):
+                    continue
+                if verbose:
+                    print 'Deleting ' + path
 
                 if os.path.isfile(path):
                     os.remove(path)
@@ -389,7 +400,8 @@ class PKIUpgradeScriptlet(object):
             pki.util.copydirs(sourceparent, destparent)
 
             if os.path.isfile(path):
-                if verbose: print 'Saving ' + path
+                if verbose:
+                    print 'Saving ' + path
                 # do not overwrite initial backup
                 pki.util.copyfile(path, dest, overwrite=False)
 
@@ -399,22 +411,26 @@ class PKIUpgradeScriptlet(object):
                     relpath = sourcepath[len(path):]
                     destpath = dest + relpath
 
-                    if verbose: print 'Saving ' + sourcepath
+                    if verbose:
+                        print 'Saving ' + sourcepath
                     pki.util.copydirs(sourcepath, destpath)
 
                     for filename in filenames:
                         sourcefile = os.path.join(sourcepath, filename)
                         targetfile = os.path.join(destpath, filename)
 
-                        if verbose: print 'Saving ' + sourcefile
+                        if verbose:
+                            print 'Saving ' + sourcefile
                         # do not overwrite initial backup
-                        pki.util.copyfile(sourcefile, targetfile, overwrite=False)
+                        pki.util.copyfile(sourcefile, targetfile,
+                                          overwrite=False)
 
         else:
 
             # otherwise, record the name
 
-            if verbose: print 'Recording ' + path
+            if verbose:
+                print 'Recording ' + path
             with open(backup_dir + '/newfiles', 'a') as f:
                 f.write(path + '\n')
 
@@ -430,7 +446,8 @@ class PKIUpgradeScriptlet(object):
 
 class PKIUpgrader(object):
 
-    def __init__(self, upgrade_dir=UPGRADE_DIR, version=None, index=None, silent=False):
+    def __init__(self, upgrade_dir=UPGRADE_DIR, version=None, index=None,
+                 silent=False):
 
         self.upgrade_dir = upgrade_dir
         self.version = version
@@ -487,15 +504,14 @@ class PKIUpgrader(object):
                 version.next = target_version
 
             # if no scriptlet version is specified, add all versions to the list
-            # if scriptlet version is specified, add only that version to the list
+            # if scriptlet version is specified, add only that version to the
+            # list
             if not self.version or str(version) == self.version:
                 versions.append(version)
 
         return versions
 
-
     def scriptlets(self, version):
-
         scriptlets = []
 
         version_dir = self.version_dir(version)
@@ -536,14 +552,15 @@ class PKIUpgrader(object):
 
         return scriptlets
 
-
     def get_tracker(self):
 
         if self.system_tracker:
             tracker = self.system_tracker
 
         else:
-            tracker = PKIUpgradeTracker('system', SYSTEM_TRACKER,
+            tracker = PKIUpgradeTracker(
+                'system',
+                SYSTEM_TRACKER,
                 delimiter=': ',
                 version_key='Configuration-Version',
                 index_key='Scriptlet-Index')
@@ -557,7 +574,6 @@ class PKIUpgrader(object):
         return tracker.get_version()
 
     def get_target_version(self):
-
         return Version(pki.implementation_version())
 
     def is_complete(self):
@@ -569,7 +585,8 @@ class PKIUpgrader(object):
 
     def upgrade_version(self, version):
 
-        print 'Upgrading from version ' + str(version) + ' to ' + str(version.next) + ':'
+        print 'Upgrading from version ' + str(version) + ' to ' +\
+              str(version.next) + ':'
 
         scriptlets = self.scriptlets(version)
 
@@ -589,8 +606,11 @@ class PKIUpgrader(object):
                 print message
 
             else:
-                result = pki.read_text(message + ' (Yes/No)',
-                    options=['Y', 'N'], default='Y', case_sensitive=False).lower()
+                result = pki.read_text(
+                    message + ' (Yes/No)',
+                    options=['Y', 'N'],
+                    default='Y',
+                    case_sensitive=False).lower()
 
                 if result == 'n':
                     raise pki.PKIException('Upgrade canceled.')
@@ -599,7 +619,7 @@ class PKIUpgrader(object):
                 scriptlet.init()
                 scriptlet.upgrade()
 
-            except pki.PKIException as e:
+            except pki.PKIException:
                 raise
 
             except Exception as e:
@@ -615,19 +635,21 @@ class PKIUpgrader(object):
 
                 print
 
-                result = pki.read_text('Continue (Yes/No)',
-                    options=['Y', 'N'], default='Y', delimiter='?', case_sensitive=False).lower()
+                result = pki.read_text(
+                    'Continue (Yes/No)',
+                    options=['Y', 'N'],
+                    default='Y',
+                    delimiter='?',
+                    case_sensitive=False).lower()
 
                 if result == 'n':
                     raise pki.PKIException(message, e)
-
 
     def upgrade(self):
 
         versions = self.versions()
 
         for version in versions:
-
             self.upgrade_version(version)
             print
 
@@ -637,7 +659,6 @@ class PKIUpgrader(object):
         else:
             self.show_tracker()
             print 'Upgrade incomplete.'
-
 
     def revert_version(self, version):
 
@@ -654,8 +675,10 @@ class PKIUpgrader(object):
                 print message
 
             else:
-                result = pki.read_text(message + ' (Yes/No)',
-                    options=['Y', 'N'], default='Y', case_sensitive=False).lower()
+                result = pki.read_text(
+                    message + ' (Yes/No)',
+                    options=['Y', 'N'], default='Y',
+                    case_sensitive=False).lower()
 
                 if result == 'n':
                     raise pki.PKIException('Revert canceled.')
@@ -663,7 +686,7 @@ class PKIUpgrader(object):
             try:
                 scriptlet.revert()
 
-            except pki.PKIException as e:
+            except pki.PKIException:
                 raise
 
             except Exception as e:
@@ -679,8 +702,9 @@ class PKIUpgrader(object):
 
                 print
 
-                result = pki.read_text('Continue (Yes/No)',
-                    options=['Y', 'N'], default='Y', delimiter='?', case_sensitive=False).lower()
+                result = pki.read_text(
+                    'Continue (Yes/No)', options=['Y', 'N'],
+                    default='Y', delimiter='?', case_sensitive=False).lower()
 
                 if result == 'n':
                     raise pki.PKIException(message, e)
@@ -719,7 +743,6 @@ class PKIUpgrader(object):
 
         else:
             print 'Upgrade incomplete.'
-
 
     def set_tracker(self, version):
 

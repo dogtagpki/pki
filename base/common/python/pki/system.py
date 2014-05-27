@@ -57,6 +57,7 @@ class SecurityDomainHost(object):
         host.unsecure_port = json_value['Port']
         return host
 
+
 class SecurityDomainSubsystem(object):
     def __init__(self):
         self.name = None
@@ -130,7 +131,8 @@ class SystemConfigClient(object):
     def configure(self, data):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        response = self.connection.post('/rest/installer/configure', data, headers)
+        response = self.connection.post('/rest/installer/configure', data,
+                                        headers)
         return response.json()
 
 

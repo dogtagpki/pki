@@ -18,20 +18,22 @@
 # Copyright (C) 2013 Red Hat, Inc.
 # All rights reserved.
 #
-'''
+"""
 Module containing the Python client classes for the SystemCert REST API
-'''
+"""
 import pki
 from pki.cert import CertData
 
+
 class SystemCertClient(object):
-    '''
-    Class encapsulating and mirroring the functionality in the SystemCertResouce
-    Java interface class defining the REST API for system certificate resources.
-    '''
+    """
+    Class encapsulating and mirroring the functionality in the
+    SystemCertResource Java interface class defining the REST API for
+    system certificate resources.
+    """
 
     def __init__(self, connection):
-        ''' Constructor '''
+        """ Constructor """
         #super(PKIResource, self).__init__(connection)
         self.connection = connection
         self.headers = {'Content-type': 'application/json',
@@ -40,8 +42,8 @@ class SystemCertClient(object):
 
     @pki.handle_exceptions()
     def get_transport_cert(self):
-        ''' Return transport certificate '''
-        url = self.cert_url +  '/transport'
+        """ Return transport certificate """
+        url = self.cert_url + '/transport'
         response = self.connection.get(url, self.headers)
         cert_data = CertData.from_json(response.json())
         return cert_data.encoded

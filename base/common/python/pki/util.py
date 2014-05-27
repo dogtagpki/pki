@@ -18,11 +18,14 @@
 # Copyright (C) 2013 Red Hat, Inc.
 # All rights reserved.
 #
-''' Module containing utility functions and classes for the Dogtag python code '''
+"""
+Module containing utility functions and classes for the Dogtag python code
+"""
 
 
 import os
 import shutil
+
 
 def copy(source, dest):
     """
@@ -58,6 +61,7 @@ def copy(source, dest):
                 targetfile = os.path.join(destpath, filename)
                 copyfile(sourcefile, targetfile)
 
+
 def copyfile(source, dest, overwrite=True):
     """
     Copy a file or link while preserving its attributes.
@@ -82,6 +86,7 @@ def copyfile(source, dest, overwrite=True):
         os.chmod(dest, stat.st_mode)
         os.chown(dest, stat.st_uid, stat.st_gid)
 
+
 def copydirs(source, dest):
     """
     Copy a folder and its parents while preserving their attributes.
@@ -102,6 +107,7 @@ def copydirs(source, dest):
     os.utime(dest, (stat.st_atime, stat.st_mtime))
     os.chmod(dest, stat.st_mode)
     os.chown(dest, stat.st_uid, stat.st_gid)
+
 
 def chown(path, uid, gid):
     """

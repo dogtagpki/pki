@@ -19,34 +19,38 @@
 # Copyright (C) 2013 Red Hat, Inc.
 # All rights reserved.
 #
-'''
+"""
 Module containing KRAClient class.  This class should be used by Python clients
 to interact with the DRM to expose the functionality of the KeyClient and
-KeyRequestResouce REST APIs.
-'''
+KeyRequestResource REST APIs.
+"""
 
 import pki.key as key
 
 from pki.systemcert import SystemCertClient
 
+
 class KRAClient(object):
-    '''
-    Client class that models interactions with a KRA using the Key and KeyRequest REST APIs.
-    '''
+    """
+    Client class that models interactions with a KRA using the Key and
+    KeyRequest REST APIs.
+    """
 
     def __init__(self, connection, crypto, transport_cert_nick=None):
-        ''' Constructor
+        """ Constructor
 
         :param connection - PKIConnection object with DRM connection info.
-        :param crypto - CryptoUtil object.  NSSCryptoUtil is provided by default.
-                        If a different crypto implementation is desired, a different
-                        subclass of CryptoUtil must be provided.
-        :param transport_cert_nick - identifier for the DRM transport certificate.  This will
-                        be passed to the CryptoUtil.get_cert() command to get a representation
-                        of the transport certificate usable for crypto operations.
-                        Note that for NSS databases, the database must have been initialized
-                        beforehand.
-        '''
+        :param crypto - CryptoUtil object.  NSSCryptoUtil is provided by
+                        default.  If a different crypto implementation is
+                        desired, a different subclass of CryptoUtil must be
+                        provided.
+        :param transport_cert_nick - identifier for the DRM transport
+                        certificate.  This will be passed to the
+                        CryptoUtil.get_cert() command to get a representation
+                        of the transport certificate usable for crypto ops.
+                        Note that for NSS databases, the database must have been
+                        initialized beforehand.
+        """
         self.connection = connection
         self.keys = key.KeyClient(connection, crypto, transport_cert_nick)
         self.system_certs = SystemCertClient(connection)
