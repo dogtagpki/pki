@@ -107,6 +107,8 @@ public class TPSEngine {
     /* misc values */
 
     public static final String OP_FORMAT_PREFIX = "op.format";
+    public static final String CFG_PROFILE_RESOLVER = "tokenProfileResolver";
+    public static final String CFG_DEF_FORMAT_PROFILE_RESOLVER = "formatMappingResolver";
 
     public void init() {
         //ToDo

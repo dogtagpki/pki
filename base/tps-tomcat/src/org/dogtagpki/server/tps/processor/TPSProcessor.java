@@ -35,6 +35,8 @@ import org.dogtagpki.server.tps.cms.TKSComputeRandomDataResponse;
 import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
 import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
 import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.profile.BaseTokenProfileResolver;
+import org.dogtagpki.server.tps.profile.TokenProfileParams;
 import org.dogtagpki.tps.apdu.APDU;
 import org.dogtagpki.tps.apdu.APDUResponse;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
@@ -89,6 +91,7 @@ public class TPSProcessor {
     private String selectedTokenType;
 
     private String currentTokenOperation;
+    private String userid;
 
     private BeginOp beginMsg;
 
@@ -610,8 +613,10 @@ public class TPSProcessor {
      * @param prefix "op.enroll", "op.format", or "op.pinReset"
      * @param tokenType the profile name
      * @param userCred IAuthCredentials obtained from a successful requestUserId call
+     * @return IAuthToken information relating to the performed authentication
+     *                    -- plugin-specific
      */
-    public void authenticateUser(
+    public IAuthToken authenticateUser(
             String op,
             TPSAuthenticator userAuth,
             IAuthCredentials userCred)
@@ -629,9 +634,10 @@ public class TPSProcessor {
         try {
             // Authenticate user
             IAuthToken aToken = auth.authenticate(userCred);
-            if (aToken != null)
+            if (aToken != null) {
                 CMS.debug("TPSProcessor.authenticateUser: authentication success");
-            else {
+                return aToken;
+            } else {
                 CMS.debug("TPSProcessor.authenticateUser: authentication failure with aToken null");
                 throw new TPSException("TPS error user authentication failed.",
                         TPSStatus.STATUS_ERROR_LOGIN);
@@ -656,9 +662,9 @@ public class TPSProcessor {
             throws IOException, TPSException, EBaseException {
         CMS.debug("TPSProcessor.requestUserId");
         if (op.isEmpty() ||
-                cuid.isEmpty() || auth == null || extensions == null) {
-            CMS.debug("TPSProcessor.requestUserId: missing parameter(s): op, cuid, auth, or extensions");
-            throw new EBaseException("TPSProcessor.requestUserId: missing parameter(s): op, cuid, auth, or extensions");
+                cuid.isEmpty() || auth == null) {
+            CMS.debug("TPSProcessor.requestUserId: missing parameter(s): op, cuid, or auth");
+            throw new EBaseException("TPSProcessor.requestUserId: missing parameter(s): op, cuid, or auth");
         }
 
         IAuthCredentials login;
@@ -818,6 +824,7 @@ public class TPSProcessor {
 
         String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
         boolean isExternalReg = false;
+        String resolverInstName = "";
 
         setCurrentTokenOperation("format");
 
@@ -830,10 +837,12 @@ public class TPSProcessor {
             CMS.debug("In TPS_Processor.Format. CardManagerAID: " + CardManagerAID + " NetKeyAID: " + NetKeyAID);
             this.isExternalReg = configStore.getBoolean(External_Reg_Cfg, false);
             CMS.debug("In TPSProcessor.format isExternalReg: " + isExternalReg);
+            resolverInstName = configStore.getString(TPSEngine.OP_FORMAT_PREFIX+
+                "."+ TPSEngine.CFG_PROFILE_RESOLVER, TPSEngine.CFG_DEF_FORMAT_PROFILE_RESOLVER);
         } catch (EBaseException e1) {
             CMS.debug("TPS_Processor.Format: Internal Error obtaining mandatory config values. Error: " + e1);
             throw new TPSException("TPS error getting config values from config store.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         TPSBuffer aidBuf = new TPSBuffer(CardManagerAID);
@@ -882,18 +891,24 @@ public class TPSProcessor {
         CMS.debug("TPSProcessor.format: major_version " + major_version + " minor_version: " + minor_version
                 + " app_major_version: " + app_major_version + " app_minor_version: " + app_minor_version);
 
-        String tokenType;
-        IAuthCredentials userCred;
+        String tokenType = "tokenType";
+        IAuthCredentials userCred=
+                new com.netscape.certsrv.authentication.AuthCredentials();
         if (isExternalReg) {
             //ToDo, do some external Reg stuff along with authentication
             tokenType = "externalRegAddToToken";
         } else {
             CMS.debug("In TPSProcessor.format isExternalReg: OFF");
-            tokenType = getTokenType(TPSEngine.OP_FORMAT_PREFIX, major_version, minor_version, cuid, msn,
-                    beginMsg.getExtensions());
-
-            CMS.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
-
+            /*
+             * Note: op.format.tokenProfileResolver=none indicates no resolver
+             *    plugin used (tokenType resolved perhaps via authentication)
+             */
+            if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
+                tokenType = resolveTokenProfile(resolverInstName, cuid, msn, major_version, minor_version);
+                CMS.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
+            } else {
+                CMS.debug("TPSProcessor.format: : selectedTokenType already set: " + selectedTokenType);
+            }
         }
 
         // isExternalReg : user already authenticated earlier
@@ -914,7 +929,9 @@ public class TPSProcessor {
                     TPSAuthenticator userAuth =
                             getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);
                     userCred = requestUserId("format", cuid, userAuth, beginMsg.getExtensions());
-                    authenticateUser("format", userAuth, userCred);
+                    IAuthToken authToken = authenticateUser("format", userAuth, userCred);
+                    userid = authToken.getInString("userid");
+                    CMS.debug("TPSProcessor.format:: auth token userid="+ userid);
                 } catch (Exception e) {
                     // all exceptions are considered login failure
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
@@ -995,6 +1012,53 @@ public class TPSProcessor {
 
         // ToDo:  Revoke certificates
 
+    }
+
+    /**
+     * @param resolverInstName
+     * @param cuid
+     * @param msn
+     * @param major_version
+     * @param minor_version
+     * @return
+     */
+    protected String resolveTokenProfile(
+            String resolverInstName,
+            String cuid,
+            String msn,
+            byte major_version,
+            byte minor_version)
+            throws TPSException {
+        String tokenType;
+        try {
+            TokenProfileParams pParams = new TokenProfileParams();
+            CMS.debug("In TPSProcessor.resolveTokenProfile : after new TokenProfileParams");
+            pParams.set(TokenProfileParams.PROFILE_PARAM_MAJOR_VERSION,
+                    String.valueOf((int)major_version));
+            pParams.set(TokenProfileParams.PROFILE_PARAM_MINOR_VERSION,
+                    String.valueOf((int)minor_version));
+            pParams.set(TokenProfileParams.PROFILE_PARAM_CUID, cuid);
+            pParams.set(TokenProfileParams.PROFILE_PARAM_MSN, msn);
+            if (beginMsg.getExtensions() != null) {
+                pParams.set(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_TYPE,
+                        beginMsg.getExtensions().get("tokenType"));
+                pParams.set(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_ATR,
+                        beginMsg.getExtensions().get("tokenATR"));
+            }
+            CMS.debug("In TPSProcessor.resolveTokenProfile : after setting TokenProfileParams");
+            TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            BaseTokenProfileResolver resolverInst =
+                subsystem.getProfileResolverManager().getResolverInstance(resolverInstName);
+            tokenType = resolverInst.getTokenType(pParams);
+            CMS.debug("In TPSProcessor.resolveTokenProfile : profile resolver result: "+ tokenType);
+            setSelectedTokenType(tokenType);
+        } catch (EBaseException et) {
+            CMS.debug("In TPSProcessor.resolveTokenProfile exception:"+et);
+            throw new TPSException("TPSProcessor.resolveTokenProfile failed.",
+                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+        }
+        return tokenType;
     }
 
     protected String getIssuerInfoValue() throws TPSException {
@@ -1375,260 +1439,6 @@ public class TPSProcessor {
 
     }
 
-    /* Return calculated token profile type.
-    *
-    */
-    public String getTokenType(String prefix, int major_version, int minor_version, String cuid, String msn,
-            Map<String, String> extensions) throws TPSException {
-        String tokenType = null;
-        String mappingOrder = null;
-
-        if (selectedTokenType != null) {
-            CMS.debug("TPSProcessor.getTokenType: Calling this more than once. This is not needed!");
-            return selectedTokenType;
-        }
-
-        IConfigStore configStore = CMS.getConfigStore();
-
-        String configName = prefix + "." + TPSEngine.CFG_PROFILE_MAPPING_ORDER;
-
-        try {
-            mappingOrder = configStore.getString(configName);
-        } catch (EPropertyNotFound e) {
-            throw new TPSException(
-                    "TPSProcessor.getTokenType: Token Type configuration incorrect! Mising mapping order!",
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-
-        } catch (EBaseException e1) {
-            //The whole feature won't work if this is wrong.
-            throw new TPSException(
-                    "TPSProcessor.getTokenType: Internal error obtaining config value.!",
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-        }
-
-        String targetTokenType = null;
-
-        for (String mappingId : mappingOrder.split(",")) {
-
-            CMS.debug("TPS_Processor::GetTokenType:  mapping: " + mappingId);
-
-            String mappingConfigName = prefix + ".mapping." + mappingId + ".target.tokenType";
-
-            CMS.debug("TPS_Processor::GetTokenType:  mappingConfigName: " + mappingConfigName);
-
-            //We need this to exist.
-            try {
-                targetTokenType = configStore.getString(mappingConfigName);
-            } catch (EPropertyNotFound e) {
-                throw new TPSException(
-                        "TPSProcessor.getTokenType: Token Type configuration incorrect! No target token type config value found! Config: "
-                                + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-
-            } catch (EBaseException e) {
-                throw new TPSException(
-                        "TPSProcessor.getTokenType: Internal error obtaining config value. Config: "
-                                + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-            }
-
-            mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenType";
-
-            CMS.debug("TPS_Processor::GetTokenType:  mappingConfigName: " + mappingConfigName);
-
-            //For this and remaining cases, it is not automatically an error if we don't get anything back
-            // from the config.
-            try {
-                tokenType = configStore.getString(mappingConfigName, null);
-            } catch (EBaseException e) {
-                throw new TPSException(
-                        "TPSProcessor.getTokenType: Internal error obtaining config value. Config: "
-                                + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-
-            }
-
-            CMS.debug("TPS_Processor::GetTokenType:  targetTokenType: " + targetTokenType);
-
-            if (tokenType != null && tokenType.length() > 0) {
-
-                if (extensions == null) {
-                    continue;
-                }
-
-                String eTokenType = extensions.get("tokenType");
-                if (eTokenType == null) {
-                    continue;
-                }
-
-                if (!eTokenType.equals(tokenType)) {
-                    continue;
-                }
-            }
-
-            mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenATR";
-
-            CMS.debug("TPS_Processor::GetTokenType:  mappingConfigName: " + mappingConfigName);
-
-            String tokenATR = null;
-
-            try {
-                tokenATR = configStore.getString(mappingConfigName, null);
-            } catch (EBaseException e) {
-                throw new TPSException(
-                        "TPSProcessor.getTokenType: Internal error obtaining config value. Config: "
-                                + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-            }
-
-            CMS.debug("TPS_Processor::GetTokenType:  tokenATR: " + tokenATR);
-
-            if (tokenATR != null && tokenATR.length() > 0) {
-                if (extensions == null) {
-                    continue;
-                }
-
-                String eTokenATR = extensions.get("tokenATR");
-
-                if (eTokenATR == null) {
-                    continue;
-                }
-
-                if (!eTokenATR.equals(tokenATR)) {
-                    continue;
-                }
-
-            }
-
-            mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenCUID.start";
-
-            CMS.debug("TPS_Processor::GetTokenType:  mappingConfigName: " + mappingConfigName);
-
-            String tokenCUIDStart = null;
-
-            try {
-                tokenCUIDStart = configStore.getString(mappingConfigName, null);
-
-            } catch (EBaseException e) {
-                throw new TPSException(
-                        "TPSProcessor.getTokenType: Internal error obtaining config value. Config: "
-                                + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-            }
-
-            CMS.debug("TPS_Processor::GetTokenType:  tokenCUIDStart: " + tokenCUIDStart);
-
-            if (tokenCUIDStart != null && tokenCUIDStart.length() > 0) {
-                if (cuid == null) {
-                    continue;
-                }
-
-                if (tokenCUIDStart.length() != 20) {
-                    continue;
-                }
-
-                if (cuid.compareTo(tokenCUIDStart) < 0) {
-                    continue;
-                }
-
-            }
-
-            mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenCUID.end";
-
-            CMS.debug("TPS_Processor::GetTokenType:  mappingConfigName: " + mappingConfigName);
-
-            String tokenCUIDEnd = null;
-            try {
-                tokenCUIDEnd = configStore.getString(mappingConfigName, null);
-            } catch (EBaseException e) {
-                throw new TPSException(
-                        "TPSProcessor.getTokenType: Internal error obtaining config value. Config: "
-                                + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-            }
-
-            CMS.debug("TPS_Processor::GetTokenType:  tokenCUIDEnd: " + tokenCUIDEnd);
-
-            if (tokenCUIDEnd != null && tokenCUIDEnd.length() > 0) {
-                if (cuid == null) {
-                    continue;
-                }
-
-                if (tokenCUIDEnd.length() != 20) {
-                    continue;
-                }
-
-                if (cuid.compareTo(tokenCUIDEnd) > 0) {
-                    continue;
-                }
-
-            }
-
-            mappingConfigName = prefix + ".mapping." + mappingId + ".filter.appletMajorVersion";
-
-            CMS.debug("TPS_Processor::GetTokenType:  mappingConfigName: " + mappingConfigName);
-
-            String majorVersion = null;
-            String minorVersion = null;
-
-            try {
-                majorVersion = configStore.getString(mappingConfigName, null);
-            } catch (EBaseException e) {
-                throw new TPSException(
-                        "TPSProcessor.getTokenType: Internal error obtaining config value. Config: "
-                                + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-            }
-
-            CMS.debug("TPS_Processor::GetTokenType:  majorVersion: " + majorVersion);
-            if (majorVersion != null && majorVersion.length() > 0) {
-
-                int major = Integer.parseInt(majorVersion);
-
-                if (major != major_version) {
-                    continue;
-                }
-            }
-
-            mappingConfigName = prefix + ".mapping." + mappingId + ".filter.appletMinorVersion";
-
-            CMS.debug("TPS_Processor::GetTokenType:  mappingConfigName: " + mappingConfigName);
-
-            try {
-                minorVersion = configStore.getString(mappingConfigName, null);
-            } catch (EBaseException e) {
-                throw new TPSException(
-                        "TPSProcessor.getTokenType: Internal error obtaining config value. Config: "
-                                + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-            }
-            CMS.debug("TPS_Processor::GetTokenType:  minorVersion " + minorVersion);
-
-            if (minorVersion != null && minorVersion.length() > 0) {
-
-                int minor = Integer.parseInt(minorVersion);
-
-                if (minor != minor_version) {
-                    continue;
-                }
-            }
-
-            //if we make it this far, we have a token type
-            CMS.debug("TPS_Processor::GetTokenType: Selected Token type: " + targetTokenType);
-            break;
-        }
-
-        if (targetTokenType == null) {
-            CMS.debug("TPSProcessor.getTokenType: end found: " + targetTokenType);
-            throw new TPSException("TPSProcessor.getTokenType: Can't find token type!",
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
-        }
-
-        //Set this once, it won't change for this session.
-        setSelectedTokenType(targetTokenType);
-        return targetTokenType;
-
-    }
 
     public TPSEngine getTPSEngine() {
         TPSSubsystem subsystem =

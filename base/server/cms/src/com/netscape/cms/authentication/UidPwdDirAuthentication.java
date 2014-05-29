@@ -59,6 +59,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     public static final String CRED_UID = "uid";
     public static final String CRED_PWD = "pwd";
     protected static String[] mRequiredCreds = { CRED_UID, CRED_PWD };
+    public static final String USERID = "userid";
 
     /* Holds configuration parameters accepted by this implementation.
      * This list is passed to the configuration console so configuration
@@ -151,6 +152,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             conn.authenticate(userdn, pwd);
             // set uid in the token.
             token.set(CRED_UID, uid);
+            token.set(USERID, uid);
 
             return userdn;
         } catch (ELdapException e) {

@@ -19,6 +19,7 @@ package org.dogtagpki.server.tps;
 
 import org.dogtagpki.server.tps.authentication.AuthenticationManager;
 import org.dogtagpki.server.tps.cms.ConnectionManager;
+import org.dogtagpki.server.tps.profile.TokenProfileResolverManager;
 import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
@@ -68,6 +69,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public TokenDatabase tokenDatabase;
     public ConnectionManager connManager;
     public AuthenticationManager authManager;
+    public TokenProfileResolverManager profileResolverManager;
     public TPSEngine engine;
 
     @Override
@@ -113,6 +115,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         connManager.initConnectors();
         authManager = new AuthenticationManager();
         authManager.initAuthInstances();
+        profileResolverManager = new TokenProfileResolverManager();
+        profileResolverManager.initProfileResolverInstances();
         CMS.debug("TPSSubsystem: startup() ends.");
     }
 
@@ -195,6 +199,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public AuthenticationManager getAuthenticationManager() {
         return authManager;
+    }
+
+    public TokenProfileResolverManager getProfileResolverManager() {
+        return profileResolverManager;
     }
 
     public org.mozilla.jss.crypto.X509Certificate getSubsystemCert() throws EBaseException, NotInitializedException,
