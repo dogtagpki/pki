@@ -94,6 +94,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.master_dict['pki_target_profileselect_template'])
             elif deployer.master_dict['pki_subsystem'] == "TPS":
                 deployer.file.copy_with_slot_substitution(
+                    deployer.master_dict['pki_source_registry_cfg'],
+                    deployer.master_dict['pki_target_registry_cfg'])
+                deployer.file.copy_with_slot_substitution(
                     deployer.master_dict['pki_source_phone_home_xml'],
                     deployer.master_dict['pki_target_phone_home_xml'])
         return self.rv

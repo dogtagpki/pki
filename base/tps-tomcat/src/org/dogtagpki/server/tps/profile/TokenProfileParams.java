@@ -80,7 +80,7 @@ public class TokenProfileParams {
             CMS.debug("TokenProfileParams.getString: param null:"+ name);
             throw new TPSException (
                     "TokenProfileParams.getString: param null:"+ name,
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND);
         }
         return val;
     }
@@ -98,7 +98,7 @@ public class TokenProfileParams {
             CMS.debug("TokenProfileParams.getInt: param null:"+ name);
             throw new TPSException (
                     "TokenProfileParams.getInt: param null:"+ name,
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND);
         }
         try {
             int intVal = Integer.parseInt(val);
@@ -107,7 +107,7 @@ public class TokenProfileParams {
             CMS.debug("TokenProfileParams.getInt: param "+ name + "=" + val + e);
             throw new TPSException (
                     "TokenProfileParams.getInt: param major_version:"+ e,
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
     }
 

@@ -712,6 +712,10 @@ class PKIConfigParser:
                                      ['pki_subsystem_configuration_path'],
                                      "transportCert.profile")
                 elif self.pki_master_dict['pki_subsystem'] == "TPS":
+                    self.pki_master_dict['pki_target_registry_cfg'] = \
+                        os.path.join(self.pki_master_dict\
+                                     ['pki_subsystem_configuration_path'],
+                                     "registry.cfg")
                     self.pki_master_dict['pki_target_phone_home_xml'] = \
                         os.path.join(
                             self.pki_master_dict['pki_subsystem_configuration_path'],
