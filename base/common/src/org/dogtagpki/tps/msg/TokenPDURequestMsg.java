@@ -22,9 +22,9 @@ import org.dogtagpki.tps.apdu.SelectAPDU;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
-public class TokenPDURequest extends TPSMessage {
+public class TokenPDURequestMsg extends TPSMessage {
 
-    public TokenPDURequest(APDU apdu) {
+    public TokenPDURequestMsg(APDU apdu) {
 
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_TOKEN_PDU_REQUEST));
 
@@ -52,7 +52,7 @@ public class TokenPDURequest extends TPSMessage {
 
         apdu = new SelectAPDU((byte) 0x4, (byte) 0x0, select);
 
-        TokenPDURequest request = new TokenPDURequest(apdu);
+        TokenPDURequestMsg request = new TokenPDURequestMsg(apdu);
 
         System.out.println(request.encode());
 

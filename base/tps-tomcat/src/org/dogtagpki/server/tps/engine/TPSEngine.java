@@ -21,12 +21,21 @@ import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
 import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
-import org.dogtagpki.tps.msg.EndOp.TPSStatus;
+import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
 public class TPSEngine {
+
+    public enum RA_Algs {
+        ALG_RSA ,
+        ALG_RSA_CRT ,
+        ALG_DSA ,
+        ALG_EC_F2M ,
+        ALG_EC_FP
+};
+
 
     public static final String CFG_DEBUG_ENABLE = "logging.debug.enable";
     public static final String CFG_DEBUG_FILENAME = "logging.debug.filename";
@@ -85,6 +94,9 @@ public class TPSEngine {
     public static final String CFG_CHANNEL_DEFKEY_INDEX = "channel.defKeyIndex";
     public static final String CFG_ISSUER_INFO_ENABLE = "issuerinfo.enable";
     public static final String CFG_ISSUER_INFO_VALUE = "issuerinfo.value";
+    public static final String CFG_UPDATE_APPLET_ENCRYPTION = "update.applet.encryption";
+    public static final String CFG_UPDATE_APPLET_ENABLE = "update.applet.enable";
+    public static final String CFG_SYMM_KEY_UPGRADE_ENABLED = "update.symmetricKeys.enable";
 
     /* default values */
     public static final String CFG_DEF_CARDMGR_INSTANCE_AID = "A0000000030000";
@@ -99,6 +111,11 @@ public class TPSEngine {
     public static final int CFG_CHANNEL_DEF_INSTANCE_SIZE = 18000;
     public static final int CFG_CHANNEL_DEF_APPLET_MEMORY_SIZE = 5000;
 
+    /* token enrollment values */
+    public static final String CFG_KEYGEN_KEYTYPE_NUM = "keyGen.keyType.num";
+    public static final String CFG_KEYGEN_KEYTYPE_VALUE = "keyGen.keyType.value";
+    public static final String CFG_SERVER_KEYGEN_ENABLE = "serverKeygen.enable";
+
 
     /* External reg values */
 
@@ -109,6 +126,15 @@ public class TPSEngine {
     public static final String OP_FORMAT_PREFIX = "op.format";
     public static final String CFG_PROFILE_RESOLVER = "tokenProfileResolver";
     public static final String CFG_DEF_FORMAT_PROFILE_RESOLVER = "formatMappingResolver";
+    public static final String CFG_DEF_ENROLL_PROFILE_RESOLVER = "enrollMappingResolver";
+    public static final String CFG_DEF_PIN_RESET_PROFILE_RESOLVER = "pinResetMappingResolver";
+    public static final String OP_ENROLL_PREFIX = "op.enroll";
+    public static final String OP_PIN_RESET_PREFIX = "op.pinReset";
+    public static final String ENROLL_OP = "enroll";
+    public static final String FORMAT_OP = "format";
+
+    public static String CFG_OVERWRITE = "overwrite";
+    public static String PIN_RESET_OP = "pin_reset";
 
     public void init() {
         //ToDo
@@ -163,6 +189,52 @@ public class TPSEngine {
     }
 
     public static void main(String[] args) {
+
+    }
+
+    public boolean raForceTokenFormat(String cuid) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean isAlgorithmECC(int algorithm) {
+
+        RA_Algs algEnum = intToRAAlgs(algorithm);
+
+        boolean isECC = false;
+
+        if(algEnum == RA_Algs.ALG_EC_F2M || algEnum == RA_Algs.ALG_EC_FP) {
+            isECC = true;
+        }
+
+        CMS.debug("TPSEngine.isAlgorithmECC: result: " + isECC);
+        return isECC;
+
+    }
+
+    public static RA_Algs intToRAAlgs(int alg) {
+
+        RA_Algs def = RA_Algs.ALG_RSA;
+
+        switch(alg) {
+
+        case 1:
+            return RA_Algs.ALG_RSA;
+
+        case 2:
+            return RA_Algs.ALG_RSA_CRT;
+        case 3:
+            return RA_Algs.ALG_DSA;
+        case 4:
+            return RA_Algs.ALG_EC_F2M;
+        case 5:
+            return RA_Algs.ALG_EC_FP;
+
+            default:
+                return def;
+
+        }
+
 
     }
 

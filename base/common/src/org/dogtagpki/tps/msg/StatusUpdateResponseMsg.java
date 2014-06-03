@@ -18,12 +18,12 @@
 package org.dogtagpki.tps.msg;
 
 
-public class ASQResponse extends TPSMessage {
+public class StatusUpdateResponseMsg extends TPSMessage {
 
-    public ASQResponse(String answer) {
-        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_ASQ_RESPONSE));
-        put(QUESTION_NAME,answer);
-
+    public StatusUpdateResponseMsg(int status) {
+        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_STATUS_UPDATE_RESPONSE));
+        put(STATUS_NAME,status);
     }
+
 
 }

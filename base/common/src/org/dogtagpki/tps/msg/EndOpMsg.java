@@ -19,7 +19,7 @@ package org.dogtagpki.tps.msg;
 
 
 
-public class EndOp extends TPSMessage {
+public class EndOpMsg extends TPSMessage {
 
     public enum TPSStatus {
         STATUS_NO_ERROR,
@@ -75,7 +75,7 @@ public class EndOp extends TPSMessage {
     public static final int  RESULT_ERROR = 1;
 
 
-    public EndOp(OpType theOp, int result, TPSStatus message) {
+    public EndOpMsg(OpType theOp, int result, TPSStatus message) {
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_END_OP));
         put(OPERATION_TYPE_NAME, opTypeToInt(theOp));
         put(RESULT_NAME, result);
@@ -235,7 +235,7 @@ public class EndOp extends TPSMessage {
 
     public static void main(String[] args) {
 
-        EndOp end_msg = new EndOp(OpType.OP_FORMAT,0,TPSStatus.STATUS_NO_ERROR);
+        EndOpMsg end_msg = new EndOpMsg(OpType.OP_FORMAT,0,TPSStatus.STATUS_NO_ERROR);
         System.out.println(end_msg.encode());
 
 

@@ -21,11 +21,11 @@ import org.dogtagpki.tps.apdu.APDUResponse;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
-public class TokenPDUResponse extends TPSMessage {
+public class TokenPDUResponseMsg extends TPSMessage {
 
     private APDUResponse response;
 
-    public TokenPDUResponse(String message) {
+    public TokenPDUResponseMsg(String message) {
 
         super(message);
         response = null;
@@ -54,12 +54,12 @@ public class TokenPDUResponse extends TPSMessage {
     public static void main(String[] args) {
 
         String pdu_data = "s=46&msg_type=10&pdu_size=6&pdu_data=R%B3F%85%90%00";
-        TokenPDUResponse msg = new TokenPDUResponse(pdu_data);
+        TokenPDUResponseMsg msg = new TokenPDUResponseMsg(pdu_data);
 
         System.out.println(msg.encode());
 
         String pdu_data1 = "s=38&msg_type=10&pdu_size=2&pdu_data=%90%00";
-        TokenPDUResponse msg1 = new TokenPDUResponse(pdu_data1);
+        TokenPDUResponseMsg msg1 = new TokenPDUResponseMsg(pdu_data1);
 
         System.out.println(msg1.encode());
 

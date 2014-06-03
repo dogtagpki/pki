@@ -18,9 +18,9 @@
 package org.dogtagpki.tps.msg;
 
 
-public class LoginResponse  extends TPSMessage {
+public class LoginResponseMsg  extends TPSMessage {
 
-    public LoginResponse(String uid, String password ) {
+    public LoginResponseMsg(String uid, String password ) {
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_LOGIN_RESPONSE));
         put(SCREEN_NAME_NAME,uid);
         put(PASSWORD_NAME, password);

@@ -17,13 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.tps.msg;
 
+public class StatusUpdateRequestMsg extends TPSMessage {
+    public StatusUpdateRequestMsg(int status, String info) {
 
-public class SecureIdRequest extends TPSMessage {
-    public SecureIdRequest(int pin_required, int next_value) {
-        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_SECUREID_REQUEST));
+        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_STATUS_UPDATE_REQUEST));
+        put(STATUS_NAME, status);
+        put(INFO_NAME, info);
 
-        put(PIN_REQUIRED_NAME,pin_required);
-        put(NEXT_VALUE_NAME, next_value);
+    }
+
+    public static void main(String[] args) {
+
+        StatusUpdateRequestMsg req = new StatusUpdateRequestMsg(10, "PROGRESS_APPLET_BLOCK");
+        System.out.println(req.encode());
 
     }
 

@@ -1,9 +1,8 @@
 package org.dogtagpki.server.tps.profile;
 
-import java.lang.Integer;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.main.TPSException;
-import org.dogtagpki.tps.msg.EndOp.TPSStatus;
+import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;

@@ -20,11 +20,11 @@ package org.dogtagpki.tps.msg;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ExtendedLoginResponse extends TPSMessage {
+public class ExtendedLoginResponseMsg extends TPSMessage {
 
     private Map<String, String> authParams;
 
-    public ExtendedLoginResponse(String msg) {
+    public ExtendedLoginResponseMsg(String msg) {
 
         super(msg);
 
@@ -32,7 +32,7 @@ public class ExtendedLoginResponse extends TPSMessage {
         //ToDo process the actual params
     }
 
-    public ExtendedLoginResponse(OpType theOp, String uid, String password, Map<String, String> theExtensions) {
+    public ExtendedLoginResponseMsg(OpType theOp, String uid, String password, Map<String, String> theExtensions) {
 
         put(OPERATION_TYPE_NAME, opTypeToInt(theOp));
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_EXTENDED_LOGIN_RESPONSE));

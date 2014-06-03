@@ -33,6 +33,7 @@ import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.cms.TKSComputeRandomDataResponse;
 import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
+import org.dogtagpki.server.tps.cms.TKSEncryptDataResponse;
 import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.profile.BaseTokenProfileResolver;
@@ -44,19 +45,20 @@ import org.dogtagpki.tps.apdu.GetDataAPDU;
 import org.dogtagpki.tps.apdu.GetStatusAPDU;
 import org.dogtagpki.tps.apdu.GetVersionAPDU;
 import org.dogtagpki.tps.apdu.InitializeUpdateAPDU;
+import org.dogtagpki.tps.apdu.ListObjectsAPDU;
 import org.dogtagpki.tps.apdu.SelectAPDU;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
-import org.dogtagpki.tps.msg.BeginOp;
-import org.dogtagpki.tps.msg.EndOp.TPSStatus;
-import org.dogtagpki.tps.msg.ExtendedLoginRequest;
-import org.dogtagpki.tps.msg.ExtendedLoginResponse;
-import org.dogtagpki.tps.msg.LoginRequest;
-import org.dogtagpki.tps.msg.LoginResponse;
-import org.dogtagpki.tps.msg.StatusUpdateRequest;
+import org.dogtagpki.tps.msg.BeginOpMsg;
+import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
+import org.dogtagpki.tps.msg.ExtendedLoginRequestMsg;
+import org.dogtagpki.tps.msg.ExtendedLoginResponseMsg;
+import org.dogtagpki.tps.msg.LoginRequestMsg;
+import org.dogtagpki.tps.msg.LoginResponseMsg;
+import org.dogtagpki.tps.msg.StatusUpdateRequestMsg;
 import org.dogtagpki.tps.msg.TPSMessage;
-import org.dogtagpki.tps.msg.TokenPDURequest;
-import org.dogtagpki.tps.msg.TokenPDUResponse;
+import org.dogtagpki.tps.msg.TokenPDURequestMsg;
+import org.dogtagpki.tps.msg.TokenPDUResponseMsg;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
@@ -85,15 +87,15 @@ public class TPSProcessor {
     public static final int CARD_CHALLENGE_OFFSET = 12;
     public static final int CARD_CHALLENGE_SIZE = 8;
 
-    private boolean isExternalReg;
+    protected boolean isExternalReg;
 
-    private TPSSession session;
-    private String selectedTokenType;
+    protected TPSSession session;
+    protected String selectedTokenType;
 
-    private String currentTokenOperation;
-    private String userid;
+    protected String userid;
+    protected String currentTokenOperation;
 
-    private BeginOp beginMsg;
+    protected BeginOpMsg beginMsg;
 
     public TPSProcessor(TPSSession session) {
         setSession(session);
@@ -114,11 +116,11 @@ public class TPSProcessor {
         return session;
     }
 
-    protected void setBeginMessage(BeginOp msg) {
+    protected void setBeginMessage(BeginOpMsg msg) {
         beginMsg = msg;
     }
 
-    public BeginOp getBeginMessage() {
+    public BeginOpMsg getBeginMessage() {
         return beginMsg;
     }
 
@@ -223,7 +225,7 @@ public class TPSProcessor {
             throw new TPSException("TPSProcessor.handleAPDURequest: invalid incoming apdu!");
         }
 
-        TokenPDURequest request_msg = new TokenPDURequest(apdu);
+        TokenPDURequestMsg request_msg = new TokenPDURequestMsg(apdu);
 
         try {
             session.write(request_msg);
@@ -233,10 +235,10 @@ public class TPSProcessor {
 
         }
 
-        TokenPDUResponse response_msg = null;
+        TokenPDUResponseMsg response_msg = null;
 
         try {
-            response_msg = (TokenPDUResponse) session.read();
+            response_msg = (TokenPDUResponseMsg) session.read();
         } catch (IOException e) {
             CMS.debug("TPS_Processor.HandleAPDURequest failed ReadMsg: " + e.toString());
             throw e;
@@ -293,6 +295,31 @@ public class TPSProcessor {
 
         return build_id;
 
+    }
+
+    protected TPSBuffer encryptData(AppletInfo appletInfo, TPSBuffer keyInfo, TPSBuffer plaintextChallenge,
+            String connId) throws TPSException {
+
+        TKSRemoteRequestHandler tks = null;
+
+        TKSEncryptDataResponse data = null;
+
+        try {
+            tks = new TKSRemoteRequestHandler(connId);
+            data = tks.encryptData(appletInfo.getCUID(), keyInfo, plaintextChallenge);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.encryptData: Erorr getting wrapped data from TKS!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        int status = data.getStatus();
+
+        if (status != 0) {
+            throw new TPSException("TPSProcessor.computeRandomData: Erorr getting wrapped data from TKS!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        return data.getEncryptedData();
     }
 
     TPSBuffer computeRandomData(int dataSize, String connId) throws TPSException {
@@ -459,10 +486,9 @@ public class TPSProcessor {
             //ToDo handle server side keygen.
 
         }
-
         channel = new SecureChannel(this, sessionKey, encSessionKey, drmDesKey,
                 kekDesKey, keyCheck, keyDiversificationData, cardChallenge,
-                cardCryptogram, hostChallenge, hostCryptogram);
+                cardCryptogram, hostChallenge, hostCryptogram, keyInfoData);
 
         return channel;
     }
@@ -471,37 +497,20 @@ public class TPSProcessor {
             Map<String, String> extensions, String connId, int startProgress, int endProgress) throws IOException,
             TPSException {
 
-        String NetKeyAID = null;
-        String NetKeyPAID = null;
-        String CardMgrAID = null;
+        TPSBuffer netkeyAIDBuff = null;
+        TPSBuffer cardMgrAIDBuff = null;
+        TPSBuffer netkeyPAIDBuff = null;
 
-        IConfigStore configStore = CMS.getConfigStore();
-
-        try {
-            //These defaults are well known, it is safe to use them.
-
-            NetKeyAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_INSTANCE_AID,
-                    TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
-            CMS.debug("In TPS_Processor.upgradeApplet. CardManagerAID: " + " NetKeyAID: " + NetKeyAID);
-            NetKeyPAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_FILE_AID, TPSEngine.CFG_DEF_NETKEY_FILE_AID);
-            CardMgrAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,
-                    TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
-
-        } catch (EBaseException e1) {
-            CMS.debug("TPS_Processor.upgradeApplet: Internal Error obtaining mandatory config values. Error: " + e1);
-            throw new TPSException("TPS error getting config values from config store.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
-        }
-
-        TPSBuffer netkeyAIDBuff = new TPSBuffer(NetKeyAID);
-        TPSBuffer netkeyPAIDBuff = new TPSBuffer(NetKeyPAID);
-        TPSBuffer cardMgrAIDBuff = new TPSBuffer(CardMgrAID);
+        netkeyAIDBuff = getNetkeyAID();
+        netkeyPAIDBuff = getNetkeyPAID();
+        cardMgrAIDBuff = getCardManagerAID();
 
         int channelBlockSize = getChannelBlockSize();
         int channelInstanceSize = getChannelInstanceSize();
         int channelAppletMemSize = getAppletMemorySize();
         int defKeyVersion = getChannelDefKeyVersion();
         int defKeyIndex = getChannelDefKeyIndex();
+
         byte[] appletData = null;
 
         String directory = getAppletDirectory(operation);
@@ -614,7 +623,7 @@ public class TPSProcessor {
      * @param tokenType the profile name
      * @param userCred IAuthCredentials obtained from a successful requestUserId call
      * @return IAuthToken information relating to the performed authentication
-     *                    -- plugin-specific
+     *         -- plugin-specific
      */
     public IAuthToken authenticateUser(
             String op,
@@ -679,14 +688,14 @@ public class TPSProcessor {
             String title = auth.getUiTitle(locale);
             if (title.isEmpty())
                 title = auth.getUiTitle("en");
-	    // description
+            // description
             String description = auth.getUiDescription(locale);
             if (description.isEmpty())
                 description = auth.getUiTitle("en");
             // parameters
             HashMap<String, AuthUIParameter> authParamSet = auth.getUiParamSet();
             Set<String> params = new HashSet<String>();
-            for (Map.Entry<String, AuthUIParameter> entry: authParamSet.entrySet()) {
+            for (Map.Entry<String, AuthUIParameter> entry : authParamSet.entrySet()) {
                 params.add(auth.getUiParam(entry.getKey()).toString(locale));
                 CMS.debug("TPSProcessor.requestUserId: for extendedLoginRequest, added param: " +
                         auth.getUiParam(entry.getKey()).toString(locale));
@@ -752,8 +761,8 @@ public class TPSProcessor {
             throw new EBaseException(
                     "TPSProcessor.requestExtendedLogin: missing parameter(s): parameters, title, description, or auth");
         }
-        ExtendedLoginRequest loginReq =
-                new ExtendedLoginRequest(invalidPW, blocked, parameters, title, description);
+        ExtendedLoginRequestMsg loginReq =
+                new ExtendedLoginRequestMsg(invalidPW, blocked, parameters, title, description);
 
         try {
             session.write(loginReq);
@@ -763,9 +772,9 @@ public class TPSProcessor {
         }
         CMS.debug("TPSProcessor.requestExtendedLogin: extendedLoginRequest sent");
 
-        ExtendedLoginResponse loginResp = null;
+        ExtendedLoginResponseMsg loginResp = null;
         try {
-            loginResp = (ExtendedLoginResponse) session.read();
+            loginResp = (ExtendedLoginResponseMsg) session.read();
         } catch (IOException e) {
             CMS.debug("TPSProcessor.requestExtendedLogin failed ReadMsg: " + e.toString());
             throw e;
@@ -789,7 +798,7 @@ public class TPSProcessor {
             throw new EBaseException(
                     "TPSProcessor.requestLogin: missing parameter(s): parameters, title, description, or auth");
         }
-        LoginRequest loginReq = new LoginRequest(invalidPW, blocked);
+        LoginRequestMsg loginReq = new LoginRequestMsg(invalidPW, blocked);
 
         try {
             session.write(loginReq);
@@ -799,9 +808,9 @@ public class TPSProcessor {
         }
         CMS.debug("TPSProcessor.requestLogin: loginRequest sent");
 
-        LoginResponse loginResp = null;
+        LoginResponseMsg loginResp = null;
         try {
-            loginResp = (LoginResponse) session.read();
+            loginResp = (LoginResponseMsg) session.read();
         } catch (IOException e) {
             CMS.debug("TPSProcessor.requestLogin failed ReadMsg: " + e.toString());
             throw e;
@@ -811,88 +820,31 @@ public class TPSProcessor {
         return login;
     }
 
-    protected void format() throws TPSException, IOException {
+    protected void format(boolean skipAuth) throws TPSException, IOException {
 
-        IConfigStore configStore = CMS.getConfigStore();
-
-        String CardManagerAID = null;
-        String NetKeyAID = null;
         String appletVersion = null;
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TPSEngine engine = tps.getEngine();
 
-        String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
         boolean isExternalReg = false;
-        String resolverInstName = "";
+        AppletInfo appletInfo = getAppletInfo();
 
-        setCurrentTokenOperation("format");
+        String cuid = appletInfo.getCUIDString();
+        String msn = appletInfo.getMSNString();
 
-        try {
-            //These defaults are well known, it is safe to use them.
-            CardManagerAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,
-                    TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
-            NetKeyAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_INSTANCE_AID,
-                    TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
-            CMS.debug("In TPS_Processor.Format. CardManagerAID: " + CardManagerAID + " NetKeyAID: " + NetKeyAID);
-            this.isExternalReg = configStore.getBoolean(External_Reg_Cfg, false);
-            CMS.debug("In TPSProcessor.format isExternalReg: " + isExternalReg);
-            resolverInstName = configStore.getString(TPSEngine.OP_FORMAT_PREFIX+
-                "."+ TPSEngine.CFG_PROFILE_RESOLVER, TPSEngine.CFG_DEF_FORMAT_PROFILE_RESOLVER);
-        } catch (EBaseException e1) {
-            CMS.debug("TPS_Processor.Format: Internal Error obtaining mandatory config values. Error: " + e1);
-            throw new TPSException("TPS error getting config values from config store.",
-                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
-        }
+        byte major_version = appletInfo.getMajorVersion();
+        byte minor_version = appletInfo.getAppMinorVersion();
+        byte app_major_version = appletInfo.getAppMajorVersion();
+        byte app_minor_version = appletInfo.getAppMinorVersion();
 
-        TPSBuffer aidBuf = new TPSBuffer(CardManagerAID);
-
-        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuf);
-
-        if (!select.checkResult()) {
-            throw new TPSException("TPSProcessor.format: Can't selelect the card manager!");
-        }
-
-        TPSBuffer cplc_data = getCplcData();
-        CMS.debug("cplc_data: " + cplc_data.toString());
-
-        TPSBuffer token_cuid = extractTokenCUID(cplc_data);
-        String cuid = token_cuid.toHexString();
-
-        TPSBuffer token_msn = extractTokenMSN(cplc_data);
-        String msn = token_msn.toHexString();
-
-        /**
-         * Checks if the netkey has the required applet version.
-         */
-
-        TPSBuffer netkeyAid = new TPSBuffer(NetKeyAID);
-
-        // We don't care if the above fails now. getStatus will determine outcome.
-
-        select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAid);
-
-        CMS.debug("TPSProcessor.format: First time select netkey applet: " + select.checkResult());
-
-        TPSBuffer token_status = getStatus();
-
-        byte major_version = 0x0;
-        byte minor_version = 0x0;
-        byte app_major_version = 0x0;
-        byte app_minor_version = 0x0;
-
-        CMS.debug("TPS_Processor.format: status: " + token_status.toHexString());
-        if (token_status.size() >= 4) {
-            major_version = token_status.at(0);
-            minor_version = token_status.at(1);
-            app_major_version = token_status.at(2);
-            app_minor_version = token_status.at(3);
-        }
         CMS.debug("TPSProcessor.format: major_version " + major_version + " minor_version: " + minor_version
                 + " app_major_version: " + app_major_version + " app_minor_version: " + app_minor_version);
 
         String tokenType = "tokenType";
-        IAuthCredentials userCred=
+        String resolverInstName = getResolverInstanceName();
+
+        IAuthCredentials userCred =
                 new com.netscape.certsrv.authentication.AuthCredentials();
         if (isExternalReg) {
             //ToDo, do some external Reg stuff along with authentication
@@ -903,18 +855,16 @@ public class TPSProcessor {
              * Note: op.format.tokenProfileResolver=none indicates no resolver
              *    plugin used (tokenType resolved perhaps via authentication)
              */
-            if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
-                tokenType = resolveTokenProfile(resolverInstName, cuid, msn, major_version, minor_version);
-                CMS.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
-            } else {
-                CMS.debug("TPSProcessor.format: : selectedTokenType already set: " + selectedTokenType);
-            }
+
+            tokenType = resolveTokenProfile(resolverInstName, cuid, msn, major_version, minor_version);
+            CMS.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
         }
 
         // isExternalReg : user already authenticated earlier
         if (!isExternalReg) {
             // authenticate per profile/tokenType configuration
             String configName = TPSEngine.OP_FORMAT_PREFIX + "." + tokenType + ".auth.enable";
+            IConfigStore configStore = CMS.getConfigStore();
             boolean isAuthRequired;
             try {
                 CMS.debug("TPSProcessor.format: getting config: " + configName);
@@ -924,14 +874,14 @@ public class TPSProcessor {
                 throw new TPSException("TPS error getting config values from config store.",
                         TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
-            if (isAuthRequired) {
+            if (isAuthRequired && ! skipAuth) {
                 try {
                     TPSAuthenticator userAuth =
                             getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);
                     userCred = requestUserId("format", cuid, userAuth, beginMsg.getExtensions());
                     IAuthToken authToken = authenticateUser("format", userAuth, userCred);
                     userid = authToken.getInString("userid");
-                    CMS.debug("TPSProcessor.format:: auth token userid="+ userid);
+                    CMS.debug("TPSProcessor.format:: auth token userid=" + userid);
                 } catch (Exception e) {
                     // all exceptions are considered login failure
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
@@ -1009,9 +959,47 @@ public class TPSProcessor {
         //ToDo:  Symmetric Key Changeover
 
         // ToDo: Update Token DB
-
         // ToDo:  Revoke certificates
 
+    }
+
+    protected String getResolverInstanceName() throws TPSException {
+
+        CMS.debug("TPSProcessor.getResolverInstanceName: entering for operaiton : " + currentTokenOperation);
+        IConfigStore configStore = CMS.getConfigStore();
+        String resolverInstName = null;
+
+        String opPrefix = null;
+        String opDefault = null;
+
+        if (currentTokenOperation.equals(TPSEngine.FORMAT_OP)) {
+            opPrefix = TPSEngine.OP_FORMAT_PREFIX;
+            opDefault = TPSEngine.CFG_DEF_FORMAT_PROFILE_RESOLVER;
+
+        } else if (currentTokenOperation.equals(TPSEngine.ENROLL_OP)) {
+            opDefault = TPSEngine.CFG_DEF_ENROLL_PROFILE_RESOLVER;
+            opPrefix = TPSEngine.OP_ENROLL_PREFIX;
+        } else if (currentTokenOperation.equals(TPSEngine.PIN_RESET_OP)) {
+
+            opDefault = TPSEngine.CFG_DEF_PIN_RESET_PROFILE_RESOLVER;
+            opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
+        }
+
+        String config = opPrefix +
+                "." + TPSEngine.CFG_PROFILE_RESOLVER;
+
+        CMS.debug("TPSProcessor.getResolverInstanceName: config: " + config);
+        try {
+            resolverInstName = configStore.getString(config, opDefault);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getResolverInstanceName: Internal error finding config value.");
+
+        }
+
+        CMS.debug("TPSProcessor.getResolverInstanceName: returning: " + resolverInstName);
+
+        // TODO Auto-generated method stub
+        return resolverInstName;
     }
 
     /**
@@ -1030,34 +1018,43 @@ public class TPSProcessor {
             byte minor_version)
             throws TPSException {
         String tokenType;
-        try {
-            TokenProfileParams pParams = new TokenProfileParams();
-            CMS.debug("In TPSProcessor.resolveTokenProfile : after new TokenProfileParams");
-            pParams.set(TokenProfileParams.PROFILE_PARAM_MAJOR_VERSION,
-                    String.valueOf((int)major_version));
-            pParams.set(TokenProfileParams.PROFILE_PARAM_MINOR_VERSION,
-                    String.valueOf((int)minor_version));
-            pParams.set(TokenProfileParams.PROFILE_PARAM_CUID, cuid);
-            pParams.set(TokenProfileParams.PROFILE_PARAM_MSN, msn);
-            if (beginMsg.getExtensions() != null) {
-                pParams.set(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_TYPE,
-                        beginMsg.getExtensions().get("tokenType"));
-                pParams.set(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_ATR,
-                        beginMsg.getExtensions().get("tokenATR"));
+
+        if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
+
+            try {
+                TokenProfileParams pParams = new TokenProfileParams();
+                CMS.debug("In TPSProcessor.resolveTokenProfile : after new TokenProfileParams");
+                pParams.set(TokenProfileParams.PROFILE_PARAM_MAJOR_VERSION,
+                        String.valueOf(major_version));
+                pParams.set(TokenProfileParams.PROFILE_PARAM_MINOR_VERSION,
+                        String.valueOf(minor_version));
+                pParams.set(TokenProfileParams.PROFILE_PARAM_CUID, cuid);
+                pParams.set(TokenProfileParams.PROFILE_PARAM_MSN, msn);
+                if (beginMsg.getExtensions() != null) {
+                    pParams.set(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_TYPE,
+                            beginMsg.getExtensions().get("tokenType"));
+                    pParams.set(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_ATR,
+                            beginMsg.getExtensions().get("tokenATR"));
+                }
+                CMS.debug("In TPSProcessor.resolveTokenProfile : after setting TokenProfileParams");
+                TPSSubsystem subsystem =
+                        (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                BaseTokenProfileResolver resolverInst =
+                        subsystem.getProfileResolverManager().getResolverInstance(resolverInstName);
+                tokenType = resolverInst.getTokenType(pParams);
+                CMS.debug("In TPSProcessor.resolveTokenProfile : profile resolver result: " + tokenType);
+                setSelectedTokenType(tokenType);
+            } catch (EBaseException et) {
+                CMS.debug("In TPSProcessor.resolveTokenProfile exception:" + et);
+                throw new TPSException("TPSProcessor.resolveTokenProfile failed.",
+                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
             }
-            CMS.debug("In TPSProcessor.resolveTokenProfile : after setting TokenProfileParams");
-            TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-            BaseTokenProfileResolver resolverInst =
-                subsystem.getProfileResolverManager().getResolverInstance(resolverInstName);
-            tokenType = resolverInst.getTokenType(pParams);
-            CMS.debug("In TPSProcessor.resolveTokenProfile : profile resolver result: "+ tokenType);
-            setSelectedTokenType(tokenType);
-        } catch (EBaseException et) {
-            CMS.debug("In TPSProcessor.resolveTokenProfile exception:"+et);
-            throw new TPSException("TPSProcessor.resolveTokenProfile failed.",
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+
+        } else {
+            //Already have a token type, return it
+            tokenType = getSelectedTokenType();
         }
+
         return tokenType;
     }
 
@@ -1133,6 +1130,27 @@ public class TPSProcessor {
 
     }
 
+    //Obtain value and set class property.
+    protected void checkIsExternalReg() throws TPSException {
+
+        IConfigStore configStore = CMS.getConfigStore();
+        String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
+
+        try {
+            //These defaults are well known, it is safe to use them.
+
+            CMS.debug("In TPS_Processor.checkIsExternalReg.");
+
+            this.isExternalReg = configStore.getBoolean(External_Reg_Cfg, false);
+            CMS.debug("In TPS_Processor.checkIsExternalReg. isExternalReg: " + isExternalReg);
+        } catch (EBaseException e1) {
+            CMS.debug("TPS_Processor.checkIsExternalReg: Internal Error obtaining mandatory config values. Error: "
+                    + e1);
+            throw new TPSException("TPS error getting config values from config store.");
+        }
+
+    }
+
     boolean checkServerSideKeyGen(String connId) throws TPSException {
 
         boolean result;
@@ -1166,6 +1184,26 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
 
+    }
+
+    boolean checkForAppletUpdateEnabled() throws TPSException {
+        boolean enabled = false;
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String appletUpdate = currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_UPDATE_APPLET_ENABLE;
+
+        try {
+            enabled = configStore.getBoolean(appletUpdate, false);
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    "TPSProcessor.checkForAppleUpdateEnabled: Can't find applet Update Enable. Internal error obtaining value.",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+
+        }
+
+        return enabled;
     }
 
     protected String checkForAppletUpgrade(String operation) throws TPSException {
@@ -1230,6 +1268,63 @@ public class TPSProcessor {
         CMS.debug("TPSProcessor.getTKSConectorID: returning: " + id);
 
         return id;
+    }
+
+    protected TPSBuffer getNetkeyAID() throws TPSException {
+
+        String NetKeyAID = null;
+        IConfigStore configStore = CMS.getConfigStore();
+        try {
+
+            NetKeyAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_INSTANCE_AID,
+                    TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
+
+        } catch (EBaseException e1) {
+            CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
+            throw new TPSException("TPS error getting config values from config store.");
+        }
+
+        TPSBuffer ret = new TPSBuffer(NetKeyAID);
+
+        return ret;
+    }
+
+    protected TPSBuffer getNetkeyPAID() throws TPSException {
+
+        String NetKeyPAID = null;
+        IConfigStore configStore = CMS.getConfigStore();
+        try {
+
+            NetKeyPAID = configStore.getString(
+                    TPSEngine.CFG_APPLET_NETKEY_FILE_AID, TPSEngine.CFG_DEF_NETKEY_FILE_AID);
+
+        } catch (EBaseException e1) {
+            CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
+            throw new TPSException("TPS error getting config values from config store.");
+        }
+
+        TPSBuffer ret = new TPSBuffer(NetKeyPAID);
+
+        return ret;
+    }
+
+    protected TPSBuffer getCardManagerAID() throws TPSException {
+
+        String cardMgrAID = null;
+        IConfigStore configStore = CMS.getConfigStore();
+        try {
+
+            cardMgrAID = configStore.getString(TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID,
+                    TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
+
+        } catch (EBaseException e1) {
+            CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
+            throw new TPSException("TPS error getting config values from config store.");
+        }
+
+        TPSBuffer ret = new TPSBuffer(cardMgrAID);
+
+        return ret;
     }
 
     protected String getAppletExtension() throws TPSException {
@@ -1415,22 +1510,27 @@ public class TPSProcessor {
         return isExternalReg;
     }
 
-    public void process(BeginOp beginMsg) throws TPSException, IOException {
+    public void process(BeginOpMsg beginMsg) throws TPSException, IOException {
 
         if (beginMsg == null) {
             throw new TPSException("TPSProcessor.process: invalid input data, not beginMsg provided.",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
         setBeginMessage(beginMsg);
+        setCurrentTokenOperation("format");
+        checkIsExternalReg();
 
-        format();
+        format(false);
     }
 
     public void statusUpdate(int status, String info) throws IOException {
 
-        CMS.debug("In statusUpdate status: " + " info: " + info);
+        if (!requiresStatusUpdate())
+            return;
 
-        StatusUpdateRequest statusUpdate = new StatusUpdateRequest(status, info);
+        CMS.debug("In TPSProcessor.statusUpdate status: " + " info: " + info);
+
+        StatusUpdateRequestMsg statusUpdate = new StatusUpdateRequestMsg(status, info);
         session.write(statusUpdate);
 
         //We don't really care about the response, just that we get it.
@@ -1438,7 +1538,6 @@ public class TPSProcessor {
         session.read();
 
     }
-
 
     public TPSEngine getTPSEngine() {
         TPSSubsystem subsystem =
@@ -1454,13 +1553,130 @@ public class TPSProcessor {
         boolean result = false;
 
         // We can't get here without a begin message established.
-        String update = getBeginMessage().getExtension(BeginOp.STATUS_UPDATE_EXTENSION_NAME);
+        String update = getBeginMessage().getExtension(BeginOpMsg.STATUS_UPDATE_EXTENSION_NAME);
 
         if (update != null && update.equals("true")) {
             result = true;
         }
 
         return result;
+
+    }
+
+    protected AppletInfo getAppletInfo() throws TPSException, IOException {
+        AppletInfo result = null;
+
+        CMS.debug("TPSProcessor.getAppletInfo, entering ...");
+        TPSBuffer aidBuf = getCardManagerAID();
+
+        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuf);
+
+        if (!select.checkResult()) {
+            throw new TPSException("TPSProcessor.getAppletInfo: Can't selelect the card manager!");
+        }
+
+        TPSBuffer cplc_data = getCplcData();
+        CMS.debug("cplc_data: " + cplc_data.toString());
+
+        TPSBuffer token_cuid = extractTokenCUID(cplc_data);
+        TPSBuffer token_msn = extractTokenMSN(cplc_data);
+
+        /**
+         * Checks if the netkey has the required applet version.
+         */
+
+        TPSBuffer netkeyAid = getNetkeyAID();
+
+        // We don't care if the above fails now. getStatus will determine outcome.
+
+        select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAid);
+
+        TPSBuffer token_status = getStatus();
+
+        byte major_version = 0x0;
+        byte minor_version = 0x0;
+        byte app_major_version = 0x0;
+        byte app_minor_version = 0x0;
+
+        CMS.debug("TPS_Processor.getAppletInfo: status: " + token_status.toHexString());
+        if (token_status.size() >= 4) {
+            major_version = token_status.at(0);
+            minor_version = token_status.at(1);
+            app_major_version = token_status.at(2);
+            app_minor_version = token_status.at(3);
+        }
+
+        result = new AppletInfo(major_version, minor_version, app_major_version, app_minor_version);
+        result.setCUID(token_cuid);
+        result.setMSN(token_msn);
+
+        CMS.debug("TPSProcessor.getAppletInfo: cuid: " + result.getCUIDString() + " msn: " + result.getMSNString()
+                + " major version: " + result.getMinorVersion() + " minor version: " + result.getMinorVersion()
+                + " App major version: " + result.getAppMajorVersion() + " App minor version: "
+                + result.getAppMinorVersion());
+
+        return result;
+    }
+
+    protected boolean checkSymmetricKeysEnabled() throws TPSException {
+        boolean result = true;
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String symmConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_SYMM_KEY_UPGRADE_ENABLED;
+
+        try {
+            result = configStore.getBoolean(symmConfig, true);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.checkSymmetricKeysEnabled: Internal error getting config value.");
+        }
+
+        return result;
+    }
+
+    protected SecureChannel checkAndUpgradeSymKeys() throws TPSException, IOException {
+
+        SecureChannel channel = null;
+
+        if (checkSymmetricKeysEnabled()) {
+            //To be implemented later
+            throw new TPSException("TPSProcessor.checkAndUpgradeSymKeys: Key changeover not yet implemented!",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+
+        } else {
+            //Create a standard secure channel with current key set.
+            CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: Key changeover disabled in the configuration.");
+
+            int defKeyVersion = getChannelDefKeyVersion();
+            int defKeyIndex = getChannelDefKeyIndex();
+
+            channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, SecurityLevel.SECURE_MSG_MAC_ENC,
+                    getTKSConnectorID());
+
+        }
+
+        return channel;
+    }
+
+    //List objects that may be on a given token
+    //Return null if object void of objects
+
+    protected TPSBuffer listObjects(byte seq) throws TPSException, IOException {
+        TPSBuffer objects = null;
+
+        ListObjectsAPDU listObjects = new ListObjectsAPDU(seq);
+
+        APDUResponse respApdu = handleAPDURequest(listObjects);
+
+        if (!respApdu.checkResult()) {
+            CMS.debug("TPSProcessor.listObjects: Bad response from ListObjects! Token possibly has no objects");
+            return null;
+        }
+
+        objects = respApdu.getData();
+
+        return objects;
 
     }
 

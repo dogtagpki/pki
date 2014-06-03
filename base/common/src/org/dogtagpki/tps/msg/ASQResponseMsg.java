@@ -18,11 +18,11 @@
 package org.dogtagpki.tps.msg;
 
 
-public class ASQRequest extends TPSMessage {
-    public ASQRequest(String question) {
+public class ASQResponseMsg extends TPSMessage {
 
-        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_ASQ_REQUEST));
-        put(QUESTION_NAME,question);
+    public ASQResponseMsg(String answer) {
+        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_ASQ_RESPONSE));
+        put(QUESTION_NAME,answer);
 
     }
 

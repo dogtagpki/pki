@@ -25,14 +25,17 @@ import org.dogtagpki.tps.apdu.APDUResponse;
 import org.dogtagpki.tps.apdu.DeleteFileAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
+import org.dogtagpki.tps.apdu.GenerateKeyAPDU;
+import org.dogtagpki.tps.apdu.GenerateKeyECCAPDU;
 import org.dogtagpki.tps.apdu.InstallAppletAPDU;
 import org.dogtagpki.tps.apdu.InstallLoadAPDU;
 import org.dogtagpki.tps.apdu.LoadFileAPDU;
+import org.dogtagpki.tps.apdu.ReadObjectAPDU;
 import org.dogtagpki.tps.apdu.SetIssuerInfoAPDU;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
-import org.dogtagpki.tps.msg.EndOp.TPSStatus;
+import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
 import com.netscape.certsrv.apps.CMS;
@@ -54,14 +57,17 @@ public class SecureChannel {
     private TPSBuffer hostChallenge;
     private TPSBuffer hostCryptogram;
     private TPSBuffer icv;
+    private TPSBuffer keyInfoData;
     private SecurityLevel secLevel;
 
     public SecureChannel(TPSProcessor processor, PK11SymKey sessionKey, PK11SymKey encSessionKey, TPSBuffer drmDesKey,
             TPSBuffer kekDesKey, TPSBuffer keyCheck, TPSBuffer keyDiversificationData, TPSBuffer cardChallenge,
-            TPSBuffer cardCryptogram, TPSBuffer hostChallenge, TPSBuffer hostCryptogram) throws TPSException {
+            TPSBuffer cardCryptogram, TPSBuffer hostChallenge, TPSBuffer hostCryptogram, TPSBuffer keyInfoData)
+            throws TPSException {
 
         if (processor == null || sessionKey == null | encSessionKey == null || keyDiversificationData == null
-                || cardChallenge == null || cardCryptogram == null || hostChallenge == null || hostCryptogram == null) {
+                || cardChallenge == null || cardCryptogram == null || hostChallenge == null || hostCryptogram == null
+                || keyInfoData == null) {
             throw new TPSException("SecureChannel.SecureChannel: Invalid data in constructor!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -78,6 +84,7 @@ public class SecureChannel {
         this.hostChallenge = hostChallenge;
         this.hostCryptogram = hostCryptogram;
         this.icv = new TPSBuffer(8);
+        this.keyInfoData = keyInfoData;
 
         this.secLevel = SecurityLevel.SECURE_MSG_MAC_ENC;
         //ToDo: Write method that reads this from the config
@@ -392,6 +399,123 @@ public class SecureChannel {
 
     public TPSBuffer getCardCryptogram() {
         return cardCryptogram;
+    }
+
+    public TPSBuffer getKeyInfoData() {
+        return keyInfoData;
+    }
+
+    public TPSBuffer readObject(TPSBuffer objectID, int offset, int len) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.readObject: entering ...");
+
+        if (objectID == null || len == 0) {
+            throw new TPSException("SecureChannel.readObject: invalid input data.",
+                    TPSStatus.STATUS_ERROR_READ_OBJECT_PDU);
+        }
+
+        final int MAX_READ_BUFFER_SIZE = 0xd0;
+
+        ReadObjectAPDU read = null;
+        TPSBuffer result = new TPSBuffer();
+
+        int cur_read = 0;
+        int cur_offset = 0;
+        int sum = 0;
+
+        if (len > MAX_READ_BUFFER_SIZE) {
+            cur_offset = offset;
+            cur_read = MAX_READ_BUFFER_SIZE;
+        } else {
+            cur_offset = offset;
+            cur_read = len;
+        }
+
+        while (sum < len) {
+
+            read = new ReadObjectAPDU(objectID.toBytesArray(), cur_offset, cur_read);
+            computeAPDU(read);
+
+            APDUResponse response = processor.handleAPDURequest(read);
+
+            if (!response.checkResult()) {
+                CMS.debug("SecureChannel.readObject: bad apdu return!");
+                throw new TPSException("SecureChannel.installApplett. Failed in middle of readObject.",
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            }
+
+            TPSBuffer resp = response.getResultDataNoCode();
+
+            result.add(resp);
+
+            sum += resp.size();
+            cur_offset += resp.size();
+
+            if ((len - sum) < MAX_READ_BUFFER_SIZE) {
+                cur_read = len - sum;
+            } else {
+                cur_read = MAX_READ_BUFFER_SIZE;
+            }
+
+        }
+
+        return result;
+    }
+
+    public int startEnrollment(int pe1, int pe2, TPSBuffer wrappedChallenge, TPSBuffer keyCheck, int algorithm,
+            int keySize, int option) throws TPSException, IOException {
+
+        if (wrappedChallenge == null) {
+            throw new TPSException("SecureChannel.startEnrollment. Bad input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        CMS.debug("SecureChannel.startEnrollment: entering ...");
+
+        boolean isECC = processor.getTPSEngine().isAlgorithmECC(algorithm);
+
+        GenerateKeyAPDU generate_key_apdu = null;
+        GenerateKeyECCAPDU generate_ecc_key_apdu = null;
+
+        APDUResponse response = null;
+        if (isECC) {
+
+            generate_ecc_key_apdu = new GenerateKeyECCAPDU((byte) pe1, (byte) pe2, (byte) algorithm, keySize,
+                    (byte) option, (byte) 0, wrappedChallenge, keyCheck);
+
+            computeAPDU(generate_ecc_key_apdu);
+
+            response = processor.handleAPDURequest(generate_ecc_key_apdu);
+
+            if (!response.checkResult()) {
+                throw new TPSException("SecureChannel.startEnrollment. Failed generate key on token.",
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+
+        } else {
+
+            generate_key_apdu = new GenerateKeyAPDU((byte) pe1, (byte) pe2, (byte) algorithm, keySize,
+                    (byte) option, (byte) 0, wrappedChallenge, keyCheck);
+
+            computeAPDU(generate_key_apdu);
+
+            response = processor.handleAPDURequest(generate_key_apdu);
+
+            if (!response.checkResult()) {
+                throw new TPSException("SecureChannel.startEnrollment. Failed generate key on token.",
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+
+        }
+
+        TPSBuffer data = response.getData();
+
+        int size = data.getIntFrom2Bytes(0);
+
+        CMS.debug("SecureChannel.startEnrollment: returning key size: " + size);
+
+        return size;
+
     }
 
 }

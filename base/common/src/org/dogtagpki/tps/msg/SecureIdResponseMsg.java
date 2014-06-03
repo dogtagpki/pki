@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.tps.msg;
 
-public class SecureIdResponse extends TPSMessage {
-    public SecureIdResponse(String value, String pin) {
+public class SecureIdResponseMsg extends TPSMessage {
+    public SecureIdResponseMsg(String value, String pin) {
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_SECUREID_RESPONSE));
 
         put(VALUE_NAME,value);

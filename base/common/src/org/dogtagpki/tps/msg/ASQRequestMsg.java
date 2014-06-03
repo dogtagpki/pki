@@ -18,10 +18,12 @@
 package org.dogtagpki.tps.msg;
 
 
-public class NewPinResponse  extends TPSMessage {
-    public NewPinResponse(String new_pin) {
-        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_NEW_PIN_RESPONSE));
-        put(NEW_PIN_NAME,new_pin);
+public class ASQRequestMsg extends TPSMessage {
+    public ASQRequestMsg(String question) {
+
+        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_ASQ_REQUEST));
+        put(QUESTION_NAME,question);
+
     }
 
 }

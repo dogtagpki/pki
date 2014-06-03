@@ -220,6 +220,15 @@ public class TPSBuffer {
     }
 
     /**
+     * Get the SubString from start to the end
+     * @param start
+     * @return
+     */
+    public TPSBuffer substr(int start) {
+        return substr(start,buf.length -2);
+    }
+
+    /**
      * dump()s this Buffer to stdout.
      */
     public void dump() {
@@ -252,6 +261,58 @@ public class TPSBuffer {
         }
 
         return result.toString();
+    }
+
+    public int getIntFrom1Byte(int offset) {
+
+        if (offset < 0 || offset >= (this.size())) {
+            return 0;
+        }
+
+        int result = (this.at(offset) & 0xff);
+
+        return result;
+    }
+
+    public int getIntFrom2Bytes(int offset) {
+
+        if (offset < 0 || offset >= (this.size() - 1)) {
+            return 0;
+        }
+
+        int i1 = (this.at(offset) & 0xff) << 8;
+        int i2 = this.at(offset + 1) & 0xff;
+
+        return i1 + i2;
+    }
+
+    public void addLong4Bytes(long value) {
+
+        this.add((byte) ((value >> 24) & 0xff));
+
+        this.add((byte) ((value >> 16) & 0xff));
+        this.add((byte) ((value >> 8) & 0xff));
+        this.add((byte) (value & 0xff));
+    }
+
+    public void addInt2Bytes(int value) {
+        this.add((byte) ((value >> 8) & 0xff));
+        this.add((byte) (value & 0xff));
+    }
+
+    public long getLongFrom4Bytes(int offset) {
+
+        if (offset < 0 || offset >= (this.size() - 3)) {
+            return 0;
+        }
+
+        long l1 = (long) (this.at(offset + 0) & 0xff) << 24;
+
+        long l2 = (long) (this.at(offset + 1) & 0xff) << 16;
+        long l3 = (long) (this.at(offset + 2) & 0xff) << 8;
+        long l4 = this.at(offset + 3) & 0xff;
+
+        return l1 + l2 + l3 + l4;
     }
 
     public static void main(String[] args) {

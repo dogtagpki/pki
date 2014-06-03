@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.tps.main;
 
-import org.dogtagpki.tps.msg.EndOp.TPSStatus;
+import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.base.EBaseException;
 

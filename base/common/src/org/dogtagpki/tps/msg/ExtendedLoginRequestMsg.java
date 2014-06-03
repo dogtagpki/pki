@@ -24,11 +24,11 @@ import java.util.Set;
 
 import org.dogtagpki.tps.main.Util;
 
-public class ExtendedLoginRequest extends TPSMessage {
+public class ExtendedLoginRequestMsg extends TPSMessage {
 
     private Set<String> params;
 
-    public ExtendedLoginRequest(int invalid_pw, int blocked, Set<String> params, String title, String description) {
+    public ExtendedLoginRequestMsg(int invalid_pw, int blocked, Set<String> params, String title, String description) {
 
         put(INVALID_PWD_NAME, invalid_pw);
         put(BLOCKED_NAME, blocked);
@@ -82,7 +82,7 @@ public class ExtendedLoginRequest extends TPSMessage {
         params.add("id=UID&name=LDAP User ID&desc=LDAP User ID&type=string&option=");
         params.add("id=PASSWORD&name=LDAP Password&desc=LDAP Password&type=password&option=");
 
-        ExtendedLoginRequest ext_login_req = new ExtendedLoginRequest(0, 0, params, title, description);
+        ExtendedLoginRequestMsg ext_login_req = new ExtendedLoginRequestMsg(0, 0, params, title, description);
 
         System.out.println(ext_login_req.encode());
 

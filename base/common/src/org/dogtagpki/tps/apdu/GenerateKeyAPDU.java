@@ -46,10 +46,15 @@ public class GenerateKeyAPDU extends APDU {
         data.add((byte) wrapped_challenge.size());
         data.add(wrapped_challenge);
 
-        data.add((byte) key_check.size());
+        if (key_check != null) {
+            data.add((byte) key_check.size());
 
-        if (key_check.size() > 0) {
-            data.add(key_check);
+            if (key_check.size() > 0) {
+                data.add(key_check);
+            }
+
+        } else {
+            data.add((byte) 0);
         }
 
     }

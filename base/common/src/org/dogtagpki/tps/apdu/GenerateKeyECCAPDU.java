@@ -49,10 +49,15 @@ public class GenerateKeyECCAPDU extends APDU {
 
         data1.add(wrapped_challenge);
 
-        data1.add((byte) key_check.size());
+        if (key_check != null) {
+            data1.add((byte) key_check.size());
 
-        if (key_check.size() > 0) {
-            data1.add(key_check);
+            if (key_check.size() > 0) {
+                data1.add(key_check);
+            }
+
+        } else {
+            data1.add((byte) 0);
         }
 
         setData(data1);

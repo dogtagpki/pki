@@ -19,11 +19,12 @@ package org.dogtagpki.server.tps;
 
 import java.io.IOException;
 
+import org.dogtagpki.server.tps.processor.TPSEnrollProcessor;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
 import org.dogtagpki.tps.TPSConnection;
 import org.dogtagpki.tps.main.TPSException;
-import org.dogtagpki.tps.msg.BeginOp;
-import org.dogtagpki.tps.msg.EndOp;
+import org.dogtagpki.tps.msg.BeginOpMsg;
+import org.dogtagpki.tps.msg.EndOpMsg;
 import org.dogtagpki.tps.msg.TPSMessage;
 
 import com.netscape.certsrv.apps.CMS;
@@ -77,7 +78,7 @@ public class TPSSession {
     }
 
     public void process() throws IOException {
-        EndOp.TPSStatus status = EndOp.TPSStatus.STATUS_NO_ERROR;
+        EndOpMsg.TPSStatus status = EndOpMsg.TPSStatus.STATUS_NO_ERROR;
         CMS.debug("In TPSSession.process()");
 
         TPSMessage firstMsg = read();
@@ -89,17 +90,24 @@ public class TPSSession {
             throw new IOException("Wrong first message type read in TPSSession.process!");
         }
 
-        int result = EndOp.RESULT_GOOD;
+        int result = EndOpMsg.RESULT_ERROR;
+        BeginOpMsg beginOp = (BeginOpMsg) firstMsg;
         try {
 
             switch (op_type) {
             case OP_FORMAT:
 
+                //Assume success, processor will indicate otherwise
+                result = EndOpMsg.RESULT_GOOD;
                 TPSProcessor processor = new TPSProcessor(this);
-                BeginOp beginOp = (BeginOp) firstMsg;
                 processor.process(beginOp);
+                break;
 
             case OP_ENROLL:
+                //Assume success, processor will indicate otherwise
+                result = EndOpMsg.RESULT_GOOD;
+                TPSEnrollProcessor enrollProcessor = new TPSEnrollProcessor(this);
+                enrollProcessor.process(beginOp);
                 break;
             case OP_RENEW:
                 break;
@@ -117,7 +125,7 @@ public class TPSSession {
             //Get the status from the exception and return it to the client.
             CMS.debug("TPSSession.process: Message processing failed: " + e);
             status = e.getStatus();
-            result = EndOp.RESULT_ERROR;
+            result = EndOpMsg.RESULT_ERROR;
         } catch (IOException e) {
             CMS.debug("TPSSession.process: IO error happened during processing: " + e);
             // We get here we are done.
@@ -125,7 +133,7 @@ public class TPSSession {
 
         }
 
-        EndOp endOp = new EndOp(firstMsg.getOpType(), result, status);
+        EndOpMsg endOp = new EndOpMsg(firstMsg.getOpType(), result, status);
         write(endOp);
 
         CMS.debug("TPSSession.process: leaving: result: " + result + " status: " + status);

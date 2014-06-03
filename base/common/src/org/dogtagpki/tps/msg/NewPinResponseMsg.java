@@ -18,12 +18,10 @@
 package org.dogtagpki.tps.msg;
 
 
-public class StatusUpdateResponse extends TPSMessage {
-
-    public StatusUpdateResponse(int status) {
-        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_STATUS_UPDATE_RESPONSE));
-        put(STATUS_NAME,status);
+public class NewPinResponseMsg  extends TPSMessage {
+    public NewPinResponseMsg(String new_pin) {
+        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_NEW_PIN_RESPONSE));
+        put(NEW_PIN_NAME,new_pin);
     }
-
 
 }

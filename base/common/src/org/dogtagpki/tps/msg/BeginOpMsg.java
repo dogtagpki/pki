@@ -21,11 +21,11 @@ import java.util.Map;
 
 import com.netscape.certsrv.apps.CMS;
 
-public class BeginOp extends TPSMessage {
+public class BeginOpMsg extends TPSMessage {
 
     private Map<String, String> extensions;
 
-    public BeginOp(OpType theOp, Map<String, String> theExtensions) {
+    public BeginOpMsg(OpType theOp, Map<String, String> theExtensions) {
 
         CMS.debug("BeingOp op: " + theOp + " extensions: " + theExtensions);
         put(OPERATION_TYPE_NAME, opTypeToInt(theOp));

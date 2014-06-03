@@ -18,13 +18,15 @@
 package org.dogtagpki.tps.msg;
 
 
-public class NewPinRequest extends TPSMessage {
-    public NewPinRequest(int min_len, int max_len) {
+public class LoginRequestMsg extends TPSMessage {
 
-        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_NEW_PIN_REQUEST));
+    public LoginRequestMsg(int invalid_pwd, int blocked) {
 
-        put(MINIMUM_LENGTH_NAME,min_len);
-        put(MAXIMUM_LENGTH_NAME, max_len);
+        put(INVALID_PWD_NAME, invalid_pwd);
+        put(BLOCKED_NAME,blocked);
+        put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_LOGIN_REQUEST));
+
     }
+
 
 }

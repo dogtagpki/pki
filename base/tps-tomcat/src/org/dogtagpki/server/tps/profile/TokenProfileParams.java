@@ -21,9 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.netscape.certsrv.apps.CMS;
 import org.dogtagpki.tps.main.TPSException;
-import org.dogtagpki.tps.msg.EndOp.TPSStatus;
+import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
+
+import com.netscape.certsrv.apps.CMS;
 
 /**
  * A class represents profile params information.

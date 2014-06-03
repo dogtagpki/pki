@@ -441,7 +441,7 @@ public class TPSMessage {
 
         switch (val) {
         case MSG_BEGIN_OP:
-            result = new BeginOp(op_val, extsMap);
+            result = new BeginOpMsg(op_val, extsMap);
 
             break;
         case MSG_ASQ_REQUEST:
@@ -454,7 +454,7 @@ public class TPSMessage {
             break;
         case MSG_EXTENDED_LOGIN_RESPONSE:
             result =
-                new ExtendedLoginResponse(op_val,
+                new ExtendedLoginResponseMsg(op_val,
                     get(SCREEN_NAME_NAME),
                     get(PASSWORD_NAME),
                     extsMap);
@@ -463,7 +463,7 @@ public class TPSMessage {
             break;
         case MSG_LOGIN_RESPONSE:
             result =
-                new LoginResponse(get(SCREEN_NAME_NAME),
+                new LoginResponseMsg(get(SCREEN_NAME_NAME),
                     get(PASSWORD_NAME));
             break;
         case MSG_NEW_PIN_REQUEST:
@@ -482,12 +482,12 @@ public class TPSMessage {
             CMS.debug("statusValue: " + statusValue);
             int statusInt = Integer.parseInt(statusValue);
             CMS.debug("statusInt: " + statusInt);
-            result = new StatusUpdateResponse(statusInt);
+            result = new StatusUpdateResponseMsg(statusInt);
             break;
         case MSG_TOKEN_PDU_REQUEST:
             break;
         case MSG_TOKEN_PDU_RESPONSE:
-            result = new TokenPDUResponse(encode());
+            result = new TokenPDUResponseMsg(encode());
             break;
         default:
             //Something was garbled with the message coming in
@@ -519,7 +519,7 @@ public class TPSMessage {
 
     public static void main(String[] args) throws IOException {
         String encoded = "s=204&msg_type=2&operation=5&extensions=tokenType%3DuserKey%26clientVersion%3DESC+1%2E0%2E1%26tokenATR%3D3BFF1400FF8131FE458025A00000005657534336353003003B%26statusUpdate%3Dtrue%26extendedLoginRequest%3Dtrue%26";
-        BeginOp testMessage = (BeginOp) TPSMessage.createMessage(encoded);
+        BeginOpMsg testMessage = (BeginOpMsg) TPSMessage.createMessage(encoded);
         System.out.println("Encoded msg: " + testMessage.encode());
         System.out.println("msg Extensions: " + testMessage.getExtensions());
 
