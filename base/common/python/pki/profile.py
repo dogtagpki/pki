@@ -5,11 +5,13 @@ Created on May 13,, 2014
 @author: akoneru
 """
 
+import json
 import types
 
 import pki
 import pki.client as client
 import pki.account as account
+import pki.encoder as encoder
 
 
 class ProfileDataInfo(object):
@@ -646,6 +648,14 @@ class PolicySet(object):
     def policy_list(self, value):
         setattr(self, 'value', value)
 
+    def add_policy(self, profile_policy):
+        self.policy_list.append(profile_policy)
+
+    def remove_policy(self, policy_id):
+        for policy in self.policy_list:
+            if policy.policy_id == policy_id:
+                self.policy_list.pop(policy)
+
     @classmethod
     def from_json(cls, json_value):
         policy_set = cls()
@@ -672,6 +682,9 @@ class PolicySetList(object):
         else:
             self.policy_sets = policy_sets
 
+    def __iter__(self):
+        return iter(self.policy_sets)
+
     @property
     def policy_sets(self):
         return getattr(self, 'PolicySet')
@@ -679,6 +692,14 @@ class PolicySetList(object):
     @policy_sets.setter
     def policy_sets(self, value):
         setattr(self, 'PolicySet', value)
+
+    def add_policy_set(self, policy_set):
+        self.policy_sets.append(policy_set)
+
+    def remove_policy_set(self, policy_set_name):
+        for policy_set in self.policy_sets:
+            if policy_set.name == policy_set_name:
+                self.policy_sets.pop(policy_set)
 
     @classmethod
     def from_json(cls, json_value):
@@ -691,8 +712,10 @@ class PolicySetList(object):
                 policy_set_list.policy_sets.append(
                     PolicySet.from_json(policy_set))
 
+        return policy_set_list
 
-class ProfileData(object):
+
+class Profile(object):
     """
     This class represents an enrollment profile.
     """
@@ -700,8 +723,8 @@ class ProfileData(object):
     def __init__(self, profile_id=None, class_id=None, name=None,
                  description=None, enabled=None, visible=None, enabled_by=None,
                  authenticator_id=None, authorization_acl=None, renewal=None,
-                 xml_output=None, inputs=None, outputs=None, policy_sets=None,
-                 link=None):
+                 xml_output=None, inputs=None, outputs=None,
+                 policy_set_list=None, link=None):
 
         self.profile_id = profile_id
         self.name = name
@@ -722,10 +745,10 @@ class ProfileData(object):
             self.outputs = []
         else:
             self.outputs = outputs
-        if policy_sets is None:
-            self.policy_sets = []
+        if policy_set_list is None:
+            self.policy_set_list = PolicySetList()
         else:
-            self.policy_sets = policy_sets
+            self.policy_set_list = policy_set_list
         self.link = link
 
     @property
@@ -793,12 +816,40 @@ class ProfileData(object):
         setattr(self, 'Output', value)
 
     @property
-    def policy_sets(self):
+    def policy_set_list(self):
         return getattr(self, 'PolicySets')
 
-    @policy_sets.setter
-    def policy_sets(self, value):
+    @policy_set_list.setter
+    def policy_set_list(self, value):
         setattr(self, 'PolicySets', value)
+
+    def add_input(self, profile_input):
+        if profile_input is None:
+            raise ValueError("No ProfileInput object provided.")
+        self.inputs.append(profile_input)
+
+    def remove_input(self, profile_input_id):
+        for profile_input in self.inputs:
+            if profile_input_id == profile_input.profile_input_id:
+                self.inputs.pop(profile_input)
+
+    def add_output(self, profile_output):
+        if profile_output is None:
+            raise ValueError("No ProfileOutput object provided.")
+        self.outputs.append(profile_output)
+
+    def remove_output(self, profile_output_id):
+        for profile_output in self.outputs:
+            if profile_output_id == profile_output.profile_output_id:
+                self.inputs.pop(profile_output)
+
+    def add_policy_set(self, policy_set):
+        if policy_set is None:
+            raise ValueError("No PolicySet object provided.")
+        self.policy_set_list.add_policy_set(policy_set)
+
+    def remove_policy_set(self, policy_set_name):
+        self.policy_set_list.remove_policy_set(policy_set_name)
 
     @classmethod
     def from_json(cls, json_value):
@@ -834,14 +885,8 @@ class ProfileData(object):
                 profile_data.outputs.append(
                     ProfileOutput.from_json(profile_output))
 
-        policy_sets = json_value['PolicySets']
-        if not isinstance(policy_sets, types.ListType):
-            profile_data.policy_sets.append(
-                PolicySetList.from_json(policy_sets))
-        else:
-            for policy_set in policy_sets:
-                profile_data.policy_sets.append(
-                    PolicySetList.from_json(policy_set))
+        profile_data.policy_set_list = \
+            PolicySetList.from_json(json_value['PolicySets'])
 
         profile_data.link = pki.Link.from_json(json_value['link'])
 
@@ -884,6 +929,18 @@ class ProfileClient(object):
         self.account_client.logout()
         return r
 
+    def _put(self, url, payload=None):
+        self.account_client.login()
+        r = self.connection.put(url, payload, self.headers)
+        self.account_client.logout()
+        return r
+
+    def _delete(self, url):
+        self.account_client.login()
+        r = self.connection.delete(url, self.headers)
+        self.account_client.logout()
+        return r
+
     @pki.handle_exceptions()
     def list_profiles(self, start=None, size=None):
         """
@@ -908,7 +965,7 @@ class ProfileClient(object):
             raise ValueError("Profile ID must be specified.")
         url = self.profiles_url + '/' + str(profile_id)
         r = self._get(url)
-        return ProfileData.from_json(r.json())
+        return Profile.from_json(r.json())
 
     def _modify_profile_state(self, profile_id, action):
         """
@@ -937,6 +994,56 @@ class ProfileClient(object):
         Disables a profile.
         """
         return self._modify_profile_state(profile_id, 'disable')
+
+    def create_profile(self, profile_data):
+        """
+        Create a new profile for the given ProfileData object.
+        """
+        if profile_data is None:
+            raise ValueError("No ProfileData specified")
+
+        profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
+                                    sort_keys=True)
+        r = self._post(self.profiles_url, profile_object)
+        return Profile.from_json(r.json())
+
+    def modify_profile(self, profile_data):
+        """
+        Modify an existing profile.
+        """
+        if profile_data is None:
+            raise ValueError("No ProfileData specified")
+
+        url = self.profiles_url + '/' + str(profile_data.profile_id)
+        profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
+                                    sort_keys=True)
+        r = self._put(url, profile_object)
+        return Profile.from_json(r.json())
+
+    def delete_profile(self, profile_id):
+        """
+        Delete a profile.
+        """
+        if profile_id is None:
+            raise ValueError("Profile Id must be specified.")
+
+        url = self.profiles_url + '/' + str(profile_id)
+        r = self._delete(url)
+        return r
+
+    encoder.NOTYPES['Profile'] = Profile
+    encoder.NOTYPES['ProfileInput'] = ProfileInput
+    encoder.NOTYPES['ProfileOutput'] = ProfileOutput
+    encoder.NOTYPES['ProfileAttribute'] = ProfileAttribute
+    encoder.NOTYPES['Descriptor'] = Descriptor
+    encoder.NOTYPES['PolicySetList'] = PolicySetList
+    encoder.NOTYPES['PolicySet'] = PolicySet
+    encoder.NOTYPES['ProfilePolicy'] = ProfilePolicy
+    encoder.NOTYPES['PolicyDefault'] = PolicyDefault
+    encoder.NOTYPES['PolicyConstraint'] = PolicyConstraint
+    encoder.NOTYPES['ProfileParameter'] = ProfileParameter
+    encoder.NOTYPES['PolicyConstraintValue'] = PolicyConstraintValue
+    encoder.NOTYPES['Link'] = pki.Link
 
 
 def main():
@@ -989,6 +1096,95 @@ def main():
     print('  Profile ID: ' + profile_data.profile_id)
     print('  Is profile enabled? ' + str(profile.enabled))
     print
+
+    # Create a new sample profile
+    print('Creating a new profile:')
+    print('-----------------------')
+
+    profile_data = Profile(name="My Sample User Cert Enrollment",
+                           profile_id="MySampleCert", class_id="caEnrollImpl",
+                           description="Example User Cert Enroll Impl",
+                           enabled_by='admin', enabled=False, visible=False,
+                           renewal=False, xml_output=False,
+                           authorization_acl="")
+
+    profile_input = ProfileInput("i1", "subjectNameInputImpl")
+    profile_input.add_attribute(ProfileAttribute("sn_uid"))
+    profile_input.add_attribute(ProfileAttribute("sn_e"))
+    profile_input.add_attribute(ProfileAttribute("sn_c"))
+    profile_input.add_attribute(ProfileAttribute("sn_ou"))
+    profile_input.add_attribute(ProfileAttribute("sn_ou1"))
+    profile_input.add_attribute(ProfileAttribute("sn_ou2"))
+    profile_input.add_attribute(ProfileAttribute("sn_ou3"))
+    profile_input.add_attribute(ProfileAttribute("sn_cn"))
+    profile_input.add_attribute(ProfileAttribute("sn_o"))
+
+    profile_data.add_input(profile_input)
+
+    created_profile = profile_client.create_profile(profile_data)
+    print(created_profile)
+    print
+
+    # Test creating a new profile with a duplicate profile id
+    print ("Create a profile with duplicate profile id.")
+    print ("-------------------------------------------")
+
+    try:
+        profile_data = Profile(name="My Sample User Cert Enrollment",
+                               profile_id="MySampleCert",
+                               class_id="caEnrollImpl",
+                               description="Example User Cert Enroll Impl",
+                               enabled_by='admin', enabled=False, visible=False,
+                               renewal=False, xml_output=False,
+                               authorization_acl="")
+        profile_input = ProfileInput("i1", "subjectNameInputImpl")
+        profile_input.add_attribute(ProfileAttribute("sn_uid"))
+        profile_input.add_attribute(ProfileAttribute("sn_e"))
+        profile_input.add_attribute(ProfileAttribute("sn_c"))
+        profile_input.add_attribute(ProfileAttribute("sn_ou"))
+        profile_input.add_attribute(ProfileAttribute("sn_ou1"))
+        profile_input.add_attribute(ProfileAttribute("sn_ou2"))
+        profile_input.add_attribute(ProfileAttribute("sn_ou3"))
+        profile_input.add_attribute(ProfileAttribute("sn_cn"))
+        profile_input.add_attribute(ProfileAttribute("sn_o"))
+
+        profile_data.add_input(profile_input)
+        profile_client.create_profile(profile_data)
+    # pylint: disable-msg=W0703
+    except Exception as e:
+        print str(e)
+    print
+
+    # Modify the above created profile
+    print('Modifying the profile MySampleCert.')
+    print('-----------------------------------')
+
+    fetch = profile_client.get_profile('MySampleCert')
+    profile_input2 = ProfileInput("i2", "keyGenInputImpl")
+    profile_input2.add_attribute(ProfileAttribute("cert_request_type"))
+    profile_input2.add_attribute(ProfileAttribute("cert_request"))
+    fetch.add_input(profile_input2)
+
+    fetch.name += " (Modified)"
+    modified_profile = profile_client.modify_profile(fetch)
+    print(modified_profile)
+    print
+
+    # Delete a profile
+    print ("Deleting the profile MySampleCert.")
+    print ("----------------------------------")
+    profile_client.delete_profile('MySampleCert')
+    print ("Deleted profile MySampleCert.")
+    print
+
+    # Testing deletion of a profile
+    print('Test profile deletion.')
+    print('----------------------')
+    try:
+        profile_client.get_profile('MySampleCert')
+    # pylint: disable-msg=W0703
+    except Exception as e:
+        print str(e)
 
 
 if __name__ == "__main__":

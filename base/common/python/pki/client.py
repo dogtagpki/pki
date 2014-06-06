@@ -71,6 +71,15 @@ class PKIConnection:
         r.raise_for_status()
         return r
 
+    def put(self, path, payload, headers=None):
+        r = self.session.put(self.serverURI + path, payload, headers=headers)
+        r.raise_for_status()
+        return r
+
+    def delete(self, path, headers=None):
+        r = self.session.delete(self.serverURI + path, headers=headers)
+        r.raise_for_status()
+        return r
 
 def main():
     conn = PKIConnection()
