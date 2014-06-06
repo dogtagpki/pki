@@ -230,18 +230,18 @@ def main(argv):
 
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
-    parser.pki_master_dict['pki_destroy_log'] = config.pki_log_dir + "/" +\
+    parser.mdict['pki_destroy_log'] = config.pki_log_dir + "/" +\
                                                 config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.pki_master_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.mdict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     print "Uninstalling " + config.pki_subsystem + " from " + deployed_pki_instance_path + "."
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
-    pki_subsystem_scriptlets = parser.pki_master_dict['destroy_scriplets'].split()
-    deployer = util.PKIDeployer(parser.pki_master_dict)
+    pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
+    deployer = util.PKIDeployer(parser.mdict)
     rv = 0
     for pki_scriptlet in pki_subsystem_scriptlets:
         scriptlet = __import__("pki.server.deployment.scriptlets." +
@@ -253,7 +253,7 @@ def main(argv):
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.pki_master_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.mdict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     print

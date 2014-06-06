@@ -31,84 +31,84 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
-        if config.str2bool(deployer.master_dict['pki_skip_installation']):
+        if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_SECURITY_DATABASES_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
         config.pki_log.info(log.SECURITY_DATABASES_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         deployer.password.create_password_conf(
-            deployer.master_dict['pki_shared_password_conf'],
-            deployer.master_dict['pki_pin'])
+            deployer.mdict['pki_shared_password_conf'],
+            deployer.mdict['pki_pin'])
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a temporary server 'pfile'
         # which ONLY contains the 'password' for the purposes of
         # allowing 'certutil' to generate the security databases
         deployer.password.create_password_conf(
-            deployer.master_dict['pki_shared_pfile'],
-            deployer.master_dict['pki_pin'], pin_sans_token=True)
-        deployer.file.modify(deployer.master_dict['pki_shared_password_conf'])
+            deployer.mdict['pki_shared_pfile'],
+            deployer.mdict['pki_pin'], pin_sans_token=True)
+        deployer.file.modify(deployer.mdict['pki_shared_password_conf'])
         deployer.certutil.create_security_databases(
-            deployer.master_dict['pki_database_path'],
-            deployer.master_dict['pki_cert_database'],
-            deployer.master_dict['pki_key_database'],
-            deployer.master_dict['pki_secmod_database'],
-            password_file=deployer.master_dict['pki_shared_pfile'])
-        deployer.file.modify(deployer.master_dict['pki_cert_database'], perms=\
+            deployer.mdict['pki_database_path'],
+            deployer.mdict['pki_cert_database'],
+            deployer.mdict['pki_key_database'],
+            deployer.mdict['pki_secmod_database'],
+            password_file=deployer.mdict['pki_shared_pfile'])
+        deployer.file.modify(deployer.mdict['pki_cert_database'], perms=\
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-        deployer.file.modify(deployer.master_dict['pki_key_database'], perms=\
+        deployer.file.modify(deployer.mdict['pki_key_database'], perms=\
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
-        deployer.file.modify(deployer.master_dict['pki_secmod_database'], perms=\
+        deployer.file.modify(deployer.mdict['pki_secmod_database'], perms=\
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
             # only create a self signed cert for a new instance
             rv = deployer.certutil.verify_certificate_exists(
-                 deployer.master_dict['pki_database_path'],
-                 deployer.master_dict['pki_cert_database'],
-                 deployer.master_dict['pki_key_database'],
-                 deployer.master_dict['pki_secmod_database'],
-                 deployer.master_dict['pki_self_signed_token'],
-                 deployer.master_dict['pki_self_signed_nickname'],
-                 password_file=deployer.master_dict['pki_shared_pfile'])
+                 deployer.mdict['pki_database_path'],
+                 deployer.mdict['pki_cert_database'],
+                 deployer.mdict['pki_key_database'],
+                 deployer.mdict['pki_secmod_database'],
+                 deployer.mdict['pki_self_signed_token'],
+                 deployer.mdict['pki_self_signed_nickname'],
+                 password_file=deployer.mdict['pki_shared_pfile'])
             if not rv:
                 deployer.file.generate_noise_file(
-                    deployer.master_dict['pki_self_signed_noise_file'],
-                    deployer.master_dict['pki_self_signed_noise_bytes'])
+                    deployer.mdict['pki_self_signed_noise_file'],
+                    deployer.mdict['pki_self_signed_noise_bytes'])
                 deployer.certutil.generate_self_signed_certificate(
-                    deployer.master_dict['pki_database_path'],
-                    deployer.master_dict['pki_cert_database'],
-                    deployer.master_dict['pki_key_database'],
-                    deployer.master_dict['pki_secmod_database'],
-                    deployer.master_dict['pki_self_signed_token'],
-                    deployer.master_dict['pki_self_signed_nickname'],
-                    deployer.master_dict['pki_self_signed_subject'],
-                    deployer.master_dict['pki_self_signed_serial_number'],
-                    deployer.master_dict['pki_self_signed_validity_period'],
-                    deployer.master_dict['pki_self_signed_issuer_name'],
-                    deployer.master_dict['pki_self_signed_trustargs'],
-                    deployer.master_dict['pki_self_signed_noise_file'],
-                    password_file=deployer.master_dict['pki_shared_pfile'])
+                    deployer.mdict['pki_database_path'],
+                    deployer.mdict['pki_cert_database'],
+                    deployer.mdict['pki_key_database'],
+                    deployer.mdict['pki_secmod_database'],
+                    deployer.mdict['pki_self_signed_token'],
+                    deployer.mdict['pki_self_signed_nickname'],
+                    deployer.mdict['pki_self_signed_subject'],
+                    deployer.mdict['pki_self_signed_serial_number'],
+                    deployer.mdict['pki_self_signed_validity_period'],
+                    deployer.mdict['pki_self_signed_issuer_name'],
+                    deployer.mdict['pki_self_signed_trustargs'],
+                    deployer.mdict['pki_self_signed_noise_file'],
+                    password_file=deployer.mdict['pki_shared_pfile'])
                 # Delete the temporary 'noise' file
-                deployer.file.delete(deployer.master_dict['pki_self_signed_noise_file'])
+                deployer.file.delete(deployer.mdict['pki_self_signed_noise_file'])
             # Delete the temporary 'pfile'
-            deployer.file.delete(deployer.master_dict['pki_shared_pfile'])
+            deployer.file.delete(deployer.mdict['pki_shared_pfile'])
         return self.rv
 
     def destroy(self, deployer):
 
         config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if deployer.master_dict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
+        if deployer.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
            deployer.instance.apache_instance_subsystems() == 0:
-            deployer.file.delete(deployer.master_dict['pki_cert_database'])
-            deployer.file.delete(deployer.master_dict['pki_key_database'])
-            deployer.file.delete(deployer.master_dict['pki_secmod_database'])
-            deployer.file.delete(deployer.master_dict['pki_shared_password_conf'])
-        elif deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
+            deployer.file.delete(deployer.mdict['pki_cert_database'])
+            deployer.file.delete(deployer.mdict['pki_key_database'])
+            deployer.file.delete(deployer.mdict['pki_secmod_database'])
+            deployer.file.delete(deployer.mdict['pki_shared_password_conf'])
+        elif deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
              len(deployer.instance.tomcat_instance_subsystems()) == 0:
-            deployer.file.delete(deployer.master_dict['pki_cert_database'])
-            deployer.file.delete(deployer.master_dict['pki_key_database'])
-            deployer.file.delete(deployer.master_dict['pki_secmod_database'])
-            deployer.file.delete(deployer.master_dict['pki_shared_password_conf'])
+            deployer.file.delete(deployer.mdict['pki_cert_database'])
+            deployer.file.delete(deployer.mdict['pki_key_database'])
+            deployer.file.delete(deployer.mdict['pki_secmod_database'])
+            deployer.file.delete(deployer.mdict['pki_shared_password_conf'])
         return self.rv

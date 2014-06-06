@@ -160,7 +160,7 @@ def main(argv):
             parser.set_property(config.pki_subsystem, 'pki_client_database_password', admin_password)
             parser.set_property(config.pki_subsystem, 'pki_client_pkcs12_password', admin_password)
 
-            if parser.pki_master_dict['pki_import_admin_cert'] == 'True':
+            if parser.mdict['pki_import_admin_cert'] == 'True':
                 import_cert = 'Y'
             else:
                 import_cert = 'N'
@@ -363,36 +363,36 @@ def main(argv):
     parser.compose_pki_slots_dictionary()
     config.pki_log.debug(log.PKI_DICTIONARY_SLOTS,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.pki_slots_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.slots_dict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
 
-    parser.pki_master_dict['pki_spawn_log'] = config.pki_log_dir + "/" + \
+    parser.mdict['pki_spawn_log'] = config.pki_log_dir + "/" + \
                                               config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.pki_master_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.mdict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     if not interactive and\
-        not config.str2bool(parser.pki_master_dict['pki_skip_configuration']):
+        not config.str2bool(parser.mdict['pki_skip_configuration']):
         try:
             # Verify existence of Directory Server Password
-            if not parser.pki_master_dict.has_key('pki_ds_password') or\
-               not len(parser.pki_master_dict['pki_ds_password']):
+            if not parser.mdict.has_key('pki_ds_password') or\
+               not len(parser.mdict['pki_ds_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                     "pki_ds_password",
-                    parser.pki_master_dict['pki_user_deployment_cfg'],
+                    parser.mdict['pki_user_deployment_cfg'],
                     extra=config.PKI_INDENTATION_LEVEL_0)
                 sys.exit(1)
 
             parser.ds_verify_configuration()
 
             if parser.ds_base_dn_exists() and\
-                not config.str2bool(parser.pki_master_dict['pki_ds_remove_data']):
+                not config.str2bool(parser.mdict['pki_ds_remove_data']):
                 print 'ERROR:  Base DN already exists.'
                 sys.exit(1)
 
@@ -402,20 +402,20 @@ def main(argv):
 
         if ((config.pki_subsystem == "KRA" or
              config.pki_subsystem == "OCSP") and
-            not config.str2bool(parser.pki_master_dict['pki_standalone'])) or\
+            not config.str2bool(parser.mdict['pki_standalone'])) or\
            config.pki_subsystem == "TKS" or\
            config.pki_subsystem == "TPS" or\
-           config.str2bool(parser.pki_master_dict['pki_clone']) or\
+           config.str2bool(parser.mdict['pki_clone']) or\
            (config.pki_subsystem == "CA" and
-            config.str2bool(parser.pki_master_dict['pki_subordinate'])):
+            config.str2bool(parser.mdict['pki_subordinate'])):
             try:
                 # Verify existence of Security Domain Password
-                if not parser.pki_master_dict.has_key('pki_security_domain_password') or\
-                   not len(parser.pki_master_dict['pki_security_domain_password']):
+                if not parser.mdict.has_key('pki_security_domain_password') or\
+                   not len(parser.mdict['pki_security_domain_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                         "pki_security_domain_password",
-                        parser.pki_master_dict['pki_user_deployment_cfg'],
+                        parser.mdict['pki_user_deployment_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_0)
                     sys.exit(1)
 
@@ -432,11 +432,11 @@ def main(argv):
                 print('ERROR:  Unable to access security domain: ' + str(e))
                 sys.exit(1)
 
-    print "Installing " + config.pki_subsystem + " into " + parser.pki_master_dict['pki_instance_path'] + "."
+    print "Installing " + config.pki_subsystem + " into " + parser.mdict['pki_instance_path'] + "."
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
-    pki_subsystem_scriptlets = parser.pki_master_dict['spawn_scriplets'].split()
-    deployer = util.PKIDeployer(parser.pki_master_dict, parser.pki_slots_dict)
+    pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
+    deployer = util.PKIDeployer(parser.mdict, parser.slots_dict)
     rv = 0
     for pki_scriptlet in pki_subsystem_scriptlets:
         scriptlet = __import__("pki.server.deployment.scriptlets." +
@@ -458,41 +458,41 @@ def main(argv):
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.pki_master_dict),
+    config.pki_log.debug(pkilogging.log_format(parser.mdict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
-    print_install_information(parser.pki_master_dict)
+    print_install_information(parser.mdict)
 
-def print_install_information(pki_master_dict):
+def print_install_information(mdict):
 
-    skip_configuration = config.str2bool(pki_master_dict['pki_skip_configuration'])
+    skip_configuration = config.str2bool(mdict['pki_skip_configuration'])
     print log.PKI_SPAWN_INFORMATION_HEADER
     if skip_configuration:
-        print log.PKI_CONFIGURATION_URL_1 % pki_master_dict['pki_configuration_url']
+        print log.PKI_CONFIGURATION_URL_1 % mdict['pki_configuration_url']
         print
         print log.PKI_CONFIGURATION_RESTART_1 % \
-              pki_master_dict['pki_registry_initscript_command']
+              mdict['pki_registry_initscript_command']
     else:
-        print "      Administrator's username:             %s" % pki_master_dict['pki_admin_uid']
-        if os.path.isfile(pki_master_dict['pki_client_admin_cert_p12']):
-            print "      Administrator's PKCS #12 file:\n            %s" % pki_master_dict['pki_client_admin_cert_p12']
-        if not config.str2bool(pki_master_dict['pki_client_database_purge']):
+        print "      Administrator's username:             %s" % mdict['pki_admin_uid']
+        if os.path.isfile(mdict['pki_client_admin_cert_p12']):
+            print "      Administrator's PKCS #12 file:\n            %s" % mdict['pki_client_admin_cert_p12']
+        if not config.str2bool(mdict['pki_client_database_purge']):
             print
-            print "      Administrator's certificate nickname:\n            %s" % pki_master_dict['pki_admin_nickname']
-            print "      Administrator's certificate database:\n            %s" % pki_master_dict['pki_client_database_dir']
+            print "      Administrator's certificate nickname:\n            %s" % mdict['pki_admin_nickname']
+            print "      Administrator's certificate database:\n            %s" % mdict['pki_client_database_dir']
         print
-        print log.PKI_CHECK_STATUS_MESSAGE % pki_master_dict['pki_instance_name']
-        print log.PKI_INSTANCE_RESTART_MESSAGE % pki_master_dict['pki_instance_name']
+        print log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name']
+        print log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name']
         if (((config.pki_subsystem == "KRA" or
               config.pki_subsystem == "OCSP") and
-             config.str2bool(pki_master_dict['pki_standalone'])) and
-            not config.str2bool(pki_master_dict['pki_external_step_two'])):
+             config.str2bool(mdict['pki_standalone'])) and
+            not config.str2bool(mdict['pki_external_step_two'])):
             # Stand-alone PKI KRA/OCSP (External CA Step 1)
             print
             print log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem
         else:
-            print log.PKI_ACCESS_URL % (pki_master_dict['pki_hostname'],
-                                        pki_master_dict['pki_https_port'],
+            print log.PKI_ACCESS_URL % (mdict['pki_hostname'],
+                                        mdict['pki_https_port'],
                                         config.pki_subsystem.lower())
     print log.PKI_SPAWN_INFORMATION_FOOTER
 

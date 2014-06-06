@@ -31,73 +31,73 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
-        if config.str2bool(deployer.master_dict['pki_skip_installation']):
+        if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_SUBSYSTEM_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
         config.pki_log.info(log.SUBSYSTEM_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # establish instance-based subsystem logs
-        deployer.directory.create(deployer.master_dict['pki_subsystem_log_path'])
-        deployer.directory.create(deployer.master_dict['pki_subsystem_archive_log_path'])
-        if deployer.master_dict['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
-            deployer.directory.create(deployer.master_dict['pki_subsystem_signed_audit_log_path'])
+        deployer.directory.create(deployer.mdict['pki_subsystem_log_path'])
+        deployer.directory.create(deployer.mdict['pki_subsystem_archive_log_path'])
+        if deployer.mdict['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
+            deployer.directory.create(deployer.mdict['pki_subsystem_signed_audit_log_path'])
         # establish instance-based subsystem configuration
-        deployer.directory.create(deployer.master_dict['pki_subsystem_configuration_path'])
-        # deployer.directory.copy(deployer.master_dict['pki_source_conf_path'],
-        #                     deployer.master_dict['pki_subsystem_configuration_path'])
+        deployer.directory.create(deployer.mdict['pki_subsystem_configuration_path'])
+        # deployer.directory.copy(deployer.mdict['pki_source_conf_path'],
+        #                     deployer.mdict['pki_subsystem_configuration_path'])
         # establish instance-based Apache/Tomcat specific subsystems
-        if deployer.master_dict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # establish instance-based Tomcat PKI subsystem base
-            if deployer.master_dict['pki_subsystem'] == "CA":
-                deployer.directory.copy(deployer.master_dict['pki_source_emails'],
-                                    deployer.master_dict['pki_subsystem_emails_path'])
-                deployer.directory.copy(deployer.master_dict['pki_source_profiles'],
-                                    deployer.master_dict['pki_subsystem_profiles_path'])
+            if deployer.mdict['pki_subsystem'] == "CA":
+                deployer.directory.copy(deployer.mdict['pki_source_emails'],
+                                    deployer.mdict['pki_subsystem_emails_path'])
+                deployer.directory.copy(deployer.mdict['pki_source_profiles'],
+                                    deployer.mdict['pki_subsystem_profiles_path'])
             # establish instance-based Tomcat PKI subsystem logs
             # establish instance-based Tomcat PKI subsystem configuration
-            if deployer.master_dict['pki_subsystem'] == "CA":
-                deployer.file.copy(deployer.master_dict['pki_source_flatfile_txt'],
-                               deployer.master_dict['pki_target_flatfile_txt'])
-                deployer.file.copy(deployer.master_dict['pki_source_registry_cfg'],
-                               deployer.master_dict['pki_target_registry_cfg'])
+            if deployer.mdict['pki_subsystem'] == "CA":
+                deployer.file.copy(deployer.mdict['pki_source_flatfile_txt'],
+                               deployer.mdict['pki_target_flatfile_txt'])
+                deployer.file.copy(deployer.mdict['pki_source_registry_cfg'],
+                               deployer.mdict['pki_target_registry_cfg'])
                 # '*.profile'
-                deployer.file.copy(deployer.master_dict['pki_source_admincert_profile'],
-                               deployer.master_dict['pki_target_admincert_profile'])
-                deployer.file.copy(deployer.master_dict['pki_source_caauditsigningcert_profile'],
-                               deployer.master_dict['pki_target_caauditsigningcert_profile'])
-                deployer.file.copy(deployer.master_dict['pki_source_cacert_profile'],
-                               deployer.master_dict['pki_target_cacert_profile'])
-                deployer.file.copy(deployer.master_dict['pki_source_caocspcert_profile'],
-                               deployer.master_dict['pki_target_caocspcert_profile'])
-                deployer.file.copy(deployer.master_dict['pki_source_servercert_profile'],
-                               deployer.master_dict['pki_target_servercert_profile'])
-                deployer.file.copy(deployer.master_dict['pki_source_subsystemcert_profile'],
-                               deployer.master_dict['pki_target_subsystemcert_profile'])
-            elif deployer.master_dict['pki_subsystem'] == "KRA":
+                deployer.file.copy(deployer.mdict['pki_source_admincert_profile'],
+                               deployer.mdict['pki_target_admincert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_caauditsigningcert_profile'],
+                               deployer.mdict['pki_target_caauditsigningcert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_cacert_profile'],
+                               deployer.mdict['pki_target_cacert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_caocspcert_profile'],
+                               deployer.mdict['pki_target_caocspcert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_servercert_profile'],
+                               deployer.mdict['pki_target_servercert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_subsystemcert_profile'],
+                               deployer.mdict['pki_target_subsystemcert_profile'])
+            elif deployer.mdict['pki_subsystem'] == "KRA":
                 # '*.profile'
-                deployer.file.copy(deployer.master_dict['pki_source_servercert_profile'],
-                               deployer.master_dict['pki_target_servercert_profile'])
-                deployer.file.copy(deployer.master_dict['pki_source_storagecert_profile'],
-                               deployer.master_dict['pki_target_storagecert_profile'])
-                deployer.file.copy(deployer.master_dict['pki_source_subsystemcert_profile'],
-                               deployer.master_dict['pki_target_subsystemcert_profile'])
-                deployer.file.copy(deployer.master_dict['pki_source_transportcert_profile'],
-                               deployer.master_dict['pki_target_transportcert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_servercert_profile'],
+                               deployer.mdict['pki_target_servercert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_storagecert_profile'],
+                               deployer.mdict['pki_target_storagecert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_subsystemcert_profile'],
+                               deployer.mdict['pki_target_subsystemcert_profile'])
+                deployer.file.copy(deployer.mdict['pki_source_transportcert_profile'],
+                               deployer.mdict['pki_target_transportcert_profile'])
             # establish instance-based Tomcat PKI subsystem registry
             # establish instance-based Tomcat PKI subsystem convenience
             # symbolic links
-            deployer.symlink.create(deployer.master_dict['pki_tomcat_webapps_path'],
-                                deployer.master_dict['pki_subsystem_tomcat_webapps_link'])
+            deployer.symlink.create(deployer.mdict['pki_tomcat_webapps_path'],
+                                deployer.mdict['pki_subsystem_tomcat_webapps_link'])
         # establish instance-based subsystem convenience symbolic links
-        deployer.symlink.create(deployer.master_dict['pki_instance_database_link'],
-                            deployer.master_dict['pki_subsystem_database_link'])
-        deployer.symlink.create(deployer.master_dict['pki_subsystem_configuration_path'],
-                            deployer.master_dict['pki_subsystem_conf_link'])
-        deployer.symlink.create(deployer.master_dict['pki_subsystem_log_path'],
-                            deployer.master_dict['pki_subsystem_logs_link'])
-        deployer.symlink.create(deployer.master_dict['pki_instance_registry_path'],
-                            deployer.master_dict['pki_subsystem_registry_link'])
+        deployer.symlink.create(deployer.mdict['pki_instance_database_link'],
+                            deployer.mdict['pki_subsystem_database_link'])
+        deployer.symlink.create(deployer.mdict['pki_subsystem_configuration_path'],
+                            deployer.mdict['pki_subsystem_conf_link'])
+        deployer.symlink.create(deployer.mdict['pki_subsystem_log_path'],
+                            deployer.mdict['pki_subsystem_logs_link'])
+        deployer.symlink.create(deployer.mdict['pki_instance_registry_path'],
+                            deployer.mdict['pki_subsystem_registry_link'])
         return self.rv
 
     def destroy(self, deployer):
@@ -105,17 +105,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.SUBSYSTEM_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # remove instance-based subsystem base
-        if deployer.master_dict['pki_subsystem'] == "CA":
-            deployer.directory.delete(deployer.master_dict['pki_subsystem_emails_path'])
-            deployer.directory.delete(deployer.master_dict['pki_subsystem_profiles_path'])
-        deployer.directory.delete(deployer.master_dict['pki_subsystem_path'])
+        if deployer.mdict['pki_subsystem'] == "CA":
+            deployer.directory.delete(deployer.mdict['pki_subsystem_emails_path'])
+            deployer.directory.delete(deployer.mdict['pki_subsystem_profiles_path'])
+        deployer.directory.delete(deployer.mdict['pki_subsystem_path'])
         # remove instance-based subsystem logs
-        if deployer.master_dict['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
-            deployer.directory.delete(deployer.master_dict['pki_subsystem_signed_audit_log_path'])
-        deployer.directory.delete(deployer.master_dict['pki_subsystem_archive_log_path'])
-        deployer.directory.delete(deployer.master_dict['pki_subsystem_log_path'])
+        if deployer.mdict['pki_subsystem'] in config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
+            deployer.directory.delete(deployer.mdict['pki_subsystem_signed_audit_log_path'])
+        deployer.directory.delete(deployer.mdict['pki_subsystem_archive_log_path'])
+        deployer.directory.delete(deployer.mdict['pki_subsystem_log_path'])
         # remove instance-based subsystem configuration
-        deployer.directory.delete(deployer.master_dict['pki_subsystem_configuration_path'])
+        deployer.directory.delete(deployer.mdict['pki_subsystem_configuration_path'])
         # remove instance-based subsystem registry
-        deployer.directory.delete(deployer.master_dict['pki_subsystem_registry_path'])
+        deployer.directory.delete(deployer.mdict['pki_subsystem_registry_path'])
         return self.rv
