@@ -31,15 +31,17 @@ SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 
 class PKISubsystem(object):
 
-    def __init__(self, instance, subsystemName):
+    def __init__(self, instance, subsystem_name):
         self.instance = instance
-        self.name = subsystemName
+        self.name = subsystem_name
         self.type = instance.type
         if self.type >= 10:
-            self.conf_dir = os.path.join(INSTANCE_BASE_DIR, \
-                instance.name, 'conf', subsystemName)
-            self.base_dir = os.path.join(INSTANCE_BASE_DIR, \
-                instance.name, subsystemName)
+            self.conf_dir = os.path.join(
+                INSTANCE_BASE_DIR,
+                instance.name, 'conf', subsystem_name)
+            self.base_dir = os.path.join(
+                INSTANCE_BASE_DIR,
+                instance.name, subsystem_name)
         else:
             self.conf_dir = os.path.join(pki.BASE_DIR, instance.name, 'conf')
             self.base_dir = os.path.join(pki.BASE_DIR, instance.name)
@@ -50,8 +52,7 @@ class PKISubsystem(object):
         if not os.path.exists(self.conf_dir):
             raise pki.PKIException(
                 'Invalid subsystem: ' + self.__repr__(),
-                 None, self.instance)
-
+                None, self.instance)
 
     def __repr__(self):
         return str(self.instance) + '/' + self.name
@@ -84,7 +85,7 @@ class PKIInstance(object):
 
 class PKIServerException(pki.PKIException):
 
-    def __init__(self, message, exception=None, \
+    def __init__(self, message, exception=None,
                  instance=None, subsystem=None):
 
         pki.PKIException.__init__(self, message, exception)

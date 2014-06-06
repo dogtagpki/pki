@@ -33,6 +33,7 @@ class AbstractBasePkiScriptlet(object):
         """Retrieve data from the specified PKI dictionary and
            use it to install a new PKI instance."""
         return
+
     # pylint: disable-msg=W0613
     @abc.abstractmethod
     def destroy(self, deployer):

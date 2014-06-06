@@ -48,6 +48,7 @@ error was:
 """ % sys.exc_value
     sys.exit(1)
 
+
 #Handle the Keyboard Interrupt
 # pylint: disable-msg=W0613
 def interrupt_handler(event, frame):
@@ -55,9 +56,10 @@ def interrupt_handler(event, frame):
     print '\nUninstallation canceled.'
     sys.exit(1)
 
+
 # PKI Deployment Functions
 def main(argv):
-    "main entry point"
+    """main entry point"""
 
     config.pki_deployment_executable = os.path.basename(argv[0])
 
@@ -86,8 +88,9 @@ def main(argv):
     # Retrieve DNS domainname
     config.pki_dns_domainname = None
     try:
-        dnsdomainname = subprocess.check_output("dnsdomainname",
-                                                            shell=True)
+        dnsdomainname = subprocess.check_output(
+            "dnsdomainname",
+            shell=True)
         # workaround for pylint error E1103
         config.pki_dns_domainname = str(dnsdomainname).rstrip('\n')
         if not len(config.pki_dns_domainname):
@@ -102,24 +105,26 @@ def main(argv):
         'PKI Instance Removal',
         log.PKIDESTROY_EPILOG)
 
-    parser.optional.add_argument('-i',
+    parser.optional.add_argument(
+        '-i',
         dest='pki_deployed_instance_name',
         action='store',
         nargs=1, metavar='<instance>',
         help='FORMAT:  ${pki_instance_name}')
 
-    parser.optional.add_argument('-u',
+    parser.optional.add_argument(
+        '-u',
         dest='pki_secdomain_user',
         action='store',
         nargs=1, metavar='<security domain user>',
         help='security domain user')
     
-    parser.optional.add_argument('-W',
+    parser.optional.add_argument(
+        '-W',
         dest='pki_secdomain_pass_file',
         action='store',
         nargs=1, metavar='<security domain password file>',
         help='security domain password file path')
-                                 
 
     args = parser.process_command_line_arguments()
 
@@ -130,7 +135,8 @@ def main(argv):
         # -s <subsystem>
         if args.pki_subsystem is None:
             interactive = True
-            config.pki_subsystem = parser.read_text('Subsystem (CA/KRA/OCSP/TKS/TPS)',
+            config.pki_subsystem = parser.read_text(
+                'Subsystem (CA/KRA/OCSP/TKS/TPS)',
                 options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
                 default='CA', case_sensitive=False).upper()
         else:
@@ -139,15 +145,18 @@ def main(argv):
         # -i <instance name>
         if args.pki_deployed_instance_name is None:
             interactive = True
-            config.pki_deployed_instance_name = parser.read_text('Instance', default='pki-tomcat')
+            config.pki_deployed_instance_name = \
+                parser.read_text('Instance', default='pki-tomcat')
         else:
-            config.pki_deployed_instance_name = str(args.pki_deployed_instance_name).strip('[\']')
+            config.pki_deployed_instance_name = \
+                str(args.pki_deployed_instance_name).strip('[\']')
 
         if interactive:
             print
             parser.indent = 0
 
-            begin = parser.read_text('Begin uninstallation (Yes/No/Quit)',
+            begin = parser.read_text(
+                'Begin uninstallation (Yes/No/Quit)',
                 options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
                 sign='?', allow_empty=False, case_sensitive=False).lower()
 
@@ -169,13 +178,14 @@ def main(argv):
 
     #    '-W' password file
     if args.pki_secdomain_pass_file:
-        with open(str(args.pki_secdomain_pass_file).strip('[\']'),'r') as pwd_file:
+        with open(str(args.pki_secdomain_pass_file).strip('[\']'), 'r') as \
+                pwd_file:
             config.pki_secdomain_pass = pwd_file.readline().strip('\n')
 
     # verify that previously deployed instance exists
-    deployed_pki_instance_path = config.pki_root_prefix +\
-                                 config.PKI_DEPLOYMENT_BASE_ROOT + "/" +\
-                                 config.pki_deployed_instance_name
+    deployed_pki_instance_path = \
+        config.pki_root_prefix + config.PKI_DEPLOYMENT_BASE_ROOT + "/" + \
+        config.pki_deployed_instance_name
     if not os.path.exists(deployed_pki_instance_path):
         print "ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %\
               deployed_pki_instance_path
@@ -183,15 +193,16 @@ def main(argv):
         parser.arg_parser.exit(-1)
 
     # verify that previously deployed subsystem for this instance exists
-    deployed_pki_subsystem_path = deployed_pki_instance_path + "/" +\
-                                  config.pki_subsystem.lower()
+    deployed_pki_subsystem_path = \
+        deployed_pki_instance_path + "/" + config.pki_subsystem.lower()
     if not os.path.exists(deployed_pki_subsystem_path):
         print "ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %\
               (config.pki_subsystem, deployed_pki_instance_path)
         print
         parser.arg_parser.exit(-1)
 
-    config.default_deployment_cfg = config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+    config.default_deployment_cfg = \
+        config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
 
     # establish complete path to previously deployed configuration file
     config.user_deployment_cfg =\
@@ -204,8 +215,8 @@ def main(argv):
     parser.init_config()
 
     # Enable 'pkidestroy' logging.
-    config.pki_log_dir = config.pki_root_prefix +\
-                         config.PKI_DEPLOYMENT_LOG_ROOT
+    config.pki_log_dir = \
+        config.pki_root_prefix + config.PKI_DEPLOYMENT_LOG_ROOT
     config.pki_log_name = "pki" + "-" +\
                           config.pki_subsystem.lower() +\
                           "-" + "destroy" + "." +\
@@ -230,14 +241,15 @@ def main(argv):
 
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
-    parser.mdict['pki_destroy_log'] = config.pki_log_dir + "/" +\
-                                                config.pki_log_name
+    parser.mdict['pki_destroy_log'] = \
+        config.pki_log_dir + "/" + config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.log_format(parser.mdict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
-    print "Uninstalling " + config.pki_subsystem + " from " + deployed_pki_instance_path + "."
+    print "Uninstalling " + config.pki_subsystem + " from " + \
+          deployed_pki_instance_path + "."
 
     # Process the various "scriptlets" to remove the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
@@ -246,7 +258,7 @@ def main(argv):
     for pki_scriptlet in pki_subsystem_scriptlets:
         scriptlet = __import__("pki.server.deployment.scriptlets." +
                                pki_scriptlet,
-                               fromlist = [pki_scriptlet])
+                               fromlist=[pki_scriptlet])
         instance = scriptlet.PkiScriptlet()
         rv = instance.destroy(deployer)
         if rv != 0:

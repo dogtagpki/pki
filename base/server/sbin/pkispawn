@@ -51,6 +51,7 @@ error was:
 """ % sys.exc_value
     sys.exit(1)
 
+
 # Handle the Keyboard Interrupt
 # pylint: disable-msg=W0613
 def interrupt_handler(event, frame):
@@ -58,9 +59,10 @@ def interrupt_handler(event, frame):
     print '\nInstallation canceled.'
     sys.exit(1)
 
+
 # PKI Deployment Functions
 def main(argv):
-    "main entry point"
+    """main entry point"""
 
     config.pki_deployment_executable = os.path.basename(argv[0])
 
@@ -88,8 +90,8 @@ def main(argv):
 
     # Retrieve DNS domainname
     try:
-        dnsdomainname = subprocess.check_output("dnsdomainname",
-                                                            shell = True)
+        dnsdomainname = subprocess.check_output(
+            "dnsdomainname", shell=True)
         # workaround for pylint error E1103
         config.pki_dns_domainname = str(dnsdomainname).rstrip('\n')
         if not len(config.pki_dns_domainname):
@@ -104,15 +106,17 @@ def main(argv):
         'PKI Instance Installation and Configuration',
         log.PKISPAWN_EPILOG)
 
-    parser.optional.add_argument('-f',
+    parser.optional.add_argument(
+        '-f',
         dest='user_deployment_cfg', action='store',
         nargs=1, metavar='<file>',
         help='configuration filename '
-            '(MUST specify complete path)')
+        '(MUST specify complete path)')
 
     args = parser.process_command_line_arguments()
 
-    config.default_deployment_cfg = config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
+    config.default_deployment_cfg = \
+        config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
 
     # -f <user deployment config>
     if args.user_deployment_cfg is not None:
@@ -128,7 +132,8 @@ def main(argv):
             interactive = True
             parser.indent = 0
 
-            config.pki_subsystem = parser.read_text('Subsystem (CA/KRA/OCSP/TKS/TPS)',
+            config.pki_subsystem = parser.read_text(
+                'Subsystem (CA/KRA/OCSP/TKS/TPS)',
                 options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
                 default='CA', case_sensitive=False).upper()
             print
@@ -144,9 +149,11 @@ def main(argv):
             print "Tomcat:"
             parser.read_text('Instance', 'DEFAULT', 'pki_instance_name')
             parser.read_text('HTTP port', config.pki_subsystem, 'pki_http_port')
-            parser.read_text('Secure HTTP port', config.pki_subsystem, 'pki_https_port')
+            parser.read_text('Secure HTTP port', config.pki_subsystem,
+                             'pki_https_port')
             parser.read_text('AJP port', config.pki_subsystem, 'pki_ajp_port')
-            parser.read_text('Management port', config.pki_subsystem, 'pki_tomcat_server_port')
+            parser.read_text('Management port', config.pki_subsystem,
+                             'pki_tomcat_server_port')
             print
 
             print "Administrator:"
@@ -156,34 +163,56 @@ def main(argv):
                 'Password', config.pki_subsystem, 'pki_admin_password',
                 verifyMessage='Verify password')
 
-            parser.set_property(config.pki_subsystem, 'pki_backup_password', admin_password)
-            parser.set_property(config.pki_subsystem, 'pki_client_database_password', admin_password)
-            parser.set_property(config.pki_subsystem, 'pki_client_pkcs12_password', admin_password)
+            parser.set_property(config.pki_subsystem, 'pki_backup_password',
+                                admin_password)
+            parser.set_property(config.pki_subsystem,
+                                'pki_client_database_password',
+                                admin_password)
+            parser.set_property(config.pki_subsystem,
+                                'pki_client_pkcs12_password',
+                                admin_password)
 
             if parser.mdict['pki_import_admin_cert'] == 'True':
                 import_cert = 'Y'
             else:
                 import_cert = 'N'
 
-            import_cert = parser.read_text('Import certificate (Yes/No)',
+            import_cert = parser.read_text(
+                'Import certificate (Yes/No)',
                 default=import_cert, options=['Yes', 'Y', 'No', 'N'],
                 sign='?', case_sensitive=False).lower()
 
             if import_cert == 'y' or import_cert == 'yes':
-                parser.set_property(config.pki_subsystem, 'pki_import_admin_cert', 'True')
-                parser.read_text('Import certificate from', config.pki_subsystem, 'pki_admin_cert_file')
+                parser.set_property(config.pki_subsystem,
+                                    'pki_import_admin_cert',
+                                    'True')
+                parser.read_text('Import certificate from',
+                                 config.pki_subsystem,
+                                 'pki_admin_cert_file')
             else:
-                parser.set_property(config.pki_subsystem, 'pki_import_admin_cert', 'False')
+                parser.set_property(config.pki_subsystem,
+                                    'pki_import_admin_cert',
+                                    'False')
 
-            parser.read_text('Export certificate to', config.pki_subsystem, 'pki_client_admin_cert')
+            parser.read_text('Export certificate to',
+                             config.pki_subsystem,
+                             'pki_client_admin_cert')
             print
 
             print "Directory Server:"
             while True:
-                parser.read_text('Hostname', config.pki_subsystem, 'pki_ds_hostname')
-                parser.read_text('Port', config.pki_subsystem, 'pki_ds_ldap_port')
-                parser.read_text('Bind DN', config.pki_subsystem, 'pki_ds_bind_dn')
-                parser.read_password('Password', config.pki_subsystem, 'pki_ds_password')
+                parser.read_text('Hostname',
+                                 config.pki_subsystem,
+                                 'pki_ds_hostname')
+                parser.read_text('Port',
+                                 config.pki_subsystem,
+                                 'pki_ds_ldap_port')
+                parser.read_text('Bind DN',
+                                 config.pki_subsystem,
+                                 'pki_ds_bind_dn')
+                parser.read_password('Password',
+                                     config.pki_subsystem,
+                                     'pki_ds_password')
 
                 try:
                     parser.ds_verify_configuration()
@@ -192,7 +221,9 @@ def main(argv):
                     parser.print_text('ERROR: ' + e.message['desc'])
                     continue
 
-                parser.read_text('Base DN', config.pki_subsystem, 'pki_ds_base_dn')
+                parser.read_text('Base DN',
+                                 config.pki_subsystem,
+                                 'pki_ds_base_dn')
                 try:
                     if not parser.ds_base_dn_exists():
                         break
@@ -201,7 +232,8 @@ def main(argv):
                     parser.print_text('ERROR: ' + e.message['desc'])
                     continue
 
-                remove = parser.read_text('Base DN already exists. Overwrite (Yes/No/Quit)',
+                remove = parser.read_text(
+                    'Base DN already exists. Overwrite (Yes/No/Quit)',
                     options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
                     sign='?', allow_empty=False, case_sensitive=False).lower()
 
@@ -217,25 +249,38 @@ def main(argv):
             print "Security Domain:"
 
             if config.pki_subsystem == "CA":
-                parser.read_text('Name', config.pki_subsystem, 'pki_security_domain_name')
+                parser.read_text('Name',
+                                 config.pki_subsystem,
+                                 'pki_security_domain_name')
 
             else:
                 while True:
-                    parser.read_text('Hostname', config.pki_subsystem, 'pki_security_domain_hostname')
-                    parser.read_text('Secure HTTP port', config.pki_subsystem, 'pki_security_domain_https_port')
+                    parser.read_text('Hostname',
+                                     config.pki_subsystem,
+                                     'pki_security_domain_hostname')
+
+                    parser.read_text('Secure HTTP port',
+                                     config.pki_subsystem,
+                                     'pki_security_domain_https_port')
 
                     try:
                         parser.sd_connect()
                         info = parser.sd_get_info()
                         parser.print_text('Name: ' + info.name)
-                        parser.set_property(config.pki_subsystem, 'pki_security_domain_name', info.name)
+                        parser.set_property(config.pki_subsystem,
+                                            'pki_security_domain_name',
+                                            info.name)
                         break
                     except requests.exceptions.ConnectionError as e:
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
-                    parser.read_text('Username', config.pki_subsystem, 'pki_security_domain_user')
-                    parser.read_password('Password', config.pki_subsystem, 'pki_security_domain_password')
+                    parser.read_text('Username',
+                                     config.pki_subsystem,
+                                     'pki_security_domain_user')
+                    parser.read_password('Password',
+                                         config.pki_subsystem,
+                                         'pki_security_domain_password')
 
                     try:
                         parser.sd_authenticate()
@@ -245,11 +290,13 @@ def main(argv):
 
             print
 
-            if  config.pki_subsystem == "TPS":
+            if config.pki_subsystem == "TPS":
                 print "External Servers:"
 
                 while True:
-                    parser.read_text('CA URL', config.pki_subsystem, 'pki_ca_uri')
+                    parser.read_text('CA URL',
+                                     config.pki_subsystem,
+                                     'pki_ca_uri')
                     try:
                         status = parser.get_server_status('ca', 'pki_ca_uri')
                         if status == 'running':
@@ -259,7 +306,9 @@ def main(argv):
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
-                    parser.read_text('TKS URL', config.pki_subsystem, 'pki_tks_uri')
+                    parser.read_text('TKS URL',
+                                     config.pki_subsystem,
+                                     'pki_tks_uri')
                     try:
                         status = parser.get_server_status('tks', 'pki_tks_uri')
                         if status == 'running':
@@ -269,23 +318,31 @@ def main(argv):
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
-                    keygen = parser.read_text('Enable server side key generation (Yes/No)',
+                    keygen = parser.read_text(
+                        'Enable server side key generation (Yes/No)',
                         options=['Yes', 'Y', 'No', 'N'], default='N',
                         sign='?', case_sensitive=False).lower()
 
                     if keygen == 'y' or keygen == 'yes':
-                        parser.set_property(config.pki_subsystem, 'pki_enable_server_side_keygen', 'True')
+                        parser.set_property(config.pki_subsystem,
+                                            'pki_enable_server_side_keygen',
+                                            'True')
  
-                        parser.read_text('KRA URL', config.pki_subsystem, 'pki_kra_uri')
+                        parser.read_text('KRA URL',
+                                         config.pki_subsystem,
+                                         'pki_kra_uri')
                         try:
-                            status = parser.get_server_status('kra', 'pki_kra_uri')
+                            status = parser.get_server_status(
+                                'kra', 'pki_kra_uri')
                             if status == 'running':
                                 break
                             parser.print_text('ERROR: KRA is not running')
                         except requests.exceptions.ConnectionError as e:
                             parser.print_text('ERROR: ' + str(e))
                     else:
-                        parser.set_property(config.pki_subsystem, 'pki_enable_server_side_keygen', 'False')
+                        parser.set_property(config.pki_subsystem,
+                                            'pki_enable_server_side_keygen',
+                                            'False')
                         break
 
                 print
@@ -293,10 +350,16 @@ def main(argv):
                 print "Authentication Database:"
 
                 while True:
-                    parser.read_text('Hostname', config.pki_subsystem, 'pki_authdb_hostname')
-                    parser.read_text('Port', config.pki_subsystem, 'pki_authdb_port')
+                    parser.read_text('Hostname',
+                                     config.pki_subsystem,
+                                     'pki_authdb_hostname')
+                    parser.read_text('Port',
+                                     config.pki_subsystem,
+                                     'pki_authdb_port')
                     basedn = parser.read_text('Base DN', allow_empty=False)
-                    parser.set_property(config.pki_subsystem, 'pki_authdb_basedn', basedn)
+                    parser.set_property(config.pki_subsystem,
+                                        'pki_authdb_basedn',
+                                        basedn)
 
                     try:
                         parser.authdb_connect()
@@ -313,7 +376,8 @@ def main(argv):
         if interactive:
             parser.indent = 0
 
-            begin = parser.read_text('Begin installation (Yes/No/Quit)',
+            begin = parser.read_text(
+                'Begin installation (Yes/No/Quit)',
                 options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
                 sign='?', allow_empty=False, case_sensitive=False).lower()
             print
@@ -328,15 +392,14 @@ def main(argv):
         else:
             break
 
-    if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT + \
+    if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT +
                           "/" + config.pki_subsystem.lower()):
         print "ERROR:  " + log.PKI_SUBSYSTEM_NOT_INSTALLED_1 % \
             config.pki_subsystem.lower()
         sys.exit(1)
 
     # Enable 'pkispawn' logging.
-    config.pki_log_dir = config.pki_root_prefix + \
-                         config.PKI_DEPLOYMENT_LOG_ROOT
+    config.pki_log_dir = config.pki_root_prefix + config.PKI_DEPLOYMENT_LOG_ROOT
     config.pki_log_name = "pki" + "-" + \
                           config.pki_subsystem.lower() + \
                           "-" + "spawn" + "." + \
@@ -369,18 +432,18 @@ def main(argv):
     # Combine the various sectional dictionaries into a PKI master dictionary
     parser.compose_pki_master_dictionary()
 
-    parser.mdict['pki_spawn_log'] = config.pki_log_dir + "/" + \
-                                              config.pki_log_name
+    parser.mdict['pki_spawn_log'] = \
+        config.pki_log_dir + "/" + config.pki_log_name
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.log_format(parser.mdict),
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
-    if not interactive and\
-        not config.str2bool(parser.mdict['pki_skip_configuration']):
+    if not interactive and \
+            not config.str2bool(parser.mdict['pki_skip_configuration']):
         try:
             # Verify existence of Directory Server Password
-            if not parser.mdict.has_key('pki_ds_password') or\
+            if not 'pki_ds_password' in parser.mdict or\
                not len(parser.mdict['pki_ds_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
@@ -392,12 +455,13 @@ def main(argv):
             parser.ds_verify_configuration()
 
             if parser.ds_base_dn_exists() and\
-                not config.str2bool(parser.mdict['pki_ds_remove_data']):
+                    not config.str2bool(parser.mdict['pki_ds_remove_data']):
                 print 'ERROR:  Base DN already exists.'
                 sys.exit(1)
 
         except ldap.LDAPError as e:
-            print 'ERROR:  Unable to access directory server: ' + e.message['desc']
+            print 'ERROR:  Unable to access directory server: ' + \
+                  e.message['desc']
             sys.exit(1)
 
         if ((config.pki_subsystem == "KRA" or
@@ -410,7 +474,7 @@ def main(argv):
             config.str2bool(parser.mdict['pki_subordinate'])):
             try:
                 # Verify existence of Security Domain Password
-                if not parser.mdict.has_key('pki_security_domain_password') or\
+                if not 'pki_security_domain_password' in parser.mdict or\
                    not len(parser.mdict['pki_security_domain_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
@@ -421,7 +485,9 @@ def main(argv):
 
                 parser.sd_connect()
                 info = parser.sd_get_info()
-                parser.set_property(config.pki_subsystem, 'pki_security_domain_name', info.name)
+                parser.set_property(config.pki_subsystem,
+                                    'pki_security_domain_name',
+                                    info.name)
                 parser.sd_authenticate()
 
             except requests.exceptions.ConnectionError as e:
@@ -432,7 +498,8 @@ def main(argv):
                 print('ERROR:  Unable to access security domain: ' + str(e))
                 sys.exit(1)
 
-    print "Installing " + config.pki_subsystem + " into " + parser.mdict['pki_instance_path'] + "."
+    print "Installing " + config.pki_subsystem + " into " + \
+          parser.mdict['pki_instance_path'] + "."
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
@@ -463,6 +530,7 @@ def main(argv):
 
     print_install_information(parser.mdict)
 
+
 def print_install_information(mdict):
 
     skip_configuration = config.str2bool(mdict['pki_skip_configuration'])
@@ -471,11 +539,13 @@ def print_install_information(mdict):
         print log.PKI_CONFIGURATION_URL_1 % mdict['pki_configuration_url']
         print
         print log.PKI_CONFIGURATION_RESTART_1 % \
-              mdict['pki_registry_initscript_command']
+            mdict['pki_registry_initscript_command']
     else:
-        print "      Administrator's username:             %s" % mdict['pki_admin_uid']
+        print "      Administrator's username:             %s" % \
+              mdict['pki_admin_uid']
         if os.path.isfile(mdict['pki_client_admin_cert_p12']):
-            print "      Administrator's PKCS #12 file:\n            %s" % mdict['pki_client_admin_cert_p12']
+            print "      Administrator's PKCS #12 file:\n            %s" % \
+                  mdict['pki_client_admin_cert_p12']
         if not config.str2bool(mdict['pki_client_database_purge']):
             print
             print "      Administrator's certificate nickname:\n            %s" % mdict['pki_admin_nickname']
@@ -485,7 +555,7 @@ def print_install_information(mdict):
         print log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name']
         if (((config.pki_subsystem == "KRA" or
               config.pki_subsystem == "OCSP") and
-             config.str2bool(mdict['pki_standalone'])) and
+            config.str2bool(mdict['pki_standalone'])) and
             not config.str2bool(mdict['pki_external_step_two'])):
             # Stand-alone PKI KRA/OCSP (External CA Step 1)
             print
@@ -496,11 +566,14 @@ def print_install_information(mdict):
                                         config.pki_subsystem.lower())
     print log.PKI_SPAWN_INFORMATION_FOOTER
 
+
 def log_error_details():
 
     e_type, e_value, e_stacktrace = sys.exc_info()
-    config.pki_log.debug("Error Type: " + e_type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
-    config.pki_log.debug("Error Message: " + str(e_value), extra=config.PKI_INDENTATION_LEVEL_2)
+    config.pki_log.debug(
+        "Error Type: " + e_type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
+    config.pki_log.debug(
+        "Error Message: " + str(e_value), extra=config.PKI_INDENTATION_LEVEL_2)
     stacktrace_list = traceback.format_list(traceback.extract_tb(e_stacktrace))
     e_stacktrace = ""
     for l in stacktrace_list:

@@ -36,13 +36,13 @@ RECORD_TYPE_SYMLINK = "symlink"
 # PKI Deployment Manifest Record Class
 class Record(object):
     __slots__ = "name", \
-               "type", \
-               "user", \
-               "group", \
-               "uid", \
-               "gid", \
-               "permissions", \
-               "acls",
+                "type", \
+                "user", \
+                "group", \
+                "uid", \
+                "gid", \
+                "permissions", \
+                "acls",
 
     def __init__(self):
         self.name = None
@@ -55,18 +55,18 @@ class Record(object):
         self.acls = None
 
     def items(self):
-        "dict style items"
+        """dict style items"""
         return [
             (field_name, getattr(self, field_name))
             for field_name in self.__slots__]
 
     def __iter__(self):
-        "iterate over fields tuple/list style"
+        """iterate over fields tuple/list style"""
         for field_name in self.__slots__:
             yield getattr(self, field_name)
 
     def __getitem__(self, index):
-        "tuple/list style getitem"
+        """tuple/list style getitem"""
         return getattr(self, self.__slots__[index])
 
 

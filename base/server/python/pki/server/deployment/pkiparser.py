@@ -54,36 +54,41 @@ class PKIConfigParser:
 
         #Read and process command-line options
         self.arg_parser = argparse.ArgumentParser(
-                     description=description,
-                     add_help=False,
-                     formatter_class=argparse.RawDescriptionHelpFormatter,
-                     epilog=epilog)
+            description=description,
+            add_help=False,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog=epilog)
 
         # Establish 'Mandatory' command-line options
-        self.mandatory = self.arg_parser.add_argument_group('mandatory arguments')
+        self.mandatory = self.arg_parser.add_argument_group(
+            'mandatory arguments')
 
         # Establish 'Optional' command-line options
         self.optional = self.arg_parser.add_argument_group('optional arguments')
-        self.optional.add_argument('-s',
-                               dest='pki_subsystem', action='store',
-                               nargs=1, choices=config.PKI_SUBSYSTEMS,
-                               metavar='<subsystem>',
-                               help='where <subsystem> is '
-                                    'CA, KRA, OCSP, RA, TKS, or TPS')
-        self.optional.add_argument('-h', '--help',
-                              dest='help', action='help',
-                              help='show this help message and exit')
-        self.optional.add_argument('-v',
-                              dest='pki_verbosity', action='count',
-                              help='display verbose information (details below)')
+        self.optional.add_argument(
+            '-s',
+            dest='pki_subsystem', action='store',
+            nargs=1, choices=config.PKI_SUBSYSTEMS,
+            metavar='<subsystem>',
+            help='where <subsystem> is '
+            'CA, KRA, OCSP, RA, TKS, or TPS')
+        self.optional.add_argument(
+            '-h', '--help',
+            dest='help', action='help',
+            help='show this help message and exit')
+        self.optional.add_argument(
+            '-v',
+            dest='pki_verbosity', action='count',
+            help='display verbose information (details below)')
 
         # Establish 'Test' command-line options
         test = self.arg_parser.add_argument_group('test arguments')
-        test.add_argument('-p',
-                          dest='pki_root_prefix', action='store',
-                          nargs=1, metavar='<prefix>',
-                          help='directory prefix to specify local directory '
-                               '[TEST ONLY]')
+        test.add_argument(
+            '-p',
+            dest='pki_root_prefix', action='store',
+            nargs=1, metavar='<prefix>',
+            help='directory prefix to specify local directory '
+            '[TEST ONLY]')
         self.indent = 0
         self.ds_connection = None
         self.sd_connection = None
@@ -123,13 +128,12 @@ class PKIConfigParser:
 
         return args
 
-
     def validate(self):
 
         # Validate command-line options
         if len(config.pki_root_prefix) > 0:
-            if not os.path.exists(config.pki_root_prefix) or\
-                 not os.path.isdir(config.pki_root_prefix):
+            if not os.path.exists(config.pki_root_prefix) or \
+                    not os.path.isdir(config.pki_root_prefix):
                 print "ERROR:  " + \
                       log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % \
                       config.pki_root_prefix
@@ -138,8 +142,8 @@ class PKIConfigParser:
                 self.arg_parser.exit(-1)
 
         # always default that configuration file exists
-        if not os.path.exists(config.default_deployment_cfg) or\
-            not os.path.isfile(config.default_deployment_cfg):
+        if not os.path.exists(config.default_deployment_cfg) or \
+                not os.path.isfile(config.default_deployment_cfg):
             print "ERROR:  " + \
                   log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % \
                   config.default_deployment_cfg
@@ -149,15 +153,14 @@ class PKIConfigParser:
 
         if config.user_deployment_cfg:
             # verify user configuration file exists
-            if not os.path.exists(config.user_deployment_cfg) or\
-                not os.path.isfile(config.user_deployment_cfg):
+            if not os.path.exists(config.user_deployment_cfg) or \
+                    not os.path.isfile(config.user_deployment_cfg):
                 print "ERROR:  " + \
                       log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % \
                       config.user_deployment_cfg
                 print
                 self.arg_parser.print_help()
                 self.arg_parser.exit(-1)
-
 
     def init_config(self):
 
@@ -184,7 +187,8 @@ class PKIConfigParser:
             default_http_port = '80'
             default_https_port = '443'
 
-        application_version = str(pki.upgrade.Version(pki.implementation_version()))
+        application_version = str(pki.upgrade.Version(
+            pki.implementation_version()))
 
         self.pki_config = ConfigParser.SafeConfigParser({
             'application_version': application_version,
@@ -194,7 +198,7 @@ class PKIConfigParser:
             'pki_dns_domainname': config.pki_dns_domainname,
             'pki_subsystem': config.pki_subsystem,
             'pki_subsystem_type': config.pki_subsystem.lower(),
-            'pki_root_prefix' : config.pki_root_prefix,
+            'pki_root_prefix': config.pki_root_prefix,
             'resteasy_lib': resteasy_lib,
             'jni_jar_dir': jni_jar_dir,
             'home_dir': os.path.expanduser("~"),
@@ -210,7 +214,6 @@ class PKIConfigParser:
             self.pki_config.readfp(f)
 
         self.flatten_master_dict()
-
 
     # The following code is based heavily upon
     # "http://www.decalage.info/en/python/configparser"
@@ -234,7 +237,6 @@ class PKIConfigParser:
                     values[name] = value
         return values
 
-
     def set_property(self, section, key, value):
         if section != "DEFAULT" and not self.pki_config.has_section(section):
             self.pki_config.add_section(section)
@@ -245,13 +247,13 @@ class PKIConfigParser:
             config.user_config.add_section(section)
         config.user_config.set(section, key, value)
 
-
     def print_text(self, message):
         print ' ' * self.indent + message
 
-    def read_text(self, message,
-        section=None, key=None, default=None,
-        options=None, sign=':', allow_empty=True, case_sensitive=True):
+    def read_text(
+            self, message,
+            section=None, key=None, default=None,
+            options=None, sign=':', allow_empty=True, case_sensitive=True):
 
         if default is None and key is not None:
             default = self.mdict[key]
@@ -291,9 +293,9 @@ class PKIConfigParser:
 
         return value
 
-
-    def read_password(self, message, section=None, key=None,
-        verifyMessage=None):
+    def read_password(
+            self, message, section=None, key=None,
+            verifyMessage=None):
         message = ' ' * self.indent + message + ': '
         if verifyMessage is not None:
             verifyMessage = ' ' * self.indent + verifyMessage + ': '
@@ -321,19 +323,21 @@ class PKIConfigParser:
         return password
 
     def read_pki_configuration_file(self):
-        "Read configuration file sections into dictionaries"
+        """Read configuration file sections into dictionaries"""
         rv = 0
         try:
             if config.user_deployment_cfg:
                 # We don't allow interpolation in password settings, which
                 # means that we need to deal with escaping '%' characters
                 # that might be present.
-                no_interpolation = ('pki_admin_password', 'pki_backup_password',
-                                    'pki_client_database_password',
-                                    'pki_client_pkcs12_password',
-                                    'pki_ds_password', 'pki_security_domain_password')
+                no_interpolation = (
+                    'pki_admin_password', 'pki_backup_password',
+                    'pki_client_database_password',
+                    'pki_client_pkcs12_password',
+                    'pki_ds_password', 'pki_security_domain_password')
 
-                print 'Loading deployment configuration from ' + config.user_deployment_cfg + '.'
+                print 'Loading deployment configuration from ' + \
+                      config.user_deployment_cfg + '.'
                 self.pki_config.read([config.user_deployment_cfg])
                 config.user_config.read([config.user_deployment_cfg])
 
@@ -345,9 +349,11 @@ class PKIConfigParser:
                     for section in sections:
                         for key in no_interpolation:
                             try:
-                                val =  self.pki_config.get(section, key, raw=True)
+                                val = self.pki_config.get(
+                                    section, key, raw=True)
                                 if val:
-                                    self.pki_config.set(section, key, val.replace("%", "%%"))
+                                    self.pki_config.set(
+                                        section, key, val.replace("%", "%%"))
                             except ConfigParser.NoOptionError:
                                 continue
 
@@ -357,16 +363,17 @@ class PKIConfigParser:
                     for section in sections:
                         for key in no_interpolation:
                             try:
-                                val =  config.user_config.get(section, key, raw=True)
+                                val = config.user_config.get(
+                                    section, key, raw=True)
                                 if val:
-                                    config.user_config.set(section, key, val.replace("%", "%%"))
+                                    config.user_config.set(
+                                        section, key, val.replace("%", "%%"))
                             except ConfigParser.NoOptionError:
                                 continue
         except ConfigParser.ParsingError, err:
             print err
             rv = err
         return rv
-
 
     def flatten_master_dict(self):
         self.mdict.update(__name__="PKI Master Dictionary")
@@ -392,7 +399,6 @@ class PKIConfigParser:
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
 
-
     def ds_connect(self):
 
         hostname = self.mdict['pki_ds_hostname']
@@ -404,7 +410,8 @@ class PKIConfigParser:
             protocol = 'ldap'
             port = self.mdict['pki_ds_ldap_port']
 
-        self.ds_connection = ldap.initialize(protocol + '://' + hostname + ':' + port)
+        self.ds_connection = ldap.initialize(
+            protocol + '://' + hostname + ':' + port)
 
     def ds_bind(self):
         self.ds_connection.simple_bind_s(
@@ -463,9 +470,9 @@ class PKIConfigParser:
             info = sd.get_security_domain_info()
         except requests.exceptions.HTTPError as e:
             config.pki_log.info(
-                "unable to access security domain through REST interface.  " + \
+                "unable to access security domain through REST interface.  " +
                 "Trying old interface. " + str(e),
-                 extra=config.PKI_INDENTATION_LEVEL_2)
+                extra=config.PKI_INDENTATION_LEVEL_2)
             info = sd.get_old_security_domain_info()
         return info
 
@@ -482,9 +489,9 @@ class PKIConfigParser:
             code = e.response.status_code
             if code == 404 or code == 501:
                 config.pki_log.warning(
-                    "unable to validate security domain user/password " + \
+                    "unable to validate security domain user/password " +
                     "through REST interface. Interface not available",
-                     extra=config.PKI_INDENTATION_LEVEL_2)
+                    extra=config.PKI_INDENTATION_LEVEL_2)
             else:
                 raise
 
@@ -498,7 +505,8 @@ class PKIConfigParser:
         else:
             protocol = 'ldap'
 
-        self.authdb_connection = ldap.initialize(protocol + '://' + hostname + ':' + port)
+        self.authdb_connection = ldap.initialize(
+            protocol + '://' + hostname + ':' + port)
         self.authdb_connection.search_s('', ldap.SCOPE_BASE)
 
     def authdb_base_dn_exists(self):
@@ -518,17 +526,20 @@ class PKIConfigParser:
     def get_server_status(self, system_type, system_uri):
         parse = urlparse(self.mdict[system_uri])
         conn = pki.client.PKIConnection(
-                   protocol=parse.scheme,
-                   hostname=parse.hostname,
-                   port=str(parse.port),
-                   subsystem=system_type)
+            protocol=parse.scheme,
+            hostname=parse.hostname,
+            port=str(parse.port),
+            subsystem=system_type)
         client = pki.system.SystemStatusClient(conn)
         response = client.get_status()
         root = ET.fromstring(response)
         return root.findtext("Status")
 
     def compose_pki_master_dictionary(self):
-        "Create a single master PKI dictionary from the sectional dictionaries"
+        """
+        Create a single master PKI dictionary from the
+        sectional dictionaries
+        """
         try:
             # 'pkispawn'/'pkidestroy' name/value pairs
             self.mdict['pki_deployment_executable'] = \
@@ -538,7 +549,8 @@ class PKIConfigParser:
             self.mdict['pki_certificate_timestamp'] = \
                 config.pki_certificate_timestamp
             self.mdict['pki_architecture'] = config.pki_architecture
-            self.mdict['pki_default_deployment_cfg'] = config.default_deployment_cfg
+            self.mdict['pki_default_deployment_cfg'] = \
+                config.default_deployment_cfg
             self.mdict['pki_user_deployment_cfg'] = config.user_deployment_cfg
             self.mdict['pki_deployed_instance_name'] = \
                 config.pki_deployed_instance_name
@@ -554,22 +566,23 @@ class PKIConfigParser:
 
             self.flatten_master_dict()
 
-            pkilogging.sensitive_parameters = self.mdict['sensitive_parameters'].split()
+            pkilogging.sensitive_parameters = \
+                self.mdict['sensitive_parameters'].split()
 
             # Always create "false" values for these missing "boolean" keys
-            if not self.mdict.has_key('pki_enable_access_log') or\
+            if not 'pki_enable_access_log' in self.mdict or\
                not len(self.mdict['pki_enable_access_log']):
                 self.mdict['pki_enable_access_log'] = "false"
-            if not self.mdict.has_key('pki_external') or\
+            if not 'pki_external' in self.mdict or\
                not len(self.mdict['pki_external']):
                 self.mdict['pki_external'] = "false"
-            if not self.mdict.has_key('pki_external_step_two') or\
+            if not 'pki_external_step_two' in self.mdict or\
                not len(self.mdict['pki_external_step_two']):
                 self.mdict['pki_external_step_two'] = "false"
-            if not self.mdict.has_key('pki_standalone') or\
+            if not 'pki_standalone' in self.mdict or\
                not len(self.mdict['pki_standalone']):
                 self.mdict['pki_standalone'] = "false"
-            if not self.mdict.has_key('pki_subordinate') or\
+            if not 'pki_subordinate' in self.mdict or\
                not len(self.mdict['pki_subordinate']):
                 self.mdict['pki_subordinate'] = "false"
 
@@ -581,7 +594,7 @@ class PKIConfigParser:
             self.mdict['pki_target_registry'] = \
                 os.path.join(self.mdict['pki_instance_registry_path'],
                              self.mdict['pki_instance_name'])
-            if (config.str2bool(self.mdict['pki_external_step_two'])):
+            if config.str2bool(self.mdict['pki_external_step_two']):
                 # For CA (External CA Step 2) and Stand-alone PKI (Step 2),
                 # use the 'pki_one_time_pin' established during the setup
                 # of (Step 1)
@@ -589,11 +602,12 @@ class PKIConfigParser:
                    and\
                    os.path.isfile(self.mdict['pki_target_cs_cfg']):
                     cs_cfg = self.read_simple_configuration_file(
-                                 self.mdict['pki_target_cs_cfg'])
+                        self.mdict['pki_target_cs_cfg'])
                     self.mdict['pki_one_time_pin'] = \
                         cs_cfg.get('preop.pin')
                 else:
-                    config.pki_log.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
+                    config.pki_log.error(
+                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
                         self.mdict['pki_target_cs_cfg'],
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1)
@@ -602,7 +616,7 @@ class PKIConfigParser:
                 # and add this to the "sensitive" key value pairs read in from
                 # the configuration file
                 self.mdict['pki_one_time_pin'] = \
-                    ''.join(random.choice(string.ascii_letters + string.digits)\
+                    ''.join(random.choice(string.ascii_letters + string.digits)
                     for x in range(20))
             if self.mdict['pki_subsystem'] in\
                config.PKI_TOMCAT_SUBSYSTEMS:
@@ -649,73 +663,72 @@ class PKIConfigParser:
                 # subystem-specific slot substitution name/value pairs
                 if self.mdict['pki_subsystem'] == "CA":
                     self.mdict['pki_target_flatfile_txt'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "flatfile.txt")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "flatfile.txt")
                     self.mdict['pki_target_proxy_conf'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "proxy.conf")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "proxy.conf")
                     self.mdict['pki_target_registry_cfg'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "registry.cfg")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "registry.cfg")
                     # '*.profile'
                     self.mdict['pki_target_admincert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "adminCert.profile")
-                    self.mdict['pki_target_caauditsigningcert_profile']\
- = os.path.join(self.mdict\
-                                       ['pki_subsystem_configuration_path'],
-                                       "caAuditSigningCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "adminCert.profile")
+                    self.mdict['pki_target_caauditsigningcert_profile'] = \
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "caAuditSigningCert.profile")
                     self.mdict['pki_target_cacert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "caCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "caCert.profile")
                     self.mdict['pki_target_caocspcert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "caOCSPCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "caOCSPCert.profile")
                     self.mdict['pki_target_servercert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "serverCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "serverCert.profile")
                     self.mdict['pki_target_subsystemcert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "subsystemCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "subsystemCert.profile")
                     # in-place slot substitution name/value pairs
                     self.mdict['pki_target_profileselect_template'] = \
                         os.path.join(
-                            self.mdict\
-                            ['pki_tomcat_webapps_subsystem_path'],
+                            self.mdict['pki_tomcat_webapps_subsystem_path'],
                             "ee",
                             self.mdict['pki_subsystem'].lower(),
                             "ProfileSelect.template")
                 elif self.mdict['pki_subsystem'] == "KRA":
                     # '*.profile'
                     self.mdict['pki_target_servercert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "serverCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "serverCert.profile")
                     self.mdict['pki_target_storagecert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "storageCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "storageCert.profile")
                     self.mdict['pki_target_subsystemcert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "subsystemCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "subsystemCert.profile")
                     self.mdict['pki_target_transportcert_profile'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "transportCert.profile")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "transportCert.profile")
                 elif self.mdict['pki_subsystem'] == "TPS":
                     self.mdict['pki_target_registry_cfg'] = \
-                        os.path.join(self.mdict\
-                                     ['pki_subsystem_configuration_path'],
-                                     "registry.cfg")
+                        os.path.join(
+                            self.mdict['pki_subsystem_configuration_path'],
+                            "registry.cfg")
                     self.mdict['pki_target_phone_home_xml'] = \
                         os.path.join(
                             self.mdict['pki_subsystem_configuration_path'],
@@ -761,20 +774,15 @@ class PKIConfigParser:
                 self.mdict['SYSTEM_LIBRARIES_SLOT'] = None
                 self.mdict['SYSTEM_USER_LIBRARIES_SLOT'] = None
                 self.mdict['TMP_DIR_SLOT'] = None
-            elif self.mdict['pki_subsystem'] in\
-                 config.PKI_TOMCAT_SUBSYSTEMS:
+            elif self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 self.mdict['INSTALL_TIME_SLOT'] = \
                     self.mdict['pki_install_time']
                 self.mdict['PKI_ADMIN_SECURE_PORT_SLOT'] = \
                     self.mdict['pki_https_port']
-                self.mdict\
-                ['PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
+                self.mdict['PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
                     "Unused"
-                self.mdict\
-                ['PKI_ADMIN_SECURE_PORT_SERVER_COMMENT_SLOT'] = \
-                    ""
-                self.mdict['PKI_AGENT_CLIENTAUTH_SLOT'] = \
-                    "want"
+                self.mdict['PKI_ADMIN_SECURE_PORT_SERVER_COMMENT_SLOT'] = ""
+                self.mdict['PKI_AGENT_CLIENTAUTH_SLOT'] = "want"
                 self.mdict['PKI_AGENT_SECURE_PORT_SLOT'] = \
                     self.mdict['pki_https_port']
                 self.mdict['PKI_AJP_PORT_SLOT'] = \
@@ -789,19 +797,17 @@ class PKIConfigParser:
                     self.mdict['pki_pin']
                 self.mdict['PKI_CFG_PATH_NAME_SLOT'] = \
                     self.mdict['pki_target_cs_cfg']
-                self.mdict\
-                ['PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
+                self.mdict['PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
                     "-->"
-                self.mdict\
-                ['PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
+                self.mdict['PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
                     "-->"
                 self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT'] = \
                     self.mdict['pki_https_port']
                 self.mdict\
-                ['PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT'] = \
+                    ['PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT'] = \
                     "Unused"
                 self.mdict\
-                ['PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT_SLOT'] = \
+                    ['PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT_SLOT'] = \
                     ""
                 self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT'] = \
                     self.mdict['pki_https_port']
@@ -822,15 +828,12 @@ class PKIConfigParser:
                                  "tomcat")
                 self.mdict['PKI_HOSTNAME_SLOT'] = \
                     self.mdict['pki_hostname']
-                self.mdict\
-                ['PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
+                self.mdict['PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
                     "<!--"
-                self.mdict\
-                ['PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
+                self.mdict['PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
                     "<!--"
                 self.mdict['PKI_PIDDIR_SLOT'] = \
-                    os.path.join("/var/run/pki",
-                                 "tomcat")
+                    os.path.join("/var/run/pki", "tomcat")
                 if config.str2bool(self.mdict['pki_enable_proxy']):
                     self.mdict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] = \
                         ""
@@ -855,7 +858,7 @@ class PKIConfigParser:
                         "<!--"
                     self.mdict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] = \
                         "<!--"
-                if (config.str2bool(self.mdict['pki_standalone'])):
+                if config.str2bool(self.mdict['pki_standalone']):
                     # Stand-alone PKI
                     self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
                         ""
@@ -868,7 +871,7 @@ class PKIConfigParser:
                     self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
                         "<!--"
                     self.mdict['PKI_STANDALONE_SLOT'] = "false"
-                if (config.str2bool(self.mdict['pki_enable_access_log'])):
+                if config.str2bool(self.mdict['pki_enable_access_log']):
                     self.mdict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
                         ""
                     self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
@@ -924,7 +927,8 @@ class PKIConfigParser:
                 self.mdict['TOMCAT_LOG_DIR_SLOT'] = \
                     self.mdict['pki_instance_log_path']
                 self.mdict['TOMCAT_PIDFILE_SLOT'] = \
-                    "/var/run/pki/tomcat/" + self.mdict['pki_instance_name'] + ".pid"
+                    "/var/run/pki/tomcat/" + self.mdict['pki_instance_name'] + \
+                    ".pid"
                 self.mdict['TOMCAT_SERVER_PORT_SLOT'] = \
                     self.mdict['pki_tomcat_server_port']
                 self.mdict['TOMCAT_SSL2_CIPHERS_SLOT'] = \
@@ -995,8 +999,7 @@ class PKIConfigParser:
 
                 if self.mdict['pki_subsystem'] == "CA":
                     self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
-                        self.mdict\
-                        ['pki_random_serial_numbers_enable'].lower()
+                        self.mdict['pki_random_serial_numbers_enable'].lower()
             # Shared Apache/Tomcat NSS security database name/value pairs
             self.mdict['pki_shared_pfile'] = \
                 os.path.join(
@@ -1032,9 +1035,9 @@ class PKIConfigParser:
                     self.mdict['pki_subsystem_configuration_path'],
                     "noise")
             self.mdict['pki_self_signed_noise_bytes'] = 1024
-            # Shared Apache/Tomcat NSS security database convenience symbolic links
-            self.mdict\
-            ['pki_subsystem_configuration_password_conf_link'] = \
+            # Shared Apache/Tomcat NSS security database convenience
+            # symbolic links
+            self.mdict['pki_subsystem_configuration_password_conf_link'] = \
                 os.path.join(
                     self.mdict['pki_subsystem_configuration_path'],
                     "password.conf")
@@ -1051,7 +1054,8 @@ class PKIConfigParser:
             #
             #     Apache - [RA]
             #     Tomcat - [CA], [KRA], [OCSP], [TKS], [TPS]
-            #            - [CA Clone], [KRA Clone], [OCSP Clone], [TKS Clone], [TPS Clone]
+            #            - [CA Clone], [KRA Clone], [OCSP Clone], [TKS Clone],
+            #              [TPS Clone]
             #            - [External CA]
             #            - [Subordinate CA]
             #
@@ -1072,7 +1076,8 @@ class PKIConfigParser:
             #         self.mdict['pki_token_name']
             #
             #     The following variables are established via the specified PKI
-            #     deployment configuration file and potentially overridden below:
+            #     deployment configuration file and potentially overridden
+            #     below:
             #
             #         self.mdict['pki_security_domain_user']
             #         self.mdict['pki_issuing_ca']
@@ -1083,13 +1088,13 @@ class PKIConfigParser:
 
                 # use the CA admin uid if it's defined
                 if self.pki_config.has_option('CA', 'pki_admin_uid') and\
-                    len(self.pki_config.get('CA', 'pki_admin_uid')) > 0:
+                        len(self.pki_config.get('CA', 'pki_admin_uid')) > 0:
                     self.mdict['pki_security_domain_user'] = \
                         self.pki_config.get('CA', 'pki_admin_uid')
 
                 # or use the Default admin uid if it's defined
                 elif self.pki_config.has_option('DEFAULT', 'pki_admin_uid') and\
-                    len(self.pki_config.get('DEFAULT', 'pki_admin_uid')) > 0:
+                        len(self.pki_config.get('DEFAULT', 'pki_admin_uid')) > 0:
                     self.mdict['pki_security_domain_user'] = \
                         self.pki_config.get('DEFAULT', 'pki_admin_uid')
 
@@ -1098,13 +1103,13 @@ class PKIConfigParser:
                     self.mdict['pki_security_domain_user'] = "caadmin"
 
             if not config.str2bool(self.mdict['pki_skip_configuration']) and\
-               (config.str2bool(self.mdict['pki_standalone'])):
+                    (config.str2bool(self.mdict['pki_standalone'])):
                 # Stand-alone PKI
                 self.mdict['pki_security_domain_type'] = "new"
                 self.mdict['pki_issuing_ca'] = "External CA"
             elif config.pki_subsystem != "CA" or\
-                 config.str2bool(self.mdict['pki_clone']) or\
-                 config.str2bool(self.mdict['pki_subordinate']):
+                    config.str2bool(self.mdict['pki_clone']) or\
+                    config.str2bool(self.mdict['pki_subordinate']):
                 # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone, or
                 # Subordinate CA
@@ -1160,12 +1165,12 @@ class PKIConfigParser:
 
             if not 'pki_import_admin_cert' in self.mdict:
                 self.mdict['pki_import_admin_cert'] = 'false'
-            elif not config.str2bool(self.mdict['pki_skip_configuration']) and\
-                 (config.str2bool(self.mdict['pki_standalone'])):
+            elif not config.str2bool(self.mdict['pki_skip_configuration']) and \
+                    (config.str2bool(self.mdict['pki_standalone'])):
                 # Stand-alone PKI
                 self.mdict['pki_import_admin_cert'] = 'false'
 
-            if (config.str2bool(self.mdict['pki_standalone'])):
+            if config.str2bool(self.mdict['pki_standalone']):
                 self.mdict['pki_ca_signing_tag'] = "external_signing"
             else:
                 self.mdict['pki_ca_signing_tag'] = "signing"
@@ -1221,8 +1226,7 @@ class PKIConfigParser:
                     "restart" + " " + \
                     "pki-apached" + "@" + \
                     self.mdict['pki_instance_name'] + "." + "service"
-            elif self.mdict['pki_subsystem'] in\
-                 config.PKI_TOMCAT_SUBSYSTEMS:
+            elif self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 self.mdict['pki_registry_initscript_command'] = \
                     "systemctl" + " " + \
                     "restart" + " " + \
@@ -1243,7 +1247,6 @@ class PKIConfigParser:
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             raise
         return
-
 
     def compose_pki_slots_dictionary(self):
         """Read the slots configuration file to create

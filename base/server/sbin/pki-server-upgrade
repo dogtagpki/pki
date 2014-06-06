@@ -27,6 +27,7 @@ import pki
 import pki.upgrade
 import pki.server.upgrade
 
+
 # pylint: disable-msg=W0613
 def interrupt_handler(event, frame):
     print
@@ -160,12 +161,12 @@ def main(argv):
 
     try:
         upgrader = pki.server.upgrade.PKIServerUpgrader(
-            instanceName = instanceName,
-            subsystemName = subsystemName,
-            instanceType = instanceType,
-            version = scriptlet_version,
-            index = scriptlet_index,
-            silent = silent)
+            instanceName=instanceName,
+            subsystemName=subsystemName,
+            instanceType=instanceType,
+            version=scriptlet_version,
+            index=scriptlet_index,
+            silent=silent)
 
         if status:
             upgrader.status()

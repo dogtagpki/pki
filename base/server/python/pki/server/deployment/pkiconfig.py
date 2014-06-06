@@ -41,18 +41,18 @@ PKI_SIGNED_AUDIT_SUBSYSTEMS = ["CA", "KRA", "OCSP", "TKS", "TPS"]
 PKI_APACHE_SUBSYSTEMS = ["RA"]
 PKI_TOMCAT_SUBSYSTEMS = ["CA", "KRA", "OCSP", "TKS", "TPS"]
 PKI_BASE_RESERVED_NAMES = ["alias", "bin", "ca", "common", "conf", "kra",
-                           "lib", "logs", "ocsp", "temp", "tks", "tps", "webapps",
-                           "work"]
+                           "lib", "logs", "ocsp", "temp", "tks", "tps",
+                           "webapps", "work"]
 PKI_CONFIGURATION_RESERVED_NAMES = ["CA", "java", "nssdb", "rpm-gpg",
                                     "rsyslog", "tls"]
 PKI_APACHE_REGISTRY_RESERVED_NAMES = ["ra"]
 PKI_TOMCAT_REGISTRY_RESERVED_NAMES = ["ca", "kra", "ocsp", "tks", "tps"]
 
-PKI_INDENTATION_LEVEL_0 = {'indent' : ''}
-PKI_INDENTATION_LEVEL_1 = {'indent' : '... '}
-PKI_INDENTATION_LEVEL_2 = {'indent' : '....... '}
-PKI_INDENTATION_LEVEL_3 = {'indent' : '........... '}
-PKI_INDENTATION_LEVEL_4 = {'indent' : '............... '}
+PKI_INDENTATION_LEVEL_0 = {'indent': ''}
+PKI_INDENTATION_LEVEL_1 = {'indent': '... '}
+PKI_INDENTATION_LEVEL_2 = {'indent': '....... '}
+PKI_INDENTATION_LEVEL_3 = {'indent': '........... '}
+PKI_INDENTATION_LEVEL_4 = {'indent': '............... '}
 
 PKI_DEPLOYMENT_INTERRUPT_BANNER = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"\
                                   "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
@@ -123,6 +123,7 @@ pki_root_prefix = None
 def str2bool(string):
     return string.lower() in ("yes", "true", "t", "1")
 
+
 # NOTE:  To utilize the 'preparations_for_an_external_java_debugger(master)'
 #        and 'wait_to_attach_an_external_java_debugger(master)' functions,
 #        change 'pki_enable_java_debugger=False' to
@@ -140,12 +141,13 @@ def prepare_for_an_external_java_debugger(instance):
     print "              \"address=8000,server=y,suspend=n \""
     print "              \"-Djava.awt.headless=true -Xmx128M\""
     print
-    raw_input("Enable external java debugger 'JAVA_OPTS' "\
+    raw_input("Enable external java debugger 'JAVA_OPTS' "
               "and press return to continue  . . . ")
     print
     print PKI_DEPLOYMENT_INTERRUPT_BANNER
     print
     return
+
 
 def wait_to_attach_an_external_java_debugger():
     print
@@ -155,7 +157,7 @@ def wait_to_attach_an_external_java_debugger():
     print "the 'address' selected by 'JAVA_OPTS' (e. g. - port 8000) and"
     print "set any desired breakpoints"
     print
-    raw_input("Please attach an external java debugger "\
+    raw_input("Please attach an external java debugger "
               "and press return to continue  . . . ")
     print
     print PKI_DEPLOYMENT_INTERRUPT_BANNER

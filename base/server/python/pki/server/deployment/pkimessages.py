@@ -61,7 +61,8 @@ PKI_CONFIGURATION_STANDALONE_1 = "      Please obtain the necessary "\
                                  "certificates for this stand-alone %s,\n"\
                                  "      and re-run the configuration for "\
                                  "step two."
-PKI_CONFIGURATION_URL_1 = "    Please start the configuration by accessing:\n    %s"
+PKI_CONFIGURATION_URL_1 = \
+    "    Please start the configuration by accessing:\n    %s"
 PKI_CONFIGURATION_WIZARD_RESTART_1 = "After configuration, the server can be "\
                                      "operated by the command:\n%s"
 PKI_CONFIGURATION_WIZARD_URL_1 = "Configuration Wizard listening on\n%s"
@@ -244,17 +245,17 @@ PKIHELPER_NOISE_FILE_2 = "generating noise file called '%s' and "\
                          "filling it with '%d' random bytes"
 PKIHELPER_PASSWORD_CONF_1 = "generating '%s'"
 PKIHELPER_PASSWORD_NOT_FOUND_1 = "no password found for '%s'!"
-PKIHELPER_PK12UTIL_MISSING_DBPWFILE = "pk12util missing "\
-                                     "-k db-password-file option!"
-PKIHELPER_PK12UTIL_MISSING_NICKNAME = "pk12util missing "\
-                                     "-n nickname option!"
-PKIHELPER_PK12UTIL_MISSING_OUTFILE = "pk12util missing "\
-                                     "-o output-file option!"
-PKIHELPER_PK12UTIL_MISSING_PWFILE = "pk12util missing "\
-                                     "-w pw-file option!"
+PKIHELPER_PK12UTIL_MISSING_DBPWFILE = \
+    "pk12util missing -k db-password-file option!"
+PKIHELPER_PK12UTIL_MISSING_NICKNAME = \
+    "pk12util missing -n nickname option!"
+PKIHELPER_PK12UTIL_MISSING_OUTFILE = \
+    "pk12util missing -o output-file option!"
+PKIHELPER_PK12UTIL_MISSING_PWFILE = \
+    "pk12util missing -w pw-file option!"
 
-PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2 = "instance '%s' contains '%d' "\
-                                      "PKI subsystems"
+PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2 = \
+    "instance '%s' contains '%d' PKI subsystems"
 PKIHELPER_REMOVE_FILTER_SECTION_1 = "removing filter section from '%s'"
 PKIHELPER_RM_F_1 = "rm -f %s"
 PKIHELPER_RM_RF_1 = "rm -rf %s"
@@ -320,38 +321,35 @@ PKI_CONFIG_CDATA_CERT = "cert:"
 PKI_CONFIG_CDATA_REQUEST = "request:"
 PKI_CONFIG_CONFIGURING_PKI_DATA = "configuring PKI configuration data."
 PKI_CONFIG_CONSTRUCTING_PKI_DATA = "constructing PKI configuration data."
-PKI_CONFIG_PKCS10_SUPPORT_ONLY = "only the 'pkcs10' certificate request type "\
-                               "is currently supported"
-PKI_CONFIG_EXTERNAL_CA_LOAD = "loading external CA signing certificate "\
-                              "from file:"
-PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD = "loading external CA signing certificate "\
-                                    "chain from file:"
-PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_STORAGE = "loading external CA signed KRA "\
-                                            "Storage certificate from file:"
-PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_TRANSPORT = "loading external CA signed KRA "\
-                                              "Transport certificate from file:"
-PKI_CONFIG_EXTERNAL_CERT_LOAD_OCSP_SIGNING = "loading external CA signed OCSP "\
-                                             "Signing certificate from file:"
-PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SSLSERVER_1 = "loading external CA signed "\
-                                                "%s SSL Server certificate "\
-                                                "from file:"
-PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SUBSYSTEM_1 = "loading external CA signed "\
-                                                "%s Subsystem certificate "\
-                                                "from file:"
-PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_AUDIT_SIGNING_1 = "loading external CA "\
-                                                    "signed %s Audit Signing "\
-                                                    "certificate from file:"
+PKI_CONFIG_PKCS10_SUPPORT_ONLY = \
+    "only the 'pkcs10' certificate request type is currently supported"
+PKI_CONFIG_EXTERNAL_CA_LOAD = \
+    "loading external CA signing certificate from file:"
+PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD = \
+    "loading external CA signing certificate chain from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_STORAGE = \
+    "loading external CA signed KRA Storage certificate from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_KRA_TRANSPORT = \
+    "loading external CA signed KRA Transport certificate from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_OCSP_SIGNING = \
+    "loading external CA signed OCSP Signing certificate from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SSLSERVER_1 = \
+    "loading external CA signed %s SSL Server certificate from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_SUBSYSTEM_1 = \
+    "loading external CA signed %s Subsystem certificate from file:"
+PKI_CONFIG_EXTERNAL_CERT_LOAD_PKI_AUDIT_SIGNING_1 = \
+    "loading external CA signed %s Audit Signing certificate from file:"
 PKI_CONFIG_EXTERNAL_CSR_SAVE = "saving CA Signing CSR to file:"
 PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE = "saving KRA Storage CSR to file:"
 PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT = "saving KRA Transport CSR to file:"
 PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING = "saving OCSP Signing CSR to file:"
 PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_1 = "saving %s Admin CSR to file:"
-PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1 = "saving %s Audit Signing "\
-                                                   "CSR to file:"
-PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1 = "saving %s SSL Server CSR "\
-                                               "to file:"
-PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1 = "saving %s Subsystem CSR "\
-                                               "to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_1 = \
+    "saving %s Audit Signing CSR to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_1 = \
+    "saving %s SSL Server CSR to file:"
+PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_1 = \
+    "saving %s Subsystem CSR to file:"
 PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION = \
     "Exception from Java Configuration Servlet:"
 PKI_CONFIG_RESPONSE_ADMIN_CERT = "adminCert:"
@@ -361,8 +359,9 @@ PKI_CHECK_STATUS_MESSAGE = "      To check the status of the subsystem: \n"\
                            "            systemctl status pki-tomcatd@%s.service"
 PKI_ACCESS_URL = "      The URL for the subsystem is: \n"\
                  "            https://%s:%s/%s"
-PKI_INSTANCE_RESTART_MESSAGE = "      To restart the subsystem: \n"\
-                               "            systemctl restart pki-tomcatd@%s.service"
+PKI_INSTANCE_RESTART_MESSAGE = \
+    "      To restart the subsystem: \n"\
+    "            systemctl restart pki-tomcatd@%s.service"
 
 
 PKI_SPAWN_INFORMATION_HEADER = "\n    ==========================================================================\n"\
