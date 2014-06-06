@@ -52,15 +52,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # deployment configuration file used to spawn this instance,
         # and save a copy of this file
         deployer.directory.create(deployer.mdict['pki_registry_path'])
-        deployer.directory.create(deployer.mdict['pki_instance_type_registry_path'])
+        deployer.directory.create(
+            deployer.mdict['pki_instance_type_registry_path'])
         deployer.directory.create(deployer.mdict['pki_instance_registry_path'])
         deployer.directory.create(deployer.mdict['pki_subsystem_registry_path'])
-        deployer.file.copy(deployer.mdict['pki_default_deployment_cfg'],
-                       deployer.mdict['pki_default_deployment_cfg_replica'])
+        deployer.file.copy(
+            deployer.mdict['pki_default_deployment_cfg'],
+            deployer.mdict['pki_default_deployment_cfg_replica'])
 
-        print "Storing deployment configuration into " + deployer.mdict['pki_user_deployment_cfg_replica'] + "."
+        print "Storing deployment configuration into " + \
+              deployer.mdict['pki_user_deployment_cfg_replica'] + "."
 
-        # Archive the user deployment configuration excluding the sensitive parameters
+        # Archive the user deployment configuration excluding the sensitive
+        # parameters
         sensitive_parameters = deployer.mdict['sensitive_parameters'].split()
         sections = config.user_config.sections()
         for s in sections:
@@ -75,8 +79,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.directory.create(deployer.mdict['pki_path'])
         deployer.directory.create(deployer.mdict['pki_instance_path'])
         deployer.directory.create(deployer.mdict['pki_subsystem_path'])
-        deployer.symlink.create(deployer.mdict['pki_instance_registry_path'],
-                            deployer.mdict['pki_subsystem_registry_link'])
+        deployer.symlink.create(
+            deployer.mdict['pki_instance_registry_path'],
+            deployer.mdict['pki_subsystem_registry_link'])
         #
         # NOTE:  If "infrastructure_layout" scriptlet execution has been
         #        successfully executed to this point, the "pkidestroy" command
@@ -105,10 +110,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # since it now stores 'pkispawn'/'pkidestroy' logs
             # deployer.directory.delete(deployer.mdict['pki_log_path'])
             # remove top-level infrastructure configuration
-            if deployer.directory.is_empty(deployer.mdict['pki_configuration_path'])\
-               and deployer.mdict['pki_configuration_path'] != \
-               config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
-                deployer.directory.delete(deployer.mdict['pki_configuration_path'])
+            if deployer.directory.is_empty(
+                    deployer.mdict['pki_configuration_path']) and \
+                deployer.mdict['pki_configuration_path'] != \
+                    config.PKI_DEPLOYMENT_CONFIGURATION_ROOT:
+                deployer.directory.delete(
+                    deployer.mdict['pki_configuration_path'])
             # remove top-level infrastructure registry
             deployer.directory.delete(deployer.mdict['pki_registry_path'])
         return self.rv

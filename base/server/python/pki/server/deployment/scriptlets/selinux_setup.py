@@ -63,52 +63,68 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             try:
                 # check first if any transactions are required
                 if len(ports) == 0 and deployer.mdict['pki_instance_name'] == \
-                    config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
+                        config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
                     self.restore_context(deployer.mdict)
                     return self.rv
 
                 # add SELinux contexts when adding the first subsystem
-                if deployer.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-                    deployer.instance.apache_instance_subsystems() == 1 or\
-                    deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-                    len(deployer.instance.tomcat_instance_subsystems()) == 1:
+                if deployer.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and \
+                        deployer.instance.apache_instance_subsystems() == 1 \
+                        or deployer.mdict['pki_subsystem'] in \
+                        config.PKI_TOMCAT_SUBSYSTEMS and \
+                        len(deployer.instance.tomcat_instance_subsystems()) == 1:
 
                     trans = seobject.semanageRecords("targeted")
                     trans.start()
                     if deployer.mdict['pki_instance_name'] != \
-                        config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
+                            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
 
                         fcon = seobject.fcontextRecords()
 
-                        config.pki_log.info("adding selinux fcontext \"%s\"",
-                        deployer.mdict['pki_instance_path'] + self.suffix,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.add(deployer.mdict['pki_instance_path'] + self.suffix,
-                                 config.PKI_INSTANCE_SELINUX_CONTEXT, "", "s0", "")
+                        config.pki_log.info(
+                            "adding selinux fcontext \"%s\"",
+                            deployer.mdict['pki_instance_path'] + self.suffix,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        fcon.add(
+                            deployer.mdict['pki_instance_path'] + self.suffix,
+                            config.PKI_INSTANCE_SELINUX_CONTEXT, "", "s0", "")
 
-                        config.pki_log.info("adding selinux fcontext \"%s\"",
-                                            deployer.mdict['pki_instance_log_path'] + self.suffix,
-                                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.add(deployer.mdict['pki_instance_log_path'] + self.suffix,
-                                 config.PKI_LOG_SELINUX_CONTEXT, "", "s0", "")
+                        config.pki_log.info(
+                            "adding selinux fcontext \"%s\"",
+                            deployer.mdict['pki_instance_log_path'] +
+                            self.suffix,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        fcon.add(
+                            deployer.mdict['pki_instance_log_path'] +
+                            self.suffix,
+                            config.PKI_LOG_SELINUX_CONTEXT, "", "s0", "")
 
-                        config.pki_log.info("adding selinux fcontext \"%s\"",
-                                            deployer.mdict['pki_instance_configuration_path'] + self.suffix,
-                                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.add(deployer.mdict['pki_instance_configuration_path'] + self.suffix,
-                                 config.PKI_CFG_SELINUX_CONTEXT, "", "s0", "")
+                        config.pki_log.info(
+                            "adding selinux fcontext \"%s\"",
+                            deployer.mdict['pki_instance_configuration_path'] +
+                            self.suffix,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        fcon.add(
+                            deployer.mdict['pki_instance_configuration_path'] +
+                            self.suffix,
+                            config.PKI_CFG_SELINUX_CONTEXT, "", "s0", "")
 
-                        config.pki_log.info("adding selinux fcontext \"%s\"",
-                                            deployer.mdict['pki_database_path'] + self.suffix,
-                                            extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.add(deployer.mdict['pki_database_path'] + self.suffix,
-                                 config.PKI_CERTDB_SELINUX_CONTEXT, "", "s0", "")
+                        config.pki_log.info(
+                            "adding selinux fcontext \"%s\"",
+                            deployer.mdict['pki_database_path'] + self.suffix,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        fcon.add(
+                            deployer.mdict['pki_database_path'] + self.suffix,
+                            config.PKI_CERTDB_SELINUX_CONTEXT, "", "s0", "")
 
-                        portRecords = seobject.portRecords()
+                        port_records = seobject.portRecords()
                         for port in ports:
-                            config.pki_log.info("adding selinux port %s", port,
-                                                extra=config.PKI_INDENTATION_LEVEL_2)
-                            portRecords.add(port, "tcp", "s0", config.PKI_PORT_SELINUX_CONTEXT)
+                            config.pki_log.info(
+                                "adding selinux port %s", port,
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+                            port_records.add(
+                                port, "tcp", "s0",
+                                config.PKI_PORT_SELINUX_CONTEXT)
 
                     trans.finish()
 
@@ -117,12 +133,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             except ValueError as e:
                 error_message = str(e)
                 config.pki_log.debug(error_message)
-                if error_message.strip() == "Could not start semanage transaction":
-                    counter = counter + 1
+                if error_message.strip() == \
+                        "Could not start semanage transaction":
+                    counter += 1
                     if counter >= max_tries:
                         raise
                     time.sleep(5)
-                    config.pki_log.debug("Retrying to setup the selinux context ...")
+                    config.pki_log.debug(
+                        "Retrying to setup the selinux context ...")
                 else:
                     raise
 
@@ -139,7 +157,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # check first if any transactions are required
         if (len(ports) == 0 and deployer.mdict['pki_instance_name'] ==
-            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME):
+                config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME):
             return self.rv
         # A maximum of 10 tries to delete the SELinux contexts
         counter = 1
@@ -156,48 +174,64 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     trans.start()
 
                     if deployer.mdict['pki_instance_name'] != \
-                        config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
+                            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
 
                         fcon = seobject.fcontextRecords()
 
-                        config.pki_log.info("deleting selinux fcontext \"%s\"",
-                                     deployer.mdict['pki_instance_path'] + self.suffix,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(deployer.mdict['pki_instance_path'] + self.suffix , "")
+                        config.pki_log.info(
+                            "deleting selinux fcontext \"%s\"",
+                            deployer.mdict['pki_instance_path'] + self.suffix,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        fcon.delete(
+                            deployer.mdict['pki_instance_path'] +
+                            self.suffix, "")
 
-                        config.pki_log.info("deleting selinux fcontext \"%s\"",
-                                 deployer.mdict['pki_instance_log_path'] + self.suffix,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(deployer.mdict['pki_instance_log_path'] + self.suffix, "")
+                        config.pki_log.info(
+                            "deleting selinux fcontext \"%s\"",
+                            deployer.mdict['pki_instance_log_path'] +
+                            self.suffix,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        fcon.delete(
+                            deployer.mdict['pki_instance_log_path'] +
+                            self.suffix, "")
 
-                        config.pki_log.info("deleting selinux fcontext \"%s\"",
-                                  deployer.mdict['pki_instance_configuration_path'] + self.suffix,
-                                  extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(deployer.mdict['pki_instance_configuration_path'] +
-                                    self.suffix, "")
+                        config.pki_log.info(
+                            "deleting selinux fcontext \"%s\"",
+                            deployer.mdict['pki_instance_configuration_path'] +
+                            self.suffix,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        fcon.delete(
+                            deployer.mdict['pki_instance_configuration_path'] +
+                            self.suffix, "")
 
-                        config.pki_log.info("deleting selinux fcontext \"%s\"",
-                                     deployer.mdict['pki_database_path'] + self.suffix,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                        fcon.delete(deployer.mdict['pki_database_path'] + self.suffix , "")
+                        config.pki_log.info(
+                            "deleting selinux fcontext \"%s\"",
+                            deployer.mdict['pki_database_path'] + self.suffix,
+                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        fcon.delete(
+                            deployer.mdict['pki_database_path'] +
+                            self.suffix, "")
 
-                        portRecords = seobject.portRecords()
+                        port_records = seobject.portRecords()
                         for port in ports:
-                            config.pki_log.info("deleting selinux port %s", port,
-                                                extra=config.PKI_INDENTATION_LEVEL_2)
-                            portRecords.delete(port, "tcp")
+                            config.pki_log.info(
+                                "deleting selinux port %s", port,
+                                extra=config.PKI_INDENTATION_LEVEL_2)
+                            port_records.delete(port, "tcp")
 
                     trans.finish()
                 break
             except ValueError as e:
                 error_message = str(e)
                 config.pki_log.debug(error_message)
-                if error_message.strip() == "Could not start semanage transaction":
-                    counter = counter + 1
+                if error_message.strip() == \
+                        "Could not start semanage transaction":
+                    counter += 1
                     if counter >= max_tries:
                         raise
                     time.sleep(5)
-                    config.pki_log.debug("Retrying to remove selinux context ...")
+                    config.pki_log.debug(
+                        "Retrying to remove selinux context ...")
                 else:
                     raise
 

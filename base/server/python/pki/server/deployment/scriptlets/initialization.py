@@ -57,7 +57,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # detect and avoid any namespace collisions
                 deployer.namespace.collision_detection()
         # initialize 'uid' and 'gid'
-        deployer.identity.add_uid_and_gid(deployer.mdict['pki_user'], deployer.mdict['pki_group'])
+        deployer.identity.add_uid_and_gid(deployer.mdict['pki_user'],
+                                          deployer.mdict['pki_group'])
         # establish 'uid' and 'gid'
         deployer.identity.set_uid(deployer.mdict['pki_user'])
         deployer.identity.set_gid(deployer.mdict['pki_group'])

@@ -37,11 +37,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return self.rv
         config.pki_log.info(log.SLOT_ASSIGNMENT_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        deployer.file.copy_with_slot_substitution(deployer.mdict['pki_source_cs_cfg'],
-                                                        deployer.mdict['pki_target_cs_cfg'])
-        deployer.file.copy_with_slot_substitution(deployer.mdict['pki_source_registry'],
-                                                        deployer.mdict['pki_target_registry'],
-                                                        overwrite_flag=True)
+        deployer.file.copy_with_slot_substitution(
+            deployer.mdict['pki_source_cs_cfg'],
+            deployer.mdict['pki_target_cs_cfg'])
+        deployer.file.copy_with_slot_substitution(
+            deployer.mdict['pki_source_registry'],
+            deployer.mdict['pki_target_registry'],
+            overwrite_flag=True)
         if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             deployer.file.copy_with_slot_substitution(
                 deployer.mdict['pki_source_catalina_properties'],
@@ -81,11 +83,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # This is ONLY necessary because XML comments cannot be "nested"!
             # deployer.file.copy(deployer.mdict['pki_target_subsystem_web_xml'],
             #               deployer.mdict['pki_target_subsystem_web_xml_orig'])
-            # deployer.file.delete(deployer.mdict['pki_target_subsystem_web_xml'])
+            # deployer.file.delete(
+            #   deployer.mdict['pki_target_subsystem_web_xml'])
             # util.xml_file.remove_filter_section_from_web_xml(
             #    deployer.mdict['pki_target_subsystem_web_xml_orig'],
             #    deployer.mdict['pki_target_subsystem_web_xml'])
-            # deployer.file.delete(deployer.mdict['pki_target_subsystem_web_xml_orig'])
+            # deployer.file.delete(
+            #   deployer.mdict['pki_target_subsystem_web_xml_orig'])
             if deployer.mdict['pki_subsystem'] == "CA":
                 deployer.file.copy_with_slot_substitution(
                     deployer.mdict['pki_source_proxy_conf'],

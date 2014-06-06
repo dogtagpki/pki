@@ -48,11 +48,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # For debugging/auditing purposes, save a timestamped copy of
         # this configuration file in the subsystem archive
-        deployer.file.copy(deployer.mdict['pki_user_deployment_cfg_replica'],
-                       deployer.mdict['pki_user_deployment_cfg_spawn_archive'])
+        deployer.file.copy(
+            deployer.mdict['pki_user_deployment_cfg_replica'],
+            deployer.mdict['pki_user_deployment_cfg_spawn_archive'])
         # Save a copy of the installation manifest file
-        config.pki_log.info(log.PKI_MANIFEST_MESSAGE_1, deployer.mdict['pki_manifest'],
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+        config.pki_log.info(
+            log.PKI_MANIFEST_MESSAGE_1, deployer.mdict['pki_manifest'],
+            extra=config.PKI_INDENTATION_LEVEL_2)
         # for record in manifest.database:
         #     print tuple(record)
         manifest_file = manifest.File(deployer.manifest_db)
@@ -62,8 +64,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Also, for debugging/auditing purposes, save a timestamped copy of
         # this installation manifest file
-        deployer.file.copy(deployer.mdict['pki_manifest'],
-                       deployer.mdict['pki_manifest_spawn_archive'])
+        deployer.file.copy(
+            deployer.mdict['pki_manifest'],
+            deployer.mdict['pki_manifest_spawn_archive'])
         # Optionally, programmatically 'restart' the configured PKI instance
         if config.str2bool(deployer.mdict['pki_restart_configured_instance']):
             deployer.systemd.restart()
@@ -75,8 +78,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #               be deleted!
         #
         if config.str2bool(deployer.mdict['pki_client_database_purge']):
-            if deployer.directory.exists(deployer.mdict['pki_client_subsystem_dir']):
-                deployer.directory.delete(deployer.mdict['pki_client_subsystem_dir'])
+            if deployer.directory.exists(
+                    deployer.mdict['pki_client_subsystem_dir']):
+                deployer.directory.delete(
+                    deployer.mdict['pki_client_subsystem_dir'])
         # If instance has not been configured, print the
         # configuration URL to the log
         if config.str2bool(deployer.mdict['pki_skip_configuration']):
@@ -98,8 +103,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
            deployer.instance.apache_instance_subsystems() >= 1:
             deployer.systemd.start()
-        elif deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS and\
-           len(deployer.instance.tomcat_instance_subsystems()) >= 1:
+        elif deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
+                and len(deployer.instance.tomcat_instance_subsystems()) >= 1:
             deployer.systemd.start()
         config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
                             deployer.mdict['pki_subsystem'],
