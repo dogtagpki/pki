@@ -485,7 +485,7 @@ class ConfigurationFile:
         print log.PKI_CONFIGURATION_URL_1 % self.mdict['pki_configuration_url']
         print
         print log.PKI_CONFIGURATION_RESTART_1 % \
-              self.mdict['pki_registry_initscript_command']
+            self.mdict['pki_registry_initscript_command']
         print
 
     def confirm_external(self):
@@ -921,8 +921,8 @@ class Instance:
                             instance)) and not\
                    os.path.islink(
                        os.path.join(
-                            self.mdict['pki_instance_type_registry_path'],
-                            instance)):
+                           self.mdict['pki_instance_type_registry_path'],
+                           instance)):
                     rv += 1
             config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
                                  self.mdict['pki_instance_type_registry_path'],
@@ -984,8 +984,8 @@ class Instance:
             # shouldn't be any stray files or symbolic links at this level,
             # simply count the number of PKI 'tomcat' instances (directories)
             # present within the PKI 'tomcat' registry directory
-            for instance in\
-                os.listdir(self.mdict['pki_instance_type_registry_path']):
+            for instance in os.listdir(
+                    self.mdict['pki_instance_type_registry_path']):
                 if os.path.isdir(
                     os.path.join(
                         self.mdict['pki_instance_type_registry_path'],
@@ -1052,8 +1052,7 @@ class Instance:
         try:
             client = pki.system.SystemStatusClient(connection)
             response = client.get_status()
-            config.pki_log.debug(response,
-                extra=config.PKI_INDENTATION_LEVEL_3)
+            config.pki_log.debug(response, extra=config.PKI_INDENTATION_LEVEL_3)
 
             root = ET.fromstring(response)
             status = root.findtext("Status")

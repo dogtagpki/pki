@@ -537,7 +537,6 @@ def print_install_information(mdict):
     print log.PKI_SPAWN_INFORMATION_HEADER
     if skip_configuration:
         print log.PKI_CONFIGURATION_URL_1 % mdict['pki_configuration_url']
-        print
         print log.PKI_CONFIGURATION_RESTART_1 % \
             mdict['pki_registry_initscript_command']
     else:
@@ -548,9 +547,10 @@ def print_install_information(mdict):
                   mdict['pki_client_admin_cert_p12']
         if not config.str2bool(mdict['pki_client_database_purge']):
             print
-            print "      Administrator's certificate nickname:\n            %s" % mdict['pki_admin_nickname']
-            print "      Administrator's certificate database:\n            %s" % mdict['pki_client_database_dir']
-        print
+            print "      Administrator's certificate nickname:\n            %s"\
+                  % mdict['pki_admin_nickname']
+            print "      Administrator's certificate database:\n            %s"\
+                  % mdict['pki_client_database_dir']
         print log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name']
         print log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name']
         if (((config.pki_subsystem == "KRA" or
@@ -558,7 +558,6 @@ def print_install_information(mdict):
             config.str2bool(mdict['pki_standalone'])) and
             not config.str2bool(mdict['pki_external_step_two'])):
             # Stand-alone PKI KRA/OCSP (External CA Step 1)
-            print
             print log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem
         else:
             print log.PKI_ACCESS_URL % (mdict['pki_hostname'],
