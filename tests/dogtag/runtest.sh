@@ -89,6 +89,21 @@ rlJournalStart
                   run_rhcs_install_subsystems
 		  run_pki-user-cli-user-ca_tests
         fi
+	PKI_USER_CA_UPPERCASE=$(echo $PKI_USER_CA | tr [a-z] [A-Z])
+        if [ "$PKI_USER_CA_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-ca tests
+                  run_pki-user-cli-user-add-ca_tests
+                  run_pki-user-cli-user-show-ca_tests
+                  run_pki-user-cli-user-mod-ca_tests
+                  run_pki-user-cli-user-find-ca_tests
+                  run_pki-user-cli-user-del-ca_tests
+                  run_pki-user-cli-user-membership-add-ca_tests
+                  run_pki-user-cli-user-membership-find-ca_tests
+                  run_pki-user-cli-user-membership-del-ca_tests
+                  run_pki-user-cli-user-cert-add-ca_tests
+                  run_pki-user-cli-user-cert-find-ca_tests
+                  run_pki-user-cli-user-cert-show-ca_tests
+        fi
 	USER_ADD_CA_UPPERCASE=$(echo $USER_ADD_CA | tr [a-z] [A-Z])
         if [ "$USER_ADD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-add-ca tests
@@ -114,19 +129,19 @@ rlJournalStart
                 # Execute pki user-del-ca tests
 		  run_pki-user-cli-user-del-ca_tests
         fi
-	USER_MEM_ADD_CA_UPPERCASE=$(echo $USER_MEM_ADD_CA | tr [a-z] [A-Z])
-	if [ "$USER_MEM_ADD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
-                # Execute pki user-mem-add-ca tests
+	USER_MEMBERSHIP_ADD_CA_UPPERCASE=$(echo $USER_MEMBERSHIP_ADD_CA | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_ADD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-add-ca tests
                   run_pki-user-cli-user-membership-add-ca_tests
         fi
-	USER_MEM_FIND_CA_UPPERCASE=$(echo $USER_MEM_FIND_CA | tr [a-z] [A-Z])
-	if [ "$USER_MEM_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
-                # Execute pki user-mem-find-ca tests
+        USER_MEMBERSHIP_FIND_CA_UPPERCASE=$(echo $USER_MEMBERSHIP_FIND_CA | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-find-ca tests
                   run_pki-user-cli-user-membership-find-ca_tests
         fi
-	USER_MEM_DEL_CA_UPPERCASE=$(echo $USER_MEM_DEL_CA | tr [a-z] [A-Z])
-        if [ "$USER_MEM_DEL_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
-                # Execute pki user-mem-del-ca tests
+        USER_MEMBERSHIP_DEL_CA_UPPERCASE=$(echo $USER_MEMBERSHIP_DEL_CA | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_DEL_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-del-ca tests
                   run_pki-user-cli-user-membership-del-ca_tests
         fi
 	USER_CERT_ADD_CA_UPPERCASE=$(echo $USER_CERT_ADD_CA | tr [a-z] [A-Z])
@@ -175,7 +190,7 @@ rlJournalStart
                   run_pki-cert-hold-ca_tests
         fi
 	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
-	if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+	if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] ; then
 		#Execute pki cert tests
 		 run_pki-cert-ca_tests
 		 run_pki-cert-revoke-ca_tests

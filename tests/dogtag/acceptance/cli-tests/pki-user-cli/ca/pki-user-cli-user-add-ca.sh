@@ -9,7 +9,8 @@
 #  pki-user-cli-user-add    Add users to pki subsystems.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Authors: Asha Akkiangady <aakkiang@redhat.com> and Laxmi Sunkara <lsunkara@redhat.com>
+#   Authors: Asha Akkiangady <aakkiang@redhat.com> 
+#            Laxmi Sunkara <lsunkara@redhat.com>
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -820,7 +821,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-adminE-002.out 2>&1" \
                     255 \
                     "Should not be able to add user $user1 using a agent cert"
-        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-add-ca-adminE-002.out"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-adminE-002.out"
         rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-add-ca-adminE-002.out"
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"

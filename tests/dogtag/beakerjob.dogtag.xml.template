@@ -28,10 +28,14 @@
 				<params>
 					<param name="TEST_ALL" value="TRUE"/>
 					<param name="QUICKINSTALL" value="FALSE"/>
+					<param name="PKI_USER_CA" value="FALSE"/>
 					<param name="USER_ADD_CA" value="FALSE"/>
 					<param name="USER_SHOW_CA" value="FALSE"/>
 					<param name="USER_FIND_CA" value="FALSE"/>
 					<param name="USER_DEL_CA" value="FALSE"/>
+					<param name="USER_MEMBERSHIP_ADD_CA" value="FALSE"/>
+                                        <param name="USER_MEMBERSHIP_FIND_CA" value="FALSE"/>
+                                        <param name="USER_MEMBERSHIP_DEL_CA" value="FALSE"/>
                                         <param name="DEV_JAVA_TESTS" value="FALSE"/>
 					<param name="CODE_COVERAGE" value="FALSE"/>
 					<! --If you have CODE_COVERAGE set to TRUE, by default results will be stored on the local machine. If you would like to archive the code coverage results to a host you need to do following steps to set-up required rsa authentication files to perform ssh and scp.
