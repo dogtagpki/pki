@@ -53,7 +53,6 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -119,7 +118,8 @@ public class SecurityDataRecoveryService implements IService {
         byte iv_default[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         byte iv_in[] = null;
 
-        String subjectID = auditSubjectID();
+        String requestor = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String auditSubjectID = requestor;
 
         Hashtable<String, Object> params = mKRA.getVolatileRequest(
                 request.getRequestId());
@@ -130,7 +130,7 @@ public class SecurityDataRecoveryService implements IService {
 
         if (params == null) {
             CMS.debug("Can't get volatile params.");
-            auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID, serialno.toString(),
+            auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                     "cannot get volatile params");
             throw new EBaseException("Can't obtain volatile params!");
         }
@@ -213,7 +213,7 @@ public class SecurityDataRecoveryService implements IService {
                 params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
 
             } catch (Exception e) {
-                auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID, serialno.toString(),
+                auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                         "Cannot unwrap passphrase");
                 throw new EBaseException("Can't unwrap pass phase! " + e.toString());
             } finally {
@@ -235,7 +235,7 @@ public class SecurityDataRecoveryService implements IService {
                     wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
                     key_data = wrapper.wrap(symKey);
                 } catch (Exception e) {
-                    auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID, serialno.toString(),
+                    auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                             "Cannot wrap symmetric key");
                     throw new EBaseException("Can't wrap symmetric key! " + e.toString());
                 }
@@ -248,13 +248,13 @@ public class SecurityDataRecoveryService implements IService {
                         encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
                         key_data = encryptor.doFinal(unwrappedSecData);
                     } else {
-                        auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID,
+                        auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
                                 serialno.toString(), "Failed to create cipher");
                         throw new IOException("Failed to create cipher");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    auditRecoveryRequestProcessed(subjectID, ILogger.FAILURE, requestID,
+                    auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
                             serialno.toString(), "Cannot wrap pass phrase");
                     throw new EBaseException("Can't wrap pass phrase!");
                 }
@@ -265,7 +265,7 @@ public class SecurityDataRecoveryService implements IService {
             params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
 
         }
-        auditRecoveryRequestProcessed(subjectID, ILogger.SUCCESS, requestID, serialno.toString(),
+        auditRecoveryRequestProcessed(auditSubjectID, ILogger.SUCCESS, requestID, serialno.toString(),
                 "None");
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         mKRA.getRequestQueue().updateRequest(request);
@@ -419,26 +419,6 @@ public class SecurityDataRecoveryService implements IService {
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY,
                 msg);
-    }
-
-    private String auditSubjectID() {
-        if (signedAuditLogger == null) {
-            return null;
-        }
-
-        String subjectID = null;
-
-        // Initialize subjectID
-        SessionContext auditContext = SessionContext.getExistingContext();
-
-        if (auditContext != null) {
-            subjectID = (String) auditContext.get(SessionContext.USER_ID);
-            subjectID = (subjectID != null) ? subjectID.trim() : ILogger.NONROLEUSER;
-        } else {
-            subjectID = ILogger.UNIDENTIFIED;
-        }
-
-        return subjectID;
     }
 
     private void auditRecoveryRequestProcessed(String subjectID, String status, RequestId requestID,

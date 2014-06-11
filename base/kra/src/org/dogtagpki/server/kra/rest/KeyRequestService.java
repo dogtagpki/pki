@@ -43,6 +43,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceMessage;
+import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
@@ -176,7 +177,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
-            response = dao.submitRequest(data, uriInfo);
+            String owner = servletRequest.getUserPrincipal().getName();
+            if (owner == null) {
+                throw new UnauthorizedException("Archival must be performed by an agent");
+            }
+            response = dao.submitRequest(data, uriInfo, owner);
             auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
@@ -207,8 +212,12 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
+            String requestor = servletRequest.getUserPrincipal().getName();
+            if (requestor == null) {
+                throw new UnauthorizedException("Recovery must be initiated by an agent");
+            }
             response = (data.getCertificate() != null)?
-                    requestKeyRecovery(data): dao.submitRequest(data, uriInfo);
+                    requestKeyRecovery(data): dao.submitRequest(data, uriInfo, requestor);
             auditRecoveryRequestMade(response.getRequestInfo().getRequestId(),
                     ILogger.SUCCESS, data.getKeyId());
 
@@ -253,18 +262,9 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         if (id == null) {
             throw new BadRequestException("Invalid request id.");
         }
-        // auth and authz
-        KeyRequestDAO dao = new KeyRequestDAO();
         try {
-            IRequest request = queue.findRequest(id);
-            String type = request.getRequestType();
-            if (IRequest.KEYRECOVERY_REQUEST.equals(type)) {
-                service.addAgentAsyncKeyRecovery(id.toString(), servletRequest.getUserPrincipal().getName());
-                auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
-            } else if (IRequest.SECURITY_DATA_RECOVERY_REQUEST.equals(type)) {
-                dao.approveRequest(id);
-                auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
-            }
+            service.addAgentAsyncKeyRecovery(id.toString(), servletRequest.getUserPrincipal().getName());
+            auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRecoveryRequestChange(id, ILogger.FAILURE, "approve");
@@ -448,7 +448,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
-            response = dao.submitRequest(data, uriInfo);
+            String owner = servletRequest.getUserPrincipal().getName();
+            if (owner == null) {
+                throw new UnauthorizedException("Key generation must be performed by an agent");
+            }
+            response = dao.submitRequest(data, uriInfo, owner);
             auditSymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
                     data.getClientKeyId());
 

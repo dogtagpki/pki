@@ -314,8 +314,22 @@ public class KeyService extends PKIService implements KeyResource {
             throw new BadRequestException("Invalid request type");
         }
 
-        //confirm that agent is originator of request, else throw 401
-        //  TO-DO
+        //confirm that retriever is originator of request, else throw 401
+        String retriever = servletRequest.getUserPrincipal().getName();
+        IRequest request;
+        try {
+            request = queue.findRequest(reqId);
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            auditRetrieveKey(ILogger.FAILURE, reqId, null, "unable to retrieve recovery request");
+            throw new PKIException(e.getMessage());
+        }
+        String originator = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        if (! originator.equals(retriever)) {
+            auditRetrieveKey(ILogger.FAILURE, reqId, null, "recovery request not approved.  originator does not match retriever");
+            throw new UnauthorizedException(
+                    "Data for recovery requests can only be retrieved by the originators of the request");
+        }
 
         // confirm request is in approved state
         RequestStatus status = reqInfo.getRequestStatus();

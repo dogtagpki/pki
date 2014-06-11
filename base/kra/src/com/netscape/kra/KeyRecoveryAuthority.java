@@ -575,6 +575,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
     }
 
+    public int getNoOfRequiredSecurityDataRecoveryAgents() throws EBaseException {
+        int ret = -1;
+        ret = mConfig.getInteger("noOfRequiredSecurityDataRecoveryAgents", 1);
+        if (ret <= 0) {
+            throw new EBaseException("Invalid parameter noOfRequiredSecurityDataRecoveryAgents");
+        }
+        return ret;
+    }
+
     /**
      * Sets number of required agents for
      * recovery operation
@@ -850,7 +859,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(RecoveryService.ATTR_SERIALNO, kid);
             r.setExtData(RecoveryService.ATTR_USER_CERT, cert);
             // first one in the "approvingAgents" list is the initiating agent
-            r.setExtData(RecoveryService.ATTR_APPROVE_AGENTS, agent);
+            r.setExtData(IRequest.ATTR_APPROVE_AGENTS, agent);
             r.setRequestStatus(RequestStatus.PENDING);
             queue.updateRequest(r);
             auditRecoveryID = r.getRequestId().toString();
@@ -911,7 +920,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         queue = getRequestQueue();
         r = queue.findRequest(new RequestId(reqID));
 
-        String agents = r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+        String agents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
         if (agents != null) {
             int i = agents.indexOf(",");
             if (i == -1) {
@@ -946,7 +955,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         queue = getRequestQueue();
         r = queue.findRequest(new RequestId(reqID));
 
-        String agents = r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+        String agents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
         if (agents != null) {
             int count = 0;
             StringTokenizer st = new StringTokenizer(agents, ",");
@@ -959,11 +968,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 }
                 count++;
             }
+            int agentsRequired =
+                    (r.getRequestType().equals(IRequest.SECURITY_DATA_RECOVERY_REQUEST)) ?
+                            getNoOfRequiredSecurityDataRecoveryAgents() :
+                            getNoOfRequiredAgents();
 
             // note: if count==1 and required agents is 1, it's good to add
-            // and it'd look like "agent1,agent1" - that's the only dup allowed
-            if (count <= getNoOfRequiredAgents()) { //all good, add it
-                r.setExtData(RecoveryService.ATTR_APPROVE_AGENTS,
+            // and it'd look like "agent1,agent1" - that's the only duplicate allowed
+            if (count <= agentsRequired) { //all good, add it
+                r.setExtData(IRequest.ATTR_APPROVE_AGENTS,
                         agents + "," + agentID);
                 if (count == getNoOfRequiredAgents()) {
                     r.setRequestStatus(RequestStatus.APPROVED);
@@ -1039,7 +1052,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 }
             }
             // for both sync and async recovery
-            r.setExtData(RecoveryService.ATTR_APPROVE_AGENTS, agent);
+            r.setExtData(IRequest.ATTR_APPROVE_AGENTS, agent);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -1151,8 +1164,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         queue = getRequestQueue();
         r = queue.findRequest(new RequestId(reqID));
 
-        auditAgents =
-                r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+        auditAgents = r.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
 
         // set transient parameters
         params = createVolatileRequest(r.getRequestId());

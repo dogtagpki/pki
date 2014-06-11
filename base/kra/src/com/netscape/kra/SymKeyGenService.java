@@ -34,7 +34,6 @@ import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -56,7 +55,6 @@ import com.netscape.cmscore.dbs.KeyRecord;
  */
 public class SymKeyGenService implements IService {
 
-    private final static String DEFAULT_OWNER = "IPA Agent";
     public final static String ATTR_KEY_RECORD = "keyRecord";
     private final static String STATUS_ACTIVE = "active";
 
@@ -102,12 +100,12 @@ public class SymKeyGenService implements IService {
         CMS.debug("SymKeyGenService.serviceRequest. Request id: " + id);
         CMS.debug("SymKeyGenService.serviceRequest algorithm: " + algorithm);
 
-        String owner = getOwnerName(request);
-        String subjectID = auditSubjectID();
+        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String auditSubjectID = owner;
 
         //Check here even though restful layer checks for this.
         if (algorithm == null || clientKeyId == null || keySize <= 0) {
-            auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Bad data in request");
             throw new EBaseException("Bad data in SymKeyGenService.serviceRequest");
         }
@@ -167,7 +165,7 @@ public class SymKeyGenService implements IService {
         } catch (TokenException | IllegalStateException | CharConversionException | NoSuchAlgorithmException
                 | InvalidAlgorithmParameterException e) {
             CMS.debugStackTrace();
-            auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to generate symmetric key");
             throw new EBaseException("Errors in generating symmetric key: " + e);
         }
@@ -178,7 +176,7 @@ public class SymKeyGenService implements IService {
         if (sk != null) {
             privateSecurityData = mStorageUnit.wrap(sk);
         } else { // We have no data.
-            auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to create security data to archive");
             throw new EBaseException("Failed to create security data to archive!");
         }
@@ -192,7 +190,7 @@ public class SymKeyGenService implements IService {
 
         //Now we need a serial number for our new key.
         if (rec.getSerialNumber() != null) {
-            auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
@@ -203,7 +201,7 @@ public class SymKeyGenService implements IService {
         if (serialNo == null) {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
-            auditSymKeyGenRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to get  next Key ID");
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
@@ -218,18 +216,13 @@ public class SymKeyGenService implements IService {
         CMS.debug("KRA adding Security Data key record " + serialNo);
         storage.addKeyRecord(rec);
 
-        auditSymKeyGenRequestProcessed(subjectID, ILogger.SUCCESS, request.getRequestId(),
+        auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
                 clientKeyId, serialNo.toString(), "None");
 
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         mKRA.getRequestQueue().updateRequest(request);
 
         return true;
-    }
-
-    //ToDo: return real owner with auth
-    private String getOwnerName(IRequest request) {
-        return DEFAULT_OWNER;
     }
 
     private void audit(String msg) {
@@ -241,26 +234,6 @@ public class SymKeyGenService implements IService {
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY,
                 msg);
-    }
-
-    private String auditSubjectID() {
-        if (signedAuditLogger == null) {
-            return null;
-        }
-
-        String subjectID = null;
-
-        // Initialize subjectID
-        SessionContext auditContext = SessionContext.getExistingContext();
-
-        if (auditContext != null) {
-            subjectID = (String) auditContext.get(SessionContext.USER_ID);
-            subjectID = (subjectID != null) ? subjectID.trim() : ILogger.NONROLEUSER;
-        } else {
-            subjectID = ILogger.UNIDENTIFIED;
-        }
-
-        return subjectID;
     }
 
     private void auditSymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,

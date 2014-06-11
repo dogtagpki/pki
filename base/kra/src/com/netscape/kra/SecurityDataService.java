@@ -24,7 +24,6 @@ import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -47,7 +46,6 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class SecurityDataService implements IService {
 
-    private final static String DEFAULT_OWNER = "IPA Agent";
     public final static String ATTR_KEY_RECORD = "keyRecord";
     private final static String STATUS_ACTIVE = "active";
 
@@ -94,7 +92,7 @@ public class SecurityDataService implements IService {
         String algParams = request.getExtDataInString(IEnrollProfile.REQUEST_ALGORITHM_PARAMS);
         String algStr = request.getExtDataInString(IEnrollProfile.REQUEST_ALGORITHM_OID);
 
-        // prameters if the secret is a symkey
+        // parameters if the secret is a symmetric key
         String dataType = request.getExtDataInString(IRequest.SECURITY_DATA_TYPE);
         String algorithm = request.getExtDataInString(IRequest.SECURITY_DATA_ALGORITHM);
         int strength = request.getExtDataInInteger(IRequest.SECURITY_DATA_STRENGTH);
@@ -102,12 +100,12 @@ public class SecurityDataService implements IService {
         CMS.debug("SecurityDataService.serviceRequest. Request id: " + id);
         CMS.debug("SecurityDataService.serviceRequest wrappedSecurityData: " + wrappedSecurityData);
 
-        String owner = getOwnerName(request);
-        String subjectID = auditSubjectID();
+        String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
+        String auditSubjectID = owner;
 
         //Check here even though restful layer checks for this.
         if (clientKeyId == null || dataType == null) {
-            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Bad data in request");
             throw new EBaseException("Bad data in SecurityDataService.serviceRequest");
         }
@@ -177,11 +175,13 @@ public class SecurityDataService implements IService {
         } else if (securityData != null) {
             privateSecurityData = mStorageUnit.encryptInternalPrivate(securityData);
         } else { // We have no data.
-            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to create security data to archive");
             throw new EBaseException("Failed to create security data to archive!");
         }
         // create key record
+        // Note that in this case the owner is the same as the approving agent
+        // because the archival request is made by the agent.
         KeyRecord rec = new KeyRecord(null, publicKey,
                 privateSecurityData, owner,
                 algStr, owner);
@@ -191,7 +191,7 @@ public class SecurityDataService implements IService {
         //Now we need a serial number for our new key.
 
         if (rec.getSerialNumber() != null) {
-            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
@@ -202,7 +202,7 @@ public class SecurityDataService implements IService {
         if (serialNo == null) {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
-            auditArchivalRequestProcessed(subjectID, ILogger.FAILURE, request.getRequestId(),
+            auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, "Failed to get  next Key ID");
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
         }
@@ -222,17 +222,13 @@ public class SecurityDataService implements IService {
 
         storage.addKeyRecord(rec);
 
-        auditArchivalRequestProcessed(subjectID, ILogger.SUCCESS, request.getRequestId(),
+        auditArchivalRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
                 clientKeyId, serialNo.toString(), "None");
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         mKRA.getRequestQueue().updateRequest(request);
 
         return true;
 
-    }
-    //ToDo: return real owner with auth
-    private String getOwnerName(IRequest request) {
-        return DEFAULT_OWNER;
     }
 
     private void audit(String msg) {
@@ -244,26 +240,6 @@ public class SecurityDataService implements IService {
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY,
                 msg);
-    }
-
-    private String auditSubjectID() {
-        if (signedAuditLogger == null) {
-            return null;
-        }
-
-        String subjectID = null;
-
-        // Initialize subjectID
-        SessionContext auditContext = SessionContext.getExistingContext();
-
-        if (auditContext != null) {
-            subjectID = (String) auditContext.get(SessionContext.USER_ID);
-            subjectID = (subjectID != null) ? subjectID.trim() : ILogger.NONROLEUSER;
-        } else {
-            subjectID = ILogger.UNIDENTIFIED;
-        }
-
-        return subjectID;
     }
 
     private void auditArchivalRequestProcessed(String subjectID, String status, RequestId requestID, String clientKeyID,

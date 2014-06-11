@@ -155,7 +155,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @return info for the request submitted.
      * @throws EBaseException
      */
-    public KeyRequestResponse submitRequest(KeyArchivalRequest data, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestResponse submitRequest(KeyArchivalRequest data, UriInfo uriInfo, String owner)
+            throws EBaseException {
         String clientKeyId = data.getClientKeyId();
         String wrappedSecurityData = data.getWrappedPrivateData();
         String transWrappedSessionKey = data.getTransWrappedSessionKey();
@@ -192,6 +193,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
             request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, keyAlgorithm);
         }
 
+        request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
+
         queue.processRequest(request);
 
         queue.markAsServiced(request);
@@ -206,7 +209,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @return info on the recovery request created
      * @throws EBaseException
      */
-    public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor)
+            throws EBaseException {
         // set data using request.setExtData(field, data)
 
         String wrappedSessionKeyStr = data.getTransWrappedSessionKey();
@@ -246,12 +250,16 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(ATTR_SERIALNO, keyId.toString());
 
+        request.setExtData(IRequest.ATTR_REQUEST_OWNER, requestor);
+        request.setExtData(IRequest.ATTR_APPROVE_AGENTS, requestor);
+
         queue.processRequest(request);
 
         return createKeyRequestResponse(request, uriInfo);
     }
 
-    public KeyRequestResponse submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestResponse submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo, String owner)
+            throws EBaseException {
         String clientKeyId = data.getClientKeyId();
         String algName = data.getKeyAlgorithm();
         Integer keySize = data.getKeySize();
@@ -298,6 +306,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(IRequest.SYMKEY_GEN_USAGES, StringUtils.join(usages, ","));
         request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
+        request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
 
         if (transWrappedSessionKey != null) {
             request.setExtData(IRequest.SYMKEY_TRANS_WRAPPED_SESSION_KEY,

@@ -293,6 +293,9 @@ public interface IRequest extends Serializable {
     public final static String ATTR_SOURCE_ID = "requestSourceId";
     public final static String ATTR_REQUEST_TYPE = "requestType";
 
+    /* for async recovery */
+    public final static String ATTR_APPROVE_AGENTS = "approvingAgents";
+
     /*
      * Other attributes stored in the attribute set
      */
