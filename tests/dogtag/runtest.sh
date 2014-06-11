@@ -63,6 +63,7 @@
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-revoke.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-release-hold.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-hold.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-submit-ca.sh
 
 PACKAGE="pki-tools"
 
@@ -188,6 +189,11 @@ rlJournalStart
         if [ "$CERT_HOLD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-hold tests
                   run_pki-cert-hold-ca_tests
+        fi
+	CERT_REQUEST_SUBMIT_CA_UPPERCASE=$(echo $CERT_REQUEST_SUBMIT_CA | tr [a-z] [A-Z])
+        if [ "$CERT_REQUEST_SUBMIT_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-hold tests
+                  run_pki-cert-request-submit_tests
         fi
 	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
 	if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] ; then
