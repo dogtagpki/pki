@@ -79,7 +79,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             TPSBuffer keyInfo,
             TPSBuffer card_challenge,
             TPSBuffer card_cryptogram,
-            TPSBuffer host_challenge)
+            TPSBuffer host_challenge,
+            String tokenType)
             throws EBaseException {
 
         CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): begins.");
@@ -90,12 +91,9 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         IConfigStore conf = CMS.getConfigStore();
 
-        /*
-         * TODO: obtain the profile name from current session when available.
-         *   Hard-code to "userKey" for now
-         */
         boolean serverKeygen =
-                conf.getBoolean("op.enroll.userKey.keyGen.encryption.serverKeygen.enable",
+                conf.getBoolean("op.enroll." +
+                tokenType + ".keyGen.encryption.serverKeygen.enable",
                         false);
         String keySet =
                 conf.getString("connector." + connid + "keySet", "defKeySet");

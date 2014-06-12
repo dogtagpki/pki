@@ -82,10 +82,10 @@ public interface IRemoteRequest {
 
     // CA response params
     public static final String CA_OP = "op";
-    public static final String CA_RESPONSE_RenewedCertificate_x509 = "X509Certificate";
-    public static final String CA_RESPONSE_RenewedCertificate_b64 = "b64";
-    public static final String CA_RESPONSE_RenewedCertificate_SubjectDN = "SubjectDN";
-    public static final String CA_RESPONSE_RenewedCertificate_serial = "serialno";
+    public static final String CA_RESPONSE_Certificate_x509 = "X509Certificate";
+    public static final String CA_RESPONSE_Certificate_b64 = "b64";
+    public static final String CA_RESPONSE_Certificate_SubjectDN = "SubjectDN";
+    public static final String CA_RESPONSE_Certificate_serial = "serialno";
 
     // KRA request params
     public static final String KRA_UserId = "userid";

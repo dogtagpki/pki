@@ -308,11 +308,14 @@ public class ProfileSubmitServlet extends ProfileServlet {
                         if (outputNames != null) {
                             while (outputNames.hasMoreElements()) {
                                 String outputName = outputNames.nextElement();
-                                if (!outputName.equals("b64_cert") && !outputName.equals("pkcs7"))
+                                if (!outputName.equals("b64_cert") &&
+                                    !outputName.equals("der") &&
+                                    !outputName.equals("pkcs7"))
                                     continue;
                                 try {
                                     String outputValue = profileOutput.getValue(outputName, locale, reqs[i]);
-                                    if (outputName.equals("b64_cert")) {
+                                    if (outputName.equals("b64_cert") ||
+                                        outputName.equals("der")) {
                                         String ss = Cert.normalizeCertStrAndReq(outputValue);
                                         outputValue = Cert.stripBrackets(ss);
                                         byte[] bcode = CMS.AtoB(outputValue);

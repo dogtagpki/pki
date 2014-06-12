@@ -423,7 +423,7 @@ public class TPSProcessor {
 
         TKSComputeSessionKeyResponse resp = engine.computeSessionKey(keyDiversificationData, keyInfoData,
                 cardChallenge, hostChallenge, cardCryptogram,
-                connId);
+                connId, getSelectedTokenType());
 
         hostCryptogram = resp.getHostCryptogram();
 
@@ -874,7 +874,7 @@ public class TPSProcessor {
                 throw new TPSException("TPS error getting config values from config store.",
                         TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
-            if (isAuthRequired && ! skipAuth) {
+            if (isAuthRequired && !skipAuth) {
                 try {
                     TPSAuthenticator userAuth =
                             getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);

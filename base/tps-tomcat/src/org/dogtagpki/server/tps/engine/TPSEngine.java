@@ -29,13 +29,12 @@ import com.netscape.certsrv.base.EBaseException;
 public class TPSEngine {
 
     public enum RA_Algs {
-        ALG_RSA ,
-        ALG_RSA_CRT ,
-        ALG_DSA ,
-        ALG_EC_F2M ,
+        ALG_RSA,
+        ALG_RSA_CRT,
+        ALG_DSA,
+        ALG_EC_F2M,
         ALG_EC_FP
-};
-
+    };
 
     public static final String CFG_DEBUG_ENABLE = "logging.debug.enable";
     public static final String CFG_DEBUG_FILENAME = "logging.debug.filename";
@@ -116,7 +115,6 @@ public class TPSEngine {
     public static final String CFG_KEYGEN_KEYTYPE_VALUE = "keyGen.keyType.value";
     public static final String CFG_SERVER_KEYGEN_ENABLE = "serverKeygen.enable";
 
-
     /* External reg values */
 
     public static final String CFG_EXTERNAL_REG = "externalReg";
@@ -155,8 +153,8 @@ public class TPSEngine {
             TPSBuffer card_challenge,
             TPSBuffer host_challenge,
             TPSBuffer card_cryptogram,
-
-            String connId) throws TPSException {
+            String connId,
+            String tokenType) throws TPSException {
 
         CMS.debug("TPSEngine.computeSessionKey");
 
@@ -165,7 +163,7 @@ public class TPSEngine {
         TKSComputeSessionKeyResponse resp = null;
         try {
             tks = new TKSRemoteRequestHandler(connId);
-            resp = tks.computeSessionKey(cuid, keyInfo, card_challenge, card_cryptogram, host_challenge);
+            resp = tks.computeSessionKey(cuid, keyInfo, card_challenge, card_cryptogram, host_challenge, tokenType);
         } catch (EBaseException e) {
             throw new TPSException("SecureChannel.computeSessionKey: Error computing session key!" + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -203,7 +201,7 @@ public class TPSEngine {
 
         boolean isECC = false;
 
-        if(algEnum == RA_Algs.ALG_EC_F2M || algEnum == RA_Algs.ALG_EC_FP) {
+        if (algEnum == RA_Algs.ALG_EC_F2M || algEnum == RA_Algs.ALG_EC_FP) {
             isECC = true;
         }
 
@@ -216,7 +214,7 @@ public class TPSEngine {
 
         RA_Algs def = RA_Algs.ALG_RSA;
 
-        switch(alg) {
+        switch (alg) {
 
         case 1:
             return RA_Algs.ALG_RSA;
@@ -230,11 +228,10 @@ public class TPSEngine {
         case 5:
             return RA_Algs.ALG_EC_FP;
 
-            default:
-                return def;
+        default:
+            return def;
 
         }
-
 
     }
 

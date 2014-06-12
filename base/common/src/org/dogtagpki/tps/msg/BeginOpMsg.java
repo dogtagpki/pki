@@ -51,8 +51,10 @@ public class BeginOpMsg extends TPSMessage {
         if (extName == null)
             return result;
 
-        return extensions.get(extName);
+        if (extensions != null)
+            result = extensions.get(extName);
 
+        return result;
     }
 
 }

@@ -21,9 +21,8 @@ package org.dogtagpki.server.tps.cms;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
-import java.util.List;
 import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.List;
 
 import netscape.security.x509.AuthorityKeyIdentifierExtension;
 import netscape.security.x509.KeyIdentifier;
@@ -34,6 +33,7 @@ import netscape.security.x509.X509CertImpl;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
 import org.dogtagpki.server.tps.TPSSubsystem;
+import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 import org.mozilla.jss.CryptoManager;
@@ -46,6 +46,7 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -67,11 +68,6 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
     /**
      * enrollCertificate enrolls a certificate in the CA
      *
-     * TODO: certificate and key structures conversion
-     * to be covered by ticket #941 once we have
-     * dependency such as secure channel in place
-     * for better testing
-     *
      * @param pubKeybuf public key for enrollment
      * @param uid uid for enrollment
      * @param cuid token id
@@ -81,7 +77,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
     public CAEnrollCertResponse enrollCertificate(
             TPSBuffer pubKeybuf,
             String uid,
-            String cuid)
+            String cuid,
+            String tokenType,
+            String keyType)
             throws EBaseException {
 
         CMS.debug("CARemoteRequestHandler: enrollCertificate(): begins.");
@@ -90,19 +88,23 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         }
 
         IConfigStore conf = CMS.getConfigStore();
-        /*
-         * TODO: obtain the profile name from current session when available.
-         *   Hard-code to "userKey" for now
-         */
         String profileId =
-                conf.getString("op.enroll.userKey.keyGen.signing.ca.profileId",
-                        "caTokenUserSigningKeyEnrollment");
+                conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
+                        tokenType + ".keyGen." +
+                        keyType + ".ca.profileId");
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         CMS.debug("CARemoteRequestHandler: enrollCertificate(): sending request to CA");
+        String encodedPubKey = null;
+        try {
+            encodedPubKey = Util.uriEncode(CMS.BtoA(pubKeybuf.toBytesArray()));
+        } catch (Exception e) {
+            CMS.debug("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
+            throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
+        }
         HttpResponse resp =
                 conn.send("enrollment",
                         IRemoteRequest.GET_XML + "=" +
@@ -112,7 +114,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                                 "&" + IRemoteRequest.CA_ENROLL_screenname + "=" +
                                 uid +
                                 "&" + IRemoteRequest.CA_ENROLL_publickey + "=" +
-                                Util.specialEncode(pubKeybuf) +
+                                encodedPubKey +
                                 "&" + IRemoteRequest.CA_ProfileId + "=" +
                                 profileId);
 
@@ -150,36 +152,36 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             value = xmlResponse.getValue("SubjectDN");
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler:: enrollCertificate(): response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_RenewedCertificate_SubjectDN);
+                        IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
             } else {
-                CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_RenewedCertificate_SubjectDN = "
+                CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
                         + value);
-                response.put(IRemoteRequest.CA_RESPONSE_RenewedCertificate_SubjectDN, value);
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN, value);
             }
 
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial);
+            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_serial);
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler:: enrollCertificate(): response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial);
+                        IRemoteRequest.CA_RESPONSE_Certificate_serial);
             } else {
-                CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial = 0x"
+                CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
                         + value);
-                response.put(IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial, value);
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_serial, value);
             }
 
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64);
+            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_b64);
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler:: enrollCertificate(): response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64);
+                        IRemoteRequest.CA_RESPONSE_Certificate_b64);
             } else {
-                CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64 = "
-                        + value);
-                response.put(IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64, value);
                 try {
-                    X509Certificate newCert = (X509Certificate) new X509CertImpl(CMS.AtoB(value));
-                    response.put(IRemoteRequest.CA_RESPONSE_RenewedCertificate_x509, newCert);
+                    CMS.debug("CARemoteRequestHandler:: enrollCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
+                            + value);
+                    response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
+                    X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
+                    response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
                     CMS.debug("CARemoteRequestHandler: enrollCertificate(): new cert parsed successfully");
-                } catch (CertificateException e) {
+                } catch (Exception e) {
                     // we don't exit.  Keep going.
                     CMS.debug("CARemoteRequestHandler: enrollCertificate(): exception:" + e);
                 }
@@ -199,7 +201,10 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
      * @param serialno the serial number of the cert to be renewed
      * @return CARenewCertResponse
      */
-    public CARenewCertResponse renewCertificate(BigInteger serialno)
+    public CARenewCertResponse renewCertificate(
+            BigInteger serialno,
+            String tokenType,
+            String keyType)
             throws EBaseException {
 
         CMS.debug("CARemoteRequestHandler: renewCertificate(): begins.");
@@ -209,13 +214,10 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
 
         IConfigStore conf = CMS.getConfigStore();
 
-        /*
-         * TODO: obtain the profile name from current session when available.
-         *   Hard-code to "userKey" for now
-         */
         String profileId =
-                conf.getString("op.enroll.userKey.renewal.signing.ca.profileId",
-                        "caTokenUserEncryptionKeyRenewal");
+                conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
+                        tokenType + ".renewal." +
+                        keyType + ".ca.profileId");
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -261,34 +263,34 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             value = xmlResponse.getValue("SubjectDN");
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler:: renewCertificate(): response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_RenewedCertificate_SubjectDN);
+                        IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
             } else {
-                CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_RenewedCertificate_SubjectDN = "
+                CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN = "
                         + value);
-                response.put(IRemoteRequest.CA_RESPONSE_RenewedCertificate_SubjectDN, value);
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN, value);
             }
 
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial);
+            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_serial);
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler:: renewCertificate(): response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial);
+                        IRemoteRequest.CA_RESPONSE_Certificate_serial);
             } else {
-                CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial = 0x"
+                CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_serial = 0x"
                         + value);
-                response.put(IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial, value);
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_serial, value);
             }
 
-            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64);
+            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_b64);
             if (value == null) {
                 CMS.debug("CARemoteRequestHandler:: renewCertificate(): response missing name-value pair for: " +
-                        IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64);
+                        IRemoteRequest.CA_RESPONSE_Certificate_b64);
             } else {
-                CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64 = "
+                CMS.debug("CARemoteRequestHandler:: renewCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_b64 = "
                         + value);
-                response.put(IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64, value);
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_b64, value);
                 try {
-                    X509Certificate newCert = (X509Certificate) new X509CertImpl(CMS.AtoB(value));
-                    response.put(IRemoteRequest.CA_RESPONSE_RenewedCertificate_x509, newCert);
+                    X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
+                    response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
                     CMS.debug("CARemoteRequestHandler: renewCertificate(): new cert parsed successfully");
                 } catch (CertificateException e) {
                     // we don't exit.  Keep going.
@@ -496,7 +498,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         if (exception == null) {
             throw new EBaseException("revokeFromOtherCA: signing ca not found");
         } else {
-            throw new EBaseException (exception.toString());
+            throw new EBaseException(exception.toString());
         }
     }
 
@@ -640,7 +642,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             caSkiString = getCaSki(connid);
             certAkiString = getCertAkiString(cert);
         } catch (Exception e) {
-            CMS.debug("CARemoteRequestHandler: revokeCertificate() exception:"+e);
+            CMS.debug("CARemoteRequestHandler: revokeCertificate() exception:" + e);
             skipMatch = true;
         }
         if (!skipMatch) {

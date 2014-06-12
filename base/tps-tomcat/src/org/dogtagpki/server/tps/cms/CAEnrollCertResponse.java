@@ -18,7 +18,7 @@
 
 package org.dogtagpki.server.tps.cms;
 
-import java.security.cert.X509Certificate;
+import netscape.security.x509.X509CertImpl;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
@@ -34,19 +34,19 @@ public class CAEnrollCertResponse extends RemoteResponse
         nameValTable = ht;
     }
 
-    public String getRenewedCertB64() {
-        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_RenewedCertificate_b64);
+    public String getCertB64() {
+        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_Certificate_b64);
     }
 
-    public String getRenewedCertSerialHex() {
-        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_RenewedCertificate_serial);
+    public String getCertSerialHex() {
+        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_Certificate_serial);
     }
 
-    public String getRenewedCertSubjectDN() {
-        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_RenewedCertificate_SubjectDN);
+    public String getCertSubjectDN() {
+        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_Certificate_SubjectDN);
     }
 
-    public X509Certificate getRenewedCert() {
-        return (X509Certificate) nameValTable.get(IRemoteRequest.CA_RESPONSE_RenewedCertificate_x509);
+    public X509CertImpl getCert() {
+        return (X509CertImpl) nameValTable.get(IRemoteRequest.CA_RESPONSE_Certificate_x509);
     }
 }

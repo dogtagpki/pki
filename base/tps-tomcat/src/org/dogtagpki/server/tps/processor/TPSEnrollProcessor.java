@@ -1,11 +1,20 @@
 package org.dogtagpki.server.tps.processor;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.PublicKey;
 import java.util.zip.DataFormatException;
+
+import netscape.security.provider.RSAPublicKey;
+//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.x509.X509CertImpl;
 
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
+import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
+import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
@@ -152,7 +161,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     userCred = requestUserId(TPSEngine.ENROLL_OP, appletInfo.getCUIDString(), userAuth,
                             beginMsg.getExtensions());
                     authToken = authenticateUser(TPSEngine.ENROLL_OP, userAuth, userCred);
-                    CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: auth passed: userid: " + authToken.get("userid"));
+                    CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: auth passed: userid: "
+                            + authToken.get("userid"));
+                    userid = authToken.getInString("userid");
                 } catch (Exception e) {
                     // all exceptions are considered login failure
                     CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
@@ -160,7 +171,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             TPSStatus.STATUS_ERROR_LOGIN);
                 }
             } else {
-                throw new TPSException("TPSEnrollProcessor.checkAndAuthenticateUser: TPS enrollment must have authentication enabled.",
+                throw new TPSException(
+                        "TPSEnrollProcessor.checkAndAuthenticateUser: TPS enrollment must have authentication enabled.",
                         TPSStatus.STATUS_ERROR_LOGIN);
 
             }
@@ -267,6 +279,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
     private void generateCertificates(EnrolledCertsInfo certsInfo, SecureChannel channel, AppletInfo aInfo)
             throws TPSException, IOException {
 
+        CMS.debug("TPSProcess.generateCertificates: begins ");
         if (certsInfo == null || aInfo == null) {
             throw new TPSException("TPSEnrollProcessor.generateCertificates: Bad Input data!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
@@ -284,6 +297,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             generateCertificate(certsInfo, channel, aInfo, keyType);
         }
 
+        CMS.debug("TPSProcess.generateCertificates: ends ");
     }
 
     private void generateCertificate(EnrolledCertsInfo certsInfo, SecureChannel channel, AppletInfo aInfo,
@@ -488,38 +502,263 @@ public class TPSEnrollProcessor extends TPSProcessor {
             byte[] iobytes = { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff };
             TPSBuffer iobuf = new TPSBuffer(iobytes);
 
-            TPSBuffer public_key = channel.readObject(iobuf, 0, size);
+            TPSBuffer public_key_blob = channel.readObject(iobuf, 0, size);
 
-            parsePublicKeyInfo(public_key);
+            PublicKey parsedPubKey = parsePublicKeyBlob(public_key_blob, isECC);
+            byte[] parsedPubKey_ba = parsedPubKey.getEncoded();
+
+            // enrollment begins
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: enrollment begins");
+            try {
+                String caConnID = getCAConnectorID();
+                CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConnID);
+                TPSBuffer encodedParsedPubKey = new TPSBuffer(parsedPubKey_ba);
+                AppletInfo appletInfo = getAppletInfo();
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: userid =" + userid + ", cuid="
+                        + appletInfo.getCUIDString());
+                CAEnrollCertResponse caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
+                        appletInfo.getCUIDString(), getSelectedTokenType(),
+                        cEnrollInfo.getKeyType());
+                String retCertB64 = caEnrollResp.getCertB64();
+                if (retCertB64 != null)
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 =" + retCertB64);
+                else {
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 not found");
+                    throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: new cert b64 not found",
+                            TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+                }
+                X509CertImpl x509Cert = caEnrollResp.getCert();
+                if (x509Cert != null)
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert retrieved");
+                else {
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert not found");
+                    throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: new cert not found",
+                            TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+                }
+            } catch (EBaseException e) {
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate::" + e);
+                throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: Exception thrown: " + e,
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: enrollment ends");
 
             //ToDo: Finish the rest of this
 
         }
 
         statusUpdate(cEnrollInfo.getEndProgressValue(), "PROGRESS_ENROLL_CERT");
+        CMS.debug("TPSEnrollProcessor.enrollOneCertificate ends");
 
     }
 
-    //We don't know what to return for this as of yet, make it void for now.
-    private void parsePublicKeyInfo(TPSBuffer public_key) throws TPSException {
+    /**
+     * Extracts information from the public key blob and verify proof.
+     *
+     * Muscle Key Blob Format (RSA Public Key)
+     * ---------------------------------------
+     *
+     * The key generation operation places the newly generated key into
+     * the output buffer encoding in the standard Muscle key blob format.
+     * For an RSA key the data is as follows:
+     *
+     * Byte Encoding (0 for plaintext)
+     *
+     * Byte Key Type (1 for RSA public)
+     *
+     * Short Key Length (1024 û high byte first)
+     *
+     * Short Modulus Length
+     *
+     * Byte[] Modulus
+     *
+     * Short Exponent Length
+     *
+     * Byte[] Exponent
+     *
+     *
+     * ECC KeyBlob Format (ECC Public Key)
+     * ----------------------------------
+     *
+     * Byte Encoding (0 for plaintext)
+     *
+     * Byte Key Type (10 for ECC public)
+     *
+     * Short Key Length (256, 384, 521 high byte first)
+     *
+     * Byte[] Key (W)
+     *
+     *
+     * Signature Format (Proof)
+     * ---------------------------------------
+     *
+     * The key generation operation creates a proof-of-location for the
+     * newly generated key. This proof is a signature computed with the
+     * new private key using the RSA-with-MD5 signature algorithm. The
+     * signature is computed over the Muscle Key Blob representation of
+     * the new public key and the challenge sent in the key generation
+     * request. These two data fields are concatenated together to form
+     * the input to the signature, without any other data or length fields.
+     *
+     * Byte[] Key Blob Data
+     *
+     * Byte[] Challenge
+     *
+     *
+     * Key Generation Result
+     * ---------------------------------------
+     *
+     * The key generation command puts the key blob and the signature (proof)
+     * into the output buffer using the following format:
+     *
+     * Short Length of the Key Blob
+     *
+     * Byte[] Key Blob Data
+     *
+     * Short Length of the Proof
+     *
+     * Byte[] Proof (Signature) Data
+     *
+     * @param blob the publickey blob to be parsed
+     * @param challenge the challenge generated by TPS
+     *
+     ******/
+    private PublicKey parsePublicKeyBlob(
+            TPSBuffer public_key_blob,
+            /* TPSBuffer challenge,*/
+            boolean isECC)
+            throws TPSException {
+        PublicKey parsedPubKey = null;
 
-        if (public_key == null) {
-            throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data!",
+        if (public_key_blob == null /*|| challenge == null*/) {
+            throw new TPSException(
+                    "TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! Missing public_key_blob or challenge",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        CMS.debug("TPSEnrollProcessor.enrollOneCertificate: public key returned from token: "
-                + public_key.toHexString());
+        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: public key blob from token to parse: "
+                + public_key_blob.toHexString());
+        /*
+         * decode blob into structures
+         */
 
-        TPSBuffer pKeyBlob = public_key.substr(2);
-        //Check for bad blob here:
+        // offset to the beginning of the public key length.  should be 0
+        int pkeyb_len_offset = 0;
 
-        if (pKeyBlob == null) {
-            throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data!",
+        /*
+         * now, convert lengths
+         */
+        // 1st, keyblob length
+        /*
+                byte len0 = public_key_blob.at(pkeyb_len_offset);
+                byte len1 = public_key_blob.at(pkeyb_len_offset + 1);
+                int pkeyb_len = (len0 << 8) | (len1 & 0xFF);
+        */
+        int pkeyb_len = public_key_blob.getIntFrom2Bytes(pkeyb_len_offset);
+        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: pkeyb_len = " +
+                pkeyb_len + ", isECC: " + isECC);
+        // public key blob
+        TPSBuffer pkeyb = public_key_blob.substr(pkeyb_len_offset + 2, pkeyb_len);
+        if (pkeyb == null) {
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: pkeyb null ");
+            throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! pkeyb null",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
+        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: pkeyb = "
+                + pkeyb.toHexString());
 
-        //ToDo: finish this
+        //  2nd, proof blob length
+        int proofb_len_offset = pkeyb_len_offset + 2 + pkeyb_len;
+        /*
+                len0 = public_key_blob.at(proofb_len_offset);
+                len1 = public_key_blob.at(proofb_len_offset + 1);
+                int proofb_len = (len0 << 8 | len1 & 0xFF);
+        */
+        int proofb_len = public_key_blob.getIntFrom2Bytes(proofb_len_offset);
+        // proof blob
+        TPSBuffer proofb = public_key_blob.substr(proofb_len_offset + 2, proofb_len);
+        if (proofb == null) {
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: proofb null ");
+            throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! proofb null",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+        CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: proofb = "
+                + proofb.toHexString());
+
+        // convert pkeyb to pkey
+        // 1 byte encoding, 1 byte key type, 2 bytes key length, then the key
+        int pkey_offset = 4;
+        /*
+                len0 = pkeyb.at(pkey_offset);
+                len1 = pkeyb.at(pkey_offset + 1);
+        */
+        if (!isECC) {
+            //            int mod_len = len0 << 8 | len1 & 0xFF;
+            int mod_len = pkeyb.getIntFrom2Bytes(pkey_offset);
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: mod_len= " + mod_len);
+            /*
+                        len0 = pkeyb.at(pkey_offset + 2 + mod_len);
+                        len1 = pkeyb.at(pkey_offset + 2 + mod_len + 1);
+                        int exp_len = len0 << 8 | len1 & 0xFF;
+            */
+            int exp_len = pkeyb.getIntFrom2Bytes(pkey_offset + 2 + mod_len);
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: exp_len= " + exp_len);
+
+            TPSBuffer modb = pkeyb.substr(pkey_offset + 2, mod_len);
+            if (modb == null) {
+                CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: modb null ");
+                throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! modb null",
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: modb= "
+                    + modb.toHexString());
+            TPSBuffer expb = pkeyb.substr(pkey_offset + 2 + mod_len + 2, exp_len);
+
+            if (expb == null) {
+                CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: expb null ");
+                throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Bad input data! expb null",
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: expb= "
+                    + expb.toHexString());
+            BigInt modb_bi = new BigInt(modb.toBytesArray());
+            BigInt expb_bi = new BigInt(expb.toBytesArray());
+            try {
+                RSAPublicKey rsa_pub_key = new RSAPublicKey(modb_bi, expb_bi);
+                CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: public key blob converted to RSAPublicKey");
+                if (rsa_pub_key != null) {
+                    parsedPubKey = rsa_pub_key;
+                }
+            } catch (InvalidKeyException e) {
+                CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob:InvalidKeyException thrown");
+                throw new TPSException("TPSEnrollProcessor.parsePublicKeyBlob: Exception thrown: " + e,
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+        } else {
+            // TODO: handle ECC
+        }
+
+        // TODO: challenge verification
+
+        // sanity-check parsedPubKey before return
+        if (parsedPubKey == null) {
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: parsedPubKey null");
+            throw new TPSException(
+                    "TPSEnrollProcessor.parsePublicKeyBlob: parsedPubKey null.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        } else {
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: parsedPubKey not null");
+        }
+        byte[] parsedPubKey_ba = parsedPubKey.getEncoded();
+        if (parsedPubKey_ba == null) {
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: parsedPubKey_ba null");
+            throw new TPSException(
+                    "TPSEnrollProcessor.parsePublicKeyBlob: parsedPubKey encoding failure.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        } else {
+            CMS.debug("TPSEnrollProcessor.parsePublicKeyBlob: parsedPubKey getEncoded not null");
+        }
+
+        return parsedPubKey;
     }
 
     private boolean checkForServerSideKeyGen(CertEnrollInfo cInfo) throws TPSException {
@@ -610,7 +849,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
     }
 
     protected int getNumberCertsToEnroll() throws TPSException {
-
         IConfigStore configStore = CMS.getConfigStore();
         int keyTypeNum = 0;
         try {
@@ -634,6 +872,24 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSProcess.getNumberCertsToEnroll: returning: " + keyTypeNum);
 
         return keyTypeNum;
+    }
+
+    protected String getCAConnectorID() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        String id = null;
+
+        String config = "op." + currentTokenOperation + "." + selectedTokenType + ".ca.conn";
+
+        try {
+            id = configStore.getString(config, "ca1");
+        } catch (EBaseException e) {
+            throw new TPSException("TPSEnrollProcessor.getCAConnectorID: Internal error finding config value.");
+
+        }
+
+        CMS.debug("TPSEnrollProcessor.getCAConectorID: returning: " + id);
+
+        return id;
     }
 
     public static void main(String[] args) {
