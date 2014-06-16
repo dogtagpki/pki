@@ -15,6 +15,7 @@ import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
+import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
@@ -31,12 +32,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 
 public class TPSEnrollProcessor extends TPSProcessor {
-
-    public enum TokenKeyType {
-        KEY_TYPE_ENCRYPTION,
-        KEY_TYPE_SIGNING,
-        KEY_TYPE_SIGNING_AND_ENCRYPTION
-    };
 
     public TPSEnrollProcessor(TPSSession session) {
         super(session);
