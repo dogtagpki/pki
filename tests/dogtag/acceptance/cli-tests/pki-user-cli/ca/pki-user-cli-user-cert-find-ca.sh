@@ -87,7 +87,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$user1fullname\" $user1"
-        while [ $i -lt 2 ] ; do
+        while [ $i -lt 4 ] ; do
                 cert_type="pkcs10"
                 rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
                 local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
@@ -148,7 +148,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
         rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_002.out"
         rlAssertGrep "Number of entries returned $numcertsuser1" "$TmpDir/pki_user_cert_find_ca_002.out"
         i=0
-        while [ $i -lt 2 ] ; do
+        while [ $i -lt 4 ] ; do
                 rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_002.out"
@@ -173,7 +173,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    user-add --fullName=\"$user2fullname\" $user2"
-        while [ $i -lt 12 ] ; do
+        while [ $i -lt 24 ] ; do
 		cert_type="pkcs10"
 		rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
                 local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
@@ -805,8 +805,8 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         done 
 
 	#Delete temporary directory
-        rlRun "popd"
-        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        #rlRun "popd"
+        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 
 }
