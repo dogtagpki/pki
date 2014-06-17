@@ -42,7 +42,7 @@ verifyErrorMsg()
         rc=1
    else
         rlLog "\"$command\" failed as expected."
-        $command 2> /tmp/errormsg.out
+        rlRun "$command 2> /tmp/errormsg.out" 255 "\"$command\" failed"
         sed 's/"//g' /tmp/errormsg.out > /tmp/errormsg_clean.out
         actual=`cat /tmp/errormsg_clean.out`
         if [[ "$actual" = "$expmsg" ]] ; then

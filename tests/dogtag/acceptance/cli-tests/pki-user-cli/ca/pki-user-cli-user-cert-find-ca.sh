@@ -87,7 +87,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                            -n CA_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$user1fullname\" $user1"
-        while [ $i -lt 4 ] ; do
+        while [ $i -lt 2 ] ; do
                 cert_type="pkcs10"
                 rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
                 local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
@@ -148,7 +148,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
         rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_002.out"
         rlAssertGrep "Number of entries returned $numcertsuser1" "$TmpDir/pki_user_cert_find_ca_002.out"
         i=0
-        while [ $i -lt 4 ] ; do
+        while [ $i -lt 2 ] ; do
                 rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_002.out"
@@ -173,7 +173,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
                    -n CA_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    user-add --fullName=\"$user2fullname\" $user2"
-        while [ $i -lt 24 ] ; do
+        while [ $i -lt 12 ] ; do
 		cert_type="pkcs10"
 		rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
                 local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
@@ -239,21 +239,10 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
         rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-004: Find the certs of a user in CA --userid only - user does not exist"
-
-	rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find tuser"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find tuser > $TmpDir/pki_user_cert_find_ca_004.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to tuser"
-	rlAssertGrep "UserNotFoundException: User tuser not found" "$TmpDir/pki_user_cert_find_ca_004.out"
-
+	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find tuser"
+        errmsg="UserNotFoundException: User tuser not found"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - User not found message should be thrown when finding certs assigned to a user that does not exist"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-005: Find the certs of a user in CA --userid only - no certs added to the user"
@@ -329,21 +318,10 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-007: Find the certs of a user i
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-008: Find the certs of a user in CA --size=-1"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user1 --size=-1"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user1 --size=-1 > $TmpDir/pki_user_cert_find_ca_008.out" \
-                    1 \
-                    "Finding certs assigned to $user1 - --size=-1"
-        rlAssertGrep "The value for size shold be greater than or equal to 0" "$TmpDir/pki_user_cert_find_ca_008.out"
-	rlAssertNotGrep "Number of entries returned " "$TmpDir/pki_user_cert_find_ca_008.out"
+	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --size=-1"
+        errmsg="The value for size shold be greater than or equal to 0"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - the value for --size should not be less than 0"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/861"
 rlPhaseEnd
 
@@ -481,21 +459,11 @@ rlPhaseEnd
 
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-013: Find the certs of a user in CA --start=-1"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user1 --start=-1"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user1 --start=-1 > $TmpDir/pki_user_cert_find_ca_013.out" \
-                    1 \
-                    "Finding certs assigned to $user1 - --start=-1"
-        rlAssertGrep "The value for start shold be greater than or equal to 0" "$TmpDir/pki_user_cert_find_ca_013.out"
-	rlAssertNotGrep "Number of entries returned" "$TmpDir/pki_user_cert_find_ca_013.out"
+	 command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --start=-1"
+        rlLog "Executing : $command"
+        errmsg="The value for start shold be greater than or equal to 0"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - the value for --start should not be less than 0"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/929"
 rlPhaseEnd
 
@@ -562,21 +530,10 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016: Find the certs of a user i
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-017: Find the certs of a user in CA --start=-1 --size=-1"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user1 --start=-1 --size=-1"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user1 --start=-1 --size=-1 > $TmpDir/pki_user_cert_find_ca_017.out" \
-                    1 \
-                    "Finding certs assigned to $user1 - --start=-1 --size=-1"
-	rlAssertNotGrep "Number of entries returned " "$TmpDir/pki_user_cert_find_ca_017.out"
-        rlAssertGrep "The value for start and size shold be greater than or equal to 0" "$TmpDir/pki_user_cert_find_ca_017.out"
+	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --start=-1 --size=-1"
+        errmsg="The value for start and size should be greater than or equal to 0"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - the value for --size and --start should not be less than 0"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/929"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/861"
 rlPhaseEnd
@@ -746,39 +703,18 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to use
         rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-023: Find the certs of a user as CA_agentV should fail"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_agentV \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_agentV \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_023.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_agentV"
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_023.out"
+	command="pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a valid agent user"
 rlPhaseEnd
 
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-024: Find the certs of a user as CA_auditorV should fail"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_auditorV \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_auditorV \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_024.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_auditorV"
-	rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_024.out"
-	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_024.out"
+	command="pki -d $CERTDB_DIR -n CA_auditorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a valid auditor user"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
@@ -786,21 +722,11 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-025: Find the certs of a user a
 	rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminE \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminE \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_025.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_adminE"
-	rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_025.out"
-	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_025.out"
+	command="pki -d $CERTDB_DIR -n CA_adminE -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an admin user with expired cert"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
 
@@ -808,129 +734,56 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-026: Find the certs of a user a
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_agentE \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_agentE \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_026.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_agentE"
-        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_026.out"
-	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_026.out"
+	command="pki -d $CERTDB_DIR -n CA_agentE -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an agent user with expired cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-027: Find the certs of a user as CA_adminR should fail"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminR \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminR \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_027.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_adminR"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki_user_cert_find_ca_027.out"
+	command="pki -d $CERTDB_DIR -n CA_adminR -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="PKIException: Unauthorized"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an admin user with a revoked cert"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-028: Find the certs of a user as CA_agentR should fail"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_agentR \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_agentR \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_028.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_agentR"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki_user_cert_find_ca_028.out"
+	command="pki -d $CERTDB_DIR -n CA_agentR -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="PKIException: Unauthorized"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an agent user with a revoked cert"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-029: Find the certs of a user as CA_adminUTCA should fail"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminUTCA \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminUTCA \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_029.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_adminUTCA"
-        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_029.out"
-	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_029.out"
+	command="pki -d $CERTDB_DIR -n CA_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_adminUTCA"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-030: Find the certs of a user as CA_agentUTCA should fail"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_agentUTCA \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_agentUTCA \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_030.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_agentUTCA"
-        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_030.out"
-	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_030.out"
+	command="pki -d $CERTDB_DIR -n CA_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_agentUTCA"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-031: Find the certs of a user as CA_operatorV should fail"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_operatorV \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_operatorV \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_031.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as CA_operatorV"
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_031.out"
+	command="pki -d $CERTDB_DIR -n CA_operatorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_operatorV"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-032: Find the certs of a user as a user not associated with any role, should fail"
-
-        rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n $user1 \
-                              -c $CERTDB_DIR_PASSWORD \
-                              -t ca \
-                               user-cert-find $user2"
-        rlRun "pki -d $CERTDB_DIR/ \
-                   -n $user1 \
-                   -c $CERTDB_DIR_PASSWORD \
-                   -t ca \
-                   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_032.out 2>&1" \
-                    1 \
-                    "Finding certs assigned to $user2 as a user not associated with any role"
-        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki_user_cert_find_ca_032.out"
-	rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki_user_cert_find_ca_032.out"
+	command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errorcode=255
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a user not assigned to any role"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 

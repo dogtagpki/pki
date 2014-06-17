@@ -467,15 +467,17 @@ generate_user_cert()
                 local ext=".out"
                 local cert_ext=".pem"
                 local req_email="$5"
-                local num="$7"
+                local num="$8"
                 local file_name="$6"
-                        rlRun "create_cert_request $CERTDB_DIR redhat123 pkcs10 rsa 2048 \"$userfullname\" \"$user_id\" "$req_email" "Engineering" "Example" "US" "--" "reqstatus" "requestid" "requestdn""
+                local cert_type="$7"
+                local TEMP_NSS_DB="$TmpDir/nssdb"
+                        rlRun "create_cert_request $TEMP_NSS_DB redhat123 $cert_type rsa 2048 \"$userfullname\" \"$user_id\" "$req_email" "Engineering" "Example" "US" "--" "reqstatus" "requestid" "requestdn""
 
-                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext" 0 "Executing pki cert-request-show $requestid"
-                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
-                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
-                rlAssertGrep "Status: pending" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
-                rlAssertGrep "Operation Result: success" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$num$ext"
+                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext" 0 "Executing pki cert-request-show $requestid"
+                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
+                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
+                rlAssertGrep "Status: pending" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
+                rlAssertGrep "Operation Result: success" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
 
                 #Agent Approve the certificate after reviewing the cert for the user
                 rlLog "Executing: pki -d $CERTDB_DIR/ \
@@ -487,26 +489,25 @@ generate_user_cert()
                            -n CA_agentV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                           cert-request-review --action=approve $requestid > $TmpDir/$file_name-CA_certapprove_00$file_no$num$ext" \
+                           cert-request-review --action=approve $requestid > $TmpDir/$file_name-CA_certapprove_00$file_no$cert_type$num$ext" \
                            0 \
                            "CA agent approve the cert"
-                rlAssertGrep "Approved certificate request $requestid" "$TmpDir/$file_name-CA_certapprove_00$file_no$num$ext"
-                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext" 0 "Executing pki cert-request-show $requestid"
-                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
-                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
-                rlAssertGrep "Status: complete" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
-                rlAssertGrep "Certificate ID:" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext"
-                local certificate_serial_number=`cat $TmpDir/$file_name-CA_certapprovedshow_00$file_no$num$ext | grep "Certificate ID:" | awk '{print $3}'`
+                rlAssertGrep "Approved certificate request $requestid" "$TmpDir/$file_name-CA_certapprove_00$file_no$cert_type$num$ext"
+                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext" 0 "Executing pki cert-request-show $requestid"
+                rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
+                rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
+                rlAssertGrep "Status: complete" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
+                rlAssertGrep "Certificate ID:" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
+                local certificate_serial_number=`cat $TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext | grep "Certificate ID:" | awk '{print $3}'`
                 rlLog "Cerificate Serial Number=$certificate_serial_number"
                 #Verify the certificate is valid
-                rlRun "pki cert-show  $certificate_serial_number --encoded > $TmpDir/$file_name-CA_certificate_show_00$file_no$num$ext" 0 "Executing pki cert-show $certificate_serial_number"
+                rlRun "pki cert-show  $certificate_serial_number --encoded > $TmpDir/$file_name-CA_certificate_show_00$file_no$cert_type$num$ext" 0 "Executing pki cert-show $certificate_serial_number"
 
-                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/$file_name-CA_certificate_show_00$file_no$num$ext > $TmpDir/$file_name-CA_validcert_00$file_no$num$cert_ext"
-                 rlRun "certutil -d $CERTDB_DIR -A -n \"$user_id\" -i $TmpDir/$file_name-CA_validcert_00$file_no$num$cert_ext  -t "u,u,u""
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/$file_name-CA_certificate_show_00$file_no$cert_type$num$ext > $TmpDir/$file_name-CA_validcert_00$file_no$cert_type$num$cert_ext"
+                 rlRun "certutil -d $TEMP_NSS_DB -A -n \"$user_id-$cert_type\" -i $TmpDir/$file_name-CA_validcert_00$file_no$cert_type$num$cert_ext  -t "u,u,u""
                 echo cert_serialNumber-$certificate_serial_number > $CERT_INFO
                 echo cert_requestdn-$requestdn >> $CERT_INFO
                 return 0;
-
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 ######################################################################
