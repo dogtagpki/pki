@@ -89,6 +89,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-add-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-find-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-del-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-find-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-add-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-show-ca.sh

@@ -46,7 +46,7 @@ run_pki-user-cert()
 	rlRun "pushd $TmpDir"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_user-cert --help Test: Show all the options of pki user-cert"
+	rlPhaseStartTest "pki_user_cli_user_cert-CA-001: pki user-cert help option"
 	local temp_out="$TmpDir/pki_user-cert"
 	rlLog "Executing pki user-cert --help"
 	rlRun "pki user-cert --help 1> $temp_out" 0 "pki cert --help"
@@ -57,7 +57,7 @@ run_pki-user-cert()
 	rlAssertGrep "user-cert-del           Remove user certificate" "$temp_out"
 	rlPhaseEnd
 	
-	rlPhaseStartTest "pki_user-cert001: pki user-cert with junk characters should return invalid module"
+	rlPhaseStartTest "pki_user_cli_user_cert-CA-002: pki user-cert with junk characters should return invalid module"
 	local temp_out1="$TmpDir/pki_user-cert001"
 	local rand=`cat /dev/urandom | tr -dc 'a-zA-Z0-9*?$@#!%^&*()' | fold -w 40 | head -n 1`
 	rlLog "Executing pki user-cert \"$rand\" characters"

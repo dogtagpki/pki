@@ -52,6 +52,7 @@
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-add-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-find-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-membership-del-ca.sh
+. ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-find-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-add-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-show-ca.sh
@@ -105,6 +106,7 @@ rlJournalStart
                   run_pki-user-cli-user-cert-add-ca_tests
                   run_pki-user-cli-user-cert-find-ca_tests
                   run_pki-user-cli-user-cert-show-ca_tests
+		  run_pki-user-cli-user-cert-delete-ca_tests
         fi
 	USER_ADD_CA_UPPERCASE=$(echo $USER_ADD_CA | tr [a-z] [A-Z])
         if [ "$USER_ADD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
@@ -150,6 +152,7 @@ rlJournalStart
         if [ "$USER_CERT_ADD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-cert-add-ca tests
                   run_pki-user-cli-user-cert-add-ca_tests
+		  run_pki-user-cert
         fi
         USER_CERT_FIND_CA_UPPERCASE=$(echo $USER_CERT_FIND_CA | tr [a-z] [A-Z])
         if [ "$USER_CERT_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
