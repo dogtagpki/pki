@@ -168,7 +168,7 @@ class PKIException(Exception, ResourceMessage):
         ret = cls(json_value['Message'], json_value['Code'],
                   json_value['ClassName'])
         for attr in json_value['Attributes']['Attribute']:
-            print(str(attr))
+            print str(attr)
             ret.add_attribute(attr["name"], attr["value"])
         return ret
 
@@ -299,7 +299,7 @@ class PropertyFile(object):
     def show(self):
         """ Show contents of property file."""
         for line in self.lines:
-            print(line)
+            print line
 
     def insert_line(self, index, line):
         """ Insert line in property file """
@@ -403,6 +403,9 @@ class Link:
 
     @classmethod
     def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         link = cls()
         for attr in attr_list:
             setattr(link, attr, attr_list[attr])

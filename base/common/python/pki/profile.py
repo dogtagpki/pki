@@ -1,12 +1,28 @@
 #!/usr/bin/python
 """
-Created on May 13,, 2014
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; version 2 of the License.
 
-@author: akoneru
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+ Copyright (C) 2014 Red Hat, Inc.
+ All rights reserved.
+
+ @author: Abhishek Koneru <akoneru@redhat.com>
 """
 
 import json
+import os
 import types
+
 
 import pki
 import pki.client as client
@@ -36,6 +52,9 @@ class ProfileDataInfo(object):
 
     @classmethod
     def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         profile_data_info = cls()
         profile_data_info.profile_id = attr_list['profileId']
         profile_data_info.profile_name = attr_list['profileName']
@@ -59,9 +78,9 @@ class ProfileDataInfoCollection(object):
         return iter(self.profile_data_list)
 
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
         ret = cls()
-        profile_data_infos = json_value['entries']
+        profile_data_infos = attr_list['entries']
         if not isinstance(profile_data_infos, types.ListType):
             ret.profile_data_list.append(
                 ProfileDataInfo.from_json(profile_data_infos))
@@ -70,7 +89,7 @@ class ProfileDataInfoCollection(object):
                 ret.profile_data_list.append(
                     ProfileDataInfo.from_json(profile_info))
 
-        links = json_value['Link']
+        links = attr_list['Link']
         if not isinstance(links, types.ListType):
             ret.links.append(pki.Link.from_json(links))
         else:
@@ -128,6 +147,9 @@ class Descriptor(object):
 
     @classmethod
     def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         descriptor = cls()
         for attr in attr_list:
             setattr(descriptor, attr, attr_list[attr])
@@ -163,6 +185,9 @@ class ProfileAttribute(object):
 
     @classmethod
     def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         attribute = cls()
         attribute.name = attr_list['name']
         if 'Value' in attr_list:
@@ -241,15 +266,28 @@ class ProfileInput(object):
         setattr(self, 'ConfigAttribute', value)
 
     def add_attribute(self, profile_attribute):
+        """
+        Add a ProfileAttribute object to the attributes list.
+        """
+        if not isinstance(profile_attribute, ProfileAttribute):
+            raise ValueError("Object passed is not a ProfileAttribute.")
         self.attributes.append(profile_attribute)
 
     def remove_attribute(self, profile_attribute_name):
+        """
+        Remove a ProfileAttribute object with the given name from the attributes
+        list.
+        """
         for attr in self.attributes:
             if attr.name == profile_attribute_name:
                 self.attributes.remove(attr)
                 break
 
     def get_attribute(self, profile_attribute_name):
+        """
+        Returns a ProfileAttribute object for the given name.
+        None, if no match.
+        """
         for attr in self.attributes:
             if attr.name == profile_attribute_name:
                 return attr
@@ -257,31 +295,46 @@ class ProfileInput(object):
         return None
 
     def add_config_attribute(self, profile_attribute):
-        self.attributes.append(profile_attribute)
+        """
+        Add a ProfileAttribute object to the config_attributes list.
+        """
+        if not isinstance(profile_attribute, ProfileAttribute):
+            raise ValueError("Object passed is not a ProfileAttribute.")
+        self.config_attributes.append(profile_attribute)
 
     def remove_config_attribute(self, config_attribute_name):
+        """
+        Remove a ProfileAttribute object with the given name from the
+        config_attributes list.
+        """
         for attr in self.config_attributes:
             if attr.name == config_attribute_name:
-                self.attributes.remove(attr)
+                self.config_attributes.remove(attr)
                 break
 
     def get_config_attribute(self, config_attribute_name):
-        for attr in self.attributes:
+        """
+        Returns a ProfileAttribute object with the given name.
+        None, if there is no match in the config_attributes list.
+        """
+        for attr in self.config_attributes:
             if attr.name == config_attribute_name:
                 return attr
 
         return None
 
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
         profile_input = cls()
-        profile_input.profile_input_id = json_value['id']
-        profile_input.class_id = json_value['ClassID']
-        profile_input.name = json_value['Name']
-        if 'Text' in json_value:
-            profile_input.text = json_value['Text']
+        profile_input.profile_input_id = attr_list['id']
+        profile_input.class_id = attr_list['ClassID']
+        profile_input.name = attr_list['Name']
+        if 'Text' in attr_list:
+            profile_input.text = attr_list['Text']
 
-        attributes = json_value['Attribute']
+        attributes = attr_list['Attribute']
         if not isinstance(attributes, types.ListType):
             profile_input.attributes.append(
                 ProfileAttribute.from_json(attributes))
@@ -290,7 +343,7 @@ class ProfileInput(object):
                 profile_input.attributes.append(
                     ProfileAttribute.from_json(profile_info))
 
-        config_attributes = json_value['ConfigAttribute']
+        config_attributes = attr_list['ConfigAttribute']
         if not isinstance(config_attributes, types.ListType):
             profile_input.config_attributes.append(
                 ProfileAttribute.from_json(config_attributes))
@@ -334,15 +387,28 @@ class ProfileOutput(object):
         setattr(self, 'classId', value)
 
     def add_attribute(self, profile_attribute):
+        """
+        Add a ProfileAttribute object to the attributes list.
+        """
+        if not isinstance(profile_attribute, ProfileAttribute):
+            raise ValueError("Object passed is not a ProfileAttribute.")
         self.attributes.append(profile_attribute)
 
     def remove_attribute(self, profile_attribute_name):
+        """
+        Remove a ProfileAttribute object with the given name from the attributes
+        list.
+        """
         for attr in self.attributes:
             if attr.name == profile_attribute_name:
                 self.attributes.remove(attr)
                 break
 
     def get_attribute(self, profile_attribute_name):
+        """
+        Returns a ProfileAttribute object for the given name.
+        None, if no match.
+        """
         for attr in self.attributes:
             if attr.name == profile_attribute_name:
                 return attr
@@ -350,14 +416,17 @@ class ProfileOutput(object):
         return None
 
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         profile_output = cls()
-        profile_output.profile_output_id = json_value['id']
-        profile_output.name = json_value['name']
-        if 'text' in json_value:
-            profile_output.text = json_value['text']
-        profile_output.class_id = json_value['classId']
-        attributes = json_value['attributes']
+        profile_output.profile_output_id = attr_list['id']
+        profile_output.name = attr_list['name']
+        if 'text' in attr_list:
+            profile_output.text = attr_list['text']
+        profile_output.class_id = attr_list['classId']
+        attributes = attr_list['attributes']
         if not isinstance(attributes, types.ListType):
             profile_output.attributes.append(
                 ProfileAttribute.from_json(attributes))
@@ -375,6 +444,9 @@ class ProfileParameter(object):
 
     @classmethod
     def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         param = cls()
         for attr in attr_list:
             setattr(param, attr, attr_list[attr])
@@ -433,17 +505,76 @@ class PolicyDefault(object):
     def policy_params(self, value):
         setattr(self, 'params', value)
 
+    def add_attribute(self, policy_attribute):
+        """
+        Add a policy attribute to the attribute list.
+        @param policy_attribute - A ProfileAttribute object
+        """
+        if not isinstance(policy_attribute, ProfileAttribute):
+            raise ValueError("Object passed is not a ProfileAttribute.")
+        self.policy_attributes.append(policy_attribute)
+
+    def remove_attribute(self, policy_attribute_name):
+        """
+        Remove a policy attribute with the given name from the attributes list.
+        """
+        for attr in self.policy_attributes:
+            if attr.name == policy_attribute_name:
+                self.policy_attributes.remove(attr)
+                break
+
+    def get_attribute(self, policy_attribute_name):
+        """
+        Fetch the policy attribute with the given name from the attributes list.
+        """
+        for attr in self.policy_attributes:
+            if attr.name == policy_attribute_name:
+                return attr
+
+        return None
+
+    def add_parameter(self, policy_parameter):
+        """
+        Add a profile parameter to the parameters list.
+        @param policy_parameter - A ProfileParameter object.
+        """
+        if not isinstance(policy_parameter, ProfileParameter):
+            raise ValueError("Object passed is not a ProfileParameter.")
+        self.policy_params.append(policy_parameter)
+
+    def remove_parameter(self, profile_parameter_name):
+        """
+        Remove a profile parameter with the given name from the parameters list.
+        """
+        for param in self.policy_params:
+            if param.name == profile_parameter_name:
+                self.policy_params.remove(param)
+                break
+
+    def get_parameter(self, profile_parameter_name):
+        """
+        Fetch a profile parameter with the given name from the parameters list.
+        """
+        for param in self.policy_params:
+            if param.name == profile_parameter_name:
+                return param
+
+        return None
+
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         policy_def = cls()
-        if 'id' in json_value:
-            policy_def.name = json_value['id']
-        if 'classId' in json_value:
-            policy_def.class_id = json_value['classId']
-        if 'description' in json_value:
-            policy_def.description = json_value['description']
-        if 'policyAttribute' in json_value:
-            attributes = json_value['policyAttribute']
+        if 'id' in attr_list:
+            policy_def.name = attr_list['id']
+        if 'classId' in attr_list:
+            policy_def.class_id = attr_list['classId']
+        if 'description' in attr_list:
+            policy_def.description = attr_list['description']
+        if 'policyAttribute' in attr_list:
+            attributes = attr_list['policyAttribute']
             if not isinstance(attributes, types.ListType):
                 policy_def.policy_attributes.append(
                     ProfileAttribute.from_json(attributes))
@@ -452,8 +583,8 @@ class PolicyDefault(object):
                     policy_def.policy_attributes.append(
                         ProfileAttribute.from_json(attr))
 
-        if 'params' in json_value:
-            params = json_value['params']
+        if 'params' in attr_list:
+            params = attr_list['params']
             if not isinstance(params, types.ListType):
                 policy_def.policy_params.append(
                     ProfileParameter.from_json(params))
@@ -480,13 +611,16 @@ class PolicyConstraintValue(object):
         setattr(self, 'id', value)
 
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         ret = cls()
 
-        ret.name = json_value['id']
-        ret.value = json_value['value']
-        if 'descriptor' in json_value:
-            ret.descriptor = Descriptor.from_json(json_value['descriptor'])
+        ret.name = attr_list['id']
+        ret.value = attr_list['value']
+        if 'descriptor' in attr_list:
+            ret.descriptor = Descriptor.from_json(attr_list['descriptor'])
 
         return ret
 
@@ -531,17 +665,49 @@ class PolicyConstraint(object):
     def policy_constraint_values(self, value):
         setattr(self, 'constraint', value)
 
+    def add_constraint_value(self, policy_constraint_value):
+        """
+        Add a ProfileConstraintValue to the policy_constraint_values list.
+        """
+        if not isinstance(policy_constraint_value, PolicyConstraintValue):
+            raise ValueError("Object passed not of type PolicyConstraintValue")
+        self.policy_constraint_values.append(policy_constraint_value)
+
+    def remove_constraint_value(self, policy_constraint_value_name):
+        """
+        Removes a PolicyConstraintValue with the given name form the
+        policy_constraint_values list.
+        """
+        for attr in self.policy_constraint_values:
+            if attr.name == policy_constraint_value_name:
+                self.policy_constraint_values.remove(attr)
+                break
+
+    def get_constraint_value(self, policy_constraint_value_name):
+        """
+        Returns a PolicyConstraintValue object with the given name.
+        None, if there is no match.
+        """
+        for constraint in self.policy_constraint_values:
+            if constraint.name == policy_constraint_value_name:
+                return constraint
+
+        return None
+
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         policy_constraint = cls()
-        if 'id' in json_value:
-            policy_constraint.name = json_value['id']
-        if 'description' in json_value:
-            policy_constraint.description = json_value['description']
-        if 'classId' in json_value:
-            policy_constraint.class_id = json_value['classId']
-        if 'constraint' in json_value:
-            constraints = json_value['constraint']
+        if 'id' in attr_list:
+            policy_constraint.name = attr_list['id']
+        if 'description' in attr_list:
+            policy_constraint.description = attr_list['description']
+        if 'classId' in attr_list:
+            policy_constraint.class_id = attr_list['classId']
+        if 'constraint' in attr_list:
+            constraints = attr_list['constraint']
             if not isinstance(constraints, types.ListType):
                 policy_constraint.policy_constraint_values.append(
                     PolicyConstraintValue.from_json(constraints))
@@ -592,9 +758,12 @@ class ProfilePolicy(object):
         setattr(self, 'constraint', value)
 
     @classmethod
-    def from_json(cls, json_value):
-        return cls(json_value['id'], PolicyDefault.from_json(json_value['def']),
-                   PolicyConstraint.from_json(json_value['constraint']))
+    def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
+        return cls(attr_list['id'], PolicyDefault.from_json(attr_list['def']),
+                   PolicyConstraint.from_json(attr_list['constraint']))
 
 
 class ProfilePolicySet(object):
@@ -607,6 +776,9 @@ class ProfilePolicySet(object):
 
     @classmethod
     def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         policy_set = cls()
 
         policies = attr_list['policies']
@@ -649,19 +821,40 @@ class PolicySet(object):
         setattr(self, 'value', value)
 
     def add_policy(self, profile_policy):
+        """
+        Add a ProfilePolicy object to the policy_list
+        """
+        if not isinstance(profile_policy, ProfilePolicy):
+            raise ValueError("Object passed is not a ProfilePolicy.")
         self.policy_list.append(profile_policy)
 
     def remove_policy(self, policy_id):
+        """
+        Removes a ProfilePolicy with the given ID from the PolicySet.
+        """
         for policy in self.policy_list:
             if policy.policy_id == policy_id:
-                self.policy_list.pop(policy)
+                self.policy_list.remove(policy)
+                break
+
+    def get_policy(self, policy_id):
+        """
+        Returns a ProfilePolicy object with the given profile id.
+        """
+        for policy in self.policy_list:
+            if policy.policy_id == policy_id:
+                return policy
+        return None
 
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         policy_set = cls()
 
-        policy_set.name = json_value['id']
-        policies = json_value['value']
+        policy_set.name = attr_list['id']
+        policies = attr_list['value']
         if not isinstance(policies, types.ListType):
             policy_set.policy_list.append(ProfilePolicy.from_json(policies))
         else:
@@ -694,17 +887,39 @@ class PolicySetList(object):
         setattr(self, 'PolicySet', value)
 
     def add_policy_set(self, policy_set):
+        """
+        Add a PolicySet object to the policy_sets list.
+        """
+        if not isinstance(policy_set, PolicySet):
+            raise ValueError("Object passed is not a PolicySet.")
         self.policy_sets.append(policy_set)
 
     def remove_policy_set(self, policy_set_name):
+        """
+        Remove a PolicySet object with the given name from the policy_sets list.
+        """
         for policy_set in self.policy_sets:
             if policy_set.name == policy_set_name:
-                self.policy_sets.pop(policy_set)
+                self.policy_sets.remove(policy_set)
+                break
+
+    def get_policy_set(self, policy_set_name):
+        """
+        Fetch the PolicySet object for the given name.
+        Returns None, if not found.
+        """
+        for policy_set in self.policy_sets:
+            if policy_set.name == policy_set_name:
+                return policy_set
+        return None
 
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
+        if attr_list is None:
+            return None
+
         policy_set_list = cls()
-        policy_sets = json_value['PolicySet']
+        policy_sets = attr_list['PolicySet']
         if not isinstance(policy_sets, types.ListType):
             policy_set_list.policy_sets.append(PolicySet.from_json(policy_sets))
         else:
@@ -824,51 +1039,101 @@ class Profile(object):
         setattr(self, 'PolicySets', value)
 
     def add_input(self, profile_input):
+        """
+        Add a ProfileInput object to the inputs list of the Profile.
+        """
+        if not isinstance(profile_input, ProfileInput):
+            raise ValueError("Object passed is not a PolicyInput.")
         if profile_input is None:
             raise ValueError("No ProfileInput object provided.")
         self.inputs.append(profile_input)
 
     def remove_input(self, profile_input_id):
+        """
+        Remove a ProfileInput from the inputs list of the Profile.
+        """
         for profile_input in self.inputs:
             if profile_input_id == profile_input.profile_input_id:
-                self.inputs.pop(profile_input)
+                self.inputs.remove(profile_input)
+                break
+
+    def get_input(self, profile_input_id):
+        """
+        Fetches a ProfileInput with the given ProfileInput id.
+        Returns None, if there is no matching input.
+        """
+        for profile_input in self.inputs:
+            if profile_input_id == profile_input.profile_input_id:
+                return profile_input
+        return None
 
     def add_output(self, profile_output):
+        """
+        Add a ProfileOutput object to the outputs list of the Profile.
+        """
+        if not isinstance(profile_output, ProfileOutput):
+            raise ValueError("Object passed is not a PolicyOutput.")
         if profile_output is None:
             raise ValueError("No ProfileOutput object provided.")
         self.outputs.append(profile_output)
 
     def remove_output(self, profile_output_id):
+        """
+        Remove a ProfileOutput from the outputs list of the Profile.
+        """
         for profile_output in self.outputs:
             if profile_output_id == profile_output.profile_output_id:
-                self.inputs.pop(profile_output)
+                self.inputs.remove(profile_output)
+
+    def get_output(self, profile_output_id):
+        """
+        Fetches a ProfileOutput with the given ProfileOutput id.
+        Returns None, if there is no matching output.
+        """
+        for profile_input in self.inputs:
+            if profile_output_id == profile_input.profile_input_id:
+                return profile_input
+        return None
 
     def add_policy_set(self, policy_set):
+        """
+        Add a PolicySet object to the policy_sets list of the Profile.
+        """
         if policy_set is None:
             raise ValueError("No PolicySet object provided.")
         self.policy_set_list.add_policy_set(policy_set)
 
     def remove_policy_set(self, policy_set_name):
+        """
+        Remove a PolicySet from the policy_sets list of the Profile.
+        """
         self.policy_set_list.remove_policy_set(policy_set_name)
 
-    @classmethod
-    def from_json(cls, json_value):
-        profile_data = cls()
-        profile_data.profile_id = json_value['id']
-        profile_data.class_id = json_value['classId']
-        profile_data.name = json_value['name']
-        profile_data.description = json_value['description']
-        profile_data.enabled = json_value['enabled']
-        profile_data.visible = json_value['visible']
-        if 'enabledBy' in json_value:
-            profile_data.enabled_by = json_value['enabledBy']
-        if 'authenticatorId' in json_value:
-            profile_data.authenticator_id = json_value['authenticatorId']
-        profile_data.authorization_acl = json_value['authzAcl']
-        profile_data.renewal = json_value['renewal']
-        profile_data.xml_output = json_value['xmlOutput']
+    def get_policy_set(self, policy_set_name):
+        """
+        Fetches a ProfileInput with the given ProfileInput id.
+        Returns None, if there is no matching input.
+        """
+        return self.policy_set_list.get_policy_set(policy_set_name)
 
-        profile_inputs = json_value['Input']
+    @classmethod
+    def from_json(cls, attr_list):
+        profile_data = cls()
+        profile_data.profile_id = attr_list['id']
+        profile_data.class_id = attr_list['classId']
+        profile_data.name = attr_list['name']
+        profile_data.description = attr_list['description']
+        profile_data.enabled = attr_list['enabled']
+        profile_data.visible = attr_list['visible']
+        if 'enabledBy' in attr_list:
+            profile_data.enabled_by = attr_list['enabledBy']
+        if 'authenticatorId' in attr_list:
+            profile_data.authenticator_id = attr_list['authenticatorId']
+        profile_data.authorization_acl = attr_list['authzAcl']
+        profile_data.renewal = attr_list['renewal']
+        profile_data.xml_output = attr_list['xmlOutput']
+
+        profile_inputs = attr_list['Input']
         if not isinstance(profile_inputs, types.ListType):
             profile_data.inputs.append(ProfileInput.from_json(profile_inputs))
         else:
@@ -876,7 +1141,7 @@ class Profile(object):
                 profile_data.inputs.append(
                     ProfileInput.from_json(profile_input))
 
-        profile_outputs = json_value['Output']
+        profile_outputs = attr_list['Output']
         if not isinstance(profile_outputs, types.ListType):
             profile_data.outputs.append(
                 ProfileOutput.from_json(profile_outputs))
@@ -886,9 +1151,9 @@ class Profile(object):
                     ProfileOutput.from_json(profile_output))
 
         profile_data.policy_set_list = \
-            PolicySetList.from_json(json_value['PolicySets'])
+            PolicySetList.from_json(attr_list['PolicySets'])
 
-        profile_data.link = pki.Link.from_json(json_value['link'])
+        profile_data.link = pki.Link.from_json(attr_list['link'])
 
         return profile_data
 
@@ -903,6 +1168,20 @@ class Profile(object):
             }
         }
         return str(attributes)
+
+    @staticmethod
+    def get_profile_data_from_file(path_to_file):
+        """
+        Reads the file for the serialized Profile object.
+        Currently supports only data format in json.
+        """
+        if path_to_file is None:
+            raise ValueError("File path must be specified.")
+        with open(path_to_file) as input_file:
+            data = input_file.read()
+            if data is not None:
+                return Profile.from_json(json.loads(data))
+        return None
 
 
 class ProfileClient(object):
@@ -995,34 +1274,67 @@ class ProfileClient(object):
         """
         return self._modify_profile_state(profile_id, 'disable')
 
+    def _send_profile_create(self, profile_data):
+
+        if profile_data is None:
+            raise ValueError("No ProfileData specified")
+
+        profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
+                                    sort_keys=True)
+
+        r = self._post(self.profiles_url, profile_object)
+
+        return Profile.from_json(r.json())
+
+    def _send_profile_modify(self, profile_data):
+        if profile_data is None:
+            raise ValueError("No ProfileData specified")
+
+        profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
+                                    sort_keys=True)
+        if profile_data.profile_id is None:
+            raise ValueError("Profile Id is not specified.")
+        url = self.profiles_url + '/' + str(profile_data.profile_id)
+        r = self._put(url, profile_object)
+
+        return Profile.from_json(r.json())
+
+    @pki.handle_exceptions()
     def create_profile(self, profile_data):
         """
-        Create a new profile for the given ProfileData object.
+        Create a new profile for the given Profile object.
         """
-        if profile_data is None:
-            raise ValueError("No ProfileData specified")
+        return self._send_profile_create(profile_data)
 
-        profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
-                                    sort_keys=True)
-        r = self._post(self.profiles_url, profile_object)
-        return Profile.from_json(r.json())
-
+    @pki.handle_exceptions()
     def modify_profile(self, profile_data):
         """
-        Modify an existing profile.
+        Modify an existing profile with the given Profile object.
         """
-        if profile_data is None:
-            raise ValueError("No ProfileData specified")
+        return self._send_profile_modify(profile_data)
 
-        url = self.profiles_url + '/' + str(profile_data.profile_id)
-        profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
-                                    sort_keys=True)
-        r = self._put(url, profile_object)
-        return Profile.from_json(r.json())
+    def create_profile_from_file(self, path_to_file):
+        """
+        Reads the file for the serialized Profile object.
+        Performs the profile create operation.
+        Currently supports only data format in json.
+        """
+        profile_data = Profile.get_profile_data_from_file(path_to_file)
+        return self._send_profile_create(profile_data)
 
+    def modify_profile_from_file(self, path_to_file):
+        """
+        Reads the file for the serialized Profile object.
+        Performs the profile modify operation.
+        Currently supports only data format in json.
+        """
+        profile_data = Profile.get_profile_data_from_file(path_to_file)
+        return self._send_profile_modify(profile_data)
+
+    @pki.handle_exceptions()
     def delete_profile(self, profile_id):
         """
-        Delete a profile.
+        Delete a profile with the given Profile Id.
         """
         if profile_id is None:
             raise ValueError("Profile Id must be specified.")
@@ -1057,6 +1369,11 @@ def main():
 
     #Initialize the ProfileClient class
     profile_client = ProfileClient(connection)
+
+    # Folder to store the files generated during test
+    file_path = '/tmp/profile_client_test/'
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
 
     #Fetching a list of profiles
     profile_data_infos = profile_client.list_profiles()
@@ -1102,12 +1419,14 @@ def main():
     print('-----------------------')
 
     profile_data = Profile(name="My Sample User Cert Enrollment",
-                           profile_id="MySampleCert", class_id="caEnrollImpl",
+                           profile_id="MySampleProfile",
+                           class_id="caEnrollImpl",
                            description="Example User Cert Enroll Impl",
                            enabled_by='admin', enabled=False, visible=False,
                            renewal=False, xml_output=False,
                            authorization_acl="")
 
+    # Adding a profile input
     profile_input = ProfileInput("i1", "subjectNameInputImpl")
     profile_input.add_attribute(ProfileAttribute("sn_uid"))
     profile_input.add_attribute(ProfileAttribute("sn_e"))
@@ -1121,6 +1440,97 @@ def main():
 
     profile_data.add_input(profile_input)
 
+    # Adding a profile output
+    profile_output = ProfileOutput("o1", name="Certificate Output",
+                                   class_id="certOutputImpl")
+    profile_output.add_attribute(ProfileAttribute("pretty_cert"))
+    profile_output.add_attribute(ProfileAttribute("b64_cert"))
+
+    profile_data.add_output(profile_output)
+
+    # Create a Policy set with a list of profile policies
+    policy_list = []
+
+    # Creating profile policy
+    policy_default = PolicyDefault("Subject Name Default",
+                                   "userSubjectNameDefaultImpl",
+                                   "This default populates a User-Supplied "
+                                   "Certificate Subject Name to the request.")
+
+    attr_descriptor = Descriptor(syntax="string", description="Subject Name")
+    policy_attribute = ProfileAttribute("name", descriptor=attr_descriptor)
+    policy_default.add_attribute(policy_attribute)
+
+    policy_constraint = PolicyConstraint("Subject Name Constraint",
+                                         "This constraint accepts the subject "
+                                         "name that matches UID=.*",
+                                         "subjectNameConstraintImpl")
+    constraint_descriptor = Descriptor(syntax="string",
+                                       description="Subject Name Pattern")
+    policy_constraint_value = PolicyConstraintValue("pattern",
+                                                    "UID=.*",
+                                                    constraint_descriptor)
+    policy_constraint.add_constraint_value(policy_constraint_value)
+
+    policy_list.append(ProfilePolicy("1", policy_default, policy_constraint))
+
+    # Creating another profile policy
+    # Defining the policy default
+    policy_default = PolicyDefault("Validity Default", "validityDefaultImpl",
+                                   "This default populates a Certificate "
+                                   "Validity to the request. The default "
+                                   "values are Range=180 in days")
+    attr_descriptor = Descriptor(syntax="string", description="Not Before")
+    policy_attribute = ProfileAttribute("notBefore", descriptor=attr_descriptor)
+    policy_default.add_attribute(policy_attribute)
+
+    attr_descriptor = Descriptor(syntax="string", description="Not After")
+    policy_attribute = ProfileAttribute("notAfter", descriptor=attr_descriptor)
+    policy_default.add_attribute(policy_attribute)
+
+    profile_param = ProfileParameter("range", 180)
+    profile_param2 = ProfileParameter("startTime", 0)
+    policy_default.add_parameter(profile_param)
+    policy_default.add_parameter(profile_param2)
+
+    #Defining the policy constraint
+    policy_constraint = PolicyConstraint("Validity Constraint",
+                                         "This constraint rejects the validity "
+                                         "that is not between 365 days.",
+                                         "validityConstraintImpl")
+    constraint_descriptor = Descriptor(syntax="integer",
+                                       description="Validity Range (in days)",
+                                       default_value=365)
+    policy_constraint_value = PolicyConstraintValue("range", 365,
+                                                    constraint_descriptor)
+    policy_constraint.add_constraint_value(policy_constraint_value)
+
+    constraint_descriptor = Descriptor(syntax="boolean", default_value=False,
+                                       description="Check Not Before against"
+                                                   " current time")
+    policy_constraint_value = PolicyConstraintValue("notBeforeCheck", False,
+                                                    constraint_descriptor)
+    policy_constraint.add_constraint_value(policy_constraint_value)
+
+    constraint_descriptor = Descriptor(syntax="boolean", default_value=False,
+                                       description="Check Not After against"
+                                                   " Not Before")
+    policy_constraint_value = PolicyConstraintValue("notAfterCheck", False,
+                                                    constraint_descriptor)
+    policy_constraint.add_constraint_value(policy_constraint_value)
+
+    policy_list.append(ProfilePolicy("2", policy_default, policy_constraint))
+
+    policy_set = PolicySet("userCertSet", policy_list)
+
+    profile_data.add_policy_set(policy_set)
+
+    # Write the profile data object to a file for testing a file input
+    with open(file_path+'/original.json', 'w') as output_file:
+        output_file.write(json.dumps(profile_data,
+                                     cls=encoder.CustomTypeEncoder,
+                                     sort_keys=True, indent=4))
+    # Create a new profile
     created_profile = profile_client.create_profile(profile_data)
     print(created_profile)
     print
@@ -1131,7 +1541,7 @@ def main():
 
     try:
         profile_data = Profile(name="My Sample User Cert Enrollment",
-                               profile_id="MySampleCert",
+                               profile_id="MySampleProfile",
                                class_id="caEnrollImpl",
                                description="Example User Cert Enroll Impl",
                                enabled_by='admin', enabled=False, visible=False,
@@ -1151,40 +1561,66 @@ def main():
         profile_data.add_input(profile_input)
         profile_client.create_profile(profile_data)
     # pylint: disable-msg=W0703
-    except Exception as e:
-        print str(e)
+    except pki.BadRequestException as e:
+        print 'MySampleProfile ' + str(e)
     print
 
     # Modify the above created profile
-    print('Modifying the profile MySampleCert.')
+    print('Modifying the profile MySampleProfile.')
     print('-----------------------------------')
 
-    fetch = profile_client.get_profile('MySampleCert')
+    fetch = profile_client.get_profile('MySampleProfile')
     profile_input2 = ProfileInput("i2", "keyGenInputImpl")
     profile_input2.add_attribute(ProfileAttribute("cert_request_type"))
     profile_input2.add_attribute(ProfileAttribute("cert_request"))
     fetch.add_input(profile_input2)
 
     fetch.name += " (Modified)"
+    with open(file_path+'modified.json', 'w') as output_file:
+        output_file.write(json.dumps(fetch, cls=encoder.CustomTypeEncoder,
+                                     sort_keys=True, indent=4))
     modified_profile = profile_client.modify_profile(fetch)
     print(modified_profile)
     print
 
     # Delete a profile
-    print ("Deleting the profile MySampleCert.")
+    print ("Deleting the profile MySampleProfile.")
     print ("----------------------------------")
-    profile_client.delete_profile('MySampleCert')
-    print ("Deleted profile MySampleCert.")
+    profile_client.delete_profile('MySampleProfile')
+    print ("Deleted profile MySampleProfile.")
     print
 
     # Testing deletion of a profile
     print('Test profile deletion.')
     print('----------------------')
     try:
-        profile_client.get_profile('MySampleCert')
+        profile_client.get_profile('MySampleProfile')
     # pylint: disable-msg=W0703
-    except Exception as e:
+    except pki.ProfileNotFoundException as e:
         print str(e)
+    print
+
+    # Creating a profile from file
+    print('Creating a profile using file input.')
+    print('------------------------------------')
+    original = profile_client.create_profile_from_file(
+        file_path + 'original.json')
+    print(original)
+    print
+
+    # Modifying a profile from file
+    print('Modifying a profile using file input.')
+    print('------------------------------------')
+    modified = profile_client.modify_profile_from_file(
+        file_path + 'modified.json')
+    print(modified)
+    print
+
+    # Test clean up
+    profile_client.delete_profile('MySampleProfile')
+    os.remove(file_path+'original.json')
+    os.remove(file_path+'modified.json')
+    os.removedirs(file_path)
 
 
 if __name__ == "__main__":
