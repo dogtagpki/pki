@@ -55,6 +55,7 @@ public class KeyRequestInfo extends CMSRequestInfo {
      * @return the key ID in the keyURL
      */
     public KeyId getKeyId() {
+        if (keyURL == null) return null;
         String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
         return new KeyId(id);
     }

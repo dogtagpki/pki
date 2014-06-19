@@ -183,7 +183,10 @@ class KeyRequestInfo(object):
         key_request_info = cls()
         key_request_info.request_url = attr_list['requestURL']
         key_request_info.request_type = attr_list['requestType']
-        key_request_info.key_url = attr_list['keyURL']
+
+        if 'keyURL' in attr_list:
+            key_request_info.key_url = attr_list['keyURL']
+
         key_request_info.request_status = attr_list['requestStatus']
         return key_request_info
 

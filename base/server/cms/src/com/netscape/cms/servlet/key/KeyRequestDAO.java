@@ -351,11 +351,14 @@ public class KeyRequestDAO extends CMSRequestDAO {
         ret.setRequestURL(reqBuilder.build().toString());
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);
-        String kid = request.getExtDataInString("keyrecord");
+        String keyID = request.getExtDataInString("keyrecord");
 
-        UriBuilder keyBuilder = uriInfo.getBaseUriBuilder();
-        keyBuilder.path(keyPath.value() + "/" + kid);
-        ret.setKeyURL(keyBuilder.build().toString());
+        if (keyID != null) {
+            // set key URL only if key ID is available
+            UriBuilder keyBuilder = uriInfo.getBaseUriBuilder();
+            keyBuilder.path(keyPath.value() + "/" + keyID);
+            ret.setKeyURL(keyBuilder.build().toString());
+        }
 
         return ret;
     }
