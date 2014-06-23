@@ -18,6 +18,7 @@
 
 package org.dogtagpki.server.tps.dbs;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +38,42 @@ public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
 
     public ActivityDatabase(IDBSubsystem dbSubsystem, String baseDN) throws EBaseException {
         super("Activity", dbSubsystem, baseDN, ActivityRecord.class);
+    }
+
+    public ActivityRecord log(
+            String ip, String tokenID, String operation, String result,
+            String message, String userID, String tokenType) throws Exception {
+
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH) + 1;
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE);
+        int second = c.get(Calendar.SECOND);
+        int microSecond = c.get(Calendar.MILLISECOND) * 1000;
+        long threadID = Thread.currentThread().getId();
+
+        String id = String.format(
+                "%04d%02d%02d%02d%02d%02d%06d.%x",
+                year, month, day,
+                hour, minute, second, microSecond,
+                threadID);
+
+        ActivityRecord activityRecord = new ActivityRecord();
+        activityRecord.setId(id);
+        activityRecord.setIp(ip);
+        activityRecord.setTokenID(tokenID);
+        activityRecord.setOperation(operation);
+        activityRecord.setResult(result);
+        activityRecord.setMessage(message);
+        activityRecord.setUserID(userID);
+        activityRecord.setType(tokenType);
+        activityRecord.setDate(c.getTime());
+
+        super.addRecord(id, activityRecord);
+
+        return activityRecord;
     }
 
     @Override
