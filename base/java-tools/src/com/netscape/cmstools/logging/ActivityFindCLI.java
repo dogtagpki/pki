@@ -101,7 +101,7 @@ public class ActivityFindCLI extends CLI {
                 System.out.println();
             }
 
-            ActivityCLI.printActivity(activityData);
+            ActivityCLI.printActivity(activityData, false);
         }
 
         MainCLI.printMessage("Number of entries returned " + activities.size());

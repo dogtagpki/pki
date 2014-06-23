@@ -46,11 +46,18 @@ public class ActivityCLI extends CLI {
         super.execute(args);
     }
 
-    public static void printActivity(ActivityData activity) {
+    public static void printActivity(ActivityData activity, boolean showAll) {
         System.out.println("  Activity ID: " + activity.getID());
         if (activity.getTokenID() != null) System.out.println("  Token ID: " + activity.getTokenID());
         if (activity.getUserID() != null) System.out.println("  User ID: " + activity.getUserID());
+        if (activity.getIP() != null) System.out.println("  IP: " + activity.getIP());
+        if (activity.getOperation() != null) System.out.println("  Operation: " + activity.getOperation());
+        if (activity.getResult() != null) System.out.println("  Result: " + activity.getResult());
         if (activity.getDate() != null) System.out.println("  Date: " + activity.getDate());
+
+        if (showAll) {
+            if (activity.getMessage() != null)  System.out.println("  Message: " + activity.getMessage());
+        }
 
         Link link = activity.getLink();
         if (verbose && link != null) {

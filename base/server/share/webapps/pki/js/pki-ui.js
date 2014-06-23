@@ -447,9 +447,11 @@ var TableItem = Backbone.View.extend({
 
             var name = RegExp.$1;
             var value = self.get(name);
+            if (value === undefined) value = "";
+            if (value instanceof Date) value = value.toUTCString();
 
             // replace pattern occurance with attribute value
-            newContent += content.substring(0, index) + (value === undefined ? "" : value);
+            newContent += content.substring(0, index) + value;
 
             // process the remaining content
             content = content.substring(index + name.length + 3);
@@ -1024,6 +1026,7 @@ var EntryPage = Page.extend({
         var name = input.attr("name");
         var value = self.entry[name];
         if (value === undefined) value = "";
+        if (value instanceof Date) value = value.toUTCString();
         input.val(value);
     },
     close: function() {

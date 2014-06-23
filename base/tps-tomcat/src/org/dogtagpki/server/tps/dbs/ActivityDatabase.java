@@ -62,7 +62,7 @@ public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
 
         ActivityRecord activityRecord = new ActivityRecord();
         activityRecord.setId(id);
-        activityRecord.setIp(ip);
+        activityRecord.setIP(ip);
         activityRecord.setTokenID(tokenID);
         activityRecord.setOperation(operation);
         activityRecord.setResult(result);

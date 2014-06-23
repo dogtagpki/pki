@@ -70,6 +70,10 @@ public class ActivityService extends PKIService implements ActivityResource {
         activityData.setID(activityRecord.getId());
         activityData.setTokenID(activityRecord.getTokenID());
         activityData.setUserID(activityRecord.getUserID());
+        activityData.setIP(activityRecord.getIP());
+        activityData.setOperation(activityRecord.getOperation());
+        activityData.setResult(activityRecord.getResult());
+        activityData.setMessage(activityRecord.getMessage());
         activityData.setDate(activityRecord.getDate());
 
         String activityID = activityRecord.getId();
@@ -92,6 +96,10 @@ public class ActivityService extends PKIService implements ActivityResource {
         activityRecord.setId(activityData.getID());
         activityRecord.setTokenID(activityData.getTokenID());
         activityRecord.setUserID(activityData.getUserID());
+        activityRecord.setIP(activityData.getIP());
+        activityRecord.setOperation(activityData.getOperation());
+        activityRecord.setResult(activityData.getResult());
+        activityRecord.setMessage(activityData.getMessage());
         activityRecord.setDate(activityData.getDate());
 
         return activityRecord;

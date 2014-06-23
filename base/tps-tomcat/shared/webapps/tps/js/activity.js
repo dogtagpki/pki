@@ -29,7 +29,8 @@ var ActivityModel = Model.extend({
             ip: response.IP,
             operation: response.Operation,
             result: response.Result,
-            date: response.Date
+            message: response.Message,
+            date: new Date(response.Date)
         };
     },
     createRequest: function(attributes) {
@@ -40,7 +41,8 @@ var ActivityModel = Model.extend({
             IP: attributes.ip,
             Operation: attributes.operation,
             Result: attributes.result,
-            Date: attributes.date
+            Message: attributes.message,
+            Date: attributes.date.getTime()/1000 + 'Z'
         };
     }
 });
@@ -61,7 +63,8 @@ var ActivityCollection = Collection.extend({
             ip: entry.IP,
             operation: entry.Operation,
             result: entry.Result,
-            date: entry.Date
+            message: entry.Message,
+            date: new Date(entry.Date)
         });
     }
 });

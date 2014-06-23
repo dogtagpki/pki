@@ -75,6 +75,6 @@ public class ActivityShowCLI extends CLI {
 
         MainCLI.printMessage("Activity \"" + activityID + "\"");
 
-        ActivityCLI.printActivity(activityData);
+        ActivityCLI.printActivity(activityData, true);
     }
 }

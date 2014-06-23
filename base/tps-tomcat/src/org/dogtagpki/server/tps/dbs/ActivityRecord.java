@@ -71,11 +71,11 @@ public class ActivityRecord extends DBRecord {
     }
 
     @DBAttribute("tokenIP")
-    public String getIp() {
+    public String getIP() {
         return ip;
     }
 
-    public void setIp(String ip) {
+    public void setIP(String ip) {
         this.ip = ip;
     }
 

@@ -56,6 +56,10 @@ fieldset label {
   line-height: 30px;
 }
 
+fieldset input {
+  min-width: 250px;
+}
+
 input[readonly="readonly"] {
   background-image: none;
   border: 1px solid #FFFFFF;
