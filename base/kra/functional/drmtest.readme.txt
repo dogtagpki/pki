@@ -1,6 +1,6 @@
 You will need to set up a few things first though:
-1.  Install a CA/KRA.  It this is not on the default ports, you will
-need to modify the connection information in KRAClient.__main__
+1.  Install a CA/KRA.  If this is not on the default ports, you will
+need to modify the connection information in drmtest.__main__
 
 2. The python code uses python-requests to talk to the server, and
 requests uses openssl.  That means you need to export your DRM admin
@@ -25,4 +25,4 @@ chmod +r /tmp/drmtest/certdb/*
 certutil -L -d /var/lib/pki/pki-tomcat/alias/ -n "transportCert cert-pki-tomcat KRA" -a > transport_cert.txt
 certutil -A -d /tmp/drmtest/certdb/ -n "kra transport cert" -i ./transport_cert.txt -a -t "u,u,u"
 
-4. Then just run kraclient.__main__ with no arguments.
+4. Then just run drmtest.__main__ with no arguments.

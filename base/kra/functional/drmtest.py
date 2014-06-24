@@ -1,21 +1,23 @@
-# Authors:
-#   Ade Lee <alee@redhat.com>
-#
-# Copyright (C) 2012  Red Hat
-# see file 'COPYING' for use and warranty information
+#!/usr/bin/python
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation; version 2 of the License.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2013 Red Hat, Inc.
+# All rights reserved.
+#
+# Authors:
+#     Ade Lee <alee@redhat.com>
 
 """
 =========================================================================
@@ -36,7 +38,7 @@ import pki.key as key
 import time
 
 from pki.client import PKIConnection
-from pki.kraclient import KRAClient
+from pki.kra import KRAClient
 
 
 def print_key_request(request):
@@ -44,7 +46,7 @@ def print_key_request(request):
     print "RequestURL: " + str(request.request_url)
     print "RequestType: " + str(request.request_type)
     print "RequestStatus: " + str(request.request_status)
-    print "KeyURL: " + str(request.keyURL)
+    print "KeyURL: " + str(request.key_url)
 
 
 def print_key_info(key_info):
@@ -62,7 +64,8 @@ def print_key_data(key_data):
     print "Key Algorithm: " + str(key_data.algorithm)
     print "Key Size: " + str(key_data.size)
     print "Nonce Data: " + base64.encodestring(key_data.nonce_data)
-    print "Wrapped Private Data: " + base64.encodestring(key_data.encrypted_data)
+    print "Wrapped Private Data: " + \
+          base64.encodestring(key_data.encrypted_data)
     if key_data.data is not None:
         print "Private Data: " + base64.encodestring(key_data.data)
 
@@ -72,12 +75,13 @@ def main():
 
     # set up the connection to the DRM, including authentication credentials
     connection = PKIConnection('https', 'localhost', '8443', 'kra')
-    connection.set_authentication_cert('/tmp/temp4.pem')
+    connection.set_authentication_cert('/tmp/auth.pem')
 
     # create an NSS DB for crypto operations
     certdb_dir = "/tmp/drmtest-certdb"
     certdb_password = "redhat123"
-    cryptoutil.NSSCryptoUtil.setup_database(certdb_dir, certdb_password, over_write=True)
+    cryptoutil.NSSCryptoUtil.setup_database(certdb_dir, certdb_password,
+                                            over_write=True)
 
     #create kraclient
     crypto = cryptoutil.NSSCryptoUtil(certdb_dir, certdb_password)
@@ -87,7 +91,9 @@ def main():
     # Get transport cert and insert in the certdb
     transport_nick = "kra transport cert"
     transport_cert = kraclient.system_certs.get_transport_cert()
-    tcert = transport_cert[len(pki.CERT_HEADER):len(transport_cert) - len(pki.CERT_FOOTER)]
+    print transport_cert
+    tcert = transport_cert[len(pki.CERT_HEADER):len(transport_cert) - len(
+        pki.CERT_FOOTER)]
     crypto.import_cert(transport_nick, base64.decodestring(tcert), "u,u,u")
 
     # initialize the certdb for crypto operations
@@ -117,18 +123,20 @@ def main():
     client_key_id = "Vek #1" + time.strftime('%c')
     algorithm = "AES"
     key_size = 128
-    usages = [key.SymKeyGenerationRequest.DECRYPT_USAGE, key.SymKeyGenerationRequest.ENCRYPT_USAGE]
+    usages = [key.SymKeyGenerationRequest.DECRYPT_USAGE,
+              key.SymKeyGenerationRequest.ENCRYPT_USAGE]
     response = keyclient.generate_symmetric_key(client_key_id,
                                                 algorithm=algorithm,
                                                 size=key_size,
                                                 usages=usages)
-    print_key_request(response.requestInfo)
-    print "Request ID is " + response.requestInfo.get_request_id()
+    print_key_request(response.request_info)
+    print "Request ID is " + response.request_info.get_request_id()
     key_id = response.get_key_id()
 
     # Test 5: Confirm the key_id matches
     print "Now getting key ID for clientKeyID=\"" + client_key_id + "\""
-    key_infos = keyclient.list_keys(client_key_id=client_key_id, status=keyclient.KEY_STATUS_ACTIVE)
+    key_infos = keyclient.list_keys(client_key_id=client_key_id,
+                                    status=keyclient.KEY_STATUS_ACTIVE)
     key_id2 = None
     for key_info in key_infos.key_infos:
         print_key_info(key_info)
@@ -138,11 +146,14 @@ def main():
     else:
         print "Failure - key_ids for generation do not match!"
 
-    # Test 6: Barbican_decode() - Retrieve while providing trans_wrapped_session_key
+    # Test 6: Barbican_decode() - Retrieve while providing
+    # trans_wrapped_session_key
     session_key = crypto.generate_session_key()
-    wrapped_session_key = crypto.asymmetric_wrap(session_key, keyclient.transport_cert)
+    wrapped_session_key = crypto.asymmetric_wrap(session_key,
+                                                 keyclient.transport_cert)
     print "My key id is " + str(key_id)
-    key_data = keyclient.retrieve_key(key_id, trans_wrapped_session_key=wrapped_session_key)
+    key_data = keyclient.retrieve_key(
+        key_id, trans_wrapped_session_key=wrapped_session_key)
     print_key_data(key_data)
     unwrapped_key = crypto.symmetric_unwrap(key_data.encrypted_data,
                                             session_key,
@@ -170,21 +181,24 @@ def main():
                                          size=key_size,
                                          usages=usages)
     except pki.BadRequestException as exc:
-        print "BadRequestException thrown - Code:" + exc.code + " Message: " + exc.message
+        print "BadRequestException thrown - Code:" + exc.code +\
+              " Message: " + exc.message
 
     # Test 11 - Test RequestNotFoundException on get_request_info
     print "Try to list a nonexistent request"
     try:
         keyclient.get_request_info('200000034')
     except pki.RequestNotFoundException as exc:
-        print "RequestNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
+        print "RequestNotFoundException thrown - Code:" + exc.code +\
+              " Message: " + exc.message
 
     # Test 12 - Test exception on retrieve_key.
     print "Try to retrieve an invalid key"
     try:
         keyclient.retrieve_key('2000003434')
     except pki.KeyNotFoundException as exc:
-        print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
+        print "KeyNotFoundException thrown - Code:" + exc.code + \
+              " Message: " + exc.message
 
     #Test 13 = getKeyInfo
     print "Get key info for existing key"
@@ -206,7 +220,8 @@ def main():
     try:
         keyclient.get_key_info('200004556')
     except pki.KeyNotFoundException as exc:
-        print "KeyNotFoundException thrown - Code:" + exc.code + " Message: " + exc.message
+        print "KeyNotFoundException thrown - Code:" + exc.code +\
+              " Message: " + exc.message
 
     # Test 17: Get key info for non-existent active key
     print "Get non-existent active key"
@@ -214,7 +229,8 @@ def main():
         key_info = keyclient.get_active_key_info(client_key_id)
         print_key_info(key_info)
     except pki.ResourceNotFoundException as exc:
-        print "ResourceNotFoundException thrown - Code: " + exc.code + "Message: " + exc.message
+        print "ResourceNotFoundException thrown - Code: " + exc.code +\
+              "Message: " + exc.message
 
     #Test 18: Generate a symmetric key with default parameters
     client_key_id = "Vek #3" + time.strftime('%c')
@@ -226,7 +242,8 @@ def main():
     print "key to archive: " + key1
     client_key_id = "Vek #4" + time.strftime('%c')
 
-    response = keyclient.archive_key(client_key_id, keyclient.SYMMETRIC_KEY_TYPE,
+    response = keyclient.archive_key(client_key_id,
+                                     keyclient.SYMMETRIC_KEY_TYPE,
                                      base64.decodestring(key1),
                                      key_algorithm=keyclient.AES_ALGORITHM,
                                      key_size=128)

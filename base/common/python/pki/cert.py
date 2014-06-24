@@ -1,8 +1,25 @@
 #!/usr/bin/python
 """
-Created on Feb 13, 2014
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; version 2 of the License.
 
-@author: akoneru
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+ Copyright (C) 2014 Red Hat, Inc.
+ All rights reserved.
+
+Authors:
+    Abhishek Koneru <akoneru@redhat.com>
+    Ade Lee <alee@redhat.com>
+
 """
 import copy
 import json
@@ -19,8 +36,17 @@ class CertData(object):
     Class containing certificate data as returned from getCert()
     """
 
+    json_attribute_names = {
+        'id': 'serial_number', 'IssuerDN': 'issuer_dn',
+        'SubjectDN': 'subject_dn', 'PrettyPrint': 'pretty_repr',
+        'Encoded': 'encoded', 'NotBefore': 'not_before',
+        'NotAfter': 'not_after', 'Status': 'status', 'Nonce': 'nonce',
+        'Link': 'link', 'PKCS7CertChain': 'pkcs7_cert_chain'
+    }
+
     def __init__(self):
-        """ Constructor """
+        """Constructor"""
+
         self.serial_number = None
         self.issuer_dn = None
         self.subject_dn = None
@@ -47,20 +73,17 @@ class CertData(object):
     def from_json(cls, attr_list):
         """ Return CertData object from JSON dict """
         cert_data = cls()
-        cert_data.serial_number = attr_list['id']
-        cert_data.issuer_dn = attr_list['IssuerDN']
-        cert_data.subject_dn = attr_list['SubjectDN']
-        cert_data.pretty_repr = attr_list['PrettyPrint']
-        cert_data.encoded = attr_list['Encoded']
-        cert_data.pkcs7_cert_chain = attr_list['PKCS7CertChain']
-        cert_data.not_before = attr_list['NotBefore']
-        cert_data.not_after = attr_list['NotAfter']
-        cert_data.status = attr_list['Status']
-        cert_data.link = pki.Link.from_json(attr_list['Link'])
 
-        #Special case. Only returned when reviewing a cert.
-        if 'Nonce' in attr_list:
-            cert_data.nonce = attr_list['Nonce']
+        for k, v in attr_list.items():
+            if k not in ['Link']:
+                if k in CertData.json_attribute_names:
+                    setattr(cert_data, CertData.json_attribute_names[k], v)
+                else:
+                    setattr(cert_data, k, v)
+
+        if 'Link' in attr_list:
+            cert_data.link = pki.Link.from_json(attr_list['Link'])
+
         return cert_data
 
 
@@ -69,6 +92,14 @@ class CertDataInfo(object):
     Class containing information contained in a CertRecord on the CA.
     This data is returned when searching/listing certificate records.
     """
+
+    json_attribute_names = {
+        'id': 'serial_number', 'SubjectDN': 'subject_dn', 'Status': 'status',
+        'Type': 'type', 'Version': 'version', 'KeyLength': 'key_length',
+        'KeyAlgorithmOID': 'key_algorithm_oid', 'Link': 'link',
+        'NotValidBefore': 'not_valid_before',
+        'NotValidAfter': 'not_valid_after', 'IssuedOn': 'issued_on',
+        'IssuedBy': 'issued_by'}
 
     def __init__(self):
         """ Constructor """
@@ -99,18 +130,16 @@ class CertDataInfo(object):
     def from_json(cls, attr_list):
         """ Return CertDataInfo object from JSON dict """
         cert_data_info = cls()
-        cert_data_info.serial_number = attr_list['id']
-        cert_data_info.subject_dn = attr_list['SubjectDN']
-        cert_data_info.status = attr_list['Status']
-        cert_data_info.type = attr_list['Type']
-        cert_data_info.version = attr_list['Version']
-        cert_data_info.key_algorithm_oid = attr_list['KeyAlgorithmOID']
-        cert_data_info.key_length = attr_list['KeyLength']
-        cert_data_info.not_valid_before = attr_list['NotValidBefore']
-        cert_data_info.not_valid_after = attr_list['NotValidAfter']
-        cert_data_info.issued_on = attr_list['IssuedOn']
-        cert_data_info.issued_by = attr_list['IssuedBy']
-        cert_data_info.link = pki.Link.from_json(attr_list['Link'])
+        for k, v in attr_list.items():
+            if k not in ['Link']:
+                if k in CertDataInfo.json_attribute_names:
+                    setattr(cert_data_info,
+                            CertDataInfo.json_attribute_names[k], v)
+                else:
+                    setattr(cert_data_info, k, v)
+
+        if 'Link' in attr_list:
+            cert_data_info.link = pki.Link.from_json(attr_list['Link'])
 
         return cert_data_info
 
@@ -157,6 +186,12 @@ class CertRequestInfo(object):
        An object of this class stores represents a
        certificate request.
     """
+    json_attribute_names = {
+        'requestType': 'request_type', 'requestURL': 'request_url',
+        'requestStatus': 'request_status', 'certId': 'cert_id',
+        'operationResult': 'operation_result', 'certURL': 'cert_url',
+        'errorMessage': 'error_message', 'certRequestType': 'cert_request_type'
+    }
 
     def __init__(self):
         """ Constructor """
@@ -184,22 +219,18 @@ class CertRequestInfo(object):
     @classmethod
     def from_json(cls, attr_list):
         cert_request_info = cls()
-        cert_request_info.request_type = attr_list['requestType']
-        cert_request_info.request_url = attr_list['requestURL']
-        cert_request_info.request_status = attr_list['requestStatus']
-        cert_request_info.operation_result = attr_list['operationResult']
+
+        for k, v in attr_list.items():
+            if k not in ['Link']:
+                if k in CertRequestInfo.json_attribute_names:
+                    setattr(cert_request_info,
+                            CertRequestInfo.json_attribute_names[k], v)
+                else:
+                    setattr(cert_request_info, k, v)
+
         cert_request_info.request_id = \
             str(cert_request_info.request_url)[(str(
                 cert_request_info.request_url).rfind("/") + 1):]
-        #Optional parameters
-        if 'certId' in attr_list:
-            cert_request_info.cert_id = attr_list['certId']
-        if 'certURL' in attr_list:
-            cert_request_info.cert_url = attr_list['certURL']
-        if 'certRequestType' in attr_list:
-            cert_request_info.cert_request_type = attr_list['certRequestType']
-        if 'errorMessage' in attr_list:
-            cert_request_info.error_message = attr_list['errorMessage']
 
         return cert_request_info
 
@@ -376,6 +407,13 @@ class CertEnrollmentRequest(object):
      enrollment request.
     """
 
+    json_attribute_names = {
+        'ProfileID': 'profile_id', 'Renewal': 'renewal',
+        'SerialNumber': 'serial_number', 'RemoteHost': 'remote_host',
+        'RemoteAddress': 'remote_address', 'Input': 'inputs',
+        'Output': 'outputs'
+    }
+
     def __init__(self, profile_id=None, renewal=False, serial_number=None,
                  remote_host=None, remote_address=None, inputs=None,
                  outputs=None):
@@ -387,64 +425,12 @@ class CertEnrollmentRequest(object):
         self.remote_address = remote_address
         if inputs is None:
             self.inputs = []
+        else:
+            self.inputs = inputs
         if outputs is None:
             self.outputs = []
-
-    @property
-    def profile_id(self):
-        return getattr(self, 'ProfileID', None)
-
-    @profile_id.setter
-    def profile_id(self, value):
-        setattr(self, 'ProfileID', value)
-
-    @property
-    def renewal(self):
-        return getattr(self, 'Renewal', False)
-
-    @renewal.setter
-    def renewal(self, value):
-        setattr(self, 'Renewal', value)
-
-    @property
-    def serial_number(self):
-        return getattr(self, 'SerialNumber', None)
-
-    @serial_number.setter
-    def serial_number(self, value):
-        setattr(self, 'SerialNumber', value)
-
-    @property
-    def remote_host(self):
-        return getattr(self, 'RemoteHost', None)
-
-    @remote_host.setter
-    def remote_host(self, value):
-        setattr(self, 'RemoteHost', value)
-
-    @property
-    def remote_address(self):
-        return getattr(self, 'RemoteAddress', None)
-
-    @remote_address.setter
-    def remote_address(self, value):
-        setattr(self, 'RemoteAddress', value)
-
-    @property
-    def inputs(self):
-        return getattr(self, 'Input')
-
-    @inputs.setter
-    def inputs(self, value):
-        setattr(self, 'Input', value)
-
-    @property
-    def outputs(self):
-        return getattr(self, 'Output')
-
-    @outputs.setter
-    def outputs(self, value):
-        setattr(self, 'Output', value)
+        else:
+            self.outputs = outputs
 
     def add_input(self, profile_input):
         self.inputs.append(profile_input)
@@ -479,19 +465,19 @@ class CertEnrollmentRequest(object):
         return None
 
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
+
         enroll_request = cls()
 
-        enroll_request.profile_id = json_value['ProfileID']
-        enroll_request.renewal = json_value['Renewal']
-        if 'SerialNumber' in json_value:
-            enroll_request.serial_number = json_value['SerialNumber']
-        if 'RemoteHost' in json_value:
-            enroll_request.remote_host = json_value['RemoteHost']
-        if 'RemoteAddress' in json_value:
-            enroll_request.remote_address = json_value['RemoteAddress']
+        for k, v in attr_list.items():
+            if k not in ['Input', 'Output']:
+                if k in CertEnrollmentRequest.json_attribute_names:
+                    setattr(enroll_request,
+                            CertEnrollmentRequest.json_attribute_names[k], v)
+                else:
+                    setattr(enroll_request, k, v)
 
-        inputs = json_value['Input']
+        inputs = attr_list['Input']
         if not isinstance(inputs, types.ListType):
             enroll_request.inputs.append(profile.ProfileInput.from_json(inputs))
         else:
@@ -499,7 +485,7 @@ class CertEnrollmentRequest(object):
                 enroll_request.inputs.append(
                     profile.ProfileInput.from_json(profile_input))
 
-        outputs = json_value['Output']
+        outputs = attr_list['Output']
         if not isinstance(outputs, types.ListType):
             enroll_request.outputs.append(
                 profile.ProfileOutput.from_json(outputs))
@@ -517,6 +503,23 @@ class CertReviewResponse(CertEnrollmentRequest):
     reviewing a certificate enrollment request.
     It contains a nonce required to perform action on the request.
     """
+
+    json_attribute_names = dict(
+        CertEnrollmentRequest.json_attribute_names.items() + {
+            'requestId': 'request_id', 'requestType': 'request_type',
+            'requestStatus': 'request_status', 'requestOwner': 'request_owner',
+            'requestCreationTime': 'request_creation_time',
+            'requestNotes': 'request_notes',
+            'requestModificationTime': 'request_modification_time',
+            'profileApprovedBy': 'profile_approved_by',
+            'profileSetId': 'profile_set_id', 'profileName': 'profile_name',
+            'profileIsVisible': 'profile_is_visible',
+            'profileDescription': 'profile_description',
+            'profileRemoteHost': 'profile_remote_host',
+            'profileRemoteAddr': 'profile_remote_address',
+            'ProfilePolicySet': 'policy_sets'
+        }.items()
+    )
 
     def __init__(self, profile_id=None, renewal=False, serial_number=None,
                  remote_host=None, remote_address=None, inputs=None,
@@ -554,151 +557,22 @@ class CertReviewResponse(CertEnrollmentRequest):
         else:
             self.policy_sets = policy_sets
 
-    @property
-    def request_id(self):
-        return getattr(self, 'requestId')
-
-    @request_id.setter
-    def request_id(self, value):
-        setattr(self, 'requestId', value)
-
-    @property
-    def request_type(self):
-        return getattr(self, 'requestType')
-
-    @request_type.setter
-    def request_type(self, value):
-        setattr(self, 'requestType', value)
-
-    @property
-    def request_status(self):
-        return getattr(self, 'requestStatus')
-
-    @request_status.setter
-    def request_status(self, value):
-        setattr(self, 'requestStatus', value)
-
-    @property
-    def request_owner(self):
-        return getattr(self, 'requestOwner')
-
-    @request_owner.setter
-    def request_owner(self, value):
-        setattr(self, 'requestOwner', value)
-
-    @property
-    def request_creation_time(self):
-        return getattr(self, 'requestCreationTime')
-
-    @request_creation_time.setter
-    def request_creation_time(self, value):
-        setattr(self, 'requestCreationTime', value)
-
-    @property
-    def request_modification_time(self):
-        return getattr(self, 'requestModificationTime')
-
-    @request_modification_time.setter
-    def request_modification_time(self, value):
-        setattr(self, 'requestModificationTime', value)
-
-    @property
-    def request_notes(self):
-        return getattr(self, 'requestNotes')
-
-    @request_notes.setter
-    def request_notes(self, value):
-        setattr(self, 'requestNotes', value)
-
-    @property
-    def profile_approved_by(self):
-        return getattr(self, 'profileApprovedBy')
-
-    @profile_approved_by.setter
-    def profile_approved_by(self, value):
-        setattr(self, 'profileApprovedBy', value)
-
-    @property
-    def profile_set_id(self):
-        return getattr(self, 'profileSetId')
-
-    @profile_set_id.setter
-    def profile_set_id(self, value):
-        setattr(self, 'profileSetId', value)
-
-    @property
-    def profile_is_visible(self):
-        return getattr(self, 'profileIsVisible')
-
-    @profile_is_visible.setter
-    def profile_is_visible(self, value):
-        setattr(self, 'profileIsVisible', value)
-
-    @property
-    def profile_name(self):
-        return getattr(self, 'profileName')
-
-    @profile_name.setter
-    def profile_name(self, value):
-        setattr(self, 'profileName', value)
-
-    @property
-    def profile_description(self):
-        return getattr(self, 'profileDescription')
-
-    @profile_description.setter
-    def profile_description(self, value):
-        setattr(self, 'profileDescription', value)
-
-    @property
-    def profile_remote_host(self):
-        return getattr(self, 'profileRemoteHost')
-
-    @profile_remote_host.setter
-    def profile_remote_host(self, value):
-        setattr(self, 'profileRemoteHost', value)
-
-    @property
-    def profile_remote_address(self):
-        return getattr(self, 'profileRemoteAddr')
-
-    @profile_remote_address.setter
-    def profile_remote_address(self, value):
-        setattr(self, 'profileRemoteAddr', value)
-
-    @property
-    def policy_sets(self):
-        return getattr(self, 'ProfilePolicySet')
-
-    @policy_sets.setter
-    def policy_sets(self, value):
-        setattr(self, 'ProfilePolicySet', value)
-
     @classmethod
-    def from_json(cls, json_value):
+    def from_json(cls, attr_list):
 
         #First read the values for attributes defined in CertEnrollmentRequest
-        review_response = super(CertReviewResponse, cls).from_json(json_value)
+        review_response = super(CertReviewResponse, cls).from_json(attr_list)
 
-        review_response.nonce = json_value['nonce']
-        review_response.request_id = json_value['requestId']
-        review_response.request_type = json_value['requestType']
-        review_response.request_status = json_value['requestStatus']
-        review_response.request_owner = json_value['requestOwner']
-        review_response.request_creation_time = \
-            json_value['requestCreationTime']
-        review_response.request_modification_time = \
-            json_value['requestModificationTime']
-        review_response.request_notes = json_value['requestNotes']
-        review_response.profile_approved_by = json_value['profileApprovedBy']
-        review_response.profile_set_id = json_value['profileSetId']
-        review_response.profile_is_visible = json_value['profileIsVisible']
-        review_response.profile_name = json_value['profileName']
-        review_response.profile_description = json_value['profileDescription']
-        review_response.profile_remote_host = json_value['profileRemoteHost']
-        review_response.profile_remote_address = json_value['profileRemoteAddr']
+        for k, v in attr_list.items():
+            if k not in ['ProfilePolicySet'] and k not in \
+                    CertEnrollmentRequest.json_attribute_names:
+                if k in CertReviewResponse.json_attribute_names:
+                    setattr(review_response,
+                            CertReviewResponse.json_attribute_names[k], v)
+                else:
+                    setattr(review_response, k, v)
 
-        profile_policy_sets = json_value['ProfilePolicySet']
+        profile_policy_sets = attr_list['ProfilePolicySet']
         if not isinstance(profile_policy_sets, types.ListType):
             review_response.policy_sets.append(
                 profile.ProfilePolicySet.from_json(profile_policy_sets))

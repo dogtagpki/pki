@@ -1,7 +1,4 @@
 #!/usr/bin/python
-# Authors:
-#     Abhishek Koneru <akoneru@redhat.com>
-#     Ade Lee <alee@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +16,10 @@
 # Copyright (C) 2013 Red Hat, Inc.
 # All rights reserved.
 #
+# Authors:
+#     Abhishek Koneru <akoneru@redhat.com>
+#     Ade Lee <alee@redhat.com>
+#
 """
 Module containing the Python client classes for the KeyClient and
 KeyRequestClient REST API on a DRM
@@ -30,17 +31,6 @@ import urllib
 
 import pki
 import pki.encoder as encoder
-
-
-#pylint: disable-msg=R0903
-class KeyId(object):
-    """
-    Class representing a key ID
-    """
-
-    def __init__(self, key_id=None):
-        """ Constructor """
-        self.value = key_id
 
 
 #should be moved to request.py
@@ -63,6 +53,10 @@ class KeyData(object):
     to send information of the key in the key retrieval requests.
     """
 
+    json_attribute_names = {
+        'nonceData': 'nonce_data', 'wrappedPrivateData': 'wrapped_private_data'
+    }
+
     # pylint: disable-msg=C0103
     def __init__(self):
         """ Constructor """
@@ -75,10 +69,11 @@ class KeyData(object):
     def from_json(cls, attr_list):
         """ Return a KeyData object from a JSON dict """
         key_data = cls()
-        key_data.algorithm = attr_list['algorithm']
-        key_data.nonce_data = attr_list['nonceData']
-        key_data.size = attr_list['size']
-        key_data.wrapped_private_data = attr_list['wrappedPrivateData']
+        for k, v in attr_list.items():
+            if k in KeyData.json_attribute_names:
+                setattr(key_data, KeyData.json_attribute_names[k], v)
+            else:
+                setattr(key_data, k, v)
         return key_data
 
 
@@ -108,6 +103,11 @@ class KeyInfo(object):
     contain the secret itself.
     """
 
+    json_attribute_names = {
+        'clientKeyID': 'client_key_id', 'keyURL': 'key_url',
+        'ownerName': 'owner_name'
+    }
+
     # pylint: disable-msg=C0103
     def __init__(self):
         """ Constructor """
@@ -122,12 +122,11 @@ class KeyInfo(object):
     def from_json(cls, attr_list):
         """ Return KeyInfo from JSON dict """
         key_info = cls()
-        key_info.client_key_id = attr_list['clientKeyID']
-        key_info.key_url = attr_list['keyURL']
-        key_info.algorithm = attr_list['algorithm']
-        key_info.status = attr_list['status']
-        key_info.owner_name = attr_list['ownerName']
-        key_info.size = attr_list['size']
+        for k, v in attr_list.items():
+            if k in KeyInfo.json_attribute_names:
+                setattr(key_info, KeyInfo.json_attribute_names[k], v)
+            else:
+                setattr(key_info, k, v)
         return key_info
 
     def get_key_id(self):
@@ -169,6 +168,11 @@ class KeyRequestInfo(object):
     key generation etc.) in the DRM.
     """
 
+    json_attribute_names = {
+        'requestURL': 'request_url', 'requestType': 'request_type',
+        'keyURL': 'key_url', 'requestStatus': 'request_status'
+    }
+
     # pylint: disable-msg=C0103
     def __init__(self):
         """ Constructor """
@@ -181,27 +185,27 @@ class KeyRequestInfo(object):
     def from_json(cls, attr_list):
         """ Return a KeyRequestInfo object from a JSON dict. """
         key_request_info = cls()
-        key_request_info.request_url = attr_list['requestURL']
-        key_request_info.request_type = attr_list['requestType']
+        for k, v in attr_list.items():
+            if k in KeyRequestInfo.json_attribute_names:
+                setattr(key_request_info,
+                        KeyRequestInfo.json_attribute_names[k], v)
+            else:
+                setattr(key_request_info, k, v)
 
-        if 'keyURL' in attr_list:
-            key_request_info.key_url = attr_list['keyURL']
-
-        key_request_info.request_status = attr_list['requestStatus']
         return key_request_info
 
     def get_request_id(self):
         """ Return the request ID by parsing the request URL. """
         if self.request_url is not None:
-            indx = str(self.request_url).rfind("/") + 1
-            return str(self.request_url)[indx:]
+            index = str(self.request_url).rfind("/") + 1
+            return str(self.request_url)[index:]
         return None
 
     def get_key_id(self):
         """ Return the ID of the secret referred to by this request. """
         if self.key_url is not None:
-            indx = str(self.key_url).rfind("/") + 1
-            return str(self.key_url)[indx:]
+            index = str(self.key_url).rfind("/") + 1
+            return str(self.key_url)[index:]
         return None
 
 
