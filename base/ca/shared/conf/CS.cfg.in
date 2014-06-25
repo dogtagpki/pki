@@ -660,7 +660,7 @@ ca.notification.requestInQ.senderEmail=
 ca.ocsp_signing.cacertnickname=ocspSigningCert cert-[PKI_INSTANCE_ID]
 ca.ocsp_signing.defaultSigningAlgorithm=SHA256withRSA
 ca.ocsp_signing.tokenname=internal
-ca.profiles.defaultSigningAlgsAllowed==SHA256withRSA,SHA1withRSA,SHA512withRSA,MD5withRSA,MD2withRSA,SHA1withDSA,SHA256withEC,SHA1withEC,SHA384withEC,SHA512withEC
+ca.profiles.defaultSigningAlgsAllowed=SHA256withRSA,SHA1withRSA,SHA512withRSA,MD5withRSA,MD2withRSA,SHA1withDSA,SHA256withEC,SHA1withEC,SHA384withEC,SHA512withEC
 ca.publish.createOwnDNEntry=false
 ca.publish.queue.enable=true
 ca.publish.queue.maxNumberOfThreads=3
