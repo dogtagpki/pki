@@ -52,9 +52,9 @@ public class Debug
     }
 
     public static final boolean ON = false;
-    public static final int OBNOXIOUS = 10;
+    public static final int OBNOXIOUS = 1;
     public static final int VERBOSE = 5;
-    public static final int INFORM = 1;
+    public static final int INFORM = 10;
 
     // the difference between this and 'ON' is that this is always
     // guaranteed to log to 'mOut', whereas other parts of the server
@@ -261,9 +261,9 @@ public class Debug
      * Set the current debugging level. You can use:
      *
      * <pre>
-     * OBNOXIOUS = 10
+     * OBNOXIOUS = 1
      * VERBOSE   = 5
-     * INFORM    = 1
+     * INFORM    = 10
      * </pre>
      *
      * Or another value

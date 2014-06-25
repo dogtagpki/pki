@@ -113,9 +113,9 @@ import com.netscape.cmsutil.password.IPasswordStore;
  */
 public final class CMS {
 
-    public static final int DEBUG_OBNOXIOUS = 10;
+    public static final int DEBUG_OBNOXIOUS = 1;
     public static final int DEBUG_VERBOSE = 5;
-    public static final int DEBUG_INFORM = 1;
+    public static final int DEBUG_INFORM = 10;
 
     private static final String CONFIG_FILE = "CS.cfg";
     private static ICMSEngine _engine = null;
