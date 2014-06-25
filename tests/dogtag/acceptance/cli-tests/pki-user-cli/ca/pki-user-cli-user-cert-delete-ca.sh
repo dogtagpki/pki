@@ -80,7 +80,7 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 
 	##### Delete certs asigned to a user - valid Cert ID and User ID #####
 
-	rlPhaseStartTest "pki_user_cli_user_cert-del-CA-002: Delete cert assigned to a user - valid UserID and CertID"
+	rlPhaseStartTest "pki_user_cli_user_cert-del-CA-002-tier1: Delete cert assigned to a user - valid UserID and CertID"
                 k=2
 		i=0
         	rlRun "pki -d $CERTDB_DIR \
@@ -156,11 +156,63 @@ local TEMP_NSS_DB_PASSWD="redhat123"
                         0 \
                         "Delete cert assigned to $user1"
                 rlAssertGrep "Deleted certificate \"2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_del_CA_002crmf.out"
+		
+		rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-del $user1"
 	rlPhaseEnd
 
 	##### Delete certs asigned to a user - invalid Cert ID #####
 
 	rlPhaseStartTest "pki_user_cli_user_cert-del-CA-003: pki user-cert-del should fail if an invalid Cert ID is provided"
+		k=3
+                i=0
+                rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$user1fullname\" $user1"
+                 while [ $i -lt 4 ] ; do
+                cert_type="pkcs10"
+                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
+                local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+                local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+                serialhexuser1[$i]=$cert_serialNumber_pkcs10
+                serialdecuser1[$i]=$decimal_valid_serialNumber_pkcs10
+
+                cert_type="crmf"
+                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
+                local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
+                local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+                serialhexuser1_crmf[$i]=$cert_serialNumber_crmf
+                serialdecuser1_crmf[$i]=$decimal_valid_serialNumber_crmf
+                rlLog "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_del-CA_validcert_003pkcs10$i.pem"
+                rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_del-CA_validcert_003pkcs10$i.pem"
+
+                rlLog "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_del-CA_validcert_003crmf$i.pem"
+                rlRun "pki -d $CERTDB_DIR/ \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -t ca \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_del-CA_validcert_003crmf$i.pem"
+                let i=$i+1
+		done
                 i=1
                 command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '3;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
                 rlLog "Executing: $command"
@@ -213,7 +265,7 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 
 	##### Delete certs asigned to a user - no User ID #####
 
-        rlPhaseStartTest "pki_user_cli_user_cert-del-CA-006: pki user-cert-del should fail if User ID is not provided"
+        rlPhaseStartTest "pki_user_cli_user_cert-del-CA-006-tier1: pki user-cert-del should fail if User ID is not provided"
 		i=1
 		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-del '2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
                 errmsg="Error: Incorrect number of arguments specified."
@@ -230,7 +282,7 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 
 	##### Delete certs asigned to a user - no Cert ID #####
 
-        rlPhaseStartTest "pki_user_cli_user_cert-del-CA-007: pki user-cert-del should fail if Cert ID is not provided"
+        rlPhaseStartTest "pki_user_cli_user_cert-del-CA-007-tier1: pki user-cert-del should fail if Cert ID is not provided"
 		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-del $user1"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
@@ -785,7 +837,18 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
-
+	j=3
+        while [ $j -lt 5 ] ; do
+               eval usr="new_test_user$j"
+               rlRun "pki -d $CERTDB_DIR \
+                          -n CA_adminV \
+                          -c $CERTDB_DIR_PASSWORD \
+                           user-del  $usr > $TmpDir/pki-user-del-ca-new-user-00$j.out" \
+                           0 \
+                           "Deleted user $usr"
+                rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-new-user-00$j.out"
+                let j=$j+1
+        done
 	#Delete temporary directory
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"

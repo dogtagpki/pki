@@ -131,7 +131,6 @@ run_pki-user-cli-user-mod-ca_tests(){
 	rlAssertGrep "State: $user1_mod_state" "$TmpDir/pki-user-mod-ca-003.out"
 
 	rlAssertGrep "Email: $user1_mod_email" "$TmpDir/pki-user-mod-ca-003.out"
-
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_mod-CA-004:--email with characters and numbers"
@@ -529,14 +528,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-022:--phone as negative number -1230 
         rlAssertGrep "User ID: u15" "$TmpDir/pki-user-mod-ca-023.out"
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-023.out"
     rlPhaseEnd
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-024:  Modify a user -- missing required option user id"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-024-tier1:  Modify a user -- missing required option user id"
 	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD -t ca user-mod --fullName='$user1fullname'"
 	errmsg="Error: No User ID specified."
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modify user -- missing required option user id"
     rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-025:  Modify a user -- all options provided"
+rlPhaseStartTest "pki_user_cli_user_mod-CA-025-tier1:  Modify a user -- all options provided"
         email="ca_agent2@myemail.com"
         user_password="agent2Password"
         phone="1234567890"
@@ -574,6 +573,10 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-025:  Modify a user -- all options pr
         rlAssertGrep "Email: $email" "$TmpDir/pki-user-mod-ca-025.out"
         rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-025.out"
         rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-025.out"
+	rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                    user-del u16"
     rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_mod-CA-026: Modify user with --password "
@@ -672,6 +675,16 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
 ##### Tests to modify CA users with empty parameters ####
 
     rlPhaseStartTest "pki_user_cli_user_mod-CA-037: Modify a user in CA using CA_adminV - fullname is empty"
+	rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                   -t ca \
+                    user-add --fullName=\"$user1fullname\"  \
+                    --email $email \
+                    --password $user_password \
+                    --phone $phone \
+                    --state $state \
+                     u16"
 	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-mod --fullName=\"\" u16"
 	errmsg="BadRequestException: Invalid DN syntax."
 	errorcode=255
@@ -851,7 +864,14 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
-
+	rlRun "pki -d $CERTDB_DIR \
+                          -n CA_adminV \
+                          -c $CERTDB_DIR_PASSWORD \
+                           user-del $i18nuser > $TmpDir/pki-user-del-ca-i18nuser-001.out" \
+                           0 \
+                           "Deleted user $i18nuser"
+                rlAssertGrep "Deleted user \"$i18nuser\"" "$TmpDir/pki-user-del-ca-i18nuser-001.out"
+$i18nuser
 	#Delete temporary directory
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
