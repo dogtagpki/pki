@@ -74,13 +74,11 @@ run_pki-user-cli-user-find-ca_tests(){
         rlAssertGrep "\--start <start>   Page start" "$TmpDir/user_find.out"
         rlAssertGrep "\--help            Show help options" "$TmpDir/user_find.out"
         rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/user_find.out"
-        rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/843"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-configtest-002: pki user-find configuration test"
         rlRun "pki user-find > $TmpDir/user_find_2.out 2>&1" 255 "pki user-find"
-        rlAssertNotGrep "ResteasyIOException: IOException" "$TmpDir/user_find_2.out"
-        rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/821"
+        rlAssertGrep "Error: Certificate database not initialized." "$TmpDir/user_find_2.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-003: Find 5 users, --size=5"
@@ -424,7 +422,7 @@ run_pki-user-cli-user-find-ca_tests(){
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-adminE-002.out"
         rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-find-ca-adminE-002.out"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-        rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+        rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-026: Should not be able to find users using CA_agentE cert"
@@ -444,7 +442,7 @@ run_pki-user-cli-user-find-ca_tests(){
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-agentE-002.out"
         rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-find-ca-agentE-002.out"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-        rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+        rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
      rlPhaseStartTest "pki_user_cli_user_find-ca-027: Should not be able to find users using a CA_auditV"

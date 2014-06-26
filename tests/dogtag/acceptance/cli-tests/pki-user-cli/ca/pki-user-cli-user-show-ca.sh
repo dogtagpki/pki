@@ -72,7 +72,6 @@ run_pki-user-cli-user-show-ca_tests(){
         rlAssertGrep "usage: user-show <User ID> \[OPTIONS...\]" "$TmpDir/pki_user_show_cfg.out"
         rlAssertGrep "\--help   Show help options" "$TmpDir/pki_user_show_cfg.out"
         rlAssertNotGrep "Error: Certificate database not initialized." "$TmpDir/pki_user_show_cfg.out"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/843"
     rlPhaseEnd
 
      ##### Tests to show CA users ####
@@ -746,7 +745,7 @@ run_pki-user-cli-user-show-ca_tests(){
         errmsg="ForbiddenException: Authorization failed"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a agent cert"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/965"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-036: Should not be able to show user using a CA_agentR user"
@@ -767,7 +766,7 @@ run_pki-user-cli-user-show-ca_tests(){
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using an expired admin cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-038: Should not be able to show user using CA_agentE cert"
@@ -780,7 +779,7 @@ run_pki-user-cli-user-show-ca_tests(){
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a agent cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-039: Should not be able to show user using a CA_auditV"
@@ -789,7 +788,7 @@ run_pki-user-cli-user-show-ca_tests(){
         errmsg="ForbiddenException: Authorization failed"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a audit cert"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/965"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-040: Should not be able to show user using a CA_operatorV"
@@ -798,7 +797,7 @@ run_pki-user-cli-user-show-ca_tests(){
         errmsg="ForbiddenException: Authorization failed"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a operator cert"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/965"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-041: Should not be able to show user using a cert created from a untrusted CA CA_adminUTCA"

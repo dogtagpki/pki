@@ -408,7 +408,7 @@ run_pki-user-cli-user-del-ca_tests(){
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using an expired admin cert"
 	#Set datetime back on original
         rlRun "date --set='-2 days'" 0 "Set System back to the present day"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
                    -n CA_adminV \
