@@ -80,7 +80,7 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 	
         ##### Add one cert to a user #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-CA-002: Add one cert to a user should succeed"
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-002-tier1: Add one cert to a user should succeed"
         k=2
         rlRun "pki -d $CERTDB_DIR \
                            -n CA_adminV \
@@ -136,6 +136,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-002: Add one cert to a user shou
         rlAssertGrep "Serial Number: $cert_serialNumber_crmf" "$TmpDir/pki_user_cert_add_CA_useraddcert_002crmf.out"
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_add_CA_useraddcert_002crmf.out"
         rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_useraddcert_002crmf.out"
+
+	rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-del $user2"
+	rlPhaseEnd
 
 	##### Add multiple certs to a user #####
 
@@ -203,6 +209,10 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-002: Add one cert to a user shou
         ##### Add expired cert to a user #####
 
 rlPhaseStartTest "pki_user_cli_user_cert-add-CA-004: Adding expired cert to a user should fail"
+	rlRun "pki -d $CERTDB_DIR \
+                           -n CA_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                            user-add --fullName=\"$user2fullname\" $user2"
         local reqstatus
         local requestid
         local requestdn
@@ -397,7 +407,7 @@ rlPhaseEnd
 
 	##### Add one cert to a user - User ID missing #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-CA-006: Add one cert to a user should fail when USER ID is missing"
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-006-tier1: Add one cert to a user should fail when USER ID is missing"
         	k=6
 		cert_type="pkcs10"
 		rlRun "generate_user_cert $cert_info $k \"expired__$user2\" \"Expired $user2fullname\" expired__$user2@example.org $testname $cert_type" 0  "Generating temp cert"
@@ -417,11 +427,19 @@ rlPhaseEnd
 
 	##### Add one cert to a user - --input parameter missing #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-CA-007: Add one cert to a user should fail when --input parameter is missing"
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-007-tier1: Add one cert to a user should fail when --input parameter is missing"
+	rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                   user-add --fullName=\"New User1\" u1"
 	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD -t ca user-cert-add $user2"
 	errmsg="Error: Missing required option: input"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Input parameter missing"
+	rlRun "pki -d $CERTDB_DIR \
+                   -n CA_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                   user-del u1"
 rlPhaseEnd
 
 	##### Add one cert to a user - argument for --input parameter missing #####
@@ -1697,6 +1715,18 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                            0 \
                            "Deleted user $usr"
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
+                let j=$j+1
+        done
+	j=1
+	while [ $j -lt 11 ] ; do
+               eval usr="new_user$j"
+               rlRun "pki -d $CERTDB_DIR \
+                          -n CA_adminV \
+                          -c $CERTDB_DIR_PASSWORD \
+                           user-del  $usr > $TmpDir/pki-user-del-ca-new-user-00$j.out" \
+                           0 \
+                           "Deleted user $usr"
+                rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-new-user-00$j.out"
                 let j=$j+1
         done
 
