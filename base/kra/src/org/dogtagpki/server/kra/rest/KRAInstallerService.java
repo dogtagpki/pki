@@ -54,7 +54,7 @@ public class KRAInstallerService extends SystemConfigService {
         }
 
         try {
-             if (!request.getIsClone().equals("true")) {
+             if (!request.isClone()) {
                  ConfigurationUtils.updateNextRanges();
              }
 

@@ -1359,7 +1359,6 @@ class Directory:
                     config.pki_log.debug(
                         log.PKIHELPER_IS_A_DIRECTORY_1, name,
                         extra=config.PKI_INDENTATION_LEVEL_3)
-                    name = os.path.join(root, name)
                     # chmod <dir_perms> <name>
                     config.pki_log.debug(log.PKIHELPER_CHMOD_2,
                                          dir_perms, name,
@@ -3930,6 +3929,7 @@ class ConfigClient:
         if self.mdict['pki_clone_replication_clone_port']:
             data.cloneReplicationPort = \
                 self.mdict['pki_clone_replication_clone_port']
+        data.setupReplication = self.mdict['pki_clone_setup_replication']
 
     def set_hierarchy_parameters(self, data):
         if self.subsystem == "CA":
@@ -3963,6 +3963,7 @@ class ConfigClient:
         data.bindDN = self.mdict['pki_ds_bind_dn']
         data.database = self.mdict['pki_ds_database']
         data.bindpwd = self.mdict['pki_ds_password']
+        data.createNewDB = self.mdict['pki_ds_create_new_db']
         if config.str2bool(self.mdict['pki_ds_remove_data']):
             data.removeData = "true"
         else:

@@ -449,7 +449,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     ConfigurationUtils.handleCertRequest(cs, tag, cert);
                 }
 
-                if (request.getIsClone().equals("true")) {
+                if (request.isClone()) {
                     ConfigurationUtils.updateCloneConfig();
                 }
 
@@ -538,7 +538,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response) {
-        if (!data.getIsClone().equals("true")) {
+        if (!data.isClone()) {
             try {
                 X509CertImpl admincerts[] = new X509CertImpl[1];
                 ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
@@ -603,13 +603,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("internaldb.database", data.getDatabase());
         cs.putString("internaldb.basedn", data.getBaseDN());
         cs.putString("internaldb.ldapauth.bindDN", data.getBindDN());
-        cs.putString("internaldb.ldapconn.secureConn", (data.getSecureConn().equals("on") ? "true" : "false"));
+        cs.putBoolean("internaldb.ldapconn.secureConn", data.getSecureConn().equals("on"));
         cs.putString("preop.database.removeData", data.getRemoveData());
+        cs.putBoolean("preop.database.createNewDB", data.getCreateNewDB());
+        cs.putBoolean("preop.database.setupReplication", data.getSetupReplication());
     }
 
     public void initializeDatabase(ConfigurationRequest data) {
 
-        if (data.getIsClone().equals("true")) {
+        if (data.isClone() && data.getSetupReplication()) {
             String masterhost = "";
             String masterport = "";
             String masterbasedn = "";
@@ -663,7 +665,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             passwordFile = cs.getString("passwordFile");
             psStore = CMS.createFileConfigStore(passwordFile);
             psStore.putString("internaldb", data.getBindpwd());
-            psStore.putString("replicationdb", replicationpwd);
+            if (data.getSetupReplication()) {
+                psStore.putString("replicationdb", replicationpwd);
+            }
             psStore.commit(false);
 
             if (!data.getStepTwo()) {
@@ -676,7 +680,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
                 cs.commit(false);
 
-                if (data.getIsClone().equals("true")) {
+                if (data.isClone() && data.getSetupReplication()) {
                     CMS.debug("Start setting up replication.");
                     ConfigurationUtils.setupReplication();
                 }
@@ -692,7 +696,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void configureHierarchy(ConfigurationRequest data) {
-        if (csType.equals("CA") && data.getIsClone().equals("false")) {
+        if (csType.equals("CA") && !data.isClone()) {
             if (data.getHierarchy().equals("root")) {
                 cs.putString("preop.hierarchy.select", "root");
                 cs.putString("hierarchy.select", "Root");
@@ -736,7 +740,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     cs.putInteger("preop.ca.httpsport", port);
                     cs.putInteger("preop.ca.httpsadminport", admin_port);
 
-                    if (!data.getIsClone().equals("true")) {
+                    if (!data.isClone()) {
                         ConfigurationUtils.importCertChain(host, admin_port, "/ca/admin/ca/getCertChain", "ca");
                     }
 
@@ -909,7 +913,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("preop.subsystem.name", request.getSubsystemName());
 
         // is this a clone of another subsystem?
-        if (request.getIsClone().equals("false")) {
+        if (!request.isClone()) {
             cs.putString("preop.subsystem.select", "new");
             cs.putString("subsystem.select", "New");
 
@@ -971,7 +975,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (!csType.equals("KRA")) {
                 throw new BadRequestException("Stand-alone PKI " + csType + " subsystems are currently NOT supported!");
             }
-            if ((data.getIsClone() != null) && (data.getIsClone().equals("true"))) {
+            if (data.isClone()) {
                 throw new BadRequestException("A stand-alone PKI subsystem cannot be a clone");
             }
         }
@@ -1017,7 +1021,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new BadRequestException("Invalid or no subsystem name provided");
         }
 
-        if ((data.getIsClone() != null) && (data.getIsClone().equals("true"))) {
+        if (data.isClone()) {
             String cloneUri = data.getCloneUri();
             if (cloneUri == null) {
                 throw new BadRequestException("Clone selected, but no clone URI provided");
@@ -1040,7 +1044,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
             }
         } else {
-            data.setIsClone("false");
+            data.setClone("false");
         }
 
         String dsHost = data.getDsHost();
@@ -1115,7 +1119,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new BadRequestException("Hierarchy is required for CA, not provided");
         }
 
-        if (data.getIsClone().equals("false")) {
+        if (!data.isClone()) {
             if ((data.getAdminUID() == null) || (data.getAdminUID().length() == 0)) {
                 throw new BadRequestException("Admin UID not provided");
             }

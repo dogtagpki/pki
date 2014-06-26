@@ -55,6 +55,7 @@ public class ConfigurationRequest {
     private static final String DSHOST = "dsHost";
     private static final String DSPORT = "dsPort";
     private static final String BASEDN = "basedn";
+    private static final String CREATE_NEW_DB = "createNewDB";
     private static final String BINDDN = "binddn";
     private static final String DATABASE = "database";
     private static final String SECURECONN = "secureConn";
@@ -63,6 +64,7 @@ public class ConfigurationRequest {
     private static final String CLONE_REPLICATION_PORT = "cloneReplicationPort";
     private static final String REPLICATE_SCHEMA = "replicateSchema";
     private static final String REPLICATION_SECURITY = "replicationSecurity";
+    private static final String SETUP_REPLICATION = "setupReplication";
     private static final String ISSUING_CA = "issuingCa";
     private static final String BACKUP_KEYS = "backupKeys";
     private static final String BACKUP_FILE = "backupFile";
@@ -156,6 +158,9 @@ public class ConfigurationRequest {
     protected String baseDN;
 
     @XmlElement
+    protected String createNewDB;
+
+    @XmlElement
     protected String bindDN;
 
     @XmlElement
@@ -181,6 +186,9 @@ public class ConfigurationRequest {
 
     @XmlElement
     protected String replicationSecurity;
+
+    @XmlElement
+    protected String setupReplication;
 
     @XmlElement
     protected List<SystemCertData> systemCerts;
@@ -297,6 +305,7 @@ public class ConfigurationRequest {
         dsHost = form.getFirst(DSHOST);
         dsPort = form.getFirst(DSPORT);
         baseDN = form.getFirst(BASEDN);
+        createNewDB = form.getFirst(CREATE_NEW_DB);
         bindDN = form.getFirst(BINDDN);
         database = form.getFirst(DATABASE);
         secureConn = form.getFirst(SECURECONN);
@@ -305,6 +314,7 @@ public class ConfigurationRequest {
         cloneReplicationPort = form.getFirst(CLONE_REPLICATION_PORT);
         replicateSchema = form.getFirst(REPLICATE_SCHEMA);
         replicationSecurity = form.getFirst(REPLICATION_SECURITY);
+        setupReplication = form.getFirst(SETUP_REPLICATION);
         //TODO - figure out how to get the cert requests
         issuingCA = form.getFirst(ISSUING_CA);
         backupFile = form.getFirst(BACKUP_FILE);
@@ -409,11 +419,11 @@ public class ConfigurationRequest {
         this.securityDomainPassword = securityDomainPassword;
     }
 
-    public String getIsClone() {
-        return isClone;
+    public boolean isClone() {
+        return (isClone!= null) && isClone.equalsIgnoreCase("true");
     }
 
-    public void setIsClone(String isClone) {
+    public void setClone(String isClone) {
         this.isClone = isClone;
     }
 
@@ -619,6 +629,18 @@ public class ConfigurationRequest {
      */
     public void setReplicationSecurity(String replicationSecurity) {
         this.replicationSecurity = replicationSecurity;
+    }
+
+    public boolean getSetupReplication() {
+        // default to true
+        if (setupReplication == null) {
+            return true;
+        }
+        return setupReplication.equalsIgnoreCase("true");
+    }
+
+    public void setSetupReplication(String setupReplication) {
+        this.setupReplication = setupReplication;
     }
 
     /**
@@ -963,6 +985,18 @@ public class ConfigurationRequest {
         this.sharedDBUserDN = sharedDBUserDN;
     }
 
+    public boolean getCreateNewDB() {
+        // default to true
+        if (createNewDB == null) {
+            return true;
+        }
+        return createNewDB.equalsIgnoreCase("true");
+    }
+
+    public void setCreateNewDB(String createNewDB) {
+        this.createNewDB = createNewDB;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -1020,6 +1054,8 @@ public class ConfigurationRequest {
                ", generateSubsystemCert=" + generateSubsystemCert +
                ", sharedDB=" +  sharedDB +
                ", sharedDBUserDN=" + sharedDBUserDN +
+               ", createNewDB=" + createNewDB +
+               ", setupReplication=" + setupReplication +
                "]";
     }
 

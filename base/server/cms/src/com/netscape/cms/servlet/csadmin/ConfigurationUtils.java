@@ -24,8 +24,8 @@ import java.io.CharConversionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.ConnectException;
@@ -47,6 +47,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -343,12 +344,12 @@ public class ConfigurationUtils {
 
         // Ignore the "UNTRUSTED_ISSUER" validity status
         // during PKI instance creation since we are
-        // utilizing an untrusted temporary CA cert.
+        // utilizing an untrusted temporary CA certificate.
         connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER);
 
         // Ignore the "CA_CERT_INVALID" validity status
         // during PKI instance creation since we are
-        // utilizing an untrusted temporary CA cert.
+        // utilizing an untrusted temporary CA certificate.
         connection.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
 
         AccountClient accountClient = new AccountClient(client, "ca");
@@ -1209,7 +1210,10 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
         String baseDN = cs.getString("internaldb.basedn");
         String database = cs.getString("internaldb.database", "");
-        String remove = cs.getString("preop.database.removeData", "false");
+        String select = cs.getString("preop.subsystem.select", "");
+        boolean remove = cs.getBoolean("preop.database.removeData", false);
+        boolean createNewDB = cs.getBoolean("preop.database.createNewDB", true);
+        boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory();
@@ -1217,178 +1221,74 @@ public class ConfigurationUtils {
         LDAPConnection conn = dbFactory.getConn();
 
         try {
-            // check if base entry already exists
-            LDAPEntry baseEntry = null;
-            try {
-                CMS.debug("populateDB: Checking subtree " + baseDN + ".");
-                baseEntry = conn.read(baseDN);
-                CMS.debug("populateDB: Subtree " + baseDN + " already exists.");
+            if (createNewDB) {
+                // check if base entry already exists
+                LDAPEntry baseEntry = getBaseEntry(baseDN, remove, conn);
 
-                if (remove.equals("false")) {
-                    throw new EBaseException("The base DN (" + baseDN + ") has already been used. " +
-                            "Please confirm to remove and reuse this base DN.");
+                // check if mapping entry already exists
+                String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
+                LDAPEntry mappingEntry = getMappingEntry(baseDN, remove, conn, mappingDN);
+
+                // check if the database already exists
+                String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) +
+                        ",cn=ldbm database, cn=plugins, cn=config";
+                LDAPEntry databaseEntry = getDatabaseEntry(database, remove, conn, databaseDN);
+
+                // check if database is used by another subtree
+                confirmNoConflictingMappingsForDB(baseDN, database, conn);
+
+                // delete mapping entry
+                if (mappingEntry != null) {
+                    CMS.debug("populateDB: Deleting mapping " + mappingDN);
+                    deleteSubtree(conn, mappingDN);
                 }
 
-            } catch (LDAPException e) {
-                if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                    CMS.debug("populateDB: Subtree " + baseDN + " does not exist.");
+                // delete the database including the subtree data
+                if (databaseEntry != null) {
+                    CMS.debug("populateDB: Deleting database " + database);
+                    deleteSubtree(conn, databaseDN);
+                }
+
+                // delete subtree data in case it's stored by another database
+                if (baseEntry != null) {
+                    CMS.debug("populateDB: Deleting subtree " + baseDN);
+                    deleteSubtree(conn, baseDN);
+                }
+
+                createDatabaseEntry(baseDN, database, conn, databaseDN);
+                createDatabaseMappingEntry(baseDN, database, conn, mappingDN);
+                createBaseEntry(baseDN, conn);
+            } else {
+                if (select.equals("clone") && !setupReplication) {
+                    // cloning a system where the database is a subtree of an existing tree
+                    // and not setting up replication agreements.  The assumption then is
+                    // that the data is already replicated.  No need to set up the base DN
                 } else {
-                    CMS.debug("populateDB: " + e);
-                    throw new EBaseException("Failed to determine if base DN exists: " + e);
+                    // check if base entry already exists
+                    LDAPEntry baseEntry = getBaseEntry(baseDN, remove, conn);
+
+                    // delete subtree data in case it's stored by another database
+                    if (baseEntry != null) {
+                        CMS.debug("populateDB: Deleting subtree " + baseDN);
+                        deleteSubtree(conn, baseDN);
+                    }
+
+                    checkParentExists(baseDN, conn);
+                    createBaseEntry(baseDN, conn);
                 }
             }
 
-            // check if mapping entry already exists
-            String mappingDN = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
-            LDAPEntry mappingEntry = null;
             try {
-                CMS.debug("populateDB: Checking subtree " + baseDN + " mapping.");
-                mappingEntry = conn.read(mappingDN);
-                CMS.debug("populateDB: Mapping for subtree " + baseDN + " already exists.");
-
-                if (remove.equals("false")) {
-                    throw new EBaseException("The base DN (" + baseDN + ") has already been used. " +
-                            "Please confirm to remove and reuse this base DN.");
-                }
-
-            } catch (LDAPException e) {
-                if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                    CMS.debug("populateDB: Mapping for subtree " + baseDN + " does not exist.");
-                } else {
-                    CMS.debug("populateDB: " + e);
-                    throw new EBaseException("Failed to determine if mapping entry exists: " + e);
-                }
-            }
-
-            // check if the database already exists
-            String databaseDN = "cn=" + LDAPUtil.escapeRDNValue(database) + ",cn=ldbm database, cn=plugins, cn=config";
-            LDAPEntry databaseEntry = null;
-            try {
-                CMS.debug("populateDB: Checking database " + database + ".");
-                databaseEntry = conn.read(databaseDN);
-                CMS.debug("populateDB: Database " + database + " already exists.");
-
-                if (remove.equals("false")) {
-                    throw new EBaseException("The database (" + database + ") already exists. " +
-                            "Please confirm to remove and reuse this database.");
-                }
-
-            } catch (LDAPException e) {
-                if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                    CMS.debug("populateDB: Database " + database + " does not exist.");
-                } else {
-                    CMS.debug("populateDB: " + e);
-                    throw new EBaseException("Failed to determine if database exists: " + e);
-                }
-            }
-
-            // check if database is used by another subtree
-            try {
-                CMS.debug("populateDB: Checking other subtrees using database " + database + ".");
-                LDAPSearchResults res = conn.search(
-                        "cn=mapping tree, cn=config", LDAPConnection.SCOPE_ONE,
-                        "nsslapd-backend=" + LDAPUtil.escapeFilter(database),
-                        null, false, (LDAPSearchConstraints)null);
-
-                while (res.hasMoreElements()) {
-                    LDAPEntry entry = res.next();
-
-                    LDAPAttribute cn = entry.getAttribute("cn");
-                    String dn = cn.getStringValueArray()[0];
-                    if (LDAPDN.equals(baseDN, dn)) continue;
-
-                    CMS.debug("populateDB: Database " + database + " is used by " + dn + ".");
-                    throw new EBaseException("The database (" + database + ") is used by another base DN. " +
-                            "Please use a different database name.");
-                }
-
-                CMS.debug("populateDB: Database " + database + " is not used by another subtree.");
-
-            } catch (LDAPException e) {
-                CMS.debug("populateDB: " + e);
-                throw new EBaseException("Failed to check database mapping: " + e);
-            }
-
-            // delete mapping entry
-            if (mappingEntry != null) {
-                CMS.debug("populateDB: Deleting mapping " + mappingDN);
-                deleteSubtree(conn, mappingDN);
-            }
-
-            // delete the database including the subtree data
-            if (databaseEntry != null) {
-                CMS.debug("populateDB: Deleting database " + database);
-                deleteSubtree(conn, databaseDN);
-            }
-
-            // delete subtree data in case it's stored by another database
-            if (baseEntry != null) {
-                CMS.debug("populateDB: Deleting subtree " + baseDN);
-                deleteSubtree(conn, baseDN);
-            }
-
-            // create database
-            try {
-                LDAPAttributeSet attrs = new LDAPAttributeSet();
-                String oc[] = { "top", "extensibleObject", "nsBackendInstance" };
-                attrs.add(new LDAPAttribute("objectClass", oc));
-                attrs.add(new LDAPAttribute("cn", database));
-                attrs.add(new LDAPAttribute("nsslapd-suffix", baseDN));
-                LDAPEntry entry = new LDAPEntry(databaseDN, attrs);
-                conn.add(entry);
-            } catch (LDAPException e) {
-                CMS.debug("populateDB: Unable to add " + databaseDN + ": " + e);
-                throw new EBaseException("Failed to create the database: " + e, e);
-            }
-
-            // define subtree
-            try {
-                LDAPAttributeSet attrs = new LDAPAttributeSet();
-                String oc2[] = { "top", "extensibleObject", "nsMappingTree" };
-                attrs.add(new LDAPAttribute("objectClass", oc2));
-                attrs.add(new LDAPAttribute("cn", baseDN));
-                attrs.add(new LDAPAttribute("nsslapd-backend", database));
-                attrs.add(new LDAPAttribute("nsslapd-state", "Backend"));
-                LDAPEntry entry = new LDAPEntry(mappingDN, attrs);
-                conn.add(entry);
-            } catch (LDAPException e) {
-                CMS.debug("populateDB: Unable to add " + mappingDN + ": " + e);
-                throw new EBaseException("Failed to create subtree: " + e, e);
-            }
-
-            // create root entry
-            try {
-                CMS.debug("Creating base DN: " + baseDN);
-                String dns3[] = LDAPDN.explodeDN(baseDN, false);
-                StringTokenizer st = new StringTokenizer(dns3[0], "=");
-                String n = st.nextToken();
-                String v = st.nextToken();
-                LDAPAttributeSet attrs = new LDAPAttributeSet();
-                String oc3[] = { "top", "domain" };
-                if (n.equals("o")) {
-                    oc3[1] = "organization";
-                } else if (n.equals("ou")) {
-                    oc3[1] = "organizationalUnit";
-                }
-                attrs.add(new LDAPAttribute("objectClass", oc3));
-                attrs.add(new LDAPAttribute(n, v));
-
-                LDAPEntry entry = new LDAPEntry(baseDN, attrs);
-                conn.add(entry);
-            } catch (LDAPException e) {
-                CMS.debug("populateDB: Unable to add " + baseDN + ": " + e);
-                throw new EBaseException("Failed to create root entry: " + e, e);
-            }
-
-            try {
-                String select = cs.getString("preop.subsystem.select", "");
                 if (select.equals("clone")) {
                     // in most cases, we want to replicate the schema and therefore
                     // NOT add it here.  We provide this option though in case the
                     // clone already has schema and we want to replicate back to the
                     // master.
+                    // On the other hand, if we are not setting up replication, then we
+                    // are assuming that replication is already taken care of, and schema
+                    // has already been replicated.  No need to add.
                     boolean replicateSchema = cs.getBoolean("preop.internaldb.replicateSchema", true);
-                    if (! replicateSchema) {
+                    if (!replicateSchema || !setupReplication) {
                         importLDIFS("preop.internaldb.schema.ldif", conn);
                     }
                     importLDIFS("preop.internaldb.ldif", conn);
@@ -1407,9 +1307,188 @@ public class ConfigurationUtils {
                 CMS.debug("Failed to import ldif files: " + e);
                 throw new EBaseException("Failed to import ldif files: " + e, e);
             }
-
         } finally {
             releaseConnection(conn);
+        }
+    }
+
+    private static void createBaseEntry(String baseDN, LDAPConnection conn) throws EBaseException {
+        try {
+            CMS.debug("Creating base DN: " + baseDN);
+            String dns3[] = LDAPDN.explodeDN(baseDN, false);
+            StringTokenizer st = new StringTokenizer(dns3[0], "=");
+            String n = st.nextToken();
+            String v = st.nextToken();
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+            String oc3[] = { "top", "domain" };
+            if (n.equals("o")) {
+                oc3[1] = "organization";
+            } else if (n.equals("ou")) {
+                oc3[1] = "organizationalUnit";
+            }
+            attrs.add(new LDAPAttribute("objectClass", oc3));
+            attrs.add(new LDAPAttribute(n, v));
+
+            LDAPEntry entry = new LDAPEntry(baseDN, attrs);
+            conn.add(entry);
+        } catch (LDAPException e) {
+            CMS.debug("createBaseDN: Unable to add " + baseDN + ": " + e);
+            throw new EBaseException("Failed to create root entry: " + e, e);
+        }
+    }
+
+    private static void createDatabaseMappingEntry(String baseDN, String database, LDAPConnection conn, String mappingDN)
+            throws EBaseException {
+        try {
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+            String oc2[] = { "top", "extensibleObject", "nsMappingTree" };
+            attrs.add(new LDAPAttribute("objectClass", oc2));
+            attrs.add(new LDAPAttribute("cn", baseDN));
+            attrs.add(new LDAPAttribute("nsslapd-backend", database));
+            attrs.add(new LDAPAttribute("nsslapd-state", "Backend"));
+            LDAPEntry entry = new LDAPEntry(mappingDN, attrs);
+            conn.add(entry);
+        } catch (LDAPException e) {
+            CMS.debug("createDatabaseMapping: Unable to add " + mappingDN + ": " + e);
+            throw new EBaseException("Failed to create subtree: " + e, e);
+        }
+    }
+
+    private static void createDatabaseEntry(String baseDN, String database, LDAPConnection conn, String databaseDN)
+            throws EBaseException {
+        try {
+            LDAPAttributeSet attrs = new LDAPAttributeSet();
+            String oc[] = { "top", "extensibleObject", "nsBackendInstance" };
+            attrs.add(new LDAPAttribute("objectClass", oc));
+            attrs.add(new LDAPAttribute("cn", database));
+            attrs.add(new LDAPAttribute("nsslapd-suffix", baseDN));
+            LDAPEntry entry = new LDAPEntry(databaseDN, attrs);
+            conn.add(entry);
+        } catch (LDAPException e) {
+            CMS.debug("createDatabase: Unable to add " + databaseDN + ": " + e);
+            throw new EBaseException("Failed to create the database: " + e, e);
+        }
+    }
+
+    private static void confirmNoConflictingMappingsForDB(String baseDN, String database, LDAPConnection conn)
+            throws EBaseException {
+        try {
+            CMS.debug("confirmMappings: Checking other subtrees using database " + database + ".");
+            LDAPSearchResults res = conn.search(
+                    "cn=mapping tree, cn=config", LDAPConnection.SCOPE_ONE,
+                    "nsslapd-backend=" + LDAPUtil.escapeFilter(database),
+                    null, false, (LDAPSearchConstraints)null);
+
+            while (res.hasMoreElements()) {
+                LDAPEntry entry = res.next();
+
+                LDAPAttribute cn = entry.getAttribute("cn");
+                String dn = cn.getStringValueArray()[0];
+                if (LDAPDN.equals(baseDN, dn)) continue;
+
+                CMS.debug("confirmMappings: Database " + database + " is used by " + dn + ".");
+                throw new EBaseException("The database (" + database + ") is used by another base DN. " +
+                        "Please use a different database name.");
+            }
+
+            CMS.debug("confirmMappings: Database " + database + " is not used by another subtree.");
+
+        } catch (LDAPException e) {
+            CMS.debug("populateDB: " + e);
+            throw new EBaseException("Failed to check database mapping: " + e);
+        }
+    }
+
+    private static LDAPEntry getDatabaseEntry(String database, boolean remove, LDAPConnection conn, String databaseDN)
+            throws EBaseException {
+        LDAPEntry databaseEntry = null;
+        try {
+            CMS.debug("getDatabaseEntry: Checking database " + database + ".");
+            databaseEntry = conn.read(databaseDN);
+            CMS.debug("getDatabaseEntry: Database " + database + " already exists.");
+
+            if (!remove) {
+                throw new EBaseException("The database (" + database + ") already exists. " +
+                        "Please confirm to remove and reuse this database.");
+            }
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                CMS.debug("getDatabaseEntry: Database " + database + " does not exist.");
+            } else {
+                CMS.debug("getDatabaseEntry: " + e);
+                throw new EBaseException("Failed to determine if database exists: " + e);
+            }
+        }
+        return databaseEntry;
+    }
+
+    private static LDAPEntry getMappingEntry(String baseDN, boolean remove, LDAPConnection conn, String mappingDN)
+            throws EBaseException {
+        LDAPEntry mappingEntry = null;
+        try {
+            CMS.debug("getMappingDNEntry: Checking subtree " + baseDN + " mapping.");
+            mappingEntry = conn.read(mappingDN);
+            CMS.debug("getMapppingDNEntry: Mapping for subtree " + baseDN + " already exists.");
+
+            if (!remove) {
+                throw new EBaseException("The base DN (" + baseDN + ") has already been used. " +
+                        "Please confirm to remove and reuse this base DN.");
+            }
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                CMS.debug("getMappingDNEntry: Mapping for subtree " + baseDN + " does not exist.");
+            } else {
+                CMS.debug("getMappingDNEntry: " + e);
+                throw new EBaseException("Failed to determine if mapping entry exists: " + e);
+            }
+        }
+        return mappingEntry;
+    }
+
+    private static LDAPEntry getBaseEntry(String baseDN, boolean remove, LDAPConnection conn) throws EBaseException {
+        LDAPEntry baseEntry = null;
+        try {
+            CMS.debug("getBaseDNEntry: Checking subtree " + baseDN + ".");
+            baseEntry = conn.read(baseDN);
+            CMS.debug("getBaseDNEntry: Subtree " + baseDN + " already exists.");
+
+            if (!remove) {
+                throw new EBaseException("The base DN (" + baseDN + ") has already been used. " +
+                        "Please confirm to remove and reuse this base DN.");
+            }
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                CMS.debug("getBaseDNEntry: Subtree " + baseDN + " does not exist.");
+            } else {
+                CMS.debug("getBaseDNEntry: " + e);
+                throw new EBaseException("Failed to determine if base DN exists: " + e);
+            }
+        }
+        return baseEntry;
+    }
+
+    private static void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
+        String[] dns = LDAPDN.explodeDN(baseDN, false);
+        if (dns.length == 1 ) {
+            CMS.debug("checkParentExists: no parent in baseDN: " + baseDN);
+            throw new EBaseException("Invalid BaseDN. No parent DN in " + baseDN);
+        }
+        String parentDN = Arrays.toString(Arrays.copyOfRange(dns, 1, dns.length));
+        parentDN = parentDN.substring(1,parentDN.length() -1);
+        try {
+            CMS.debug("checkParentExists: Checking parent " + parentDN + ".");
+            conn.read(parentDN);
+            CMS.debug("checkParentExists: Parent entry " + parentDN + " exists.");
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                throw new EBaseException("Parent entry " + parentDN + "does not exist");
+            } else {
+                CMS.debug("checkParentExists: " + e);
+                throw new EBaseException("Failed to determine if base DN exists: " + e);
+            }
         }
     }
 

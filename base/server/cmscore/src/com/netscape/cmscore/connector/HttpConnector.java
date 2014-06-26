@@ -28,13 +28,12 @@ import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IHttpPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
-import com.netscape.cmsutil.http.HttpResponse;
 
 public class HttpConnector implements IConnector {
     protected IAuthority mSource = null;

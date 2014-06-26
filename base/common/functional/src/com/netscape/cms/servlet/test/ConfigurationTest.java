@@ -249,7 +249,7 @@ public class ConfigurationTest {
         data.setPin(pin);
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setSecurityDomainName("Testca2 security domain");
-        data.setIsClone("false");
+        data.setClone("false");
         data.setHierarchy("root");
         data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test ca subsystem");
@@ -351,7 +351,7 @@ public class ConfigurationTest {
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
-        data.setIsClone("false");
+        data.setClone("false");
         data.setHierarchy("join");
         data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test subca subsystem");
@@ -453,7 +453,7 @@ public class ConfigurationTest {
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setSecurityDomainName("External CA security domain");
 
-        data.setIsClone("false");
+        data.setClone("false");
         data.setHierarchy("join");
         data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test external ca subsystem");
@@ -555,7 +555,7 @@ public class ConfigurationTest {
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
         data.setSecurityDomainName("External CA security domain");
 
-        data.setIsClone("false");
+        data.setClone("false");
         data.setHierarchy("join");
         data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test external ca subsystem");
@@ -675,7 +675,7 @@ public class ConfigurationTest {
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
-        data.setIsClone("true");
+        data.setClone("true");
         data.setCloneUri("https://" + host + ":9224" );
         data.setP12File("master.p12");
         data.setP12Password("redhat123");
@@ -723,7 +723,7 @@ public class ConfigurationTest {
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
-        data.setIsClone("false");
+        data.setClone("false");
         data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test kra subsystem");
 
@@ -826,7 +826,7 @@ public class ConfigurationTest {
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
-        data.setIsClone("false");
+        data.setClone("false");
         data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test ocsp subsystem");
 
@@ -918,7 +918,7 @@ public class ConfigurationTest {
         data.setSecurityDomainUser("admin");
         data.setSecurityDomainPassword("redhat123");
 
-        data.setIsClone("false");
+        data.setClone("false");
         data.setToken(ConfigurationRequest.TOKEN_DEFAULT);
         data.setSubsystemName("test tks subsystem");
 
