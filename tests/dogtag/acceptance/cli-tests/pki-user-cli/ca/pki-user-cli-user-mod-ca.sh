@@ -5,7 +5,7 @@
 #   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-mod CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The following ipa cli commands needs to be tested:
+# The following pki cli commands needs to be tested:
 #  pki-user-cli-user-mod    Modify existing users in the pki ca subsystem.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #

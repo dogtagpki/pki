@@ -5,7 +5,7 @@
 #   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-cli-user-membership-find CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The following ipa cli commands needs to be tested:
+# The following pki cli commands needs to be tested:
 #  pki-user-cli-user-membership-find    Find user memberships.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #

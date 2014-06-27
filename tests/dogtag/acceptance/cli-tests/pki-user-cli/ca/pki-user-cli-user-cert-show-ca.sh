@@ -5,7 +5,7 @@
 #   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-user-cli
 #   Description: PKI user-cert-show CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The following ipa cli commands needs to be tested:
+# The following pki cli commands needs to be tested:
 #  pki-user-cli-user-cert-show    Show the certs assigned to users in the pki ca subsystem.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
