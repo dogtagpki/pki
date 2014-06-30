@@ -224,18 +224,18 @@ class UserNotFoundException(ResourceNotFoundException):
 EXCEPTION_MAPPINGS = {
     "com.netscape.certsrv.base.BadRequestException": BadRequestException,
     "com.netscape.certsrv.base.ConflictingOperationException":
-    ConflictingOperationException,
+        ConflictingOperationException,
     "com.netscape.certsrv.base.ForbiddenException": ForbiddenException,
     "com.netscape.certsrv.base.HTTPGoneException": HTTPGoneException,
     "com.netscape.certsrv.base.ResourceNotFoundException":
-    ResourceNotFoundException,
+        ResourceNotFoundException,
     "com.netscape.certsrv.cert.CertNotFoundException": CertNotFoundException,
     "com.netscape.certsrv.group.GroupNotFoundException": GroupNotFoundException,
     "com.netscape.certsrv.key.KeyNotFoundException": KeyNotFoundException,
     "com.netscape.certsrv.profile.ProfileNotFoundException":
-    ProfileNotFoundException,
+        ProfileNotFoundException,
     "com.netscape.certsrv.request.RequestNotFoundException":
-    RequestNotFoundException,
+        RequestNotFoundException,
     "com.netscape.certsrv.base.UserNotFoundException": UserNotFoundException,
     "com.netscape.certsrv.base.PKIException": PKIException}
 
@@ -392,7 +392,7 @@ class PropertyFile(object):
         return None
 
 
-class Link:
+class Link(object):
     """
         Stores the information of the  resteasy's Link object sent by the server
         for a resource.

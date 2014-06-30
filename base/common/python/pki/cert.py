@@ -610,6 +610,7 @@ class CertClient(object):
 
         url = self.cert_url + '/' + str(cert_serial_number)
         r = self.connection.get(url, self.headers)
+        #print r.json()
         return CertData.from_json(r.json())
 
     @pki.handle_exceptions()
@@ -787,6 +788,7 @@ class CertClient(object):
         review_response = json.dumps(cert_review_response,
                                      cls=encoder.CustomTypeEncoder,
                                      sort_keys=True)
+        #print review_response
         r = self.connection.post(url, review_response, headers=self.headers)
         return r
 
@@ -888,7 +890,7 @@ class CertClient(object):
             return copy.deepcopy(self.enrollment_templates[profile_id])
         url = self.cert_requests_url + '/profiles/' + str(profile_id)
         r = self.connection.get(url, self.headers)
-
+        #print r.json()
         #Caching the enrollment template object in-memory for future use.
         enrollment_template = CertEnrollmentRequest.from_json(r.json())
         self.enrollment_templates[profile_id] = enrollment_template
@@ -925,6 +927,7 @@ class CertClient(object):
         request_object = json.dumps(enrollment_request,
                                     cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
+        #print request_object
         r = self.connection.post(self.cert_requests_url, request_object,
                                  self.headers)
         return CertRequestInfoCollection.from_json(r.json())

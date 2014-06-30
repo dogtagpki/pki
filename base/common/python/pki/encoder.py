@@ -34,21 +34,23 @@ class CustomTypeEncoder(json.JSONEncoder):
         for k, v in TYPES.items():
             if isinstance(obj, v):
                 return {k: obj.__dict__}
-        for k, v in NOTYPES.items():
-            if isinstance(obj, v):
-                return self.attr_name_conversion(obj.__dict__, v)
+        if type(obj) in NOTYPES.itervalues():
+            return self.attr_name_conversion(obj.__dict__, type(obj))
         return json.JSONEncoder.default(self, obj)
 
     @staticmethod
     def attr_name_conversion(attr_dict, object_class):
         if not hasattr(object_class, 'json_attribute_names'):
             return attr_dict
-        for k, v in object_class.json_attribute_names.items():
-            if v in attr_dict:
-                value = attr_dict[v]
-                del attr_dict[v]
-                attr_dict[k] = value
-        return attr_dict
+        reverse_dict = {v: k for k,v in
+                        object_class.json_attribute_names.iteritems()}
+        new_dict = dict()
+        for k, v in attr_dict.items():
+            if k in reverse_dict:
+                new_dict[reverse_dict[k]] = v
+            else:
+                new_dict[k] = v
+        return new_dict
 
 
 def CustomTypeDecoder(dct):

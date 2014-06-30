@@ -33,6 +33,11 @@ import pki.encoder as encoder
 class ProfileDataInfo(object):
     """Stores information about a profile"""
 
+    json_attribute_names = {
+        'profileId': 'profile_id', 'profileName': 'profile_name',
+        'profileDescription': 'profile_description', 'profileURL': 'profile_url'
+    }
+
     def __init__(self):
         self.profile_id = None
         self.profile_name = None
@@ -56,10 +61,12 @@ class ProfileDataInfo(object):
             return None
 
         profile_data_info = cls()
-        profile_data_info.profile_id = attr_list['profileId']
-        profile_data_info.profile_name = attr_list['profileName']
-        profile_data_info.profile_description = attr_list['profileDescription']
-        profile_data_info.profile_url = attr_list['profileURL']
+        for k, v in attr_list.items():
+            if k in ProfileDataInfo.json_attribute_names:
+                setattr(profile_data_info,
+                        ProfileDataInfo.json_attribute_names[k], v)
+            else:
+                setattr(profile_data_info, k, v)
 
         return profile_data_info
 
@@ -106,6 +113,11 @@ class Descriptor(object):
     a profile attribute.
     """
 
+    json_attribute_names = {
+        'Syntax': 'syntax', 'Description': 'description',
+        'Constraint': 'constraint', 'DefaultValue': 'default_value'
+    }
+
     def __init__(self, syntax=None, constraint=None, description=None,
                  default_value=None):
         self.syntax = syntax
@@ -113,46 +125,18 @@ class Descriptor(object):
         self.description = description
         self.default_value = default_value
 
-    @property
-    def syntax(self):
-        return getattr(self, 'Syntax', None)
-
-    @syntax.setter
-    def syntax(self, value):
-        setattr(self, 'Syntax', value)
-
-    @property
-    def constraint(self):
-        return getattr(self, 'Constraint', None)
-
-    @constraint.setter
-    def constraint(self, value):
-        setattr(self, 'Constraint', value)
-
-    @property
-    def description(self):
-        return getattr(self, 'Description', None)
-
-    @description.setter
-    def description(self, value):
-        setattr(self, 'Description', value)
-
-    @property
-    def default_value(self):
-        return getattr(self, 'DefaultValue', None)
-
-    @default_value.setter
-    def default_value(self, value):
-        setattr(self, 'DefaultValue', value)
-
     @classmethod
     def from_json(cls, attr_list):
         if attr_list is None:
             return None
 
         descriptor = cls()
-        for attr in attr_list:
-            setattr(descriptor, attr, attr_list[attr])
+        for k, v in attr_list.items():
+            if k in Descriptor.json_attribute_names:
+                setattr(descriptor,
+                        Descriptor.json_attribute_names[k], v)
+            else:
+                setattr(descriptor, k, v)
 
         return descriptor
 
@@ -161,27 +145,14 @@ class ProfileAttribute(object):
     """
     Represents a profile attribute of a ProfileInput.
     """
+    json_attribute_names = {
+        'Value': 'value', 'Descriptor': 'descriptor'
+    }
 
     def __init__(self, name=None, value=None, descriptor=None):
         self.name = name
         self.value = value
         self.descriptor = descriptor
-
-    @property
-    def descriptor(self):
-        return getattr(self, 'Descriptor')
-
-    @descriptor.setter
-    def descriptor(self, value):
-        setattr(self, 'Descriptor', value)
-
-    @property
-    def value(self):
-        return getattr(self, 'Value')
-
-    @value.setter
-    def value(self, value):
-        setattr(self, 'Value', value)
 
     @classmethod
     def from_json(cls, attr_list):
@@ -205,6 +176,12 @@ class ProfileInput(object):
     Ex. Subject name, Requestor Information etc.
     """
 
+    json_attribute_names = {
+        'id': 'profile_input_id', 'ClassID': 'class_id', 'Name': 'name',
+        'Text': 'text', 'Attribute': 'attributes',
+        'ConfigAttribute': 'config_attributes'
+    }
+
     def __init__(self, profile_input_id=None, class_id=None, name=None,
                  text=None, attributes=None, config_attributes=None):
 
@@ -214,56 +191,12 @@ class ProfileInput(object):
         self.text = text
         if attributes is None:
             self.attributes = []
+        else:
+            self.attributes = attributes
         if config_attributes is None:
             self.config_attributes = []
-
-    @property
-    def profile_input_id(self):
-        return getattr(self, 'id')
-
-    @profile_input_id.setter
-    def profile_input_id(self, value):
-        setattr(self, 'id', value)
-
-    @property
-    def class_id(self):
-        return getattr(self, 'ClassID', None)
-
-    @class_id.setter
-    def class_id(self, value):
-        setattr(self, 'ClassID', value)
-
-    @property
-    def name(self):
-        return getattr(self, 'Name', None)
-
-    @name.setter
-    def name(self, value):
-        setattr(self, 'Name', value)
-
-    @property
-    def text(self):
-        return getattr(self, 'Text', None)
-
-    @text.setter
-    def text(self, value):
-        setattr(self, 'Text', value)
-
-    @property
-    def attributes(self):
-        return getattr(self, 'Attribute')
-
-    @attributes.setter
-    def attributes(self, value):
-        setattr(self, 'Attribute', value)
-
-    @property
-    def config_attributes(self):
-        return getattr(self, 'ConfigAttribute')
-
-    @config_attributes.setter
-    def config_attributes(self, value):
-        setattr(self, 'ConfigAttribute', value)
+        else:
+            self.config_attributes = config_attributes
 
     def add_attribute(self, profile_attribute):
         """
@@ -328,11 +261,14 @@ class ProfileInput(object):
         if attr_list is None:
             return None
         profile_input = cls()
-        profile_input.profile_input_id = attr_list['id']
-        profile_input.class_id = attr_list['ClassID']
-        profile_input.name = attr_list['Name']
-        if 'Text' in attr_list:
-            profile_input.text = attr_list['Text']
+
+        for k, v in attr_list.items():
+            if k not in ['Attribute', 'ConfigAttribute']:
+                if k in ProfileInput.json_attribute_names:
+                    setattr(profile_input,
+                            ProfileInput.json_attribute_names[k], v)
+                else:
+                    setattr(profile_input, k, v)
 
         attributes = attr_list['Attribute']
         if not isinstance(attributes, types.ListType):
@@ -361,6 +297,10 @@ class ProfileOutput(object):
     using a profile.
     """
 
+    json_attribute_names = {
+        'id': 'profile_output_id', 'classId': 'class_id'
+    }
+
     def __init__(self, profile_output_id=None, name=None, text=None,
                  class_id=None, attributes=None):
         self.profile_output_id = profile_output_id
@@ -369,22 +309,8 @@ class ProfileOutput(object):
         self.class_id = class_id
         if attributes is None:
             self.attributes = []
-
-    @property
-    def profile_output_id(self):
-        return getattr(self, 'id')
-
-    @profile_output_id.setter
-    def profile_output_id(self, value):
-        setattr(self, 'id', value)
-
-    @property
-    def class_id(self):
-        return getattr(self, 'classId', None)
-
-    @class_id.setter
-    def class_id(self, value):
-        setattr(self, 'classId', value)
+        else:
+            self.attributes = attributes
 
     def add_attribute(self, profile_attribute):
         """
@@ -421,11 +347,14 @@ class ProfileOutput(object):
             return None
 
         profile_output = cls()
-        profile_output.profile_output_id = attr_list['id']
-        profile_output.name = attr_list['name']
-        if 'text' in attr_list:
-            profile_output.text = attr_list['text']
-        profile_output.class_id = attr_list['classId']
+        for k, v in attr_list.items():
+            if k not in ['attributes']:
+                if k in ProfileOutput.json_attribute_names:
+                    setattr(profile_output,
+                            ProfileOutput.json_attribute_names[k], v)
+                else:
+                    setattr(profile_output, k, v)
+
         attributes = attr_list['attributes']
         if not isinstance(attributes, types.ListType):
             profile_output.attributes.append(
@@ -459,6 +388,11 @@ class PolicyDefault(object):
     specific ProfileInput.
     """
 
+    json_attribute_names = {
+        'id': 'name', 'classId': 'class_id',
+        'policyAttribute': 'policy_attributes', 'params': 'policy_params'
+    }
+
     def __init__(self, name=None, class_id=None, description=None,
                  policy_attributes=None, policy_params=None):
         self.name = name
@@ -472,38 +406,6 @@ class PolicyDefault(object):
             self.policy_params = []
         else:
             self.policy_params = policy_params
-
-    @property
-    def name(self):
-        return getattr(self, 'id')
-
-    @name.setter
-    def name(self, value):
-        setattr(self, 'id', value)
-
-    @property
-    def class_id(self):
-        return getattr(self, 'classId')
-
-    @class_id.setter
-    def class_id(self, value):
-        setattr(self, 'classId', value)
-
-    @property
-    def policy_attributes(self):
-        return getattr(self, 'policyAttribute')
-
-    @policy_attributes.setter
-    def policy_attributes(self, value):
-        setattr(self, 'policyAttribute', value)
-
-    @property
-    def policy_params(self):
-        return getattr(self, 'params')
-
-    @policy_params.setter
-    def policy_params(self, value):
-        setattr(self, 'params', value)
 
     def add_attribute(self, policy_attribute):
         """
@@ -567,12 +469,14 @@ class PolicyDefault(object):
             return None
 
         policy_def = cls()
-        if 'id' in attr_list:
-            policy_def.name = attr_list['id']
-        if 'classId' in attr_list:
-            policy_def.class_id = attr_list['classId']
-        if 'description' in attr_list:
-            policy_def.description = attr_list['description']
+        for k, v in attr_list.items():
+            if k not in ['policyAttribute', 'params']:
+                if k in PolicyDefault.json_attribute_names:
+                    setattr(policy_def,
+                            PolicyDefault.json_attribute_names[k], v)
+                else:
+                    setattr(policy_def, k, v)
+
         if 'policyAttribute' in attr_list:
             attributes = attr_list['policyAttribute']
             if not isinstance(attributes, types.ListType):
@@ -597,6 +501,9 @@ class PolicyDefault(object):
 
 
 class PolicyConstraintValue(object):
+    """
+    Represents a PolicyConstraintValue
+    """
     def __init__(self, name=None, value=None, descriptor=None):
         self.name = name
         self.value = value
@@ -616,7 +523,6 @@ class PolicyConstraintValue(object):
             return None
 
         ret = cls()
-
         ret.name = attr_list['id']
         ret.value = attr_list['value']
         if 'descriptor' in attr_list:
@@ -631,6 +537,11 @@ class PolicyConstraint(object):
     ProfileInput used by a certificate enrollment request.
     """
 
+    json_attribute_names = {
+        'id': 'name', 'classId': 'class_id',
+        'constraint': 'policy_constraint_values'
+    }
+
     def __init__(self, name=None, description=None, class_id=None,
                  policy_constraint_values=None):
         self.name = name
@@ -641,33 +552,9 @@ class PolicyConstraint(object):
         else:
             self.policy_constraint_values = policy_constraint_values
 
-    @property
-    def name(self):
-        return getattr(self, 'id')
-
-    @name.setter
-    def name(self, value):
-        setattr(self, 'id', value)
-
-    @property
-    def class_id(self):
-        return getattr(self, 'classId')
-
-    @class_id.setter
-    def class_id(self, value):
-        setattr(self, 'classId', value)
-
-    @property
-    def policy_constraint_values(self):
-        return getattr(self, 'constraint')
-
-    @policy_constraint_values.setter
-    def policy_constraint_values(self, value):
-        setattr(self, 'constraint', value)
-
     def add_constraint_value(self, policy_constraint_value):
         """
-        Add a ProfileConstraintValue to the policy_constraint_values list.
+        Add a PolicyConstraintValue to the policy_constraint_values list.
         """
         if not isinstance(policy_constraint_value, PolicyConstraintValue):
             raise ValueError("Object passed not of type PolicyConstraintValue")
@@ -700,20 +587,22 @@ class PolicyConstraint(object):
             return None
 
         policy_constraint = cls()
-        if 'id' in attr_list:
-            policy_constraint.name = attr_list['id']
-        if 'description' in attr_list:
-            policy_constraint.description = attr_list['description']
-        if 'classId' in attr_list:
-            policy_constraint.class_id = attr_list['classId']
+        for k, v in attr_list.items():
+            if k not in ['constraint']:
+                if k in PolicyConstraint.json_attribute_names:
+                    setattr(policy_constraint,
+                            PolicyConstraint.json_attribute_names[k], v)
+                else:
+                    setattr(policy_constraint, k, v)
+
         if 'constraint' in attr_list:
             constraints = attr_list['constraint']
             if not isinstance(constraints, types.ListType):
-                policy_constraint.policy_constraint_values.append(
+                policy_constraint.add_constraint_value(
                     PolicyConstraintValue.from_json(constraints))
             else:
                 for constraint in constraints:
-                    policy_constraint.policy_constraint_values.append(
+                    policy_constraint.add_constraint_value(
                         PolicyConstraintValue.from_json(constraint))
 
         return policy_constraint
@@ -727,43 +616,31 @@ class ProfilePolicy(object):
     for an enrollment request.
     """
 
+    json_attribute_names = {
+        'id': 'policy_id', 'def': 'policy_default',
+        'constraint': 'policy_constraint'
+    }
+
     def __init__(self, policy_id=None, policy_default=None,
                  policy_constraint=None):
         self.policy_id = policy_id
         self.policy_default = policy_default
         self.policy_constraint = policy_constraint
 
-    @property
-    def policy_id(self):
-        return getattr(self, 'id')
-
-    @policy_id.setter
-    def policy_id(self, value):
-        setattr(self, 'id', value)
-
-    @property
-    def policy_default(self):
-        return getattr(self, 'def')
-
-    @policy_default.setter
-    def policy_default(self, value):
-        setattr(self, 'def', value)
-
-    @property
-    def policy_constraint(self):
-        return getattr(self, 'constraint')
-
-    @policy_constraint.setter
-    def policy_constraint(self, value):
-        setattr(self, 'constraint', value)
-
     @classmethod
     def from_json(cls, attr_list):
         if attr_list is None:
             return None
+        policy = cls()
 
-        return cls(attr_list['id'], PolicyDefault.from_json(attr_list['def']),
-                   PolicyConstraint.from_json(attr_list['constraint']))
+        policy.policy_id = attr_list['id']
+        if 'def' in attr_list:
+            policy.policy_default = PolicyDefault.from_json(attr_list['def'])
+        if 'constraint' in attr_list:
+            policy.policy_constraint = \
+                PolicyConstraint.from_json(attr_list['constraint'])
+
+        return policy
 
 
 class ProfilePolicySet(object):
@@ -797,28 +674,16 @@ class PolicySet(object):
     policy name and the ProfilePolicy object.
     """
 
+    json_attribute_names = {
+        'id': 'name', 'value': 'policy_list'
+    }
+
     def __init__(self, name=None, policy_list=None):
         self.name = name
         if policy_list is None:
             self.policy_list = []
         else:
             self.policy_list = policy_list
-
-    @property
-    def name(self):
-        return getattr(self, 'id')
-
-    @name.setter
-    def name(self, value):
-        setattr(self, 'id', value)
-
-    @property
-    def policy_list(self):
-        return getattr(self, 'value')
-
-    @policy_list.setter
-    def policy_list(self, value):
-        setattr(self, 'value', value)
 
     def add_policy(self, profile_policy):
         """
@@ -935,6 +800,13 @@ class Profile(object):
     This class represents an enrollment profile.
     """
 
+    json_attribute_names = {
+        'id': 'profile_id', 'classId': 'class_id', 'enabledBy': 'enabled_by',
+        'authenticatorId': 'authenticator_id', 'authzAcl': 'authorization_acl',
+        'xmlOutput': 'xml_output', 'Input': 'inputs', 'Output': 'outputs',
+        'PolicySets': 'policy_set_list'
+    }
+
     def __init__(self, profile_id=None, class_id=None, name=None,
                  description=None, enabled=None, visible=None, enabled_by=None,
                  authenticator_id=None, authorization_acl=None, renewal=None,
@@ -965,78 +837,6 @@ class Profile(object):
         else:
             self.policy_set_list = policy_set_list
         self.link = link
-
-    @property
-    def profile_id(self):
-        return getattr(self, 'id')
-
-    @profile_id.setter
-    def profile_id(self, value):
-        setattr(self, 'id', value)
-
-    @property
-    def class_id(self):
-        return getattr(self, 'classId')
-
-    @class_id.setter
-    def class_id(self, value):
-        setattr(self, 'classId', value)
-
-    @property
-    def enabled_by(self):
-        return getattr(self, 'enabledBy')
-
-    @enabled_by.setter
-    def enabled_by(self, value):
-        setattr(self, 'enabledBy', value)
-
-    @property
-    def authenticator_id(self):
-        return getattr(self, 'authenticatorId')
-
-    @authenticator_id.setter
-    def authenticator_id(self, value):
-        setattr(self, 'authenticatorId', value)
-
-    @property
-    def authorization_acl(self):
-        return getattr(self, 'authzAcl')
-
-    @authorization_acl.setter
-    def authorization_acl(self, value):
-        setattr(self, 'authzAcl', value)
-
-    @property
-    def xml_output(self):
-        return getattr(self, 'xmlOutput')
-
-    @xml_output.setter
-    def xml_output(self, value):
-        setattr(self, 'xmlOutput', value)
-
-    @property
-    def inputs(self):
-        return getattr(self, 'Input')
-
-    @inputs.setter
-    def inputs(self, value):
-        setattr(self, 'Input', value)
-
-    @property
-    def outputs(self):
-        return getattr(self, 'Output')
-
-    @outputs.setter
-    def outputs(self, value):
-        setattr(self, 'Output', value)
-
-    @property
-    def policy_set_list(self):
-        return getattr(self, 'PolicySets')
-
-    @policy_set_list.setter
-    def policy_set_list(self, value):
-        setattr(self, 'PolicySets', value)
 
     def add_input(self, profile_input):
         """
@@ -1119,19 +919,13 @@ class Profile(object):
     @classmethod
     def from_json(cls, attr_list):
         profile_data = cls()
-        profile_data.profile_id = attr_list['id']
-        profile_data.class_id = attr_list['classId']
-        profile_data.name = attr_list['name']
-        profile_data.description = attr_list['description']
-        profile_data.enabled = attr_list['enabled']
-        profile_data.visible = attr_list['visible']
-        if 'enabledBy' in attr_list:
-            profile_data.enabled_by = attr_list['enabledBy']
-        if 'authenticatorId' in attr_list:
-            profile_data.authenticator_id = attr_list['authenticatorId']
-        profile_data.authorization_acl = attr_list['authzAcl']
-        profile_data.renewal = attr_list['renewal']
-        profile_data.xml_output = attr_list['xmlOutput']
+        for k, v in attr_list.items():
+            if k not in ['Input', 'Output', 'PolicySets']:
+                if k in Profile.json_attribute_names:
+                    setattr(profile_data,
+                            Profile.json_attribute_names[k], v)
+                else:
+                    setattr(profile_data, k, v)
 
         profile_inputs = attr_list['Input']
         if not isinstance(profile_inputs, types.ListType):
@@ -1289,11 +1083,10 @@ class ProfileClient(object):
     def _send_profile_modify(self, profile_data):
         if profile_data is None:
             raise ValueError("No ProfileData specified")
-
-        profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
-                                    sort_keys=True)
         if profile_data.profile_id is None:
             raise ValueError("Profile Id is not specified.")
+        profile_object = json.dumps(profile_data, cls=encoder.CustomTypeEncoder,
+                                    sort_keys=True)
         url = self.profiles_url + '/' + str(profile_data.profile_id)
         r = self._put(url, profile_object)
 
@@ -1413,7 +1206,7 @@ def main():
     print('  Profile ID: ' + profile_data.profile_id)
     print('  Is profile enabled? ' + str(profile.enabled))
     print
-
+    #profile_client.delete_profile('MySampleProfile')
     # Create a new sample profile
     print('Creating a new profile:')
     print('-----------------------')
@@ -1576,10 +1369,12 @@ def main():
     fetch.add_input(profile_input2)
 
     fetch.name += " (Modified)"
+    modified_profile = profile_client.modify_profile(fetch)
+
     with open(file_path+'modified.json', 'w') as output_file:
         output_file.write(json.dumps(fetch, cls=encoder.CustomTypeEncoder,
                                      sort_keys=True, indent=4))
-    modified_profile = profile_client.modify_profile(fetch)
+
     print(modified_profile)
     print
 
