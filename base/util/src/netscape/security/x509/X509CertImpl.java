@@ -323,8 +323,8 @@ public class X509CertImpl extends X509Certificate
     public void verify(PublicKey key)
             throws CertificateException, NoSuchAlgorithmException,
             InvalidKeyException, NoSuchProviderException, SignatureException {
-
-        verify(key, null);
+        String sigProvider = null;
+        verify(key, sigProvider);
     }
 
     /**

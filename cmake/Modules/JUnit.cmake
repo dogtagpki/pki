@@ -14,7 +14,7 @@
 
 find_file(JUNIT_JAR
     NAMES
-        junit4.jar
+        junit.jar
     PATHS
         ${JAVA_LIB_INSTALL_DIR}
         /usr/share/java

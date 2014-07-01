@@ -375,7 +375,8 @@ public class X509CRLImpl extends X509CRL {
     public void verify(PublicKey key)
             throws CRLException, NoSuchAlgorithmException, InvalidKeyException,
             NoSuchProviderException, SignatureException {
-        verify(key, null);
+        String sigProvider = null;
+        verify(key, sigProvider);
     }
 
     /**

@@ -3,7 +3,6 @@ package com.netscape.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.internal.RealSystem;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -15,7 +14,6 @@ public class TestRunner {
 
         JUnitCore core = new JUnitCore();
         core.addListener(new TestListener());
-        RealSystem system = new RealSystem();
 
         List<Class<?>> classes= new ArrayList<Class<?>>();
         List<Failure> missingClasses= new ArrayList<Failure>();
@@ -23,7 +21,6 @@ public class TestRunner {
               try {
                     classes.add(Class.forName(each));
               } catch (ClassNotFoundException e) {
-                    system.out().println("Could not find class: " + each);
                     Description description= Description.createSuiteDescription(each);
                     Failure failure= new Failure(description, e);
                     missingClasses.add(failure);
