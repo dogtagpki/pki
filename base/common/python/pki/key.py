@@ -770,7 +770,7 @@ class KeyClient(object):
 
         1) trans_wrapped_session_key is not provided by caller.
 
-        In this case, the function will call CryptoUtil methods to generate and
+        In this case, the function will call CryptoProvider methods to generate and
         wrap the session key.  The function will return the KeyData object with
         a private_data attribute which stores the unwrapped key information.
 
@@ -833,7 +833,7 @@ class KeyClient(object):
 
         1) A passphrase is provided by the caller.
 
-        In this case, CryptoUtil methods will be called to create the data to
+        In this case, CryptoProvider methods will be called to create the data to
         securely send the passphrase to the DRM.  Basically, three pieces of
         data will be sent:
 

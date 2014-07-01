@@ -40,13 +40,13 @@ class KRAClient(object):
         """ Constructor
 
         :param connection - PKIConnection object with DRM connection info.
-        :param crypto - CryptoUtil object.  NSSCryptoUtil is provided by
+        :param crypto - CryptoProvider object.  NSSCryptoProvider is provided by
                         default.  If a different crypto implementation is
-                        desired, a different subclass of CryptoUtil must be
+                        desired, a different subclass of CryptoProvider must be
                         provided.
         :param transport_cert_nick - identifier for the DRM transport
                         certificate.  This will be passed to the
-                        CryptoUtil.get_cert() command to get a representation
+                        CryptoProvider.get_cert() command to get a representation
                         of the transport certificate usable for crypto ops.
                         Note that for NSS databases, the database must have been
                         initialized beforehand.

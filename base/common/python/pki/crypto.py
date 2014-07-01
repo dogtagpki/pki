@@ -30,7 +30,7 @@ import subprocess
 import tempfile
 
 
-class CryptoUtil(object):
+class CryptoProvider(object):
     """
     Abstract class containing methods to do cryptographic operations.
     """
@@ -93,9 +93,9 @@ class CryptoUtil(object):
         pass
 
 
-class NSSCryptoUtil(CryptoUtil):
+class NSSCryptoProvider(CryptoProvider):
     """
-    Class that defines NSS implementation of CryptoUtil.
+    Class that defines NSS implementation of CryptoProvider.
     Requires an NSS database to have been set up and initialized.
 
     Note that all inputs and outputs are unencoded.
@@ -126,7 +126,7 @@ class NSSCryptoUtil(CryptoUtil):
             This method expects a NSS database to have already been created at
             certdb_dir with password certdb_password.
         """
-        CryptoUtil.__init__(self)
+        CryptoProvider.__init__(self)
         self.certdb_dir = certdb_dir
         self.certdb_password = certdb_password
         self.nonce_iv = "e4:bb:3b:d3:c3:71:2e:58"

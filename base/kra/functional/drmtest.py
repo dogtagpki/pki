@@ -33,7 +33,7 @@ See drmtest.readme.txt.
 
 import base64
 import pki
-import pki.cryptoutil as cryptoutil
+import pki.crypto
 import pki.key as key
 import time
 
@@ -80,11 +80,11 @@ def main():
     # create an NSS DB for crypto operations
     certdb_dir = "/tmp/drmtest-certdb"
     certdb_password = "redhat123"
-    cryptoutil.NSSCryptoUtil.setup_database(certdb_dir, certdb_password,
+    pki.crypto.NSSCryptoProvider.setup_database(certdb_dir, certdb_password,
                                             over_write=True)
 
     #create kraclient
-    crypto = cryptoutil.NSSCryptoUtil(certdb_dir, certdb_password)
+    crypto = pki.crypto.NSSCryptoProvider(certdb_dir, certdb_password)
     kraclient = KRAClient(connection, crypto)
     keyclient = kraclient.keys
 
