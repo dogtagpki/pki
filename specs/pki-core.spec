@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          0.1%{?dist}
+Release:          0.4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -151,7 +151,7 @@ least one PKI Theme package:                                           \
 Summary:          Symmetric Key JNI Package
 Group:            System Environment/Libraries
 
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-28
@@ -187,7 +187,7 @@ Requires:         apache-commons-codec
 Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         javassist
 Requires:         jackson-jaxrs-json-provider
 Requires:         jpackage-utils >= 0:1.7.5-10
@@ -230,7 +230,7 @@ Obsoletes:        pki-java-tools < %{version}-%{release}
 Requires:         openldap-clients
 Requires:         nss
 Requires:         nss-tools
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
 
@@ -259,7 +259,7 @@ Obsoletes:        pki-deploy < %{version}-%{release}
 Obsoletes:        pki-setup < %{version}-%{release}
 Obsoletes:        pki-silent < %{version}-%{release}
 
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         java-atk-wrapper
 Requires:         net-tools
 Requires:         perl(File::Slurp)
@@ -303,7 +303,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -330,7 +330,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -363,7 +363,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -403,7 +403,7 @@ Group:            System Environment/Daemons
 
 BuildArch:        noarch
 
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires:         pki-symkey = %{version}-%{release}
 Requires(post):   systemd-units
@@ -439,7 +439,7 @@ Group:            System Environment/Daemons
 BuildArch:        noarch
 
 Provides:         pki-tps
-Requires:         java >= 1:1.7.0
+Requires:         java-headless >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -1014,6 +1014,15 @@ fi
 %endif # %{with server}
 
 %changelog
+* Tue Jul 1 2014 Ade Lee <alee@redhat.com> - 10.2.0-0.4
+- Update rawhide build
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.2.0-0.3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Fri Mar 28 2014 Michael Simacek <msimacek@redhat.com> - 10.2.0-0.2
+- Use Requires: java-headless rebuild (#1067528)
+
 * Fri Nov 22 2013 Dogtag Team <pki-devel@redhat.com> 10.2.0-0.1
 - Added option to build without server packages.
 - Replaced Jettison with Jackson.
