@@ -81,6 +81,10 @@ if [ "${OS}" = "Linux" ] ; then
         LD_LIBRARY_PATH=/usr/lib64:/lib64:${LD_LIBRARY_PATH}
         LD_LIBRARY_PATH=/usr/lib64/jss:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
+    elif [ "${ARCHITECTURE}" = "armv7l" ] ; then
+        LD_LIBRARY_PATH=/usr/lib:/lib
+        LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
+        export LD_LIBRARY_PATH
     else
         invalid_architecture "${ARCHITECTURE}"
         exit 255
