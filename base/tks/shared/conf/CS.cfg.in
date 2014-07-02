@@ -112,6 +112,7 @@ CrossCertPair.ldap=internaldb
 accessEvaluator.impl.group.class=com.netscape.cms.evaluators.GroupAccessEvaluator
 accessEvaluator.impl.ipaddress.class=com.netscape.cms.evaluators.IPAddressAccessEvaluator
 accessEvaluator.impl.user.class=com.netscape.cms.evaluators.UserAccessEvaluator
+archive.configuration_file=true
 auths._000=##
 auths._001=## new authentication
 auths._002=##
