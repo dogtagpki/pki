@@ -52,6 +52,7 @@ class CertData(object):
         self.subject_dn = None
         self.pretty_repr = None
         self.encoded = None
+        self.binary = None
         self.pkcs7_cert_chain = None
         self.not_before = None
         self.not_after = None

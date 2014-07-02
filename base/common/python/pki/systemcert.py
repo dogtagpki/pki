@@ -21,6 +21,7 @@
 """
 Module containing the Python client classes for the SystemCert REST API
 """
+import base64
 import pki
 from pki.cert import CertData
 
@@ -46,4 +47,9 @@ class SystemCertClient(object):
         url = self.cert_url + '/transport'
         response = self.connection.get(url, self.headers)
         cert_data = CertData.from_json(response.json())
-        return cert_data.encoded
+
+        pem = cert_data.encoded
+        b64 = pem[len(pki.CERT_HEADER):len(pem) - len(pki.CERT_FOOTER)]
+        cert_data.binary = base64.decodestring(b64)
+
+        return cert_data

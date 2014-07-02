@@ -140,9 +140,9 @@ class NSSCryptoProvider(CryptoProvider):
     def import_cert(self, cert_nick, cert, trust):
         """ Import a certificate into the nss database
         """
-        # certutil -A -d db_dir -n cert_nick -t trust -i cert_file -a
+        # certutil -A -d db_dir -n cert_nick -t trust -i cert_file
         with tempfile.NamedTemporaryFile() as cert_file:
-            cert_file.write(cert)
+            cert_file.write(cert.binary)
             cert_file.flush()
             command = ['certutil', '-A', '-d', self.certdb_dir,
                        '-n', cert_nick, '-t', trust,

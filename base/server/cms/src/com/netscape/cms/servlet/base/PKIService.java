@@ -162,6 +162,7 @@ public class PKIService {
         builder = Response.ok(object);
         builder.cacheControl(cc);
         builder.tag(tag);
+        builder.type(getResponseFormat());
         return builder.build();
     }
 

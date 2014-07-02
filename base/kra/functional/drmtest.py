@@ -91,10 +91,8 @@ def main():
     # Get transport cert and insert in the certdb
     transport_nick = "kra transport cert"
     transport_cert = kraclient.system_certs.get_transport_cert()
-    print transport_cert
-    tcert = transport_cert[len(pki.CERT_HEADER):len(transport_cert) - len(
-        pki.CERT_FOOTER)]
-    crypto.import_cert(transport_nick, base64.decodestring(tcert), "u,u,u")
+    print transport_cert.encoded
+    crypto.import_cert(transport_nick, transport_cert, "u,u,u")
 
     # initialize the certdb for crypto operations
     # for NSS db, this must be done after importing the transport cert
