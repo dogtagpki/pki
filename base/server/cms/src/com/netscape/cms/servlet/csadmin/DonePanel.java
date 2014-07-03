@@ -115,13 +115,15 @@ public class DonePanel extends WizardPanelBase {
 
         String initDaemon = "";
         if (type.equals("CA")) {
-            initDaemon = "pki-cad";
+            initDaemon = "&lt;pki_ca_instance_name&gt;";
         } else if (type.equals("KRA")) {
-            initDaemon = "pki-krad";
+            initDaemon = "&lt;pki_kra_instance_name&gt;";
         } else if (type.equals("OCSP")) {
-            initDaemon = "pki-ocspd";
+            initDaemon = "&lt;pki_ocsp_instance_name&gt;";
         } else if (type.equals("TKS")) {
-            initDaemon = "pki-tksd";
+            initDaemon = "&lt;pki_tks_instance_name&gt;";
+        } else if (type.equals("TPS")) {
+            initDaemon = "&lt;pki_tps_instance_name&gt;";
         }
         String os = System.getProperty("os.name");
         if (os.equalsIgnoreCase("Linux")) {

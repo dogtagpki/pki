@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          0.4%{?dist}
+Release:          0.5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -542,27 +542,7 @@ if [ $? -eq 1 ]; then
     exit 1
 fi
 
-%{__rm} %{buildroot}%{_initrddir}/pki-cad
-%{__rm} %{buildroot}%{_initrddir}/pki-krad
-%{__rm} %{buildroot}%{_initrddir}/pki-ocspd
-%{__rm} %{buildroot}%{_initrddir}/pki-tksd
-%{__rm} %{buildroot}%{_initrddir}/pki-tpsd
-
 %{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
-
-# tomcat6 has changed how TOMCAT_LOG is used.
-# Need to adjust accordingly
-# This macro will be executed in the postinstall scripts
-%define fix_tomcat_log() (                                                   \
-if [ -d /etc/sysconfig/pki/%i ]; then                                        \
-  for F in `find /etc/sysconfig/pki/%1 -type f`; do                          \
-    instance=`basename $F`                                                   \
-    if [ -f /etc/sysconfig/$instance ]; then                                 \
-        sed -i -e 's/catalina.out/tomcat-initd.log/' /etc/sysconfig/$instance \
-    fi                                                                       \
-  done                                                                       \
-fi                                                                           \
-)
 
 %endif # %{with server}
 
@@ -621,130 +601,6 @@ fi
 
 %if %{with server}
 
-%post -n pki-ca
-# Attempt to update ALL old "CA" instances to "systemd"
-if [ -d /etc/sysconfig/pki/ca ]; then
-    for inst in `ls /etc/sysconfig/pki/ca`; do
-        if [ ! -e "/etc/systemd/system/pki-cad.target.wants/pki-cad@${inst}.service" ]; then
-            ln -s "/lib/systemd/system/pki-cad@.service" \
-                  "/etc/systemd/system/pki-cad.target.wants/pki-cad@${inst}.service"
-            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
-            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
-
-            if [ -e /var/run/${inst}.pid ]; then
-                kill -9 `cat /var/run/${inst}.pid` || :
-                rm -f /var/run/${inst}.pid
-                echo "pkicreate.systemd.servicename=pki-cad@${inst}.service" >> \
-                     /var/lib/${inst}/conf/CS.cfg || :
-                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-                /bin/systemctl restart pki-cad@${inst}.service || :
-            else 
-                echo "pkicreate.systemd.servicename=pki-cad@${inst}.service" >> \
-                     /var/lib/${inst}/conf/CS.cfg || :
-            fi
-        else
-            # Conditionally restart this Dogtag 9 instance
-            /bin/systemctl condrestart pki-cad@${inst}.service
-        fi
-    done
-fi
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%fix_tomcat_log ca
-
-
-%post -n pki-kra
-# Attempt to update ALL old "KRA" instances to "systemd"
-if [ -d /etc/sysconfig/pki/kra ]; then
-    for inst in `ls /etc/sysconfig/pki/kra`; do
-        if [ ! -e "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service" ]; then
-            ln -s "/lib/systemd/system/pki-krad@.service" \
-                  "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service"
-            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
-            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
-
-            if [ -e /var/run/${inst}.pid ]; then
-                kill -9 `cat /var/run/${inst}.pid` || :
-                rm -f /var/run/${inst}.pid
-                echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
-                     /var/lib/${inst}/conf/CS.cfg || :
-                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-                /bin/systemctl restart pki-krad@${inst}.service || :
-            else 
-                echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
-                     /var/lib/${inst}/conf/CS.cfg || :
-            fi
-        else
-            # Conditionally restart this Dogtag 9 instance
-            /bin/systemctl condrestart pki-krad@${inst}.service
-        fi
-    done
-fi
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%fix_tomcat_log kra
-
-
-%post -n pki-ocsp
-# Attempt to update ALL old "OCSP" instances to "systemd"
-if [ -d /etc/sysconfig/pki/ocsp ]; then
-    for inst in `ls /etc/sysconfig/pki/ocsp`; do
-        if [ ! -e "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service" ]; then
-            ln -s "/lib/systemd/system/pki-ocspd@.service" \
-                  "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service"
-            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
-            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
-
-            if [ -e /var/run/${inst}.pid ]; then
-                kill -9 `cat /var/run/${inst}.pid` || :
-                rm -f /var/run/${inst}.pid
-                echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
-                     /var/lib/${inst}/conf/CS.cfg || :
-                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-                /bin/systemctl restart pki-ocspd@${inst}.service || :
-            else 
-                echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
-                     /var/lib/${inst}/conf/CS.cfg || :
-            fi
-        else
-            # Conditionally restart this Dogtag 9 instance
-            /bin/systemctl condrestart pki-ocspd@${inst}.service
-        fi
-    done
-fi
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%fix_tomcat_log ocsp
-
-
-%post -n pki-tks
-# Attempt to update ALL old "TKS" instances to "systemd"
-if [ -d /etc/sysconfig/pki/tks ]; then
-    for inst in `ls /etc/sysconfig/pki/tks`; do
-        if [ ! -e "/etc/systemd/system/pki-tksd.target.wants/pki-tksd@${inst}.service" ]; then
-            ln -s "/lib/systemd/system/pki-tksd@.service" \
-                  "/etc/systemd/system/pki-tksd.target.wants/pki-tksd@${inst}.service"
-            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
-            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
-
-            if [ -e /var/run/${inst}.pid ]; then
-                kill -9 `cat /var/run/${inst}.pid` || :
-                rm -f /var/run/${inst}.pid
-                echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> \
-                     /var/lib/${inst}/conf/CS.cfg || :
-                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-                /bin/systemctl restart pki-tksd@${inst}.service || :
-            else 
-                echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> \
-                     /var/lib/${inst}/conf/CS.cfg || :
-            fi
-        else
-            # Conditionally restart this Dogtag 9 instance
-            /bin/systemctl condrestart pki-tksd@${inst}.service
-        fi
-    done
-fi
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-%fix_tomcat_log tks
-
-
 %post -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
@@ -755,66 +611,10 @@ echo "Upgrading server at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{ver
 echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
 
-%preun -n pki-ca
-if [ $1 = 0 ] ; then
-    /bin/systemctl --no-reload disable pki-cad.target > /dev/null 2>&1 || :
-    /bin/systemctl stop pki-cad.target > /dev/null 2>&1 || :
-fi
-
-
-%preun -n pki-kra
-if [ $1 = 0 ] ; then
-    /bin/systemctl --no-reload disable pki-krad.target > /dev/null 2>&1 || :
-    /bin/systemctl stop pki-krad.target > /dev/null 2>&1 || :
-fi
-
-
-%preun -n pki-ocsp
-if [ $1 = 0 ] ; then
-    /bin/systemctl --no-reload disable pki-ocspd.target > /dev/null 2>&1 || :
-    /bin/systemctl stop pki-ocspd.target > /dev/null 2>&1 || :
-fi
-
-
-%preun -n pki-tks
-if [ $1 = 0 ] ; then
-    /bin/systemctl --no-reload disable pki-tksd.target > /dev/null 2>&1 || :
-    /bin/systemctl stop pki-tksd.target > /dev/null 2>&1 || :
-fi
-
-
 ## %preun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
-
-
-%postun -n pki-ca
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ "$1" -ge "1" ] ; then
-    /bin/systemctl try-restart pki-cad.target >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-kra
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ "$1" -ge "1" ] ; then
-    /bin/systemctl try-restart pki-krad.target >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-ocsp
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ "$1" -ge "1" ] ; then
-    /bin/systemctl try-restart pki-ocspd.target >/dev/null 2>&1 || :
-fi
-
-
-%postun -n pki-tks
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ "$1" -ge "1" ] ; then
-    /bin/systemctl try-restart pki-tksd.target >/dev/null 2>&1 || :
-fi
 
 
 ## %postun -n pki-server
@@ -943,9 +743,6 @@ fi
 %files -n pki-ca
 %defattr(-,root,root,-)
 %doc base/ca/LICENSE
-%dir %{_sysconfdir}/systemd/system/pki-cad.target.wants
-%{_unitdir}/pki-cad@.service
-%{_unitdir}/pki-cad.target
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/conf/
@@ -958,9 +755,6 @@ fi
 %files -n pki-kra
 %defattr(-,root,root,-)
 %doc base/kra/LICENSE
-%dir %{_sysconfdir}/systemd/system/pki-krad.target.wants
-%{_unitdir}/pki-krad@.service
-%{_unitdir}/pki-krad.target
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
 %{_datadir}/pki/kra/conf/
@@ -970,9 +764,6 @@ fi
 %files -n pki-ocsp
 %defattr(-,root,root,-)
 %doc base/ocsp/LICENSE
-%dir %{_sysconfdir}/systemd/system/pki-ocspd.target.wants
-%{_unitdir}/pki-ocspd@.service
-%{_unitdir}/pki-ocspd.target
 %{_javadir}/pki/pki-ocsp.jar
 %dir %{_datadir}/pki/ocsp
 %{_datadir}/pki/ocsp/conf/
@@ -982,9 +773,6 @@ fi
 %files -n pki-tks
 %defattr(-,root,root,-)
 %doc base/tks/LICENSE
-%dir %{_sysconfdir}/systemd/system/pki-tksd.target.wants
-%{_unitdir}/pki-tksd@.service
-%{_unitdir}/pki-tksd.target
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
 %{_datadir}/pki/tks/conf/
@@ -994,9 +782,6 @@ fi
 %files -n pki-tps-tomcat
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
-%dir %{_sysconfdir}/systemd/system/pki-tpsd.target.wants
-%{_unitdir}/pki-tpsd@.service
-%{_unitdir}/pki-tpsd.target
 %{_javadir}/pki/pki-tps.jar
 %dir %{_datadir}/pki/tps
 %{_datadir}/pki/tps/conf/
@@ -1014,6 +799,9 @@ fi
 %endif # %{with server}
 
 %changelog
+* Wed Jul 2 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.5
+- PKI TRAC Ticket #832 - Remove legacy 'systemctl' files . . .
+
 * Tue Jul 1 2014 Ade Lee <alee@redhat.com> - 10.2.0-0.4
 - Update rawhide build
 

@@ -96,12 +96,12 @@ public class SecurityDomainPanel extends WizardPanelBase {
         String errorString = "";
         String default_admin_url = "";
         String name = "";
-        String systemdService = "";
+        String systemdInstanceId = "";
 
         try {
             default_admin_url = config.getString("preop.securitydomain.admin_url", "");
             name = config.getString("preop.securitydomain.name", "");
-            systemdService = config.getString("pkicreate.systemd.servicename", "");
+            systemdInstanceId = config.getString("service.instanceID", "");
         } catch (Exception e) {
             CMS.debug(e.toString());
         }
@@ -208,13 +208,13 @@ public class SecurityDomainPanel extends WizardPanelBase {
         }
 
         // Information for "existing" Security Domain CAs
-        String initDaemon = "pki-cad";
+        String initDaemon = "&lt;pki_ca_instance_name&gt;";
         String instanceId = "&lt;security_domain_instance_name&gt;";
         String os = System.getProperty("os.name");
         if (os.equalsIgnoreCase("Linux")) {
-            if (!systemdService.equals("")) {
-                context.put("initCommand", "/usr/bin/pkicontrol");
-                context.put("instanceId", "ca " + systemdService);
+            if (!systemdInstanceId.equals("")) {
+                context.put("initCommand", "/usr/bin/pkidaemon");
+                context.put("instanceId", "tomcat " + systemdInstanceId);
             } else {
                 context.put("initCommand", "/sbin/service " + initDaemon);
                 context.put("instanceId", instanceId);
@@ -451,12 +451,25 @@ public class SecurityDomainPanel extends WizardPanelBase {
         }
 
         // Information for "existing" Security Domain CAs
-        String initDaemon = "pki-cad";
+        String initDaemon = "&lt;pki_ca_instance_name&gt;";
         String instanceId = "&lt;security_domain_instance_name&gt;";
         String os = System.getProperty("os.name");
+        String systemdInstanceId = "";
+
+        try {
+            systemdInstanceId = config.getString("service.instanceID", "");
+        } catch (Exception e) {
+            CMS.debug(e.toString());
+        }
+
         if (os.equalsIgnoreCase("Linux")) {
-            context.put("initCommand", "/sbin/service " + initDaemon);
-            context.put("instanceId", instanceId);
+            if (!systemdInstanceId.equals("")) {
+                context.put("initCommand", "/usr/bin/pkidaemon");
+                context.put("instanceId", "tomcat " + systemdInstanceId);
+            } else {
+                context.put("initCommand", "/sbin/service " + initDaemon);
+                context.put("instanceId", instanceId);
+            }
         } else {
             /* default case:  e. g. - ( os.equalsIgnoreCase( "SunOS" ) */
             context.put("initCommand", "/etc/init.d/" + initDaemon);

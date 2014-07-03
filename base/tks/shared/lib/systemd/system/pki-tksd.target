@@ -1,8 +1,0 @@
-[Unit]
-Description=PKI Token Key Service
-After=syslog.target network.target
-
-[Install]
-WantedBy=multi-user.target
-
-

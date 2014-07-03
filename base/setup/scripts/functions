@@ -909,24 +909,9 @@ verify_symlinks()
     else
         jni_dir="/usr/lib/java"
     fi
-    if   [ ${PKI_SUBSYSTEM_TYPE} == "ca" ]; then
-        pki_systemd_link="pki-cad@${PKI_INSTANCE_NAME}.service"
-        pki_systemd_service="pki-cad@.service"
-    elif [ ${PKI_SUBSYSTEM_TYPE} == "kra" ]; then
-        pki_systemd_link="pki-krad@${PKI_INSTANCE_NAME}.service"
-        pki_systemd_service="pki-krad@.service"
-    elif [ ${PKI_SUBSYSTEM_TYPE} == "ocsp" ]; then
-        pki_systemd_link="pki-ocspd@${PKI_INSTANCE_NAME}.service"
-        pki_systemd_service="pki-ocspd@.service"
-    elif [ ${PKI_SUBSYSTEM_TYPE} == "ra" ]; then
+    if [ ${PKI_SUBSYSTEM_TYPE} == "ra" ]; then
         pki_systemd_link="pki-rad@${PKI_INSTANCE_NAME}.service"
         pki_systemd_service="pki-rad@.service"
-    elif [ ${PKI_SUBSYSTEM_TYPE} == "tks" ]; then
-        pki_systemd_link="pki-tksd@${PKI_INSTANCE_NAME}.service"
-        pki_systemd_service="pki-tksd@.service"
-    elif [ ${PKI_SUBSYSTEM_TYPE} == "tps" ]; then
-        pki_systemd_link="pki-tpsd@${PKI_INSTANCE_NAME}.service"
-        pki_systemd_service="pki-tpsd@.service"
     fi
 
     # Dogtag 9 Symbolic Link Target Variables
@@ -935,7 +920,7 @@ verify_symlinks()
     # Dogtag 9 Symbolic Link Variables
     pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"
     # pki_registry_dir="/etc/sysconfig/pki/${PKI_SUBSYSTEM_TYPE}/${PKI_INSTANCE_NAME}"
-    pki_systemd_dir="/etc/systemd/system/pki-cad.target.wants"
+    pki_systemd_dir="/etc/systemd/system/pki-rad.target.wants"
     pki_webapps_jar_dir="${PKI_INSTANCE_PATH}/webapps/${PKI_SUBSYSTEM_TYPE}/WEB-INF/lib"
 
     # '${PKI_INSTANCE_PATH}' symlinks

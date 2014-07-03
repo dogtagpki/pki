@@ -374,7 +374,7 @@ PKI_INSTANCE_RESTART_MESSAGE = \
 
 PKI_SPAWN_INFORMATION_HEADER = '''
     ==========================================================================
-                                INSTALLATION SUMMARY\n"\
+                                INSTALLATION SUMMARY\n\
     ==========================================================================
 '''
 

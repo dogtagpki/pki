@@ -40,8 +40,7 @@ our @EXPORT = qw(
  $FILE_PREFIX $FTP_PREFIX $HTTP_PREFIX $HTTPS_PREFIX $LDAP_PREFIX $LDAPS_PREFIX
  $PKI_USER $PKI_GROUP $PKI_UID $PKI_GID
  $CA $KRA $OCSP $TKS $RA $TPS
- $CA_INITSCRIPT $KRA_INITSCRIPT $OCSP_INITSCRIPT
- $TKS_INITSCRIPT $RA_INITSCRIPT $TPS_INITSCRIPT
+ $RA_INITSCRIPT
  $install_info_basename $cleanup_basename %installation_info
  $semanage $restorecon $SELINUX_PORT_UNDEFINED $SELINUX_PORT_DEFINED $SELINUX_PORT_WRONGLY_DEFINED
 
@@ -292,12 +291,7 @@ our $RA   = "ra";
 our $TPS  = "tps";
 
 # Subsystem init scripts
-our $CA_INITSCRIPT   = "pki-cad";
-our $KRA_INITSCRIPT  = "pki-krad";
-our $OCSP_INITSCRIPT = "pki-ocspd";
-our $TKS_INITSCRIPT  = "pki-tksd";
 our $RA_INITSCRIPT   = "pki-rad";
-our $TPS_INITSCRIPT  = "pki-tpsd";
 
 
 ##############################################################
@@ -3474,18 +3468,8 @@ sub get_registry_initscript_name
     my ($subsystem_type) = @_;
     my ($pki_initscript);
 
-    if ($subsystem_type eq $CA) {
-        $pki_initscript = $CA_INITSCRIPT;
-    } elsif($subsystem_type eq $KRA) {
-        $pki_initscript = $KRA_INITSCRIPT;
-    } elsif($subsystem_type eq $OCSP) {
-        $pki_initscript = $OCSP_INITSCRIPT;
-    } elsif($subsystem_type eq $RA) {
+    if ($subsystem_type eq $RA) {
         $pki_initscript = $RA_INITSCRIPT;
-    } elsif($subsystem_type eq $TKS) {
-        $pki_initscript = $TKS_INITSCRIPT;
-    } elsif($subsystem_type eq $TPS) {
-        $pki_initscript = $TPS_INITSCRIPT;
     } else {
         die "unknown subsystem type \"$subsystem_type\"";
     }
