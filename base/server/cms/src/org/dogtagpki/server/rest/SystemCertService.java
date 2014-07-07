@@ -18,6 +18,7 @@
 
 package org.dogtagpki.server.rest;
 
+import java.net.URI;
 import java.security.cert.CertificateEncodingException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
@@ -64,12 +67,8 @@ public class SystemCertService extends PKIService implements SystemCertResource 
      * Used to retrieve the transport certificate
      */
     public Response getTransportCert() {
-        CertData cert = null;
-        IKeyRecoveryAuthority kra = null;
 
-        // auth and authz
-
-        kra = (IKeyRecoveryAuthority) CMS.getSubsystem("kra");
+        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem("kra");
         if (kra == null) {
             // no KRA
             throw new ResourceNotFoundException("KRA subsystem not found.");
@@ -80,19 +79,25 @@ public class SystemCertService extends PKIService implements SystemCertResource 
             CMS.debug("getTransportCert: transport key unit is null");
             throw new PKIException("No transport key unit.");
         }
+
         org.mozilla.jss.crypto.X509Certificate transportCert = tu.getCertificate();
         if (transportCert == null) {
             CMS.debug("getTransportCert: transport cert is null");
             throw new PKIException("Transport cert not found.");
         }
+
         try {
-            cert = createCertificateData(transportCert);
+            CertData cert = createCertificateData(transportCert);
+
+            URI uri = uriInfo.getRequestUri();
+            cert.setLink(new Link("self", uri));
+
+            return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, cert, request);
+
         } catch (CertificateEncodingException e) {
-            CMS.debug("getTransportCert: certificate encoding exception with transport cert");
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException("Unable to encode transport cert");
         }
-        return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, cert, request);
     }
 
 }

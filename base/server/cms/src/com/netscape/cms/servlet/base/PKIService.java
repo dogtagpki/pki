@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.base;
 
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.security.Principal;
 import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 
@@ -168,9 +170,20 @@ public class PKIService {
 
     public CertData createCertificateData(org.mozilla.jss.crypto.X509Certificate cert)
             throws CertificateEncodingException {
+
         CertData data = new CertData();
+
+        data.setSerialNumber(new CertId(cert.getSerialNumber()));
+
+        Principal issuerDN = cert.getIssuerDN();
+        if (issuerDN != null) data.setIssuerDN(issuerDN.toString());
+
+        Principal subjectDN = cert.getSubjectDN();
+        if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
+
         String b64 = CertData.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + CertData.FOOTER;
         data.setEncoded(b64);
+
         return data;
     }
 

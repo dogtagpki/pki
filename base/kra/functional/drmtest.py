@@ -91,6 +91,7 @@ def main():
     # Get transport cert and insert in the certdb
     transport_nick = "kra transport cert"
     transport_cert = kraclient.system_certs.get_transport_cert()
+    print "Subject DN: " + transport_cert.subject_dn
     print transport_cert.encoded
     crypto.import_cert(transport_nick, transport_cert, "u,u,u")
 
