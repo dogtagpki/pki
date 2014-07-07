@@ -33,8 +33,8 @@ BASE_DIR = '/var/lib'
 LOG_DIR = '/var/log/pki'
 
 PACKAGE_VERSION = SHARE_DIR + '/VERSION'
-CERT_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----"
-CERT_FOOTER = "-----END NEW CERTIFICATE REQUEST-----"
+CERT_HEADER = "-----BEGIN CERTIFICATE-----"
+CERT_FOOTER = "-----END CERTIFICATE-----"
 
 
 def read_text(message,

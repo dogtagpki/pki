@@ -169,7 +169,7 @@ public class PKIService {
     public CertData createCertificateData(org.mozilla.jss.crypto.X509Certificate cert)
             throws CertificateEncodingException {
         CertData data = new CertData();
-        String b64 = CertData.HEADER + CMS.BtoA(cert.getEncoded()) + CertData.FOOTER;
+        String b64 = CertData.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + CertData.FOOTER;
         data.setEncoded(b64);
         return data;
     }
