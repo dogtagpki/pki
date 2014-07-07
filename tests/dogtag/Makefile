@@ -46,6 +46,8 @@ run: $(FILES) build
 	cp ./shared/pki-user-cli-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-cert-cli-lib.sh
 	cp ./shared/pki-cert-cli-lib.sh /opt/rhqa_pki/.
+	rm -f /opt/rhqa_pki/pki-profile-lib.sh
+	cp ./shared/pki-profile-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/dummycert1.pem
 	cp ./shared/dummycert1.pem /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/build.xml
@@ -74,6 +76,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./shared/pki-user-cli-lib.sh
 	chmod a+x ./shared/dummycert1.pem
 	chmod a+x ./shared/pki-cert-cli-lib.sh
+	chmod a+x ./shared/pki-profile-lib.sh
 	chmod a+x runtest.sh
 	#quickinstall
 	chmod a+x ./acceptance/quickinstall/rhcs-install.sh
