@@ -66,6 +66,7 @@
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-release-hold.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-hold.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-submit-ca.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-find-ca.sh
 
 PACKAGE="pki-tools"
 
@@ -204,6 +205,11 @@ rlJournalStart
                 # Execute pki cert-hold tests
                   run_pki-cert-request-submit_tests
         fi
+        CERT_FIND_CA_UPPERCASE=$(echo $CERT_FIND_CA | tr [a-z] [A-Z])
+        if [ "$CERT_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-find tests
+                  run_pki-cert-find-ca_tests
+        fi
 	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
 	if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] ; then
 		#Execute pki cert tests
@@ -213,6 +219,7 @@ rlJournalStart
 		 run_pki-cert-request-show-ca_tests
 		 run_pki-cert-release-hold-ca_tests
 		 run_pki-cert-hold-ca_tests
+		 run_pki-cert-find-ca_tests
 	fi
 	BIG_INT_UPPERCASE=$(echo $BIG_INT | tr [a-z] [A-Z])
 	if [ "$BIG_INT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
