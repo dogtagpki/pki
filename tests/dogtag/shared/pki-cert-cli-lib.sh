@@ -206,7 +206,7 @@ local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 #### submit the request to CA 
 
 	rlLog "Submit PKCS10 Request to CA"
-	rlRun "pki cert-request-submit $xml_profile_file >> $dir/$cert_request_file_sumbit" 0 "Submit Request"
+	rlRun "pki -d $dir -c $password cert-request-submit $xml_profile_file >> $dir/$cert_request_file_sumbit" 0 "Submit Request"
 	RETVAL=$?
         if [ $RETVAL != 0 ]; then
                 rlFail "We have some problem getting $profile xml"
@@ -253,6 +253,8 @@ create_new_cert_request()
 	local cert_request_file="$(echo ${13}|cut -d: -f2)"
 	local cert_subject_file="$(echo ${14}|cut -d: -f2)"
 	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local state="North Carolina"
+	local location="Raleigh"
 
 #### First we create  NSS Database
 
@@ -291,7 +293,7 @@ create_new_cert_request()
 		#local subject="CN=$cn,UID=$uid,E=$email,OU=$ou,O=$organization,C=$country"
 		local subject="UID=$uid,E=$email,CN=$cn,OU=$ou,O=$organization,C=$country"
 	else
-		local subject="CN=$cn,OU=$ou,O=$organization,C=$country"
+		local subject="CN=$cn,OU=$ou,O=$organization,ST=$state,L=$location,C=$country"
 	fi
 	
 	if [ "$request_type" == "pkcs10" ];then
@@ -343,6 +345,8 @@ create_new_cert_request()
 	echo -e "Email:$email" >> $cert_subject_file
 	echo -e "OU:$ou" >> $cert_subject_file
 	echo -e "Org:$organization" >> $cert_subject_file
+	echo -e "State:$state" >> $cert_subject_file
+	echo -e "Location:$location" >> $cert_subject_file
 	echo -e "Country:$country" >> $cert_subject_file
 	echo -e "Request_DN:$subject" >> $cert_subject_file
 	rlLog "Certificate Request file is saved in $cert_request_file"
@@ -405,7 +409,7 @@ submit_new_request(){
 		rlFail "FAIL :: We have some problem getting $profile xml"
 		return 1
 	fi 
-	if [ "$profilename" == "caUserCert" ]  || [ "$profilename" ==  "caUserSMIMEcapCert" ] || [ "$profilename" ==  "caDualCert" ];then
+	if [[ "$profilename" =~ "caUserCert" ]]  || [[ "$profilename" =~  "caUserSMIMEcapCert" ]] || [ "$profilename" =~  "caDualCert" ]];then
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $cert_request_file)\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v \"$uid\" $xml_profile_file"
@@ -419,13 +423,13 @@ submit_new_request(){
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
 	fi
 
-	 if [ "$profilename" != "CaDualCert" ] && \
-        [ "$profilename" != "caDirPinUserCert" ] && \
-        [ "$profilename" != "caDirUserCert" ] && \
-        [ "$profilename" != "caECDirUserCert" ] && \
-        [ "$profilename" != "caAgentServerCert" ] && \
-	[ "$profilename" != "caUserCert" ] && \
-	[ "$profilename" != "caUserSMIMEcapCert" ]; then
+	 if [[ "$profilename" != *CaDual* ]] && \
+        [[ "$profilename" != *caDirPin* ]] && \
+        [[ "$profilename" != *caDir* ]] && \
+        [[ "$profilename" != *caECDirUser* ]] && \
+        [[ "$profilename" != *caAgentServer* ]] && \
+	[[ "$profilename" != *caUser* ]] && \
+	[[ "$profilename" != *caUserSMIMEcap* ]]; then
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $cert_request_file)\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$cn\" $xml_profile_file"
@@ -559,11 +563,11 @@ generate_new_cert()
         algo:$algo \
         size:$key_size \
         cn:\"$subject_cn\" \
-        uid:$subject_uid \
-        email:$subject_email \
-        ou:$subject_ou \
-        org:$subject_o \
-        country:$subject_c \
+        uid:\"$subject_uid\" \
+        email:\"$subject_email\" \
+        ou:\"$subject_ou\" \
+        org:\"$subject_o\" \
+        country:\"$subject_c\" \
         archive:$archive \
         myreq:$tmp_nss_db/$rand-request.pem \
         subj:$tmp_nss_db/$rand-request-dn.txt"
@@ -679,11 +683,11 @@ generate_modified_cert()
                 algo:$tmp_algo \
                 size:$tmp_keysize \
                 cn:\"$tmp_cn\" \
-                uid:$tmp_uid \
-                email:$tmp_email \
-                ou:$tmp_ou \
-                org:$tmp_org \
-                country:$tmp_country \
+                uid:\"$tmp_uid\" \
+                email:\"$tmp_email\" \
+                ou:\"$tmp_ou\" \
+                org:\"$tmp_org\" \
+                country:\"$tmp_country\" \
                 archive:$tmp_archive \
                 myreq:$tmp_nss_db/$rand-request.pem \
                 subj:$tmp_nss_db/$rand-request-dn.txt"
@@ -747,5 +751,59 @@ generate_modified_cert()
         echo cert_start_date-$cert_start_date >> $cert_info
         echo cert_end_date-$cert_end_date >> $cert_info
         echo cert_subject-$cert_subject >> $cert_info
+        return 0;
+}
+########################################################
+#generate_cert_request_xml fills the xml template with required
+#certificate request information. 
+#Arguments: 
+#certificate request file (Base 64pkcs10/crmf request)
+#certificate subject file : containing details of cert like cn,email,uid 
+#profile template : xml template file of the profile for which cert request to be submitted 
+#profile name: Name of the profile for which the details should be filled.
+#generate_cert_request_xml $cert_request_file $cert_subject_file $xml_profile_file $profile_name
+########################################################
+generate_cert_request_xml()
+{
+        cert_request_file=$1
+        cert_subject_file=$2
+        xml_profile_file=$3
+        cert_profile=$4
+
+        local request_type=$(cat $cert_subject_file | grep RequestType: | cut -d: -f2)
+        local subject_cn=$(cat $cert_subject_file | grep CN: | cut -d: -f2)
+        local subject_uid=$(cat $cert_subject_file | grep UID: | cut -d: -f2)
+        local subject_email=$(cat $cert_subject_file | grep Email: | cut -d: -f2)
+        local subject_ou=$(cat $cert_subject_file | grep OU: | cut -d: -f2)
+        local subject_org=$(cat $cert_subject_file | grep Org: | cut -d: -f2)
+        local subject_c=$(cat $cert_subject_file | grep Country: | cut -d: -f2)
+
+        if [[ "$cert_profile" =~ "caUserCert" ]]  || [[ "$cert_profile" =~  "caUserSMIMEcapCert" ]] || [[ "$cert_profile" =~  "caDualCert" ]];then
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $cert_request_file)\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v \"$subject_uid\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_e']/Value\" -v \"$subject_email\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_cn']/Value\" -v \"$subject_cn\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_ou']/Value\" -v \"$subject_ou\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_o']/Value\" -v \"$subject_org\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_c']/Value\" -v \"$subject_c\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$subject_cn\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v \"$subject_email\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
+        fi
+
+        if [[ "$cert_profile" != *CaDual* ]] && \
+        [[ "$cert_profile" != *caDirPin* ]] && \
+        [[ "$cert_profile" != *caDirUser* ]] && \
+        [[ "$cert_profile" != *caECDirUser* ]] && \
+        [[ "$cert_profile" != *caAgentServer* ]] && \
+        [[ "$cert_profile" != *caUser* ]] &&
+        [[ "$cert_profile" != *caUserSMIMEcap* ]]; then
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $cert_request_file)\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$subject_cn\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v \"$subject_email\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
+        fi
         return 0;
 }
