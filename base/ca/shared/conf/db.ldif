@@ -160,4 +160,7 @@ objectClass: top
 objectClass: organizationalUnit
 ou: certificateRepository
 
-
+dn: ou=certificateProfiles,ou=ca,{rootSuffix}
+objectClass: top
+objectClass: organizationalUnit
+ou: certificateProfiles

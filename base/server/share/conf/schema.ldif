@@ -652,3 +652,18 @@ dn: cn=schema
 changetype: modify
 add: objectClasses
 objectClasses: ( tpsProfileID-oid NAME 'tpsProfileID' DESC 'CMS defined class' SUP top AUXILIARY MAY ( profileID ) X-ORIGIN 'user-defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( classId-oid NAME 'classId' DESC 'Certificate profile class ID' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( certProfileConfig-oid NAME 'certProfileConfig' DESC 'Certificate profile configuration' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( certProfile-oid NAME 'certProfile' DESC 'Certificate profile' SUP top STRUCTURAL MUST cn MAY ( classId $ certProfileConfig ) X-ORIGIN 'user defined' )
