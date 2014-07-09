@@ -48,6 +48,14 @@
 ########################################################################
 
 ########################################################################
+run_pki-user-cli-user-mod-ca_tests(){
+
+    #####Create temporary dir to save the output files #####
+    rlPhaseStartSetup "pki_user_cli_user_mod-ca-startup: Create temporary directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+    rlPhaseEnd
+
 user1=ca_agent2
 user1fullname="Test ca agent"
 user2=abcdefghijklmnopqrstuvwxyx12345678
@@ -66,15 +74,6 @@ i18nuser=i18nuser
 i18nuserfullname="Örjan Äke"
 i18nuser_mod_fullname="kakskümmend"
 i18nuser_mod_email="kakskümmend@example.com"
-run_pki-user-cli-user-mod-ca_tests(){
-
-    #####Create temporary dir to save the output files #####
-    rlPhaseStartSetup "pki_user_cli_user_mod-ca-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
-
-
 	##### pki_user_cli_user_mod-configtest ####
      rlPhaseStartTest "pki_user_cli_user_mod-configtest-001: pki user-mod configuration test"
         rlRun "pki user-mod --help > $TmpDir/pki_user_mod_cfg.out 2>&1" \
