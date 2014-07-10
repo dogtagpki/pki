@@ -46,8 +46,6 @@ run: $(FILES) build
 	cp ./shared/pki-user-cli-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-cert-cli-lib.sh
 	cp ./shared/pki-cert-cli-lib.sh /opt/rhqa_pki/.
-	rm -f /opt/rhqa_pki/pki-profile-lib.sh
-	cp ./shared/pki-profile-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/dummycert1.pem
 	cp ./shared/dummycert1.pem /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/build.xml
@@ -76,7 +74,6 @@ build: $(BUILT_FILES)
 	chmod a+x ./shared/pki-user-cli-lib.sh
 	chmod a+x ./shared/dummycert1.pem
 	chmod a+x ./shared/pki-cert-cli-lib.sh
-	chmod a+x ./shared/pki-profile-lib.sh
 	chmod a+x runtest.sh
 	#quickinstall
 	chmod a+x ./acceptance/quickinstall/rhcs-install.sh
@@ -106,7 +103,16 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-release-hold.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-hold.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-submit-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-find-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-add-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-show-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-find-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-mod-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-del-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-add-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-find-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-del-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-show-ca.sh
+
 
 clean:
 	rm -f *~ $(BUILT_FILES)
