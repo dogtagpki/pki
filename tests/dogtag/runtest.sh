@@ -75,6 +75,13 @@
 . ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-find-ca.sh
 . ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-del-ca.sh
 . ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-show-ca.sh
+. ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-add.sh
+. ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-show.sh
+. ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-find.sh
+. ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-del.sh
+. ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-add.sh
+. ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-find.sh
+. ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-del.sh
 
 PACKAGE="pki-tools"
 
@@ -178,6 +185,62 @@ rlJournalStart
                 # Execute pki user-cert-del-ca tests
                   run_pki-user-cli-user-cert-delete-ca_tests
         fi
+	PKI_CA_USER_UPPERCASE=$(echo $PKI_CA_USER | tr [a-z] [A-Z])
+        if [ "$PKI_CA_USER_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki ca-user tests
+                  run_pki-ca-user-cli-ca-user-add_tests
+                  run_pki-ca-user-cli-ca-user-show_tests
+                  run_pki-ca-user-cli-ca-user-find_tests
+                  run_pki-ca-user-cli-ca-user-del_tests
+                  run_pki-ca-user-cli-ca-user-membership-add_tests
+                  run_pki-ca-user-cli-ca-user-membership-find_tests
+                  run_pki-ca-user-cli-ca-user-membership-del_tests
+        fi
+        CA_USER_ADD_UPPERCASE=$(echo $CA_USER_ADD | tr [a-z] [A-Z])
+        if [ "$CA_USER_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki ca-user-add tests
+                  run_pki-ca-user-cli-ca-user-add_tests
+        fi
+        CA_USER_SHOW_UPPERCASE=$(echo $CA_USER_SHOW | tr [a-z] [A-Z])
+        if [ "$CA_USER_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki ca-user-show tests
+                  run_pki-ca-user-cli-ca-user-show_tests
+        fi
+        CA_USER_FIND_UPPERCASE=$(echo $CA_USER_FIND | tr [a-z] [A-Z])
+        if [ "$CA_USER_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki ca-user-find-ca tests
+                  run_pki-ca-user-cli-ca-user-find_tests
+        fi
+        CA_USER_DEL_UPPERCASE=$(echo $CA_USER_DEL | tr [a-z] [A-Z])
+        if [ "$CA_USER_DEL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki ca-user-del tests
+                  run_pki-ca-user-cli-ca-user-del_tests
+        fi
+        CA_USER_MEMBERSHIP_ADD_UPPERCASE=$(echo $CA_USER_MEMBERSHIP_ADD | tr [a-z] [A-Z])
+        if [ "$CA_USER_MEMBERSHIP_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki ca-user-membership-add tests
+                  run_pki-ca-user-cli-ca-user-membership-add_tests
+        fi
+	CA_USER_MEMBERSHIP_FIND_UPPERCASE=$(echo $CA_USER_MEMBERSHIP_FIND | tr [a-z] [A-Z])
+        if [ "$CA_USER_MEMBERSHIP_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki ca-user-membership-find tests
+                  run_pki-ca-user-cli-ca-user-membership-find_tests
+        fi
+        CA_USER_MEMBERSHIP_DEL_UPPERCASE=$(echo $CA_USER_MEMBERSHIP_DEL | tr [a-z] [A-Z])
+        if [ "$CA_USER_MEMBERSHIP_DEL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki ca-user-membership-del tests
+                  run_pki-ca-user-cli-ca-user-membership-del_tests
+        fi
+	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
+        if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] ; then
+                #Execute pki cert tests
+                 run_pki-cert-ca_tests
+                 run_pki-cert-revoke-ca_tests
+                 run_pki-cert-show-ca_tests
+                 run_pki-cert-request-show-ca_tests
+                 run_pki-cert-release-hold-ca_tests
+                 run_pki-cert-hold-ca_tests
+        fi
         CERT_CONFIG_CA_UPPERCASE=$(echo $CERT_CONFIG_CA | tr [a-z] [A-Z])
         if [ "$CERT_CONFIG_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert tests
@@ -258,16 +321,6 @@ rlJournalStart
                 # Execute pki group-member-show-ca tests
                   run_pki-group-cli-group-member-show-ca_tests
         fi
-	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
-	if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] ; then
-		#Execute pki cert tests
-		 run_pki-cert-ca_tests
-		 run_pki-cert-revoke-ca_tests
-		 run_pki-cert-show-ca_tests
-		 run_pki-cert-request-show-ca_tests
-		 run_pki-cert-release-hold-ca_tests
-		 run_pki-cert-hold-ca_tests
-	fi
 	BIG_INT_UPPERCASE=$(echo $BIG_INT | tr [a-z] [A-Z])
 	if [ "$BIG_INT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		#Execute pki bigInt tests

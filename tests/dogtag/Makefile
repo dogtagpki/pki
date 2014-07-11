@@ -79,7 +79,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/quickinstall/rhcs-install.sh
 	chmod a+x ./acceptance/quickinstall/rhcs-install-lib.sh
 	chmod a+x ./acceptance/quickinstall/rhds-install.sh
-	#CA
+	#user CA
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-show-ca.sh
@@ -95,6 +95,15 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-show-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-delete-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cleanup-ca.sh
+	#CA user
+	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-add.sh
+        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-show.sh
+        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-find.sh
+        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-del.sh
+        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-add.sh
+        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-find.sh
+        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-del.sh
+	#CA cert
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
@@ -103,6 +112,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-release-hold.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-hold.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-submit-ca.sh
+	#group CA
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-add-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-show-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-find-ca.sh
@@ -125,7 +135,7 @@ $(METADATA): Makefile
 	@echo "Name:            $(TEST)" >> $(METADATA)
 	@echo "TestVersion:     $(TESTVERSION)" >> $(METADATA)
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
-	@echo "Description:     Package containing libraries for rhcs beaker tests" >> $(METADATA)
+	@echo "Description:     Package containing tests and libraries for rhcs beaker tests" >> $(METADATA)
 	@echo "Type:            FUNCTIONAL" >> $(METADATA)
 	@echo "TestTime:        360m" >> $(METADATA)
 	@echo "RunFor:          rhcs" >> $(METADATA)
