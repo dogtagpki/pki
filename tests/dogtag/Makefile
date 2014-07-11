@@ -97,12 +97,12 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cleanup-ca.sh
 	#CA user
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-add.sh
-        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-show.sh
-        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-find.sh
-        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-del.sh
-        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-add.sh
-        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-find.sh
-        chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-del.sh
 	#CA cert
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
@@ -122,7 +122,6 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-find-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-del-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-show-ca.sh
-
 
 clean:
 	rm -f *~ $(BUILT_FILES)
