@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          0.5%{?dist}
+Release:          0.6%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -260,7 +260,6 @@ Obsoletes:        pki-setup < %{version}-%{release}
 Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java-headless >= 1:1.7.0
-Requires:         java-atk-wrapper
 Requires:         net-tools
 Requires:         perl(File::Slurp)
 Requires:         perl(XML::LibXML)
@@ -799,6 +798,11 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Tue Jul 15 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.6
+- Bugzilla Bug #1120045 - pki-core: Switch to java-headless (build)requires --
+  drop dependency on java-atk-wrapper
+- Removed 'java-atk-wrapper' dependency from 'pki-server'
+
 * Wed Jul 2 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.5
 - PKI TRAC Ticket #832 - Remove legacy 'systemctl' files . . .
 
