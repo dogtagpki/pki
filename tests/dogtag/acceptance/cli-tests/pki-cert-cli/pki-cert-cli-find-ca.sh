@@ -2938,6 +2938,7 @@ run_pki-cert-find-ca_tests()
         rlRun "pki cert-find --revokedOnFrom $tmp_fail_cur_date --size 1000 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
+	rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/1072"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0121: verify no certs are returned when junk value is passed to --revokedOnFrom"
@@ -3009,6 +3010,7 @@ run_pki-cert-find-ca_tests()
 	rlAssertNotGrep "Status: Revoked" "$cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
+	rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/1072"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0125: Test-2 verify no revoked certs are returned when invalid date is passed to --revokedOnTo 2048-22-06"
@@ -3018,6 +3020,7 @@ run_pki-cert-find-ca_tests()
 	rlAssertNotGrep "Status: Revoked" "$cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
+	rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/1072"
         rlPhaseEnd	
 
         rlPhaseStartTest "pki_cert_find-0126: verify no revoked certs are returned when junk value is passed to --revokedOnTo"
