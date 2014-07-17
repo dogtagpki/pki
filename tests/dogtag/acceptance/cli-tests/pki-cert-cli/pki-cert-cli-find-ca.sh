@@ -65,10 +65,11 @@ run_pki-cert-find-ca_tests()
 	local admin_cert_nickname="PKI Administrator for $CA_DOMAIN"
         local target_host=$(hostname)
         local target_port=8080
+	local target_https_port=8443
 
 	# Creating Temporary Directory for pki cert-show
 
-        rlPhaseStartSetup "pki cert-show Temporary Directory"
+        rlPhaseStartSetup "pki cert-find Temporary Directory"
         rlRun "TmpDir=\$(mktemp -d)" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
 	local TEMP_NSS_DB="$TmpDir/nssdb"
@@ -4180,8 +4181,6 @@ run_pki-cert-find-ca_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0173: Issue pki cert-find using host URI parameter(https)"
-        local target_https_port=8443
-	local target_host=$(hostname)
         rlRun "pki -d $CERTDB_DIR \
 		-U https://$target_host:$target_https_port \
 		cert-find 1> $cert_find_info"
@@ -4194,6 +4193,7 @@ run_pki-cert-find-ca_tests()
 		-u $pki_user \
 		-w $pki_pwd \
                 cert-find 1> $cert_find_info" 
+	rlAssertGrep "Number of entries returned 20" "$cert_find_info"
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0175: Issue pki cert-find using in-valid user"
