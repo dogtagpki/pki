@@ -77,7 +77,7 @@ public class EBaseException extends Exception {
      * @param msgFormat The resource key
      * @param cause The cause exception
      */
-    public EBaseException(String msgFormat, Exception cause) {
+    public EBaseException(String msgFormat, Throwable cause) {
         super(msgFormat, cause);
         mParams = new Exception[1];
         mParams[0] = cause;

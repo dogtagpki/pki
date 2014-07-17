@@ -18,7 +18,6 @@
 
 package org.dogtagpki.server.ca.rest;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
@@ -244,7 +243,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
         data.setAuthenticatorId(profile.getAuthenticatorId());
         data.setAuthzAcl(profile.getAuthzAcl());
-        data.setClassId(cs.getString(profileId + ".class_id"));
+        data.setClassId(ps.getProfileClassId(profileId));
         data.setDescription(profile.getDescription(getLocale(headers)));
         data.setEnabled(ps.isProfileEnable(profileId));
         data.setEnabledBy(ps.getProfileEnableBy(profileId));
@@ -472,18 +471,13 @@ public class ProfileService extends PKIService implements ProfileResource {
             auditParams.put("description", data.getDescription());
             auditParams.put("visible", Boolean.toString(data.isVisible()));
 
-            String config = CMS.getConfigStore().getString("instanceRoot") + "/ca/profiles/ca/" +
-                    profileId + ".cfg";
-            File configFile = new File(config);
-            configFile.createNewFile();
             IPluginInfo info = registry.getPluginInfo("profile", data.getClassId());
 
-            profile = ps.createProfile(profileId, data.getClassId(), info.getClassName(), config);
+            profile = ps.createProfile(profileId, data.getClassId(), info.getClassName());
             profile.setName(getLocale(headers), data.getName());
             profile.setDescription(getLocale(headers), data.getDescription());
             profile.setVisible(data.isVisible());
             profile.getConfigStore().commit(false);
-            ps.createProfileConfig(profileId, data.getClassId(), config);
 
             if (profile instanceof IProfileEx) {
                 // populates profile specific plugins such as
@@ -504,7 +498,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             return createCreatedResponse(profileData, profileData.getLink().getHref());
 
-        } catch (EBaseException | IOException e) {
+        } catch (EBaseException e) {
             CMS.debug("createProfile: error in creating profile: " + e);
             e.printStackTrace();
 
@@ -983,9 +977,7 @@ public class ProfileService extends PKIService implements ProfileResource {
                         "`.  Profile must be disabled first.");
             }
 
-            String configFile = CMS.getConfigStore().getString("profile." + profileId + ".config");
-
-            ps.deleteProfile(profileId, configFile);
+            ps.deleteProfile(profileId);
 
             auditProfileChange(
                     ScopeDef.SC_PROFILE_RULES,

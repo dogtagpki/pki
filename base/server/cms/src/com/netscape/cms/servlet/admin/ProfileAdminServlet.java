@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
@@ -2290,26 +2289,8 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            String config = null;
-
             try {
-                config = CMS.getConfigStore().getString("profile." + id + ".config");
-            } catch (EBaseException e) {
-                // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req));
-
-                audit(auditMessage);
-
-                sendResponse(ERROR, null, null, resp);
-                return;
-            }
-
-            try {
-                mProfileSub.deleteProfile(id, config);
+                mProfileSub.deleteProfile(id);
             } catch (EProfileException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -2475,16 +2456,10 @@ public class ProfileAdminServlet extends AdminServlet {
 
             IProfile profile = null;
 
-            // create configuration file
-            File configFile = new File(config);
-
-            configFile.createNewFile();
-
             // create profile
             try {
                 profile = mProfileSub.createProfile(id, impl,
-                            info.getClassName(),
-                            config);
+                            info.getClassName());
                 profile.setName(getLocale(req), name);
                 profile.setDescription(getLocale(req), name);
                 if (visible != null && visible.equals("true")) {
@@ -2495,7 +2470,6 @@ public class ProfileAdminServlet extends AdminServlet {
                 profile.setAuthenticatorId(auth);
                 profile.getConfigStore().commit(false);
 
-                mProfileSub.createProfileConfig(id, impl, config);
                 if (profile instanceof IProfileEx) {
                     // populates profile specific plugins such as
                     // policies, inputs and outputs

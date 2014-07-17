@@ -44,4 +44,8 @@ public class EProfileException extends EBaseException {
     public EProfileException(String msg) {
         super(msg);
     }
+
+    public EProfileException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

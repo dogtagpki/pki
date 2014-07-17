@@ -61,33 +61,18 @@ public interface IProfileSubsystem extends ISubsystem {
      * @param id profile id
      * @param classid implementation id
      * @param className class Name
-     * @param configFile configuration file
      * @exception EProfileException failed to create profile
      */
-    public IProfile createProfile(String id, String classid,
-            String className, String configFile)
+    public IProfile createProfile(String id, String classid, String className)
             throws EProfileException;
 
     /**
      * Deletes profile.
      *
      * @param id profile id
-     * @param configFile configuration file
      * @exception EProfileException failed to delete profile
      */
-    public void deleteProfile(String id, String configFile)
-            throws EProfileException;
-
-    /**
-     * Creates a new profile configuration file.
-     *
-     * @param id profile id
-     * @param classId implementation id
-     * @param configPath location to create the configuration file
-     * @exception failed to create profile
-     */
-    public void createProfileConfig(String id, String classId,
-            String configPath) throws EProfileException;
+    public void deleteProfile(String id) throws EProfileException;
 
     /**
      * Enables a profile.

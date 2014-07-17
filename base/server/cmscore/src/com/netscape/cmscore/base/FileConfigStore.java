@@ -33,11 +33,9 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * FileConfigStore:
- * Extends HashConfigStore with methods to load/save from/to file for
+ * Extends PropConfigStore with methods to load/save from/to file for
  * persistent storage. This is a configuration store agent who
  * reads data from a file.
- * <P>
- * Note that a LdapConfigStore can be implemented so that it reads the configuration stores from the Ldap directory.
  * <P>
  *
  * @version $Revision$, $Date$
