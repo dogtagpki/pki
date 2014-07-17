@@ -25,7 +25,7 @@ public class CertRequestProfileFindCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Profile ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
     }
 
     public void createOptions() {
@@ -59,8 +59,8 @@ public class CertRequestProfileFindCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 1) {
-            System.err.println("Error: Missing Profile ID.");
+        if (cmdArgs.length != 0) {
+            System.err.println("Error: Too many arguments specified.");
             printHelp();
             System.exit(-1);
         }
