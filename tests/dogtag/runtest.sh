@@ -66,6 +66,7 @@
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-release-hold.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-hold.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-submit-ca.sh
+. ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-profile-find-ca.sh
 . ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-add-ca.sh
 . ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-show-ca.sh
 . ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-find-ca.sh
@@ -240,6 +241,7 @@ rlJournalStart
                  run_pki-cert-request-show-ca_tests
                  run_pki-cert-release-hold-ca_tests
                  run_pki-cert-hold-ca_tests
+		 run_pki-cert-request-profile-find-ca_tests
         fi
         CERT_CONFIG_CA_UPPERCASE=$(echo $CERT_CONFIG_CA | tr [a-z] [A-Z])
         if [ "$CERT_CONFIG_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
@@ -275,6 +277,11 @@ rlJournalStart
         if [ "$CERT_REQUEST_SUBMIT_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-hold tests
                   run_pki-cert-request-submit_tests
+        fi
+        CERT_REQUEST_PROFILE_FIND_CA_UPPERCASE=$(echo $CERT_REQUEST_PROFILE_FIND_CA | tr [a-z] [A-Z])
+        if [ "$CERT_REQUEST_PROFILE_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki cert-request-profile-find tests
+                  run_pki-cert-request-profile-find-ca_tests
         fi
 	GROUP_ADD_UPPERCASE=$(echo $GROUP_ADD | tr [a-z] [A-Z])
         if [ "$GROUP_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
