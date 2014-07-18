@@ -1139,6 +1139,7 @@ subsystem.0.class=com.netscape.ca.CertificateAuthority
 subsystem.0.id=ca
 subsystem.1.class=com.netscape.cmscore.profile.ProfileSubsystem
 subsystem.1.id=profile
+subsystem.1.enabled=false
 subsystem.2.class=com.netscape.cmscore.selftests.SelfTestSubsystem
 subsystem.2.id=selftests
 subsystem.3.class=com.netscape.cmscore.cert.CrossCertPairSubsystem
