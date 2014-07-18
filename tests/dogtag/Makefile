@@ -115,6 +115,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-profile-find-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-profile-show-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-review-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-request-find-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-cli-find-ca.sh
 	#group CA
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-add-ca.sh
