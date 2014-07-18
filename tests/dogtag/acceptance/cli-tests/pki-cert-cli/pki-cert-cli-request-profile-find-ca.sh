@@ -295,7 +295,7 @@ run_pki-cert-request-profile-find-ca_tests()
         rlAssertNotGrep "Error: Unrecognized option: --help" "$cert_request_profile_find_info"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_cert_request_profile_find-0015: Issue junk value to --start and verify no search results are returned"
+        rlPhaseStartTest "pki_cert_request_profile_find-0017: Issue junk value to --start and verify no search results are returned"
         rlLog "Executing pki cert-request-profile-find --start $tmp_junk_data"
         rlRun "pki cert-request-profile-find --start $tmp_junk_data  > $cert_request_profile_find_info 2>&1" 1,255 "pass junk data to --start"
         rlAssertNotGrep "Profile ID: caUserCert" "$cert_request_profile_find_info"
@@ -303,7 +303,7 @@ run_pki-cert-request-profile-find-ca_tests()
         rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/992"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_cert_request_profile_find-0016: Issue no value to --start and verify no search results are returned"
+        rlPhaseStartTest "pki_cert_request_profile_find-0018: Issue no value to --start and verify no search results are returned"
         rlLog "Executing pki cert-request-profile-find --start"
         rlRun "pki cert-request-profile-find --start > $cert_request_profile_find_info 2>&1" 1,255
 	rlAssertNotGrep "Error: Missing Profile ID" "$cert_request_profile_find_info"
@@ -315,14 +315,14 @@ run_pki-cert-request-profile-find-ca_tests()
         rlAssertNotGrep "Error: Unrecognized option: --help" "$cert_request_profile_find_info"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_cert_request_profile_find-0017: Issue value to --start which is greater than number of profiles and verify no search results are returned"
+        rlPhaseStartTest "pki_cert_request_profile_find-0019: Issue value to --start which is greater than number of profiles and verify no search results are returned"
         rlLog "Executing pki cert-request-profile-find --start 1000"
         rlRun "pki cert-request-profile-find --start 1000 > $cert_request_profile_find_info" 0
 	rlAssertGrep "Number of entries returned 0" "$cert_request_profile_find_info"
         rlPhaseEnd
 
 
-        rlPhaseStartTest "pki_cert_request_profile_find-0018: Test-1 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
+        rlPhaseStartTest "pki_cert_request_profile_find-0020: Test-1 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
         local tmp_profile=caUserCert
         local tmp_new_user_profile=caUserCert$i18n_user1$rand
         rlLog "Get $tmp_profile xml file"
@@ -338,7 +338,7 @@ run_pki-cert-request-profile-find-ca_tests()
         rlPhaseEnd
 
 
-        rlPhaseStartTest "pki_cert_request_profile_find-0019: Test-2 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
+        rlPhaseStartTest "pki_cert_request_profile_find-0021: Test-2 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
         local tmp_profile=caUserCert
         local tmp_new_user_profile=caUserCert$i18n_user2$rand
         rlLog "Get $tmp_profile xml file"
@@ -353,7 +353,7 @@ run_pki-cert-request-profile-find-ca_tests()
         rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/992"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_cert_request_profile_find-0020: Test-3 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
+        rlPhaseStartTest "pki_cert_request_profile_find-0022: Test-3 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
         local tmp_profile=caUserCert
         local tmp_new_user_profile=caUserCert$i18n_user3$rand
         rlLog "Get $tmp_profile xml file"
@@ -368,7 +368,7 @@ run_pki-cert-request-profile-find-ca_tests()
         rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/992"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_cert_request_profile_find-0021: Test-4 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
+        rlPhaseStartTest "pki_cert_request_profile_find-0023: Test-4 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
         local tmp_profile=caUserCert
         local tmp_new_user_profile=caUserCert$i18n_user4$rand
         rlLog "Get $tmp_profile xml file"
@@ -383,7 +383,7 @@ run_pki-cert-request-profile-find-ca_tests()
         rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/992"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_cert_request_profile_find-0022: Test-5 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
+        rlPhaseStartTest "pki_cert_request_profile_find-0024: Test-5 Create a new profile with i18n characters and verify if the new profile shows up in pki cert-request-profile-find"
         local tmp_profile=caUserCert
         local tmp_new_user_profile=caUserCert$i18n_user5$rand
         rlLog "Get $tmp_profile xml file"
