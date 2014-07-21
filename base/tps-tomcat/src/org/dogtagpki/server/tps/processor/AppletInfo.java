@@ -13,6 +13,8 @@ public class AppletInfo {
 
     private TPSBuffer cuid;
     private TPSBuffer msn;
+    private int totalMem;
+    private int freeMem;
 
     public AppletInfo(byte appletMajorVer,byte appletMinorVer,byte appMajorVer,byte appMinorVer) {
 
@@ -72,6 +74,23 @@ public class AppletInfo {
 
     public static void main(String[] args) {
 
+    }
+
+    public void setTotalMem(int total_mem) {
+        totalMem = total_mem;
+
+    }
+
+    public int getTotalMem() {
+        return totalMem;
+    }
+
+    public void setFreeMem(int free_mem) {
+        freeMem = free_mem;
+    }
+
+    public int getFreeMem() {
+        return freeMem;
     }
 
 }

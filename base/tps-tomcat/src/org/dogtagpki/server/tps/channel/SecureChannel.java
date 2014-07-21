@@ -22,6 +22,8 @@ import java.io.IOException;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
 import org.dogtagpki.tps.apdu.APDU;
 import org.dogtagpki.tps.apdu.APDUResponse;
+import org.dogtagpki.tps.apdu.CreateObjectAPDU;
+import org.dogtagpki.tps.apdu.CreatePinAPDU;
 import org.dogtagpki.tps.apdu.DeleteFileAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
@@ -29,17 +31,23 @@ import org.dogtagpki.tps.apdu.GenerateKeyAPDU;
 import org.dogtagpki.tps.apdu.GenerateKeyECCAPDU;
 import org.dogtagpki.tps.apdu.InstallAppletAPDU;
 import org.dogtagpki.tps.apdu.InstallLoadAPDU;
+import org.dogtagpki.tps.apdu.LifecycleAPDU;
 import org.dogtagpki.tps.apdu.LoadFileAPDU;
 import org.dogtagpki.tps.apdu.ReadObjectAPDU;
 import org.dogtagpki.tps.apdu.SetIssuerInfoAPDU;
+import org.dogtagpki.tps.apdu.SetPinAPDU;
+import org.dogtagpki.tps.apdu.WriteObjectAPDU;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
+import sun.security.pkcs11.wrapper.PKCS11Constants;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 
 public class SecureChannel {
 
@@ -59,6 +67,12 @@ public class SecureChannel {
     private TPSBuffer icv;
     private TPSBuffer keyInfoData;
     private SecurityLevel secLevel;
+
+    public enum TokenKeyType {
+        KEY_TYPE_ENCRYPTION,
+        KEY_TYPE_SIGNING,
+        KEY_TYPE_SIGNING_AND_ENCRYPTION
+    }
 
     public SecureChannel(TPSProcessor processor, PK11SymKey sessionKey, PK11SymKey encSessionKey, TPSBuffer drmDesKey,
             TPSBuffer kekDesKey, TPSBuffer keyCheck, TPSBuffer keyDiversificationData, TPSBuffer cardChallenge,
@@ -92,6 +106,98 @@ public class SecureChannel {
     }
 
     public static void main(String[] args) {
+    }
+
+    public void appendPKCS11Attribute(TPSBuffer buffer, long type, TPSBuffer attribute) {
+
+        buffer.addLong4Bytes(type);
+
+        buffer.addInt2Bytes(attribute.size());
+        buffer.add(attribute);
+    }
+
+    public void appendKeyCapabilities(TPSBuffer buffer, String keyTypePrefix, String keyType) throws TPSException {
+
+        if (buffer == null || keyTypePrefix == null || keyType == null) {
+            throw new TPSException("SecureChannel.appdndKeyCabalities: Invalid input datat.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        final String keyCapabilities = "keyCapabilities";
+
+        try {
+
+            boolean value = false;
+            String configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "encrypt";
+
+            value = configStore.getBoolean(configName);
+
+            TPSBuffer attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_ENCRYPT, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "sign";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_SIGN, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "signRecover";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_SIGN_RECOVER, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "decrypt";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_DECRYPT, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "derive";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_DERIVE, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "unwrap";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_UNWRAP, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "wrap";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_WRAP, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "verifyRecover";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_VERIFY_RECOVER, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "verify";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_VERIFY, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "sensitive";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_SENSITIVE, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "private";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_PRIVATE, attr);
+
+            configName = keyTypePrefix + "." + keyType + "." + keyCapabilities + "." + "token";
+            value = configStore.getBoolean(configName);
+            attr = new TPSBuffer(Util.bool2Byte(value));
+            appendPKCS11Attribute(buffer, PKCS11Constants.CKA_TOKEN, attr);
+
+            CMS.debug("SecureChannel.appendKeyCapabilities: returning: " + buffer.toHexString());
+
+        } catch (EBaseException e) {
+            throw new TPSException("SecureChannel.appentKeyCapabilities. Can't obtain config value!",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
     }
 
     public void externalAuthenticate() throws TPSException, IOException {
@@ -405,6 +511,55 @@ public class SecureChannel {
         return keyInfoData;
     }
 
+    public void writeObject(TPSBuffer objectID, TPSBuffer objectData) throws TPSException, IOException {
+        CMS.debug("SecureChannel.writeObject: entering ...");
+
+        if (objectID == null || objectData == null) {
+            throw new TPSException("SecureChannel.writeObject: invalid input data.");
+        }
+
+        final int MAX_WRITE_SIZE = 0xd0;
+
+        int offset = 0;
+        int toSend = objectData.size();
+        int blockSize = 0;
+
+        boolean moreToGo = true;
+        do {
+
+            if (toSend > MAX_WRITE_SIZE) {
+                blockSize = MAX_WRITE_SIZE;
+            } else {
+                blockSize = toSend;
+            }
+
+            TPSBuffer blockToSend = objectData.substr(offset, blockSize);
+
+            WriteObjectAPDU write = new WriteObjectAPDU(objectID.toBytesArray(), offset, blockToSend);
+
+            computeAPDU(write);
+
+            APDUResponse response = processor.handleAPDURequest(write);
+
+            if (!response.checkResult()) {
+                CMS.debug("SecureChannel.writeObject: bad apdu return!");
+                //Throw this return code because this happens during enrollment and we don't have
+                // a more specific error code.
+                throw new TPSException("SecureChannel.writeObject. Failed in middle of writeObject.",
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+
+            offset += blockSize;
+            toSend -= blockSize;
+
+            if (toSend <= 0) {
+                moreToGo = false;
+            }
+
+        } while (moreToGo);
+
+    }
+
     public TPSBuffer readObject(TPSBuffer objectID, int offset, int len) throws TPSException, IOException {
 
         CMS.debug("SecureChannel.readObject: entering ...");
@@ -462,6 +617,228 @@ public class SecureChannel {
         return result;
     }
 
+    public void createObject(TPSBuffer objectID, TPSBuffer permissions, TPSBuffer object) throws TPSException,
+            IOException {
+
+        CMS.debug("SecureChannel.createObject: with full object. entering...");
+
+        if (objectID == null || permissions == null || object == null) {
+            throw new TPSException("SecureChannel.createObject, with full object. Bad input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+
+        }
+
+        createObject(objectID, permissions, object.size());
+
+        writeObject(objectID, object);
+
+    }
+
+    public void createCertificate(TPSBuffer objectID, TPSBuffer cert) throws TPSException, IOException {
+        CMS.debug("SecureChannel.createCertificate: entering...");
+
+        if (objectID == null || cert == null) {
+            throw new TPSException("SecureChannel.createCertificate. Bad input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        byte[] perms = { (byte) 0xff, (byte) 0xff, 0x40, 0x00, 0x40, 0x00 };
+
+        TPSBuffer permissions = new TPSBuffer(perms);
+
+        createObject(objectID, permissions, cert);
+
+    }
+
+    public void createPKCS11CertAttrs(TokenKeyType keyType, String id, String label, TPSBuffer keyid)
+            throws TPSException, IOException {
+
+        TPSBuffer buffer = createPKCS11CertAttrsBuffer(keyType, id, label, keyid);
+
+        byte[] perms = { (byte) 0xff, (byte) 0xff, 0x40, 0x00, 0x40, 0x00 };
+
+        TPSBuffer permissions = new TPSBuffer(perms);
+
+        createObject(new TPSBuffer(id), permissions, buffer);
+
+    }
+
+    public TPSBuffer createPKCS11PriKeyAttrsBuffer(String id, String label, TPSBuffer keyid,
+            TPSBuffer modulus, String keyTypePrefix) throws TPSException {
+
+        TPSBuffer result = new TPSBuffer();
+
+        CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer: entering...");
+
+        if (id == null || label == null || keyid == null || modulus == null || keyTypePrefix == null) {
+            throw new TPSException("SecureChannel.craetePKCS11PriKeyAttrsBuffer: invalid input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer:  id: " + id + " label: " + label + " keyid: "
+                + keyid.toHexString());
+
+        byte keytype[] = { 0, 0, 0, 0 };
+        byte p11class[] = { 3, 0, 0, 0 };
+
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_MODULUS, modulus);
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_KEY_TYPE, new TPSBuffer(keytype));
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_CLASS, new TPSBuffer(p11class));
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_ID, keyid);
+        appendKeyCapabilities(result, keyTypePrefix, "private");
+
+        finalizeObjectBuffer(result, id);
+
+        CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer: returing: " + result.toHexString());
+
+        return result;
+
+    }
+
+    public void createPKCS11PriKeyAttrs(String id, String label, TPSBuffer keyid,
+            TPSBuffer modulus, String keyTypePrefix) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer: entering...");
+
+        if (id == null || label == null || keyid == null || modulus == null || keyTypePrefix == null) {
+            throw new TPSException("SecureChannel.craetePKCS11PriKeyAttrsBuffer: invalid input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        TPSBuffer buffer = createPKCS11PriKeyAttrsBuffer(id, label, keyid, modulus, keyTypePrefix);
+
+        byte[] perms = { (byte) 0xff, (byte) 0xff, 0x40, 0x00, 0x40, 0x00 };
+
+        TPSBuffer permissions = new TPSBuffer(perms);
+
+        createObject(new TPSBuffer(id), permissions, buffer);
+    }
+
+    public TPSBuffer createPKCS11PublicKeyAttrsBuffer(String id, String label, TPSBuffer keyid,
+            TPSBuffer modulus, TPSBuffer exponent, String keyTypePrefix) throws TPSException {
+
+        TPSBuffer result = new TPSBuffer();
+        CMS.debug("SecureChannel.createPKCS11PublicKeyAttrsBuffer: entering...");
+
+        if (id == null || label == null || keyid == null || modulus == null || exponent == null
+                || keyTypePrefix == null) {
+            throw new TPSException("SecureChannel.craetePKCS11PublicKeyAttrsBuffer: invalid input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        byte p11class[] = { 2, 0, 0, 0 };
+
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_PUBLIC_EXPONENT, exponent);
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_MODULUS, modulus);
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_ID, keyid);
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_CLASS, new TPSBuffer(p11class));
+        appendKeyCapabilities(result, keyTypePrefix, "public");
+
+        finalizeObjectBuffer(result, id);
+
+        CMS.debug("SecureChannel.createPKCS11PublicKeyAttrsBuffer: returing: " + result.toHexString());
+
+        return result;
+
+    }
+
+    public void createPKCS11PublicKeyAttrs(String id, String label, TPSBuffer keyid,
+            TPSBuffer modulus, TPSBuffer exponent, String keyTypePrefix) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.createPKCS11PublicKeyAttrsBuffer: entering...");
+
+        if (id == null || label == null || keyid == null || modulus == null || exponent == null
+                || keyTypePrefix == null) {
+            throw new TPSException("SecureChannel.craetePKCS11PriKeyAttrsBuffer: invalid input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        TPSBuffer buffer = createPKCS11PriKeyAttrsBuffer(id, label, keyid, modulus, keyTypePrefix);
+
+        byte[] perms = { (byte) 0xff, (byte) 0xff, 0x40, 0x00, 0x40, 0x00 };
+
+        TPSBuffer permissions = new TPSBuffer(perms);
+
+        createObject(new TPSBuffer(id), permissions, buffer);
+
+    }
+
+    public void finalizeObjectBuffer(TPSBuffer buffer, String id) {
+
+        TPSBuffer header = new TPSBuffer();
+
+        header.add((byte) 0);
+        header.add((byte) id.charAt(0));
+        header.add((byte) id.charAt(1));
+        header.add((byte) 0);
+        header.add((byte) 0);
+
+        header.add((byte) ((buffer.size()) / 256));
+        header.add((byte) ((buffer.size()) % 256));
+
+        buffer.prepend(header);
+
+    }
+
+    public TPSBuffer createPKCS11CertAttrsBuffer(TokenKeyType keyType, String id, String label, TPSBuffer keyid)
+            throws TPSException {
+
+        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: entering... id: " + id);
+        if (keyType == null || id == null || label == null || keyid == null) {
+            throw new TPSException("SecureChannel.createPKCS11CertAttrsBuffer. Bad input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+
+        }
+
+        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: ... id: " + id + " label: " + label + " keyid: "
+                + keyid.toHexString());
+
+        byte[] type = { 0x0, 0x0, 0x0, 0x0 };
+        byte[] p11class = { 0x1, 0x0, 0x0, 0x0 };
+        byte[] tokenFlag = { 0x1 };
+
+        TPSBuffer result = new TPSBuffer();
+
+        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: label: " + label + " label bytes: "
+                + (new TPSBuffer(label)).toHexString());
+
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_LABEL, new TPSBuffer(label.getBytes()));
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_ID, keyid);
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_CERTIFICATE_TYPE, new TPSBuffer(type));
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_CLASS, new TPSBuffer(p11class));
+        appendPKCS11Attribute(result, PKCS11Constants.CKA_TOKEN, new TPSBuffer(tokenFlag));
+
+        finalizeObjectBuffer(result, id);
+
+        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: returing: " + result.toHexString());
+
+        return result;
+
+    }
+
+    public void createObject(TPSBuffer objectID, TPSBuffer permissions, int len) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.createObject: entering...");
+        if (objectID == null || permissions == null || len <= 0) {
+            throw new TPSException("SecureChannel.createObject. Bad input data.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        CreateObjectAPDU create = new CreateObjectAPDU(objectID.toBytesArray(), permissions.toBytesArray(), len);
+
+        computeAPDU(create);
+
+        APDUResponse response = processor.handleAPDURequest(create);
+
+        //Throw this return code because this happens during enrollment and we don't have
+        // a more specific error code.
+        if (!response.checkResult()) {
+            throw new TPSException("SecureChannel.createObject. Failed to create object on token.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+    }
+
     public int startEnrollment(int pe1, int pe2, TPSBuffer wrappedChallenge, TPSBuffer keyCheck, int algorithm,
             int keySize, int option) throws TPSException, IOException {
 
@@ -515,6 +892,78 @@ public class SecureChannel {
         CMS.debug("SecureChannel.startEnrollment: returning key size: " + size);
 
         return size;
+
+    }
+
+    public int tokenTypeToInt(TokenKeyType type) {
+
+        if (type == TokenKeyType.KEY_TYPE_ENCRYPTION)
+            return 0;
+
+        if (type == TokenKeyType.KEY_TYPE_SIGNING)
+            return 1;
+        else
+            return 2;
+    }
+
+    public void setLifeycleState(byte flag) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.setLifecycleState: flage: " + flag);
+
+        LifecycleAPDU life = new LifecycleAPDU(flag);
+
+        computeAPDU(life);
+
+        APDUResponse response = processor.handleAPDURequest(life);
+
+        if (!response.checkResult()) {
+            throw new TPSException("SecureChannel.setLifecycleState. Failed to set Lifecycle State!.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+    }
+
+    public void createPin(int pinNumber, int maxRetries, String pin) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.createPin:  entering...");
+
+        if (pin == null) {
+            throw new TPSException("SecureChannel.createPin: invalid intput data.",
+                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+        }
+
+        TPSBuffer pinBuf = new TPSBuffer(pin.getBytes());
+        CreatePinAPDU create = new CreatePinAPDU((byte) pinNumber, (byte) maxRetries, pinBuf);
+
+        computeAPDU(create);
+
+        APDUResponse response = processor.handleAPDURequest(create);
+
+        //If the pin already exists we may get an error here, but we go on.
+
+    }
+
+    public void resetPin(int pinNumber, String new_pin) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.resetPin");
+
+        if (new_pin == null) {
+            throw new TPSException("SecureChannel.resetPin: invalid intput data.",
+                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+        }
+
+        TPSBuffer newPinBuf = new TPSBuffer(new_pin.getBytes());
+
+        SetPinAPDU reset = new SetPinAPDU((byte) 0x0, (byte) 0x0, newPinBuf);
+
+        computeAPDU(reset);
+
+        APDUResponse response = processor.handleAPDURequest(reset);
+
+        if (!response.checkResult()) {
+            throw new TPSException("SecureChannel.resetPin: failed to reset pin.",
+                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+        }
 
     }
 

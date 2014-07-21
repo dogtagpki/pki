@@ -67,7 +67,9 @@ public class TPSMessage {
     public static final String INVALID_PWD_NAME = "invalid_pw";
     public static final String BLOCKED_NAME = "blocked";
     public static final String SCREEN_NAME_NAME = "screen_name";
-    public static final String PASSWORD_NAME = "password";
+    public static final String UID_NAME = "UID";
+    public static final String PASSWORD_NAME = "PASSWORD";
+    public static final String PASSWORD_NAME_1 = "password";
     public static final String PIN_REQUIRED_NAME = "pin_required";
     public static final String TITLE_NAME = "title";
     public static final String DESCRIPTION_NAME = "description";
@@ -455,7 +457,7 @@ public class TPSMessage {
         case MSG_EXTENDED_LOGIN_RESPONSE:
             result =
                 new ExtendedLoginResponseMsg(op_val,
-                    get(SCREEN_NAME_NAME),
+                    get(UID_NAME),
                     get(PASSWORD_NAME),
                     extsMap);
             break;
@@ -464,11 +466,15 @@ public class TPSMessage {
         case MSG_LOGIN_RESPONSE:
             result =
                 new LoginResponseMsg(get(SCREEN_NAME_NAME),
-                    get(PASSWORD_NAME));
+                    get(PASSWORD_NAME_1));
             break;
         case MSG_NEW_PIN_REQUEST:
             break;
         case MSG_NEW_PIN_RESPONSE:
+
+            String pin = get(TPSMessage.NEW_PIN_NAME);
+            CMS.debug("TPSMessage.createMessage: MSG_NEW_PIN_RESPONSE pin: " + pin);
+            result = new NewPinResponseMsg(pin);
             break;
         case MSG_SECUREID_REQUEST:
             break;

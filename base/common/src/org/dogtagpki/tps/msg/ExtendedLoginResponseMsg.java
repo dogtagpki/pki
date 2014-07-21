@@ -37,7 +37,7 @@ public class ExtendedLoginResponseMsg extends TPSMessage {
         put(OPERATION_TYPE_NAME, opTypeToInt(theOp));
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_EXTENDED_LOGIN_RESPONSE));
         authParams = theExtensions;
-        put(SCREEN_NAME_NAME, uid);
+        put(UID_NAME, uid);
         put(PASSWORD_NAME, password);
 
     }

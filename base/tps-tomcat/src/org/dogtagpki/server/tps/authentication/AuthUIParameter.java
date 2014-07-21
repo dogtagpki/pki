@@ -75,11 +75,17 @@ public class AuthUIParameter {
         if (desc == null)
             desc = getParamDescription("en");
 
+        String typeValue = "string";
+
+        if(paramId.equals("PASSWORD")){
+            typeValue = "password";
+        }
+
         String string =
                 "id=" + paramId +
                         "&name=" + name +
-                        "&description=" + desc +
-                        "&type=string" +
+                        "&desc=" + desc +
+                        "&type=" + typeValue +
                         "&option=";
         return string;
     }

@@ -18,11 +18,13 @@
 package org.dogtagpki.server.tps.processor;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +57,8 @@ import org.dogtagpki.tps.msg.ExtendedLoginRequestMsg;
 import org.dogtagpki.tps.msg.ExtendedLoginResponseMsg;
 import org.dogtagpki.tps.msg.LoginRequestMsg;
 import org.dogtagpki.tps.msg.LoginResponseMsg;
+import org.dogtagpki.tps.msg.NewPinRequestMsg;
+import org.dogtagpki.tps.msg.NewPinResponseMsg;
 import org.dogtagpki.tps.msg.StatusUpdateRequestMsg;
 import org.dogtagpki.tps.msg.TPSMessage;
 import org.dogtagpki.tps.msg.TokenPDURequestMsg;
@@ -132,7 +136,7 @@ public class TPSProcessor {
         selectedTokenType = theTokenType;
     }
 
-    protected String getSelectedTokenType() {
+    public String getSelectedTokenType() {
         return selectedTokenType;
     }
 
@@ -372,6 +376,23 @@ public class TPSProcessor {
 
     }
 
+    protected SecureChannel setupSecureChannel() throws TPSException, IOException {
+        SecureChannel channel = null;
+
+        //Create a standard secure channel with current key set.
+        CMS.debug("TPSProcessor.setupSecureChannel: No arguments entering...");
+
+        int defKeyVersion = getChannelDefKeyVersion();
+        int defKeyIndex = getChannelDefKeyIndex();
+
+        channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, SecurityLevel.SECURE_MSG_MAC_ENC,
+                getTKSConnectorID());
+
+        channel.externalAuthenticate();
+
+        return channel;
+    }
+
     protected SecureChannel setupSecureChannel(byte keyVersion, byte keyIndex, SecurityLevel securityLevel,
             String connId)
             throws IOException, TPSException {
@@ -558,6 +579,18 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
+    }
+
+    public void selectCoolKeyApplet() throws TPSException, IOException {
+
+        TPSBuffer netkeyAIDBuff = getNetkeyAID();
+
+        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
+
+        if (!select.checkResult()) {
+            throw new TPSException("TPSProcessor.upgradeApplet: Cannot select newly created applet!",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+        }
     }
 
     protected byte[] getAppletFileData(String appletFilePath) throws IOException, TPSException {
@@ -933,24 +966,7 @@ public class TPSProcessor {
 
         // Add issuer info to the token
 
-        if (checkIssuerInfoEnabled()) {
-
-            int defKeyIndex = getChannelDefKeyIndex();
-            int defKeyVersion = getChannelDefKeyVersion();
-
-            SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, secLevel, tksConnId);
-
-            channel.externalAuthenticate();
-
-            String issuer = getIssuerInfoValue();
-
-            // We know this better be ASCII value URL.
-            byte[] issuer_bytes = issuer.getBytes("US-ASCII");
-            TPSBuffer issuerInfoBuff = new TPSBuffer(issuer_bytes);
-
-            channel.setIssuerInfo(issuerInfoBuff);
-
-        }
+        writeIssuerInfoToToken(null);
 
         if (requiresStatusUpdate()) {
             statusUpdate(100, "PROGRESS_DONE");
@@ -961,6 +977,39 @@ public class TPSProcessor {
         // ToDo: Update Token DB
         // ToDo:  Revoke certificates
 
+    }
+
+    protected void writeIssuerInfoToToken(SecureChannel origChannel) throws TPSException, IOException,
+            UnsupportedEncodingException {
+        if (checkIssuerInfoEnabled()) {
+
+            SecurityLevel secLevel = SecurityLevel.SECURE_MSG_MAC_ENC;
+
+            String tksConnId = getTKSConnectorID();
+
+            int defKeyIndex = getChannelDefKeyIndex();
+            int defKeyVersion = getChannelDefKeyVersion();
+
+            SecureChannel channel = null;
+
+            if (origChannel != null) {
+                channel = origChannel;
+            } else {
+
+                channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, secLevel, tksConnId);
+                channel.externalAuthenticate();
+
+            }
+
+            String issuer = getIssuerInfoValue();
+
+            // We know this better be ASCII value URL.
+            byte[] issuer_bytes = issuer.getBytes("US-ASCII");
+            TPSBuffer issuerInfoBuff = new TPSBuffer(issuer_bytes);
+
+            channel.setIssuerInfo(issuerInfoBuff);
+
+        }
     }
 
     protected String getResolverInstanceName() throws TPSException {
@@ -1528,7 +1577,7 @@ public class TPSProcessor {
         if (!requiresStatusUpdate())
             return;
 
-        CMS.debug("In TPSProcessor.statusUpdate status: " + " info: " + info);
+        CMS.debug("In TPSProcessor.statusUpdate status: " + status + " info: " + info);
 
         StatusUpdateRequestMsg statusUpdate = new StatusUpdateRequestMsg(status, info);
         session.write(statusUpdate);
@@ -1606,9 +1655,26 @@ public class TPSProcessor {
             app_minor_version = token_status.at(3);
         }
 
+        int free_mem = 0;
+        int total_mem = 0;
+
+        if (token_status.size() >= 12) {
+            byte tot_high = token_status.at(6);
+            byte tot_low = token_status.at(7);
+
+            byte free_high = token_status.at(10);
+            byte free_low = token_status.at(11);
+
+            total_mem = (tot_high << 8) + tot_low;
+            free_mem = (free_high << 8) + free_low;
+
+        }
+
         result = new AppletInfo(major_version, minor_version, app_major_version, app_minor_version);
         result.setCUID(token_cuid);
         result.setMSN(token_msn);
+        result.setTotalMem(total_mem);
+        result.setFreeMem(free_mem);
 
         CMS.debug("TPSProcessor.getAppletInfo: cuid: " + result.getCUIDString() + " msn: " + result.getMSNString()
                 + " major version: " + result.getMinorVersion() + " minor version: " + result.getMinorVersion()
@@ -1677,6 +1743,87 @@ public class TPSProcessor {
         objects = respApdu.getData();
 
         return objects;
+
+    }
+
+    // Request new pin from client
+    protected String requestNewPin(int minLen, int maxLen) throws IOException, TPSException {
+
+        CMS.debug("TPSProcessor.requestNewPin: entering...");
+
+        String newPin = null;
+
+        NewPinRequestMsg new_pin_req = new NewPinRequestMsg(minLen, maxLen);
+
+        session.write(new_pin_req);
+
+        NewPinResponseMsg new_pin_resp = (NewPinResponseMsg) session.read();
+
+        newPin = new_pin_resp.get(NewPinResponseMsg.NEW_PIN_NAME);
+
+        if (newPin.length() < minLen || newPin.length() > maxLen) {
+            throw new TPSException("TPSProcessor.requestNewPin: new pin length outside of length contraints: min: "
+                    + minLen + " max: " + maxLen);
+        }
+
+        return newPin;
+    }
+
+    protected String mapPattern(LinkedHashMap<String, String> map, String pattern) throws TPSException {
+
+        //Right now only support one pattern to match within pattern: for instance:
+        // "encryption key for $userid$ , not only the one "$userid$" pattern.
+
+        String result = null;
+
+        if (pattern == null || map == null) {
+            throw new TPSException("TPSProcessor.mapPattern: Illegal input paramters!",
+                    TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+        }
+
+        final char delim = '$';
+        int firstPos = 0;
+        int nextPos = 0;
+        String patternToMap = null;
+        String patternMapped = null;
+
+        firstPos = pattern.indexOf(delim);
+        nextPos = pattern.indexOf(delim, firstPos + 1);
+
+        if ((nextPos - firstPos) <= 1) {
+            return pattern;
+        }
+
+        patternToMap = pattern.substring(firstPos + 1, nextPos);
+
+        CMS.debug("TPSProcessor.mapPattern: patternTo map: " + patternToMap);
+
+        String piece1 = "";
+        if (firstPos >= 1)
+            piece1 = pattern.substring(0, firstPos);
+
+        String piece2 = "";
+        if (nextPos < (pattern.length() - 1))
+            piece2 = pattern.substring(nextPos + 1);
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            String key = entry.getKey();
+
+            String value = entry.getValue();
+            CMS.debug("TPSEnrollProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
+
+            if (key.equals(patternToMap)) {
+                CMS.debug("TPSEnrollProcessor.mapPattern: found match: key: " + key + " mapped to: " + value);
+                patternMapped = value;
+                break;
+            }
+
+        }
+
+        result = piece1 + patternMapped + piece2;
+
+        CMS.debug("TPSEnrollProcessor.mapPattern: returning: " + result);
+        return result;
 
     }
 

@@ -28,13 +28,16 @@ public class ExtendedLoginRequestMsg extends TPSMessage {
 
     private Set<String> params;
 
-    public ExtendedLoginRequestMsg(int invalid_pw, int blocked, Set<String> params, String title, String description) {
+    public ExtendedLoginRequestMsg(int invalid_pw, int blocked, Set<String> params, String title, String description)
+            throws UnsupportedEncodingException {
 
         put(INVALID_PWD_NAME, invalid_pw);
         put(BLOCKED_NAME, blocked);
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_EXTENDED_LOGIN_REQUEST));
-        put(TITLE_NAME, title);
-        put (DESCRIPTION_NAME, description);
+
+        put(TITLE_NAME, Util.uriEncode(title));
+        put(DESCRIPTION_NAME, Util.uriEncode(description));
+
         this.params = params;
 
     }
@@ -57,7 +60,7 @@ public class ExtendedLoginRequestMsg extends TPSMessage {
 
                 if (curParam != null && curParam.length() > 0) {
 
-                    String name = "&" + PARAMETER_NAME + Integer.toString(i++);
+                    String name = /*"&" + */ REQUIRED_PARAMETER_NAME + Integer.toString(i++);
                     String value = curParam;
 
                     put(name, value);
@@ -72,7 +75,7 @@ public class ExtendedLoginRequestMsg extends TPSMessage {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
 
         final String title = "LDAP Authentication";
         final String description = "This authenticates user against the LDAP directory.";

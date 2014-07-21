@@ -26,6 +26,8 @@ public class CreatePinAPDU  extends APDU {
 
     public  CreatePinAPDU(byte theP1, byte theP2, TPSBuffer theData) {
 
+        setCLA((byte) 0x84);
+        setINS((byte) 0x40);
         setP1(theP1);
         setP2(theP2);
         setData(theData);

@@ -20,6 +20,7 @@ package org.dogtagpki.server.tps;
 import java.io.IOException;
 
 import org.dogtagpki.server.tps.processor.TPSEnrollProcessor;
+import org.dogtagpki.server.tps.processor.TPSPinResetProcessor;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
 import org.dogtagpki.tps.TPSConnection;
 import org.dogtagpki.tps.main.TPSException;
@@ -93,7 +94,6 @@ public class TPSSession {
         int result = EndOpMsg.RESULT_ERROR;
         BeginOpMsg beginOp = (BeginOpMsg) firstMsg;
         try {
-
             switch (op_type) {
             case OP_FORMAT:
 
@@ -112,6 +112,9 @@ public class TPSSession {
             case OP_RENEW:
                 break;
             case OP_RESET_PIN:
+                result = EndOpMsg.RESULT_GOOD;
+                TPSPinResetProcessor pinResetProcessor = new TPSPinResetProcessor(this);
+                pinResetProcessor.process(beginOp);
                 break;
             case OP_UNBLOCK:
                 break;

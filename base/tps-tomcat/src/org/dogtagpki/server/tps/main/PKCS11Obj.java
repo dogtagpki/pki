@@ -24,6 +24,9 @@ public class PKCS11Obj {
         objectSpecs = new ArrayList<ObjectSpec>();
     }
 
+    private int oldFormatVersion;
+    private int oldObjectVersion;
+
     private int formatVersion;
     private int objectVersion;
 
@@ -35,8 +38,13 @@ public class PKCS11Obj {
         PKCS11Obj o = new PKCS11Obj();
 
         int formatVersion = b.getIntFrom2Bytes(0);
+
+        CMS.debug("PKCS11Obj.parse: formatVersion read from blob: " + formatVersion);
+
         o.setFormatVersion(formatVersion);
         int objectVersion = b.getIntFrom2Bytes(2);
+
+        CMS.debug("PKCS11Obj.parse: objectVersion read from blob: " + objectVersion);
 
         o.setObjectVersion(objectVersion);
         o.setCUID(b.substr(offset + 4, 10));
@@ -47,7 +55,7 @@ public class PKCS11Obj {
         int dataOffset = b.getIntFrom2Bytes(18);
 
         CMS.debug("PKCS11Obj.parse: commpressionType: " + compressionType + " DataSize:"
-                + dataSize + "DataOffset: " + dataOffset);
+                + dataSize + "DataOffset: " + dataOffset + " data:  " + b.toHexString());
 
         TPSBuffer data = new TPSBuffer();
 
@@ -64,6 +72,8 @@ public class PKCS11Obj {
             throw new TPSException("PKCS11Obj.parse: error parsing object data!");
         }
 
+        CMS.debug("PKCS11Obj.parse: uncompressed data: " + data.toHexString());
+
         int objOffset = data.getIntFrom2Bytes(0);
         int objCount = data.getIntFrom2Bytes(2);
 
@@ -75,7 +85,8 @@ public class PKCS11Obj {
         TPSBuffer tokenName = data.substr(5, data.at(4));
         o.setTokenName(tokenName);
 
-        System.out.println("tokenName: " + tokenName.toHexString());
+        if (tokenName != null)
+            System.out.println("tokenName: " + tokenName.toHexString());
         System.out.println("uncompressed data size: " + data.size());
 
         CMS.debug("PKCS11Obj.parse" + "objcount = " + objCount);
@@ -166,6 +177,7 @@ public class PKCS11Obj {
 
     public void setObjectVersion(int v)
     {
+        CMS.debug("PKCS11Obj.setObjectVersion: setting to: " + v);
         objectVersion = v;
     }
 
@@ -212,6 +224,23 @@ public class PKCS11Obj {
 
     public void addObjectSpec(ObjectSpec p)
     {
+        CMS.debug("PKCS11Obj.adObjectSpec entering.. " + p);
+        for (ObjectSpec objSpec : objectSpecs) {
+
+            long oid = objSpec.getObjectID();
+
+            if (oid == p.getObjectID()) {
+                objectSpecs.remove(objSpec);
+                char[] b1 = new char[2];
+
+                b1[0] = (char) ((oid >> 24) & 0xff);
+                b1[1] = (char) ((oid >> 16) & 0xff);
+                String oidStr = new String(b1);
+                CMS.debug("PKCS11Obj.addObjectSpec: found dup, removing...: " + oidStr);
+                break;
+            }
+        }
+
         objectSpecs.add(p);
     }
 
@@ -229,6 +258,8 @@ public class PKCS11Obj {
     private TPSBuffer getRawHeaderData(int compressionType, TPSBuffer data) {
         TPSBuffer header = new TPSBuffer();
 
+        CMS.debug("PKCS11Obj.getRawHeaderData: " + " formatVersion: " + formatVersion + " objectVersion: "
+                + objectVersion);
         header.add((byte) ((formatVersion >> 8) & 0xff));
         header.add((byte) (formatVersion & 0xff));
         header.add((byte) ((objectVersion >> 8) & 0xff));
@@ -245,6 +276,8 @@ public class PKCS11Obj {
         int compressedDataOffset = 20;
         header.add((byte) ((compressedDataOffset >> 8) & 0xff));
         header.add((byte) (compressedDataOffset & 0xff));
+
+        CMS.debug("PKCS11Obj.getRawHeaderData: returning: " + header.toHexString());
 
         return header;
 
@@ -269,6 +302,9 @@ public class PKCS11Obj {
         data.add((byte) (objectCountX & 0xff));
         data.add((byte) (tokenName.size() & 0xff));
         data.add(tokenName);
+
+        CMS.debug("PKCS11Obj:getRawData: objectCount: " + objectCount);
+
         for (int i = 0; i < objectCount; i++) {
             ObjectSpec spec = getObjectSpec(i);
             long objectID = spec.getObjectID();
@@ -295,6 +331,8 @@ public class PKCS11Obj {
                     int u_xclass = (int) ((u_fixedAttrs & 0x70) >> 4);
                     int u_id = (int) (u_fixedAttrs & 0x0f);
                     if (u_c == 'C' && u_xclass == PKCS11Constants.CKO_CERTIFICATE && u_id == id) {
+                        CMS.debug("PKCSObj:getRawData: found cert object: id: " + id + " u_id: " + u_id);
+
                         AttributeSpec u_attr =
                                 u_spec.getAttributeSpec(0);
                         AttributeSpec n_attr = new AttributeSpec();
@@ -315,6 +353,7 @@ public class PKCS11Obj {
                     int x_xclass = (int) ((x_fixedAttrs & 0x70) >> 4);
                     int x_id = (int) (x_fixedAttrs & 0x0f);
                     if (x_xclass == PKCS11Constants.CKO_PUBLIC_KEY && x_id == id) {
+                        CMS.debug("PKCSObj:getRawData: found public key object: id: " + id);
                         data.add(x_spec.getData());
                     }
                 }
@@ -327,6 +366,7 @@ public class PKCS11Obj {
                     int y_xclass = (int) ((y_fixedAttrs & 0x70) >> 4);
                     int y_id = (int) (y_fixedAttrs & 0x0f);
                     if (y_xclass == PKCS11Constants.CKO_PRIVATE_KEY && y_id == id) {
+                        CMS.debug("PKCSObj:getRawData: found private key object: id: " + id);
                         data.add(y_spec.getData());
                     }
                 }
@@ -347,11 +387,13 @@ public class PKCS11Obj {
         return result;
     }
 
-    TPSBuffer getCompressedData() throws TPSException, IOException
+    public TPSBuffer getCompressedData() throws TPSException, IOException
     {
         TPSBuffer data = getRawData(); // new TPSBuffer();
 
         CMS.debug("PKCS11Obj.getCompressedData: " + "before compress length = " + data.size());
+        CMS.debug("PKCS11Obj.getCompressedData: " + "before compress data = " + data.toHexString());
+
         System.out.println("Raw data before compress length: " + data.size());
 
         TPSBuffer src_buffer = new TPSBuffer(data);
@@ -364,6 +406,8 @@ public class PKCS11Obj {
 
         TPSBuffer result = new TPSBuffer(header);
         result.add(compressed);
+
+        CMS.debug("PKCS11Obj.getCompressedData: PKCS11 Data: " + result.toHexString());
 
         return result;
     }
@@ -589,6 +633,22 @@ public class PKCS11Obj {
 
         System.out.println("Before and after comparison result: Are the blobs identical?: " + identical);
 
+    }
+
+    public int getOldFormatVersion() {
+        return oldFormatVersion;
+    }
+
+    public void setOldFormatVersion(int oldFormatVersion) {
+        this.oldFormatVersion = oldFormatVersion;
+    }
+
+    public int getOldObjectVersion() {
+        return oldObjectVersion;
+    }
+
+    public void setOldObjectVersion(int oldObjectVersion) {
+        this.oldObjectVersion = oldObjectVersion;
     }
 
 }

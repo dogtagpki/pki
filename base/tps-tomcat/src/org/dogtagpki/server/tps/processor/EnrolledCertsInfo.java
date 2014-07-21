@@ -1,28 +1,54 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2013 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps.processor;
 
 import java.util.ArrayList;
 
+import netscape.security.x509.X509CertImpl;
+
 import org.dogtagpki.server.tps.main.PKCS11Obj;
 import org.dogtagpki.tps.main.TPSBuffer;
-import org.mozilla.jss.pkix.cert.Certificate;
 
 public class EnrolledCertsInfo {
 
     EnrolledCertsInfo() {
+        certificates = new ArrayList<X509CertImpl>();
+        ktypes = new ArrayList<String>();
+        origins = new ArrayList<String>();
+        tokenTypes = new ArrayList<String>();
     }
 
-    EnrolledCertsInfo(PKCS11Obj obj, TPSBuffer wrappedChallenge, TPSBuffer plainChallenge, int keyTypeNum) {
+    EnrolledCertsInfo(PKCS11Obj obj, TPSBuffer wrappedChallenge, TPSBuffer plainChallenge, int keyTypeNum,
+            int startProgress, int endProgress) {
+        this();
         this.wrappedChallenge = wrappedChallenge;
         plaintextChallenge = plainChallenge;
         pkcs11objx = obj;
         numCertsToEnroll = keyTypeNum;
+        this.startProgress = startProgress;
+        this.endProgress = endProgress;
     }
 
     //Tables that will get set during processing
     private ArrayList<String> origins;
     private ArrayList<String> ktypes;
     private ArrayList<String> tokenTypes;
-    private ArrayList<Certificate> certificates;
+    private ArrayList<X509CertImpl> certificates;
 
     //Input challenge data
     private TPSBuffer wrappedChallenge;
@@ -32,8 +58,8 @@ public class EnrolledCertsInfo {
     private int numCertsToEnroll;
     private int currentCertIndex;
 
-    static final private int startProgress = 15;
-    static final private int endProgress = 90;
+    private int startProgress;
+    private int endProgress;
 
     public int getCurrentCertIndex() {
         return currentCertIndex;
@@ -106,8 +132,18 @@ public class EnrolledCertsInfo {
         tokenTypes.add(tokenType);
     }
 
-    public void addCertificate(Certificate cert) {
-        certificates.add(cert);
+    public void addCertificate(X509CertImpl x509Cert) {
+        certificates.add(x509Cert);
+    }
+
+    public void setStartProgress(int startP) {
+        startProgress = startP;
+
+    }
+
+    public void setEndProgress(int endP) {
+        endProgress = endP;
+
     }
 
 }

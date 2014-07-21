@@ -128,6 +128,11 @@ public class TPSEngine {
     public static final String CFG_DEF_PIN_RESET_PROFILE_RESOLVER = "pinResetMappingResolver";
     public static final String OP_ENROLL_PREFIX = "op.enroll";
     public static final String OP_PIN_RESET_PREFIX = "op.pinReset";
+    public static final String CFG_PIN_RESET_ENABLE = "pinReset.enable";
+    public static final String CFG_PIN_RESET_MIN_LEN = "pinReset.pin.minLen";
+    public static final String CFG_PIN_RESET_MAX_LEN = "pinReset.pin.maxLen";
+    public static final String CFG_PIN_RESET_MAX_RETRIES = "pinReset.pin.maxRetries";
+    public static final String CFG_PIN_RESET_STRING = "create_pin.string";
     public static final String ENROLL_OP = "enroll";
     public static final String FORMAT_OP = "format";
 

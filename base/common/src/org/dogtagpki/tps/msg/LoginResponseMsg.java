@@ -23,7 +23,7 @@ public class LoginResponseMsg  extends TPSMessage {
     public LoginResponseMsg(String uid, String password ) {
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_LOGIN_RESPONSE));
         put(SCREEN_NAME_NAME,uid);
-        put(PASSWORD_NAME, password);
+        put(PASSWORD_NAME_1, password);
 
     }
 }

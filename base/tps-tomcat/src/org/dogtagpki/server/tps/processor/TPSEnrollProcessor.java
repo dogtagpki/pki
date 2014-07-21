@@ -2,7 +2,11 @@ package org.dogtagpki.server.tps.processor;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.zip.DataFormatException;
 
 import netscape.security.provider.RSAPublicKey;
@@ -13,9 +17,9 @@ import netscape.security.x509.X509CertImpl;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
+import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
-import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
@@ -24,12 +28,15 @@ import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
+import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmsutil.util.Utils;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -54,7 +61,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     private void enroll() throws TPSException, IOException {
         CMS.debug("TPSEnrollProcessor enroll: entering...");
-
         TPSEngine engine = getTPSEngine();
         AppletInfo appletInfo = getAppletInfo();
         String resolverInstName = getResolverInstanceName();
@@ -101,7 +107,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         //Call stub to reset pin, method here will be small and call into common pin reset functionality.
         // Will be implemented during pin reset task.
 
-        checkAndHandlePinReset();
+        checkAndHandlePinReset(channel);
 
         String tksConnId = getTKSConnectorID();
         TPSBuffer plaintextChallenge = computeRandomData(16, tksConnId);
@@ -116,19 +122,112 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throw new TPSException("TPSEnrollProcessor.enroll: Failed to parse original token data: " + e.toString());
         }
 
+        pkcs11objx.setCUID(appletInfo.getCUID());
         //ToDo: Add token to token db
 
-        statusUpdate(15, "PROGRESS_PROCESS_PROFILE");
+        statusUpdate(10, "PROGRESS_PROCESS_PROFILE");
 
         EnrolledCertsInfo certsInfo = new EnrolledCertsInfo();
         certsInfo.setWrappedChallenge(wrappedChallenge);
         certsInfo.setPlaintextChallenge(plaintextChallenge);
         certsInfo.setPKCS11Obj(pkcs11objx);
+        certsInfo.setStartProgress(15);
+        certsInfo.setEndProgress(90);
 
         generateCertificates(certsInfo, channel, appletInfo);
 
-        throw new TPSException("TPSEnrollProcessor.enroll: Failed to enroll token!",
-                TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+        String tokenLabel = buildTokenLabel(certsInfo, appletInfo);
+
+        pkcs11objx.setTokenName(new TPSBuffer(tokenLabel.getBytes()));
+
+        int lastObjVer = pkcs11objx.getOldObjectVersion();
+
+        CMS.debug("TPSEnrollProcessor.enroll: getOldObjectVersion: returning: " + lastObjVer);
+
+        if (lastObjVer != 0) {
+            while (lastObjVer == 0xff) {
+                Random randomGenerator = new Random();
+                lastObjVer = randomGenerator.nextInt(1000);
+            }
+
+            lastObjVer = lastObjVer + 1;
+            CMS.debug("TPSEnrollProcessor.enroll: Setting objectVersion to: " + lastObjVer);
+            pkcs11objx.setObjectVersion(lastObjVer);
+
+        }
+
+        pkcs11objx.setFormatVersion(pkcs11objx.getOldFormatVersion());
+
+        // Make sure we have a good secure channel before writing out the final objects
+        channel = setupSecureChannel();
+
+        statusUpdate(92, "PROGRESS_WRITE_OBJECTS");
+
+        writeFinalPKCS11ObjectToToken(pkcs11objx, appletInfo, channel);
+        statusUpdate(98, "PROGRESS_ISSUER_INFO");
+        writeIssuerInfoToToken(channel);
+
+        statusUpdate(99, "PROGRESS_SET_LIFECYCLE");
+        channel.setLifeycleState((byte) 0x0f);
+
+        CMS.debug("TPSEnrollProcessor.enroll: leaving ...");
+
+        statusUpdate(100, "PROGRESS_DONE_ENROLLMENT");
+    }
+
+    private void writeFinalPKCS11ObjectToToken(PKCS11Obj pkcs11objx, AppletInfo ainfo, SecureChannel channel)
+            throws TPSException, IOException {
+        if (pkcs11objx == null || ainfo == null || channel == null) {
+            throw new TPSException("TPSErollProcessor.writeFinalPKCS11ObjectToToken: invalid input data!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        CMS.debug("TPSEnrollProcessor.writeFinalPKCS11ObjectToToken:  entering...");
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String compressConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + "pkcs11obj.compress.enable";
+
+        CMS.debug("TPSEnrollProcessor.writeFinalPKCS11ObjectToToken:  config to check: " + compressConfig);
+
+        boolean doCompress = false;
+
+        try {
+            doCompress = configStore.getBoolean(compressConfig, true);
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    "TPSEnrollProcessor.writeFinalPKCS11ObjectToToken: internal error obtaining config value " + e);
+        }
+
+        CMS.debug("TPSEnrollProcessor.writeFinalPKCS11ObjectToToken:  doCompress: " + doCompress);
+
+        TPSBuffer tokenData = null;
+
+        if (doCompress) {
+            tokenData = pkcs11objx.getCompressedData();
+
+        } else {
+            tokenData = pkcs11objx.getData();
+        }
+
+        if (tokenData.size() > ainfo.getTotalMem()) {
+
+            throw new TPSException(
+                    "TPSEnrollProcessor.writeFinalPKCS11ObjectToToken:  NOt enough memory to write certificates!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+
+        }
+
+        byte[] zobjectid = { (byte) 'z', (byte) '0', 0, 0 };
+        byte[] perms = { (byte) 0xff, (byte) 0xff, 0x40, 0x00, 0x40, 0x00 };
+        TPSBuffer zobjidBuf = new TPSBuffer(zobjectid);
+
+        channel.createObject(zobjidBuf, new TPSBuffer(perms), tokenData.size());
+
+        channel.writeObject(zobjidBuf, tokenData);
+
+        CMS.debug("TPSEnrollProcessor.writeFinalPKCS11ObjectToToken:  leaving successfully ...");
 
     }
 
@@ -175,8 +274,75 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
     }
 
-    private void checkAndHandlePinReset() {
-        // TODO Auto-generated method stub
+    private void checkAndHandlePinReset(SecureChannel channel) throws TPSException, IOException {
+
+        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset entering...");
+
+        if (channel == null) {
+            throw new TPSException("TPSProcessor.checkAndHandlePinReset: invalid input data!",
+                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+        }
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String pinResetEnableConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_PIN_RESET_ENABLE;
+
+        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + pinResetEnableConfig);
+
+        String minLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_PIN_RESET_MIN_LEN;
+
+        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + minLenConfig);
+
+        String maxLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_PIN_RESET_MAX_LEN;
+
+        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + maxLenConfig);
+
+        String maxRetriesConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_PIN_RESET_MAX_RETRIES;
+
+        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + maxRetriesConfig);
+
+        String pinStringConfig = TPSEngine.CFG_PIN_RESET_STRING;
+
+        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + pinStringConfig);
+
+        boolean enabled = false;
+        int minLen;
+        int maxLen;
+        int maxRetries;
+        String stringName;
+
+        try {
+
+            enabled = configStore.getBoolean(pinResetEnableConfig, true);
+
+            if (enabled == false) {
+                CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset:  Pin Reset not allowed by configuration, exiting...");
+                return;
+
+            }
+
+            minLen = configStore.getInteger(minLenConfig, 4);
+            maxLen = configStore.getInteger(maxLenConfig, 10);
+            maxRetries = configStore.getInteger(maxRetriesConfig, 0x7f);
+            stringName = configStore.getString(pinStringConfig, "password");
+
+            CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset: config vals: enabled: " + enabled + " minLen: "
+                    + minLen + " maxLen: " + maxLen);
+
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    "TPSEnrollProcessor.checkAndHandlePinReset: internal error in getting value from config.");
+        }
+
+        String new_pin = requestNewPin(minLen, maxLen);
+
+        channel.createPin(0x0, maxRetries, stringName);
+
+        channel.resetPin(0x0, new_pin);
 
     }
 
@@ -234,11 +400,28 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         TPSBuffer objects = null;
 
+        int lastFormatVersion = 0x0100;
+        int lastObjectVersion;
+        Random randomGenerator = new Random();
+
+        lastObjectVersion = randomGenerator.nextInt(1000);
+
+        CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: Random lastObjectVersion: " + lastObjectVersion);
+
         PKCS11Obj pkcs11objx = new PKCS11Obj();
+        pkcs11objx.setOldFormatVersion(lastFormatVersion);
+        pkcs11objx.setOldObjectVersion(lastObjectVersion);
+
         do {
+
             objects = listObjects(seq);
 
+            if (objects != null) {
+                CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: objects: " + objects.toHexString());
+            }
+
             if (objects == null) {
+                pkcs11objx.setOldObjectVersion(lastObjectVersion);
                 seq = 0;
             } else {
                 seq = 1; // get next entry
@@ -252,8 +435,22 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 TPSBuffer obj = channel.readObject(objectID, 0, (int) objectLenVal);
 
-                if ((char) obj.at(0) == 'z' && obj.at(1) == 0x0) {
+                if (obj != null) {
+                    CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: obj: " + obj.toHexString());
+                }
+
+                if ((char) objectID.at(0) == (byte) 'z' && objectID.at(1) == (byte) '0') {
+                    lastFormatVersion = obj.getIntFrom2Bytes(0);
+                    lastObjectVersion = obj.getIntFrom2Bytes(2);
+
+                    CMS.debug("PKCS11Obj.getCurrentObjectsOnToken: Versions read from token:  lastFormatVersion : "
+                            + lastFormatVersion
+                            + " lastObjectVersion: " + lastObjectVersion);
+
                     pkcs11objx = PKCS11Obj.parse(obj, 0);
+
+                    pkcs11objx.setOldFormatVersion(lastFormatVersion);
+                    pkcs11objx.setOldObjectVersion(lastObjectVersion);
                     seq = 0;
 
                 } else {
@@ -290,9 +487,52 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String keyType = getConfiguredKeyType(i);
             certsInfo.setCurrentCertIndex(i);
             generateCertificate(certsInfo, channel, aInfo, keyType);
+            channel = setupSecureChannel();
         }
 
         CMS.debug("TPSProcess.generateCertificates: ends ");
+    }
+
+    private String buildTokenLabel(EnrolledCertsInfo certsInfo, AppletInfo ainfo) throws TPSException {
+        String label = null;
+
+        if (certsInfo == null || ainfo == null) {
+            throw new TPSException("TPSEnrollProcessor.buildTokenLabel: invalide input data!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        CMS.debug("TPSEnrollProcessor.buildTokenLabel: entering...");
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + ".keyGen.tokenName";
+        String pattern = null;
+
+        try {
+            pattern = configStore.getString(configName, "$cuid$");
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    "TPSEnrollProcessor.buildTokenLabel: Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+
+        }
+
+        CMS.debug("TPSEnrollProcessor.buildTokenLabel: pattern: " + pattern);
+
+        Map<String, String> nv = new LinkedHashMap<String, String>();
+
+        nv.put("cuid", ainfo.getCUIDString());
+        nv.put("msn", ainfo.getMSNString());
+        nv.put("userid", userid);
+        nv.put("auth.cn", userid);
+        nv.put("profileId", getSelectedTokenType());
+
+        label = mapPattern((LinkedHashMap<String, String>) nv, pattern);
+
+        CMS.debug("TPSEnrollProcessor.buildTokenLabel: returning: " + label);
+
+        return label;
+
     }
 
     private void generateCertificate(EnrolledCertsInfo certsInfo, SecureChannel channel, AppletInfo aInfo,
@@ -308,6 +548,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         //get the params needed all at once
 
         IConfigStore configStore = CMS.getConfigStore();
+        CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
 
         try {
 
@@ -391,8 +632,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             CMS.debug("TPSEnrollProcessor.generateCertificate: keyTypeEnum value: " + keyTypeEnum);
 
-            CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
-
             cEnrollInfo.setKeyTypeEnum(keyTypeEnum);
             cEnrollInfo.setProfileId(profileId);
             cEnrollInfo.setCertId(certId);
@@ -409,8 +648,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             cEnrollInfo.setKeyType(keyType);
             cEnrollInfo.setKeyTypePrefix(keyTypePrefix);
 
-            int certsStartProgress = cEnrollInfo.getStartProgressValue();
-            int certsEndProgress = cEnrollInfo.getEndProgressValue();
+            int certsStartProgress = certsInfo.getStartProgressValue();
+            int certsEndProgress = certsInfo.getEndProgressValue();
             int currentCertIndex = certsInfo.getCurrentCertIndex();
             int totalNumCerts = certsInfo.getNumCertsToEnroll();
 
@@ -423,14 +662,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
             cEnrollInfo.setStartProgressValue(startCertProgValue);
             cEnrollInfo.setEndProgressValue(endCertProgValue);
 
-            enrollOneCertificate(certsInfo, cEnrollInfo, aInfo, channel);
-
         } catch (EBaseException e) {
 
             throw new TPSException(
                     "TPSEnrollProcessor.generateCertificate: Internal error finding config value: " + e,
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
+
+        enrollOneCertificate(certsInfo, cEnrollInfo, aInfo, channel);
 
     }
 
@@ -509,12 +748,21 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConnID);
                 TPSBuffer encodedParsedPubKey = new TPSBuffer(parsedPubKey_ba);
                 AppletInfo appletInfo = getAppletInfo();
+                selectCoolKeyApplet();
                 CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: userid =" + userid + ", cuid="
                         + appletInfo.getCUIDString());
                 CAEnrollCertResponse caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
                         appletInfo.getCUIDString(), getSelectedTokenType(),
                         cEnrollInfo.getKeyType());
                 String retCertB64 = caEnrollResp.getCertB64();
+
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + retCertB64);
+
+                byte[] cert_bytes = Utils.base64decode(retCertB64);
+
+                TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + cert_bytes_buf.toHexString());
+
                 if (retCertB64 != null)
                     CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 =" + retCertB64);
                 else {
@@ -530,6 +778,93 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: new cert not found",
                             TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
                 }
+
+                certsInfo.addCertificate(x509Cert);
+                certsInfo.addKType(cEnrollInfo.getKeyType());
+                certsInfo.addOrigin(aInfo.getCUIDString());
+
+                SubjectPublicKeyInfo publicKeyInfo = null;
+                try {
+                    publicKeyInfo = new SubjectPublicKeyInfo(parsedPubKey);
+                } catch (InvalidBERException e) {
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: cant get publicKeyInfo object.");
+                    throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: can't get publcKeyInfo object.",
+                            TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+                }
+
+                //Create label ToDo: Do this the correct way later
+
+                String label = buildCertificateLabel(cEnrollInfo, aInfo);
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: cert label: " + label);
+
+                TPSBuffer keyid = new TPSBuffer(makeKeyIDFromPublicKeyInfo(publicKeyInfo.getEncoded()));
+
+                RSAPublicKey rsaPubKey = (RSAPublicKey) parsedPubKey;
+                TPSBuffer modulus = new TPSBuffer(rsaPubKey.getModulus().toByteArray());
+                TPSBuffer exponent = new TPSBuffer(rsaPubKey.getPublicExponent().toByteArray());
+
+                //Write cert to the token
+
+                long l1, l2;
+                long objid;
+                PKCS11Obj pkcs11Obj = certsInfo.getPKCS11Obj();
+
+                String certId = cEnrollInfo.getCertId();
+
+                l1 = (certId.charAt(0) & 0xff) << 24;
+                l2 = (certId.charAt(1) & 0xff) << 16;
+                objid = l1 + l2;
+
+                CMS.debug("TPSEnrollProcess.enrollOneCertificate:  cert objid long: " + objid);
+
+                ObjectSpec certObjSpec = ObjectSpec.parseFromTokenData(objid, new TPSBuffer(cert_bytes));
+                pkcs11Obj.addObjectSpec(certObjSpec);
+
+                String certAttrId = cEnrollInfo.getCertAttrId();
+
+                TPSBuffer certAttrsBuffer = channel.createPKCS11CertAttrsBuffer(cEnrollInfo.getKeyTypeEnum(),
+                        certAttrId, label, keyid);
+
+                l1 = (certAttrId.charAt(0) & 0xff) << 24;
+                l2 = (certAttrId.charAt(1) & 0xff) << 16;
+                objid = l1 + l2;
+
+                CMS.debug("TPSEnrollProcess.enrollOneCertificate:  cert attr objid long: " + objid);
+                ObjectSpec certAttrObjSpec = ObjectSpec.parseFromTokenData(objid, certAttrsBuffer);
+                pkcs11Obj.addObjectSpec(certAttrObjSpec);
+
+                //Add the pri key attrs object
+
+                String priKeyAttrId = cEnrollInfo.getPrivateKeyAttrId();
+
+                l1 = (priKeyAttrId.charAt(0) & 0xff) << 24;
+                l2 = (priKeyAttrId.charAt(1) & 0xff) << 16;
+
+                objid = l1 + l2;
+
+                CMS.debug("TPSEnrollProcess.enrollOneCertificate: pri key objid long: " + objid);
+
+                TPSBuffer privKeyAttrsBuffer = channel.createPKCS11PriKeyAttrsBuffer(priKeyAttrId, label, keyid,
+                        modulus, cEnrollInfo.getKeyTypePrefix());
+
+                ObjectSpec priKeyObjSpec = ObjectSpec.parseFromTokenData(objid, privKeyAttrsBuffer);
+                pkcs11obj.addObjectSpec(priKeyObjSpec);
+
+                // Now add the public key object
+
+                String pubKeyAttrId = cEnrollInfo.getPublicKeyAttrId();
+
+                l1 = (pubKeyAttrId.charAt(0) & 0xff) << 24;
+                l2 = (pubKeyAttrId.charAt(1) & 0xff) << 16;
+
+                objid = l1 + l2;
+                CMS.debug("TPSEnrollProcess.enrollOneCertificate: pub key objid long: " + objid);
+
+                TPSBuffer pubKeyAttrsBuffer = channel.createPKCS11PublicKeyAttrsBuffer(pubKeyAttrId, label, keyid,
+                        modulus, exponent, cEnrollInfo.getKeyTypePrefix());
+                ObjectSpec pubKeyObjSpec = ObjectSpec.parseFromTokenData(objid, pubKeyAttrsBuffer);
+                pkcs11obj.addObjectSpec(pubKeyObjSpec);
+
             } catch (EBaseException e) {
                 CMS.debug("TPSEnrollProcessor.enrollOneCertificate::" + e);
                 throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: Exception thrown: " + e,
@@ -537,13 +872,57 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
             CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: enrollment ends");
 
-            //ToDo: Finish the rest of this
-
         }
 
         statusUpdate(cEnrollInfo.getEndProgressValue(), "PROGRESS_ENROLL_CERT");
         CMS.debug("TPSEnrollProcessor.enrollOneCertificate ends");
 
+    }
+
+    private String buildCertificateLabel(CertEnrollInfo cEnrollInfo, AppletInfo ainfo) throws TPSException {
+
+        CMS.debug("TPSEnrollProcessor.buildCertificateLabel");
+
+        if (cEnrollInfo == null) {
+            throw new TPSException("TPSErollProcessor.buildCertificateLabel: Invalid input params!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        String label = null;
+        String pattern = null;
+
+        String defaultLabel = cEnrollInfo.getKeyType() + " key for $userid$";
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String configValue = "op." + currentTokenOperation + "." + selectedTokenType + ".keyGen."
+                + cEnrollInfo.getKeyType() + ".label";
+
+        CMS.debug("TPSEnrollProcessor.buildCertificateLabel: label config: " + configValue);
+
+        try {
+            pattern = configStore.getString(
+                    configValue, defaultLabel);
+
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    "TPSEnrollProcessor.buildCertificateLabel: Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        Map<String, String> nv = new LinkedHashMap<String, String>();
+
+        nv.put("cuid", ainfo.getCUIDString());
+        nv.put("msn", ainfo.getMSNString());
+        nv.put("userid", userid);
+        nv.put("auth.cn", userid);
+        nv.put("profileId", getSelectedTokenType());
+
+        label = mapPattern((LinkedHashMap<String, String>) nv, pattern);
+
+        CMS.debug("TPSEnrollProcessor.buildCertificateLabel: returning: " + label);
+
+        return label;
     }
 
     /**
@@ -885,6 +1264,45 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSEnrollProcessor.getCAConectorID: returning: " + id);
 
         return id;
+    }
+
+    private TPSBuffer makeKeyIDFromPublicKeyInfo(byte[] publicKeyInfo) throws TPSException {
+
+        final String alg = "SHA1";
+
+        if (publicKeyInfo == null) {
+            throw new TPSException("TPSEnrollProcessor.makeKeyFromPublicKeyInfo: invalid input data",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        TPSBuffer keyID = null;
+
+        byte[] mozillaDigestOut;
+
+        java.security.MessageDigest mozillaDigest;
+        try {
+            mozillaDigest = java.security.MessageDigest.getInstance(alg);
+        } catch (NoSuchAlgorithmException e) {
+            throw new TPSException("TPSEnrollProcessor.makeKeyFromPublicKeyInfo: " + e,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        mozillaDigestOut = mozillaDigest.digest(publicKeyInfo);
+
+        if (mozillaDigestOut.length == mozillaDigest.getDigestLength()) {
+            System.out.println(mozillaDigest.getAlgorithm() + " " +
+                    " digest output size is " + mozillaDigestOut.length);
+        } else {
+            throw new TPSException("ERROR: digest output size is " +
+                    mozillaDigestOut.length + ", should be " +
+                    mozillaDigest.getDigestLength(), TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        keyID = new TPSBuffer(mozillaDigestOut);
+
+        CMS.debug("TPSEnrollProcessor.makeKeyFromPublicKeyInfo: " + keyID.toHexString());
+
+        return keyID;
     }
 
     public static void main(String[] args) {

@@ -52,6 +52,13 @@ public class Util {
         return ret;
     }
 
+    public static byte bool2Byte(boolean value) {
+        if (value)
+            return 0x1;
+        else
+            return 0x0;
+    }
+
     public static int hexToBin(char ch) {
         if ('0' <= ch && ch <= '9')
             return ch - '0';
@@ -154,7 +161,6 @@ public class Util {
     public static String specialEncode(TPSBuffer data) {
         return Utils.SpecialEncode(data.toBytesArray());
     }
-
 
     public static TPSBuffer computeMAC(PK11SymKey symKey, TPSBuffer input, TPSBuffer icv) throws EBaseException {
         TPSBuffer output = null;

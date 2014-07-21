@@ -54,6 +54,15 @@ public class TPSBuffer {
     }
 
     /**
+     * Creates a buffer from only one byte
+     * @param b
+     */
+    public TPSBuffer(byte b) {
+        buf = new byte[1];
+        buf[0] = b;
+    }
+
+    /**
      * Creates a Buffer of length 'len', initialized to zeroes.
      */
     public TPSBuffer(int len) {
@@ -124,6 +133,13 @@ public class TPSBuffer {
 
     }
 
+    public void prepend(TPSBuffer prepend) {
+        if(prepend == null)
+            return;
+
+        byte [] preBytes = prepend.toBytesArray();
+        prependBytes(preBytes);
+    }
     public void add(TPSBuffer addend) {
 
         if (addend == null)
@@ -149,6 +165,17 @@ public class TPSBuffer {
         addBytes[0] = b;
 
         addBytes(addBytes);
+    }
+
+    public void prependBytes(byte [] preBytes) {
+        if (preBytes == null)
+            return;
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bytes.write(preBytes, 0, preBytes.length);
+        bytes.write(buf, 0, buf.length);
+
+        buf = bytes.toByteArray();
     }
 
     public void addBytes(byte[] addBytes) {
