@@ -135,6 +135,9 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
+    public void setSubsystemEnabled(String id, boolean enabled) {
+    };
+
     public ISubsystem getSubsystem(String name) {
         return null;
     }

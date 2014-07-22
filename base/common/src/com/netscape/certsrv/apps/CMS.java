@@ -509,6 +509,28 @@ public final class CMS {
     }
 
     /**
+     * Enable the subsystem with the given ID.
+     *
+     * Does not start the subsystem.
+     *
+     * @param id Subsystem ID.
+     */
+    public static void enableSubsystem(String id) throws EBaseException {
+        _engine.setSubsystemEnabled(id, true);
+    }
+
+    /**
+     * Disable the subsystem with the given ID.
+     *
+     * Does not stop the subsystem.
+     *
+     * @param id Subsystem ID.
+     */
+    public static void disableSubsystem(String id) throws EBaseException {
+        _engine.setSubsystemEnabled(id, false);
+    }
+
+    /**
      * Retrieves the localized user message from UserMessages.properties.
      *
      * @param msgID message id defined in UserMessages.properties

@@ -171,6 +171,15 @@ public interface ICMSEngine extends ISubsystem {
     public Enumeration<ISubsystem> getSubsystems();
 
     /**
+     * Set whether the given subsystem is enabled.
+     *
+     * @param id The subsystem ID.
+     * @param enabled Whether the subsystem is enabled
+     */
+    public void setSubsystemEnabled(String id, boolean enabled)
+        throws EBaseException;
+
+    /**
      * Retrieves the registered subsytem with the given name.
      *
      * @param name subsystem name

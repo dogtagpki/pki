@@ -29,6 +29,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -181,6 +182,7 @@ public class CMSEngine implements ICMSEngine {
     private static final String PROP_SUBSYSTEM = "subsystem";
     private static final String PROP_ID = "id";
     private static final String PROP_CLASS = "class";
+    private static final String PROP_ENABLED = "enabled";
     private static final String SERVER_XML = "server.xml";
 
     public static final SubsystemRegistry mSSReg = SubsystemRegistry.getInstance();
@@ -866,32 +868,34 @@ public class CMSEngine implements ICMSEngine {
         }
     }
 
+    private ArrayList<String> getDynSubsystemNames() throws EBaseException {
+        IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
+        Enumeration<String> ssNames = ssconfig.getSubStoreNames();
+        ArrayList<String> ssNamesList = new ArrayList<String>();
+        while (ssNames.hasMoreElements())
+            ssNamesList.add(ssNames.nextElement());
+        return ssNamesList;
+    }
+
     /**
      * load dynamic subsystems
      */
     private void loadDynSubsystems()
             throws EBaseException {
-        IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
-
-        // count number of dyn loaded subsystems.
-        Enumeration<String> ssnames = ssconfig.getSubStoreNames();
-        int nsubsystems = 0;
-
-        for (nsubsystems = 0; ssnames.hasMoreElements(); nsubsystems++)
-            ssnames.nextElement();
+        ArrayList<String> ssNames = getDynSubsystemNames();
         if (Debug.ON) {
-            Debug.trace(nsubsystems + " dyn subsystems loading..");
+            Debug.trace(ssNames.size() + " dyn subsystems loading..");
         }
-        if (nsubsystems == 0)
-            return;
 
         // load dyn subsystems.
-        mDynSubsystems = new SubsystemInfo[nsubsystems];
-        for (int i = 0; i < mDynSubsystems.length; i++) {
-            IConfigStore config =
-                    ssconfig.getSubStore(String.valueOf(i));
+        IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
+        mDynSubsystems = new SubsystemInfo[ssNames.size()];
+        int i = 0;
+        for (String ssName : ssNames) {
+            IConfigStore config = ssconfig.getSubStore(ssName);
             String id = config.getString(PROP_ID);
             String classname = config.getString(PROP_CLASS);
+            boolean enabled = config.getBoolean(PROP_ENABLED, true);
             ISubsystem ss = null;
 
             try {
@@ -906,8 +910,26 @@ public class CMSEngine implements ICMSEngine {
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()));
             }
-            mDynSubsystems[i] = new SubsystemInfo(id, ss);
+            mDynSubsystems[i++] = new SubsystemInfo(id, ss, enabled);
             Debug.trace("loaded dyn subsystem " + id);
+        }
+    }
+
+    /**
+     * Set whether the given subsystem is enabled.
+     *
+     * @param id The subsystem ID.
+     * @param enabled Whether the subsystem is enabled
+     */
+    public void setSubsystemEnabled(String id, boolean enabled)
+            throws EBaseException {
+        IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
+        for (String ssName : getDynSubsystemNames()) {
+            IConfigStore config = ssconfig.getSubStore(ssName);
+            if (id.equalsIgnoreCase(config.getString(PROP_ID))) {
+                config.putBoolean(PROP_ENABLED, enabled);
+                break;
+            }
         }
     }
 
@@ -928,13 +950,17 @@ public class CMSEngine implements ICMSEngine {
         IConfigStore ssConfig = mConfig.getSubStore(id);
 
         CMS.debug("CMSEngine: initSubsystem id=" + id);
+        mSSReg.put(id, ss);
         if (doSetId)
             ss.setId(id);
+        if (!ssinfo.enabled) {
+            CMS.debug("CMSEngine: subsystem disabled id=" + id);
+            return;
+        }
         CMS.debug("CMSEngine: ready to init id=" + id);
         ss.init(this, ssConfig);
         // add to id - subsystem hash table.
         CMS.debug("CMSEngine: done init id=" + id);
-        mSSReg.put(id, ss);
         CMS.debug("CMSEngine: initialized " + id);
 
         if (id.equals("ca") || id.equals("ocsp") ||
@@ -2001,10 +2027,16 @@ class WarningListener implements ILogEventListener {
 class SubsystemInfo {
     public final String mId;
     public final ISubsystem mInstance;
+    public final boolean enabled;
 
     public SubsystemInfo(String id, ISubsystem ssInstance) {
+        this(id, ssInstance, true);
+    }
+
+    public SubsystemInfo(String id, ISubsystem ssInstance, boolean enabled) {
         mId = id;
         mInstance = ssInstance;
+        this.enabled = enabled;
     }
 
 }
