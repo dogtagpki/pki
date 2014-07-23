@@ -1,11 +1,13 @@
 package com.netscape.cmstools.profile;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.profile.ProfileData;
@@ -19,6 +21,10 @@ public class ProfileModifyCLI extends CLI {
     public ProfileModifyCLI(ProfileCLI profileCLI) {
         super("mod", "Modify profiles", profileCLI);
         this.profileCLI = profileCLI;
+
+        Option optRaw = new Option(null, "raw", false, "Use raw format");
+        optRaw.setArgName("raw");
+        options.addOption(optRaw);
     }
 
     public void printHelp() {
@@ -59,14 +65,20 @@ public class ProfileModifyCLI extends CLI {
         }
 
         try {
-            ProfileData data = ProfileCLI.readProfileFromFile(filename);
-            data = profileCLI.profileClient.modifyProfile(data);
+            if (cmd.hasOption("raw")) {
+                Properties properties = ProfileCLI.readRawProfileFromFile(filename);
+                String profileId = properties.getProperty("profileId");
+                profileCLI.profileClient.modifyProfileRaw(profileId, properties).store(System.out, null);
+                MainCLI.printMessage("Modified profile " + profileId);
+            } else {
+                ProfileData data = ProfileCLI.readProfileFromFile(filename);
+                data = profileCLI.profileClient.modifyProfile(data);
 
-            MainCLI.printMessage("Modified profile " + data.getId());
+                MainCLI.printMessage("Modified profile " + data.getId());
 
-            ProfileCLI.printProfile(data, profileCLI.getClient().getConfig().getServerURI());
-
-        } catch (FileNotFoundException | JAXBException  e) {
+                ProfileCLI.printProfile(data, profileCLI.getClient().getConfig().getServerURI());
+            }
+        } catch (IOException | JAXBException  e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(-1);
         }

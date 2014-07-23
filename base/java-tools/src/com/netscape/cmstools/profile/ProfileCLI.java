@@ -3,8 +3,12 @@ package com.netscape.cmstools.profile;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.Properties;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -32,6 +36,7 @@ public class ProfileCLI extends CLI {
         addModule(new ProfileShowCLI(this));
         addModule(new ProfileAddCLI(this));
         addModule(new ProfileModifyCLI(this));
+        addModule(new ProfileEditCLI(this));
         addModule(new ProfileRemoveCLI(this));
         addModule(new ProfileEnableCLI(this));
         addModule(new ProfileDisableCLI(this));
@@ -126,6 +131,16 @@ public class ProfileCLI extends CLI {
         FileInputStream fis = new FileInputStream(filename);
         data = (ProfileData) unmarshaller.unmarshal(fis);
         return data;
+    }
+
+    public static Properties readRawProfileFromFile(String filename)
+            throws IOException, RuntimeException {
+        Properties properties = new Properties();
+        properties.load(Files.newInputStream(Paths.get(filename)));
+        String profileId = properties.getProperty("profileId");
+        if (profileId == null)
+            throw new RuntimeException("Error: Missing profileId property in profile data.");
+        return properties;
     }
 
     public static void saveEnrollmentTemplateToFile(String filename, CertEnrollmentRequest request)

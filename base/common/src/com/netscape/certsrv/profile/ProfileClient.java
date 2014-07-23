@@ -17,10 +17,15 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Properties;
 
 import javax.ws.rs.core.Response;
 
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 
@@ -45,6 +50,11 @@ public class ProfileClient extends Client {
         return client.getEntity(response, ProfileData.class);
     }
 
+    public Properties retrieveProfileRaw(String id) {
+        Response response = profileClient.retrieveProfileRaw(id);
+        return byteArrayToProperties(client.getEntity(response, byte[].class));
+    }
+
     public ProfileDataInfos listProfiles(Integer start, Integer size) {
         Response response =  profileClient.listProfiles(start, size);
         return client.getEntity(response, ProfileDataInfos.class);
@@ -65,13 +75,45 @@ public class ProfileClient extends Client {
         return client.getEntity(response, ProfileData.class);
     }
 
+    public Properties createProfileRaw(Properties properties) {
+        Response response =
+            profileClient.createProfileRaw(propertiesToByteArray(properties));
+        return byteArrayToProperties(client.getEntity(response, byte[].class));
+    }
+
     public ProfileData modifyProfile(ProfileData data) {
         Response response = profileClient.modifyProfile(data.getId(), data);
         return client.getEntity(response, ProfileData.class);
     }
 
+    public Properties modifyProfileRaw(String profileId, Properties properties) {
+        Response response =
+            profileClient.modifyProfileRaw(profileId, propertiesToByteArray(properties));
+        return byteArrayToProperties(client.getEntity(response, byte[].class));
+    }
+
     public void deleteProfile(String id) {
         Response response = profileClient.deleteProfile(id);
         client.getEntity(response, Void.class);
+    }
+
+    private Properties byteArrayToProperties(byte[] data) throws PKIException {
+        Properties properties = new Properties();
+        try {
+            properties.load(new ByteArrayInputStream(data));
+        } catch (IOException e) {
+            throw new PKIException("Failed to decode profile Properties: " + e.toString());
+        }
+        return properties;
+    }
+
+    private byte[] propertiesToByteArray(Properties properties) throws PKIException {
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+        try {
+            properties.store(data, null);
+        } catch (IOException e) {
+            throw new PKIException("Failed to encode profile Properties: " + e.toString());
+        }
+        return data.toByteArray();
     }
 }

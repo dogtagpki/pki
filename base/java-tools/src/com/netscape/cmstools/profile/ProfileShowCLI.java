@@ -1,6 +1,8 @@
 package com.netscape.cmstools.profile;
 
+import java.io.FileOutputStream;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -26,9 +28,13 @@ public class ProfileShowCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "output", true, "Output filename");
-        option.setArgName("filename");
-        options.addOption(option);
+        Option optFilename = new Option(null, "output", true, "Output filename");
+        optFilename.setArgName("filename");
+        options.addOption(optFilename);
+
+        Option optRaw = new Option(null, "raw", false, "Use raw format");
+        optRaw.setArgName("raw");
+        options.addOption(optRaw);
     }
 
     public void execute(String[] args) throws Exception {
@@ -70,14 +76,24 @@ public class ProfileShowCLI extends CLI {
             }
         }
 
-        ProfileData profileData = profileCLI.profileClient.retrieveProfile(profileId);
+        if (cmd.hasOption("raw")) {
+            Properties profileConfig = profileCLI.profileClient.retrieveProfileRaw(profileId);
 
-        MainCLI.printMessage("Profile \"" + profileId + "\"");
-
-        if (filename != null) {
-            ProfileCLI.saveProfileToFile(filename, profileData);
+            if (filename != null) {
+                profileConfig.store(new FileOutputStream(filename), null);
+                MainCLI.printMessage("Saved profile " + profileId + " to " + filename);
+            } else {
+                profileConfig.store(System.out, null);
+            }
         } else {
-            ProfileCLI.printProfile(profileData, profileCLI.getClient().getConfig().getServerURI());
+            MainCLI.printMessage("Profile \"" + profileId + "\"");
+            ProfileData profileData = profileCLI.profileClient.retrieveProfile(profileId);
+
+            if (filename != null) {
+                ProfileCLI.saveProfileToFile(filename, profileData);
+            } else {
+                ProfileCLI.printProfile(profileData, profileCLI.getClient().getConfig().getServerURI());
+            }
         }
     }
 

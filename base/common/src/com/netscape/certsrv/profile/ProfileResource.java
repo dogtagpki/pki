@@ -31,10 +31,22 @@ public interface ProfileResource {
     @ACLMapping("profiles.read")
     public Response retrieveProfile(@PathParam("id") String id);
 
+    @GET
+    @Path("{id}/raw")
+    @ClientResponseType(entityType=byte[].class)
+    @ACLMapping("profiles.read")
+    public Response retrieveProfileRaw(@PathParam("id") String id);
+
     @POST
     @ClientResponseType(entityType=ProfileData.class)
     @ACLMapping("profiles.create")
     public Response createProfile(ProfileData data);
+
+    @POST
+    @Path("raw")
+    @ClientResponseType(entityType=byte[].class)
+    @ACLMapping("profiles.create")
+    public Response createProfileRaw(byte[] data);
 
     @POST
     @Path("{id}")
@@ -47,6 +59,12 @@ public interface ProfileResource {
     @ClientResponseType(entityType=ProfileData.class)
     @ACLMapping("profiles.modify")
     public Response modifyProfile(@PathParam("id") String id, ProfileData data);
+
+    @PUT
+    @Path("{id}/raw")
+    @ClientResponseType(entityType=byte[].class)
+    @ACLMapping("profiles.modify")
+    public Response modifyProfileRaw(@PathParam("id") String id, byte[] data);
 
     @DELETE
     @Path("{id}")
