@@ -48,11 +48,13 @@ public class AuthenticationManager
      *   auths.instance.ldap1.ui.id.PASSWORD.description.en=LDAP Password
      *   auths.instance.ldap1.ui.id.PASSWORD.name.en=LDAP Password
      *   auths.instance.ldap1.ui.id.PASSWORD.credMap.authCred=pwd
-     *   auths.instance.ldap1.ui.id.PASSWORD.credMap.msgCred=password
+     *   auths.instance.ldap1.ui.id.PASSWORD.credMap.msgCred.extlogin=PASSWORD
+     *   auths.instance.ldap1.ui.id.PASSWORD.credMap.msgCred.login=password
      *   auths.instance.ldap1.ui.id.UID.description.en=LDAP User ID
      *   auths.instance.ldap1.ui.id.UID.name.en=LDAP User ID
      *   auths.instance.ldap1.ui.id.UID.credMap.authCred=uid
-     *   auths.instance.ldap1.ui.id.UID.credMap.msgCred=screen_name
+     *   auths.instance.ldap1.ui.id.UID.credMap.msgCred.extlogin=UID
+     *   auths.instance.ldap1.ui.id.UID.credMap.msgCred.login=screen_name
      *   auths.instance.ldap1.ui.retries=1
      *
      *   # the following are handled by the IAuthManager itself
@@ -222,10 +224,11 @@ public class AuthenticationManager
             CMS.debug("AuthenticationManager: createAuthentication(): added param="
                     + id);
 
+            // map the auth mgr required cred to cred name in request message
             IConfigStore credMapSub = uiParamSub.getSubStore(id + ".credMap");
             if (credMapSub == null) {
                 CMS.debug("AuthenticationManager: createAuthentication(): conf "
-                        + uiParamSub.getName() + ".credMapsub" + " null or empty.");
+                        + uiParamSub.getName() + ".credMap" + " null or empty.");
                 continue;
             }
             String authCred = credMapSub.getString("authCred");
@@ -234,17 +237,37 @@ public class AuthenticationManager
                         + credMapSub.getName() + ".authCred" + " null or empty.");
                 continue;
             }
-            String msgCred = credMapSub.getString("msgCred");
-            if (msgCred.isEmpty()) {
+
+            IConfigStore msgCredSub = credMapSub.getSubStore("msgCred");
+            if (msgCredSub == null) {
                 CMS.debug("AuthenticationManager: createAuthentication(): conf "
-                        + credMapSub.getName() + ".msgCred" + " null or empty.");
+                        + uiParamSub.getName() + ".msgCred" + " null or empty.");
                 continue;
             }
-            // map the auth mgr required cred to cred name in request message
-            auth.setCredMap(authCred, msgCred);
 
-            CMS.debug("AuthenticationManager: createAuthentication(): added cred map="
-                    + authCred + ":" + msgCred);
+            String msgCred_login = msgCredSub.getString("login");
+            if (msgCred_login.isEmpty()) {
+                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                        + msgCredSub.getName() + ".login" + " null or empty.");
+                continue;
+            }
+            auth.setCredMap(authCred, msgCred_login,
+                    false /* not extendedLogin*/);
+            CMS.debug("AuthenticationManager: createAuthentication(): added cred map_login="
+                    + authCred + ":" + msgCred_login);
+
+            String msgCred_extlogin = msgCredSub.getString("extlogin");
+            if (msgCred_extlogin.isEmpty()) {
+                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                        + msgCredSub.getName() + ".extlogin" + " null or empty.");
+                continue;
+            }
+
+            auth.setCredMap(authCred, msgCred_extlogin,
+                    true /* extendedLogin*/);
+            CMS.debug("AuthenticationManager: createAuthentication(): added cred map_extlogin="
+                    + authCred + ":" + msgCred_extlogin);
+
         }
 
         Integer retries = uiSub.getInteger("retries", 1);

@@ -748,17 +748,19 @@ public class TPSProcessor {
      * with mapped values from client
      * configuration example:
      *
-     * auths.instance.ldap1.ui.id.UID.credMap.msgCred=screen_name
+     * auths.instance.ldap1.ui.id.UID.credMap.msgCred.extlogin=UID
+     * auths.instance.ldap1.ui.id.UID.credMap.msgCred.login=screen_name
      * auths.instance.ldap1.ui.id.UID.credMap.authCred=uid
      *
-     * auths.instance.ldap1.ui.id.PASSWORD.credMap.msgCred=password
+     * auths.instance.ldap1.ui.id.PASSWORD.credMap.msgCred.extlogin=PASSWORD
+     * auths.instance.ldap1.ui.id.PASSWORD.credMap.msgCred.login=password
      * auths.instance.ldap1.ui.id.PASSWORD.credMap.authCred=pwd
      *
      * @param response the message response to be mapped
      * @param auth the authentication for mapping consultation
      * @return IAuthCredentials auth credential for auth manager
      */
-    public IAuthCredentials mapCredFromMsgResponse(TPSMessage response, TPSAuthenticator auth)
+    public IAuthCredentials mapCredFromMsgResponse(TPSMessage response, TPSAuthenticator auth, boolean extendedLogin)
             throws EBaseException {
         CMS.debug("TPSProcessor.mapCredFromMsgResponse");
         if (response == null || auth == null) {
@@ -770,7 +772,7 @@ public class TPSProcessor {
 
         String[] requiredCreds = auth.getAuthManager().getRequiredCreds();
         for (String cred : requiredCreds) {
-            String name = auth.getCredMap(cred);
+            String name = auth.getCredMap(cred, extendedLogin);
             login.set(cred, response.get(name));
         }
 
@@ -813,7 +815,7 @@ public class TPSProcessor {
             throw e;
         }
 
-        IAuthCredentials login = mapCredFromMsgResponse(loginResp, auth);
+        IAuthCredentials login = mapCredFromMsgResponse(loginResp, auth, true /*extendedLogin*/);
 
         return login;
     }
@@ -849,7 +851,7 @@ public class TPSProcessor {
             throw e;
         }
 
-        IAuthCredentials login = mapCredFromMsgResponse(loginResp, auth);
+        IAuthCredentials login = mapCredFromMsgResponse(loginResp, auth, false /*not extendedLogin*/);
         return login;
     }
 

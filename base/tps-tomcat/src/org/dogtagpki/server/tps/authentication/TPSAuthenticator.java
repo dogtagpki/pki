@@ -54,7 +54,8 @@ public class TPSAuthenticator {
      *   auths.instance.ldap1.ui.id.PASSWORD.credMap.authCred=pwd
      *   auths.instance.ldap1.ui.id.PASSWORD.credMap.msgCred=password
      */
-    private HashMap<String, String> credMap;
+    private HashMap<String, String> credMap_login;
+    private HashMap<String, String> credMap_extlogin;
 
     // retries if the user entered the wrong password/securid
     private int maxLoginRetries = 1;
@@ -73,7 +74,8 @@ public class TPSAuthenticator {
         uiTitle = new HashMap<String, String>();
         uiDescription = new HashMap<String, String>();
         uiParameters = new HashMap<String, AuthUIParameter>();
-        credMap = new HashMap<String, String>();
+        credMap_login = new HashMap<String, String>();
+        credMap_extlogin = new HashMap<String, String>();
     }
 
     public String getID() {
@@ -112,12 +114,18 @@ public class TPSAuthenticator {
         return uiParameters;
     }
 
-    public void setCredMap(String authCred, String msgCred) {
-        credMap.put(authCred, msgCred);
+    public void setCredMap(String authCred, String msgCred, boolean extLogin) {
+        if (extLogin)
+            credMap_extlogin.put(authCred, msgCred);
+        else
+            credMap_login.put(authCred, msgCred);
     }
 
-    public String getCredMap(String authCred) {
-        return credMap.get(authCred);
+    public String getCredMap(String authCred, boolean extLogin) {
+        if (extLogin)
+            return credMap_extlogin.get(authCred);
+        else
+            return credMap_login.get(authCred);
     }
 
     public int getNumOfRetries() {
