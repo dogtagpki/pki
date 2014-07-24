@@ -18,6 +18,7 @@
 package org.dogtagpki.server.tps.engine;
 
 import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
+import org.dogtagpki.server.tps.cms.TKSCreateKeySetDataResponse;
 import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
@@ -161,6 +162,14 @@ public class TPSEngine {
             String connId,
             String tokenType) throws TPSException {
 
+        if (cuid == null || keyInfo == null || card_challenge == null || host_challenge == null
+                || card_cryptogram == null || connId == null || tokenType == null) {
+
+            throw new TPSException("TPSEngine.computeSessionKey: Invalid input data!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+
+        }
+
         CMS.debug("TPSEngine.computeSessionKey");
 
         TKSRemoteRequestHandler tks = null;
@@ -170,19 +179,59 @@ public class TPSEngine {
             tks = new TKSRemoteRequestHandler(connId);
             resp = tks.computeSessionKey(cuid, keyInfo, card_challenge, card_cryptogram, host_challenge, tokenType);
         } catch (EBaseException e) {
-            throw new TPSException("SecureChannel.computeSessionKey: Error computing session key!" + e,
+            throw new TPSException("TPSEngine.computeSessionKey: Error computing session key!" + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
         int status = resp.getStatus();
         if (status != 0) {
-            CMS.debug("SecureChannel.computeSessionKey: Non zero status result: " + status);
-            throw new TPSException("SecureChannel.computeSessionKey: invalid returned status: " + status);
+            CMS.debug("TPSEngine.computeSessionKey: Non zero status result: " + status);
+            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status);
 
         }
 
         return resp;
 
+    }
+
+    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, TPSBuffer cuid, String connId)
+            throws TPSException {
+        CMS.debug("TPSEngine.createKeySetData. entering...");
+
+        if (newMasterVersion == null || oldVersion == null || cuid == null || connId == null) {
+            throw new TPSException("TPSEngine.createKeySetData: Invalid input data",
+                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+        }
+
+        TKSRemoteRequestHandler tks = null;
+
+        TKSCreateKeySetDataResponse resp = null;
+
+        try {
+            tks = new TKSRemoteRequestHandler(connId);
+            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid);
+        } catch (EBaseException e) {
+
+            throw new TPSException("TPSEngine.createKeySetData, failure to get key set data from TKS",
+                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+        }
+
+        int status = resp.getStatus();
+        if (status != 0) {
+            CMS.debug("TPSEngine.createKeySetData: Non zero status result: " + status);
+            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status, TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+
+        }
+
+        TPSBuffer keySetData = resp.getKeySetData();
+
+        if(keySetData == null) {
+            CMS.debug("TPSEngine.createKeySetData: No valid key set data returned.");
+            throw new TPSException("TPSEngine.createKeySetData: No valid key set data returned.", TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+
+        }
+
+        return keySetData;
     }
 
     public boolean isTokenPresent(String cuid) {

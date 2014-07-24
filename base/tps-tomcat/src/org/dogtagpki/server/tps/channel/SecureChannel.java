@@ -33,6 +33,7 @@ import org.dogtagpki.tps.apdu.InstallAppletAPDU;
 import org.dogtagpki.tps.apdu.InstallLoadAPDU;
 import org.dogtagpki.tps.apdu.LifecycleAPDU;
 import org.dogtagpki.tps.apdu.LoadFileAPDU;
+import org.dogtagpki.tps.apdu.PutKeyAPDU;
 import org.dogtagpki.tps.apdu.ReadObjectAPDU;
 import org.dogtagpki.tps.apdu.SetIssuerInfoAPDU;
 import org.dogtagpki.tps.apdu.SetPinAPDU;
@@ -937,6 +938,7 @@ public class SecureChannel {
 
         computeAPDU(create);
 
+        @SuppressWarnings("unused")
         APDUResponse response = processor.handleAPDURequest(create);
 
         //If the pin already exists we may get an error here, but we go on.
@@ -963,6 +965,33 @@ public class SecureChannel {
         if (!response.checkResult()) {
             throw new TPSException("SecureChannel.resetPin: failed to reset pin.",
                     TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+        }
+
+    }
+
+    public void putKeys(byte curVersion, byte curIndex, TPSBuffer keySetData) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.putKeys: entering..");
+
+        if (keySetData == null) {
+            throw new TPSException("SecureChannel.putKeys: Invalid input data!", TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+        }
+
+        byte keyVersion = curVersion;
+
+        if (curVersion == 0xff) {
+            keyVersion = 0x0;
+        }
+
+        PutKeyAPDU putKey = new PutKeyAPDU(keyVersion, (byte) (0x80 | curIndex), keySetData);
+
+        computeAPDU(putKey);
+
+        APDUResponse response = processor.handleAPDURequest(putKey);
+
+        if (!response.checkResult()) {
+            throw new TPSException("SecureChannel.putKeys: failed to upgrade key set!",
+                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
         }
 
     }

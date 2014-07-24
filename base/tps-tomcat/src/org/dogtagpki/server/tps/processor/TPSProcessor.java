@@ -974,7 +974,10 @@ public class TPSProcessor {
             statusUpdate(100, "PROGRESS_DONE");
         }
 
-        //ToDo:  Symmetric Key Changeover
+        // Upgrade Symm Keys if needed
+
+        SecureChannel channel = checkAndUpgradeSymKeys();
+        channel.externalAuthenticate();
 
         // ToDo: Update Token DB
         // ToDo:  Revoke certificates
@@ -1618,13 +1621,8 @@ public class TPSProcessor {
         AppletInfo result = null;
 
         CMS.debug("TPSProcessor.getAppletInfo, entering ...");
-        TPSBuffer aidBuf = getCardManagerAID();
 
-        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuf);
-
-        if (!select.checkResult()) {
-            throw new TPSException("TPSProcessor.getAppletInfo: Can't selelect the card manager!");
-        }
+        selectCardManager();
 
         TPSBuffer cplc_data = getCplcData();
         CMS.debug("cplc_data: " + cplc_data.toString());
@@ -1636,11 +1634,7 @@ public class TPSProcessor {
          * Checks if the netkey has the required applet version.
          */
 
-        TPSBuffer netkeyAid = getNetkeyAID();
-
-        // We don't care if the above fails now. getStatus will determine outcome.
-
-        select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAid);
+        selectCoolKeyApplet();
 
         TPSBuffer token_status = getStatus();
 
@@ -1686,6 +1680,17 @@ public class TPSProcessor {
         return result;
     }
 
+    protected void selectCardManager() throws TPSException, IOException {
+        CMS.debug("TPSProcessor.selectCardManager: entering..");
+        TPSBuffer aidBuf = getCardManagerAID();
+
+        APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuf);
+
+        if (!select.checkResult()) {
+            throw new TPSException("TPSProcessor.selectCardManager: Can't selelect the card manager applet!");
+        }
+    }
+
     protected boolean checkSymmetricKeysEnabled() throws TPSException {
         boolean result = true;
 
@@ -1703,27 +1708,136 @@ public class TPSProcessor {
         return result;
     }
 
+    protected int getSymmetricKeysRequiredVersion() throws TPSException {
+        int version = 0;
+        ;
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String requiredVersionConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
+                + "update.symmetricKeys.requiredVersion";
+
+        CMS.debug("TPSProcessor.getSymmetricKeysRequiredVersion: configValue: " + requiredVersionConfig);
+        try {
+            version = configStore.getInteger(requiredVersionConfig, 0x0);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getSymmetricKeysRequired: Internal error getting config value.");
+        }
+
+        CMS.debug("TPSProcessor.getSymmetricKeysRequiredVersion: returning version: " + version);
+
+        return version;
+    }
+
     protected SecureChannel checkAndUpgradeSymKeys() throws TPSException, IOException {
+
+        /* If the key of the required version is
+          not found, create them.
+
+          This sends a InitializeUpdate request to the token.
+          We tell the token to use whatever it thinks is the
+          default key version (0). It will return the version
+          of the key it actually used later. (This is accessed
+          with GetKeyInfoData below)
+          [ Note: This is not explained very well in the manual
+            The token can have multiple sets of symmetric keys
+            Each set is given a version number, which I think is
+            better thought of as a SLOT. One key slot is populated
+            with a set of keys when the token is manufactured.
+            This is then designated as the default key set version.
+            Later, we will write a new key set with PutKey, and
+            set it to be the new default]
+        */
 
         SecureChannel channel = null;
 
+        int defKeyVersion = 0;
+        int defKeyIndex = getChannelDefKeyIndex();
+
         if (checkSymmetricKeysEnabled()) {
-            //To be implemented later
-            throw new TPSException("TPSProcessor.checkAndUpgradeSymKeys: Key changeover not yet implemented!",
-                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+
+            CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: Symm key upgrade enabled.");
+            int requiredVersion = getSymmetricKeysRequiredVersion();
+
+            // try to make a secure channel with the 'requiredVersion' keys
+            // If this fails, we know we will have to attempt an upgrade
+            // of the keys
+
+            boolean failed = false;
+            try {
+
+                channel = setupSecureChannel((byte) requiredVersion, (byte) defKeyIndex,
+                        SecurityLevel.SECURE_MSG_MAC_ENC,
+                        getTKSConnectorID());
+
+            } catch (TPSException e) {
+
+                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to create secure channel with required version, we need to upgrade the keys.");
+                failed = true;
+            }
+
+            //If we failed we need to upgrade the keys
+            if (failed == true) {
+
+                selectCardManager();
+
+                channel = setupSecureChannel();
+
+                /* Assemble the Buffer with the version information
+                 The second byte is the key offset, which is always 1
+                */
+
+                byte[] nv = { (byte) requiredVersion, 0x01 };
+                TPSBuffer newVersion = new TPSBuffer(nv);
+
+                // GetKeyInfoData will return a buffer which is bytes 11,12 of
+                // the data structure on page 89 of Cyberflex Access Programmer's
+                // Guide
+                // Byte 0 is the key set version.
+                // Byte 1 is the index into that key set
+
+                String connId = getTKSConnectorID();
+                TPSBuffer curKeyInfo = channel.getKeyInfoData();
+                TPSEngine engine = getTPSEngine();
+
+                TPSBuffer keySetData = engine.createKeySetData(newVersion, curKeyInfo,
+                        channel.getKeyDiversificationData(), connId);
+
+                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: new keySetData from TKS: " + keySetData.toHexString());
+
+                byte curVersion = curKeyInfo.at(0);
+                byte curIndex = curKeyInfo.at(1);
+
+                channel.putKeys(curVersion, curIndex, keySetData);
+
+                String curVersionStr = curKeyInfo.toHexString();
+                String newVersionStr = newVersion.toHexString();
+
+                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: curVersionStr: " + curVersionStr + " newVersionStr: "
+                        + newVersionStr);
+
+                selectCoolKeyApplet();
+
+                channel = setupSecureChannel((byte) requiredVersion, (byte) defKeyIndex,
+                        SecurityLevel.SECURE_MSG_MAC_ENC,
+                        getTKSConnectorID());
+
+            } else {
+                CMS.debug("TPSProcessor.checkAndUpgradeSymeKeys: We are already at the desired key set, returning secure channel.");
+            }
 
         } else {
             //Create a standard secure channel with current key set.
             CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: Key changeover disabled in the configuration.");
 
-            int defKeyVersion = getChannelDefKeyVersion();
-            int defKeyIndex = getChannelDefKeyIndex();
+            defKeyVersion = getChannelDefKeyVersion();
 
             channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, SecurityLevel.SECURE_MSG_MAC_ENC,
                     getTKSConnectorID());
 
         }
 
+        CMS.debug("TPSProcessor.checkAndUpdradeSymKeys: Leaving successfully....");
         return channel;
     }
 

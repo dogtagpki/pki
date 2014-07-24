@@ -98,14 +98,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         CMS.debug("TPSEnrollProcessor.enroll: Finished updating applet if needed.");
 
-        //call stub for key changeover,will take more params when implemented.
+        //Check and upgrade keys if called for
 
         SecureChannel channel = checkAndUpgradeSymKeys();
-
         channel.externalAuthenticate();
 
-        //Call stub to reset pin, method here will be small and call into common pin reset functionality.
-        // Will be implemented during pin reset task.
+        //Reset the token's pin, create one if we don't have one already
 
         checkAndHandlePinReset(channel);
 
