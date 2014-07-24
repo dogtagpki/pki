@@ -3920,7 +3920,10 @@ class ConfigClient:
         data.cloneUri = self.mdict['pki_clone_uri']
         data.p12File = self.mdict['pki_clone_pkcs12_path']
         data.p12Password = self.mdict['pki_clone_pkcs12_password']
-        data.replicateSchema = self.mdict['pki_clone_replicate_schema']
+        if config.str2bool(self.mdict['pki_clone_replicate_schema']):
+            data.replicateSchema = "true"
+        else:
+            data.replicateSchema = "false"
         data.replicationSecurity = \
             self.mdict['pki_clone_replication_security']
         if self.mdict['pki_clone_replication_master_port']:
@@ -3963,7 +3966,10 @@ class ConfigClient:
         data.bindDN = self.mdict['pki_ds_bind_dn']
         data.database = self.mdict['pki_ds_database']
         data.bindpwd = self.mdict['pki_ds_password']
-        data.createNewDB = self.mdict['pki_ds_create_new_db']
+        if config.str2bool(self.mdict['pki_ds_create_new_db']):
+            data.createNewDB = "true"
+        else:
+            data.createNewDB = "false"
         if config.str2bool(self.mdict['pki_ds_remove_data']):
             data.removeData = "true"
         else:

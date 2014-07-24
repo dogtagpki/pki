@@ -594,10 +594,16 @@ class PKIConfigParser:
             self.mdict['pki_target_registry'] = \
                 os.path.join(self.mdict['pki_instance_registry_path'],
                              self.mdict['pki_instance_name'])
-            if config.str2bool(self.mdict['pki_external_step_two']):
+            if config.str2bool(self.mdict['pki_external_step_two']) or\
+               config.str2bool(self.mdict['pki_skip_installation']):
                 # For CA (External CA Step 2) and Stand-alone PKI (Step 2),
                 # use the 'pki_one_time_pin' established during the setup
                 # of (Step 1)
+                #
+                # Similarly, if the only code being processed is for
+                # configuration, re-use the 'pki_one_time_pin' generated
+                # during the installation phase
+                #
                 if os.path.exists(self.mdict['pki_target_cs_cfg'])\
                    and\
                    os.path.isfile(self.mdict['pki_target_cs_cfg']):

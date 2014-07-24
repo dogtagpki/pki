@@ -36,6 +36,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_subsystem'],
                             deployer.mdict['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
+        # ALWAYS initialize 'uid' and 'gid'
+        deployer.identity.add_uid_and_gid(deployer.mdict['pki_user'],
+                                          deployer.mdict['pki_group'])
+        # ALWAYS establish 'uid' and 'gid'
+        deployer.identity.set_uid(deployer.mdict['pki_user'])
+        deployer.identity.set_gid(deployer.mdict['pki_group'])
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_INITIALIZATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
@@ -56,12 +62,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.instance.verify_subsystem_does_not_exist()
                 # detect and avoid any namespace collisions
                 deployer.namespace.collision_detection()
-        # initialize 'uid' and 'gid'
-        deployer.identity.add_uid_and_gid(deployer.mdict['pki_user'],
-                                          deployer.mdict['pki_group'])
-        # establish 'uid' and 'gid'
-        deployer.identity.set_uid(deployer.mdict['pki_user'])
-        deployer.identity.set_gid(deployer.mdict['pki_group'])
         # verify existence of SENSITIVE configuration file data
         deployer.configuration_file.verify_sensitive_data()
         # verify existence of MUTUALLY EXCLUSIVE configuration file data

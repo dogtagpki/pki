@@ -32,18 +32,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
-        if (deployer.mdict['pki_subsystem'] == "CA" or
-            config.str2bool(deployer.mdict['pki_standalone'])) and\
-           config.str2bool(deployer.mdict['pki_external_step_two']):
-            # For External CAs (Step 2), or Stand-alone PKIs (Step 2),
-            # must check for (Step 2) installation PRIOR to
-            # 'pki_skip_installation' since this value has been set to true
-            # by the initialization scriptlet
-            pass
-        elif config.str2bool(deployer.mdict['pki_skip_installation']):
-            config.pki_log.info(log.SKIP_FINALIZATION_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
-            return self.rv
+        # ALWAYS finalize execution of scriptlets
         config.pki_log.info(log.FINALIZATION_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         # For debugging/auditing purposes, save a timestamped copy of
