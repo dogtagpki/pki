@@ -57,6 +57,12 @@ def print_key_info(key_info):
     print "Status: " + str(key_info.status)
     print "Owner Name: " + str(key_info.owner_name)
     print "Size: " + str(key_info.size)
+    if key_info.public_key is not None:
+        print "Public key: "
+        print
+        pub_key = str(key_info.public_key)
+        for i in range(0, len(pub_key), 64):
+            print pub_key[i:i+64]
 
 
 def print_key_data(key_data):
@@ -81,7 +87,7 @@ def main():
     certdb_dir = "/tmp/drmtest-certdb"
     certdb_password = "redhat123"
     pki.crypto.NSSCryptoProvider.setup_database(certdb_dir, certdb_password,
-                                            over_write=True)
+                                                over_write=True)
 
     #create kraclient
     crypto = pki.crypto.NSSCryptoProvider(certdb_dir, certdb_password)
@@ -260,6 +266,26 @@ def main():
         print "Success: archived and recovered keys match"
     else:
         print "Error: archived and recovered keys do not match"
+    print
+
+    #Test 20: Generating asymmetric keys
+    print "Generating asymmetric keys"
+    try:
+        response = keyclient.generate_asymmetric_key(
+            "Vek #5" + time.strftime('%c'),
+            algorithm="RSA",
+            key_size=1024,
+            usages=None
+        )
+        print_key_request(response.request_info)
+    except pki.BadRequestException as exc:
+        print "BadRequestException thrown - Code:" + exc.code +\
+              " Message: " + exc.message
+
+    #Test 21: Get key information of the newly generated asymmetric keys
+    print "Retrieving key information"
+    key_info = keyclient.get_key_info(response.request_info.get_key_id())
+    print_key_info(key_info)
 
 if __name__ == "__main__":
     main()

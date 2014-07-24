@@ -105,7 +105,7 @@ class KeyInfo(object):
 
     json_attribute_names = {
         'clientKeyID': 'client_key_id', 'keyURL': 'key_url',
-        'ownerName': 'owner_name'
+        'ownerName': 'owner_name', 'publicKey': 'public_key'
     }
 
     # pylint: disable-msg=C0103
@@ -117,6 +117,7 @@ class KeyInfo(object):
         self.status = None
         self.owner_name = None
         self.size = None
+        self.public_key = None
 
     @classmethod
     def from_json(cls, attr_list):
@@ -127,6 +128,8 @@ class KeyInfo(object):
                 setattr(key_info, KeyInfo.json_attribute_names[k], v)
             else:
                 setattr(key_info, k, v)
+        if key_info.public_key is not None:
+            key_info.public_key = base64.decodestring(key_info.public_key)
         return key_info
 
     def get_key_id(self):
@@ -339,7 +342,7 @@ class KeyRecoveryRequest(pki.ResourceMessage):
 class SymKeyGenerationRequest(pki.ResourceMessage):
     """
     Class representing the data sent to the DRM when generating and archiving
-    a symmetric key on the DRM.
+    a symmetric key in the DRM.
     """
 
     UNWRAP_USAGE = "unwrap"
@@ -355,6 +358,36 @@ class SymKeyGenerationRequest(pki.ResourceMessage):
         pki.ResourceMessage.__init__(
             self,
             "com.netscape.certsrv.key.SymKeyGenerationRequest")
+        key_usages = key_usages or []
+        self.add_attribute("clientKeyID", client_key_id)
+        self.add_attribute("keySize", key_size)
+        self.add_attribute("keyAlgorithm", key_algorithm)
+        self.add_attribute("keyUsage", ','.join(key_usages))
+        self.add_attribute("transWrappedSessionKey", trans_wrapped_session_key)
+
+
+class AsymKeyGenerationRequest(pki.ResourceMessage):
+
+    """
+    Class representing the data sent to the DRM when generating and archiving
+    asymmetric keys in the DRM.
+    """
+    UNWRAP_USAGE = "unwrap"
+    WRAP_USAGE = "wrap"
+    VERIFY_USAGE = "verify"
+    VERIFY_RECOVER_USAGE = "verify_recover"
+    SIGN_USAGE = "sign"
+    SIGN_RECOVER_USAGE = "sign_recover"
+    DECRYPT_USAGE = "decrypt"
+    ENCRYPT_USAGE = "encrypt"
+    DERIVE_USAGE = "derive"
+
+    def __init__(self, client_key_id=None, key_size=None, key_algorithm=None,
+                 key_usages=None, trans_wrapped_session_key=None):
+        """ Constructor """
+        pki.ResourceMessage.__init__(
+            self,
+            "com.netscape.certsrv.key.AsymKeyGenerationRequest")
         key_usages = key_usages or []
         self.add_attribute("clientKeyID", client_key_id)
         self.add_attribute("keySize", key_size)
@@ -382,6 +415,10 @@ class KeyClient(object):
     RC2_ALGORITHM = "RC2"
     RC4_ALGORITHM = "RC4"
     AES_ALGORITHM = "AES"
+
+    # Asymmetric Key Algorithms
+    RSA_ALGORITHM = "RSA"
+    DSA_ALGORITHM = "DSA"
 
     #default session key wrapping algorithm
     DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
@@ -509,12 +546,13 @@ class KeyClient(object):
         self.connection.post(url, None, self.headers)
 
     @pki.handle_exceptions()
-    def create_request(self, request):
+    def submit_request(self, request):
         """ Submit an archival, recovery or key generation request
             to the DRM.
 
             @param request - is either a KeyArchivalRequest,
-            KeyRecoverRequest or SymKeyGenerationRequest.
+            KeyRecoverRequest, SymKeyGenerationRequest or
+            AsymKeyGenerationRequest.
 
             returns a KeyRequestResponse object.
         """
@@ -558,7 +596,57 @@ class KeyClient(object):
                 key_size=size,
                 key_algorithm=algorithm,
                 key_usages=usages)
-        return self.create_request(request)
+        return self.submit_request(request)
+
+    @pki.handle_exceptions()
+    def generate_asymmetric_key(self, client_key_id, algorithm=None,
+                                key_size=None, usages=None,
+                                trans_wrapped_session_key=None):
+        """ Generate and archive asymmetric keys in the DRM.
+            Supports algorithms RSA and DSA.
+            Valid key size for RSA = 256 + (16 * n), where n: 0-496
+            Valid key size for DSA = 512, 768, 1024. p,q,g params are not
+            supported.
+
+            Return a KeyRequestResponse which contains a KeyRequestInfo
+            object that describes the URL for the request and generated keys.
+
+        """
+        if client_key_id is None:
+            raise TypeError("Must specify Client Key ID")
+
+        if str(algorithm).upper() not in \
+                [self.RSA_ALGORITHM, self.DSA_ALGORITHM]:
+            raise TypeError("Only RSA and DSA algorithms are supported.")
+
+        # For generating keys using the RSA algorithm, the valid range of key
+        # sizes is:
+        #         256 + 16 * n, where 0 <= n <= 1008
+        # When using DSA, the current supported values are 512, 768, 1024
+
+        if algorithm == self.RSA_ALGORITHM:
+            if key_size < 256:
+                raise ValueError("Invalid key size specified.")
+            if ((key_size-256) % 16) != 0:
+                raise ValueError("Invalid key size specified.")
+        if algorithm == self.DSA_ALGORITHM:
+            if key_size not in [512, 768, 1024]:
+                raise ValueError("Invalid key size specified.")
+
+        if trans_wrapped_session_key is not None:
+            raise NotImplementedError(
+                "Returning the asymmetric keys in the same call is not yet "
+                "implemented.")
+
+        request = AsymKeyGenerationRequest(
+            client_key_id=client_key_id,
+            key_size=key_size,
+            key_algorithm=algorithm,
+            key_usages=usages,
+            trans_wrapped_session_key=trans_wrapped_session_key
+        )
+
+        return self.submit_request(request)
 
     @pki.handle_exceptions()
     def archive_key(self, client_key_id, data_type, private_data,
@@ -666,7 +754,7 @@ class KeyClient(object):
                                      key_algorithm=key_algorithm,
                                      key_size=key_size)
 
-        return self.create_request(request)
+        return self.submit_request(request)
 
     @pki.handle_exceptions()
     def archive_pki_options(self, client_key_id, data_type, pki_archive_options,
@@ -701,7 +789,7 @@ class KeyClient(object):
                                      pki_archive_options=data,
                                      key_algorithm=key_algorithm,
                                      key_size=key_size)
-        return self.create_request(request)
+        return self.submit_request(request)
 
     @pki.handle_exceptions()
     def recover_key(self, key_id, request_id=None,
@@ -729,7 +817,7 @@ class KeyClient(object):
             session_wrapped_passphrase=session_wrapped_passphrase,
             certificate=b64certificate,
             nonce_data=nonce_data)
-        return self.create_request(request)
+        return self.submit_request(request)
 
     @pki.handle_exceptions()
     def retrieve_key_data(self, data):
@@ -770,9 +858,10 @@ class KeyClient(object):
 
         1) trans_wrapped_session_key is not provided by caller.
 
-        In this case, the function will call CryptoProvider methods to generate and
-        wrap the session key.  The function will return the KeyData object with
-        a private_data attribute which stores the unwrapped key information.
+        In this case, the function will call CryptoProvider methods to generate
+        and wrap the session key.  The function will return the KeyData object
+        with a private_data attribute which stores the unwrapped key
+        information.
 
         2)  The trans_wrapped_session_key is provided by the caller.
 
@@ -833,8 +922,8 @@ class KeyClient(object):
 
         1) A passphrase is provided by the caller.
 
-        In this case, CryptoProvider methods will be called to create the data to
-        securely send the passphrase to the DRM.  Basically, three pieces of
+        In this case, CryptoProvider methods will be called to create the data
+        to securely send the passphrase to the DRM.  Basically, three pieces of
         data will be sent:
 
         - the passphrase wrapped by a 168 bit 3DES symmetric key (the session
@@ -894,6 +983,7 @@ encoder.NOTYPES['KeyArchivalRequest'] = KeyArchivalRequest
 encoder.NOTYPES['KeyRecoveryRequest'] = KeyRecoveryRequest
 encoder.NOTYPES['ResourceMessage'] = pki.ResourceMessage
 encoder.NOTYPES['SymKeyGenerationRequest'] = SymKeyGenerationRequest
+encoder.NOTYPES['AsymKeyGenerationRequest'] = AsymKeyGenerationRequest
 
 
 def main():

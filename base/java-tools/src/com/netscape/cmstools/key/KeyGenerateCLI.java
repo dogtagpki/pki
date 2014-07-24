@@ -28,7 +28,7 @@ public class KeyGenerateCLI extends CLI {
 
     public void createOptions() {
         Option option = new Option(null, "key-algorithm", true,
-                "Algorithm to be used to create a key.\nValid values: AES, DES, DES3, RC2, RC4, DESede.");
+                "Algorithm to be used to create a key.\nValid values: AES, DES, DES3, RC2, RC4, DESede, RSA, DSA");
         option.setArgName("algorithm");
         option.setRequired(true);
         options.addOption(option);
@@ -38,12 +38,14 @@ public class KeyGenerateCLI extends CLI {
                 "key-size",
                 true,
                 "Size of the key to be generated.\nThis is required for AES, RC2 and RC4.\n"
-                        + "Valid values for AES: 128, 192. 256.\nValid values for RC2: 8-128.\n Valid values for RC4: Any positive integer.");
+                        + "Valid values for AES: 128, 192. 256.\nValid values for RC2: 8-128.\n Valid values for RC4: Any positive integer."
+                        + "\n Valid values for DSA: 512, 768, 1024.\nValid values for RSA: 256 + (16*n), n= [0-496]");
         option.setArgName("size");
         options.addOption(option);
 
         option = new Option(null, "usages", true, "Comma separated list of usages."
-                + "\nValid values: wrap, unwrap, sign, verify, encrypt, decrypt.");
+                + "\nValid values: wrap, unwrap, sign, verify, encrypt, decrypt."
+                + "\nAdditional usages for RSA and DSA type keys: derive, sign_recover, verify_recover.");
         option.setArgName("list of usages");
         options.addOption(option);
     }
@@ -91,6 +93,8 @@ public class KeyGenerateCLI extends CLI {
             case KeyRequestResource.RC4_ALGORITHM:
             case KeyRequestResource.AES_ALGORITHM:
             case KeyRequestResource.RC2_ALGORITHM:
+            case KeyRequestResource.RSA_ALGORITHM:
+            case KeyRequestResource.DSA_ALGORITHM:
                 System.err.println("Error: Key size must be specified for the algorithm used.");
                 printHelp();
                 System.exit(-1);
@@ -100,16 +104,45 @@ public class KeyGenerateCLI extends CLI {
                 System.exit(-1);
             }
         }
+
+        int size = 0;
+        try {
+            size = Integer.parseInt(keySize);
+        } catch (NumberFormatException e) {
+            System.err.println("Error: Key size must be an integer.");
+            printHelp();
+            System.exit(-1);
+        }
         List<String> usages = null;
         String givenUsages = cmd.getOptionValue("usages");
         if (givenUsages != null) {
             usages = Arrays.asList(givenUsages.split(","));
         }
-        KeyRequestResponse response = keyCLI.keyClient.generateSymmetricKey(clientKeyId, keyAlgorithm,
-                Integer.parseInt(keySize),
-                usages, null);
-
+        KeyRequestResponse response = null;
+        switch (keyAlgorithm) {
+        case KeyRequestResource.DES3_ALGORITHM:
+        case KeyRequestResource.DESEDE_ALGORITHM:
+        case KeyRequestResource.DES_ALGORITHM:
+        case KeyRequestResource.RC4_ALGORITHM:
+        case KeyRequestResource.AES_ALGORITHM:
+        case KeyRequestResource.RC2_ALGORITHM:
+            response = keyCLI.keyClient.generateSymmetricKey(clientKeyId, keyAlgorithm,
+                    size,
+                    usages, null);
+            break;
+        case KeyRequestResource.RSA_ALGORITHM:
+        case KeyRequestResource.DSA_ALGORITHM:
+            response = keyCLI.keyClient.generateAsymmetricKey(clientKeyId, keyAlgorithm,
+                    size,
+                    usages, null);
+            break;
+        default:
+            System.err.println("Error: Algorithm not supported.");
+            printHelp();
+            System.exit(-1);
+        }
         MainCLI.printMessage("Key generation request info");
         KeyCLI.printKeyRequestInfo(response.getRequestInfo());
     }
+
 }

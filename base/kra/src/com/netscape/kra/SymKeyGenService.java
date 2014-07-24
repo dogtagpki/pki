@@ -88,13 +88,13 @@ public class SymKeyGenService implements IService {
             throws EBaseException {
         String id = request.getRequestId().toString();
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
-        String algorithm = request.getExtDataInString(IRequest.SYMKEY_GEN_ALGORITHM);
+        String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
 
-        String usageStr = request.getExtDataInString(IRequest.SYMKEY_GEN_USAGES);
+        String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
         List<String> usages = new ArrayList<String>(
                 Arrays.asList(StringUtils.split(usageStr, ",")));
 
-        String keySizeStr = request.getExtDataInString(IRequest.SYMKEY_GEN_SIZE);
+        String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);
         int keySize = Integer.parseInt(keySizeStr);
 
         CMS.debug("SymKeyGenService.serviceRequest. Request id: " + id);
@@ -111,7 +111,7 @@ public class SymKeyGenService implements IService {
         }
 
         CryptoToken token = mStorageUnit.getToken();
-        KeyGenAlgorithm kgAlg = KeyRequestDAO.KEYGEN_ALGORITHMS.get(algorithm);
+        KeyGenAlgorithm kgAlg = KeyRequestDAO.SYMKEY_GEN_ALGORITHMS.get(algorithm);
         if (kgAlg == null) {
             throw new EBaseException("Invalid algorithm");
         }
@@ -209,7 +209,6 @@ public class SymKeyGenService implements IService {
         rec.set(KeyRecord.ATTR_ID, serialNo);
         rec.set(KeyRecord.ATTR_DATA_TYPE, KeyRequestResource.SYMMETRIC_KEY_TYPE);
         rec.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
-        rec.set(KeyRecord.ATTR_ALGORITHM, algorithm);
         rec.set(KeyRecord.ATTR_KEY_SIZE, keySize);
         request.setExtData(ATTR_KEY_RECORD, serialNo);
 

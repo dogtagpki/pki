@@ -19,13 +19,7 @@ import com.netscape.certsrv.base.ResourceMessage;
  */
 @XmlRootElement(name = "SymKeyGenerationRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SymKeyGenerationRequest extends ResourceMessage {
-
-    private static final String CLIENT_KEY_ID = "clientKeyID";
-    private static final String KEY_SIZE = "keySize";
-    private static final String KEY_ALGORITHM = "keyAlgorithm";
-    private static final String KEY_USAGE = "keyUsage";
-    private static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
+public class SymKeyGenerationRequest extends KeyGenerationRequest {
 
     /* Symmetric Key usages */
     public static final String UWRAP_USAGE = "unwrap";
@@ -34,28 +28,6 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     public static final String SIGN_USAGE = "sign";
     public static final String DECRYPT_USAGE = "decrypt";
     public static final String ENCRYPT_USAGE = "encrypt";
-
-    public List<String> getUsages() {
-        String usageString = attributes.get(KEY_USAGE);
-        if (!StringUtils.isBlank(usageString)) {
-            return new ArrayList<String>(Arrays.asList(usageString.split(",")));
-        }
-        return new ArrayList<String>();
-    }
-
-    public void setUsages(List<String> usages) {
-        attributes.put(KEY_USAGE, StringUtils.join(usages, ","));
-    }
-
-    public void addUsage(String usage) {
-        List<String> usages = getUsages();
-        for (String u : usages) {
-            if (u.equals(usage))
-                return;
-        }
-        usages.add(usage);
-        setUsages(usages);
-    }
 
     public SymKeyGenerationRequest() {
         // required for JAXB (defaults)
@@ -79,59 +51,6 @@ public class SymKeyGenerationRequest extends ResourceMessage {
     public SymKeyGenerationRequest(ResourceMessage data) {
         attributes.putAll(data.getAttributes());
         setClassName(getClass().getName());
-    }
-
-    /**
-     * @return the clientKeyId
-     */
-    public String getClientKeyId() {
-        return attributes.get(CLIENT_KEY_ID);
-    }
-
-    /**
-     * @param clientKeyId the clientKeyId to set
-     */
-    public void setClientKeyId(String clientKeyId) {
-        attributes.put(CLIENT_KEY_ID, clientKeyId);
-    }
-
-    /**
-     * @return the keySize
-     */
-    public Integer getKeySize() {
-        try {
-            return new Integer(attributes.get(KEY_SIZE));
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    /**
-     * @param keySize the key size to set
-     */
-    public void setKeySize(Integer keySize) {
-        attributes.put(KEY_SIZE, keySize.toString());
-    }
-
-    /**
-     * @return the keyAlgorithm
-     */
-    public String getKeyAlgorithm() {
-        return attributes.get(KEY_ALGORITHM);
-    }
-
-    /**
-     * @param keyAlgorithm the key algorithm to set
-     */
-    public void setKeyAlgorithm(String keyAlgorithm) {
-        attributes.put(KEY_ALGORITHM, keyAlgorithm);
-    }
-
-    /**
-     * @return the transWrappedSessionKey
-     */
-    public String getTransWrappedSessionKey() {
-        return attributes.get(TRANS_WRAPPED_SESSION_KEY);
     }
 
     /**

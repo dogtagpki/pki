@@ -43,6 +43,7 @@ import org.mozilla.jss.crypto.TokenException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.IEncryptionUnit;
 import com.netscape.cmscore.util.Debug;
@@ -600,6 +601,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                                pubKey, boolean temporary)
             throws EBaseException {
         try {
+
             DerValue val = new DerValue(wrappedKeyData);
             // val.tag == DerValue.tag_Sequence
             DerInputStream in = val.data;
@@ -623,13 +625,23 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             wrapper.initUnwrap(sk, IV);
 
+            // Get the key type for unwrapping the private key.
+            PrivateKey.Type keyType = null;
+            if (pubKey.getAlgorithm().equalsIgnoreCase(KeyRequestResource.RSA_ALGORITHM)) {
+                keyType = PrivateKey.RSA;
+            } else if (pubKey.getAlgorithm().equalsIgnoreCase(KeyRequestResource.DSA_ALGORITHM)) {
+                keyType = PrivateKey.DSA;
+            } else if (pubKey.getAlgorithm().equalsIgnoreCase(KeyRequestResource.EC_ALGORITHM)) {
+                keyType = PrivateKey.EC;
+            }
+
             PrivateKey pk = null;
             if (temporary) {
                 pk = wrapper.unwrapTemporaryPrivate(pri,
-                        PrivateKey.RSA, pubKey);
+                        keyType, pubKey);
             } else {
                 pk = wrapper.unwrapPrivate(pri,
-                        PrivateKey.RSA, pubKey);
+                        keyType, pubKey);
             }
             return pk;
         } catch (TokenException e) {

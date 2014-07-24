@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
@@ -33,8 +34,9 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 /**
  * @author Ade Lee
  */
-@XmlRootElement(name="ResourceMessage")
-@XmlSeeAlso({KeyArchivalRequest.class, KeyRecoveryRequest.class, SymKeyGenerationRequest.class, PKIException.Data.class})
+@XmlRootElement(name = "ResourceMessage")
+@XmlSeeAlso({ KeyArchivalRequest.class, KeyRecoveryRequest.class, SymKeyGenerationRequest.class,
+        PKIException.Data.class, AsymKeyGenerationRequest.class })
 @XmlAccessorType(XmlAccessType.NONE)
 public class ResourceMessage {
 
@@ -46,7 +48,7 @@ public class ResourceMessage {
     }
 
     public ResourceMessage(MultivaluedMap<String, String> form) {
-        for (Map.Entry<String, List<String>> entry: form.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : form.entrySet()) {
             attributes.put(entry.getKey(), entry.getValue().get(0));
         }
     }

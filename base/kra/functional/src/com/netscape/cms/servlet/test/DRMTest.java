@@ -17,6 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.test;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -40,6 +51,7 @@ import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.Key;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyInfo;
@@ -66,7 +78,8 @@ public class DRMTest {
         System.exit(1);
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws InvalidKeyException, NoSuchAlgorithmException,
+            InvalidKeySpecException, SignatureException, IOException {
         String host = null;
         String port = null;
         String token_pwd = null;
@@ -648,6 +661,84 @@ public class DRMTest {
         } catch (ResourceNotFoundException e) {
             log("Success: ResourceNotFound exception thrown: " + e);
         }
+
+        // Test asymmetric key generation.
+
+        String[] algs = { "RSA", "DSA" };
+        for (int i = 0; i < algs.length; i++) {
+            // Test 30: Generate Asymmetric keys - RSA key
+            System.out.println("\nTesting asymmetric key generation for algorithm " + algs[i]);
+            clientKeyId = "AsymKey #" + Calendar.getInstance().getTimeInMillis();
+            usages.clear();
+            usages.add(AsymKeyGenerationRequest.SIGN);
+            usages.add(AsymKeyGenerationRequest.VERIFY);
+            KeyRequestResponse response = keyClient.generateAsymmetricKey(clientKeyId, algs[i], 1024, usages, null);
+            printRequestInfo(response.getRequestInfo());
+            System.out.println();
+
+            // Test 31: Get information of the newly generated asymmetric keys
+            System.out.println("Fetch information of the newly generated asymmetric keys.");
+            System.out.println();
+            KeyInfo info = keyClient.getKeyInfo(response.getKeyId());
+            printKeyInfo(info);
+            System.out.println();
+
+            // Test 32: Retrieve private key data
+            System.out.println("Retrieving and verifying the generated private key.");
+            try {
+                keyData = keyClient.retrieveKey(response.getKeyId());
+            } catch (Exception e) {
+                log("Exception retrieving the private key data.");
+                e.printStackTrace();
+            }
+
+            // Test 33: Verify the generated key pair.
+            if (isKeyPairValid(algs[i], keyData.getData(), Utils.base64decode(info.getPublicKey()))) {
+                log("The key pair generated using " + algs[i] + " algorithm is valid.");
+            } else {
+                log("The key pair generated using " + algs[i] + " algorithm is invalid.");
+            }
+            System.out.println();
+        }
+
+        // Test 34:
+    }
+
+    /**
+     * Verify the generated asymmetric key pair.
+     *
+     * @param keyAlgorithm - Algorithm used to generate keys.
+     * @param privateKey - binary data of the private key.
+     * @param publicKey - binary data of he public key.
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     * @throws InvalidKeyException
+     * @throws SignatureException
+     * @throws IOException
+     */
+    public static boolean isKeyPairValid(String keyAlgorithm, byte[] privateKey, byte[] publicKey)
+            throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException,
+            IOException {
+        String algorithm = keyAlgorithm.toUpperCase();
+        String signingAlgorithm = "SHA1with" + algorithm;
+        KeyFactory factory = KeyFactory.getInstance(algorithm);
+        PrivateKey priKey = factory.generatePrivate(new PKCS8EncodedKeySpec(privateKey));
+        PublicKey pubKey = factory.generatePublic(new X509EncodedKeySpec(publicKey));
+        Signature sig = Signature.getInstance(signingAlgorithm);
+        sig.initSign(priKey);
+        String s = "Data to test asymmetric keys.";
+        sig.update(s.getBytes());
+
+        // Sign the data with the private key.
+        byte[] realSig = sig.sign();
+
+        Signature sig2 = Signature.getInstance(signingAlgorithm);
+        sig2.initVerify(pubKey);
+
+        sig2.update(s.getBytes());
+        // Verify the signature with the public key.
+        return sig2.verify(realSig);
     }
 
     private static void printKeyInfo(KeyInfo keyInfo) {
@@ -657,6 +748,15 @@ public class DRMTest {
         log("Algorithm: " + keyInfo.getAlgorithm());
         log("Strength:  " + keyInfo.getSize());
         log("Status:    " + keyInfo.getStatus());
+        if (keyInfo.getPublicKey() != null) {
+            log("Public Key: ");
+            String publicKey = keyInfo.getPublicKey();
+            int i = 0;
+            for (i = 0; i < publicKey.length() / 64; i++) {
+                log(publicKey.substring(i * 64, i * 64 + 64));
+            }
+            log(publicKey.substring(i * 64));
+        }
     }
 
     private static void log(String string) {

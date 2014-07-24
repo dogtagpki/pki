@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -30,14 +31,17 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyNotFoundException;
@@ -63,16 +67,21 @@ import com.netscape.cms.servlet.request.CMSRequestDAO;
  */
 public class KeyRequestDAO extends CMSRequestDAO {
 
-    public static final Map<String, KeyGenAlgorithm> KEYGEN_ALGORITHMS;
+    public static final Map<String, KeyGenAlgorithm> SYMKEY_GEN_ALGORITHMS;
+    public static final Map<String, KeyPairAlgorithm> ASYMKEY_GEN_ALGORITHMS;
 
     static {
-        KEYGEN_ALGORITHMS = new HashMap<String, KeyGenAlgorithm>();
-        KEYGEN_ALGORITHMS.put(KeyRequestResource.DES_ALGORITHM, KeyGenAlgorithm.DES);
-        KEYGEN_ALGORITHMS.put(KeyRequestResource.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
-        KEYGEN_ALGORITHMS.put(KeyRequestResource.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
-        KEYGEN_ALGORITHMS.put(KeyRequestResource.RC2_ALGORITHM, KeyGenAlgorithm.RC2);
-        KEYGEN_ALGORITHMS.put(KeyRequestResource.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
-        KEYGEN_ALGORITHMS.put(KeyRequestResource.AES_ALGORITHM, KeyGenAlgorithm.AES);
+        SYMKEY_GEN_ALGORITHMS = new HashMap<String, KeyGenAlgorithm>();
+        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DES_ALGORITHM, KeyGenAlgorithm.DES);
+        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DESEDE_ALGORITHM, KeyGenAlgorithm.DESede);
+        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DES3_ALGORITHM, KeyGenAlgorithm.DES3);
+        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.RC2_ALGORITHM, KeyGenAlgorithm.RC2);
+        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.RC4_ALGORITHM, KeyGenAlgorithm.RC4);
+        SYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.AES_ALGORITHM, KeyGenAlgorithm.AES);
+
+        ASYMKEY_GEN_ALGORITHMS = new HashMap<String, KeyPairAlgorithm>();
+        ASYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.RSA_ALGORITHM, KeyPairAlgorithm.RSA);
+        ASYMKEY_GEN_ALGORITHMS.put(KeyRequestResource.DSA_ALGORITHM, KeyPairAlgorithm.DSA);
     }
 
     private static String REQUEST_ARCHIVE_OPTIONS = IEnrollProfile.REQUEST_ARCHIVE_OPTIONS;
@@ -288,7 +297,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             keySize = new Integer(128);
         }
 
-        KeyGenAlgorithm alg = KEYGEN_ALGORITHMS.get(algName);
+        KeyGenAlgorithm alg = SYMKEY_GEN_ALGORITHMS.get(algName);
         if (alg == null) {
             throw new BadRequestException("Invalid Algorithm");
         }
@@ -299,17 +308,98 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         IRequest request = queue.newRequest(IRequest.SYMKEY_GENERATION_REQUEST);
 
-        request.setExtData(IRequest.SYMKEY_GEN_ALGORITHM, algName);
-        request.setExtData(IRequest.SYMKEY_GEN_SIZE, keySize);
+        request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
+        request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
         request.setExtData(IRequest.SECURITY_DATA_STRENGTH, keySize);
         request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, algName);
 
-        request.setExtData(IRequest.SYMKEY_GEN_USAGES, StringUtils.join(usages, ","));
+        request.setExtData(IRequest.KEY_GEN_USAGES, StringUtils.join(usages, ","));
         request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
 
         if (transWrappedSessionKey != null) {
-            request.setExtData(IRequest.SYMKEY_TRANS_WRAPPED_SESSION_KEY,
+            request.setExtData(IRequest.KEY_GEN_TRANS_WRAPPED_SESSION_KEY,
+                    transWrappedSessionKey);
+        }
+
+        queue.processRequest(request);
+        queue.markAsServiced(request);
+
+        return createKeyRequestResponse(request, uriInfo);
+    }
+
+    public KeyRequestResponse submitRequest(AsymKeyGenerationRequest data, UriInfo uriInfo, String owner)
+            throws EBaseException {
+        String clientKeyId = data.getClientKeyId();
+        String algName = data.getKeyAlgorithm();
+        Integer keySize = data.getKeySize();
+        List<String> usages = data.getUsages();
+        String transWrappedSessionKey = data.getTransWrappedSessionKey();
+
+        if (StringUtils.isBlank(clientKeyId)) {
+            throw new BadRequestException("Invalid key generation request. Missing client ID");
+        }
+
+        boolean keyExists = doesKeyExist(clientKeyId, "active");
+        if (keyExists == true) {
+            throw new BadRequestException("Cannot archive already active existing key!");
+        }
+
+        if (StringUtils.isBlank(algName)) {
+            if (keySize.intValue() != 0) {
+                throw new BadRequestException(
+                        "Invalid request.  Must specify key algorithm if size is specified");
+            }
+        }
+
+        KeyPairAlgorithm alg = ASYMKEY_GEN_ALGORITHMS.get(algName);
+        if (alg == null) {
+            throw new BadRequestException("Unsupported algorithm specified.");
+        }
+
+        if (keySize == null) {
+            if (algName.equalsIgnoreCase(KeyRequestResource.RSA_ALGORITHM)
+                    || algName.equalsIgnoreCase(KeyRequestResource.DSA_ALGORITHM)) {
+                throw new BadRequestException("Key size must be specified.");
+            }
+        } else {
+            //Validate key size
+            if (algName.equalsIgnoreCase(KeyRequestResource.RSA_ALGORITHM)) {
+                int size = Integer.valueOf(keySize);
+                int minSize = Integer.valueOf(CMS.getConfigStore().getInteger("keys.rsa.min.size", 256));
+                int maxSize = Integer.valueOf(CMS.getConfigStore().getInteger("keys.rsa.max.size", 8192));
+                if (minSize > maxSize) {
+                    throw new PKIException("Incorrect size parameters stored in config file.");
+                }
+                if (size < minSize || size > maxSize) {
+                    throw new BadRequestException("Key size out of supported range - " + minSize + " - " + maxSize);
+                }
+                //JSS supports key sizes that are of the form 256 + (16*n), where n = 0-1008, for RSA
+                if (((size - 256) % 16) != 0) {
+                    throw new BadRequestException("Invalid key size specified.");
+                }
+            } else if (algName.equalsIgnoreCase(KeyRequestResource.DSA_ALGORITHM)) {
+                // Without the PQGParams, JSS can create DSA keys of size 512, 768, 1024 only.
+                String[] sizes = CMS.getConfigStore().getString("keys.dsa.list", "512,768,1024").split(",");
+                if (!Arrays.asList(sizes).contains(String.valueOf(keySize))) {
+                    throw new BadRequestException("Invalid key size specified.");
+                }
+            }
+        }
+
+        IRequest request = queue.newRequest(IRequest.ASYMKEY_GENERATION_REQUEST);
+
+        request.setExtData(IRequest.KEY_GEN_ALGORITHM, algName);
+        request.setExtData(IRequest.KEY_GEN_SIZE, keySize);
+        request.setExtData(IRequest.SECURITY_DATA_STRENGTH, keySize);
+        request.setExtData(IRequest.SECURITY_DATA_ALGORITHM, algName);
+
+        request.setExtData(IRequest.KEY_GEN_USAGES, StringUtils.join(usages, ","));
+        request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
+        request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
+
+        if (transWrappedSessionKey != null) {
+            request.setExtData(IRequest.KEY_GEN_TRANS_WRAPPED_SESSION_KEY,
                     transWrappedSessionKey);
         }
 

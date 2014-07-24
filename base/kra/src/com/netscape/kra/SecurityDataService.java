@@ -182,9 +182,12 @@ public class SecurityDataService implements IService {
         // create key record
         // Note that in this case the owner is the same as the approving agent
         // because the archival request is made by the agent.
+        // The algorithm used to generate the symmetric key (being stored as the secret)
+        // is set in later in this method. (which is different  from the algStr variable
+        // which is the algorithm used for encrypting the secret.)
         KeyRecord rec = new KeyRecord(null, publicKey,
                 privateSecurityData, owner,
-                algStr, owner);
+                null, owner);
 
         rec.set(IKeyRecord.ATTR_CLIENT_ID, clientKeyId);
 

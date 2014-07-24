@@ -19,6 +19,7 @@
 package org.dogtagpki.server.kra.rest;
 
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
@@ -69,6 +70,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -376,7 +378,7 @@ public class KeyService extends PKIService implements KeyResource {
             while (e.hasMoreElements()) {
                 IKeyRecord rec = e.nextElement();
                 if (rec == null) continue;
-                results.add(createKeyDataInfo(rec));
+                results.add(createKeyDataInfo(rec, false));
             }
 
             int total = results.size();
@@ -431,13 +433,20 @@ public class KeyService extends PKIService implements KeyResource {
         throw new ResourceNotFoundException("Key not found.");
     }
 
-    public KeyInfo createKeyDataInfo(IKeyRecord rec) throws EBaseException {
+    public KeyInfo createKeyDataInfo(IKeyRecord rec, boolean getPublicKey) throws EBaseException {
         KeyInfo ret = new KeyInfo();
         ret.setClientKeyID(rec.getClientId());
         ret.setStatus(rec.getKeyStatus());
         ret.setAlgorithm(rec.getAlgorithm());
         ret.setSize(rec.getKeySize());
         ret.setOwnerName(rec.getOwnerName());
+        if(rec.getPublicKeyData() != null && getPublicKey){
+            try {
+                ret.setPublicKey(CryptoUtil.base64Encode(rec.getPublicKeyData()));
+            } catch (IOException e) {
+                throw new EBaseException(e.getMessage());
+            }
+        }
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);
         BigInteger serial = rec.getSerialNumber();
@@ -539,7 +548,7 @@ public class KeyService extends PKIService implements KeyResource {
         IKeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
-            KeyInfo info = createKeyDataInfo(rec);
+            KeyInfo info = createKeyDataInfo(rec, true);
 
             return createOKResponse(info);
         } catch (EDBRecordNotFoundException e) {

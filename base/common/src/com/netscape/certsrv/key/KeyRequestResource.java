@@ -35,6 +35,11 @@ public interface KeyRequestResource {
     public static final String RC4_ALGORITHM = "RC4";
     public static final String AES_ALGORITHM = "AES";
 
+    // Asymmetric Key algorithms
+    public final static String RSA_ALGORITHM = "RSA";
+    public final static String DSA_ALGORITHM = "DSA";
+    public final static String EC_ALGORITHM = "EC"; // Not supported yet.
+
     /**
      * Used to generate list of key requests based on the search parameters
      */
@@ -51,11 +56,11 @@ public interface KeyRequestResource {
     @POST
     @ClientResponseType(entityType=KeyRequestResponse.class)
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
-    public Response createRequest(MultivaluedMap<String, String> form);
+    public Response submitRequest(MultivaluedMap<String, String> form);
 
     @POST
     @ClientResponseType(entityType=KeyRequestResponse.class)
-    public Response createRequest(ResourceMessage data);
+    public Response submitRequest(ResourceMessage data);
 
     /**
      * Used to retrieve key request info for a specific request

@@ -272,7 +272,7 @@ public class EnrollmentService implements IService {
           }
              */
 
-            // retrieve pubic key
+            // retrieve public key
             X509Key publicKey = getPublicKey(request, aOpts[i].mReqPos);
             byte publicKeyData[] = publicKey.getEncoded();
 
@@ -458,7 +458,7 @@ public class EnrollmentService implements IService {
                 rec.setKeySize(-1);
             }
 
-            // if record alreay has a serial number, yell out.
+            // if record already has a serial number, yell out.
             if (rec.getSerialNumber() != null) {
                 mKRA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER",

@@ -45,6 +45,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestInfo;
@@ -87,6 +88,9 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
     private static final String LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST =
             "LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST_4";
+
+    private static final String LOGGING_SIGNED_AUDIT_ASYMKEY_GENERATION_REQUEST =
+            "LOGGING_SIGNED_AUDIT_ASYMKEY_GENERATION_REQUEST_4";
 
     private static final String LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_4";
@@ -412,14 +416,24 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         auditor.log(msg);
     }
 
-    @Override
-    public Response createRequest(MultivaluedMap<String, String> form) {
-        ResourceMessage data = new ResourceMessage(form);
-        return createRequest(data);
+    public void auditAsymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
+        String msg = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_ASYMKEY_GENERATION_REQUEST,
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                requestId != null ? requestId.toString() : "null",
+                clientKeyID);
+        auditor.log(msg);
     }
 
     @Override
-    public Response createRequest(ResourceMessage data) {
+    public Response submitRequest(MultivaluedMap<String, String> form) {
+        ResourceMessage data = new ResourceMessage(form);
+        return submitRequest(data);
+    }
+
+    @Override
+    public Response submitRequest(ResourceMessage data) {
         Object request = null;
         try {
             Class<?> requestClazz = Class.forName(data.getClassName());
@@ -435,6 +449,8 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             return recoverKey(new KeyRecoveryRequest(data));
         } else if (request instanceof SymKeyGenerationRequest) {
             return generateSymKey(new SymKeyGenerationRequest(data));
+        } else if (request instanceof AsymKeyGenerationRequest) {
+            return generateAsymKey(new AsymKeyGenerationRequest(data));
         } else {
             throw new BadRequestException("Invalid request class.");
         }
@@ -454,6 +470,28 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             }
             response = dao.submitRequest(data, uriInfo, owner);
             auditSymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
+                    data.getClientKeyId());
+
+            return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
+
+        } catch (EBaseException | URISyntaxException e) {
+            e.printStackTrace();
+            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            throw new PKIException(e.toString());
+        }
+    }
+
+    public Response generateAsymKey(AsymKeyGenerationRequest data) {
+        if (data == null) {
+            throw new BadRequestException("Invalid key generation request.");
+        }
+
+        KeyRequestDAO dao = new KeyRequestDAO();
+        KeyRequestResponse response;
+        try {
+            String owner = servletRequest.getUserPrincipal().getName();
+            response = dao.submitRequest(data, uriInfo, owner);
+            auditAsymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
                     data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));

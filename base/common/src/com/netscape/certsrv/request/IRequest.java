@@ -169,12 +169,14 @@ public interface IRequest extends Serializable {
     public static final String SECURITY_DATA_SESS_WRAPPED_DATA = "sessWrappedSecData";
     public static final String SECURITY_DATA_PASS_WRAPPED_DATA = "passPhraseWrappedData";
 
-    // symkey generation request attributes
+    // key generation request attributes
+    public static final String ASYMKEY_GENERATION_REQUEST = "asymkeyGenRequest";
     public static final String SYMKEY_GENERATION_REQUEST = "symkeyGenRequest";
-    public static final String SYMKEY_GEN_ALGORITHM = "symkeyGenAlgorithm";
-    public static final String SYMKEY_GEN_SIZE = "symkeyGenSize";
-    public static final String SYMKEY_GEN_USAGES = "symkeyGenUsages";
-    public static final String SYMKEY_TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
+
+    public static final String KEY_GEN_ALGORITHM = "keyGenAlgorithm";
+    public static final String KEY_GEN_SIZE = "keyGenSize";
+    public static final String KEY_GEN_USAGES = "keyGenUsages";
+    public static final String KEY_GEN_TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
 
     // requestor type values.
     public static final String REQUESTOR_EE = "EE";

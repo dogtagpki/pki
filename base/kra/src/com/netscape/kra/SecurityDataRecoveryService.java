@@ -30,6 +30,9 @@ import java.util.Random;
 
 import javax.crypto.spec.RC2ParameterSpec;
 
+import netscape.security.util.DerValue;
+import netscape.security.x509.X509Key;
+
 import org.dogtagpki.server.kra.rest.KeyRequestService;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -42,6 +45,7 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PBEKeyGenParams;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs12.PasswordConverter;
@@ -123,36 +127,29 @@ public class SecurityDataRecoveryService implements IService {
 
         Hashtable<String, Object> params = mKRA.getVolatileRequest(
                 request.getRequestId());
-
         BigInteger serialno = request.getExtDataInBigInteger(ATTR_SERIALNO);
         request.setExtData(ATTR_KEY_RECORD, serialno);
         RequestId requestID = request.getRequestId();
-
         if (params == null) {
             CMS.debug("Can't get volatile params.");
             auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                     "cannot get volatile params");
             throw new EBaseException("Can't obtain volatile params!");
         }
-
         byte[] wrappedPassPhrase = null;
         byte[] wrappedSessKey = null;
-
         String transWrappedSessKeyStr = (String) params.get(IRequest.SECURITY_DATA_TRANS_SESS_KEY);
         if (transWrappedSessKeyStr != null) {
             wrappedSessKey = Utils.base64decode(transWrappedSessKeyStr);
         }
-
         String sessWrappedPassPhraseStr = (String) params.get(IRequest.SECURITY_DATA_SESS_PASS_PHRASE);
         if (sessWrappedPassPhraseStr != null) {
             wrappedPassPhrase = Utils.base64decode(sessWrappedPassPhraseStr);
         }
-
         String ivInStr = (String) params.get(IRequest.SECURITY_DATA_IV_STRING_IN);
         if (ivInStr != null) {
             iv_in = Utils.base64decode(ivInStr);
         }
-
         if (transWrappedSessKeyStr == null && sessWrappedPassPhraseStr == null) {
             //We may be in recovery case where no params were initially submitted.
             return false;
@@ -167,46 +164,56 @@ public class SecurityDataRecoveryService implements IService {
         } catch (Exception e) {
             iv = iv_default;
         }
-
         String ivStr = Utils.base64encode(iv);
 
         KeyRecord keyRecord = (KeyRecord) mStorage.readKeyRecord(serialno);
 
         SymmetricKey unwrappedSess = null;
-
         String dataType = (String) keyRecord.get(IKeyRecord.ATTR_DATA_TYPE);
         SymmetricKey symKey = null;
         byte[] unwrappedSecData = null;
+        PrivateKey privateKey = null;
         if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
             symKey = recoverSymKey(keyRecord);
+
         } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
             unwrappedSecData = recoverSecurityData(keyRecord);
+        } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
+            try {
+                privateKey = mStorageUnit.unwrap(keyRecord.getPrivateKeyData(),
+                        X509Key.parsePublicKey(new DerValue(keyRecord.getPublicKeyData())));
+            } catch (IOException e) {
+                e.printStackTrace();
+                CMS.debug("Cannot unwrap stored private key.");
+                throw new EBaseException("Cannot fetch the private key from the database.");
+            }
+        } else {
+            throw new EBaseException("Invalid data type stored in the database.");
         }
-
         CryptoToken ct = mTransportUnit.getToken();
 
         byte[] key_data = null;
         String pbeWrappedData = null;
-
         if (sessWrappedPassPhraseStr != null) { //We have a trans wrapped pass phrase, we will be doing PBE packaging
             byte[] unwrappedPass = null;
             Password pass = null;
-
             try {
                 unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.DECRYPT);
                 Cipher decryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
                 decryptor.initDecrypt(unwrappedSess, new IVParameterSpec(iv_in));
                 unwrappedPass = decryptor.doFinal(wrappedPassPhrase);
                 String passStr = new String(unwrappedPass, "UTF-8");
-
                 pass = new Password(passStr.toCharArray());
                 passStr = null;
 
                 if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
-                    pbeWrappedData = createEncryptedContentInfo(ct, symKey, null,
+                    pbeWrappedData = createEncryptedContentInfo(ct, symKey, null, null,
                             pass);
-                } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
-                    pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData,
+                } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)){
+                    pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null,
+                            pass);
+                } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
+                    pbeWrappedData = createEncryptedContentInfo(ct, null, null, privateKey,
                             pass);
                 }
 
@@ -257,6 +264,19 @@ public class SecurityDataRecoveryService implements IService {
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
                             serialno.toString(), "Cannot wrap pass phrase");
                     throw new EBaseException("Can't wrap pass phrase!");
+                }
+
+            } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
+                CMS.debug("Wrapping the private key with the session key");
+                try {
+                    unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.WRAP);
+                    KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+                    wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
+                    key_data = wrapper.wrap(privateKey);
+                } catch (Exception e) {
+                    auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
+                            "Cannot wrap private key");
+                    throw new EBaseException("Cannot wrap private key - " + e.toString());
                 }
             }
 
@@ -319,10 +339,10 @@ public class SecurityDataRecoveryService implements IService {
 
     //ToDo: This might fit in JSS.
     private static EncryptedContentInfo
-            createEncryptedContentInfoPBEOfSymmKey(PBEAlgorithm keyGenAlg, Password password, byte[] salt,
+            createEncryptedContentInfoPBEOfKey(PBEAlgorithm keyGenAlg, Password password, byte[] salt,
                     int iterationCount,
                     KeyGenerator.CharToByteConverter charToByteConverter,
-                    SymmetricKey symKey, CryptoToken token)
+                    SymmetricKey symKey, PrivateKey privateKey, CryptoToken token)
                     throws CryptoManager.NotInitializedException, NoSuchAlgorithmException,
                     InvalidKeyException, InvalidAlgorithmParameterException, TokenException,
                     CharConversionException {
@@ -354,8 +374,15 @@ public class SecurityDataRecoveryService implements IService {
         KeyWrapper wrapper = token.getKeyWrapper(
                 KeyWrapAlgorithm.DES3_CBC_PAD);
         wrapper.initWrap(key, params);
-        byte encrypted[] = wrapper.wrap(symKey);
-
+        byte[] encrypted = null;
+        if (symKey != null) {
+            encrypted = wrapper.wrap(symKey);
+        } else if (privateKey != null) {
+            encrypted = wrapper.wrap(privateKey);
+        }
+        if (encrypted == null) {
+            //TODO - think about the exception to be thrown
+        }
         PBEParameter pbeParam = new PBEParameter(salt, iterationCount);
         AlgorithmIdentifier encAlgID = new AlgorithmIdentifier(
                 keyGenAlg.toOID(), pbeParam);
@@ -369,7 +396,7 @@ public class SecurityDataRecoveryService implements IService {
 
     }
 
-    private static String createEncryptedContentInfo(CryptoToken ct, SymmetricKey symKey, byte[] securityData,
+    private static String createEncryptedContentInfo(CryptoToken ct, SymmetricKey symKey, byte[] securityData, PrivateKey privateKey,
             Password password)
             throws EBaseException {
 
@@ -384,14 +411,19 @@ public class SecurityDataRecoveryService implements IService {
             byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
             if (symKey != null) {
 
-                cInfo = createEncryptedContentInfoPBEOfSymmKey(keyGenAlg, password, salt,
+                cInfo = createEncryptedContentInfoPBEOfKey(keyGenAlg, password, salt,
                         1,
                         passConverter,
-                        symKey, ct);
+                        symKey, null, ct);
 
             } else if (securityData != null) {
 
                 cInfo = EncryptedContentInfo.createPBE(keyGenAlg, password, salt, 1, passConverter, securityData);
+            } else if (privateKey != null) {
+                cInfo = createEncryptedContentInfoPBEOfKey(keyGenAlg, password, salt,
+                        1,
+                        passConverter,
+                        null, privateKey, ct);
             }
 
             if(cInfo == null) {

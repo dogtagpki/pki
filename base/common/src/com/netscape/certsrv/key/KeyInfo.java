@@ -54,6 +54,9 @@ public class KeyInfo {
     @XmlElement
     protected String ownerName;
 
+    @XmlElement
+    protected String publicKey;
+
     public KeyInfo() {
         // required for JAXB (defaults)
     }
@@ -124,5 +127,13 @@ public class KeyInfo {
 
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
+    }
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 }
