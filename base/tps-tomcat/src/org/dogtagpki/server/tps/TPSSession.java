@@ -19,6 +19,7 @@ package org.dogtagpki.server.tps;
 
 import java.io.IOException;
 
+import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.processor.TPSEnrollProcessor;
 import org.dogtagpki.server.tps.processor.TPSPinResetProcessor;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
@@ -33,8 +34,10 @@ import com.netscape.certsrv.apps.CMS;
 public class TPSSession {
 
     private TPSConnection connection;
+    private String ipAddress; /* remote IP */
+    private TokenRecord tokenRecord;
 
-    public TPSSession(TPSConnection conn) {
+    public TPSSession(TPSConnection conn, String ip) {
 
         if (conn == null) {
             throw new NullPointerException("TPSSession incoming connection is null!");
@@ -42,6 +45,15 @@ public class TPSSession {
 
         CMS.debug("TPSSession constructor conn: " + conn);
         connection = conn;
+
+        if (ip == null) {
+         // probably unlikely to happen; log it and continue anyway
+            CMS.debug("TPSSession constructor remote ipAddress null");
+        } else {
+            CMS.debug("TPSSession constructor remote ipAddress: " + getIpAddress());
+        }
+        setIpAddress(ip);
+
     }
 
     public TPSConnection getConnection() {
@@ -141,6 +153,22 @@ public class TPSSession {
 
         CMS.debug("TPSSession.process: leaving: result: " + result + " status: " + status);
 
+    }
+
+    public TokenRecord getTokenRecord() {
+        return tokenRecord;
+    }
+
+    public void setTokenRecord(TokenRecord tokenRecord) {
+        this.tokenRecord = tokenRecord;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    private void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
 }

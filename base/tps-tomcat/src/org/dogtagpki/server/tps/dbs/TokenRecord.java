@@ -20,6 +20,7 @@ package org.dogtagpki.server.tps.dbs;
 
 import java.util.Date;
 
+import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.dbs.DBAttribute;
 import com.netscape.cmscore.dbs.DBObjectClasses;
 import com.netscape.cmscore.dbs.DBRecord;
@@ -195,4 +196,34 @@ public class TokenRecord extends DBRecord {
             return false;
         return true;
     }
+
+    public TokenStatus getTokenStatus() {
+        String status = getStatus();
+
+        if ("uninitialized".equals(status)) {
+            return TokenStatus.UNINITIALIZED;
+
+        } else if ("active".equals(status)) {
+            return TokenStatus.ACTIVE;
+
+        } else if ("lost".equals(status)) {
+            String reason = getReason();
+
+            if ("keyCompromise".equals(reason)) {
+                return TokenStatus.PERM_LOST;
+
+            } else if ("destroyed".equals(reason)) {
+                return TokenStatus.DAMAGED;
+
+            } else if ("onHold".equals(reason)) {
+                return TokenStatus.TEMP_LOST;
+            }
+
+        } else if ("terminated".equals(status)) {
+            return TokenStatus.TERMINATED;
+        }
+
+        return TokenStatus.PERM_LOST;
+    }
+
 }

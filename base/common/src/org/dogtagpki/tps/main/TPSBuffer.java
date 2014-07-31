@@ -284,7 +284,26 @@ public class TPSBuffer {
             result.append(HEX_DIGITS.charAt((c & 0xF0) >> 4));
             result.append(HEX_DIGITS.charAt(c & 0x0F));
             result.append("%");
+        }
 
+        return result.toString();
+    }
+
+    /*
+     * toHexString - this version returns hex string without the'%'
+     * @return the hex representation of the buffer
+     */
+    public String toHexStringPlain() {
+        final String HEX_DIGITS = "0123456789ABCDEF";
+
+        StringBuffer result = new StringBuffer(buf.length * 2);
+
+        for (int i = 0; i < buf.length; i++)
+        {
+            char c = (char) buf[i];
+
+            result.append(HEX_DIGITS.charAt((c & 0xF0) >> 4));
+            result.append(HEX_DIGITS.charAt(c & 0x0F));
         }
 
         return result.toString();

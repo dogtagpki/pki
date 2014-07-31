@@ -15,11 +15,14 @@ import netscape.security.util.BigInt;
 import netscape.security.x509.X509CertImpl;
 
 import org.dogtagpki.server.tps.TPSSession;
+import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
+import org.dogtagpki.server.tps.dbs.ActivityDatabase;
+import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
@@ -36,13 +39,13 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmsutil.util.Utils;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
     public TPSEnrollProcessor(TPSSession session) {
         super(session);
-
     }
 
     @Override
@@ -61,30 +64,68 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     private void enroll() throws TPSException, IOException {
         CMS.debug("TPSEnrollProcessor enroll: entering...");
+        String auditMsg = null;
         TPSEngine engine = getTPSEngine();
-        AppletInfo appletInfo = getAppletInfo();
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
+        AppletInfo appletInfo = null;
+        TokenRecord tokenRecord = null;
+        try {
+            appletInfo = getAppletInfo();
+        } catch (TPSException e) {
+            auditMsg = e.toString();
+            tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
+                    auditMsg, "failure");
+
+            throw e;
+        }
+        appletInfo.setAid(getCardManagerAID());
+        boolean isTokenPresent = false;
+        tokenRecord = createTokenRecord(isTokenPresent, appletInfo);
+        session.setTokenRecord(tokenRecord);
+
         String resolverInstName = getResolverInstanceName();
 
         String tokenType = null;
 
-        tokenType = resolveTokenProfile(resolverInstName, appletInfo.getCUIDString(), appletInfo.getMSNString(),
+        tokenType = resolveTokenProfile(resolverInstName, appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
                 appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-        CMS.debug("TPSProcessor.enroll: calculated tokenType: " + tokenType);
-        CMS.debug("TPSEnrollProcessor.enroll: tokenType: " + tokenType);
+        CMS.debug("TPSEnrollProcessor.enroll: resolved tokenType: " + tokenType);
 
         checkProfileStateOK();
 
-        if (engine.isTokenPresent(appletInfo.getCUIDString())) {
-            //ToDo
+        boolean do_force_format = false;
+        if (isTokenPresent) {
+            CMS.debug("TPSEnrollProcessor.enroll: token exists");
 
+            TokenStatus newState = TokenStatus.ACTIVE;
+            // Check for transition to ACTIVE status.
+            if(!tps.tdb.isTransitionAllowed(tokenRecord, newState )) {
+                CMS.debug("TPSEnrollProcessor.enroll: token transition disallowed " +
+                        tokenRecord.getTokenStatus() +
+                        " to " + newState);
+                auditMsg = "Operation for CUID "+appletInfo.getCUIDhexStringPlain()+
+                        " Disabled, illegal transition attempted " + tokenRecord.getTokenStatus() +
+                        " to " + newState;
+                tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
+                            auditMsg, "failure");
+
+                throw new TPSException(auditMsg,
+                        TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
+            } else {
+                CMS.debug("TPSPEnrollrocessor.enroll: token transition allowed "+
+                        tokenRecord.getTokenStatus() +
+                        " to " + newState);
+            }
+            do_force_format = engine.raForceTokenFormat(appletInfo.getCUIDhexString());
         } else {
+            CMS.debug("TPSEnrollProcessor.enroll: token does not exist");
+            tokenRecord.setStatus("uninitialized");
+
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
-            checkAndAuthenticateUser(appletInfo, tokenType);
         }
+        checkAndAuthenticateUser(appletInfo, tokenType);
 
-        //ToDo: check transition state here
-
-        boolean do_force_format = engine.raForceTokenFormat(appletInfo.getCUIDString());
 
         if (do_force_format) {
             CMS.debug("TPSEnrollProcessor.enroll: About to force format first due to policy.");
@@ -106,7 +147,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         //Reset the token's pin, create one if we don't have one already
 
         checkAndHandlePinReset(channel);
-
+        tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
         String tksConnId = getTKSConnectorID();
         TPSBuffer plaintextChallenge = computeRandomData(16, tksConnId);
 
@@ -117,12 +158,28 @@ public class TPSEnrollProcessor extends TPSProcessor {
         try {
             pkcs11objx = getCurrentObjectsOnToken(channel);
         } catch (DataFormatException e) {
-            throw new TPSException("TPSEnrollProcessor.enroll: Failed to parse original token data: " + e.toString());
+            auditMsg = "TPSEnrollProcessor.enroll: Failed to parse original token data: " + e.toString();
+            tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
+                    auditMsg, "failure");
+
+            throw new TPSException(auditMsg);
         }
 
         pkcs11objx.setCUID(appletInfo.getCUID());
-        //ToDo: Add token to token db
 
+        try {
+            tokenRecord.setStatus("active");
+            String successMsg = "update token success";
+            tps.tdb.tdbUpdateTokenEntry(tps, tokenRecord);
+            tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
+                    successMsg, "success");
+        } catch (Exception e){
+            String failMsg = "update token failure";
+            auditMsg =  failMsg + ":" + e.toString();
+            tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
+                    failMsg, "failure");
+            throw new TPSException(auditMsg);
+        }
         statusUpdate(10, "PROGRESS_PROCESS_PROFILE");
 
         EnrolledCertsInfo certsInfo = new EnrolledCertsInfo();
@@ -167,6 +224,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         statusUpdate(99, "PROGRESS_SET_LIFECYCLE");
         channel.setLifeycleState((byte) 0x0f);
+
+        auditMsg = "enroll operation succeeded";
+        tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg, "success");
+        //nothing to do here; log it and continue
+        CMS.debug(auditMsg);
 
         CMS.debug("TPSEnrollProcessor.enroll: leaving ...");
 
@@ -232,10 +294,15 @@ public class TPSEnrollProcessor extends TPSProcessor {
     private void checkAndAuthenticateUser(AppletInfo appletInfo, String tokenType) throws TPSException {
         IAuthCredentials userCred;
         IAuthToken authToken;
+        TokenRecord tokenRecord = getTokenRecord();
         if (!isExternalReg) {
             // authenticate per profile/tokenType configuration
             String configName = TPSEngine.OP_ENROLL_PREFIX + "." + tokenType + ".auth.enable";
             IConfigStore configStore = CMS.getConfigStore();
+
+            TPSSubsystem tps =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            //TPSSession session = getSession();
             boolean isAuthRequired;
             try {
                 CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: getting config: " + configName);
@@ -250,17 +317,27 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 try {
                     TPSAuthenticator userAuth =
                             getAuthentication(TPSEngine.OP_ENROLL_PREFIX, tokenType);
-                    userCred = requestUserId(TPSEngine.ENROLL_OP, appletInfo.getCUIDString(), userAuth,
+                    userCred = requestUserId(TPSEngine.ENROLL_OP, appletInfo.getCUIDhexString(), userAuth,
                             beginMsg.getExtensions());
+                    userid = (String)userCred.get(userAuth.getAuthCredName());
+                    CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: userCred (attempted) userid=" + userid);
+                    // initialize userid first for logging purposes in case authentication fails
+                    tokenRecord.setUserID(userid);
                     authToken = authenticateUser(TPSEngine.ENROLL_OP, userAuth, userCred);
+                    userid = authToken.getInString("userid");
+                    tokenRecord.setUserID(userid);
                     CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: auth passed: userid: "
                             + authToken.get("userid"));
-                    userid = authToken.getInString("userid");
+
                 } catch (Exception e) {
                     // all exceptions are considered login failure
                     CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
-                    throw new TPSException("TPS error user authentication failed.",
-                            TPSStatus.STATUS_ERROR_LOGIN);
+                    String msg = "TPS error user authentication failed:" + e;
+                    tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
+                           msg, "failure");
+
+                    throw new TPSException(msg,
+                             TPSStatus.STATUS_ERROR_LOGIN);
                 }
             } else {
                 throw new TPSException(
@@ -277,7 +354,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset entering...");
 
         if (channel == null) {
-            throw new TPSException("TPSProcessor.checkAndHandlePinReset: invalid input data!",
+            throw new TPSException("TPSEnrollProcessor.checkAndHandlePinReset: invalid input data!",
                     TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
         }
 
@@ -358,8 +435,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             securityLevel = SecurityLevel.SECURE_MSG_MAC_ENC;
 
         if (checkForAppletUpdateEnabled()) {
-            String targetAppletVersion = checkForAppletUpgrade(currentTokenOperation);
-            upgradeApplet(currentTokenOperation, targetAppletVersion, securityLevel, getBeginMessage().getExtensions(),
+            String targetAppletVersion = checkForAppletUpgrade("op."+currentTokenOperation);
+            upgradeApplet("op."+currentTokenOperation, targetAppletVersion, securityLevel, getBeginMessage().getExtensions(),
                     tksConnId, 5, 12);
         }
 
@@ -519,7 +596,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         Map<String, String> nv = new LinkedHashMap<String, String>();
 
-        nv.put("cuid", ainfo.getCUIDString());
+        nv.put("cuid", ainfo.getCUIDhexString());
         nv.put("msn", ainfo.getMSNString());
         nv.put("userid", userid);
         nv.put("auth.cn", userid);
@@ -748,9 +825,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 AppletInfo appletInfo = getAppletInfo();
                 selectCoolKeyApplet();
                 CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: userid =" + userid + ", cuid="
-                        + appletInfo.getCUIDString());
+                        + appletInfo.getCUIDhexString());
                 CAEnrollCertResponse caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
-                        appletInfo.getCUIDString(), getSelectedTokenType(),
+                        appletInfo.getCUIDhexString(), getSelectedTokenType(),
                         cEnrollInfo.getKeyType());
                 String retCertB64 = caEnrollResp.getCertB64();
 
@@ -779,7 +856,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 certsInfo.addCertificate(x509Cert);
                 certsInfo.addKType(cEnrollInfo.getKeyType());
-                certsInfo.addOrigin(aInfo.getCUIDString());
+                certsInfo.addOrigin(aInfo.getCUIDhexString());
 
                 SubjectPublicKeyInfo publicKeyInfo = null;
                 try {
@@ -910,7 +987,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         Map<String, String> nv = new LinkedHashMap<String, String>();
 
-        nv.put("cuid", ainfo.getCUIDString());
+        nv.put("cuid", ainfo.getCUIDhexString());
         nv.put("msn", ainfo.getMSNString());
         nv.put("userid", userid);
         nv.put("auth.cn", userid);

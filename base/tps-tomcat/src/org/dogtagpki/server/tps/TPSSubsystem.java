@@ -19,7 +19,6 @@ package org.dogtagpki.server.tps;
 
 import org.dogtagpki.server.tps.authentication.AuthenticationManager;
 import org.dogtagpki.server.tps.cms.ConnectionManager;
-import org.dogtagpki.server.tps.profile.TokenProfileResolverManager;
 import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.config.ConfigDatabase;
 import org.dogtagpki.server.tps.config.ConnectorDatabase;
@@ -29,6 +28,7 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.profile.TokenProfileResolverManager;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -71,6 +71,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public AuthenticationManager authManager;
     public TokenProfileResolverManager profileResolverManager;
     public TPSEngine engine;
+    public TPSTokendb tdb;
 
     @Override
     public String getId() {
@@ -104,8 +105,11 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         connectorDatabase = new ConnectorDatabase();
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
+        tdb = new TPSTokendb();
+
         engine = new TPSEngine();
         engine.init();
+
     }
 
     @Override
@@ -203,6 +207,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     public TokenProfileResolverManager getProfileResolverManager() {
         return profileResolverManager;
+    }
+
+    public TPSTokendb getTokendb() {
+        return tdb;
     }
 
     public org.mozilla.jss.crypto.X509Certificate getSubsystemCert() throws EBaseException, NotInitializedException,

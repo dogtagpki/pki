@@ -10,7 +10,7 @@ public class AppletInfo {
     private byte appMajorVersion;
     private byte appMinorVersion;
 
-
+    private TPSBuffer aid;
     private TPSBuffer cuid;
     private TPSBuffer msn;
     private int totalMem;
@@ -41,9 +41,20 @@ public class AppletInfo {
         return msn;
     }
 
-    public String getCUIDString() {
+    public String getCUIDhexString(){
         if(cuid != null) {
             return cuid.toHexString();
+        }
+
+        return null;
+    }
+
+    /*
+     * getCUIDhexString2 returns hex string without the '%'
+     */
+    public String getCUIDhexStringPlain() {
+        if(cuid != null) {
+            return cuid.toHexStringPlain();
         }
 
         return null;
@@ -91,6 +102,14 @@ public class AppletInfo {
 
     public int getFreeMem() {
         return freeMem;
+    }
+
+    public TPSBuffer getAid() {
+        return aid;
+    }
+
+    public void setAid(TPSBuffer aid) {
+        this.aid = aid;
     }
 
 }

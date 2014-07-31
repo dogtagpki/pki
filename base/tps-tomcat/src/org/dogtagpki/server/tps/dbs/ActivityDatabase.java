@@ -35,6 +35,14 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author Endi S. Dewata
  */
 public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
+    public final static String OP_DO_TOKEN = "do_token";
+    public final static String OP_ADD = "add"; // add a token
+    public final static String OP_DELETE = "delete"; // delete a token
+    //public final static String OP_MODIFY_AUDIT_SIGNING = "modify_audit_signing";
+    public final static String OP_ENROLLMENT = "enrollment";
+    public final static String OP_RENEWAL = "renewal";
+    public final static String OP_PIN_RESET = "pin_reset";
+    public final static String OP_FORMAT = "format";
 
     public ActivityDatabase(IDBSubsystem dbSubsystem, String baseDN) throws EBaseException {
         super("Activity", dbSubsystem, baseDN, ActivityRecord.class);

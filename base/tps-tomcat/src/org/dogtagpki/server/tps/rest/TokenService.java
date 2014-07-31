@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
+import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
@@ -273,21 +274,37 @@ public class TokenService extends PKIService implements TokenResource {
         String tokenID = tokenData.getTokenID();
         CMS.debug("TokenService.addToken(\"" + tokenID + "\")");
 
+        String remoteUser = servletRequest.getRemoteUser();
+        String ipAddress = servletRequest.getRemoteAddr();
+
+        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TokenRecord tokenRecord = null;
+        String msg = "add token";
+
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             // new tokens are uninitialized when created
             tokenData.setStatus(TokenStatus.UNINITIALIZED);
 
-            database.addRecord(tokenID, createTokenRecord(tokenData));
+            tokenRecord = createTokenRecord(tokenData);
+            tokenRecord.setId(tokenID);
+            database.addRecord(tokenID, tokenRecord);
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_ADD,
+                tokenRecord, ipAddress, msg, "success",
+                remoteUser);
             tokenData = createTokenData(database.getRecord(tokenID));
 
             return createCreatedResponse(tokenData, tokenData.getLink().getHref());
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_ADD,
+                tokenRecord, ipAddress, msg, "failure",
+                remoteUser);
+            msg = msg + ":" + e;
+
+            throw new PKIException(msg);
         }
     }
 
@@ -299,16 +316,24 @@ public class TokenService extends PKIService implements TokenResource {
 
         CMS.debug("TokenService.replaceToken(\"" + tokenID + "\")");
 
+        String remoteUser = servletRequest.getRemoteUser();
+        String ipAddress = servletRequest.getRemoteAddr();
+
+        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TokenRecord tokenRecord = null;
+        String msg = "replace token";
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            TokenRecord tokenRecord = database.getRecord(tokenID);
-            tokenRecord.setUserID(tokenData.getUserID());
+            tokenRecord = database.getRecord(tokenID);
+            tokenRecord.setUserID(remoteUser);
             tokenRecord.setType(tokenData.getType());
             tokenRecord.setAppletID(tokenData.getAppletID());
             tokenRecord.setKeyInfo(tokenData.getKeyInfo());
             database.updateRecord(tokenID, tokenRecord);
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
+                tokenRecord, ipAddress, msg, "success",
+                remoteUser);
 
             tokenData = createTokenData(database.getRecord(tokenID));
 
@@ -316,7 +341,12 @@ public class TokenService extends PKIService implements TokenResource {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
+                tokenRecord, ipAddress, msg,
+                "failure", remoteUser);
+            msg = msg + ":" + e;
+
+            throw new PKIException(msg);
         }
     }
 
@@ -328,11 +358,16 @@ public class TokenService extends PKIService implements TokenResource {
 
         CMS.debug("TokenService.modifyToken(\"" + tokenID + "\")");
 
+        String remoteUser = servletRequest.getRemoteUser();
+        String ipAddress = servletRequest.getRemoteAddr();
+
+        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TokenRecord tokenRecord = null;
+        String msg = "modify token";
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            TokenRecord tokenRecord = database.getRecord(tokenID);
+            tokenRecord = database.getRecord(tokenID);
 
             // update user ID if specified
             String userID = tokenData.getUserID();
@@ -359,6 +394,9 @@ public class TokenService extends PKIService implements TokenResource {
             }
 
             database.updateRecord(tokenID, tokenRecord);
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
+                tokenRecord, ipAddress, msg, "success",
+                remoteUser);
 
             tokenData = createTokenData(database.getRecord(tokenID));
 
@@ -366,7 +404,12 @@ public class TokenService extends PKIService implements TokenResource {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
+                tokenRecord, ipAddress, msg,
+                "failure", remoteUser);
+            msg = msg + ":" + e;
+
+            throw new PKIException(msg);
         }
     }
 
@@ -378,25 +421,39 @@ public class TokenService extends PKIService implements TokenResource {
 
         CMS.debug("TokenService.changeTokenStatus(\"" + tokenID + "\", \"" + tokenStatus + "\")");
 
+        String remoteUser = servletRequest.getRemoteUser();
+        String ipAddress = servletRequest.getRemoteAddr();
+
+        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TokenRecord tokenRecord = null;
+        String msg = "";
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            TokenRecord tokenRecord = database.getRecord(tokenID);
+            tokenRecord = database.getRecord(tokenID);
             TokenStatus currentTokenStatus = getTokenStatus(tokenRecord);
             CMS.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
+            msg = "change token status from " + currentTokenStatus + " to " + tokenStatus;
 
             // make sure transition is allowed
             Collection<TokenStatus> nextStatuses = transitions.get(currentTokenStatus);
             CMS.debug("TokenService.changeTokenStatus(): allowed next statuses: " + nextStatuses);
             if (nextStatuses == null || !nextStatuses.contains(tokenStatus)) {
                 CMS.debug("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
-                throw new BadRequestException("Invalid token status transition: " + currentTokenStatus + " to " + tokenStatus);
+                msg = msg + ": Invalid token status transition";
+                subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
+                    tokenRecord, ipAddress,
+                    msg,
+                    "failure", remoteUser);
+                throw new BadRequestException(msg);
             }
 
             CMS.debug("TokenService.changeTokenStatus(): next status allowed: " + tokenStatus);
             setTokenStatus(tokenRecord, tokenStatus);
             database.updateRecord(tokenID, tokenRecord);
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
+                tokenRecord, ipAddress, msg,
+                "success", remoteUser);
 
             TokenData tokenData = createTokenData(database.getRecord(tokenID));
 
@@ -404,7 +461,12 @@ public class TokenService extends PKIService implements TokenResource {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            msg = msg + e;
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
+                tokenRecord, ipAddress, msg,
+                "failure", remoteUser);
+
+            throw new PKIException(msg);
         }
     }
 
@@ -415,16 +477,30 @@ public class TokenService extends PKIService implements TokenResource {
 
         CMS.debug("TokenService.removeToken(\"" + tokenID + "\")");
 
+        String remoteUser = servletRequest.getRemoteUser();
+        String ipAddress = servletRequest.getRemoteAddr();
+
+        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TokenRecord tokenRecord = null;
+        String msg = "remove token";
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
+            tokenRecord = database.getRecord(tokenID);
             database.removeRecord(tokenID);
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DELETE,
+                tokenRecord, ipAddress, msg, "success",
+                remoteUser);
 
             return createNoContentResponse();
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DELETE,
+                tokenRecord, ipAddress, msg,
+                "failure", remoteUser);
+            msg = msg + ":" + e;
+
+            throw new PKIException(msg);
         }
     }
 }

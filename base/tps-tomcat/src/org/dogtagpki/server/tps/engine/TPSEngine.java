@@ -234,11 +234,6 @@ public class TPSEngine {
         return keySetData;
     }
 
-    public boolean isTokenPresent(String cuid) {
-        boolean present = false;
-
-        return present;
-    }
 
     public static void main(String[] args) {
 

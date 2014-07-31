@@ -60,6 +60,8 @@ public class TPSAuthenticator {
     // retries if the user entered the wrong password/securid
     private int maxLoginRetries = 1;
 
+    private String authCredName;
+
     /*
      * Authentication constructor
      * @param authId authentication instance id
@@ -134,5 +136,13 @@ public class TPSAuthenticator {
 
     public void setNumOfRetries(int num) {
         maxLoginRetries = num;
+    }
+
+    public String getAuthCredName() {
+        return authCredName;
+    }
+
+    public void setAuthCredName(String authCredName) {
+        this.authCredName = authCredName;
     }
 }

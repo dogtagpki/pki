@@ -51,7 +51,9 @@ public class TPSServlet extends HttpServlet {
 
         CMS.debug("TPSConnection created: " + con);
 
-        TPSSession session = new TPSSession(con);
+        String ipAddress = request.getRemoteAddr();
+
+        TPSSession session = new TPSSession(con, ipAddress);
 
         CMS.debug("TPSSession created: " + session);
 
