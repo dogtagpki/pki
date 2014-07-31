@@ -75,6 +75,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./shared/dummycert1.pem
 	chmod a+x ./shared/pki-cert-cli-lib.sh
 	chmod a+x runtest.sh
+	chmod a+x topologies.sh
 	#quickinstall
 	chmod a+x ./acceptance/quickinstall/rhcs-install.sh
 	chmod a+x ./acceptance/quickinstall/rhcs-install-lib.sh

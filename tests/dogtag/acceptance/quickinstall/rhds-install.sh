@@ -32,10 +32,10 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-rhcs_install_set_ldap_vars() {
 . /opt/rhqa_pki/env.sh
 
- ### Set OS/YUM/RPM related variables here
+rhcs_install_set_ldap_vars() {
+	### Set OS/YUM/RPM related variables here
         if [ $(grep Fedora /etc/redhat-release|wc -l) -gt 0 ]; then
                 export DISTRO="Fedora"
                 export RHDS_SERVER_PACKAGES="389-ds-base policycoreutils-python"
@@ -44,15 +44,9 @@ rhcs_install_set_ldap_vars() {
                 export RHDS_SERVER_PACKAGES="redhat-ds-base 389-ds-base policycoreutils-python"
         fi
 
-
-
 	#Copy rhds-install.sh to /opt/rhqa_pki
         rm -f /opt/rhqa_pki/rhds-install.sh
         cp -a ./acceptance/quickinstall/rhds-install.sh /opt/rhqa_pki/.
-
-#	rlLog "===================== env.sh   =========================="
-      #  rlRun "cat /opt/rhqa_pki/env.sh"
- #       rlLog "==============================================="
 }
 
 ######################################################################
@@ -61,14 +55,14 @@ rhcs_install_set_ldap_vars() {
 ######################################################################
 rhds_install()
 {
-
         local LDAP_PORT="$1"
         local LDAP_INSTANCE_NAME="$2"
         local LDAP_ROOT_DN="$3"
         local LDAP_ROOT_DN_PWD="$4"
         local LDAP_SUFFIX="$5"
-	local INSTANCECFG="/tmp/instance.inf"
-	local INSTANCE_CREATE_OUT="/tmp/instance_create.out"
+	local filename="$6"
+	local INSTANCECFG="/tmp/$(eval echo $filename)_instance.inf"
+	local INSTANCE_CREATE_OUT="/tmp/$(eval echo $filename)_instance_create.out"
 
 	echo "Base DN: $LDAP_SUFFIX"
 	echo "LDAP port: $LDAP_PORT"
@@ -170,5 +164,4 @@ rhds_install_prep()
 
 	# if [ "$IPv6SETUP" != "TRUE" ]; then
 	# Install DS in IPV6 environment
-
 }
