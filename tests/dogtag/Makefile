@@ -57,6 +57,8 @@ run: $(FILES) build
 	cp ./shared/pki-auth-plugin-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-config-lib.sh
 	cp ./shared/pki-config-lib.sh /opt/rhqa_pki/.
+	rm -f /opt/rhqa_pki/pki-profile-lib.sh
+	cp ./shared/pki-profile-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/id_rsa-host-beaker_archive.pub
 	cp  ./codecoverage/id_rsa-host-beaker_archive.pub /opt/rhqa_pki/id_rsa-host-beaker_archive.pub
 	rm -f /opt/rhqa_pki/id_rsa-host-beaker_archive
