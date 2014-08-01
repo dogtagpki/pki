@@ -121,6 +121,14 @@ rlJournalStart
 	#Execute pki user config tests
 	TEST_ALL_UPPERCASE=$(echo $TEST_ALL | tr [a-z] [A-Z])
 	QUICKINSTALL_UPPERCASE=$(echo $QUICKINSTALL | tr [a-z] [A-Z])
+	TOPO1_UPPERCASE=$(echo $TOPO1 | tr [a-z] [A-Z])
+	TOPO2_UPPERCASE=$(echo $TOPO2 | tr [a-z] [A-Z])
+	TOPO3_UPPERCASE=$(echo $TOPO3 | tr [a-z] [A-Z])
+	TOPO4_UPPERCASE=$(echo $TOPO4 | tr [a-z] [A-Z])
+	TOPO5_UPPERCASE=$(echo $TOPO5 | tr [a-z] [A-Z])
+	TOPO6_UPPERCASE=$(echo $TOPO6 | tr [a-z] [A-Z])
+	TOPO7_UPPERCASE=$(echo $TOPO7 | tr [a-z] [A-Z])
+	TOPO8_UPPERCASE=$(echo $TOPO8 | tr [a-z] [A-Z])
 	
         if [ "$QUICKINSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
 		  run_rhcs_set_time 
@@ -128,35 +136,27 @@ rlJournalStart
                   run_rhcs_install_quickinstall
 		  #Set-up role users
 		  run_pki-user-cli-user-ca_tests
-	TOPO1_UPPERCASE=$(echo $TOPO1 | tr [a-z] [A-Z])
         elif [ "$TOPO1_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_default
-	TOPO2_UPPERCASE=$(echo $TOPO2 | tr [a-z] [A-Z])
         elif [ "$TOPO2_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_1
-	TOPO3_UPPERCASE=$(echo $TOPO3 | tr [a-z] [A-Z])
         elif [ "$TOPO3_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_2
-	TOPO4_UPPERCASE=$(echo $TOPO4 | tr [a-z] [A-Z])
         elif [ "$TOPO4_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_3
-	TOPO5_UPPERCASE=$(echo $TOPO5 | tr [a-z] [A-Z])
         elif [ "$TOPO5_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_4
-	TOPO6_UPPERCASE=$(echo $TOPO6 | tr [a-z] [A-Z])
         elif [ "$TOPO6_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_5
-	TOPO7_UPPERCASE=$(echo $TOPO7 | tr [a-z] [A-Z])
         elif [ "$TOPO7_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_6
-	TOPO8_UPPERCASE=$(echo $TOPO8 | tr [a-z] [A-Z])
         elif [ "$TOPO8_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_7
