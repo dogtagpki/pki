@@ -119,7 +119,8 @@ run_rhcs_install_packages() {
 }
 
 run_install_subsystem_RootCA()
-{	rlPhaseStartSetup "rhcs_install_subsystem_RootCA: Default install"
+{	
+	rlPhaseStartSetup "rhcs_install_subsystem_RootCA: Default install"
 		ALL_PACKAGES="$COMMON_SERVER_PACKAGES $DOGTAG_PACKAGES $NTPDATE_PACKAGE"
                 for item in $ALL_PACKAGES ; do
                 	rpm -qa | grep $item
@@ -132,6 +133,11 @@ run_install_subsystem_RootCA()
                 done
 		if [ $rc -eq 0 ] ; then
 			rhcs_install_RootCA
+			if [ $? -eq 0 ]; then
+				CA_INSTALLED=TRUE
+			else
+				CA_INSTALLED=FALSE
+			fi
 		fi
 	rlPhaseEnd
 }
@@ -152,7 +158,7 @@ run_install_subsystem_kra() {
 			rc=1
 		fi
 
-		if [ $rc -eq 0 ] ; then
+		if [ $rc -eq 0 ] && [ "$CA_INSTALLED" = "TRUE" ]; then
 			rhcs_install_kra $number $master_hostname $CA
 		fi
 	rlPhaseEnd
@@ -174,7 +180,7 @@ run_install_subsystem_ocsp() {
 			rc=1
 		fi
 
-		if [ $rc -eq 0 ] ; then
+		if [ $rc -eq 0 ] && [ "$CA_INSTALLED" = "TRUE" ]; then
 			rhcs_install_ocsp $number $master_hostname $CA
 		fi
 	rlPhaseEnd
@@ -220,7 +226,7 @@ run_install_subsystem_tks() {
 			rc=1
                 fi
 
-		if [ $rc -eq 0 ] ; then
+		if [ $rc -eq 0 ] && [ "$CA_INSTALLED" = "TRUE" ]; then
 			rlLog "Installing TKS"
 			rhcs_install_tks $number $master_hostname $CA
 		fi

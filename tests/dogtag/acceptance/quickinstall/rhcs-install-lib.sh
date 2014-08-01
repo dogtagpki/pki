@@ -405,15 +405,12 @@ rhcs_install_ocsp() {
                 echo "pki_import_admin_cert=$IMPORT_ADMIN_CERT_NONCA" >> $INSTANCECFG
                 echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
                 echo "pki_client_admin_cert_p12=$CLIENT_DIR/$(eval echo \$OCSP${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
-                echo "pki_agent_name=$(eval echo \$OCSP${number}_AGENT_NAME)" >> $INSTANCECFG
-                echo "pki_agent_key_size=$(eval echo \$OCSP${number}_AGENT_KEY_SIZE)" >> $INSTANCECFG
-                echo "pki_agent_key_type=$(eval echo \$OCSP${number}_AGENT_KEY_TYPE)" >> $INSTANCECFG
                 echo "pki_issuing_ca_hostname=$master_hostname" >> $INSTANCECFG
                 echo "pki_issuing_ca_https_port=$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_issuing_ca_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_backup_keys=$ROOTCA_BACKUP" >> $INSTANCECFG
 		echo "pki_backup_password=$(eval echo \$OCSP${number}_BACKUP_PASSWORD)" >> $INSTANCECFG
-		echo "pki_backup_fname=$(eval echo \$OCSP{number}_BACKUP_FILE_NAME)" >> $INSTANCECFG
+		echo "pki_backup_fname=$(eval echo \$OCSP${number}_BACKUP_FILE_NAME)" >> $INSTANCECFG
 		echo "pki_client_database_dir=$CERTDB_DIR" >> $INSTANCECFG
 		echo "pki_client_database_password=$CERTDB_DIR_PASSWORD" >> $INSTANCECFG 
 		echo "pki_client_database_purge=$CLIENT_DB_PURGE" >> $INSTANCECFG
@@ -536,7 +533,7 @@ rhcs_install_tks() {
                 echo "pki_issuing_ca_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_backup_keys=$ROOTCA_BACKUP" >> $INSTANCECFG
 		echo "pki_backup_password=$(eval echo \$TKS${number}_BACKUP_PASSWORD)" >> $INSTANCECFG
-		echo "pki_backup_fname=$(eval echo \$TKS{number}_BACKUP_FILE_NAME)" >> $INSTANCECFG
+		echo "pki_backup_fname=$(eval echo \$TKS${number}_BACKUP_FILE_NAME)" >> $INSTANCECFG
 		echo "pki_client_database_dir=$CERTDB_DIR" >> $INSTANCECFG
 		echo "pki_client_database_password=$CERTDB_DIR_PASSWORD" >> $INSTANCECFG 
 		echo "pki_client_database_purge=$CLIENT_DB_PURGE" >> $INSTANCECFG
@@ -673,8 +670,6 @@ rhcs_install_cloneCA()
                 rlRun "cat $INSTANCE_CREATE_OUT"
                 exp_message1="Administrator's username:             $(eval echo \$CLONE_CA${number}_ADMIN_USER)"
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
-                exp_message1_1="Administrator's PKCS #12 file:"
-                rlAssertGrep "$exp_message1_1" "$INSTANCE_CREATE_OUT"
                 exp_message2="$DOMAIN"
                 rlAssertGrep "$exp_message2" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
@@ -687,7 +682,7 @@ rhcs_install_cloneCA()
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
-                exp_message5_1="https://$HOSTNAME_CLONE:$(eval echo \$CLONE${number}_ROOTCA_SECURE_PORT)/ca"
+                exp_message5_1="https://$HOSTNAME_CLONE:$(eval echo \$CLONE_CA${number}_SECURE_PORT)/ca"
                 rlAssertGrep "$exp_message5_1" "$INSTANCE_CREATE_OUT"
                 #echo "export CA_SERVER_ROOT=/var/lib/pki/$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME)/ca" >> /opt/rhqa_pki/env.sh
      rlPhaseEnd
@@ -920,7 +915,7 @@ rhcs_install_cloneKRA(){
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
                 exp_message6="To restart the subsystem:"
                 rlAssertGrep "$exp_message6" "$INSTANCE_CREATE_OUT"
-                exp_message7=" systemctl restart pki-tomcatd\@$(eval echo \$CLONE{number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message7=" systemctl restart pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message7" "$INSTANCE_CREATE_OUT"
                 exp_message8="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message8" "$INSTANCE_CREATE_OUT"
@@ -1116,7 +1111,7 @@ rhcs_install_cloneTKS(){
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd\@\$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
