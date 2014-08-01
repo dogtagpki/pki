@@ -28,7 +28,7 @@ export TESTVERSION=1.0.8_RPM_IDENTIFIER
 
 BUILT_FILE=
 
-FILES=$(METADATA) runtest.sh Makefile PURPOSE shared acceptance dev_java_tests codecoverage
+FILES=$(METADATA) runtest.sh topologies.sh Makefile PURPOSE shared acceptance dev_java_tests codecoverage
 
 .PHONY: all install download clean
 
