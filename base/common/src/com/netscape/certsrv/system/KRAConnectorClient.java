@@ -17,7 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 
 package com.netscape.certsrv.system;
+
 import java.net.URISyntaxException;
+
+import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
@@ -44,6 +47,11 @@ public class KRAConnectorClient extends Client {
 
     public void removeConnector(String host, String port) {
         kraConnectorClient.removeConnector(host, port);
+    }
+
+    public KRAConnectorInfo getConnectorInfo() {
+        Response response = kraConnectorClient.getConnectorInfo();
+        return client.getEntity(response, KRAConnectorInfo.class);
     }
 
 }

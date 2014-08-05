@@ -19,10 +19,14 @@ package com.netscape.certsrv.system;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.annotations.ClientResponseType;
 
 import com.netscape.certsrv.acls.ACLMapping;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
@@ -48,5 +52,9 @@ public interface KRAConnectorResource {
     @Path("remove")
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
     public void removeConnector(@FormParam("host") String host, @FormParam("port") String port);
+
+    @GET
+    @ClientResponseType(entityType = KRAConnectorInfo.class)
+    public Response getConnectorInfo();
 
 }

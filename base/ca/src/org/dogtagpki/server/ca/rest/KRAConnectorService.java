@@ -22,6 +22,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.base.BadRequestException;
@@ -82,6 +83,18 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
     public void addConnector(MultivaluedMap<String, String> form) {
         KRAConnectorInfo info = new KRAConnectorInfo(form);
         addConnector(info);
+    }
+
+    @Override
+    public Response getConnectorInfo() {
+
+        try {
+            KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
+            return createOKResponse(processor.getConnectorInfo());
+        } catch (EBaseException e) {
+            e.printStackTrace();
+            throw new PKIException(e.getMessage());
+        }
     }
 
 }

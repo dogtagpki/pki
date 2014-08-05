@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
+import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
 
@@ -218,6 +219,27 @@ public class KRAConnectorProcessor extends CAProcessor {
         cs.commit(true);
 
         replaceConnector();
+    }
+
+    public KRAConnectorInfo getConnectorInfo() throws EPropertyNotFound, EBaseException {
+
+        if (!connectorExists) {
+            CMS.debug("getConnectorInfo: no KRA connector exists.");
+            throw new ConnectorNotFoundException("No KRAConnector has been configured.");
+        }
+
+        IConfigStore cs = CMS.getConfigStore();
+
+        KRAConnectorInfo info = new KRAConnectorInfo();
+        info.setHost(cs.getString(PREFIX + ".host"));
+        info.setPort(cs.getString(PREFIX + ".port"));
+        info.setEnable(cs.getString(PREFIX + ".enable"));
+        info.setLocal(cs.getString(PREFIX + ".local"));
+        info.setTimeout(cs.getString(PREFIX + ".timeout"));
+        info.setUri(cs.getString(PREFIX + ".uri"));
+        info.setTransportCert(cs.getString(PREFIX + ".transportCert"));
+
+        return info;
     }
 
 }

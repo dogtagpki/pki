@@ -33,6 +33,7 @@ public class KRAConnectorCLI extends CLI {
 
         addModule(new KRAConnectorAddCLI(this));
         addModule(new KRAConnectorRemoveCLI(this));
+        addModule(new KRAConnectorShowCLI(this));
     }
 
     public String getFullName() {
