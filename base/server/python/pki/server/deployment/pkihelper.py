@@ -135,7 +135,6 @@ class Identity:
         self.mdict = deployer.mdict
 
     def __add_gid(self, pki_group):
-        pki_gid = None
         try:
             # Does the specified 'pki_group' exist?
             pki_gid = getgrnam(pki_group)[2]
@@ -185,7 +184,6 @@ class Identity:
         return
 
     def __add_uid(self, pki_user, pki_group):
-        pki_uid = None
         try:
             # Does the specified 'pki_user' exist?
             pki_uid = getpwnam(pki_user)[2]
@@ -256,23 +254,23 @@ class Identity:
 
     def get_uid(self, critical_failure=True):
         try:
-            pki_uid = self.mdict['pki_uid']
+            return self.mdict['pki_uid']
         except KeyError as exc:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
-        return pki_uid
+            return None
 
     def get_gid(self, critical_failure=True):
         try:
-            pki_gid = self.mdict['pki_gid']
+            return self.mdict['pki_gid']
         except KeyError as exc:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
-        return pki_gid
+            return None
 
     def set_uid(self, name, critical_failure=True):
         try:
@@ -283,12 +281,13 @@ class Identity:
             self.mdict['pki_uid'] = pki_uid
             config.pki_log.debug(log.PKIHELPER_UID_2, name, pki_uid,
                                  extra=config.PKI_INDENTATION_LEVEL_3)
+            return pki_uid
         except KeyError as exc:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
-        return pki_uid
+            return None
 
     def set_gid(self, name, critical_failure=True):
         try:
@@ -299,12 +298,13 @@ class Identity:
             self.mdict['pki_gid'] = pki_gid
             config.pki_log.debug(log.PKIHELPER_GID_2, name, pki_gid,
                                  extra=config.PKI_INDENTATION_LEVEL_3)
+            return pki_gid
         except KeyError as exc:
             config.pki_log.error(log.PKI_KEYERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
-        return pki_gid
+            return None
 
 
 class Namespace:
@@ -2119,6 +2119,7 @@ class Password:
         return
 
     def get_password(self, path, token_name, critical_failure=True):
+        token_pwd = None
         if os.path.exists(path) and os.path.isfile(path) and\
            os.access(path, os.R_OK):
             tokens = PKIConfigParser.read_simple_configuration_file(path)
@@ -2287,7 +2288,7 @@ class Certutil:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull)
             else:
                 subprocess.check_call(command)
-        except subprocess.CalledProcessError as exc:
+        except subprocess.CalledProcessError:
             return False
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -2652,6 +2653,8 @@ class KRAConnector:
         self.password = deployer.password
 
     def deregister(self, critical_failure=False):
+        krahost = None
+        kraport = None
         try:
             # this is applicable to KRAs only
             if self.mdict['pki_subsystem_type'] != "kra":
@@ -2795,6 +2798,8 @@ class TPSConnector:
         self.password = deployer.password
 
     def deregister(self, critical_failure=False):
+        tkshost = None
+        tksport = None
         try:
             # this is applicable to TPSs only
             if self.mdict['pki_subsystem_type'] != "tps":
@@ -3061,7 +3066,6 @@ class SecurityDomain:
     def update_domain_using_agent_port(
             self, typeval, secname, params,
             update_url, sechost, secagentport, critical_failure=False):
-        token_pwd = None
         cs_cfg = PKIConfigParser.read_simple_configuration_file(
             self.mdict['pki_target_cs_cfg'])
         # retrieve subsystem nickname
@@ -3134,8 +3138,6 @@ class SecurityDomain:
         return None
 
     def get_installation_token(self, secuser, secpass, critical_failure=True):
-        token = None
-
         if not secuser or not secpass:
             return None
 
@@ -3759,6 +3761,7 @@ class ConfigClient:
         # Create 'CA Signing Certificate'
         if not self.clone:
             if self.subsystem == "CA" or self.standalone:
+                cert1 = None
                 if self.subsystem == "CA":
                     # PKI CA, Subordinate CA, or External CA
                     cert1 = self.create_system_cert("ca_signing")
