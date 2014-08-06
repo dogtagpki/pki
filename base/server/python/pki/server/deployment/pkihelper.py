@@ -2942,6 +2942,14 @@ class SecurityDomain:
         typeval = cs_cfg.get('cs.type', '')
         agentsport = cs_cfg.get('pkicreate.agent_secure_port', '')
 
+        # fix ports for proxy settings
+        proxy_secure_port = cs_cfg.get('proxy.securePort', '')
+        if proxy_secure_port != '':
+            adminsport = proxy_secure_port
+            agentsport = proxy_secure_port
+            sport = proxy_secure_port
+            ncsport = proxy_secure_port
+
         # NOTE:  Don't check for the existence of 'httpport', as this will
         #        be undefined for a Security Domain that has been migrated!
         if sechost is None or\
