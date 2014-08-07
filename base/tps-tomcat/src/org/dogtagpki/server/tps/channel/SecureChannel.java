@@ -29,6 +29,7 @@ import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
 import org.dogtagpki.tps.apdu.GenerateKeyAPDU;
 import org.dogtagpki.tps.apdu.GenerateKeyECCAPDU;
+import org.dogtagpki.tps.apdu.ImportKeyEncAPDU;
 import org.dogtagpki.tps.apdu.InstallAppletAPDU;
 import org.dogtagpki.tps.apdu.InstallLoadAPDU;
 import org.dogtagpki.tps.apdu.LifecycleAPDU;
@@ -91,7 +92,7 @@ public class SecureChannel {
         this.sessionKey = sessionKey;
         this.encSessionKey = encSessionKey;
         this.drmDesKey = drmDesKey;
-        this.kekDesKey = kekDesKey;
+        this.setKekDesKey(kekDesKey);
         this.keyCheck = keyCheck;
         this.keyDiversificationData = keyDiversificationData;
         this.cardChallenge = cardChallenge;
@@ -994,6 +995,51 @@ public class SecureChannel {
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
         }
 
+    }
+
+    public TPSBuffer getDRMWrappedDesKey() {
+        return drmDesKey;
+    }
+
+    public void setDRMWrappedDesKey(TPSBuffer drmDesKey) {
+        this.drmDesKey = drmDesKey;
+    }
+
+    public TPSBuffer getKeyCheck() {
+        return keyCheck;
+    }
+
+    public void setKeyCheck(TPSBuffer theKeyCheck) {
+        this.keyCheck = theKeyCheck;
+    }
+
+    public void importKeyEnc(int pe1, int pe2, TPSBuffer data) throws TPSException, IOException {
+
+        CMS.debug("SecureChannel.importKeyEnc entering...");
+
+        if(data == null) {
+            throw new TPSException("SecureChannel.importKeyEnc: Invalid input data!",TPSStatus.STATUS_ERROR_MAC_CERT_PDU);
+        }
+
+        ImportKeyEncAPDU importKeyEnc = new ImportKeyEncAPDU((byte)pe1,(byte) pe2, data);
+
+        computeAPDU(importKeyEnc);
+
+        APDUResponse response = processor.handleAPDURequest(importKeyEnc);
+
+        if (!response.checkResult()) {
+            throw new TPSException("SecureChannel.importKeyEnc: failed to import private key!",
+                    TPSStatus.STATUS_ERROR_MAC_CERT_PDU);
+        }
+
+    }
+
+    public TPSBuffer getKekDesKey() {
+        return kekDesKey;
+    }
+
+    public void setKekDesKey(TPSBuffer kekDesKey) {
+        this.kekDesKey = kekDesKey;
     }
 
 }

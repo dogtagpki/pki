@@ -58,4 +58,8 @@ public class TKSComputeSessionKeyResponse extends RemoteResponse
     public TPSBuffer getHostCryptogram() {
         return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_HostCryptogram);
     }
+
+    public TPSBuffer getKekWrappedDesKey() {
+        return (TPSBuffer) nameValTable.get(IRemoteRequest.TKS_RESPONSE_KEK_DesKey);
+    }
 }

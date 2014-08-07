@@ -77,6 +77,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): sending request to CA");
         HttpResponse resp;
+        String request;
         if (isECC) {
             String eckeycurve;
             if (keysize == 521) {
@@ -92,35 +93,51 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 eckeycurve = "nistp256";
             }
 
+            request = IRemoteRequest.KRA_KEYGEN_Archive + "=" +
+            archive +
+            "&" + IRemoteRequest.TOKEN_CUID + "=" +
+            cuid +
+            "&" + IRemoteRequest.KRA_UserId + "=" +
+            userid +
+            "&" + IRemoteRequest.KRA_KEYGEN_KeyType + "=" +
+            "EC" +
+            "&" + IRemoteRequest.KRA_KEYGEN_EC_KeyCurve + "=" +
+            eckeycurve +
+            "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
+            sDesKey;
+
+           CMS.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
+
             resp =
                     conn.send("GenerateKeyPair",
-                            IRemoteRequest.KRA_KEYGEN_Archive + "=" +
-                                    archive +
-                                    "&" + IRemoteRequest.TOKEN_CUID + "=" +
-                                    cuid +
-                                    "&" + IRemoteRequest.KRA_UserId + "=" +
-                                    userid +
-                                    "&" + IRemoteRequest.KRA_KEYGEN_KeyType + "=" +
-                                    "EC" +
-                                    "&" + IRemoteRequest.KRA_KEYGEN_EC_KeyCurve + "=" +
-                                    eckeycurve +
-                                    "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                                    sDesKey);
+                            request);
         } else { // RSA
+
+            request = IRemoteRequest.KRA_KEYGEN_Archive + "=" +
+                    archive +
+                    "&" + IRemoteRequest.TOKEN_CUID + "=" +
+                    cuid +
+                    "&" + IRemoteRequest.KRA_UserId + "=" +
+                    userid +
+                    "&" + IRemoteRequest.KRA_KEYGEN_KeyType + "=" +
+                    "RSA" +
+                    "&" + IRemoteRequest.KRA_KEYGEN_KeySize + "=" +
+                    keysize +
+                    "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
+                    sDesKey;
+
+            CMS.debug("KRARemoteRequestHandler: outgoing request for RSA: " + request);
+
             resp =
                     conn.send("GenerateKeyPair",
-                            IRemoteRequest.KRA_KEYGEN_Archive + "=" +
-                                    archive +
-                                    "&" + IRemoteRequest.TOKEN_CUID + "=" +
-                                    cuid +
-                                    "&" + IRemoteRequest.KRA_UserId + "=" +
-                                    userid +
-                                    "&" + IRemoteRequest.KRA_KEYGEN_KeyType + "=" +
-                                    "RSA" +
-                                    "&" + IRemoteRequest.KRA_KEYGEN_KeySize + "=" +
-                                    keysize +
-                                    "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                                    sDesKey);
+                            request);
+        }
+
+        //For some reason the send method can return null and not throw an exception.
+        // Check here;
+
+        if(resp == null) {
+            throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): No response object returned from connection.");
         }
 
         String content = resp.getContent();
@@ -137,6 +154,10 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
              */
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
+
+            if(value == null) {
+                throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): Invalide status returned!");
+            }
 
             CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): got status = " + value);
             ist = Integer.parseInt(value);

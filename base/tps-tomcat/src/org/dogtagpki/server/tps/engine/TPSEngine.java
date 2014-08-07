@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps.engine;
 
+import org.dogtagpki.server.tps.cms.KRARemoteRequestHandler;
+import org.dogtagpki.server.tps.cms.KRAServerSideKeyGenResponse;
 import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
 import org.dogtagpki.server.tps.cms.TKSCreateKeySetDataResponse;
 import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
+import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
@@ -112,9 +115,12 @@ public class TPSEngine {
     public static final int CFG_CHANNEL_DEF_APPLET_MEMORY_SIZE = 5000;
 
     /* token enrollment values */
+    public static final String CFG_KEYGEN_ENCRYPTION = "keyGen.encryption";
     public static final String CFG_KEYGEN_KEYTYPE_NUM = "keyGen.keyType.num";
     public static final String CFG_KEYGEN_KEYTYPE_VALUE = "keyGen.keyType.value";
     public static final String CFG_SERVER_KEYGEN_ENABLE = "serverKeygen.enable";
+    public static final String CFG_SERVER_KEY_ARCHIVAL = "serverKeygen.archive";
+    public static final String CFG_DRM_CONNECTOR = "serverKeygen.drm.conn";
 
     /* External reg values */
 
@@ -219,21 +225,22 @@ public class TPSEngine {
         int status = resp.getStatus();
         if (status != 0) {
             CMS.debug("TPSEngine.createKeySetData: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status, TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status,
+                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
 
         }
 
         TPSBuffer keySetData = resp.getKeySetData();
 
-        if(keySetData == null) {
+        if (keySetData == null) {
             CMS.debug("TPSEngine.createKeySetData: No valid key set data returned.");
-            throw new TPSException("TPSEngine.createKeySetData: No valid key set data returned.", TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+            throw new TPSException("TPSEngine.createKeySetData: No valid key set data returned.",
+                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
 
         }
 
         return keySetData;
     }
-
 
     public static void main(String[] args) {
 
@@ -281,6 +288,62 @@ public class TPSEngine {
             return def;
 
         }
+
+    }
+
+    public KRAServerSideKeyGenResponse serverSideKeyGen(int keySize, String cuid, String userid, String drmConnId,
+            TPSBuffer wrappedDesKey,
+            boolean archive,
+            boolean isECC) throws TPSException {
+
+        CMS.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
+                + userid + " drConnId: " + drmConnId + " wrappedDesKey: " + wrappedDesKey + " archive: " + archive
+                + " isECC: " + isECC);
+
+        if (cuid == null || userid == null || drmConnId == null || wrappedDesKey == null) {
+            throw new TPSException("TPSEngine.serverSideKeyGen: Invalid input data!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        KRARemoteRequestHandler kra = null;
+        KRAServerSideKeyGenResponse resp = null;
+
+        try {
+            kra = new KRARemoteRequestHandler(drmConnId);
+
+            resp = kra.serverSideKeyGen(isECC, keySize, cuid, userid,
+                    Util.specialURLEncode(wrappedDesKey), archive);
+
+        } catch (EBaseException e) {
+            throw new TPSException("TPSEngine.serverSideKeyGen: Problem creating KRARemoteRequestHandler! "
+                    + e.toString());
+        }
+
+        int status = resp.getStatus();
+
+        if (status != 0) {
+            throw new TPSException("TPSEngine.serverSideKeyGen: Bad status from server: " + status,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        if (resp.getPublicKey() == null) {
+            throw new TPSException("TPSEngine.serverSideKeyGen: invalid public key from server! ",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        if (resp.getWrappedPrivKey() == null) {
+            throw new TPSException("TPSEngine.serverSideKeyGen: invalid private key from server! ",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+
+        }
+
+        if (resp.getIVParam() == null) {
+            throw new TPSException("TPSEngine.serverSideKeyGen: invalid iv vector from server!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        //We return this resonse we know that all the data is present and can be accessed
+        return resp;
 
     }
 

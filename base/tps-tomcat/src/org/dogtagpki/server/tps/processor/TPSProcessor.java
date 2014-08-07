@@ -142,7 +142,7 @@ public class TPSProcessor {
         if (theTokenType == null) {
             throw new NullPointerException("TPSProcessor.setSelectedTokenType: Attempt to set invalid null token type!");
         }
-        CMS.debug("TPS_Processor.setSelectedTokenType: tokenType="+
+        CMS.debug("TPS_Processor.setSelectedTokenType: tokenType=" +
                 theTokenType);
         selectedTokenType = theTokenType;
 
@@ -520,7 +520,14 @@ public class TPSProcessor {
         TPSBuffer kekDesKey = null;
         TPSBuffer keyCheck = null;
 
+        drmDesKey = resp.getDRM_Trans_DesKey();
+        keyCheck = resp.getKeyCheck();
+        kekDesKey = resp.getKekWrappedDesKey();
+
         if (checkServerSideKeyGen(connId)) {
+
+            CMS.debug("TPSProcessor.generateSecureChannel: drmDesKey: " + drmDesKey + " kekDesKey : " + kekDesKey
+                    + " keyCheck: " + keyCheck);
             //ToDo handle server side keygen.
 
         }
@@ -673,13 +680,13 @@ public class TPSProcessor {
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TPSAuthenticator authInst =
                 subsystem.getAuthenticationManager().getAuthInstance(authId);
-        String authCredNameConf = "auths.instance."+ authId + ".authCredName";
+        String authCredNameConf = "auths.instance." + authId + ".authCredName";
         CMS.debug("TPSProcessor.getAuthentication: getting config: " +
                 authCredNameConf);
         String authCredName = configStore.getString(authCredNameConf);
         if (authCredName == null) {
-            auditMsg = "TPSProcessor.getAuthentication: config param not found:"+ authCredNameConf;
-           CMS.debug(auditMsg);
+            auditMsg = "TPSProcessor.getAuthentication: config param not found:" + authCredNameConf;
+            CMS.debug(auditMsg);
             throw new EBaseException(auditMsg);
         }
         authInst.setAuthCredName(authCredName);
@@ -812,7 +819,7 @@ public class TPSProcessor {
         String[] requiredCreds = auth.getAuthManager().getRequiredCreds();
         for (String cred : requiredCreds) {
             String name = auth.getCredMap(cred, extendedLogin);
-            CMS.debug("TPSProcessor.mapCredFromMsgResponse: cred="+cred+ " &name="+
+            CMS.debug("TPSProcessor.mapCredFromMsgResponse: cred=" + cred + " &name=" +
                     name);
             login.set(cred, response.get(name));
         }
@@ -935,7 +942,8 @@ public class TPSProcessor {
             CMS.debug("TPSProcessor.createTokenRecord: failed getting applet version:" + e + " ... continue");
         }
         if (build_id != null) {
-            tokenRecord.setAppletID(Integer.toHexString(app_major_version) + "." + Integer.toHexString(app_minor_version) + "."+
+            tokenRecord.setAppletID(Integer.toHexString(app_major_version) + "."
+                    + Integer.toHexString(app_minor_version) + "." +
                     build_id.toHexStringPlain());
         }
 
@@ -1003,7 +1011,7 @@ public class TPSProcessor {
                 tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
                         auditMsg, "failure");
 
-                throw new TPSException(auditMsg,TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
             CMS.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
         }
@@ -1046,7 +1054,7 @@ public class TPSProcessor {
                     auditMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
 
                     tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
-                                auditMsg, "failure");
+                            auditMsg, "failure");
 
                     throw new TPSException(auditMsg,
                             TPSStatus.STATUS_ERROR_LOGIN);
@@ -1067,11 +1075,11 @@ public class TPSProcessor {
             CMS.debug("TPSProcessor.format: token exists");
             TokenStatus newState = TokenStatus.UNINITIALIZED;
             // Check for transition to 0/UNINITIALIZED status.
-            if(!tps.tdb.isTransitionAllowed(tokenRecord, newState )) {
+            if (!tps.tdb.isTransitionAllowed(tokenRecord, newState)) {
                 CMS.debug("TPSProcessor.format: token transition disallowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
-                auditMsg = "Operation for CUID "+appletInfo.getCUIDhexStringPlain()+
+                auditMsg = "Operation for CUID " + appletInfo.getCUIDhexStringPlain() +
                         " Disabled, illegal transition attempted " + tokenRecord.getTokenStatus() +
                         " to " + newState;
 
@@ -1081,7 +1089,7 @@ public class TPSProcessor {
                 throw new TPSException(auditMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
             } else {
-                CMS.debug("TPSProcessor.format: token transition allowed "+
+                CMS.debug("TPSProcessor.format: token transition allowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
             }
@@ -1135,7 +1143,7 @@ public class TPSProcessor {
             String successMsg = "update token success";
             tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
                     successMsg, "success");
-        } catch (Exception e){
+        } catch (Exception e) {
             String failMsg = "update token failure";
             auditMsg = failMsg + ":" + e.toString();
             tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
@@ -1414,9 +1422,9 @@ public class TPSProcessor {
 
         IConfigStore configStore = CMS.getConfigStore();
 
-        String appletUpdate = "op."+ currentTokenOperation + "." + selectedTokenType + "."
+        String appletUpdate = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_UPDATE_APPLET_ENABLE;
-        CMS.debug("TPSProcessor.checkForAppletUpdateEnabled: getting config: "+ appletUpdate);
+        CMS.debug("TPSProcessor.checkForAppletUpdateEnabled: getting config: " + appletUpdate);
         try {
             enabled = configStore.getBoolean(appletUpdate, false);
         } catch (EBaseException e) {
@@ -1425,7 +1433,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
-        CMS.debug("TPSProcessor.checkForAppletUpdateEnabled: returning "+ enabled);
+        CMS.debug("TPSProcessor.checkForAppletUpdateEnabled: returning " + enabled);
         return enabled;
     }
 
@@ -1435,7 +1443,7 @@ public class TPSProcessor {
 
         String appletRequiredConfig = operation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_APPLET_UPDATE_REQUIRED_VERSION;
-        CMS.debug("TPSProcessor.checkForAppletUpgrade: getting config: "+ appletRequiredConfig);
+        CMS.debug("TPSProcessor.checkForAppletUpgrade: getting config: " + appletRequiredConfig);
         try {
             requiredVersion = configStore.getString(appletRequiredConfig, null);
         } catch (EBaseException e) {
@@ -1459,7 +1467,7 @@ public class TPSProcessor {
 
         IConfigStore configStore = CMS.getConfigStore();
 
-        String unknownConfig = "op."+ operation + "." + TPSEngine.CFG_ALLOW_UNKNOWN_TOKEN;
+        String unknownConfig = "op." + operation + "." + TPSEngine.CFG_ALLOW_UNKNOWN_TOKEN;
 
         try {
             allow = configStore.getBoolean(unknownConfig, true);
@@ -2112,6 +2120,24 @@ public class TPSProcessor {
 
         CMS.debug("TPSEnrollProcessor.mapPattern: returning: " + result);
         return result;
+
+    }
+
+    protected String formatCurrentAppletVersion(AppletInfo aInfo) throws TPSException, IOException {
+
+        if (aInfo == null) {
+            throw new TPSException("TPSProcessor.formatCurrentAppletVersion: ", TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+        }
+
+        TPSBuffer build_id = getAppletVersion();
+        String build_idStr = build_id.toHexStringPlain();
+
+        String finalVersion = aInfo.getAppMajorVersion() + "." + aInfo.getAppMinorVersion() + "." + build_idStr;
+
+        finalVersion = finalVersion.toLowerCase();
+        CMS.debug("TPSProcessor.formatCurrentAppletVersion: returing: " + finalVersion);
+
+        return finalVersion;
 
     }
 

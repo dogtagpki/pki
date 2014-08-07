@@ -3,7 +3,6 @@ package org.dogtagpki.server.tps.processor;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -21,6 +20,7 @@ import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
+import org.dogtagpki.server.tps.cms.KRAServerSideKeyGenResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
@@ -29,9 +29,13 @@ import org.dogtagpki.server.tps.main.PKCS11Obj;
 import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
+import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.crypto.InvalidKeyFormatException;
+import org.mozilla.jss.pkcs11.PK11PubKey;
+import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.certsrv.apps.CMS;
@@ -100,20 +104,20 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             TokenStatus newState = TokenStatus.ACTIVE;
             // Check for transition to ACTIVE status.
-            if(!tps.tdb.isTransitionAllowed(tokenRecord, newState )) {
+            if (!tps.tdb.isTransitionAllowed(tokenRecord, newState)) {
                 CMS.debug("TPSEnrollProcessor.enroll: token transition disallowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
-                auditMsg = "Operation for CUID "+appletInfo.getCUIDhexStringPlain()+
+                auditMsg = "Operation for CUID " + appletInfo.getCUIDhexStringPlain() +
                         " Disabled, illegal transition attempted " + tokenRecord.getTokenStatus() +
                         " to " + newState;
                 tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
-                            auditMsg, "failure");
+                        auditMsg, "failure");
 
                 throw new TPSException(auditMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
             } else {
-                CMS.debug("TPSPEnrollrocessor.enroll: token transition allowed "+
+                CMS.debug("TPSPEnrollrocessor.enroll: token transition allowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
             }
@@ -125,7 +129,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
         }
         checkAndAuthenticateUser(appletInfo, tokenType);
-
 
         if (do_force_format) {
             CMS.debug("TPSEnrollProcessor.enroll: About to force format first due to policy.");
@@ -173,9 +176,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
             tps.tdb.tdbUpdateTokenEntry(tps, tokenRecord);
             tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
                     successMsg, "success");
-        } catch (Exception e){
+        } catch (Exception e) {
             String failMsg = "update token failure";
-            auditMsg =  failMsg + ":" + e.toString();
+            auditMsg = failMsg + ":" + e.toString();
             tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
                     failMsg, "failure");
             throw new TPSException(auditMsg);
@@ -226,7 +229,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         channel.setLifeycleState((byte) 0x0f);
 
         auditMsg = "enroll operation succeeded";
-        tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg, "success");
+        tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                "success");
         //nothing to do here; log it and continue
         CMS.debug(auditMsg);
 
@@ -301,7 +305,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             IConfigStore configStore = CMS.getConfigStore();
 
             TPSSubsystem tps =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             //TPSSession session = getSession();
             boolean isAuthRequired;
             try {
@@ -319,7 +323,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             getAuthentication(TPSEngine.OP_ENROLL_PREFIX, tokenType);
                     userCred = requestUserId(TPSEngine.ENROLL_OP, appletInfo.getCUIDhexString(), userAuth,
                             beginMsg.getExtensions());
-                    userid = (String)userCred.get(userAuth.getAuthCredName());
+                    userid = (String) userCred.get(userAuth.getAuthCredName());
                     CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: userCred (attempted) userid=" + userid);
                     // initialize userid first for logging purposes in case authentication fails
                     tokenRecord.setUserID(userid);
@@ -334,10 +338,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
                     String msg = "TPS error user authentication failed:" + e;
                     tps.tdb.tdbActivity(tps, ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(),
-                           msg, "failure");
+                            msg, "failure");
 
                     throw new TPSException(msg,
-                             TPSStatus.STATUS_ERROR_LOGIN);
+                            TPSStatus.STATUS_ERROR_LOGIN);
                 }
             } else {
                 throw new TPSException(
@@ -435,9 +439,24 @@ public class TPSEnrollProcessor extends TPSProcessor {
             securityLevel = SecurityLevel.SECURE_MSG_MAC_ENC;
 
         if (checkForAppletUpdateEnabled()) {
-            String targetAppletVersion = checkForAppletUpgrade("op."+currentTokenOperation);
-            upgradeApplet("op."+currentTokenOperation, targetAppletVersion, securityLevel, getBeginMessage().getExtensions(),
-                    tksConnId, 5, 12);
+
+            String targetAppletVersion = checkForAppletUpgrade("op." + currentTokenOperation);
+            targetAppletVersion = targetAppletVersion.toLowerCase();
+
+            String currentAppletVersion = formatCurrentAppletVersion(appletInfo);
+
+            CMS.debug("TPSEnrollProcessor.checkAndUpgradeApplet: currentAppletVersion: " + currentAppletVersion
+                    + " targetAppletVersion: " + targetAppletVersion);
+
+            if (targetAppletVersion.compareTo(currentAppletVersion) != 0) {
+
+                CMS.debug("TPSEnrollProessor.checkAndUpgradeApplet: Upgrading applet to : " + targetAppletVersion);
+                upgradeApplet("op." + currentTokenOperation, targetAppletVersion, securityLevel, getBeginMessage()
+                        .getExtensions(),
+                        tksConnId, 5, 12);
+            } else {
+                CMS.debug("TPSEnrollProcessor.checkAndUpgradeApplet: applet already at correct version.");
+            }
         }
 
     }
@@ -547,7 +566,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throws TPSException, IOException {
 
         CMS.debug("TPSProcess.generateCertificates: begins ");
-        if (certsInfo == null || aInfo == null) {
+        if (certsInfo == null || aInfo == null || channel == null) {
             throw new TPSException("TPSEnrollProcessor.generateCertificates: Bad Input data!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
@@ -562,7 +581,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String keyType = getConfiguredKeyType(i);
             certsInfo.setCurrentCertIndex(i);
             generateCertificate(certsInfo, channel, aInfo, keyType);
-            channel = setupSecureChannel();
         }
 
         CMS.debug("TPSProcess.generateCertificates: ends ");
@@ -615,7 +633,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         CMS.debug("TPSEnrollProcessor.generateCertificate: entering ...");
 
-        if (certsInfo == null || aInfo == null) {
+        if (certsInfo == null || aInfo == null || channel == null || aInfo == null) {
             throw new TPSException("TPSEnrollProcessor.generateCertificate: Bad Input data!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
@@ -749,11 +767,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
     }
 
     private void enrollOneCertificate(EnrolledCertsInfo certsInfo, CertEnrollInfo cEnrollInfo, AppletInfo aInfo,
-            SecureChannel channel) throws TPSException, IOException {
+            SecureChannel channel)
+            throws TPSException, IOException {
 
         CMS.debug("TPSEnrollProcessor.enrollOneCertificate: entering ...");
 
-        if (certsInfo == null || aInfo == null || cEnrollInfo == null) {
+        if (certsInfo == null || aInfo == null || cEnrollInfo == null || channel == null) {
             throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: Bad Input data!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
@@ -785,12 +804,42 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         }
 
+        TPSBuffer public_key_blob = null;
+        KRAServerSideKeyGenResponse ssKeyGenResponse = null;
+        RSAPublicKey parsedPubKey = null;
+        PK11PubKey parsedPK11PubKey = null;
+        byte[] parsedPubKey_ba = null;
+
+        //SecureChannel channel = setupSecureChannel();
         if (serverSideKeyGen) {
             //Handle server side keyGen
 
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: about to generate the private key on the server.");
+            boolean archive = checkForServerKeyArchival(cEnrollInfo);
+            String drmConnId = getDRMConnectorID();
+
+            ssKeyGenResponse = getTPSEngine().serverSideKeyGen(cEnrollInfo.getKeySize(),
+                    aInfo.getCUIDhexStringPlain(), userid, drmConnId, channel.getDRMWrappedDesKey(), archive, isECC);
+
+            String publicKeyStr = ssKeyGenResponse.getPublicKey();
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: public key string from server: " + publicKeyStr);
+            public_key_blob = new TPSBuffer(Utils.base64decode(publicKeyStr));
+
+            try {
+                parsedPK11PubKey = PK11RSAPublicKey.fromSPKI(public_key_blob.toBytesArray());
+
+            } catch (InvalidKeyFormatException e) {
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate, can't create public key object from server side key generated public key blob!");
+                throw new TPSException(
+                        "TPSEnrollProcessor.enrollOneCertificate, can't create public key object from server side key generated public key blob!",
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+
+            parsedPubKey_ba = parsedPK11PubKey.getEncoded();
+
         } else {
             //Handle token side keyGen
-            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: about to generate the keys on the token.");
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: about to generate the private key on the token.");
 
             int algorithm = 0x80;
 
@@ -811,146 +860,260 @@ public class TPSEnrollProcessor extends TPSProcessor {
             byte[] iobytes = { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff };
             TPSBuffer iobuf = new TPSBuffer(iobytes);
 
-            TPSBuffer public_key_blob = channel.readObject(iobuf, 0, size);
+            public_key_blob = channel.readObject(iobuf, 0, size);
 
-            PublicKey parsedPubKey = parsePublicKeyBlob(public_key_blob, isECC);
-            byte[] parsedPubKey_ba = parsedPubKey.getEncoded();
+            parsedPubKey = parsePublicKeyBlob(public_key_blob, isECC);
 
-            // enrollment begins
-            CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: enrollment begins");
-            try {
-                String caConnID = getCAConnectorID();
-                CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConnID);
-                TPSBuffer encodedParsedPubKey = new TPSBuffer(parsedPubKey_ba);
-                AppletInfo appletInfo = getAppletInfo();
-                selectCoolKeyApplet();
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: userid =" + userid + ", cuid="
-                        + appletInfo.getCUIDhexString());
-                CAEnrollCertResponse caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
-                        appletInfo.getCUIDhexString(), getSelectedTokenType(),
-                        cEnrollInfo.getKeyType());
-                String retCertB64 = caEnrollResp.getCertB64();
+            parsedPubKey_ba = parsedPubKey.getEncoded();
+        }
 
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + retCertB64);
+        // enrollment begins
+        CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: enrollment begins");
+        try {
+            String caConnID = getCAConnectorID();
+            CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConnID);
+            TPSBuffer encodedParsedPubKey = new TPSBuffer(parsedPubKey_ba);
 
-                byte[] cert_bytes = Utils.base64decode(retCertB64);
+            // selectCoolKeyApplet();
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: userid =" + userid + ", cuid="
+                    + aInfo.getCUIDhexString());
+            CAEnrollCertResponse caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
+                    aInfo.getCUIDhexString(), getSelectedTokenType(),
+                    cEnrollInfo.getKeyType());
+            String retCertB64 = caEnrollResp.getCertB64();
 
-                TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + cert_bytes_buf.toHexString());
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + retCertB64);
 
-                if (retCertB64 != null)
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 =" + retCertB64);
-                else {
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 not found");
-                    throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: new cert b64 not found",
-                            TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
-                }
-                X509CertImpl x509Cert = caEnrollResp.getCert();
-                if (x509Cert != null)
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert retrieved");
-                else {
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert not found");
-                    throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: new cert not found",
-                            TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
-                }
+            byte[] cert_bytes = Utils.base64decode(retCertB64);
 
-                certsInfo.addCertificate(x509Cert);
-                certsInfo.addKType(cEnrollInfo.getKeyType());
-                certsInfo.addOrigin(aInfo.getCUIDhexString());
+            TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + cert_bytes_buf.toHexString());
 
-                SubjectPublicKeyInfo publicKeyInfo = null;
-                try {
-                    publicKeyInfo = new SubjectPublicKeyInfo(parsedPubKey);
-                } catch (InvalidBERException e) {
-                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: cant get publicKeyInfo object.");
-                    throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: can't get publcKeyInfo object.",
-                            TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
-                }
-
-                //Create label ToDo: Do this the correct way later
-
-                String label = buildCertificateLabel(cEnrollInfo, aInfo);
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: cert label: " + label);
-
-                TPSBuffer keyid = new TPSBuffer(makeKeyIDFromPublicKeyInfo(publicKeyInfo.getEncoded()));
-
-                RSAPublicKey rsaPubKey = (RSAPublicKey) parsedPubKey;
-                TPSBuffer modulus = new TPSBuffer(rsaPubKey.getModulus().toByteArray());
-                TPSBuffer exponent = new TPSBuffer(rsaPubKey.getPublicExponent().toByteArray());
-
-                //Write cert to the token
-
-                long l1, l2;
-                long objid;
-                PKCS11Obj pkcs11Obj = certsInfo.getPKCS11Obj();
-
-                String certId = cEnrollInfo.getCertId();
-
-                l1 = (certId.charAt(0) & 0xff) << 24;
-                l2 = (certId.charAt(1) & 0xff) << 16;
-                objid = l1 + l2;
-
-                CMS.debug("TPSEnrollProcess.enrollOneCertificate:  cert objid long: " + objid);
-
-                ObjectSpec certObjSpec = ObjectSpec.parseFromTokenData(objid, new TPSBuffer(cert_bytes));
-                pkcs11Obj.addObjectSpec(certObjSpec);
-
-                String certAttrId = cEnrollInfo.getCertAttrId();
-
-                TPSBuffer certAttrsBuffer = channel.createPKCS11CertAttrsBuffer(cEnrollInfo.getKeyTypeEnum(),
-                        certAttrId, label, keyid);
-
-                l1 = (certAttrId.charAt(0) & 0xff) << 24;
-                l2 = (certAttrId.charAt(1) & 0xff) << 16;
-                objid = l1 + l2;
-
-                CMS.debug("TPSEnrollProcess.enrollOneCertificate:  cert attr objid long: " + objid);
-                ObjectSpec certAttrObjSpec = ObjectSpec.parseFromTokenData(objid, certAttrsBuffer);
-                pkcs11Obj.addObjectSpec(certAttrObjSpec);
-
-                //Add the pri key attrs object
-
-                String priKeyAttrId = cEnrollInfo.getPrivateKeyAttrId();
-
-                l1 = (priKeyAttrId.charAt(0) & 0xff) << 24;
-                l2 = (priKeyAttrId.charAt(1) & 0xff) << 16;
-
-                objid = l1 + l2;
-
-                CMS.debug("TPSEnrollProcess.enrollOneCertificate: pri key objid long: " + objid);
-
-                TPSBuffer privKeyAttrsBuffer = channel.createPKCS11PriKeyAttrsBuffer(priKeyAttrId, label, keyid,
-                        modulus, cEnrollInfo.getKeyTypePrefix());
-
-                ObjectSpec priKeyObjSpec = ObjectSpec.parseFromTokenData(objid, privKeyAttrsBuffer);
-                pkcs11obj.addObjectSpec(priKeyObjSpec);
-
-                // Now add the public key object
-
-                String pubKeyAttrId = cEnrollInfo.getPublicKeyAttrId();
-
-                l1 = (pubKeyAttrId.charAt(0) & 0xff) << 24;
-                l2 = (pubKeyAttrId.charAt(1) & 0xff) << 16;
-
-                objid = l1 + l2;
-                CMS.debug("TPSEnrollProcess.enrollOneCertificate: pub key objid long: " + objid);
-
-                TPSBuffer pubKeyAttrsBuffer = channel.createPKCS11PublicKeyAttrsBuffer(pubKeyAttrId, label, keyid,
-                        modulus, exponent, cEnrollInfo.getKeyTypePrefix());
-                ObjectSpec pubKeyObjSpec = ObjectSpec.parseFromTokenData(objid, pubKeyAttrsBuffer);
-                pkcs11obj.addObjectSpec(pubKeyObjSpec);
-
-            } catch (EBaseException e) {
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate::" + e);
-                throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: Exception thrown: " + e,
+            if (retCertB64 != null)
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 =" + retCertB64);
+            else {
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert b64 not found");
+                throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: new cert b64 not found",
                         TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
             }
-            CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: enrollment ends");
+            X509CertImpl x509Cert = caEnrollResp.getCert();
+            if (x509Cert != null)
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert retrieved");
+            else {
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: new cert not found");
+                throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: new cert not found",
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+
+            certsInfo.addCertificate(x509Cert);
+            certsInfo.addKType(cEnrollInfo.getKeyType());
+            certsInfo.addOrigin(aInfo.getCUIDhexString());
+
+            SubjectPublicKeyInfo publicKeyInfo = null;
+            try {
+                if (serverSideKeyGen) {
+                    publicKeyInfo = new SubjectPublicKeyInfo(parsedPK11PubKey);
+                } else {
+                    publicKeyInfo = new SubjectPublicKeyInfo(parsedPubKey);
+                }
+            } catch (InvalidBERException e) {
+                CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: cant get publicKeyInfo object.");
+                throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: can't get publcKeyInfo object.",
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            }
+
+            //Create label ToDo: Do this the correct way later
+
+            String label = buildCertificateLabel(cEnrollInfo, aInfo);
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: cert label: " + label);
+
+            TPSBuffer keyid = new TPSBuffer(makeKeyIDFromPublicKeyInfo(publicKeyInfo.getEncoded()));
+
+            TPSBuffer modulus = null;
+            TPSBuffer exponent = null;
+
+            if (serverSideKeyGen) {
+                modulus = new TPSBuffer(((PK11RSAPublicKey) parsedPK11PubKey).getModulus().toByteArray());
+                exponent = new TPSBuffer(((PK11RSAPublicKey) parsedPK11PubKey).getPublicExponent().toByteArray());
+
+            } else {
+                modulus = new TPSBuffer(parsedPubKey.getModulus().toByteArray());
+                exponent = new TPSBuffer(parsedPubKey.getPublicExponent().toByteArray());
+            }
+
+            //Write cert to the token
+
+            long l1, l2;
+            long objid;
+            PKCS11Obj pkcs11Obj = certsInfo.getPKCS11Obj();
+
+            String certId = cEnrollInfo.getCertId();
+
+            l1 = (certId.charAt(0) & 0xff) << 24;
+            l2 = (certId.charAt(1) & 0xff) << 16;
+            objid = l1 + l2;
+
+            CMS.debug("TPSEnrollProcess.enrollOneCertificate:  cert objid long: " + objid);
+
+            ObjectSpec certObjSpec = ObjectSpec.parseFromTokenData(objid, new TPSBuffer(cert_bytes));
+            pkcs11Obj.addObjectSpec(certObjSpec);
+
+            String certAttrId = cEnrollInfo.getCertAttrId();
+
+            TPSBuffer certAttrsBuffer = channel.createPKCS11CertAttrsBuffer(cEnrollInfo.getKeyTypeEnum(),
+                    certAttrId, label, keyid);
+
+            l1 = (certAttrId.charAt(0) & 0xff) << 24;
+            l2 = (certAttrId.charAt(1) & 0xff) << 16;
+            objid = l1 + l2;
+
+            CMS.debug("TPSEnrollProcess.enrollOneCertificate:  cert attr objid long: " + objid);
+            ObjectSpec certAttrObjSpec = ObjectSpec.parseFromTokenData(objid, certAttrsBuffer);
+            pkcs11Obj.addObjectSpec(certAttrObjSpec);
+
+            //Add the pri key attrs object
+
+            String priKeyAttrId = cEnrollInfo.getPrivateKeyAttrId();
+
+            l1 = (priKeyAttrId.charAt(0) & 0xff) << 24;
+            l2 = (priKeyAttrId.charAt(1) & 0xff) << 16;
+
+            objid = l1 + l2;
+
+            CMS.debug("TPSEnrollProcess.enrollOneCertificate: pri key objid long: " + objid);
+
+            TPSBuffer privKeyAttrsBuffer = channel.createPKCS11PriKeyAttrsBuffer(priKeyAttrId, label, keyid,
+                    modulus, cEnrollInfo.getKeyTypePrefix());
+
+            ObjectSpec priKeyObjSpec = ObjectSpec.parseFromTokenData(objid, privKeyAttrsBuffer);
+            pkcs11obj.addObjectSpec(priKeyObjSpec);
+
+            // Now add the public key object
+
+            String pubKeyAttrId = cEnrollInfo.getPublicKeyAttrId();
+
+            l1 = (pubKeyAttrId.charAt(0) & 0xff) << 24;
+            l2 = (pubKeyAttrId.charAt(1) & 0xff) << 16;
+
+            objid = l1 + l2;
+            CMS.debug("TPSEnrollProcess.enrollOneCertificate: pub key objid long: " + objid);
+
+            TPSBuffer pubKeyAttrsBuffer = channel.createPKCS11PublicKeyAttrsBuffer(pubKeyAttrId, label, keyid,
+                    modulus, exponent, cEnrollInfo.getKeyTypePrefix());
+            ObjectSpec pubKeyObjSpec = ObjectSpec.parseFromTokenData(objid, pubKeyAttrsBuffer);
+            pkcs11obj.addObjectSpec(pubKeyObjSpec);
+
+        } catch (EBaseException e) {
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate::" + e);
+            throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: Exception thrown: " + e,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        if (serverSideKeyGen) {
+            //Handle injection of private key onto token
+            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: About to inject private key");
+
+            // SecureChannel newChannel = setupSecureChannel();
+            importPrivateKeyPKCS8(ssKeyGenResponse, cEnrollInfo, channel, isECC);
 
         }
 
+        CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: enrollment ends");
+
         statusUpdate(cEnrollInfo.getEndProgressValue(), "PROGRESS_ENROLL_CERT");
         CMS.debug("TPSEnrollProcessor.enrollOneCertificate ends");
+
+    }
+
+    private void importPrivateKeyPKCS8(KRAServerSideKeyGenResponse ssKeyGenResponse, CertEnrollInfo cEnrollInfo,
+            SecureChannel channel,
+            boolean isECC) throws TPSException, IOException {
+
+        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 entering..");
+        if (ssKeyGenResponse == null || cEnrollInfo == null || channel == null) {
+            throw new TPSException("TPSEnrollProcessor.importPrivateKeyPKCS8: invalid input data!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        byte[] objid = {
+                (byte) 0xFF,
+                0x00,
+                (byte) 0xFF,
+                (byte) 0xF3 };
+
+        byte keytype = 0x09; //RSAPKCS8Pair
+
+        String wrappedPrivKeyStr = ssKeyGenResponse.getWrappedPrivKey();
+        int keysize = cEnrollInfo.getKeySize();
+
+        TPSBuffer privKeyBlob = new TPSBuffer();
+
+        privKeyBlob.add((byte) 0x1); // encryption
+        privKeyBlob.add(keytype);
+        privKeyBlob.add((byte) (keysize / 256));
+        privKeyBlob.add((byte) (keysize % 256));
+
+        TPSBuffer privKeyBuff = new TPSBuffer(Util.uriDecodeFromHex(wrappedPrivKeyStr));
+        privKeyBlob.add(privKeyBuff);
+
+        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 privKeyBlob: " + privKeyBlob.toHexString());
+
+        byte[] perms = { 0x40,
+                0x00,
+                0x40,
+                0x00,
+                0x40,
+                0x00 };
+
+        TPSBuffer objIdBuff = new TPSBuffer(objid);
+
+        channel.createObject(objIdBuff, new TPSBuffer(perms), privKeyBlob.size());
+
+        channel.writeObject(objIdBuff, privKeyBlob);
+
+        TPSBuffer keyCheck = channel.getKeyCheck();
+
+        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 : keyCheck: " + keyCheck.toHexString());
+
+        String ivParams = ssKeyGenResponse.getIVParam();
+        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: ivParams: " + ivParams);
+        TPSBuffer ivParamsBuff = new TPSBuffer(Util.uriDecodeFromHex(ivParams));
+
+        if (ivParamsBuff.size() == 0) {
+            throw new TPSException("TPSEnrollProcessor.importPrivateKeyPKCS8: invalid iv vector!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+
+        }
+
+        TPSBuffer kekWrappedDesKey = channel.getKekDesKey();
+
+        if (kekWrappedDesKey != null)
+            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: keyWrappedDesKey: " + kekWrappedDesKey.toHexString());
+        else
+            CMS.debug("TPSEnrollProcessor.iportPrivateKeyPKC8: null kekWrappedDesKey!");
+
+        byte alg = (byte) 0x80;
+        if (kekWrappedDesKey == null || kekWrappedDesKey.size() > 0) {
+            alg = (byte) 0x81;
+        }
+
+        TPSBuffer data = new TPSBuffer();
+
+        data.add(objIdBuff);
+        data.add(alg);
+        data.add((byte) kekWrappedDesKey.size());
+        data.add(kekWrappedDesKey);
+        data.add((byte) keyCheck.size());
+        data.add(keyCheck);
+        data.add((byte) ivParamsBuff.size());
+        data.add(ivParamsBuff);
+
+        int pe1 = (cEnrollInfo.getKeyUser() << 4) + cEnrollInfo.getPrivateKeyNumber();
+        int pe2 = (cEnrollInfo.getKeyUsage() << 4) + cEnrollInfo.getPublicKeyNumber();
+
+        channel.importKeyEnc(pe1, pe2, data);
+
+        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 successful, leaving...");
 
     }
 
@@ -1071,12 +1234,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
      * @param challenge the challenge generated by TPS
      *
      ******/
-    private PublicKey parsePublicKeyBlob(
+    private RSAPublicKey parsePublicKeyBlob(
             TPSBuffer public_key_blob,
             /* TPSBuffer challenge,*/
             boolean isECC)
             throws TPSException {
-        PublicKey parsedPubKey = null;
+        RSAPublicKey parsedPubKey = null;
 
         if (public_key_blob == null /*|| challenge == null*/) {
             throw new TPSException(
@@ -1237,6 +1400,33 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     }
 
+    private boolean checkForServerKeyArchival(CertEnrollInfo cInfo) throws TPSException {
+
+        if (cInfo == null) {
+            throw new TPSException("TPSEnrollProcessor.checkForServerKeyArchival: invalid cert info.",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+        IConfigStore configStore = CMS.getConfigStore();
+        boolean serverKeyArchival = false;
+
+        try {
+            String configValue = cInfo.getKeyTypePrefix() + "." + TPSEngine.CFG_SERVER_KEY_ARCHIVAL;
+            CMS.debug("TPSEnrollProcessor.checkForServerKeyArchival: config: " + configValue);
+            serverKeyArchival = configStore.getBoolean(
+                    configValue, false);
+
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    "TPSEnrollProcessor.checkForServerKeyArchival: Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        CMS.debug("TPSProcess.checkForServerKeyArchival: returning: " + serverKeyArchival);
+
+        return serverKeyArchival;
+
+    }
+
     private boolean checkForObjectOverwrite(CertEnrollInfo cInfo) throws TPSException {
 
         if (cInfo == null) {
@@ -1297,6 +1487,26 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     }
 
+    private String getDRMConnectorID() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        String id = null;
+
+        String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN_ENCRYPTION
+                + "." + TPSEngine.CFG_DRM_CONNECTOR;
+
+        CMS.debug("TPSEnrollProcessor.getDRMConnectorID: config value: " + config);
+        try {
+            id = configStore.getString(config, "kra1");
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getDRMConnectorID: Internal error finding config value.");
+
+        }
+
+        CMS.debug("TPSProcessor.getDRMConectorID: returning: " + id);
+
+        return id;
+    }
+
     protected int getNumberCertsToEnroll() throws TPSException {
         IConfigStore configStore = CMS.getConfigStore();
         int keyTypeNum = 0;
@@ -1346,7 +1556,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         final String alg = "SHA1";
 
         if (publicKeyInfo == null) {
-            throw new TPSException("TPSEnrollProcessor.makeKeyFromPublicKeyInfo: invalid input data",
+            throw new TPSException("TPSEnrollProcessor.makeKeyIDFromPublicKeyInfo: invalid input data",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
@@ -1358,7 +1568,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         try {
             mozillaDigest = java.security.MessageDigest.getInstance(alg);
         } catch (NoSuchAlgorithmException e) {
-            throw new TPSException("TPSEnrollProcessor.makeKeyFromPublicKeyInfo: " + e,
+            throw new TPSException("TPSEnrollProcessor.makeKeyIDFromPublicKeyInfo: " + e,
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
@@ -1375,7 +1585,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         keyID = new TPSBuffer(mozillaDigestOut);
 
-        CMS.debug("TPSEnrollProcessor.makeKeyFromPublicKeyInfo: " + keyID.toHexString());
+        CMS.debug("TPSEnrollProcessor.makeKeyIDFromPublicKeyInfo: " + keyID.toHexString());
 
         return keyID;
     }
