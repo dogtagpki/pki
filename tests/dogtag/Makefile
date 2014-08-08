@@ -23,7 +23,7 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export TEST=/CoreOS/dogtag/saili
+export TEST=/CoreOS/dogtag/PKI_TEST_USER_ID
 export TESTVERSION=1.0.8_RPM_IDENTIFIER
 
 
