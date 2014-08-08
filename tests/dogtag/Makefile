@@ -1,6 +1,6 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   Makefile of /CoreOS/rhcs/PKI_TEST_USER_ID
+#   Makefile of /CoreOS/rhcs/saili
 #   Description: PKI Automation Tests
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,8 +23,9 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-export TEST=/CoreOS/dogtag/PKI_TEST_USER_ID
+export TEST=/CoreOS/dogtag/saili
 export TESTVERSION=1.0.8_RPM_IDENTIFIER
+
 
 BUILT_FILE=
 
@@ -33,11 +34,11 @@ FILES=$(METADATA) runtest.sh topologies.sh Makefile PURPOSE shared acceptance de
 .PHONY: all install download clean
 
 run: $(FILES) build
-	rm -rf /opt/rhqa_pki
-	mkdir /opt/rhqa_pki
-	mkdir /opt/rhqa_pki/java
-	rm -f /opt/rhqa_pki/env.sh
-	cp ./shared/env.sh /opt/rhqa_pki/.
+	#rm -rf /opt/rhqa_pki
+	mkdir -p /opt/rhqa_pki
+	mkdir -p /opt/rhqa_pki/java
+	#rm -f /opt/rhqa_pki/env.sh
+	cp -n ./shared/env.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/rhcs-shared.sh
 	cp ./shared/rhcs-shared.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/rhcs-install-shared.sh
@@ -83,6 +84,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/quickinstall/rhcs-install-lib.sh
 	chmod a+x ./acceptance/quickinstall/rhds-install.sh
 	#user CA
+	chmod a+x ./acceptance/cli-tests/pki-tests-setup/create-role-users.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-show-ca.sh
@@ -97,7 +99,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-add-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-show-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-delete-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cleanup-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-tests-setup/cleanup-role-users.sh
 	#CA user
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-add.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-show.sh

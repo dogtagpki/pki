@@ -43,27 +43,55 @@
 ########################################################################
 
 run_pki-user-cli-user-cleanup-ca_tests(){
+subsystemId=$1
+SUBSYSTEM_TYPE=$2
+MYROLE=$3
+SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+if [ "$TOPO9" = "TRUE" ] ; then
+        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+        admin_cert_nickname=$(eval echo \$${subsystemId}_ADMIN_CERT_NICKNAME)
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+elif [ "$MYROLE" = "MASTER" ] ; then
+        if [[ $subsystemId == SUBCA* ]]; then
+                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+                admin_cert_nickname=$(eval echo \$${subsystemId}_ADMIN_CERT_NICKNAME)
+                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+        else
+                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                admin_cert_nickname=$ROOTCA_ADMIN_CERT_NICKNAME
+                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        fi
+else
+        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+        admin_cert_nickname=$(eval echo \$${MYROLE}_ADMIN_CERT_NICKNAME)
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+fi
+
 
     rlPhaseStartTest "pki_user_cli_user_cleanup-001: Deleting the temp directory and users"
-        del_user=($CA_adminV_user $CA_adminR_user $CA_adminE_user $CA_adminUTCA_user $CA_agentV_user $CA_agentR_user $CA_agentE_user $CA_agentUTCA_user $CA_auditV_user $CA_operatorV_user)
-
+        del_user=(${subsystemId}_adminV ${subsystemId}_adminR ${subsystemId}_adminE ${subsystemId}_adminUTCA ${subsystemId}_agentV ${subsystemId}_agentR ${subsystemId}_agentE ${subsystemId}_agentUTCA ${subsystemId}_auditV ${subsystemId}_operatorV)
+	rlLog "after del_user - listing users under it"
         i=0
+	rlLog "${del_user[$i]}"
         while [ $i -lt ${#del_user[@]} ] ; do
                userid_del=${del_user[$i]}
+	       rlLog "in while $i"
                rlRun "pki -d $CERTDB_DIR \
                           -n \"$admin_cert_nickname\" \
                           -c $CERTDB_DIR_PASSWORD  \
+			  -h $SUBSYSTEM_HOST \
+                          -t $SUBSYSTEM_TYPE \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del  $userid_del > $TmpDir/pki-user-del-ca-00$i.out"  \
                            0 \
                            "Deleted user  $userid_del"
                 rlAssertGrep "Deleted user \"$userid_del\"" "$TmpDir/pki-user-del-ca-00$i.out"
+		rlRun "certutil -D -d $CERTDB_DIR -n $userid_del"
                 let i=$i+1
         done
-
-
        # rlRun "rm -rf $TmpDir" 0 "Removing temp directory"
-        rlRun "popd"
        # rlRun "rm -rf $CERTDB_DIR"
-        rlRun "rm -rf /tmp/untrusted_cert_db"
+       # rlRun "rm -rf $UNTRUSTED_CERT_DB_LOCATION"
     rlPhaseEnd
 }
+

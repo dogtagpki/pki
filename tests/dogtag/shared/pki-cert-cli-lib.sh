@@ -21,9 +21,15 @@ create_certdb()
 	local certdb_loc=$1
         local certdb_pwd=$2
         rlLog "certdb_loc = $certdb_loc"
-        rlRun "mkdir $certdb_loc"
+        rlRun "mkdir -p $certdb_loc"
         rlRun "echo \"$certdb_pwd\" > $certdb_loc/passwd_certdb"
-        rlRun "certutil -d $certdb_loc -N -f $certdb_loc/passwd_certdb"
+	certutil -L -d $certdb_loc
+        if [ $? = 0 ]; then
+
+                rlLog "$certdb_loc already exists"
+        else
+                rlRun "certutil -d $certdb_loc -N -f $certdb_loc/passwd_certdb"
+        fi
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 

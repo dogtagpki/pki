@@ -42,6 +42,8 @@
 #. ./acceptance/quickinstall/rhcs-set-time.sh
 . ./acceptance/quickinstall/rhcs-set-time.sh
 . ./acceptance/quickinstall/rhcs-install.sh
+. ./acceptance/cli-tests/pki-tests-setup/create-role-users.sh
+. ./acceptance/cli-tests/pki-tests-setup/cleanup-role-users.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-show-ca.sh
@@ -57,7 +59,6 @@
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-add-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-show-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-delete-ca.sh
-. ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cleanup-ca.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
@@ -130,36 +131,38 @@ rlJournalStart
 	TOPO7_UPPERCASE=$(echo $TOPO7 | tr [a-z] [A-Z])
 	TOPO8_UPPERCASE=$(echo $TOPO8 | tr [a-z] [A-Z])
 	
-        if [ "$QUICKINSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
+        if [ "$QUICKINSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ]; then
 		  run_rhcs_set_time 
                   run_rhcs_install_set_vars
                   run_rhcs_install_quickinstall
 		  #Set-up role users
-		  run_pki-user-cli-user-ca_tests
+	  	  subsystemId=ROOTCA
+		  subsystemType=ca
+		  run_pki-user-cli-user-ca_tests $subsystemId $subsystemType $MYROLE
         elif [ "$TOPO1_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
-                run_rhcs_install_default
+                run_rhcs_install_topo_1
         elif [ "$TOPO2_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
-                run_rhcs_install_topo_1
+                run_rhcs_install_topo_2
         elif [ "$TOPO3_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
-                run_rhcs_install_topo_2
+                run_rhcs_install_topo_3
         elif [ "$TOPO4_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
-                run_rhcs_install_topo_3
+                run_rhcs_install_topo_4
         elif [ "$TOPO5_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
-                run_rhcs_install_topo_4
+                run_rhcs_install_topo_5
         elif [ "$TOPO6_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
-                run_rhcs_install_topo_5
+                run_rhcs_install_topo_6
         elif [ "$TOPO7_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
-                run_rhcs_install_topo_6
+                run_rhcs_install_topo_7
         elif [ "$TOPO8_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
-                run_rhcs_install_topo_7
+                run_rhcs_install_topo_8
         fi
 	PKI_USER_CA_UPPERCASE=$(echo $PKI_USER_CA | tr [a-z] [A-Z])
         if [ "$PKI_USER_CA_UPPERCASE" = "TRUE" ] ; then

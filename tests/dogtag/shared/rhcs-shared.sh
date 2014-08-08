@@ -359,7 +359,7 @@ importP12File()
         rlLog "cert_p12file = $cert_p12file"
         rlLog "nss_db_dir = $nssdb_dir"
         rlRun "echo \"$nss_db_password\" > $nssdb_dir/passwd_certdb"
-        rlRun "certutil -d $nssdb_dir -N -f $nssdb_dir/passwd_certdb"
+	create_certdb $nssdb_dir $nss_db_password
         rlRun "echo \"$p12file_password\" > $nssdb_dir/cert_p12_password"
         local cmd="pk12util -i $cert_p12file -d $nssdb_dir -w $nssdb_dir/cert_p12_password"
         echo "set timeout 5" > $exp

@@ -81,7 +81,7 @@ rhcs_install_RootCA() {
 		echo "pki_audit_group=$GROUP_AUDIT" >> $INSTANCECFG
 		echo "pki_token_name=$ROOTCA_TOKEN_NAME" >> $INSTANCECFG
 		echo "pki_token_password=$ROOTCA_TOKEN_PASSWORD" >> $INSTANCECFG
-		echo "pki_client_pkcs12_password=$MASTER_CA_CLIENT_PKCS12_PASSWORD" >> $INSTANCECFG
+		echo "pki_client_pkcs12_password=$ROOTCA_CLIENT_PKCS12_PASSWORD" >> $INSTANCECFG
 		echo "pki_admin_password=$ROOTCA_ADMIN_PASSWORD" >> $INSTANCECFG
 
 		echo "[CA]" >> $INSTANCECFG
@@ -168,15 +168,15 @@ rhcs_install_RootCA() {
 		rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
 		exp_message1_1="Administrator's PKCS #12 file:"
 		rlAssertGrep "$exp_message1_1" "$INSTANCE_CREATE_OUT"
-		exp_message2="$CA_DOMAIN"
+		exp_message2="$ROOTCA_DOMAIN"
 		rlAssertGrep "$exp_message2" "$INSTANCE_CREATE_OUT"
 		exp_message3_1="To check the status of the subsystem:"
 		rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-		exp_message3_2="systemctl status pki-tomcatd\@$ROOTCA_TOMCAT_INSTANCE_NAME.service"
+		exp_message3_2="systemctl status pki-tomcatd@$ROOTCA_TOMCAT_INSTANCE_NAME.service"
 		rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
 		exp_message4_1="To restart the subsystem:"
 		rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-		exp_message4_2=" systemctl restart pki-tomcatd\@$ROOTCA_TOMCAT_INSTANCE_NAME.service"
+		exp_message4_2=" systemctl restart pki-tomcatd@$ROOTCA_TOMCAT_INSTANCE_NAME.service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
 		exp_message5="The URL for the subsystem is:"
 		rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
@@ -310,11 +310,11 @@ rhcs_install_kra() {
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message4="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message4" "$INSTANCE_CREATE_OUT"
-                exp_message5="systemctl status pki-tomcatd\@$(eval echo \$KRA${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message5="systemctl status pki-tomcatd@$(eval echo \$KRA${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
                 exp_message6="To restart the subsystem:"
                 rlAssertGrep "$exp_message6" "$INSTANCE_CREATE_OUT"
-                exp_message7=" systemctl restart pki-tomcatd\@$(eval echo \$KRA${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message7=" systemctl restart pki-tomcatd@$(eval echo \$KRA${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message7" "$INSTANCE_CREATE_OUT"
                 exp_message8="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message8" "$INSTANCE_CREATE_OUT"
@@ -442,11 +442,11 @@ rhcs_install_ocsp() {
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd\@$(eval echo \$OCSP${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$OCSP${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd\@$(eval echo \$OCSP${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$OCSP${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
@@ -565,11 +565,11 @@ rhcs_install_tks() {
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd\@$(eval echo \$TKS${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$TKS${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd\@$(eval echo \$TKS${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$TKS${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
@@ -674,11 +674,11 @@ rhcs_install_cloneCA()
                 rlAssertGrep "$exp_message2" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
@@ -801,7 +801,7 @@ rhcs_install_SubCA(){
                 echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
                 echo "pki_enable_java_debugger=$ENABLE_JAVA_DEBUG" >> $INSTANCECFG
                 echo "pki_security_manager=$SECURITY_MANAGER" >> $INSTANCECFG
-                echo "export $(eval echo \$SUBCA${number}_DOMAIN)=$(eval echo \$SUBCA${number}_DOMAIN)" >> /opt/rhqa_pki/env.sh
+                echo "export DOMAIN=$(eval echo \$SUBCA${number}_DOMAIN)" >> /opt/rhqa_pki/env.sh
                 cat $INSTANCECFG
 
                 rlLog "EXECUTING: pkispawn -s CA -f $INSTANCECFG -v "
@@ -815,11 +815,11 @@ rhcs_install_SubCA(){
                 rlAssertGrep "$exp_message2" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd\@$(eval echo \$SUBCA${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$SUBCA${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd\@$(eval echo \$SUBCA${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$SUBCA${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
@@ -892,12 +892,12 @@ rhcs_install_cloneKRA(){
                 echo "pki_admin_key_type=$(eval echo \$CLONE_KRA${number}_ADMIN_KEY_TYPE)" >> $INSTANCECFG
                 echo "pki_admin_subject_dn=$(eval echo \$CLONE_KRA${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$CLONE_KRA${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
-                echo "pki_import_admin_cert=$(eval echo \$CLONE_ADMIN_IMPORT_CERT)" >> $INSTANCECFG
+                echo "pki_import_admin_cert=$CLONE_ADMIN_IMPORT_CERT" >> $INSTANCECFG
  		echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$(eval echo \$${MASTER_KRA}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
                 echo "pki_security_domain_name=$DOMAIN" >> $INSTANCECFG
                 echo "pki_ds_hostname=$(hostname)" >> $INSTANCECFG
                 echo "pki_ds_ldap_port=$(eval echo \$CLONE_KRA${number}_LDAP_PORT)" >> $INSTANCECFG
-                echo "pki_ds_bind_dn=$(eval echo \$CLONE_LDAP_ROOTDN)" >> $INSTANCECFG
+                echo "pki_ds_bind_dn=$(eval echo \$CLONE${number}_LDAP_ROOTDN)" >> $INSTANCECFG
                 echo "pki_ds_secure_connection=$(eval echo \$CLONE_KRA${number}_SECURE_CONN)" >> $INSTANCECFG
                 echo "pki_ds_remove_data=$(eval echo \$CLONE_KRA${number}_REMOVE_DATA)" >> $INSTANCECFG
                 echo "pki_ds_base_dn=$(eval echo \$${MASTER_KRA}_DB_SUFFIX)" >> $INSTANCECFG
@@ -911,11 +911,11 @@ rhcs_install_cloneKRA(){
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message4="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message4" "$INSTANCE_CREATE_OUT"
-                exp_message5="systemctl status pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message5="systemctl status pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
                 exp_message6="To restart the subsystem:"
                 rlAssertGrep "$exp_message6" "$INSTANCE_CREATE_OUT"
-                exp_message7=" systemctl restart pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message7=" systemctl restart pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message7" "$INSTANCE_CREATE_OUT"
                 exp_message8="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message8" "$INSTANCE_CREATE_OUT"
@@ -984,7 +984,7 @@ rhcs_install_cloneOCSP(){
                 echo "pki_admin_key_type=$(eval echo \$CLONE_OCSP${number}_ADMIN_KEY_TYPE)" >> $INSTANCECFG
                 echo "pki_admin_subject_dn=$(eval echo \$CLONE_OCSP${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$CLONE_OCSP${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
-                echo "pki_import_admin_cert=$(eval echo \$CLONE_ADMIN_IMPORT_CERT)" >> $INSTANCECFG
+                echo "pki_import_admin_cert=$CLONE_ADMIN_IMPORT_CERT" >> $INSTANCECFG
                 echo "pki_admin_password=$(eval echo \$CLONE_OCSP${number}_ADMIN_PASSWORD)" >> $INSTANCECFG
 		echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$(eval echo \$CLONE_OCSP${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
                 echo "pki_security_domain_hostname=$master_hostname" >> $INSTANCECFG
@@ -995,7 +995,7 @@ rhcs_install_cloneOCSP(){
                 echo "pki_ds_hostname=$(hostname)" >> $INSTANCECFG
                 echo "pki_ds_ldap_port=$(eval echo \$CLONE_OCSP${number}_LDAP_PORT)" >> $INSTANCECFG
                 echo "pki_ds_bind_dn=$(eval echo \$CLONE${number}_LDAP_ROOTDN)" >> $INSTANCECFG
-                echo "pki_ds_password=$(eval echo \$CLONE_LDAP_ROOTDNPWD)" >> $INSTANCECFG
+                echo "pki_ds_password=$(eval echo \$CLONE${number}_LDAP_ROOTDNPWD)" >> $INSTANCECFG
                 echo "pki_ds_secure_connection=$(eval echo \$CLONE_OCSP${number}_SECURE_CONN)" >> $INSTANCECFG
                 echo "pki_ds_remove_data=$(eval echo \$CLONE_OCSP${number}_REMOVE_DATA)" >> $INSTANCECFG
                 echo "pki_ds_base_dn=$(eval echo \$${MASTER_OCSP}_DB_SUFFIX)" >> $INSTANCECFG
@@ -1009,11 +1009,11 @@ rhcs_install_cloneOCSP(){
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
@@ -1068,7 +1068,7 @@ rhcs_install_cloneTKS(){
                 echo "pki_clone_replication_clone_port=$(eval echo \$CLONE_TKS${number}_LDAP_PORT)" >> $INSTANCECFG
                 echo "pki_clone_repicate_schema=$REPLICATE_SCHEMA" >> $INSTANCECFG
                 echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
-                echo "pki_client_database_password=$CLONE_CERTDB_DIR_PASSWORD" >> $INSTANCECFG
+                echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
                 echo "pki_clone_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_client_dir=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)" >> $INSTANCECFG
                 echo "pki_ds_password=$(eval echo \$CLONE${number}_LDAP_ROOTDNPWD)" >> $INSTANCECFG
@@ -1107,11 +1107,11 @@ rhcs_install_cloneTKS(){
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd\@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
