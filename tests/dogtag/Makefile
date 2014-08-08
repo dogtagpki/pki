@@ -85,7 +85,6 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/quickinstall/rhds-install.sh
 	#user CA
 	chmod a+x ./acceptance/cli-tests/pki-tests-setup/create-role-users.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-show-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-mod-ca.sh
