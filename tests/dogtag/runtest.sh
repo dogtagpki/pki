@@ -44,7 +44,6 @@
 . ./acceptance/quickinstall/rhcs-install.sh
 . ./acceptance/cli-tests/pki-tests-setup/create-role-users.sh
 . ./acceptance/cli-tests/pki-tests-setup/cleanup-role-users.sh
-. ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-add-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-show-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-mod-ca.sh
