@@ -44,7 +44,7 @@ if (APPLICATION_FLAVOR_PKI_RA)
 endif (APPLICATION_FLAVOR_PKI_RA)
 
 if (APPLICATION_FLAVOR_PKI_TPS)
-    add_subdirectory(tps)
+    add_subdirectory(tps-client)
 endif (APPLICATION_FLAVOR_PKI_TPS)
 
 if (APPLICATION_FLAVOR_PKI_CONSOLE)

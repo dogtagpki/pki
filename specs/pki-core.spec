@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          0.6%{?dist}
+Release:          0.7%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -783,6 +783,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %doc base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
 %dir %{_datadir}/pki/tps
+%{_datadir}/pki/tps/applets/
 %{_datadir}/pki/tps/conf/
 %{_datadir}/pki/tps/setup/
 %{_datadir}/pki/tps/webapps/
@@ -798,6 +799,10 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Wed Aug 13 2014 Jack Magne <jmagne@redhat.com> - 10.2.0-0.7
+- Respin to include the applet files with the rpm install. No change
+  to spec file needed.
+
 * Tue Jul 15 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.6
 - Bugzilla Bug #1120045 - pki-core: Switch to java-headless (build)requires --
   drop dependency on java-atk-wrapper
