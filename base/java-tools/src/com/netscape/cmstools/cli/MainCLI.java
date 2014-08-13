@@ -18,7 +18,11 @@
 
 package com.netscape.cmstools.cli;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.Console;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -136,24 +140,32 @@ public class MainCLI extends CLI {
         option.setArgName("type");
         options.addOption(option);
 
-        option = new Option("d", true, "Security database location (default: ~/.dogtag/nssdb)");
+        option = new Option("d", true, "Client security database location (default: ~/.dogtag/nssdb)");
         option.setArgName("database");
         options.addOption(option);
 
-        option = new Option("c", true, "Security database password");
-        option.setArgName("password");
+        option = new Option("c", true, "Client security database password (mutually exclusive to the '-C' option; requires the '-n' client authentication option)");
+        option.setArgName("certpassword");
         options.addOption(option);
 
-        option = new Option("n", true, "Certificate nickname");
+        option = new Option("C", true, "Client-side password file (mutually exclusive to the '-c' option; requires the '-n' client authentication option)");
+        option.setArgName("certpasswordfile");
+        options.addOption(option);
+
+        option = new Option("n", true, "Client certificate nickname (signifies client authentication which is mutually exclusive to '-u' basic authentication option)");
         option.setArgName("nickname");
         options.addOption(option);
 
-        option = new Option("u", true, "Username");
+        option = new Option("u", true, "Username (signifies basic authentication which is mutually exclusive to '-n' client authentication option)");
         option.setArgName("username");
         options.addOption(option);
 
-        option = new Option("w", true, "Password");
+        option = new Option("w", true, "Password (mutually exclusive to the '-W' option; requires the '-u' basic authentication option)");
         option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option("W", true, "Client-side password file (mutually exclusive to the '-w' option; requires the '-u' basic authentication option)");
+        option.setArgName("passwordfile");
         options.addOption(option);
 
         option = new Option(null, "output", true, "Folder to store HTTP messages");
@@ -175,6 +187,77 @@ public class MainCLI extends CLI {
         options.addOption("v", false, "Verbose");
         options.addOption(null, "help", false, "Help");
         options.addOption(null, "version", false, "Version");
+    }
+
+    public String[] readPlaintextPasswordFromFile(String pwfile) throws IOException {
+        String[] tokenPassword = { null, null };
+        BufferedReader br = null;
+        String delimiter = "=";
+
+        try {
+            br = new BufferedReader(new FileReader(pwfile));
+
+            String line = br.readLine();
+            if (line != null) {
+                if (line.isEmpty()) {
+                    System.err.println("Error:  File '" + pwfile + "' does not define a token or a password!");
+                    System.exit(-1);
+                } else if (line.contains(delimiter)) {
+                    // Process 'token=password' format:
+                    //
+                    //     Token:     tokenPassword[0]
+                    //     Password:  tokenPassword[1]
+                    //
+                    tokenPassword = line.split(delimiter, 2);
+
+                    // Always trim leading/trailing whitespace from 'token'
+                    tokenPassword[0] = tokenPassword[0].trim();
+
+                    // Check for undefined 'token'
+                    if (tokenPassword[0].isEmpty()) {
+                        // Set default 'token'
+                        tokenPassword[0] = "internal";
+                    }
+
+                    // Check for undefined 'password'
+                    if (tokenPassword[1].isEmpty()) {
+                        System.err.println("Error:  File '" + pwfile + "' does not define a password!");
+                        System.exit(-1);
+                    }
+                } else {
+                    // Set default 'token'
+                    tokenPassword[0] = "internal";
+
+                    // Set simple 'password' (do not trim leading/trailing whitespace)
+                    tokenPassword[1] = line;
+                }
+            } else {
+                // Case of an empty password file
+                System.err.println("Error:  File '" + pwfile + "' is empty!");
+                System.exit(-1);
+            }
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            System.exit(-1);
+        } finally {
+            if (br != null) {
+                br.close();
+            }
+        }
+
+        return tokenPassword;
+    }
+
+    public String promptForPassword(String prompt) throws IOException {
+        char[] password = null;
+        Console console = System.console();
+        System.out.print(prompt);
+        password = console.readPassword();
+        return new String(password);
+    }
+
+    public String promptForPassword() throws IOException {
+        return promptForPassword("Enter Password: ");
     }
 
     public void parseOptions(CommandLine cmd) throws Exception {
@@ -202,24 +285,98 @@ public class MainCLI extends CLI {
         String certDatabase = cmd.getOptionValue("d");
         String certNickname = cmd.getOptionValue("n");
         String certPassword = cmd.getOptionValue("c");
+        String certPasswordFile = cmd.getOptionValue("C");
         String username = cmd.getOptionValue("u");
         String password = cmd.getOptionValue("w");
+        String passwordFile = cmd.getOptionValue("W");
+        String[] tokenPasswordPair = { null, null };
+
+        // check for mutually exclusive options
+        if ((certNickname != null) && (username != null)) {
+            System.err.println("Error:  The '-n' (client authentication) and '-u' (basic authentication) options are mutually exclusive!");
+            System.exit(-1);
+        }
+        if ((certPasswordFile != null) && (certPassword != null)) {
+            System.err.println("Error:  The '-C' and '-c' options are mutually exclusive!");
+            System.exit(-1);
+        }
+        if ((passwordFile != null) && (password != null)) {
+            System.err.println("Error:  The '-W' and '-w' options are mutually exclusive!");
+            System.exit(-1);
+        }
+
+        // check for mutually dependent options
+        if (((certPasswordFile != null) || (certPassword != null)) &&
+            (certNickname == null)) {
+            System.err.println("Error:  If either of the '-C' or '-c' options are specified, the '-n' client authentication option must also be specified!");
+            System.exit(-1);
+        }
+        if (((passwordFile != null) || (password != null)) &&
+            (username == null)) {
+            System.err.println("Error:  If either of the '-W' or '-w' options are specified, the '-u' basic authentication option must also be specified!");
+            System.exit(-1);
+        }
 
         // convert into absolute path
         if (certDatabase != null)
             config.setCertDatabase(new File(certDatabase).getAbsolutePath());
 
-        if (certNickname != null)
+        // check for client authentication or basic authentication
+        if (certNickname != null) {
+            // client authentication
             config.setCertNickname(certNickname);
 
-        if (certPassword != null)
-            config.setCertPassword(certPassword);
+            if (certPassword != null) {
+                // set client security database password
+                config.setCertPassword(certPassword);
+            } else if (certPasswordFile != null) {
+                // read client security database password from specified file
+                tokenPasswordPair = readPlaintextPasswordFromFile(certPasswordFile);
+                // XXX TBD set client security database token
 
-        if (username != null)
+                // set client security database password
+                config.setCertPassword(tokenPasswordPair[1]);
+            } else {
+                // prompt for client security database password
+                //
+                // NOTE:  This overrides the password callback provided
+                //        by JSS for NSS security database authentication.
+                //
+                try {
+                    certPassword = promptForPassword("Enter Client Security Database Password: ");
+                    // set client security database password
+                    config.setCertPassword(certPassword);
+                } catch (Exception e) {
+                    System.err.println("Error: " + e.getMessage());
+                    System.exit(-1);
+                }
+            }
+        } else if (username != null) {
+            // basic authentication
             config.setUsername(username);
 
-        if (password != null)
-            config.setPassword(password);
+            if (password != null) {
+                // set user password
+                config.setPassword(password);
+            } else if (passwordFile != null) {
+                // read user password from specified file
+                tokenPasswordPair = readPlaintextPasswordFromFile(passwordFile);
+                // XXX TBD set user token
+
+                // set user password
+                config.setPassword(tokenPasswordPair[1]);
+            } else {
+                // prompt for user password
+                try {
+                    password = promptForPassword();
+                    // set user password
+                    config.setPassword(password);
+                } catch (Exception e) {
+                    System.err.println("Error: " + e.getMessage());
+                    System.exit(-1);
+                }
+            }
+        }
 
         String list = cmd.getOptionValue("reject-cert-status");
         convertCertStatusList(list, rejectedCertStatuses);
@@ -228,17 +385,17 @@ public class MainCLI extends CLI {
         convertCertStatusList(list, ignoredCertStatuses);
 
         if (config.getCertDatabase() == null) {
-            // Use default security database
+            // Use default client security database
             this.certDatabase = new File(
                     System.getProperty("user.home") + File.separator +
                     ".dogtag" + File.separator + "nssdb");
 
         } else {
-            // Use existing security database
+            // Use existing client security database
             this.certDatabase = new File(config.getCertDatabase());
         }
 
-        if (verbose) System.out.println("Security database: "+this.certDatabase.getAbsolutePath());
+        if (verbose) System.out.println("Client security database: "+this.certDatabase.getAbsolutePath());
 
         String messageFormat = cmd.getOptionValue("message-format");
         config.setMessageFormat(messageFormat);
@@ -264,12 +421,12 @@ public class MainCLI extends CLI {
 
     public void init() throws Exception {
 
-        // Main program should initialize security database
+        // Main program should initialize client security database
         if (certDatabase.exists()) {
             CryptoManager.initialize(certDatabase.getAbsolutePath());
         }
 
-        // If password is specified, use password to access security database
+        // If password is specified, use password to access client security database
         if (config.getCertPassword() != null) {
             try {
                 CryptoManager manager = CryptoManager.getInstance();
@@ -279,11 +436,11 @@ public class MainCLI extends CLI {
 
             } catch (NotInitializedException e) {
                 // The original exception doesn't contain a message.
-                throw new Error("Security database does not exist.");
+                throw new Error("Client security database does not exist.");
 
             } catch (IncorrectPasswordException e) {
                 // The original exception doesn't contain a message.
-                throw new IncorrectPasswordException("Incorrect security database password.");
+                throw new IncorrectPasswordException("Incorrect client security database password.");
             }
 
         }

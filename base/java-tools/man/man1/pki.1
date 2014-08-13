@@ -27,11 +27,14 @@ These services include certificates, groups, keys, security domains, and users.
   
 .SH CLI OPTIONS
 .TP
-.B -c <security database password>
-Specifies the security database password.
+.B -c <client security database password>
+Specifies the client security database password (mutually exclusive to the '-C' option; requires the '-n' client authentication option).
 .TP
-.B -d <security database location>
-Specifies the security database location (default: ~/.dogtag/nssdb).
+.B -C <client-side password file>
+Specifies the file which contains the client security database password (mutually exclusive to the '-c' option; requires the '-n' client authentication option).
+.TP
+.B -d <client security database location>
+Specifies the client security database location (default: \fI~/.dogtag/nssdb\fP).
 .TP
 .B -h <hostname>
 Specifies the hostname (default: hostname of the local machine).
@@ -39,8 +42,17 @@ Specifies the hostname (default: hostname of the local machine).
 .B --help
 Prints additional help information.
 .TP
-.B -n <nickname>
-Specifies the certificate nickname.
+.B --ignore-cert-status <list>
+Comma-separated list of ignored certificate validity statuses.
+.TP
+.B --message-format <format>
+Message format: xml (default), json.
+.TP
+.B -n <client certificate nickname>
+Specifies the nickname of the client certificate (signifies client authentication which is mutually exclusive to the '-u' basic authentication option).
+.TP
+.B --output <folder>
+Folder to store HTTP messages.
 .TP
 .B -P <protocol>
 Specifies the protocol (default: http).
@@ -48,11 +60,15 @@ Specifies the protocol (default: http).
 .B -p <port>
 Specifies the port (default: 8080).
 .TP
-.B -U <URL>
-Specifies the server URL.
+.B --reject-cert-status <list>
+Comma-separated list of rejected certificate validity statuses.
+PKI subsystem type - [CA, KRA, OCSP, TKS, or TPS] (non-case-sensitive).
+.TP
+.B -U <URI>
+Specifies the server URI.
 .TP
 .B -u <username>
-Specifies the username.
+Specifies the username (signifies basic authentication which is mutually exclusive to the '-n' client authentication option).
 .TP
 .B -v
 Displays verbose information.
@@ -61,7 +77,10 @@ Displays verbose information.
 Displays CLI version information.
 .TP
 .B -w <password>
-Specifies the user password.
+Specifies the user password (mutually exclusive to the '-W' option; requires the '-u' basic authentication option).
+.TP
+.B -W <client-side password file>
+Specifies the file which contains the user password (mutually exclusive to the '-w' option; requires the '-u' basic authentication option).
 
 .SH OPERATIONS
 To view available commands and options, simply type \fBpki\fP.  Some commands have sub-commands.
@@ -76,11 +95,11 @@ By default, the CLI connects to a server running on the local machine via the no
 
 .B pki -P <protocol> -h <hostname> -p <port> <command>
 
-Alternatively, the connection parameters can be specified as a URL:
+Alternatively, the connection parameters can be specified as a URI:
 
-.B pki -U <URL> <command>
+.B pki -U <URI> <command>
 
-where the URL is of the format \fI<protocol>://<hostname>:<port>\fP.
+where the URI is of the format \fI<protocol>://<hostname>:<port>\fP.
 
 .SS Authentication
 Some commands require authentication.  These are commands that are restricted to particular sets of users (such as agents or admins) or those operations involving certificate profiles that require authentication.
@@ -89,14 +108,118 @@ To execute a command without authentication:
 
 .B pki <command>
 
+To execute a command using basic authentication (i. e. - username/password), see the \fBBasic Authentication\fP section of this man page.
+
+To execute a command using client authentication (i. e. - client certificate), see the \fBClient Authentication\fP section of this man page.
+
+.SS Basic Authentication
 To authenticate with a username and password:
 
 .B pki -u <username> -w <password> <command>
 
+Rather than being exposed in plaintext on the command-line, user passwords may be stored in a file instead.  See \fBClient-side Password Files\fR for detailed information.
+
+To authenticate with a username by obtaining the user password from a client-side password file:
+
+.B pki -u <username> -W <client-side password file> <command>
+
+Finally, if a username has been specified on the command-line, and neither the '-W <client-side password file>' nor the '-w <password>' options have been utilized, the password will be prompted for.
+
+To authenticate with a username by interactively prompting for a password:
+
+.B pki -u <username> <command>
+
+\fBNote:\fP
+Prompting for a user password is not suitable for automated batch processing.
+
+.SS Client Authentication Setup
+A client certificate associated with the desired PKI server must be used for client authentication. This can be done by importing the client certificate into an NSS security database and passing the values to the relevant options provided by the \fBpki\fP CLI framework.
+
+To achieve this, execute the following commands to set up an NSS security database for use by the \fBpki\fP client, import the client certificate into the NSS database, and list information (including the nickname of the client certificate) stored in the NSS database:
+
+.B    - certutil -N -d <CERT_DB_DIR_PATH>
+
+.B    - pk12util -i <Agent_Cert_P12_FILE_PATH> -d <CERT_DB_DIR_PATH>
+
+.B    - certutil -L -d <CERT_DB_DIR_PATH>
+
+The first command creates a client security database, and asks the client user to enter a password for this NSS database.
+
+The second command imports a client certificate stored in a PKCS12 format into this NSS database; it prompts for the passwords of the PKCS12 file and the client security database.  The simplist example of such a client certificate is to obtain the administrator certificate created during the configuration portion of the basic PKI installation of the associated PKI server (e. g. - located at \fI/root/.dogtag/pki-tomcat/ca_admin_cert.p12\fP on the PKI server machine).
+
+The third command shows the information about the imported client certificate (including its nickname).
+
+\fBNote:\fP
+When issuing the first \fBpki\fP command using the authentication parameters (after completion of the setup of the client security database), a user may be greeted with a warning message which indicates that an untrusted issuer was encountered.  Simply reply 'Y' to import the CA certificate, and, presuming that the displayed CA server URL is valid, press the carriage return.
+
+.SS Client Authentication
 To authenticate with a client certificate:
 
-.B pki -d <security database location> -c <security database password> -n <certificate nickname> <command>
+.B pki -d <client security database location> -c <client security database password> -n <client certificate nickname> <command>
     
+Alternatively, to prevent exposure via the command-line, a client security database may store their password in a file instead. See \fBClient-side Password Files\fR for detailed information.
+
+To authenticate with a client certificate by obtaining the client security database password from a client-side password file:
+
+.B pki -d <client security database location> -C <client-side password file> -n <client certificate nickname> <command>
+
+Finally, if a client certificate has been specified on the command-line, and neither the '-C <client-side password file>' nor the '-c <client security database password>' options have been utilized, the client security database password will be prompted for.
+
+To authenticate with a client certificate by interactively prompting for a client security database password:
+
+.B pki -d <client security database location> -n <client certificate nickname> <command>
+
+\fBNote:\fP
+Prompting for a client security database password is not suitable for automated batch processing.
+
+.SS Client-side Password Files
+
+Both the '-C' (client authentication) and the '-W' (basic authentication) options require the use of a client-side password file.
+
+For security purposes, client-side password files should be, at a minimum, operating system protected non-world readable files.
+
+Client-side password files generally store a password in an equals-sign-delimited plaintext format 'token=password' (e. g. - 'internal=foobar' where 'internal' is the token, '=' is the delimiter, and 'foobar' is the actual password).  The token keyword 'internal' is the default specification for a token, and refers to the "Internal Key Storage Token".  If a client-side password file is being used for the sole purposes of the \fBpki\fR command-line tool, a client-side password file also supports the format that merely consists of the plaintext password on a single line (read the \fBCaveats\fP which follow).
+
+\fBCaveats:\fP
+.IP
+\(bu Since client-side password files are allowed to use the 'token=password' format, the first '=' character can only be used as a delimiter (i. e. - it cannot be used as a valid character within the 'token' name) as escaping the '=' character within a token is not supported.
+
+\(bu When specifying a password which contains an '=' character, always specify an initial '=' prior to specifying the actual password (mandatory when no token has been specified) as escaping the '=' character within a password is not supported.
+
+\(bu Tokens do not support leading or trailing whitespace since these characters are stripped prior to their use; however, all whitespace inside tokens will be preserved.
+
+\(bu Passwords preserve all leading, trailing, and internal whitespace since passwords are not trimmed prior to their use.
+
+\(bu TBD: Supply code to handle the case of a non-internal token (e. g. - 'hardware-nethsm' utilized in the following examples) since the current code ignores the specified token (i. e. - it always utilizes the default 'internal' token no matter what is currently specified).
+
+\(bu TBD: Allow numerous 'token=password' lines in a single client-side password file to support the ability to authenticate against specified tokens as well as multiple tokens.
+
+.PP
+\fBValid examples include:\fP
+
+.B internal=foobar
+   where:  token="internal", password="foobar"
+
+.B hardware-nethsm=foobar
+   where:  token="hardware-nethsm" (ignored - TBD), password="foobar"
+
+.B internal=ack=bar
+   where:  token="internal", password="ack=bar"
+
+.B hardware-nethsm=ack=bar
+   where:  token="hardware-nethsm" (ignored - TBD), password="ack=bar"
+
+.B =foobar
+   where:  token="internal" (default), password="foobar"
+
+.B =foo=bar
+   where:  token="internal" (default), password="foo=bar"
+           (Since the password contains an '=' character,
+            an initial '=' character must be specified!)
+
+.B foobar
+   where:  token="internal" (default), password="foobar"
+
 .SH FILES
 .I /usr/bin/pki
 
