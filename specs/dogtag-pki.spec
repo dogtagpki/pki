@@ -9,6 +9,10 @@ Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
+%if 0%{?rhel}
+ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
+%endif
+
 %define dogtag_pki_theme_version   10.2.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-28

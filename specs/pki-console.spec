@@ -33,6 +33,10 @@ Requires:         jss >= 4.2.6-24
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
+%if 0%{?rhel}
+ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
+%endif
+
 %description
 Certificate System (CS) is an enterprise software system designed
 to manage enterprise Public Key Infrastructure (PKI) deployments.

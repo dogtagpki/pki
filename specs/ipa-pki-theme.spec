@@ -15,7 +15,7 @@ BuildRequires:    cmake
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
 %if 0%{?rhel}
-ExcludeArch:      ppc ppc64 s390 s390x
+ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %endif
 
 %global overview                                                       \
