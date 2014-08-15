@@ -236,6 +236,34 @@ class CertRequestInfo(object):
         return cert_request_info
 
 
+class CertRequestStatus(object):
+    """
+    Class containing valid cert statuses.
+    """
+
+    PENDING = "pending"
+    CANCELED = "canceled"
+    REJECTED = "rejected"
+    COMPLETE = "complete"
+
+
+class CertEnrollmentResult(object):
+    """
+    Class containing results of an enrollment request.
+
+    This structure contains information about the cert request generated
+    and any certificates issued.
+    """
+
+    def __init__(self, request, cert):
+        """  Initializer.
+        :param: request: CertRequestInfo object for request generated.
+        :param: cert: CertData object for certificate generated (if any)
+        """
+        self.request = request
+        self.cert = cert
+
+
 class CertRequestInfoCollection(object):
     """
     Class containing list of CertRequestInfo objects.
@@ -948,7 +976,7 @@ class CertClient(object):
         agent approval is sufficient.
 
         Requires an agent level authentication.
-        Returns a list of CertData objects.
+        Returns a list of CertEnrollmentResult objects.
         """
 
         # Create a CertEnrollmentRequest object using the inputs for the given
@@ -962,14 +990,27 @@ class CertClient(object):
         # Fetch the CertData objects for all the certificates created and
         # return to the caller.
 
-        certificates = []
+        ret = []
         for cert_request_info in cert_request_infos.cert_request_info_list:
-            request_id = cert_request_info.request_id
-            self.approve_request(request_id)
-            cert_id = self.get_request(request_id).cert_id
-            certificates.append(self.get_cert(cert_id))
+            status = cert_request_info.request_status
+            if status == CertRequestStatus.REJECTED or \
+                    status == CertRequestStatus.CANCELED:
+                ret.append(
+                    CertEnrollmentResult(cert_request_info, None)
+                )
+            else:
+                request_id = cert_request_info.request_id
+                if status == CertRequestStatus.PENDING:
+                    self.approve_request(request_id)
+                cert_request_info = self.get_request(request_id)
+                ret.append(
+                    CertEnrollmentResult(
+                        cert_request_info,
+                        self.get_cert(cert_request_info.cert_id)
+                    )
+                )
 
-        return certificates
+        return ret
 
 
 encoder.NOTYPES['CertData'] = CertData
@@ -1026,14 +1067,18 @@ def main():
     inputs['sn_e'] = 'example@redhat.com'
     inputs['sn_cn'] = 'TestUser'
 
-    cert_data_infos = cert_client.enroll_cert('caUserCert', inputs)
+    enrollment_results = cert_client.enroll_cert('caUserCert', inputs)
 
-    for data in cert_data_infos:
-        print('Serial Number: ' + data.serial_number)
-        print('Issuer: ' + data.issuer_dn)
-        print('Subject: ' + data.subject_dn)
+    for enrollment_result in enrollment_results:
+        request_data = enrollment_result.request
+        cert_data = enrollment_result.cert
+        print('Request ID: ' + request_data.request_id)
+        print('Request Status:' + request_data.request_status)
+        print('Serial Number: ' + cert_data.serial_number)
+        print('Issuer: ' + cert_data.issuer_dn)
+        print('Subject: ' + cert_data.subject_dn)
         print('Pretty Print:')
-        print(data.pretty_repr)
+        print(cert_data.pretty_repr)
 
     print
 
@@ -1059,13 +1104,21 @@ def main():
     inputs['requestor_name'] = 'Tester'
     inputs['requestor_email'] = 'example@redhat.com'
 
-    cert_data_infos_2 = cert_client.enroll_cert('caServerCert', inputs)
-    for data in cert_data_infos_2:
-        print('Serial Number: ' + data.serial_number)
-        print('Issuer: ' + data.issuer_dn)
-        print('Subject: ' + data.subject_dn)
-        print('Pretty Print:')
-        print(data.pretty_repr)
+    cert_id = None
+    enrollment_results_2 = cert_client.enroll_cert('caServerCert', inputs)
+    for enrollment_result in enrollment_results_2:
+        request_data = enrollment_result.request
+        cert_data = enrollment_result.cert
+        print('Request ID: ' + request_data.request_id)
+        print('Request Status:' + request_data.request_status)
+        if cert_data is not None:
+            # store cert_id for usage later
+            cert_id = cert_data.serial_number
+            print('Serial Number: ' + cert_id)
+            print('Issuer: ' + cert_data.issuer_dn)
+            print('Subject: ' + cert_data.subject_dn)
+            print('Pretty Print:')
+            print(cert_data.pretty_repr)
 
     print
 
@@ -1096,7 +1149,6 @@ def main():
     # 7, 0x7 and '0x7' are also valid values
     # Following examples use the serial number of the user certificate enrolled
     #  before.
-    cert_id = cert_data_infos[0].serial_number
 
     #Get certificate data
     print('Getting information of a certificate')
