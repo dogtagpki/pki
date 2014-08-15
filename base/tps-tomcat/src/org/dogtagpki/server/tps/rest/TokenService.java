@@ -164,6 +164,7 @@ public class TokenService extends PKIService implements TokenResource {
         tokenData.setStatus(getTokenStatus(tokenRecord));
         tokenData.setAppletID(tokenRecord.getAppletID());
         tokenData.setKeyInfo(tokenRecord.getKeyInfo());
+        tokenData.setPolicy(tokenRecord.getPolicy());
         tokenData.setCreateTimestamp(tokenRecord.getCreateTimestamp());
         tokenData.setModifyTimestamp(tokenRecord.getModifyTimestamp());
 
@@ -190,6 +191,7 @@ public class TokenService extends PKIService implements TokenResource {
         setTokenStatus(tokenRecord, tokenData.getStatus());
         tokenRecord.setAppletID(tokenData.getAppletID());
         tokenRecord.setKeyInfo(tokenData.getKeyInfo());
+        tokenRecord.setPolicy(tokenData.getPolicy());
         tokenRecord.setCreateTimestamp(tokenData.getCreateTimestamp());
         tokenRecord.setModifyTimestamp(tokenData.getModifyTimestamp());
 
@@ -330,6 +332,7 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord.setType(tokenData.getType());
             tokenRecord.setAppletID(tokenData.getAppletID());
             tokenRecord.setKeyInfo(tokenData.getKeyInfo());
+            tokenRecord.setPolicy(tokenData.getPolicy());
             database.updateRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
                 tokenRecord, ipAddress, msg, "success",
@@ -391,6 +394,12 @@ public class TokenService extends PKIService implements TokenResource {
             String keyInfo = tokenData.getKeyInfo();
             if (keyInfo != null) {
                 tokenRecord.setKeyInfo(keyInfo);
+            }
+
+            // update policy if specified
+            String policy = tokenData.getPolicy();
+            if (policy != null) {
+                tokenRecord.setPolicy(policy);
             }
 
             database.updateRecord(tokenID, tokenRecord);

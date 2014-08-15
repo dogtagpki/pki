@@ -27,7 +27,7 @@
 <table name="tokens">
 <thead>
     <tr>
-         <th class="pki-table-actions" colspan="9">
+         <th class="pki-table-actions" colspan="10">
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
              </span>
@@ -45,6 +45,7 @@
         <th>Status</th>
         <th>Applet ID</th>
         <th>Key Info</th>
+        <th>Policy</th>
         <th>Created</th>
         <th>Modified</th>
     </tr>
@@ -58,13 +59,14 @@
         <td name="status"><a href="#tokens/${id}/status">${statusLabel}</a></td>
         <td name="appletID">${appletID}</td>
         <td name="keyInfo">${keyInfo}</td>
+        <td name="policy">${policy}</td>
         <td name="created">${createTimestamp}</td>
         <td name="modified">${modifyTimestamp}</td>
     </tr>
 </tbody>
 <tfoot>
     <tr>
-         <th class="pki-table-actions" colspan="9">
+         <th class="pki-table-actions" colspan="10">
              <div class="pki-table-info">
                  Total: <span name="totalEntries">0</span> entries
              </div>
@@ -96,35 +98,37 @@
                 <h4 class="modal-title">Change Token Status</h4>
             </div>
             <div class="modal-body">
-		        <fieldset>
-		            <label>Token ID</label>
-		            <input name="tokenID" readonly="readonly"><br>
-		            <label>User ID</label>
-		            <input name="userID" readonly="readonly"><br>
-		            <label>Type</label>
-		            <input name="type" readonly="readonly"><br>
-		            <label>Status</label>
-		            <select name="status">
-		            <option value="UNINITIALIZED">Uninitialized</option>
-		            <option value="ACTIVE">Active</option>
-		            <option value="TEMP_LOST">Temporarily lost</option>
-		            <option value="PERM_LOST">Permanently lost</option>
-		            <option value="DAMAGED">Physically damaged</option>
-		            <option value="TERMINATED">Terminated</option>
-		            </select><br>
-		            <label>Applet ID</label>
-		            <input name="appletID" readonly="readonly"><br>
-		            <label>Key Info</label>
-		            <input name="keyInfo" readonly="readonly"><br>
-		            <label>Created</label>
-		            <input name="createTimestamp" readonly="readonly"><br>
-		            <label>Modified</label>
-		            <input name="modifyTimestamp" readonly="readonly"><br>
-		        </fieldset>
+                <fieldset>
+                    <label>Token ID</label>
+                    <input name="tokenID" readonly="readonly"><br>
+                    <label>User ID</label>
+                    <input name="userID" readonly="readonly"><br>
+                    <label>Type</label>
+                    <input name="type" readonly="readonly"><br>
+                    <label>Status</label>
+                    <select name="status">
+                    <option value="UNINITIALIZED">Uninitialized</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="TEMP_LOST">Temporarily lost</option>
+                    <option value="PERM_LOST">Permanently lost</option>
+                    <option value="DAMAGED">Physically damaged</option>
+                    <option value="TERMINATED">Terminated</option>
+                    </select><br>
+                    <label>Applet ID</label>
+                    <input name="appletID" readonly="readonly"><br>
+                    <label>Key Info</label>
+                    <input name="keyInfo" readonly="readonly"><br>
+                    <label>Policy</label>
+                    <input name="policy" readonly="readonly"><br>
+                    <label>Created</label>
+                    <input name="createTimestamp" readonly="readonly"><br>
+                    <label>Modified</label>
+                    <input name="modifyTimestamp" readonly="readonly"><br>
+                </fieldset>
             </div>
             <div class="modal-footer">
-	            <button name="save" class="btn btn-primary">Save</button>
-	            <button name="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button name="save" class="btn btn-primary">Save</button>
+                <button name="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>

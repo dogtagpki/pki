@@ -272,7 +272,7 @@ $(function() {
             el: content,
             url: "token.html",
             model: new TokenModel({ id: id }),
-            editable: ["userID", "type", "appletID", "keyInfo"]
+            editable: ["userID", "type", "appletID", "keyInfo", "policy"]
         }).open();
     });
 
@@ -283,7 +283,7 @@ $(function() {
             model: new TokenModel(),
             mode: "add",
             title: "New Token",
-            editable: ["tokenID", "userID", "type", "appletID", "keyInfo"],
+            editable: ["tokenID", "userID", "type", "appletID", "keyInfo", "policy"],
             parentHash: "#tokens"
         }).open();
     });

@@ -33,6 +33,32 @@ public class TokenRecord extends DBRecord {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * objectClasses: ( tokenRecord-oid
+     *     NAME 'tokenRecord'
+     *     DESC 'CMS defined class'
+     *     SUP top
+     *     STRUCTURAL
+     *     MUST cn
+     *     MAY (
+     *         dateOfCreate $
+     *         dateOfModify $
+     *         modified $            (unused)
+     *         tokenReason $
+     *         tokenUserID $
+     *         tokenStatus $
+     *         tokenAppletID $
+     *         keyInfo $
+     *         tokenPolicy $
+     *         extensions $          (unused)
+     *         numberOfResets $      (unused)
+     *         numberOfEnrollments $ (unused)
+     *         numberOfRenewals $    (unused)
+     *         numberOfRecoveries $  (unused)
+     *         userCertificate $     (unused)
+     *         tokenType )
+     *     X-ORIGIN 'user defined' )
+     */
     String id;
     String userID;
     String type;
@@ -40,6 +66,7 @@ public class TokenRecord extends DBRecord {
     String reason;
     String appletID;
     String keyInfo;
+    String policy;
     Date createTimestamp;
     Date modifyTimestamp;
 
@@ -106,6 +133,15 @@ public class TokenRecord extends DBRecord {
         this.keyInfo = keyInfo;
     }
 
+    @DBAttribute("tokenPolicy")
+    public String getPolicy() {
+        return policy;
+    }
+
+    public void setPolicy(String policy) {
+        this.policy = policy;
+    }
+
     @DBAttribute("dateOfCreate")
     public Date getCreateTimestamp() {
         return createTimestamp;
@@ -133,6 +169,7 @@ public class TokenRecord extends DBRecord {
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((keyInfo == null) ? 0 : keyInfo.hashCode());
         result = prime * result + ((modifyTimestamp == null) ? 0 : modifyTimestamp.hashCode());
+        result = prime * result + ((policy == null) ? 0 : policy.hashCode());
         result = prime * result + ((reason == null) ? 0 : reason.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -173,6 +210,11 @@ public class TokenRecord extends DBRecord {
             if (other.modifyTimestamp != null)
                 return false;
         } else if (!modifyTimestamp.equals(other.modifyTimestamp))
+            return false;
+        if (policy == null) {
+            if (other.policy != null)
+                return false;
+        } else if (!policy.equals(other.policy))
             return false;
         if (reason == null) {
             if (other.reason != null)

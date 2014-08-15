@@ -57,6 +57,7 @@ public class TokenData {
     TokenStatus status;
     String appletID;
     String keyInfo;
+    String policy;
     Date createTimestamp;
     Date modifyTimestamp;
 
@@ -125,6 +126,15 @@ public class TokenData {
         this.keyInfo = keyInfo;
     }
 
+    @XmlElement(name="Policy")
+    public String getPolicy() {
+        return policy;
+    }
+
+    public void setPolicy(String policy) {
+        this.policy = policy;
+    }
+
     @XmlElement(name="CreateTimestamp")
     public Date getCreateTimestamp() {
         return createTimestamp;
@@ -162,6 +172,7 @@ public class TokenData {
         result = prime * result + ((keyInfo == null) ? 0 : keyInfo.hashCode());
         result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((modifyTimestamp == null) ? 0 : modifyTimestamp.hashCode());
+        result = prime * result + ((policy == null) ? 0 : policy.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((tokenID == null) ? 0 : tokenID.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -207,6 +218,11 @@ public class TokenData {
             if (other.modifyTimestamp != null)
                 return false;
         } else if (!modifyTimestamp.equals(other.modifyTimestamp))
+            return false;
+        if (policy == null) {
+            if (other.policy != null)
+                return false;
+        } else if (!policy.equals(other.policy))
             return false;
         if (status != other.status)
             return false;
@@ -256,6 +272,7 @@ public class TokenData {
         before.setStatus(TokenStatus.ACTIVE);
         before.setAppletID("APPLET1234");
         before.setKeyInfo("key info");
+        before.setPolicy("FORCE_FORMAT=YES");
         before.setCreateTimestamp(new Date());
         before.setModifyTimestamp(new Date());
 

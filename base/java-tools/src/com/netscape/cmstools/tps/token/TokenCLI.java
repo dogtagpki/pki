@@ -56,6 +56,7 @@ public class TokenCLI extends CLI {
         if (token.getStatus() != null) System.out.println("  Status: " + token.getStatus());
         if (token.getAppletID() != null) System.out.println("  Applet ID: " + token.getAppletID());
         if (token.getKeyInfo() != null) System.out.println("  Key Info: " + token.getKeyInfo());
+        if (token.getPolicy() != null) System.out.println("  Policy: " + token.getPolicy());
         if (token.getCreateTimestamp() != null) System.out.println("  Date Created: " + token.getCreateTimestamp());
         if (token.getModifyTimestamp() != null) System.out.println("  Date Modified: " + token.getModifyTimestamp());
 

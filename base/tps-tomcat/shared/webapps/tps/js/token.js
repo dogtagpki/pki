@@ -40,6 +40,7 @@ var TokenModel = Model.extend({
             statusLabel: TokenStatus[response.Status],
             appletID: response.AppletID,
             keyInfo: response.KeyInfo,
+            policy: response.Policy,
             createTimestamp: response.CreateTimestamp,
             modifyTimestamp: response.ModifyTimestamp
         };
@@ -53,6 +54,7 @@ var TokenModel = Model.extend({
             Status: attributes.status,
             AppletID: attributes.appletID,
             KeyInfo: attributes.keyInfo,
+            Policy: attributes.policy,
             CreateTimestamp: attributes.createTimestamp,
             ModifyTimestamp: attributes.modifyTimestamp
         };
@@ -91,6 +93,7 @@ var TokenCollection = Collection.extend({
             statusLabel: TokenStatus[entry.Status],
             appletID: entry.AppletID,
             keyInfo: entry.KeyInfo,
+            policy: entry.Policy,
             createTimestamp: entry.CreateTimestamp,
             modifyTimestamp: entry.ModifyTimestamp
         });
@@ -191,7 +194,8 @@ var TokenTableItem = TableItem.extend({
             el: $("#token-status-dialog"),
             title: "Change Token Status",
             readonly: ["tokenID", "userID", "type",
-                "appletID", "keyInfo", "createTimestamp", "modifyTimestamp"],
+                "appletID", "keyInfo", "policy",
+                "createTimestamp", "modifyTimestamp"],
             actions: ["cancel", "save"]
         });
 
