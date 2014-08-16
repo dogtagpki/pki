@@ -292,18 +292,16 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord = createTokenRecord(tokenData);
             tokenRecord.setId(tokenID);
             database.addRecord(tokenID, tokenRecord);
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_ADD,
-                tokenRecord, ipAddress, msg, "success",
-                remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
+                ipAddress, msg, "success", remoteUser);
             tokenData = createTokenData(database.getRecord(tokenID));
 
             return createCreatedResponse(tokenData, tokenData.getLink().getHref());
 
         } catch (Exception e) {
             e.printStackTrace();
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_ADD,
-                tokenRecord, ipAddress, msg, "failure",
-                remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
+                ipAddress, msg, "failure", remoteUser);
             msg = msg + ":" + e;
 
             throw new PKIException(msg);
@@ -334,9 +332,8 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord.setKeyInfo(tokenData.getKeyInfo());
             tokenRecord.setPolicy(tokenData.getPolicy());
             database.updateRecord(tokenID, tokenRecord);
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
-                tokenRecord, ipAddress, msg, "success",
-                remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+                ipAddress, msg, "success", remoteUser);
 
             tokenData = createTokenData(database.getRecord(tokenID));
 
@@ -344,9 +341,9 @@ public class TokenService extends PKIService implements TokenResource {
 
         } catch (Exception e) {
             e.printStackTrace();
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
-                tokenRecord, ipAddress, msg,
-                "failure", remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+                ipAddress, msg, "failure",
+                remoteUser);
             msg = msg + ":" + e;
 
             throw new PKIException(msg);
@@ -403,9 +400,8 @@ public class TokenService extends PKIService implements TokenResource {
             }
 
             database.updateRecord(tokenID, tokenRecord);
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
-                tokenRecord, ipAddress, msg, "success",
-                remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+                ipAddress, msg, "success", remoteUser);
 
             tokenData = createTokenData(database.getRecord(tokenID));
 
@@ -413,9 +409,9 @@ public class TokenService extends PKIService implements TokenResource {
 
         } catch (Exception e) {
             e.printStackTrace();
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
-                tokenRecord, ipAddress, msg,
-                "failure", remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+                ipAddress, msg, "failure",
+                remoteUser);
             msg = msg + ":" + e;
 
             throw new PKIException(msg);
@@ -450,19 +446,19 @@ public class TokenService extends PKIService implements TokenResource {
             if (nextStatuses == null || !nextStatuses.contains(tokenStatus)) {
                 CMS.debug("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
                 msg = msg + ": Invalid token status transition";
-                subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
-                    tokenRecord, ipAddress,
-                    msg,
-                    "failure", remoteUser);
+                subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+                    ipAddress, msg,
+                    "failure",
+                    remoteUser);
                 throw new BadRequestException(msg);
             }
 
             CMS.debug("TokenService.changeTokenStatus(): next status allowed: " + tokenStatus);
             setTokenStatus(tokenRecord, tokenStatus);
             database.updateRecord(tokenID, tokenRecord);
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
-                tokenRecord, ipAddress, msg,
-                "success", remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+                ipAddress, msg, "success",
+                remoteUser);
 
             TokenData tokenData = createTokenData(database.getRecord(tokenID));
 
@@ -471,9 +467,9 @@ public class TokenService extends PKIService implements TokenResource {
         } catch (Exception e) {
             e.printStackTrace();
             msg = msg + e;
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DO_TOKEN,
-                tokenRecord, ipAddress, msg,
-                "failure", remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+                ipAddress, msg, "failure",
+                remoteUser);
 
             throw new PKIException(msg);
         }
@@ -496,17 +492,16 @@ public class TokenService extends PKIService implements TokenResource {
             TokenDatabase database = subsystem.getTokenDatabase();
             tokenRecord = database.getRecord(tokenID);
             database.removeRecord(tokenID);
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DELETE,
-                tokenRecord, ipAddress, msg, "success",
-                remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DELETE, tokenRecord,
+                ipAddress, msg, "success", remoteUser);
 
             return createNoContentResponse();
 
         } catch (Exception e) {
             e.printStackTrace();
-            subsystem.tdb.tdbActivity(subsystem, ActivityDatabase.OP_DELETE,
-                tokenRecord, ipAddress, msg,
-                "failure", remoteUser);
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DELETE, tokenRecord,
+                ipAddress, msg, "failure",
+                remoteUser);
             msg = msg + ":" + e;
 
             throw new PKIException(msg);

@@ -20,10 +20,17 @@
  */
 package org.dogtagpki.tps.main;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.spec.AlgorithmParameterSpec;
+
+import netscape.security.x509.AuthorityKeyIdentifierExtension;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.SubjectKeyIdentifierExtension;
+import netscape.security.x509.X509CertImpl;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.Cipher;
@@ -32,6 +39,7 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.util.Utils;
 
@@ -286,6 +294,42 @@ public class Util {
 
         return encrypted;
 
+    }
+
+    /*
+     * getCertAkiString returns the Authority Key Identifier of the certificate in Base64 encoding
+     * @param cert X509CertImpl of the cert to be processed
+     * @return Base64 encoding of the cert's AKI
+     */
+    public static String getCertAkiString(X509CertImpl cert)
+            throws EBaseException, IOException {
+        if (cert == null) {
+            throw new EBaseException("CARemoteRequestHandler: getCertAkiString(): input parameter cert null.");
+        }
+        AuthorityKeyIdentifierExtension certAKI =
+                (AuthorityKeyIdentifierExtension)
+                cert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
+        KeyIdentifier kid =
+                (KeyIdentifier) certAKI.get(AuthorityKeyIdentifierExtension.KEY_ID);
+        return (CMS.BtoA(kid.getIdentifier()).trim());
+    }
+
+    /*
+     * getCertAkiString returns the Subject Key Identifier of the certificate in Base64 encoding
+     * @param cert X509CertImpl of the cert to be processed
+     * @return Base64 encoding of the cert's SKI
+     */
+    public static String getCertSkiString(X509CertImpl cert)
+            throws EBaseException, IOException {
+        if (cert == null) {
+            throw new EBaseException("CARemoteRequestHandler: getCertSkiString(): input parameter cert null.");
+        }
+        SubjectKeyIdentifierExtension certSKI =
+                (SubjectKeyIdentifierExtension)
+                cert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+        KeyIdentifier kid =
+                (KeyIdentifier) certSKI.get(SubjectKeyIdentifierExtension.KEY_ID);
+        return (CMS.BtoA(kid.getIdentifier()).trim());
     }
 
 }

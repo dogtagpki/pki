@@ -105,7 +105,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         connectorDatabase = new ConnectorDatabase();
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
-        tdb = new TPSTokendb();
+        tdb = new TPSTokendb(this);
 
         engine = new TPSEngine();
         engine.init();

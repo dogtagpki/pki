@@ -17,13 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.processor.EnrolledCertsInfo;
+import org.dogtagpki.tps.main.TPSException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -34,9 +37,16 @@ import com.netscape.certsrv.tps.token.TokenStatus;
  * TPSTokendb class offers a collection of tokendb management convenience routines
  */
 public class TPSTokendb {
+    private TPSSubsystem tps;
     private Map<TokenStatus, Collection<TokenStatus>> allowedTransitions = new HashMap<TokenStatus, Collection<TokenStatus>>();
 
-    public TPSTokendb() throws EBaseException {
+    public TPSTokendb(TPSSubsystem tps) throws EBaseException {
+        if (tps == null) {
+            String msg = "TPStokendb.TPSTokendb: tps cannot be null";
+            CMS.debug(msg);
+            throw new EBaseException(msg);
+        }
+        this.tps = tps;
         try {
             initAllowedTransitions();
         } catch (Exception e) {
@@ -89,9 +99,9 @@ public class TPSTokendb {
      * tdbActivity logs token activities; This version is called by non-administrative functions
      */
     public void tdbActivity(
-            TPSSubsystem tpsSubsystem, String op, TokenRecord tokenRecord, String ip, String msg, String result) {
+            String op, TokenRecord tokenRecord, String ip, String msg, String result) {
         try {
-            tpsSubsystem.activityDatabase.log(
+            tps.activityDatabase.log(
                     ip,
                     (tokenRecord != null)? tokenRecord.getId():null,
                     op,
@@ -108,9 +118,9 @@ public class TPSTokendb {
      * tdbActivity logs token activities; This version is called by administrative functions
      */
     public void tdbActivity(
-            TPSSubsystem tpsSubsystem, String op, TokenRecord tokenRecord, String ip, String msg, String result, String uid) {
+            String op, TokenRecord tokenRecord, String ip, String msg, String result, String uid) {
         try {
-            tpsSubsystem.activityDatabase.log(
+            tps.activityDatabase.log(
                     ip,
                     (tokenRecord != null)? tokenRecord.getId():null,
                     op,
@@ -123,10 +133,10 @@ public class TPSTokendb {
         }
     }
 
-    public boolean isTokenPresent(TPSSubsystem tpsSubsystem, String cuid) {
+    public boolean isTokenPresent(String cuid) {
         boolean present = false;
         try {
-            tpsSubsystem.tokenDatabase.getRecord(cuid);
+            tps.tokenDatabase.getRecord(cuid);
             present = true;
         } catch (Exception e) {
             CMS.debug("TPSTokendb.isTokenPresent: token entry not found");
@@ -135,44 +145,127 @@ public class TPSTokendb {
         return present;
     }
 
-    public TokenRecord tdbGetTokenEntry(TPSSubsystem tpsSubsystem, String cuid)
+    public TokenRecord tdbGetTokenEntry(String cuid)
             throws Exception {
-        return tpsSubsystem.tokenDatabase.getRecord(cuid);
+        return tps.tokenDatabase.getRecord(cuid);
     }
 
-    public void tdbAddTokenEntry(TPSSubsystem tpsSubsystem, TokenRecord tokenRecord, String status)
+    /*
+     * tdbFindTokenRecordsByUID finds and returns token records belong to one user
+     * @param uid the uid of the owner to the token
+     * @return ArrayList of the token records
+     */
+    public ArrayList<TokenRecord> tdbFindTokenRecordsByUID(String uid)
+            throws Exception {
+        ArrayList<TokenRecord> tokenRecords = new ArrayList<TokenRecord>();
+        String filter = uid;
+        Iterator<TokenRecord> records = null;
+        records = tps.tokenDatabase.findRecords(filter).iterator();
+
+       while (records.hasNext()) {
+           TokenRecord tokenRecord = records.next();
+           tokenRecords.add(tokenRecord);
+       }
+
+       return tokenRecords;
+    }
+
+    public void tdbHasActiveToken(String userid)
+           throws Exception {
+        if (userid == null)
+            throw new Exception("TPSTokendb.tdbhasActiveToken: uerid null");
+
+        ArrayList<TokenRecord> tokens =
+                tdbFindTokenRecordsByUID(userid);
+        boolean foundActive = false;
+        for (TokenRecord tokenRecord:tokens) {
+            if (tokenRecord.getStatus().equals("active")) {
+                foundActive = true;
+            }
+        }
+        if (!foundActive) {
+            throw new Exception("TPSTokendb.tdbhasActiveToken: active token not found");
+        }
+    }
+
+    public void tdbAddTokenEntry(TokenRecord tokenRecord, String status)
             throws Exception {
         tokenRecord.setStatus(status);
 
-        tpsSubsystem.tokenDatabase.addRecord(tokenRecord.getId(), tokenRecord);
+        tps.tokenDatabase.addRecord(tokenRecord.getId(), tokenRecord);
     }
 
-    public void tdbUpdateTokenEntry(TPSSubsystem tpsSubsystem, TokenRecord tokenRecord)
+    public void tdbUpdateTokenEntry(TokenRecord tokenRecord)
             throws Exception {
         String id = tokenRecord.getId();
         TokenRecord existingTokenRecord;
         try {
-            existingTokenRecord = tpsSubsystem.tokenDatabase.getRecord(id);
+            existingTokenRecord = tps.tokenDatabase.getRecord(id);
         } catch (Exception e) {
             CMS.debug("TPSTokendb.tdbUpdateTokenEntry: token entry not found; Adding");
             // add and exit
-            tdbAddTokenEntry(tpsSubsystem, tokenRecord, tokenRecord.getStatus());
+            tdbAddTokenEntry(tokenRecord, "uninitialized");
             return;
         }
         // token found; modify
         CMS.debug("TPSTokendb.tdbUpdateTokenEntry: token entry found; Modifying with status: "+ tokenRecord.getStatus());
         // don't change the create time of an existing token record; put it back
         tokenRecord.setCreateTimestamp(existingTokenRecord.getCreateTimestamp());
-        tpsSubsystem.tokenDatabase.updateRecord(id, tokenRecord);
+        tps.tokenDatabase.updateRecord(id, tokenRecord);
     }
 
-    public void tdbUpdateCertificates(TPSSubsystem tpsSubsystem, String cuid, EnrolledCertsInfo certs)
-            throws Exception {
-        boolean tokenExist = isTokenPresent(tpsSubsystem, cuid);
+    /*
+     * tdbAddCertificatesForCUID adds certificates issued for the token CUID
+     * @param cuid the cuid of the token
+     * @param certs an ArrayList of TPSCertRecord
+     */
+    public void tdbAddCertificatesForCUID(String cuid, ArrayList<TPSCertRecord> certs)
+            throws TPSException {
+        boolean tokenExist = isTokenPresent(cuid);
         if (!tokenExist){
-            throw new Exception("TPSTokendb:tdbUpdateCertificates: token "+ cuid + " does not exist");
+            CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: token not found: "+ cuid);
+            throw new TPSException("TPSTokendb:tdbUpdateCertificates: token "+ cuid + " does not exist");
         }
 
+        CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: found token "+ cuid);
+        CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: number of certs to update:"+ certs.size());
+        try {
+            for (TPSCertRecord cert: certs) {
+                cert.setOrigin(cuid);
+                tps.certDatabase.addRecord(cert.getId(), cert);
+            }
+        } catch (Exception e) {
+            CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: "+ e);
+            // TODO: what if it throws in the middle of the cert list -- some cert records already updated?
+            throw new TPSException(e.getMessage());
+        }
+    }
 
+    /*
+     * tdbGetCertificatesByCUID finds and returns certificate records belong to a token cuid
+     * @param cuid the cuid of the token
+     * @return ArrayList of the cert records
+     */
+    public ArrayList<TPSCertRecord> tdbGetCertificatesByCUID(String cuid)
+            throws TPSException {
+        if (cuid == null)
+            throw new TPSException("TPSTokendb.tdbGetCertificatesByCUID: cuid null");
+
+        ArrayList<TPSCertRecord> certRecords = new ArrayList<TPSCertRecord>();
+        String filter = cuid;
+        Iterator<TPSCertRecord> records;
+        try {
+             records = tps.certDatabase.findRecords(filter).iterator();
+        } catch (Exception e) {
+            CMS.debug("TPSTokendb.tdbGetCertificatesByCUID:" + e);
+            throw new TPSException(e.getMessage());
+        }
+
+        while (records.hasNext()) {
+            TPSCertRecord certRecord = records.next();
+            certRecords.add(certRecord);
+        }
+
+        return certRecords;
     }
 }

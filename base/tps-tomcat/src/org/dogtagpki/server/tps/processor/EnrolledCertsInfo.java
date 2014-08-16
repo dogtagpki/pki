@@ -17,12 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps.processor;
 
+import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 import netscape.security.x509.X509CertImpl;
 
+import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
 import org.dogtagpki.tps.main.TPSBuffer;
+import org.dogtagpki.tps.main.Util;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 
 public class EnrolledCertsInfo {
 
@@ -144,6 +151,110 @@ public class EnrolledCertsInfo {
     public void setEndProgress(int endP) {
         endProgress = endP;
 
+    }
+
+    public ArrayList<TPSCertRecord> toTPSCertRecords(String cuid, String uid) {
+        ArrayList<TPSCertRecord> certs = new ArrayList<TPSCertRecord>();
+        CMS.debug("EnrolledCertsInfo.toTPSCertRecords: starts");
+        int index = 0;
+        for (X509CertImpl cert: certificates) {
+            TPSCertRecord certRecord = new TPSCertRecord();
+
+            //serial number
+            BigInteger serial_BigInt = cert.getSerialNumber();
+
+            String hexSerial = serial_BigInt.toString(16);
+            String serialNumber = "0x" + hexSerial;
+            certRecord.setSerialNumber(serialNumber);
+
+            //id - TODO - calculate the real id later
+            String id = serialNumber+":"+uid;
+
+            certRecord.setId(id);
+            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: converting cert:"+ certRecord.getId());
+
+            //token id
+            certRecord.setTokenID(cuid);
+            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: cuid =" + cuid);
+
+            //origin
+            if ((!origins.isEmpty()) && index <origins.size() && origins.get(index)!= null) {
+                certRecord.setOrigin(origins.get(index));
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: origin =" + origins.get(index));
+            } else {
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: origin not found for index:"+ index);
+            }
+
+            //user id
+            certRecord.setUserID(uid);
+            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: uid =" + uid);
+
+            //KeyType
+            if ((!ktypes.isEmpty()) && index <ktypes.size() && ktypes.get(index)!= null) {
+                certRecord.setKeyType(ktypes.get(index));
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: keyType =" + ktypes.get(index));
+            } else {
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: keyType not found for index:"+ index);
+            }
+
+            //token type
+            if ((!tokenTypes.isEmpty()) && index <tokenTypes.size() && tokenTypes.get(index)!= null) {
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: tokenType=" + tokenTypes.get(index));
+                certRecord.setType(tokenTypes.get(index));
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: tokenType set");
+            } else {
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: tokenType not found for index:"+ index);
+                //certRecord.setType("");
+            }
+
+            //Issuer
+            String issuedBy = cert.getIssuerDN().toString();
+            certRecord.setIssuedBy(issuedBy);
+            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: issuer ="+ issuedBy);
+
+            //Subject
+            String subject = cert.getSubjectDN().toString();
+            certRecord.setSubject(subject);
+            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: subject ="+ subject);
+
+            //NotBefore
+            certRecord.setValidNotBefore(cert.getNotBefore());
+            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: notBefore ="+ cert.getNotBefore().toString());
+
+            //NotAfter
+            certRecord.setValidNotAfter(cert.getNotAfter());
+            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: notAfter ="+ cert.getNotAfter().toString());
+
+            //status
+            certRecord.setStatus("active");
+
+            /* certificate
+            byte[] certBytes = null;
+            try {
+                certBytes = cert.getEncoded();
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: certBytes ="+ CMS.BtoA(certBytes));
+            } catch (CertificateEncodingException e) {
+                CMS.debug("EnrolledCertsInfo.toTPSCertRecord: "+ e);
+                //TODO: throw
+
+            }
+            certRecord.setCertificate(CMS.BtoA(certBytes));
+            */
+            // Alternative to the actual certificate -- certificate AKI
+            try {
+                String aki = Util.getCertAkiString(cert);
+                certRecord.setCertificate(aki);
+            } catch (EBaseException | IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            certs.add(certRecord);
+
+            index++;
+        }
+        CMS.debug("EnrolledCertsInfo.toTPSCertRecords: ends");
+        return certs;
     }
 
 }

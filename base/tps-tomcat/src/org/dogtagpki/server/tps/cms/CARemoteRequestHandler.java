@@ -24,11 +24,7 @@ import java.security.cert.CertificateException;
 import java.util.Hashtable;
 import java.util.List;
 
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
 import netscape.security.x509.RevocationReason;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
 import netscape.security.x509.X509CertImpl;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
@@ -316,11 +312,11 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
      * @returns CARevokeCertResponse
      */
     private CARevokeCertResponse revokeCertificate(
-            BigInteger serialno,
+            String serialno,
             RevocationReason reason)
             throws EBaseException {
 
-        CMS.debug("CARemoteRequestHandler: revokeCertificate(): begins.");
+        CMS.debug("CARemoteRequestHandler: revokeCertificate(): begins on serial#:"+ serialno);
         if (serialno == null || reason == null) {
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter null.");
         }
@@ -337,7 +333,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                         IRemoteRequest.CA_OP + "=" + IRemoteRequest.CA_REVOKE +
                                 "&" + IRemoteRequest.CA_REVOCATION_REASON + "=" + reason.getCode() +
                                 "&" + IRemoteRequest.CA_REVOKE_ALL + "=(" +
-                                IRemoteRequest.CA_REVOKE_SERIAL + "=" + serialno.toString() + ")&" +
+                                IRemoteRequest.CA_REVOKE_SERIAL + "=" + serialno + ")&" +
                                 IRemoteRequest.CA_REVOKE_COUNT + "=1");
         String content = resp.getContent();
 
@@ -386,10 +382,10 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
      * @returns CARevokeCertResponse
      */
     private CARevokeCertResponse unrevokeCertificate(
-            BigInteger serialno)
+            String serialno)
             throws EBaseException {
 
-        CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): begins.");
+        CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): begins on serial#:"+ serialno);
         if (serialno == null) {
             throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate(): input parameter null.");
         }
@@ -401,7 +397,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): sending request to CA");
         HttpResponse resp =
                 conn.send("unrevoke",
-                        IRemoteRequest.CA_UNREVOKE_SERIAL + "=" + serialno.toString());
+                        IRemoteRequest.CA_UNREVOKE_SERIAL + "=" + serialno);
         String content = resp.getContent();
 
         CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): got content = " + content);
@@ -450,17 +446,36 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
      * @param cert cert to (un)revoke
      * @param serialno parameter for the (Un)RevokeCertificate() functions
      * @param reason RevocationReason for the base revokeCertificate() function
+     * @throws IOException
      */
+    @SuppressWarnings("unused")
     private CARevokeCertResponse revokeFromOtherCA(
             boolean revoke, // true==revoke; false==unrevoke
             X509CertImpl cert,
             RevocationReason reason)
-            throws EBaseException {
-
-        CMS.debug("CARemoteRequestHandler: revokeFromOtherCA: begins");
+            throws EBaseException, IOException {
         if (cert == null) {
             throw new EBaseException("CARemoteRequestHandler: revokeFromOtherCA(): input parameter cert null.");
         }
+        String certAkiString = null;
+        try {
+            certAkiString = Util.getCertAkiString(cert);
+        } catch (Exception e) {
+            throw new EBaseException("CARemoteRequestHandler: revokeFromOtherCA(): getCertAkiString failed:" + e);
+        }
+        return revokeFromOtherCA(revoke, cert.getSerialNumber().toString(), certAkiString, reason);
+    }
+
+
+    private CARevokeCertResponse revokeFromOtherCA(
+            boolean revoke, // true==revoke; false==unrevoke
+            String serialno,
+            String certAkiString,
+            RevocationReason reason)
+            throws EBaseException {
+
+
+        CMS.debug("CARemoteRequestHandler: revokeFromOtherCA: begins");
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -468,12 +483,6 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 subsystem.getConnectionManager().getCAList();
 
         Exception exception = null;
-        String certAkiString = null;
-        try {
-            certAkiString = getCertAkiString(cert);
-        } catch (Exception e) {
-            exception = e;
-        }
 
         for (String ca : caList) {
             try {
@@ -481,9 +490,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 if (certAkiString.equals(caSkiString)) {
                     CMS.debug("CARemoteRequestHandler: revokeFromOtherCA() cert AKI and caCert SKI matched");
                     if (revoke) {
-                        return revokeCertificate(cert.getSerialNumber(), reason);
+                        return revokeCertificate(serialno, reason);
                     } else {
-                        return unrevokeCertificate(cert.getSerialNumber());
+                        return unrevokeCertificate(serialno);
                     }
                 } else { // not a match then iterate to next ca in list
                     CMS.debug("CARemoteRequestHandler: revokeFromOtherCA() cert AKI and caCert SKI not matched");
@@ -526,7 +535,6 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
          * config store. If not, put it in, so we don't have to
          * calculate that every time.
          */
-        String caSKI = null;
         try {
             String configName = "tps.connector." + conn + ".caSKI";
             CMS.debug("CARemoteRequestHandler: getCaSki() retriving configName=" + configName);
@@ -548,7 +556,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 X509Certificate c = cm.findCertByNickname(caNickname);
                 X509CertImpl caCert = new X509CertImpl(c.getEncoded());
                 // now retrieve caSKI and store in config
-                caSkiString = getCertSkiString(caCert);
+                caSkiString = Util.getCertSkiString(caCert);
                 CMS.debug("CARemoteRequestHandler: getCaSki() caSKI calculated. Saving it.");
                 conf.putString("tps.connector." + conn + ".caSKI", caSkiString);
                 conf.commit(false);
@@ -577,31 +585,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         return caSkiString;
     }
 
-    private String getCertAkiString(X509CertImpl cert)
-            throws EBaseException, IOException {
-        if (cert == null) {
-            throw new EBaseException("CARemoteRequestHandler: getCertAkiString(): input parameter cert null.");
-        }
-        AuthorityKeyIdentifierExtension certAKI =
-                (AuthorityKeyIdentifierExtension)
-                cert.getExtension(PKIXExtensions.AuthorityKey_Id.toString());
-        KeyIdentifier kid =
-                (KeyIdentifier) certAKI.get(AuthorityKeyIdentifierExtension.KEY_ID);
-        return (CMS.BtoA(kid.getIdentifier()).trim());
-    }
 
-    private String getCertSkiString(X509CertImpl cert)
-            throws EBaseException, IOException {
-        if (cert == null) {
-            throw new EBaseException("CARemoteRequestHandler: getCertSkiString(): input parameter cert null.");
-        }
-        SubjectKeyIdentifierExtension certSKI =
-                (SubjectKeyIdentifierExtension)
-                cert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
-        KeyIdentifier kid =
-                (KeyIdentifier) certSKI.get(SubjectKeyIdentifierExtension.KEY_ID);
-        return (CMS.BtoA(kid.getIdentifier()).trim());
-    }
 
     /**
      * revokeCertificate() supports revocation routing by providing
@@ -624,11 +608,28 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             X509CertImpl cert,
             RevocationReason reason)
             throws EBaseException {
-
-        CMS.debug("CARemoteRequestHandler: revokeCertificate() begins with CA discovery");
         if (cert == null) {
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter cert null.");
         }
+        String certAkiString = null;
+        try {
+            certAkiString = Util.getCertAkiString(cert);
+        } catch (IOException e) {
+            throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): getCertAkiString failed:" + e);
+        }
+
+        return revokeCertificate(revoke, cert.getSerialNumber().toString(), certAkiString, reason);
+    }
+
+    public CARevokeCertResponse revokeCertificate(
+            boolean revoke, // true==revoke; false==unrevoke
+            String serialno,
+            String certAkiString,
+            RevocationReason reason)
+            throws EBaseException {
+
+        CMS.debug("CARemoteRequestHandler: revokeCertificate() begins with CA discovery");
+
         if (revoke == true && reason == null) {
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter reason null.");
         }
@@ -636,11 +637,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         boolean skipMatch = false;
 
         String caSkiString = null;
-        String certAkiString = null;
 
         try {
             caSkiString = getCaSki(connid);
-            certAkiString = getCertAkiString(cert);
         } catch (Exception e) {
             CMS.debug("CARemoteRequestHandler: revokeCertificate() exception:" + e);
             skipMatch = true;
@@ -654,19 +653,19 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             if (certAkiString.equals(caSkiString)) {
                 CMS.debug("CARemoteRequestHandler: revokeCertificate() cert AKI and caCert SKI matched");
                 if (revoke) {
-                    return revokeCertificate(cert.getSerialNumber(), reason);
+                    return revokeCertificate(serialno, reason);
                 } else {
-                    return unrevokeCertificate(cert.getSerialNumber());
+                    return unrevokeCertificate(serialno);
                 }
             } else {
                 CMS.debug("CARemoteRequestHandler: revokeCertificate() cert AKI and caCert SKI of the designated issuing ca do not match...calling revokeFromOtherCA to search for another ca");
-                return revokeFromOtherCA(revoke, cert, reason);
+                return revokeFromOtherCA(revoke, serialno, certAkiString, reason);
             }
         } else {
             if (revoke) {
-                return revokeCertificate(cert.getSerialNumber(), reason);
+                return revokeCertificate(serialno, reason);
             } else {
-                return unrevokeCertificate(cert.getSerialNumber());
+                return unrevokeCertificate(serialno);
             }
         }
     }

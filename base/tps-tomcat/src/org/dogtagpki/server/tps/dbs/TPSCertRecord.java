@@ -58,6 +58,7 @@ public class TPSCertRecord extends DBRecord {
         this.id = id;
     }
 
+    // the serial number is in HEX
     @DBAttribute("tokenSerial")
     public String getSerialNumber() {
         return serialNumber;
@@ -113,10 +114,12 @@ public class TPSCertRecord extends DBRecord {
     }
 
     @DBAttribute("userCertificate")
+    // Alternative to the actual certificate -- certificate AKI
     public String getCertificate() {
         return certificate;
     }
 
+    // Alternative to the actual certificate -- certificate AKI
     public void setCertificate(String certificate) {
         this.certificate = certificate;
     }

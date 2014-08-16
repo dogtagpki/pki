@@ -35,6 +35,7 @@ auths.impl.UidPwdPinDirAuth.class=com.netscape.cms.authentication.UidPwdPinDirAu
 auths.instance.AgentCertAuth.agentGroup=Certificate Manager Agents
 auths.instance.AgentCertAuth.pluginName=AgentCertAuth
 auths.instance.TokenAuth.pluginName=TokenAuth
+auths.instance.ldap1.authCredName=uid
 auths.instance.ldap1.ui.retries=3
 auths.instance.ldap1.ui.title.en=LDAP Authentication
 auths.instance.ldap1.ui.description.en=This authenticates user against the LDAP directory.
@@ -1302,7 +1303,7 @@ tokendb.bindPassPath=[PKI_INSTANCE_PATH]/conf/password.conf
 tokendb.certBaseDN=ou=Certificates,[TOKENDB_ROOT]
 tokendb.confirmConfigChangesTemplate=confirmConfigChanges.template
 tokendb.confirmDeleteConfigTemplate=confirmDeleteConfig.template
-tokendb.defaultPolicy=RE_ENROLL=YES
+tokendb.defaultPolicy=RE_ENROLL=YES;RENEW=NO;FORCE_FORMAT=NO;PIN_RESET=NO;RESET_PIN_RESET_TO_NO=NO
 tokendb.deleteResultTemplate=deleteResults.template
 tokendb.deleteTemplate=delete.template
 tokendb.doTokenConfirmTemplate=doTokenConfirm.template

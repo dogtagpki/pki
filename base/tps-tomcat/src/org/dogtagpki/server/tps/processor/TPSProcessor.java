@@ -19,25 +19,32 @@ package org.dogtagpki.server.tps.processor;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import netscape.security.x509.RevocationReason;
+
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
 import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
+import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
+import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.cms.TKSComputeRandomDataResponse;
 import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
 import org.dogtagpki.server.tps.cms.TKSEncryptDataResponse;
 import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
+import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.profile.BaseTokenProfileResolver;
@@ -904,33 +911,19 @@ public class TPSProcessor {
     }
 
     /*
-     * createTokenRecord -
+     * fillTokenRecord -
      *     - retrieves token record from tokendb if it exists, or
      *     - creates a new token record
-     *     - sets the isTokenPresent to true if token found in tokendb
      *     this in-memory copy of tokenRecord is to be set in the TPSSession
      */
-    protected TokenRecord createTokenRecord(boolean isTokenPresent, AppletInfo appletInfo)
+    protected void fillTokenRecord(TokenRecord tokenRecord, AppletInfo appletInfo)
             throws TPSException {
-        CMS.debug("TPSProcessor.createTokenRecord: begins");
-        if (appletInfo == null) {
-            CMS.debug("TPSProcessor.createTokenRecord: param appletInfo cannot be null");
+        String method = "TPSProcessor.fillTokenRecord";
+        CMS.debug(method + ": begins");
+        if (tokenRecord == null || appletInfo == null) {
+            CMS.debug(method + ": params tokenRecord and appletInfo cannot be null");
             throw new TPSException(
-                    "TPSProcessor.requestExtendedLogin: missing parameter(s): parameter appletInfo");
-        }
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-        TokenRecord tokenRecord = null;
-
-        try {
-            TokenRecord gotToken = tps.tdb.tdbGetTokenEntry(tps, appletInfo.getCUIDhexStringPlain());
-            // now the in memory tokenRecord is replaced by the actual token data
-            tokenRecord = gotToken;
-            CMS.debug("TPSProcessor.createTokenRecord: found token...");
-            isTokenPresent = true;
-        } catch (Exception e) {
-            CMS.debug("TPSProcessor.createTokenRecord: token does not exist...");
-            tokenRecord = new TokenRecord();
-            tokenRecord.setId(appletInfo.getCUIDhexStringPlain());
+                    method + ": missing parameter(s): parameter appletInfo");
         }
 
         byte app_major_version = appletInfo.getAppMajorVersion();
@@ -939,7 +932,7 @@ public class TPSProcessor {
         try {
             build_id = getAppletVersion();
         } catch (IOException e) {
-            CMS.debug("TPSProcessor.createTokenRecord: failed getting applet version:" + e + " ... continue");
+            CMS.debug(method + ": failed getting applet version:" + e + " ... continue");
         }
         if (build_id != null) {
             tokenRecord.setAppletID(Integer.toHexString(app_major_version) + "."
@@ -947,10 +940,208 @@ public class TPSProcessor {
                     build_id.toHexStringPlain());
         }
 
-        CMS.debug("TPSProcessor.createTokenRecord: ends");
+        CMS.debug(method + ": ends");
 
-        return tokenRecord;
     }
+
+    protected String getCAConnectorID() throws TPSException {
+        IConfigStore configStore = CMS.getConfigStore();
+        String id = null;
+
+        String config = "op." + currentTokenOperation + "." + selectedTokenType + ".ca.conn";
+
+        try {
+            id = configStore.getString(config, "ca1");
+        } catch (EBaseException e) {
+            throw new TPSException("TPSProcessor.getCAConnectorID: Internal error finding config value.");
+
+        }
+
+        CMS.debug("TPSProcessor.getCAConectorID: returning: " + id);
+
+        return id;
+    }
+
+    /*
+     * revokeCertificates revokes certificates on the token specified
+     * @param cuid the cuid of the token to revoke certificates
+     * @return auditMsg captures the audit message
+     * @throws TPSException in case of error
+     */
+    protected void revokeCertificates(String cuid) throws TPSException {
+        String auditMsg = "";
+        final String method = "TPSProcessor.revokeCertificates";
+
+        //bail out if not configured to revoke cert
+        IConfigStore configStore = CMS.getConfigStore();
+        String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert";
+        boolean revokeCert = false;
+        try {
+            revokeCert = configStore.getBoolean(configName, false);
+        } catch (EBaseException e) {
+            auditMsg = method + ": config not found: "+ configName +
+                    "; default to false";
+            CMS.debug(auditMsg);
+            return;
+        }
+        if (!revokeCert) {
+            auditMsg = method + ":  revokeCert = false";
+            CMS.debug(auditMsg);
+            return;
+        }
+
+        if (cuid == null) {
+            auditMsg = "cuid null";
+            CMS.debug(method + ":" + auditMsg);
+            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+        }
+        CMS.debug(method + ": begins for cuid:" + cuid);
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        boolean isTokenPresent = tps.tdb.isTokenPresent(cuid);
+        if (!isTokenPresent) {
+            auditMsg = method + ": token not found: "+ cuid;
+            CMS.debug(auditMsg);
+            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+        }
+
+        String caConnId = getCAConnectorID();
+        CARemoteRequestHandler caRH = null;
+        try {
+            caRH = new CARemoteRequestHandler(caConnId);
+        } catch (EBaseException e) {
+            auditMsg = method + ": getting CARemoteRequestHandler failure";
+            CMS.debug(auditMsg);
+            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+        }
+        //find all certs belonging to the token
+        ArrayList<TPSCertRecord> certRecords = tps.tdb.tdbGetCertificatesByCUID(cuid);
+
+        CMS.debug(method + ": found " + certRecords.size() + " certs");
+
+        for (TPSCertRecord cert:certRecords) {
+            if (cert.getStatus().equals("revoked")) {
+                // already revoked cert should not be on token any more
+                CMS.debug(method + ": cert " + cert.getSerialNumber()
+                        + " already revoked; remove from tokendb and move on");
+                try {
+                    tps.certDatabase.removeRecord(cert.getId());
+                } catch (Exception e) {
+                    auditMsg = method + ": removeRecord failed";
+                    CMS.debug(auditMsg);
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                }
+                continue;
+            }
+
+            String origin = cert.getOrigin();
+            if (origin!= null && !origin.equals(cuid)) {
+                /*
+                 * Raidzilla Bug #57803:
+                 * If the certificate is not originally created for this
+                 * token, we should not revoke the certificate here.
+                 * To figure out if this certificate is originally created
+                 * for this token, we check the tokenOrigin attribute.
+                 */
+                CMS.debug(method + ": cert " + cert.getSerialNumber()
+                        + " originally created for this token: "+ origin +
+                        " while current token: " + cuid
+                        + "; Remove from tokendb and skip the revoke");
+                try {
+                    tps.certDatabase.removeRecord(cert.getId());
+                } catch (Exception e) {
+                    auditMsg = method + ": removeRecord failed";
+                    CMS.debug(auditMsg);
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                }
+                continue;
+            }
+            if (origin == null) {
+                // no tokenOrigin, then don't care, keep going
+                CMS.debug(method + ": tokenOrigin is not present in tokendb cert record");
+            }
+
+            // revoke the cert
+            /*
+             * if the certificates are revoked_on_hold, don't do anything because the certificates may
+             * be referenced by more than one token.
+             */
+            if (cert.getStatus().equals("revoked_on_hold")) {
+                CMS.debug(method + ": cert " + cert.getSerialNumber()
+                        + " has status revoked_on_hold; remove from tokendb and move on");
+                try {
+                    tps.certDatabase.removeRecord(cert.getId());
+                } catch (Exception e) {
+                    auditMsg = method + ": removeRecord failed";
+                    CMS.debug(auditMsg);
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                }
+                continue;
+            }
+            configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.revokeReason";
+            RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
+            try {
+                int revokeReasonInt = configStore.getInteger(configName);
+                revokeReason = RevocationReason.fromInt(revokeReasonInt);
+            } catch (EBaseException e) {
+                auditMsg = method + ": config not found: " + configName +
+                        "; default to unspecified";
+                CMS.debug(auditMsg);
+                revokeReason = RevocationReason.UNSPECIFIED;
+            }
+            String hexSerial = cert.getSerialNumber();
+            if (hexSerial.length() >= 3 && hexSerial.startsWith("0x")) {
+                String serial = hexSerial.substring(2); // skip over the '0x'
+                BigInteger bInt = new BigInteger(serial, 16);
+                String serialStr = bInt.toString();
+                CMS.debug(method + ": found cert hex serial: " + serial +
+                        " dec serial:" + serialStr);
+                try {
+                    CARevokeCertResponse response =
+                            caRH.revokeCertificate(true, serialStr, cert.getCertificate(),
+                                    revokeReason);
+                    CMS.debug(method + ": response status =" + response.getStatus());
+                } catch (EBaseException e) {
+                    auditMsg = method + ": revokeCertificate from CA failed:" + e;
+                    CMS.debug(auditMsg);
+
+                    if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
+                        tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(),
+                                session.getIpAddress(), auditMsg,
+                                "failure");
+                    } else {
+                        tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(),
+                                session.getIpAddress(), auditMsg,
+                                "failure");
+                    }
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                }
+            } else {
+                auditMsg = "mulformed hex serial number :" + hexSerial;
+                CMS.debug(method + ": " + auditMsg);
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(), session.getIpAddress(),
+                        auditMsg,
+                        "failure");
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+            }
+            auditMsg = "Certificate " + hexSerial + " revoked";
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(), session.getIpAddress(), auditMsg,
+                    "success");
+
+            // delete cert from tokendb
+            CMS.debug(method + ": cert " + cert.getSerialNumber()
+                    + ": remove from tokendb");
+            try {
+                tps.certDatabase.removeRecord(cert.getId());
+            } catch (Exception e) {
+                auditMsg =  "removeRecord failed:" + e;
+                CMS.debug(method + ": " + auditMsg);
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
+            }
+            continue;
+        }
+        CMS.debug(method + ": done for cuid:" + cuid);
+    }
+
 
     protected void format(boolean skipAuth) throws TPSException, IOException {
 
@@ -966,14 +1157,14 @@ public class TPSProcessor {
             appletInfo = getAppletInfo();
         } catch (TPSException e) {
             auditMsg = e.toString();
-            tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
-                    auditMsg, "failure");
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                    "failure");
 
             throw e;
         }
         appletInfo.setAid(getCardManagerAID());
         boolean isTokenPresent = false;
-        tokenRecord = createTokenRecord(isTokenPresent, appletInfo);
+        fillTokenRecord(tokenRecord, appletInfo);
         session.setTokenRecord(tokenRecord);
 
         String cuid = appletInfo.getCUIDhexString();
@@ -1008,8 +1199,8 @@ public class TPSProcessor {
                 tokenType = resolveTokenProfile(resolverInstName, cuid, msn, major_version, minor_version);
             } catch (TPSException e) {
                 auditMsg = e.toString();
-                tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
-                        auditMsg, "failure");
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
 
                 throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
@@ -1028,8 +1219,8 @@ public class TPSProcessor {
             } catch (EBaseException e) {
                 CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
                 auditMsg = "TPS error getting config values from config store." + e.toString();
-                tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
-                        auditMsg, "failure");
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
 
                 throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
@@ -1053,8 +1244,8 @@ public class TPSProcessor {
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
                     auditMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
 
-                    tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
-                            auditMsg, "failure");
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                            "failure");
 
                     throw new TPSException(auditMsg,
                             TPSStatus.STATUS_ERROR_LOGIN);
@@ -1083,8 +1274,8 @@ public class TPSProcessor {
                         " Disabled, illegal transition attempted " + tokenRecord.getTokenStatus() +
                         " to " + newState;
 
-                tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
-                        auditMsg, "failure");
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
 
                 throw new TPSException(auditMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
@@ -1137,25 +1328,34 @@ public class TPSProcessor {
         channel.externalAuthenticate();
         tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
 
+       if (isTokenPresent) {
+            // Revoke certificates on token, if so configured
+            try {
+                revokeCertificates(tokenRecord.getId());
+            } catch (TPSException te) {
+                // failed revocation; capture message and continue
+                auditMsg = te.getMessage();
+            }
+        }
+
         // Update Token DB
         try {
-            tps.tdb.tdbUpdateTokenEntry(tps, tokenRecord);
+            tps.tdb.tdbUpdateTokenEntry(tokenRecord);
             String successMsg = "update token success";
-            tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
-                    successMsg, "success");
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), successMsg,
+                    "success");
         } catch (Exception e) {
             String failMsg = "update token failure";
             auditMsg = failMsg + ":" + e.toString();
-            tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(),
-                    failMsg, "failure");
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), failMsg,
+                    "failure");
 
             throw new TPSException(auditMsg);
         }
 
-        // ToDo:  Revoke certificates
         auditMsg = "format operation succeeded";
 
-        tps.tdb.tdbActivity(tps, ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg, "success");
+        tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg, "success");
 
         CMS.debug("TPSProcessor.format:: ends");
 
@@ -1229,7 +1429,6 @@ public class TPSProcessor {
 
         CMS.debug("TPSProcessor.getResolverInstanceName: returning: " + resolverInstName);
 
-        // TODO Auto-generated method stub
         return resolverInstName;
     }
 
@@ -2106,10 +2305,10 @@ public class TPSProcessor {
             String key = entry.getKey();
 
             String value = entry.getValue();
-            CMS.debug("TPSEnrollProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
+            CMS.debug("TPSProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
 
             if (key.equals(patternToMap)) {
-                CMS.debug("TPSEnrollProcessor.mapPattern: found match: key: " + key + " mapped to: " + value);
+                CMS.debug("TPSProcessor.mapPattern: found match: key: " + key + " mapped to: " + value);
                 patternMapped = value;
                 break;
             }
@@ -2118,7 +2317,7 @@ public class TPSProcessor {
 
         result = piece1 + patternMapped + piece2;
 
-        CMS.debug("TPSEnrollProcessor.mapPattern: returning: " + result);
+        CMS.debug("TPSProcessor.mapPattern: returning: " + result);
         return result;
 
     }
