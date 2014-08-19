@@ -18,7 +18,6 @@
 
 <SCRIPT type="text/JavaScript">
 function myOnLoad() {
-  setURL();
 }
 
 function performPanel() {

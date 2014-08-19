@@ -116,7 +116,6 @@ table.list-pagination {
 	padding-top: 0;
 }
 .list-channel li li {
-	list-style-image: url("/img/branch.gif");
 	margin-left: 2.5em;
 }
 
@@ -155,7 +154,7 @@ a[name]:hover {
 }
 
 .tab-row td {
-	background: #fff url("/img/tab-bar-top.gif") repeat-x bottom;
+	background: #fff;
 }
 
 hr {

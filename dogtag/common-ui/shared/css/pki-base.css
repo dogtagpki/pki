@@ -88,7 +88,7 @@ img {
 }
 
 .bar-undertabs div {
-	background: #900 url("/img/tab-bar.gif") repeat-x bottom;
+	background: #900;
         height: 11px;
         font-size: 1px;
         margin: 0;

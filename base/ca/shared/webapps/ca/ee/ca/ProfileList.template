@@ -26,6 +26,7 @@
 $(function() {
     $.i18n.properties({
         name: 'ProfileList',
+        language: ' ', // suppress potential 404's due to .i18n.browserLang()
         path: '/pki/ca/ee/',
         mode: 'map',
         callback: function() {

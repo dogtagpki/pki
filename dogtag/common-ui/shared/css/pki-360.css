@@ -38,7 +38,7 @@ body {
 	padding: 0;
 	color: #333;
 	text-align: center;
-	background: #fff url(/img/bkgrnd_greydots.png) repeat;
+	background: #fff;
 	font-family: "Luxi Sans", "Bitstream Vera Sans", "Lucida Grande", "Trebuchet MS", helvetica, verdana, arial, sans-serif;
 	}
 	
@@ -133,7 +133,6 @@ img#pkiLogo {
 	float: left;
 	width: 66px;
 	height: 1.1em;
-	background: url(/img/account_loggedin.gif) 100% 100% no-repeat;
 	}
 	
 #account dd {	/* note changes to dl, dt and dd   */
@@ -150,7 +149,6 @@ img#pkiLogo {
 #account p a {
 	width: 56px;
 	height: 1.1em;
-	background: url(/img/account_signout.gif) 100% 100% no-repeat;
 	display: block;
 	}
 	
@@ -179,11 +177,10 @@ img#pkiLogo {
 #systembar {
 	float: right;
 	width: 34%;
-	background: #e6e6e6 url(/img/greybar_tr.gif) 100% 0 no-repeat;
+	background: #e6e6e6;
 	}
 	
 #systembarinner {
-	background: url(/img/greybar_br.gif) 100% 100% no-repeat;
 	height: 2.8em;
 	/* text-align: center; */
 	text-align: right;
@@ -199,12 +196,11 @@ img#pkiLogo {
 #searchbar {
 	float: left;
 	width: 66%;
-	background: #e6e6e6 url(/img/greybar_tl.gif) 0 0 no-repeat;
+	background: #e6e6e6;
 	}
 	
 #searchbarinner {
 	padding-left: 10px;
-	background: url(/img/greybar_bl.gif) 0 100% no-repeat;
 	height: 2.8em;
 	/*
 	text-align: left;
@@ -226,9 +222,6 @@ img#pkiLogo {
 #sidenav {	/* for ie55  */
 	width: 132px;
 	background-color: #999;
-	background-image: url(/img/corner_sidenav_top.gif);
-	background-position: top right;
-	background-repeat: no-repeat;
 	font-family: "Luxi Sans", verdana, arial, sans-serif;	
 	font-size: xx-small;
     /* false value for WinIE4/5 */
@@ -243,9 +236,6 @@ img#pkiLogo {
 
 	
 #sidenav ul {
-	background-image: url(/img/corner_sidenav_bottom.gif);
-	background-position: bottom left;
-	background-repeat: no-repeat;
 	list-style: none;
 	padding: 10px 0 10px 0;
 	margin: 0;
@@ -320,7 +310,6 @@ img#pkiLogo {
 /* The following styles establish the legend boxes in the left sidebar */
 .sideleg {
 	width: 132px;
-	background: url(/img/sidelegend_top.gif) 0 0 no-repeat;
 	padding-top: 9px;
 	margin-top: 1em;
 	}
@@ -339,7 +328,6 @@ img#pkiLogo {
 	padding: 0 0 9px 0 ;
 	margin: 0;
 	list-style: none;
-	background: url(/img/sidelegend_bottom.gif) 0 100% no-repeat;
 	}
 	
 .sideleg ul li {
@@ -398,7 +386,7 @@ th {
 
 /* -- YOUR PKI stuff -- */
 table.half-table {
-	background: #b4b19a url(/img/table_corner_tr.gif) 100% 0 no-repeat;
+	background: #b4b19a;
 	padding: 0px;
 	margin: 0px;
 	}
@@ -418,7 +406,6 @@ table.your-pki table.full-table td {
 }
 
 table.half-table thead th:first-child { 
-	background: url(/img/table_corner_tl.gif) top left no-repeat;
 	}
 
 
@@ -427,7 +414,7 @@ table.half-table thead th:first-child {
 /* -- General list stuff -- */
 table.list {
 	font-size: 10px;
-	background: #b4b19a url(/img/table_corner_tr.gif) top right no-repeat;
+	background: #b4b19a;
 	border-bottom: 1px solid #b4b19a;
 }
 
@@ -438,7 +425,6 @@ table.list {
 
 
 table.list thead th:first-child {
-	background: url(/img/table_corner_tl.gif) top left no-repeat;
 	}
 
 table.list-pagination {
@@ -567,24 +553,15 @@ tr.table-tree-odd + tr.table-tree-odd td {
 }
 
 h1#pki_welcome {
-	background-image: url(/img/pki_welcome.gif);
-	background-position: 0 0;
-	background-repeat: no-repeat;
 	padding-bottom: 5px;
 	height: 20px;
 	}
 	
 h1#pki_welcome2 {
-	background-image: url(/img/pki_welcome2.gif);
-	background-position: 0 0;
-	background-repeat: no-repeat;
 	height: 37px;
 	}
 	
 h1#pki_welcome3 {
-	background-image: url(/img/pki_welcome3.gif);
-	background-position: 0 0;
-	background-repeat: no-repeat;
 	height: 40px;
 	}
 	
@@ -607,9 +584,6 @@ ul.linkage {
 	}
 	
 ul.linkage li{
-	background-image: url(/img/bullet_arrowblue.png);
-	background-repeat: no-repeat;
-	background-position: 0 .4em;
 	padding-left: 10px;
 	margin: .4em 0;
 	}
@@ -627,7 +601,6 @@ ul.linkage li{
  
  .clearBox {
  	width: 279px;
- 	background: url(/img/corner_halflinebox_top.png) top right no-repeat;
  	}
  	
  .clearBox {
@@ -636,7 +609,6 @@ ul.linkage li{
  	}
  	
  .clearBoxInner {
- 	background: url(/img/corner_halflinebox_bottom.png) bottom left no-repeat;
  	}
  	
  .clearBoxInner {
@@ -761,7 +733,6 @@ ul.content-nav-rowone li a, ul.content-nav-rowthree li a {
 	}
 		
 ul.content-nav-rowtwo {
-	background: url(/img/contentnav_rowtwo_b.gif) bottom left no-repeat;
 	padding-bottom: 6px;
 	margin-right: 8px;
 	}
@@ -777,36 +748,30 @@ a.content-nav-selected-link {
 	}
 		
 ul.content-nav-rowone li.content-nav-selected {
-	background: url(/img/contentnav_tabr.gif) top right no-repeat;
 	}
 		
 ul.content-nav-rowone a.content-nav-selected-link {
-	background: url(/img/contentnav_tabl.gif) top left no-repeat;
 	}
 		
 ul.content-nav-rowthree li.content-nav-selected {
-	background: url(/img/contentnav_tabr.gif) bottom right no-repeat;
 	}
 		
 ul.content-nav-rowthree a.content-nav-selected-link {
-	background: url(/img/contentnav_tabl.gif) bottom left no-repeat;
 	}
 		
 div.contentnav-row2 {
-	background: #e6e6e6 url(/img/contentnav_rowtwo_t.gif) top left no-repeat;
+	background: #e6e6e6;
 	padding: 0px;
 	clear: left;
 	}
 		
 div.contentnav-row2 div.top {
-	background: url(/img/contentnav_rowtwo_t.gif) top right no-repeat;
 	margin-left: 8px;
 	height: 6px;
 	font-size: 0;
 	}
 		
 div.contentnav-row2 div.bottom {
-	background: url(/img/contentnav_rowtwo_b.gif) bottom right no-repeat;
 	}
 		
 /* CONTENTNAV - end */
@@ -818,9 +783,6 @@ div.contentnav-row2 div.bottom {
 	
 #mainNavOuter {
 	width: 100%;
-	background-image: url(/img/corner_mainnav_bottom_chopped.png);
-	background-position: bottom right;
-	background-repeat: no-repeat;
 	background-color: #4f52b5;
 	}
 	
@@ -850,18 +812,12 @@ div.contentnav-row2 div.bottom {
 #mainNavInner {
 	width: 100%;
 	height: 7px;
-	background-image: url(/img/corner_mainnav_top_chopped.png);
-	background-position: top right;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav ul {
 	padding: 0;
 	margin: 0;
 	list-style-type: none;
-	background-image: url(/img/corner_mainnav_tl.png);
-	background-position: top left;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav ul li {
@@ -881,52 +837,28 @@ div.contentnav-row2 div.bottom {
 
 /* special casing for left-most top tab */
 #mainNav ul li a.mainFirstLink {
-	background-image: url(/img/corner_mainnav_tl.png);
-	background-position: top left;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav li#mainFirst-active a.mainFirstLink {
-	background-image: url(/img/corner_mainnav_tl_hi.png);
-	background-position: top left;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav ul li#mainFirst {
-	background-image: url(/img/corner_mainnav_bl.png);
-	background-position: bottom left;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav li#mainFirst-active {
-	background-image: url(/img/corner_mainnav_bl_hi.png);
-	background-position: bottom left;
-	background-repeat: no-repeat;
 	}
 
 /* special casing for right-most top tab */	
 #mainNav ul li a.mainLastLink {
-	background-image: url(/img/corner_mainnav_tr.png);
-	background-position: top right;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav li#mainLast-active a.mainLastLink {
-	background-image: url(/img/corner_mainnav_tr_hi.png);
-	background-position: top right;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav ul li#mainLast {
-	background-image: url(/img/corner_mainnav_br.png);
-	background-position: bottom right;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav li#mainLast-active {
-	background-image: url(/img/corner_mainnav_br_hi.png);
-	background-position: bottom right;
-	background-repeat: no-repeat;
 	}
 	
 #mainNav ul li a {
