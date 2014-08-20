@@ -206,9 +206,16 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: retrieveCertificate(): input parameter null.");
         }
 
+        //ToDo: I"m not sure why these are not used, let's check this out.
+        //It's working though.
+
+        /*
         IConfigStore conf = CMS.getConfigStore();
         String configName = "tps.connector." + connid + ".uri.getBySerial";
         String servlet = conf.getString(configName, "/ca/ee/ca/displayBySerial");
+        */
+
+
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =

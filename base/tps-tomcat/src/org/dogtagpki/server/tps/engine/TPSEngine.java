@@ -17,11 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps.engine;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+
+import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
+import org.dogtagpki.server.tps.cms.CARenewCertResponse;
+import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
+import org.dogtagpki.server.tps.cms.KRARecoverKeyResponse;
 import org.dogtagpki.server.tps.cms.KRARemoteRequestHandler;
 import org.dogtagpki.server.tps.cms.KRAServerSideKeyGenResponse;
 import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
 import org.dogtagpki.server.tps.cms.TKSCreateKeySetDataResponse;
 import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
+import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
@@ -29,6 +37,8 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.tps.token.TokenStatus;
 
 public class TPSEngine {
 
@@ -39,6 +49,12 @@ public class TPSEngine {
         ALG_EC_F2M,
         ALG_EC_FP
     };
+
+    public enum ENROLL_MODES {
+        MODE_ENROLL,
+        MODE_RECOVERY,
+        MODE_RENEWAL
+    }
 
     public static final String CFG_DEBUG_ENABLE = "logging.debug.enable";
     public static final String CFG_DEBUG_FILENAME = "logging.debug.filename";
@@ -115,12 +131,19 @@ public class TPSEngine {
     public static final int CFG_CHANNEL_DEF_APPLET_MEMORY_SIZE = 5000;
 
     /* token enrollment values */
-    public static final String CFG_KEYGEN_ENCRYPTION = "keyGen.encryption";
-    public static final String CFG_KEYGEN_KEYTYPE_NUM = "keyGen.keyType.num";
-    public static final String CFG_KEYGEN_KEYTYPE_VALUE = "keyGen.keyType.value";
+    public static final String CFG_SIGNING = "signing";
+    public static final String CFG_ENCRYPTION = "encryption";
+    public static final String CFG_KEYGEN_ENCRYPTION = "keyGen." + CFG_ENCRYPTION;
+    public static final String CFG_KEYGEN_SIGNING = "keyGen." + CFG_SIGNING;
+    public static final String CFG_KEYTYPE_NUM = "keyType.num";
+    public static final String CFG_KEYTYPE_VALUE = "keyType.value";
+    public static final String CFG_KEYGEN_KEYTYPE_NUM = "keyGen." + CFG_KEYTYPE_NUM;
+    public static final String CFG_KEYGEN_KEYTYPE_VALUE = "keyGen." + CFG_KEYTYPE_VALUE;
     public static final String CFG_SERVER_KEYGEN_ENABLE = "serverKeygen.enable";
     public static final String CFG_SERVER_KEY_ARCHIVAL = "serverKeygen.archive";
     public static final String CFG_DRM_CONNECTOR = "serverKeygen.drm.conn";
+    public static final String CFG_KEYGEN = "keyGen";
+    public static final String CFG_ALG = "alg";
 
     /* token renewal values */
     public static final String CFG_RENEW_KEYTYPE_NUM = "renewal.keyType.num";
@@ -132,23 +155,39 @@ public class TPSEngine {
 
     /* misc values */
 
-    public static final String OP_FORMAT_PREFIX = "op.format";
+    public static final String ENROLL_OP = "enroll";
+    public static final String FORMAT_OP = "format";
+    public static final String RECOVERY_OP = "recovery";
+    public static final String RENEWAL_OP = "renewal";
+
+    public static final String OP_FORMAT_PREFIX = "op." + FORMAT_OP;
     public static final String CFG_PROFILE_RESOLVER = "tokenProfileResolver";
     public static final String CFG_DEF_FORMAT_PROFILE_RESOLVER = "formatMappingResolver";
     public static final String CFG_DEF_ENROLL_PROFILE_RESOLVER = "enrollMappingResolver";
     public static final String CFG_DEF_PIN_RESET_PROFILE_RESOLVER = "pinResetMappingResolver";
-    public static final String OP_ENROLL_PREFIX = "op.enroll";
+    public static final String OP_ENROLL_PREFIX = "op." + ENROLL_OP;
+    public static final String OP_RECOVERY_PREFIX = "op." + RECOVERY_OP;
+
     public static final String OP_PIN_RESET_PREFIX = "op.pinReset";
     public static final String CFG_PIN_RESET_ENABLE = "pinReset.enable";
     public static final String CFG_PIN_RESET_MIN_LEN = "pinReset.pin.minLen";
     public static final String CFG_PIN_RESET_MAX_LEN = "pinReset.pin.maxLen";
     public static final String CFG_PIN_RESET_MAX_RETRIES = "pinReset.pin.maxRetries";
     public static final String CFG_PIN_RESET_STRING = "create_pin.string";
-    public static final String ENROLL_OP = "enroll";
-    public static final String FORMAT_OP = "format";
 
-    public static String CFG_OVERWRITE = "overwrite";
-    public static String PIN_RESET_OP = "pin_reset";
+    public static final String CFG_SCHEME = "scheme";
+    public static final String RECOVERY_SCHEME_GENERATE_NEW_KEY_AND_RECOVER_LAST = "GenerateNewKeyandRecoverLast";
+    public static final Object RECOVERY_GENERATE_NEW_KEY = "GenerateNewKey";
+    public static final Object RECOVERY_RECOVER_LAST = "RecoverLast";
+
+    public static final String CFG_OVERWRITE = "overwrite";
+    public static final String PIN_RESET_OP = "pin_reset";
+    public static final String ENROLL_MODE_ENROLLMENT = ENROLL_OP;
+    public static final String ENROLL_MODE_RECOVERY = RECOVERY_OP;
+    public static final String ERNOLL_MODE_RENEWAL = RENEWAL_OP;
+    private static final String CFG_OPERATIONS_TRANSITIONS = "tps.operations.allowedTransitions";
+
+    private static String transitionList;
 
     public void init() {
         //ToDo
@@ -201,6 +240,92 @@ public class TPSEngine {
         }
 
         return resp;
+
+    }
+
+    public CARetrieveCertResponse recoverCertificate(TPSCertRecord cert, String serialS, String keyType, String caConnID)
+            throws TPSException {
+
+        String method = "TPSEngine.recoverCertificate";
+
+        CMS.debug(method + ": serial # =" + serialS);
+
+        if (cert == null || serialS == null || keyType == null || caConnID == null) {
+            throw new TPSException(method + " Invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+        }
+
+        String serialhex = serialS.substring(2); // strip off the "0x"
+        BigInteger serialBI = new BigInteger(serialhex, 16);
+
+        CARetrieveCertResponse retrieveResponse = null;
+
+        String retrievedCertB64 = null;
+
+        try {
+
+            CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConnID);
+
+            retrieveResponse = caRH.retrieveCertificate(serialBI);
+            retrievedCertB64 = retrieveResponse.getCertB64();
+            CMS.debug(method + ": retrieved cert: " + retrievedCertB64);
+            // test ends - remove up to here
+
+        } catch (EBaseException e) {
+            CMS.debug(method + ":" + e);
+            throw new TPSException(method + ": Exception thrown: " + e,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        if (retrievedCertB64 == null) {
+            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_CA_RESPONSE);
+        }
+
+        return retrieveResponse;
+
+    }
+
+    public CARenewCertResponse renewCertificate(TPSCertRecord cert, String serialS, String tokenType, String keyType,
+            String caConnID) throws TPSException {
+
+        String method = "TPSEngine.renewCertificate";
+
+        CMS.debug(method + " entering...");
+
+        if (cert == null || serialS == null || keyType == null || tokenType == null || caConnID == null) {
+            throw new TPSException(method + " Invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+        }
+
+        CMS.debug(method + ": serial # =" + serialS);
+        String serialhex = serialS.substring(2); // strip off the "0x"
+        BigInteger serialBI = new BigInteger(serialhex, 16);
+
+        CARenewCertResponse renewResponse = null;
+
+        String retrievedCertB64 = null;
+
+        try {
+
+            CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConnID);
+
+            /*
+             * testing retrieveCertificate() to retrieve the old cert (to be used by Recovery)
+             * TODO: remove
+             */
+            renewResponse = caRH.renewCertificate(serialBI, tokenType, keyType);
+            retrievedCertB64 = renewResponse.getRenewedCertB64();
+            CMS.debug(method + ": retrieved cert: " + retrievedCertB64);
+
+        } catch (EBaseException e) {
+            CMS.debug(method + ":" + e);
+            throw new TPSException(method + ": Exception thrown: " + e,
+                    TPSStatus.STATUS_ERROR_RENEWAL_FAILED);
+        }
+
+        if (retrievedCertB64 == null) {
+            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_CA_RESPONSE);
+        }
+
+        return renewResponse;
 
     }
 
@@ -295,6 +420,60 @@ public class TPSEngine {
 
     }
 
+    public KRARecoverKeyResponse recoverKey(String cuid,
+            String userid,
+            TPSBuffer sDesKey,
+            String b64cert, String drmConnId) throws TPSException {
+
+        CMS.debug("TPSEngine.recoverKey");
+
+        if (cuid == null || userid == null || sDesKey == null || b64cert == null || drmConnId == null) {
+            throw new TPSException("TPSEngine.recoverKey: invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+        }
+
+        KRARecoverKeyResponse resp = null;
+        KRARemoteRequestHandler kra = null;
+
+        try {
+            kra = new KRARemoteRequestHandler(drmConnId);
+
+            resp = kra.recoverKey(cuid, userid, Util.specialURLEncode(sDesKey), Util.uriEncode(b64cert));
+        } catch (EBaseException e) {
+            throw new TPSException("TPSEngine.recoverKey: Problem creating or using KRARemoteRequestHandler! "
+                    + e.toString(), TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+
+        } catch (UnsupportedEncodingException e) {
+            throw new TPSException("TPSEngine.recoverKey: Problem creating or using KRARemoteRequestHandler! "
+                    + e.toString(), TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+        }
+
+        int status = resp.getStatus();
+
+        if (status != 0) {
+            throw new TPSException("TPSEngine.recoverKey: Bad status from server: " + status,
+                    TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+        }
+
+        if (resp.getPublicKey() == null) {
+            throw new TPSException("TPSEngine.recoverKey: invalid public key from server! ",
+                    TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+        }
+
+        if (resp.getWrappedPrivKey() == null) {
+            throw new TPSException("TPSEngine.recoverKey: invalid private key from server! ",
+                    TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+
+        }
+
+        if (resp.getIVParam() == null) {
+            throw new TPSException("TPSEngine.recoverKey: invalid iv vector from server!",
+                    TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+        }
+
+        return resp;
+
+    }
+
     public KRAServerSideKeyGenResponse serverSideKeyGen(int keySize, String cuid, String userid, String drmConnId,
             TPSBuffer wrappedDesKey,
             boolean archive,
@@ -319,7 +498,7 @@ public class TPSEngine {
                     Util.specialURLEncode(wrappedDesKey), archive);
 
         } catch (EBaseException e) {
-            throw new TPSException("TPSEngine.serverSideKeyGen: Problem creating KRARemoteRequestHandler! "
+            throw new TPSException("TPSEngine.serverSideKeyGen: Problem creating  or using KRARemoteRequestHandler! "
                     + e.toString());
         }
 
@@ -348,6 +527,52 @@ public class TPSEngine {
 
         //We return this resonse we know that all the data is present and can be accessed
         return resp;
+
+    }
+
+  //Check to see if special operations transition is allowed
+
+    public boolean isOperationTransitionAllowed(TokenStatus oldState, TokenStatus newState) throws TPSException {
+        boolean allowed = true;
+
+        if(transitionList == null) {
+
+            IConfigStore configStore = CMS.getConfigStore();
+
+            String transConfig  = CFG_OPERATIONS_TRANSITIONS;
+
+            CMS.debug("TPSEngine.isOperationTransistionAllowed: getting config: " + transConfig);
+            try {
+                transitionList = configStore.getString(transConfig,null);
+            } catch (EBaseException e) {
+                throw new TPSException(
+                        "TPSProcessor.isOperationTransitionAllowed: Internal error getting config value for operations transition list!",
+                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+
+            if(transitionList == null) {
+                throw new TPSException(
+                        "TPSProcessor.isOperationTransitionAllowed: Can't find non null config value for operations transition list!",
+                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+
+            CMS.debug("TPSEngine.isOperationTransistionAllowed: transitionList is: " + transitionList);
+
+
+        }
+
+        String transition = oldState.toInt() + ":" + newState.toInt();
+
+        CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition);
+
+        if(transitionList.indexOf(transition) == -1) {
+            CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition);
+            allowed = false;
+        }
+
+        CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition + " allowed: " + allowed);
+
+        return  allowed;
 
     }
 

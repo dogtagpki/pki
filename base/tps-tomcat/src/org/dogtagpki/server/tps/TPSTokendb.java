@@ -231,8 +231,15 @@ public class TPSTokendb {
         CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: number of certs to update:"+ certs.size());
         try {
             for (TPSCertRecord cert: certs) {
-                cert.setOrigin(cuid);
+               // cert.setOrigin(cuid);
+
+                try {
                 tps.certDatabase.addRecord(cert.getId(), cert);
+                } catch (Exception e) {
+
+                    //If this is due to a dup, try to update the record.
+                    tps.certDatabase.updateRecord(cert.getId(), cert);
+                }
             }
         } catch (Exception e) {
             CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: "+ e);

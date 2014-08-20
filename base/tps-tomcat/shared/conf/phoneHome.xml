@@ -1,6 +1,5 @@
 <ServiceInfo>
 <IssuerName>FedoraProject</IssuerName>
-</IssuerName>
 <Services>
 <Operation>https://[PKI_HOSTNAME]:[PKI_SECURE_PORT]/tps/tps</Operation>
 <UI></UI>

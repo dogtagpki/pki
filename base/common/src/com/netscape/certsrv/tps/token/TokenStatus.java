@@ -51,4 +51,8 @@ public enum TokenStatus {
     public static TokenStatus fromInt(Integer value) {
         return map.get(value);
     }
+
+    public int toInt() {
+        return value.intValue();
+    }
 }

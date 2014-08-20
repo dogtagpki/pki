@@ -18,6 +18,11 @@
 package org.dogtagpki.server.tps.processor;
 
 import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
+import org.dogtagpki.server.tps.cms.CARenewCertResponse;
+import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
+import org.dogtagpki.server.tps.cms.KRARecoverKeyResponse;
+import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.engine.TPSEngine;
 
 public class CertEnrollInfo {
 
@@ -31,6 +36,12 @@ public class CertEnrollInfo {
     private String keyType;
     private String keyTypePrefix;
 
+    private CARetrieveCertResponse recoveredCertData;
+    private KRARecoverKeyResponse  recoveredKeyData;
+    private TokenRecord toBeRecoveredRecord;
+
+    private CARenewCertResponse renewedCertData;
+
     private int keySize;
     private int algorithm;
     private int keyUsage;
@@ -39,6 +50,33 @@ public class CertEnrollInfo {
     private int publicKeyNumber;
     private int startProgress;
     private int endProgress;
+
+    private TPSEngine.ENROLL_MODES enrollmentMode = TPSEngine.ENROLL_MODES.MODE_ENROLL;
+
+    public void setEnrollmentMode(TPSEngine.ENROLL_MODES mode) {
+        enrollmentMode = mode;
+    }
+
+    public TPSEngine.ENROLL_MODES getEnrollmentMode() {
+        return enrollmentMode;
+    }
+
+    public void setRecoveredCertData(CARetrieveCertResponse cData) {
+        recoveredCertData = cData;
+    }
+
+    public CARetrieveCertResponse getRecoveredCertData() {
+        return recoveredCertData;
+    }
+
+    public void setRecoveredKeyData(KRARecoverKeyResponse kData) {
+        recoveredKeyData = kData;
+    }
+
+    public KRARecoverKeyResponse getRecoveredKeyData() {
+        return recoveredKeyData;
+    }
+
 
     public void setStartProgressValue(int progress) {
         startProgress = progress;
@@ -175,5 +213,58 @@ public class CertEnrollInfo {
     public String getKeyTypePrefix() {
         return keyTypePrefix;
     }
+
+    public boolean getIsRecoveryMode() {
+        if (enrollmentMode == TPSEngine.ENROLL_MODES.MODE_RECOVERY) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean getIsRenewalMode() {
+        if (enrollmentMode == TPSEngine.ENROLL_MODES.MODE_RENEWAL) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean getIsEnrollmentMode() {
+        if (enrollmentMode == TPSEngine.ENROLL_MODES.MODE_ENROLL) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void setTokenToBeRecovered(TokenRecord toBeRecovered) {
+        toBeRecoveredRecord = toBeRecovered;
+
+    }
+
+    public TokenRecord getTokenToBeRecovered() {
+        return toBeRecoveredRecord;
+    }
+
+    public void setRenewedCertData(CARenewCertResponse certResponse) {
+        renewedCertData = certResponse;
+    }
+
+    public CARenewCertResponse getRenewedCertData() {
+        return renewedCertData;
+    }
+
+    public int getCertIdIndex() {
+        int result = 0;
+
+        if(certId != null && certId.length() == 2) {
+         result = certId.charAt(1) - '0';
+        }
+
+        return result;
+    }
+
+
 
 }

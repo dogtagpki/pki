@@ -651,4 +651,39 @@ public class PKCS11Obj {
         this.oldObjectVersion = oldObjectVersion;
     }
 
+    public int getNextFreeCertIdNumber() {
+
+        int highest_cert_id = 0;
+
+        int numObjs = getObjectSpecCount();
+
+        for (int i = 0; i < numObjs; i++) {
+            ObjectSpec os = getObjectSpec(i);
+            if (os == null)
+                continue;
+
+            long objid = os.getObjectID();
+
+            char[] b1 = new char[2];
+
+            b1[0] = (char) ((objid >> 24) & 0xff);
+            b1[1] = (char) ((objid >> 16) & 0xff);
+
+            if (b1[0] == 'C') { //found a certificate
+
+                int id_int = b1[1] - '0';
+
+                if (id_int > highest_cert_id) {
+                    highest_cert_id = id_int;
+                }
+            }
+
+        }
+
+        highest_cert_id++;
+        CMS.debug("TPSEnrollProcessor.getNextFreeCertIdNumber: returning: " + highest_cert_id);
+
+        return highest_cert_id;
+    }
+
 }

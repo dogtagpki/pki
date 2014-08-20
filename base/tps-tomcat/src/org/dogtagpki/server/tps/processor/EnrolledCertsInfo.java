@@ -128,6 +128,8 @@ public class EnrolledCertsInfo {
     }
 
     public void addOrigin(String origin) {
+
+        CMS.debug("EnrolledCertsInfo.addOrigin: " + origin);
         origins.add(origin);
     }
 

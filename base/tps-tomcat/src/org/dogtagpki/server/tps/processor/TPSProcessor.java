@@ -622,8 +622,10 @@ public class TPSProcessor {
         APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
 
         if (!select.checkResult()) {
-            throw new TPSException("TPSProcessor.upgradeApplet: Cannot select newly created applet!",
+            CMS.debug("TPSProcessor.selectCoolKeyApplet: Can't select coolkey, token may be blank.");
+            /* throw new TPSException("TPSProcessor.upgradeApplet: Cannot select newly created applet!",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    */
         }
     }
 
@@ -944,6 +946,27 @@ public class TPSProcessor {
 
     }
 
+    protected TokenRecord isTokenRecordPresent(AppletInfo appletInfo) throws TPSException {
+
+        if (appletInfo == null) {
+            throw new TPSException("TPSProcessor.isTokenRecordPresent: invalid input data.");
+        }
+
+        CMS.debug("TPSEnrollProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
+
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TokenRecord tokenRecord = null;
+        try {
+            tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
+            // now the in memory tokenRecord is replaced by the actual token data
+            CMS.debug("TPSEnrollProcessor.enroll: found token...");
+        } catch (Exception e) {
+            CMS.debug("TPSEnrollProcessor.enroll: token does not exist in tokendb... create one in memory");
+        }
+
+        return tokenRecord;
+    }
+
     protected String getCAConnectorID() throws TPSException {
         IConfigStore configStore = CMS.getConfigStore();
         String id = null;
@@ -979,7 +1002,7 @@ public class TPSProcessor {
         try {
             revokeCert = configStore.getBoolean(configName, false);
         } catch (EBaseException e) {
-            auditMsg = method + ": config not found: "+ configName +
+            auditMsg = method + ": config not found: " + configName +
                     "; default to false";
             CMS.debug(auditMsg);
             return;
@@ -999,7 +1022,7 @@ public class TPSProcessor {
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         boolean isTokenPresent = tps.tdb.isTokenPresent(cuid);
         if (!isTokenPresent) {
-            auditMsg = method + ": token not found: "+ cuid;
+            auditMsg = method + ": token not found: " + cuid;
             CMS.debug(auditMsg);
             throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
@@ -1018,7 +1041,7 @@ public class TPSProcessor {
 
         CMS.debug(method + ": found " + certRecords.size() + " certs");
 
-        for (TPSCertRecord cert:certRecords) {
+        for (TPSCertRecord cert : certRecords) {
             if (cert.getStatus().equals("revoked")) {
                 // already revoked cert should not be on token any more
                 CMS.debug(method + ": cert " + cert.getSerialNumber()
@@ -1034,7 +1057,7 @@ public class TPSProcessor {
             }
 
             String origin = cert.getOrigin();
-            if (origin!= null && !origin.equals(cuid)) {
+            if (origin != null && !origin.equals(cuid)) {
                 /*
                  * Raidzilla Bug #57803:
                  * If the certificate is not originally created for this
@@ -1043,7 +1066,7 @@ public class TPSProcessor {
                  * for this token, we check the tokenOrigin attribute.
                  */
                 CMS.debug(method + ": cert " + cert.getSerialNumber()
-                        + " originally created for this token: "+ origin +
+                        + " originally created for this token: " + origin +
                         " while current token: " + cuid
                         + "; Remove from tokendb and skip the revoke");
                 try {
@@ -1133,7 +1156,7 @@ public class TPSProcessor {
             try {
                 tps.certDatabase.removeRecord(cert.getId());
             } catch (Exception e) {
-                auditMsg =  "removeRecord failed:" + e;
+                auditMsg = "removeRecord failed:" + e;
                 CMS.debug(method + ": " + auditMsg);
                 throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
             }
@@ -1141,7 +1164,6 @@ public class TPSProcessor {
         }
         CMS.debug(method + ": done for cuid:" + cuid);
     }
-
 
     protected void format(boolean skipAuth) throws TPSException, IOException {
 
@@ -1166,12 +1188,13 @@ public class TPSProcessor {
 
         CMS.debug("TPSProcessor.format: token cuid: " + appletInfo.getCUIDhexStringPlain());
         boolean isTokenPresent = false;
-        try {
-            tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
-            // now the in memory tokenRecord is replaced by the actual token data
+
+        tokenRecord = isTokenRecordPresent(appletInfo);
+
+        if (tokenRecord != null) {
             CMS.debug("TPSProcessor.format: found token...");
             isTokenPresent = true;
-        } catch (Exception e) {
+        } else {
             CMS.debug("TPSProcessor.format: token does not exist in tokendb... create one in memory");
             tokenRecord = new TokenRecord();
             tokenRecord.setId(appletInfo.getCUIDhexStringPlain());
@@ -1279,7 +1302,8 @@ public class TPSProcessor {
             CMS.debug("TPSProcessor.format: token exists");
             TokenStatus newState = TokenStatus.UNINITIALIZED;
             // Check for transition to 0/UNINITIALIZED status.
-            if (!tps.tdb.isTransitionAllowed(tokenRecord, newState)) {
+
+            if (!tps.engine.isOperationTransitionAllowed(tokenRecord.getTokenStatus(), newState)) {
                 CMS.debug("TPSProcessor.format: token transition disallowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
@@ -1340,7 +1364,7 @@ public class TPSProcessor {
         channel.externalAuthenticate();
         tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
 
-       if (isTokenPresent) {
+        if (isTokenPresent) {
             // Revoke certificates on token, if so configured
             try {
                 revokeCertificates(tokenRecord.getId());
@@ -1351,7 +1375,7 @@ public class TPSProcessor {
         }
 
         // Update Token DB
-       tokenRecord.setStatus("uninitialized");
+        tokenRecord.setStatus("uninitialized");
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
             String successMsg = "update token success";
