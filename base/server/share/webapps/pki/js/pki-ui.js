@@ -1106,10 +1106,7 @@ var EntryPage = Page.extend({
 
         var name = input.attr("name");
         var value = input.val();
-        if (value == "") {
-            delete self.entry[name];
-        } else {
-            self.entry[name] = value;
-        }
+        // save all values including empty ones
+        self.entry[name] = value;
     }
 });

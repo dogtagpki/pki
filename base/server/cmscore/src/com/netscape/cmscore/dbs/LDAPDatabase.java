@@ -141,19 +141,31 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
     @Override
     public void updateRecord(String id, E record) throws Exception {
+
         CMS.debug("LDAPDatabase: updateRecord(\"" + id + "\")");
+
         try (IDBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
+            CMS.debug("LDAPDatabase: dn: " + dn);
+            CMS.debug("LDAPDatabase: changetype: modify");
 
             ModificationSet mods = new ModificationSet();
             for (Enumeration<String> names = record.getSerializableAttrNames(); names.hasMoreElements(); ) {
                 String name = names.nextElement();
                 Object value = record.get(name);
+                CMS.debug("LDAPDatabase: replace: " + name);
+                CMS.debug("LDAPDatabase: " + name + ": " + value);
+                CMS.debug("LDAPDatabase: -");
                 mods.add(name, Modification.MOD_REPLACE, value);
             }
 
-            CMS.debug("LDAPDatabase: modifying " + dn);
             session.modify(dn, mods);
+            CMS.debug("LDAPDatabase: modification completed");
+
+        } catch (Exception e) {
+            CMS.debug("LDAPDatabase: modification failed");
+            CMS.debug(e);
+            throw e;
         }
     }
 

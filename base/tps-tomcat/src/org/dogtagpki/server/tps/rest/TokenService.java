@@ -367,36 +367,57 @@ public class TokenService extends PKIService implements TokenResource {
         try {
             TokenDatabase database = subsystem.getTokenDatabase();
 
+            // get existing record
             tokenRecord = database.getRecord(tokenID);
 
             // update user ID if specified
             String userID = tokenData.getUserID();
             if (userID != null) {
-                tokenRecord.setUserID(userID);
+                if (userID.equals("")) { // remove value if empty
+                    tokenRecord.setUserID(null);
+                } else { // otherwise replace value
+                    tokenRecord.setUserID(userID);
+                }
             }
 
             // update type if specified
             String type = tokenData.getType();
             if (type != null) {
-                tokenRecord.setType(type);
+                if (type.equals("")) { // remove value if empty
+                    tokenRecord.setType(null);
+                } else { // otherwise replace value
+                    tokenRecord.setType(type);
+                }
             }
 
             // update applet ID if specified
             String appletID = tokenData.getAppletID();
             if (appletID != null) {
-                tokenRecord.setAppletID(appletID);
+                if (appletID.equals("")) { // remove value if empty
+                    tokenRecord.setAppletID(null);
+                } else { // otherwise replace value
+                    tokenRecord.setAppletID(appletID);
+                }
             }
 
             // update key info if specified
             String keyInfo = tokenData.getKeyInfo();
             if (keyInfo != null) {
-                tokenRecord.setKeyInfo(keyInfo);
+                if (keyInfo.equals("")) { // remove value if empty
+                    tokenRecord.setKeyInfo(null);
+                } else { // otherwise replace value
+                    tokenRecord.setKeyInfo(keyInfo);
+                }
             }
 
             // update policy if specified
             String policy = tokenData.getPolicy();
             if (policy != null) {
-                tokenRecord.setPolicy(policy);
+                if (policy.equals("")) { // remove value if empty
+                    tokenRecord.setPolicy(null);
+                } else { //otherwise replace value
+                    tokenRecord.setPolicy(policy);
+                }
             }
 
             database.updateRecord(tokenID, tokenRecord);

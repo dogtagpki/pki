@@ -42,13 +42,28 @@ public class TokenModifyCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Token ID> --user <User ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Token ID> [OPTIONS...]", options);
     }
 
     public void createOptions() {
         Option option = new Option(null, "user", true, "User ID");
         option.setArgName("User ID");
-        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option(null, "type", true, "Type");
+        option.setArgName("Type");
+        options.addOption(option);
+
+        option = new Option(null, "applet", true, "Applet ID");
+        option.setArgName("Applet ID");
+        options.addOption(option);
+
+        option = new Option(null, "key-info", true, "Key info");
+        option.setArgName("Key info");
+        options.addOption(option);
+
+        option = new Option(null, "policy", true, "Policy");
+        option.setArgName("Policy");
         options.addOption(option);
     }
 
@@ -84,8 +99,12 @@ public class TokenModifyCLI extends CLI {
         TokenData tokenData = new TokenData();
         tokenData.setID(tokenID);
         tokenData.setUserID(cmd.getOptionValue("user"));
+        tokenData.setType(cmd.getOptionValue("type"));
+        tokenData.setAppletID(cmd.getOptionValue("applet"));
+        tokenData.setKeyInfo(cmd.getOptionValue("key-info"));
+        tokenData.setPolicy(cmd.getOptionValue("policy"));
 
-        tokenData = tokenCLI.tokenClient.updateToken(tokenID, tokenData);
+        tokenData = tokenCLI.tokenClient.modifyToken(tokenID, tokenData);
 
         MainCLI.printMessage("Modified token \"" + tokenID + "\"");
 

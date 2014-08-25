@@ -55,8 +55,8 @@ public class TokenClient extends Client {
         return client.getEntity(response, TokenData.class);
     }
 
-    public TokenData updateToken(String tokenID, TokenData tokenData) {
-        Response response = resource.replaceToken(tokenID, tokenData);
+    public TokenData modifyToken(String tokenID, TokenData tokenData) {
+        Response response = resource.modifyToken(tokenID, tokenData);
         return client.getEntity(response, TokenData.class);
     }
 
