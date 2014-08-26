@@ -31,8 +31,8 @@ public class KeyTemplateShowCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "output-file", true, "Location where the template has to be stored.");
-        option.setArgName("File to write the template to.");
+        Option option = new Option(null, "output", true, "Location to store the template.");
+        option.setArgName("output file");
         options.addOption(option);
     }
 
@@ -63,7 +63,7 @@ public class KeyTemplateShowCLI extends CLI {
         }
 
         String templateId = cmdArgs[0];
-        String writeToFile = cmd.getOptionValue("output-file");
+        String writeToFile = cmd.getOptionValue("output");
         String templateDir = "/usr/share/pki/key/templates/";
         String templatePath = templateDir + templateId + ".xml";
         ResourceMessage data = null;
@@ -71,10 +71,10 @@ public class KeyTemplateShowCLI extends CLI {
             data = ResourceMessage.unmarshall(KeyArchivalRequest.class, templatePath);
         } catch (FileNotFoundException | JAXBException e2) {
             System.err.println("Error: " + e2.getMessage());
-            if(verbose)
-            e2.printStackTrace();
+            if (verbose)
+                e2.printStackTrace();
             System.exit(-1);
-        };
+        }
 
         if (writeToFile != null) {
             try (FileOutputStream fOS = new FileOutputStream(writeToFile)) {

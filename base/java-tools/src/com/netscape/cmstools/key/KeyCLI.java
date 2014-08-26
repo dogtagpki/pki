@@ -88,7 +88,7 @@ public class KeyCLI extends CLI {
 
     public static void printKeyInfo(KeyInfo info) {
         System.out.println("  Key ID: "+info.getKeyId().toHexString());
-        if (info.getClientKeyID() != null) System.out.println("  Client ID: "+info.getClientKeyID());
+        if (info.getClientKeyID() != null) System.out.println("  Client Key ID: "+info.getClientKeyID());
         if (info.getStatus() != null) System.out.println("  Status: "+info.getStatus());
         if (info.getAlgorithm() != null) System.out.println("  Algorithm: "+info.getAlgorithm());
         if (info.getSize() != null) System.out.println("  Size: "+info.getSize());

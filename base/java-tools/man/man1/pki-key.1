@@ -121,7 +121,7 @@ To view the keys stored in DRM:
 
 To view all active keys for a specific client key ID:
 
-.B pki <agent authentication> key-find --client <Client ID> --status active
+.B pki <agent authentication> key-find --clientKeyID <Client Key ID> --status active
 
 To view details of a specific key:
 
@@ -131,7 +131,7 @@ To view details of a specific key:
 
 To archive a passphrase in the DRM:
 
-.B pki <agent authentication> key-archive --clientKeyID <Client ID> --passphrase <Passphrase>
+.B pki <agent authentication> key-archive --clientKeyID <Client Key ID> --passphrase <Passphrase>
 
 A symmetric key can be archived using the "archiveKey" request template.
 
@@ -274,7 +274,7 @@ All the templates can be listed by executing:
 
 To fetch the template for key archival:
 
-.B pki key-template-show archiveKey --output-file <File_Path_to_store_the_template>
+.B pki key-template-show archiveKey --output <output file>
 
 This command gets the template for a key archival request and stores it in an output file.
 
@@ -298,7 +298,7 @@ To create an archival request using the template file:
 
 To fetch the template for key retrieval:
 
-.B pki key-template-show retrieveKey --output-file <File_Path_to_store_the_template>
+.B pki key-template-show retrieveKey --output <output file>
 
 This command gets the template for a key retrieval request and stores it in an output file.
 
@@ -319,8 +319,8 @@ To create a retrieval request using the template file:
 .SS Creating a symmetric key generation request
 
 To fetch the template for symmetric key generation:
-:q!:
-.B pki key-template-show generateKey --output-file <File_Path_to_store_the_template>
+
+.B pki key-template-show generateKey --output <output file>
 
 This command gets the template for a symmetric key generation request and stores it in an output file.
 

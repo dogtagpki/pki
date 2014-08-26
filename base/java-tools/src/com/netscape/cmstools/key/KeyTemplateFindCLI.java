@@ -65,11 +65,12 @@ public class KeyTemplateFindCLI extends CLI {
                 e.printStackTrace();
             System.exit(-1);
         }
-        MainCLI.printMessage("List of templates");
+        MainCLI.printMessage(templates.size() + " entries matched");
         for (KeyTemplate template : templates) {
             template.printTemplateInfo();
         }
         System.out.println();
+        MainCLI.printMessage("Number of entries returned " + templates.size());
     }
 
     public void createTemplateList() throws FileNotFoundException, JAXBException {

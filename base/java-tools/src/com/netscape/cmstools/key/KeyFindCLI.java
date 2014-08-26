@@ -49,8 +49,8 @@ public class KeyFindCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "client", true, "Client ID");
-        option.setArgName("client ID");
+        Option option = new Option(null, "clientKeyID", true, "Unique client key identifier");
+        option.setArgName("client key ID");
         options.addOption(option);
 
         option = new Option(null, "status", true, "Status");
@@ -101,7 +101,7 @@ public class KeyFindCLI extends CLI {
             System.exit(-1);
         }
 
-        String clientKeyID = cmd.getOptionValue("client");
+        String clientKeyID = cmd.getOptionValue("clientKeyID");
         String status = cmd.getOptionValue("status");
 
         String s = cmd.getOptionValue("maxResults");

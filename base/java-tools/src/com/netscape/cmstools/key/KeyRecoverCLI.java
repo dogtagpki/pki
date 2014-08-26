@@ -38,7 +38,7 @@ public class KeyRecoverCLI extends CLI {
         option.setArgName("Key Identifier");
         options.addOption(option);
 
-        option = new Option(null, "input", true, "Location of the request template file.");
+        option = new Option(null, "input", true, "Location of the request file.");
         option.setArgName("Input file path");
         options.addOption(option);
     }
@@ -71,6 +71,7 @@ public class KeyRecoverCLI extends CLI {
         }
 
         String requestFile = cmd.getOptionValue("input");
+        String keyID = cmd.getOptionValue("keyID");
 
         KeyRequestResponse response = null;
 
@@ -96,9 +97,13 @@ public class KeyRecoverCLI extends CLI {
                 System.exit(-1);
             }
 
-        } else {
+        } else if (keyID != null) {
             String keyId = cmd.getOptionValue("keyID");
             response = keyCLI.keyClient.recoverKey(new KeyId(keyId), null, null, null, null);
+        } else {
+            System.err.println("Error: Neither a key ID nor a request file's path is specified.");
+            printHelp();
+            System.exit(-1);
         }
 
         MainCLI.printMessage("Key Recovery Request Information");

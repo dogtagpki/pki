@@ -13,6 +13,6 @@ public class KeyTemplate {
     public void printTemplateInfo() {
         System.out.println();
         System.out.println("  Template ID: " + id);
-        System.out.println("  Template Description: " + description);
+        System.out.println("  Description: " + description);
     }
 }
