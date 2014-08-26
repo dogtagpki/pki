@@ -48,6 +48,7 @@ import com.netscape.certsrv.group.GroupResource;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.PKIService;
@@ -210,11 +211,10 @@ public class GroupService extends PKIService implements GroupResource {
 
             IGroup group = userGroupManager.createGroup(groupID);
 
+            // add description if specified
             String description = groupData.getDescription();
-            if (description != null) {
-                group.set("description", description);
-            } else {
-                group.set("description", "");
+            if (description != null && !description.equals("")) {
+                group.set(IGroupConstants.ATTR_DESCRIPTION, description);
             }
 
             // allow adding a group with no members
@@ -271,9 +271,14 @@ public class GroupService extends PKIService implements GroupResource {
                 throw new ResourceNotFoundException("Group " + groupID + "  not found.");
             }
 
+            // update description if specified
             String description = groupData.getDescription();
             if (description != null) {
-                group.set("description", description);
+                if (description.equals("")) { // remove value if empty
+                    group.delete(IGroupConstants.ATTR_DESCRIPTION);
+                } else { // otherwise replace value
+                    group.set(IGroupConstants.ATTR_DESCRIPTION, description);
+                }
             }
 
             // allow adding a group with no members, except "Certificate

@@ -53,6 +53,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
+import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.util.Cert;
@@ -1673,17 +1674,15 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
 
             IGroup group = mMgr.createGroup(id);
-            String members = super.getParameter(req,
-                    Constants.PR_GROUP_USER);
-            String desc = super.getParameter(req,
-                    Constants.PR_GROUP_DESC);
 
-            if (desc != null) {
-                group.set("description", desc);
-            } else {
-                group.set("description", "");
+            // add description if specified
+            String description = super.getParameter(req, Constants.PR_GROUP_DESC);
+            if (description != null && !description.equals("")) {
+                group.set(IGroupConstants.ATTR_DESCRIPTION, description);
             }
 
+            // add members if specified
+            String members = super.getParameter(req, Constants.PR_GROUP_USER);
             if (members != null) {
                 StringTokenizer st = new StringTokenizer(members, ",");
 
@@ -1917,18 +1916,25 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
 
-            IGroup group = mMgr.createGroup(id);
+            IGroup group = mMgr.getGroupFromName(id);
 
-            String desc = super.getParameter(req,
-                    Constants.PR_GROUP_DESC);
-
-            if (desc != null) {
-                group.set("description", desc);
+            // update description if specified
+            String description = super.getParameter(req, Constants.PR_GROUP_DESC);
+            if (description != null) {
+                if (description.equals("")) {
+                    group.delete(IGroupConstants.ATTR_DESCRIPTION);
+                } else {
+                    group.set(IGroupConstants.ATTR_DESCRIPTION, description);
+                }
             }
 
+            // update members if specified
             String members = super.getParameter(req, Constants.PR_GROUP_USER);
-
             if (members != null) {
+                // empty old member list
+                group.delete(IGroupConstants.ATTR_MEMBERS);
+
+                // read new member list
                 StringTokenizer st = new StringTokenizer(members, ",");
 
                 String groupName = group.getName();
@@ -1938,6 +1944,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     multiRole = mConfig.getBoolean(MULTI_ROLE_ENABLE);
                 } catch (Exception eee) {
                 }
+
                 while (st.hasMoreTokens()) {
                     String memberName = st.nextToken();
                     if (multiRole) {

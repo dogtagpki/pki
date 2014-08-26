@@ -1725,28 +1725,39 @@ public final class UGSubsystem implements IUGSubsystem {
         LDAPConnection ldapconn = null;
 
         try {
+            String dn = "cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) + "," + getGroupBaseDN();
+            CMS.debug("dn: " + dn);
+
             LDAPAttributeSet attrs = new LDAPAttributeSet();
             String oc[] = { "top", "groupOfUniqueNames" };
 
             attrs.add(new LDAPAttribute("objectclass", oc));
             attrs.add(new LDAPAttribute("cn", group.getGroupID()));
-            attrs.add(new LDAPAttribute("description", group.getDescription()));
+
+            String description = group.getDescription();
+            if (description != null) {
+                CMS.debug("description: " + description);
+                attrs.add(new LDAPAttribute("description", description));
+            }
+
             Enumeration<String> e = grp.getMemberNames();
 
-            if (e.hasMoreElements() == true) {
+            if (e.hasMoreElements()) {
                 LDAPAttribute attrMembers = new LDAPAttribute("uniquemember");
 
                 while (e.hasMoreElements()) {
                     String name = e.nextElement();
 
+                    String memberDN = "uid=" + LDAPUtil.escapeRDNValue(name) + "," + getUserBaseDN();
+                    CMS.debug("uniqueMember: " + memberDN);
+
                     // DOES NOT SUPPORT NESTED GROUPS...
-                    attrMembers.addValue("uid=" + LDAPUtil.escapeRDNValue(name) + "," +
-                            getUserBaseDN());
+                    attrMembers.addValue(memberDN);
                 }
                 attrs.add(attrMembers);
             }
-            LDAPEntry entry = new LDAPEntry("cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) +
-                    "," + getGroupBaseDN(), attrs);
+
+            LDAPEntry entry = new LDAPEntry(dn, attrs);
 
             ldapconn = getConn();
             ldapconn.add(entry);
@@ -1796,6 +1807,11 @@ public final class UGSubsystem implements IUGSubsystem {
         }
     }
 
+    /**
+     * Modifies an existing group in the database.
+     *
+     * @param group   an existing group that has been modified in memory
+     */
     public void modifyGroup(IGroup group) throws EUsrGrpException {
         Group grp = (Group) group;
 
@@ -1806,39 +1822,38 @@ public final class UGSubsystem implements IUGSubsystem {
         LDAPConnection ldapconn = null;
 
         try {
-            LDAPAttribute attrMembers = new LDAPAttribute("uniquemember");
+            String dn = "cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) + "," + getGroupBaseDN();
+            CMS.debug("dn: " + dn);
+
             LDAPModificationSet mod = new LDAPModificationSet();
 
-            String desc = grp.getDescription();
-
-            if (desc != null) {
-                mod.add(LDAPModification.REPLACE,
-                        new LDAPAttribute("description", desc));
-            }
+            // update description
+            String description = grp.getDescription();
+            mod.add(LDAPModification.REPLACE, new LDAPAttribute("description", description));
+            CMS.debug("description: " + description);
 
             Enumeration<String> e = grp.getMemberNames();
 
-            if (e.hasMoreElements() == true) {
-                while (e.hasMoreElements()) {
-                    String name = e.nextElement();
-
-                    // DOES NOT SUPPORT NESTED GROUPS...
-                    attrMembers.addValue("uid=" + LDAPUtil.escapeRDNValue(name) + "," +
-                            getUserBaseDN());
-                }
-                mod.add(LDAPModification.REPLACE, attrMembers);
-            } else {
-                if (!grp.getName().equalsIgnoreCase(SUPER_CERT_ADMINS)) {
-                    mod.add(LDAPModification.DELETE, attrMembers);
-                } else {
-                    // not allowed
-                    throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ILL_GRP_MOD"));
-                }
+            // admin group cannot be empty
+            if (grp.getName().equalsIgnoreCase(SUPER_CERT_ADMINS) && !e.hasMoreElements()) {
+                throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ILL_GRP_MOD"));
             }
 
+            // update members
+            LDAPAttribute attrMembers = new LDAPAttribute("uniquemember");
+            while (e.hasMoreElements()) {
+                String name = e.nextElement();
+
+                String memberDN = "uid=" + LDAPUtil.escapeRDNValue(name) + "," + getUserBaseDN();
+                CMS.debug("uniqueMember: " + memberDN);
+
+                // DOES NOT SUPPORT NESTED GROUPS...
+                attrMembers.addValue(memberDN);
+            }
+            mod.add(LDAPModification.REPLACE, attrMembers);
+
             ldapconn = getConn();
-            ldapconn.modify("cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) +
-                    "," + getGroupBaseDN(), mod);
+            ldapconn.modify(dn, mod);
 
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()));

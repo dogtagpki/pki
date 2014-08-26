@@ -39,7 +39,10 @@ public class Group implements IGroup {
     @SuppressWarnings("unused")
     private IUsrGrp mBase;
     private String mName = null;
+
+    // TODO: replace Vector with Set
     private Vector<String> mMembers = new Vector<String>();
+
     private String mDescription = null;
 
     private static final Vector<String> mNames = new Vector<String>();
@@ -71,6 +74,7 @@ public class Group implements IGroup {
     }
 
     public void addMemberName(String name) {
+        if (isMember(name)) return;
         mMembers.addElement(name);
     }
 
@@ -117,7 +121,17 @@ public class Group implements IGroup {
     }
 
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        if (name.equals(ATTR_NAME)) {
+            mName = null;
+        } else if (name.equals(ATTR_ID)) {
+            mName = null;
+        } else if (name.equals(ATTR_MEMBERS)) {
+            mMembers.clear();
+        } else if (name.equals(ATTR_DESCRIPTION)) {
+            mDescription = null;
+        } else {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        }
     }
 
     public Enumeration<String> getElements() {

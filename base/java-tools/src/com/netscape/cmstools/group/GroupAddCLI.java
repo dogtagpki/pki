@@ -42,13 +42,12 @@ public class GroupAddCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Group ID> --description <Description> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Group ID> [OPTIONS...]", options);
     }
 
     public void createOptions() {
         Option option = new Option(null, "description", true, "Description");
         option.setArgName("description");
-        option.setRequired(true);
         options.addOption(option);
     }
 
