@@ -65,23 +65,9 @@ Instances created using \fBpkispawn\fP can be removed using \fBpkidestroy\fP.  S
 .BR pkidestroy(8).
 .PP
 \fBpkispawn\fP supersedes and combines the functionality of \fBpkicreate\fP and \fBpkisilent\fP, which were available in earlier releases of Certificate Server.  It is now possible to completely create and configure the Certificate Server subsystem in a single step using \fBpkispawn\fP.
- 
-.PP
-Although \fBpkispawn\fP can be used to install and configure an instance in a single invocation, it can also still be directed to split this work into separate 'installation' and 'configuration' tasks (e. g. - to support an organization's policy where 'installation' and 'configuration' tasks must be fulfilled by separate roles).
-
-.PP
-To run \fBpkispawn\fP for instance installation only, leave the configuration parameter \fBpki_skip_installation\fP set to False (the default), and set the configuration parameter \fBpki_skip_configuration\fP to True. This instance must then be configured using either a \fBpkispawn\fP command line interface (CLI) configuration, or a browser-based (GUI) configuration.
-
-.PP
-To configure an instance using the CLI-based configuration, set the configuration parameter \fBpki_skip_installation\fP to True, leave the configuration parameter \fBpki_skip_configuration\fP to False (the default), and run \fBpkispawn\fP for configuration only.
-
-.PP
-To configure an instance using the GUI-based configuration, launch a browser, input the configuration URL located inside the \fI/var/log/pki/pki-<subsystem>-spawn.<timestamp>.log\fP file, and fill-in the desired/required information for each panel.  The final panel will instruct the user to restart the server.
-
 .TP
 \fBNote:\fP 
-CLI-based configuration and GUI-based configuration go through different code. There is additional code in the CLI-based configuration to support instances that contain more than one subsystem; the GUI-based configuration does not contain this code.  Consequently, GUI-based configuration must not be used to configure a PKI instance which contains more than one subsystem.
-
+Previously, as an alternative to using \fBpkisilent\fP to perform a non-interactive batch configuration, a PKI instance could be interactively configured by a GUI-based configuration wizard via a Firefox browser.  GUI-based configuration of a PKI instance is unavailable in this version of the product.
 .SH OPTIONS
 .TP
 .B -s <subsystem>

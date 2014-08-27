@@ -1209,21 +1209,6 @@ class PKIConfigParser:
                 self.mdict['pki_subsystem_archive_log_path'] + "/" + \
                 "spawn" + "_" + "manifest" + "." + \
                 self.mdict['pki_timestamp']
-            # Construct the configuration URL containing the one-time pin
-            # and add this to the "sensitive" key value pairs read in from
-            # the configuration file
-            #
-            # NOTE:  This is the one and only parameter containing a sensitive
-            #        parameter that may be stored in a log file and displayed
-            #        to the screen.
-            #
-            self.mdict['pki_configuration_url'] = \
-                "https://{}:{}/{}/{}?pin={}".format(
-                    self.mdict['pki_hostname'],
-                    self.mdict['pki_https_port'],
-                    self.mdict['pki_subsystem'].lower(),
-                    "admin/console/config/login",
-                    self.mdict['pki_one_time_pin'])
             # Compose this "systemd" execution management command
             if self.mdict['pki_subsystem'] in\
                config.PKI_APACHE_SUBSYSTEMS:

@@ -190,14 +190,6 @@ Hostname and port, or URI of the issuing CA.  Required for installations of subo
 .IP
 Sets whether to restart the instance after configuration is complete.  Defaults to True.
 .PP
-.B pki_skip_configuration
-.IP
-Sets whether to execute the configuration steps when running \fBpkispawn\fP.  If this is true, then the process is analogous to running \fBpkicreate\fP, when the configuration was performed separately from the instance creation.  A configuration URL will be provided.  This URL can be used as a starting point for the browser-based configuration panels.  Defaults to False.
-.PP
-.B pki_skip_installation
-.IP
-Sets whether to skip the installation steps.  With pki_skip_configuration set to False, this is analogous to running pkisilent.  Defaults to False.
-.PP
 .B pki_enable_access_log
 .IP
 Located in the [Tomcat] section, this variable determines whether the instance will enable (True) or disable (False) Tomcat access logging.  Defaults to True.

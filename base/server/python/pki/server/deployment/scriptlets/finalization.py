@@ -71,10 +71,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_client_subsystem_dir']):
                 deployer.directory.delete(
                     deployer.mdict['pki_client_subsystem_dir'])
-        # If instance has not been configured, print the
-        # configuration URL to the log
-        if config.str2bool(deployer.mdict['pki_skip_configuration']):
-            deployer.configuration_file.log_configuration_url()
         # Log final process messages
         config.pki_log.info(log.PKISPAWN_END_MESSAGE_2,
                             deployer.mdict['pki_subsystem'],

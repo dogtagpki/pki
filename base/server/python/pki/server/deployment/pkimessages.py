@@ -61,19 +61,10 @@ VERBOSITY FLAGS    CONSOLE MESSAGE LEVEL       LOG MESSAGE LEVEL
 
 # PKI Deployment Error Messages
 PKI_BADZIPFILE_ERROR_1 = "zipfile.BadZipFile:  %s!"
-PKI_CONFIGURATION_RESTART_1 = '''
-    After configuration, the server can be operated by the command:
-        %s
-'''
 PKI_CONFIGURATION_STANDALONE_1 = '''
       Please obtain the necessary certificates for this stand-alone %s,
       and re-run the configuration for step two.
 '''
-PKI_CONFIGURATION_URL_1 = \
-    "    Please start the configuration by accessing:\n    %s"
-PKI_CONFIGURATION_WIZARD_RESTART_1 = \
-    "After configuration, the server can be operated by the command:\n%s"
-PKI_CONFIGURATION_WIZARD_URL_1 = "Configuration Wizard listening on\n%s"
 PKI_DIRECTORY_ALREADY_EXISTS_1 = "Directory '%s' already exists!"
 PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 = \
     "Directory '%s' already exists BUT it is NOT a directory!"

@@ -469,25 +469,6 @@ class ConfigurationFile:
         # set useful 'string' object variables for this class
         self.subsystem = self.mdict['pki_subsystem']
 
-    def log_configuration_url(self):
-        # NOTE:  This is the one and only parameter containing a sensitive
-        #        parameter that may be stored in a log file.
-        config.pki_log.info(log.PKI_CONFIGURATION_WIZARD_URL_1,
-                            self.mdict['pki_configuration_url'],
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-        config.pki_log.info(log.PKI_CONFIGURATION_WIZARD_RESTART_1,
-                            self.mdict['pki_registry_initscript_command'],
-                            extra=config.PKI_INDENTATION_LEVEL_2)
-
-    def display_configuration_url(self):
-        # NOTE:  This is the one and only parameter containing a sensitive
-        #        parameter that may be displayed to the screen.
-        print log.PKI_CONFIGURATION_URL_1 % self.mdict['pki_configuration_url']
-        print
-        print log.PKI_CONFIGURATION_RESTART_1 % \
-            self.mdict['pki_registry_initscript_command']
-        print
-
     def confirm_external(self):
         # ALWAYS defined via 'pkiparser.py'
         if self.external:

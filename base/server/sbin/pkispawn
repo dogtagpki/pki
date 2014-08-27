@@ -536,9 +536,9 @@ def print_install_information(mdict):
     skip_configuration = config.str2bool(mdict['pki_skip_configuration'])
     print log.PKI_SPAWN_INFORMATION_HEADER
     if skip_configuration:
-        print log.PKI_CONFIGURATION_URL_1 % mdict['pki_configuration_url']
-        print log.PKI_CONFIGURATION_RESTART_1 % \
-            mdict['pki_registry_initscript_command']
+        print "      The %s subsystem of the '%s' instance\n" \
+              "      must still be configured!" % \
+              (config.pki_subsystem, mdict['pki_instance_name'])
     else:
         print "      Administrator's username:             %s" % \
               mdict['pki_admin_uid']

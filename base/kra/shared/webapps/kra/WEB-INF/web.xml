@@ -5,33 +5,6 @@
 
     <display-name>Key Recovery Authority</display-name>
 
-    <servlet>
-        <servlet-name>csadmin-wizard</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.wizard.WizardServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-        <init-param>
-            <param-name>name</param-name>
-            <param-value>DRM Setup Wizard</param-value>
-        </init-param>
-        <init-param>
-            <param-name>panels</param-name>
-            <param-value>welcome=com.netscape.cms.servlet.csadmin.WelcomePanel,module=com.netscape.cms.servlet.csadmin.ModulePanel,confighsmlogin=com.netscape.cms.servlet.csadmin.ConfigHSMLoginPanel,securitydomain=com.netscape.cms.servlet.csadmin.SecurityDomainPanel,securitydomain=com.netscape.cms.servlet.csadmin.DisplayCertChainPanel,subsystem=com.netscape.cms.servlet.csadmin.CreateSubsystemPanel,restorekeys=com.netscape.cms.servlet.csadmin.RestoreKeyCertPanel,databasepanel=com.netscape.cms.servlet.csadmin.DatabasePanel,sizepanel=com.netscape.cms.servlet.csadmin.SizePanel,namepanel=com.netscape.cms.servlet.csadmin.NamePanel,certrequestpanel=com.netscape.cms.servlet.csadmin.CertRequestPanel,backupkeys=com.netscape.cms.servlet.csadmin.BackupKeyCertPanel,savepk12=com.netscape.cms.servlet.csadmin.SavePKCS12Panel,adminpanel=com.netscape.cms.servlet.csadmin.AdminPanel,importadmincertpanel=com.netscape.cms.servlet.csadmin.ImportAdminCertPanel,donepanel=com.netscape.cms.servlet.csadmin.DonePanel</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>csadmin-login</servlet-name>
-        <servlet-class>com.netscape.cms.servlet.csadmin.LoginServlet</servlet-class>
-        <init-param>
-            <param-name>properties</param-name>
-            <param-value>/WEB-INF/velocity.properties</param-value>
-        </init-param>
-    </servlet>
-
-
    <servlet>
       <servlet-name>  kraKRADisplayBySerialForRecovery  </servlet-name>
       <servlet-class> com.netscape.cms.servlet.key.DisplayBySerialForRecovery  </servlet-class>
@@ -1010,12 +983,6 @@
       <url-pattern>   /agent/kra/displayBySerial  </url-pattern>
    </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>csadmin-login</servlet-name>
-        <url-pattern>/admin/console/config/login</url-pattern>
-    </servlet-mapping>
-
-
    <servlet-mapping>
       <servlet-name>  kraRegisterUser </servlet-name>
       <url-pattern>   /admin/kra/registerUser  </url-pattern>
@@ -1025,11 +992,6 @@
       <servlet-name>  kraGetTransportCert </servlet-name>
       <url-pattern>   /admin/kra/getTransportCert  </url-pattern>
    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>csadmin-wizard</servlet-name>
-        <url-pattern>/admin/console/config/wizard</url-pattern>
-    </servlet-mapping>
 
    <servlet-mapping>
       <servlet-name>  kraGetConfigEntries  </servlet-name>
