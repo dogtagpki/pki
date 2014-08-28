@@ -28,10 +28,10 @@ These services include certificates, groups, keys, security domains, and users.
 .SH CLI OPTIONS
 .TP
 .B -c <client security database password>
-Specifies the client security database password (mutually exclusive to the '-C' option; requires the '-n' client authentication option).
+Specifies the client security database password (mutually exclusive to the '-C' option).
 .TP
 .B -C <client-side password file>
-Specifies the file which contains the client security database password (mutually exclusive to the '-c' option; requires the '-n' client authentication option).
+Specifies the file which contains the client security database password (mutually exclusive to the '-c' option).
 .TP
 .B -d <client security database location>
 Specifies the client security database location (default: \fI~/.dogtag/nssdb\fP).
@@ -49,7 +49,7 @@ Comma-separated list of ignored certificate validity statuses.
 Message format: xml (default), json.
 .TP
 .B -n <client certificate nickname>
-Specifies the nickname of the client certificate (signifies client authentication which is mutually exclusive to the '-u' basic authentication option).
+Specifies the nickname for client certificate authentication (mutually exclusive to the '-u' option). This authentication requires a security database password.
 .TP
 .B --output <folder>
 Folder to store HTTP messages.
@@ -68,7 +68,7 @@ PKI subsystem type - [CA, KRA, OCSP, TKS, or TPS] (non-case-sensitive).
 Specifies the server URI.
 .TP
 .B -u <username>
-Specifies the username (signifies basic authentication which is mutually exclusive to the '-n' client authentication option).
+Specifies the username for basic authentication (mutually exclusive to the '-n' option). This authentication requires a user password.
 .TP
 .B -v
 Displays verbose information.
@@ -77,10 +77,10 @@ Displays verbose information.
 Displays CLI version information.
 .TP
 .B -w <password>
-Specifies the user password (mutually exclusive to the '-W' option; requires the '-u' basic authentication option).
+Specifies the user password (mutually exclusive to the '-W' option).
 .TP
 .B -W <client-side password file>
-Specifies the file which contains the user password (mutually exclusive to the '-w' option; requires the '-u' basic authentication option).
+Specifies the file which contains the user password (mutually exclusive to the '-w' option).
 
 .SH OPERATIONS
 To view available commands and options, simply type \fBpki\fP.  Some commands have sub-commands.
