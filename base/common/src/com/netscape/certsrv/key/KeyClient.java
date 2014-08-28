@@ -725,7 +725,7 @@ public class KeyClient extends Client {
          * For RSA, JSS accepts key sizes that fall in this set of values:
          * {256 + (16 * n), where 0 <= n <= 1008
          *
-         * For DSA, JSS accepts key sizes 512, 768, 1024 only when there are no p,q,g params specified.
+         * For DSA, JSS accepts key sizes 512, 768, 1024 only, when there are no p,q,g params specified.
          */
         if (keyAlgorithm.equals(KeyRequestResource.RSA_ALGORITHM)) {
             if (keySize >= 256) {

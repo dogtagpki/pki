@@ -693,7 +693,7 @@ public class DRMTest {
             }
 
             // Test 33: Verify the generated key pair.
-            if (isKeyPairValid(algs[i], keyData.getData(), Utils.base64decode(info.getPublicKey()))) {
+            if (isKeyPairValid(algs[i], keyData.getData(), info.getPublicKey())) {
                 log("The key pair generated using " + algs[i] + " algorithm is valid.");
             } else {
                 log("The key pair generated using " + algs[i] + " algorithm is invalid.");
@@ -750,12 +750,8 @@ public class DRMTest {
         log("Status:    " + keyInfo.getStatus());
         if (keyInfo.getPublicKey() != null) {
             log("Public Key: ");
-            String publicKey = keyInfo.getPublicKey();
-            int i = 0;
-            for (i = 0; i < publicKey.length() / 64; i++) {
-                log(publicKey.substring(i * 64, i * 64 + 64));
-            }
-            log(publicKey.substring(i * 64));
+            String publicKey = Utils.base64encode(keyInfo.getPublicKey());
+            log(publicKey);
         }
     }
 

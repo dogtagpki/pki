@@ -19,7 +19,6 @@
 package org.dogtagpki.server.kra.rest;
 
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
@@ -70,7 +69,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
-import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -440,12 +438,8 @@ public class KeyService extends PKIService implements KeyResource {
         ret.setAlgorithm(rec.getAlgorithm());
         ret.setSize(rec.getKeySize());
         ret.setOwnerName(rec.getOwnerName());
-        if(rec.getPublicKeyData() != null && getPublicKey){
-            try {
-                ret.setPublicKey(CryptoUtil.base64Encode(rec.getPublicKeyData()));
-            } catch (IOException e) {
-                throw new EBaseException(e.getMessage());
-            }
+        if (rec.getPublicKeyData() != null && getPublicKey) {
+            ret.setPublicKey(rec.getPublicKeyData());
         }
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);

@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author alee
@@ -55,7 +56,7 @@ public class KeyInfo {
     protected String ownerName;
 
     @XmlElement
-    protected String publicKey;
+    private String publicKey;
 
     public KeyInfo() {
         // required for JAXB (defaults)
@@ -129,11 +130,31 @@ public class KeyInfo {
         this.ownerName = ownerName;
     }
 
-    public String getPublicKey() {
-        return publicKey;
+    /**
+     * Converts the stored base64 encoded public key to a byte
+     * array and returns that value. Returns null, if public key is null.
+     *
+     * @return public key - as a byte array
+     */
+    public byte[] getPublicKey() {
+        if (publicKey != null) {
+            return Utils.base64decode(publicKey);
+        }
+        return null;
     }
 
-    public void setPublicKey(String publicKey) {
-        this.publicKey = publicKey;
+    /**
+     * Sets the binary data of the public key in a
+     * base64 encoded string format.
+     *
+     * @param publicKey - if null, getPublicKey returns null.
+     */
+    public void setPublicKey(byte[] publicKey) {
+        if (publicKey != null) {
+            this.publicKey = Utils.base64encode(publicKey);
+        } else {
+            this.publicKey = null;
+        }
     }
+
 }

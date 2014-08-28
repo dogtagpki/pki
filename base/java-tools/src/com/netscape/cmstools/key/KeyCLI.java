@@ -26,6 +26,7 @@ import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.certsrv.util.NSSCryptoProvider;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author Endi S. Dewata
@@ -97,7 +98,7 @@ public class KeyCLI extends CLI {
             // Print out the Base64 encoded public key in the form of a blob,
             // where the max line length is 64.
             System.out.println("  Public Key: \n");
-            String publicKey = info.getPublicKey();
+            String publicKey = Utils.base64encode(info.getPublicKey());
             int i = 0;
             for(i=0;i<publicKey.length()/64;i++){
                 System.out.println(publicKey.substring(i*64, i*64 + 64));

@@ -60,9 +60,8 @@ def print_key_info(key_info):
     if key_info.public_key is not None:
         print "Public key: "
         print
-        pub_key = str(key_info.public_key)
-        for i in range(0, len(pub_key), 64):
-            print pub_key[i:i+64]
+        pub_key = base64.encodestring(key_info.public_key)
+        print pub_key
 
 
 def print_key_data(key_data):
