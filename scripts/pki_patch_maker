@@ -37,7 +37,7 @@ Usage()
 ## Identify source associated with srpm
 ##
 IPA_PKI_THEME="dogtag/ca-ui dogtag/common-ui"
-PKI_CORE="base/ca base/common base/java-tools base/native-tools base/selinux base/setup base/silent base/symkey base/util"
+PKI_CORE="base/ca base/common base/java-tools base/native-tools base/selinux base/setup base/symkey base/util"
 
 
 ##

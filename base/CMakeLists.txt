@@ -17,7 +17,6 @@ if (APPLICATION_FLAVOR_PKI_CORE)
         add_subdirectory(tks)
         add_subdirectory(tps)
         add_subdirectory(setup)
-        add_subdirectory(silent)
 
         if(WITH_JAVADOC)
             add_subdirectory(javadoc)
@@ -38,10 +37,6 @@ if (APPLICATION_FLAVOR_PKI_CORE)
     )
 
 endif (APPLICATION_FLAVOR_PKI_CORE)
-
-if (APPLICATION_FLAVOR_PKI_RA)
-    add_subdirectory(ra)
-endif (APPLICATION_FLAVOR_PKI_RA)
 
 if (APPLICATION_FLAVOR_PKI_TPS)
     add_subdirectory(tps-client)

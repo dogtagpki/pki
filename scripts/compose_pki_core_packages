@@ -45,7 +45,7 @@ if [ "$WITHOUT_JAVADOC" = "" ]; then
 fi
 
 if [ "$WITHOUT_SERVER" = "" ]; then
-    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps-tomcat setup silent"
+    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps-tomcat setup"
 fi
 
 ##

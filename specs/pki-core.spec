@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          0.7%{?dist}
+Release:          0.8%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -712,8 +712,6 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/operations
 %{_datadir}/pki/scripts/pkicommon.pm
-%{_datadir}/pki/scripts/functions
-%{_datadir}/pki/scripts/pki_apache_initscript
 %{_bindir}/pkidaemon
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %{_unitdir}/pki-tomcatd@.service
@@ -721,15 +719,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %{_javadir}/pki/pki-cms.jar
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore.jar
-%{_javadir}/pki/pki-silent.jar
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_sharedstatedir}/pki
-%{_bindir}/pkicreate
-%{_bindir}/pkiremove
 %{_bindir}/pki-setup-proxy
-%{_bindir}/pkisilent
-%{_datadir}/pki/silent/
-%{_bindir}/pkicontrol
 %{_mandir}/man5/pki_default.cfg.5.gz
 %{_mandir}/man8/pki-server-upgrade.8.gz
 %{_mandir}/man8/pkidestroy.8.gz
@@ -799,6 +791,10 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Wed Aug 27 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.8
+- PKI TRAC Ticket #1127 - Remove 'pki-ra', 'pki-setup', and 'pki-silent'
+  packages . . .
+
 * Wed Aug 13 2014 Jack Magne <jmagne@redhat.com> - 10.2.0-0.7
 - Respin to include the applet files with the rpm install. No change
   to spec file needed.
