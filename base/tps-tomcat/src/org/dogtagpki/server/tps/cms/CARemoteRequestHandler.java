@@ -192,6 +192,87 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
     }
 
     /**
+     * retrieveCertificate retrieves a certificate by serial number
+     *
+     * @param serialno the serial number of the cert to be retrieved
+     * @return CARetrieveCertResponse
+     */
+    public CARetrieveCertResponse retrieveCertificate(
+            BigInteger serialno)
+            throws EBaseException {
+
+        CMS.debug("CARemoteRequestHandler: renewCertificate(): begins.");
+        if (serialno == null) {
+            throw new EBaseException("CARemoteRequestHandler: retrieveCertificate(): input parameter null.");
+        }
+
+        IConfigStore conf = CMS.getConfigStore();
+        String configName = "tps.connector." + connid + ".uri.getBySerial";
+        String servlet = conf.getString(configName, "/ca/ee/ca/displayBySerial");
+        TPSSubsystem subsystem =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        HttpConnector conn =
+                (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
+        CMS.debug("CARemoteRequestHandler: retrieveCertificate(): sending request to CA");
+        HttpResponse resp =
+                conn.send("getcert",
+                        IRemoteRequest.GET_XML + "=" + true +
+                                "&" + IRemoteRequest.CA_GET_CERT_B64CertOnly + "=" + true +
+                                "&" + IRemoteRequest.CA_GET_CERT_SERIAL + "=" + serialno.toString());
+
+        String content = resp.getContent();
+        if (content != null && !content.equals("")) {
+            XMLObject xmlResponse =
+                    getXMLparser(content);
+
+            Hashtable<String, Object> response =
+                    new Hashtable<String, Object>();
+
+            CMS.debug("CARemoteRequestHandler: retrieveCertificate(): received:" +
+                    content);
+
+            /**
+             * When a value is not found in response, keep going so we know
+             * what else is missing
+             */
+            Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
+            String value = xmlResponse.getValue(IRemoteRequest.RESPONSE_STATUS_XML);
+            if (value == null) {
+                CMS.debug("CARemoteRequestHandler: retrieveCertificate(): Status not found.");
+                CMS.debug("CARemoteRequestHandler: retrieveCertificate(): got content = " + content);
+            } else {
+                CMS.debug("CARemoteRequestHandler: retrieveCertificate(): got Status = " + value);
+                ist = Integer.parseInt(value);
+            }
+            response.put(IRemoteRequest.RESPONSE_STATUS, ist);
+
+            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
+            if (value == null) {
+                CMS.debug("CARemoteRequestHandler:: retrieveCertificate(): response missing name-value pair for: " +
+                        IRemoteRequest.CA_RESPONSE_Certificate_chain_b64);
+            } else {
+                CMS.debug("CARemoteRequestHandler:: retrieveCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_chain_b64 = "
+                        + value);
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_chain_b64, value);
+                try {
+                    X509CertImpl newCert = new X509CertImpl(Utils.base64decode(value));
+                    response.put(IRemoteRequest.CA_RESPONSE_Certificate_x509, newCert);
+                    CMS.debug("CARemoteRequestHandler: retrieveCertificate(): retrieved cert parsed successfully");
+                } catch (CertificateException e) {
+                    // we don't exit.  Keep going.
+                    CMS.debug("CARemoteRequestHandler: retrieveCertificate(): exception:" + e);
+                }
+            }
+
+            CMS.debug("CARemoteRequestHandler: retrieveCertificate(): ends.");
+            return new CARetrieveCertResponse(response);
+        } else {
+            CMS.debug("CARemoteRequestHandler: retrieveCertificate(): no response content");
+            throw new EBaseException("CARemoteRequestHandler: retrieveCertificate(): no response content.");
+        }
+    }
+
+    /**
      * renewCertificate renew a certificate by serial number
      *
      * @param serialno the serial number of the cert to be renewed

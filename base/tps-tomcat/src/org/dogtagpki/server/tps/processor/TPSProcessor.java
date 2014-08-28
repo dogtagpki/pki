@@ -1163,7 +1163,20 @@ public class TPSProcessor {
             throw e;
         }
         appletInfo.setAid(getCardManagerAID());
+
+        CMS.debug("TPSProcessor.format: token cuid: " + appletInfo.getCUIDhexStringPlain());
         boolean isTokenPresent = false;
+        try {
+            tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
+            // now the in memory tokenRecord is replaced by the actual token data
+            CMS.debug("TPSProcessor.format: found token...");
+            isTokenPresent = true;
+        } catch (Exception e) {
+            CMS.debug("TPSProcessor.format: token does not exist in tokendb... create one in memory");
+            tokenRecord = new TokenRecord();
+            tokenRecord.setId(appletInfo.getCUIDhexStringPlain());
+        }
+
         fillTokenRecord(tokenRecord, appletInfo);
         session.setTokenRecord(tokenRecord);
 
@@ -1286,7 +1299,6 @@ public class TPSProcessor {
             }
         } else {
             CMS.debug("TPSProcessor.format: token does not exist");
-            tokenRecord.setStatus("uninitialized");
 
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
         }
@@ -1339,6 +1351,7 @@ public class TPSProcessor {
         }
 
         // Update Token DB
+       tokenRecord.setStatus("uninitialized");
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
             String successMsg = "update token success";

@@ -122,6 +122,10 @@ public class TPSEngine {
     public static final String CFG_SERVER_KEY_ARCHIVAL = "serverKeygen.archive";
     public static final String CFG_DRM_CONNECTOR = "serverKeygen.drm.conn";
 
+    /* token renewal values */
+    public static final String CFG_RENEW_KEYTYPE_NUM = "renewal.keyType.num";
+    public static final String CFG_RENEW_KEYTYPE_VALUE = "renewal.keyType.value";
+
     /* External reg values */
 
     public static final String CFG_EXTERNAL_REG = "externalReg";

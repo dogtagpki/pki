@@ -1,9 +1,11 @@
 package org.dogtagpki.server.tps.processor;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -22,6 +24,8 @@ import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
+import org.dogtagpki.server.tps.cms.CARenewCertResponse;
+import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
 import org.dogtagpki.server.tps.cms.KRAServerSideKeyGenResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
@@ -221,7 +225,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         boolean renewed = false;
         TPSStatus status = generateCertsAfterRenewalRecoveryPolicy(certsInfo, channel, appletInfo);
-        //anything failed would have thrown an exception
+        //most failed would have thrown an exception
         String statusString = "Unknown"; // gives some meaningful debug message
         if (status == TPSStatus.STATUS_NO_ERROR)
             statusString = "Enrollment to follow";
@@ -229,6 +233,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
             statusString = "Recovery processed";
         else if (status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED)
             statusString = "Renewal processed";
+        else {
+            auditMsg = " generateCertsAfterRenewalRecoveryPolicy returned status=" + status;
+            CMS.debug("TPSEnrollProcessor.enroll:" + auditMsg);
+            throw new TPSException(auditMsg);
+        }
         auditMsg = "generateCertsAfterRenewalRecoveryPolicy returns status:"
                 + EndOpMsg.statusToInt(status) + " : " + statusString;
         CMS.debug("TPSEnrollProcessor.enroll: " + auditMsg);
@@ -667,56 +676,21 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug(method + " found " + tokenRecords.size() + " tokens for user:" + userid);
         boolean isRecover = false;
 
+        TokenRecord lostToken = null;
         for (TokenRecord tokenRecord:tokenRecords)  {
             CMS.debug(method + " token id:"
                     + tokenRecord.getId() + "; status="
                     + tokenRecord.getStatus());
-            if (isRecover == true) { // this could be set in previous iteration
-                TokenRecord lostToken = tokenRecord;
-                String reasonStr = lostToken.getReason();
-                //RevocationReason reason = RevocationReason.valueOf(reasonStr);
-                String origTokenType = selectedTokenType;
-                auditMsg = "isRecover true; reasonStr =" + reasonStr;
-                CMS.debug(method + auditMsg);
 
-                if (reasonStr.equals("keyCompromise")) {
-                    return processRecovery();
-                } else if (reasonStr.equals("onHold")) {
-                    /*
-                     * the inactive one becomes the temp token
-                     * No recovery scheme, basically we are going to
-                     * do the brand new enrollment
-                     */
-                    IConfigStore configStore = CMS.getConfigStore();
-                    String configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + "temporaryToken.tokenType";
-                    try {
-                        String tmpTokenType = configStore.getString(configName);
-                    } catch (EPropertyNotFound e) {
-                        auditMsg = "configuration " + configName + " not found";
-                        CMS.debug(method + auditMsg);
-                        throw new TPSException(method + auditMsg);
-                    } catch (EBaseException e) {
-                        auditMsg = "configuration " + configName + " not found";
-                        CMS.debug(method + auditMsg);
-                        throw new TPSException(method + auditMsg);
-                    }
-                    return processRecovery();
-
-                } else if (reasonStr.equals("destroyed")) {
-                    return processRecovery();
-                } else {
-                    auditMsg = "No such lost reason: " + reasonStr + " for this cuid: " + aInfo.getCUIDhexStringPlain();
-                    CMS.debug(method + auditMsg);
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_NO_SUCH_LOST_REASON);
-                }
-
-            }
-
-            //Is this the same token?
+            //Is this the same token (current token)?
             if (tokenRecord.getId().equals(aInfo.getCUIDhexStringPlain())) {
                 //same token
+                auditMsg = "found current token entry";
+                CMS.debug(method + ":" + auditMsg);
                 if (tokenRecord.getStatus().equals("uninitialized")) {
+                    // this is the current token
                     if (tokenRecords.size() == 1) {
+                        // the current token is the only token owned by the user
                         CMS.debug(method +  ": need to do enrollment");
                         // need to do enrollment outside
                         break;
@@ -724,28 +698,35 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         CMS.debug(method +  ": There are multiple token entries for user "
                                 + userid);
                         try {
+                            // this is assuming that the user can only have one single active token
+                            // TODO: for future, maybe should allow multiple active tokens
                             tps.tdb.tdbHasActiveToken(userid);
-                            auditMsg = method + ": user already has an active token";
-                            CMS.debug(auditMsg);
-                            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
-                        } catch (Exception e1) {// user has no active token
+
+                        } catch (Exception e1) {
                                 /*
-                                 * current token is in active state
+                                 * user has no active token, need to find a token to recover from
                                  * there are no other active tokens for this user
-                                 * that means the previous one is the lost one
-                                 *
-                                 * get the most recent previous token:
                                  */
                                 isRecover = true;
+                                continue; // TODO: or break?
                         }
+                        auditMsg = method + ": user already has an active token";
+                        CMS.debug(auditMsg);
+                        throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
                     }
                 } else if (tokenRecord.getStatus().equals("active")) {
+                    // current token is already active; renew if allowed
                     if (tokenPolicy.isAllowdTokenRenew(aInfo.getCUIDhexStringPlain())) {
-                        return processRenewal();                    }
+                        return processRenewal(certsInfo, channel, aInfo, tokenRecord);
+                    } else {
+                        auditMsg = "token is already active; can't renew because renewal is not allowed; will re-enroll if allowed";
+                        CMS.debug(method + ":" + auditMsg);
+                    }
                     break;
                 } else if (tokenRecord.getStatus().equals("terminated")) {
-                    auditMsg = method + ": terminated token cuid="
-                            + aInfo.getCUIDhexStringPlain();
+                    auditMsg = "terminated token cuid="
+                            + aInfo.getCUIDhexStringPlain() + " cannot be reused";
+                    CMS.debug(method + ":" + auditMsg);
                     throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
                 } else if (tokenRecord.getStatus().equals("lost")) {
                     String reasonStr = tokenRecord.getReason();
@@ -784,7 +765,62 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_NO_SUCH_TOKEN_STATE);
                 }
             } else { //cuid != current token
+                auditMsg = "found token entry different from current token";
+                CMS.debug(method + ":" + auditMsg);
+                if (tokenRecord.getStatus().equals("lost")) {
+                    //lostostToken keeps track of the latest token that's lost
+                    //last one in the look should be the latest
+                    lostToken = tokenRecord;
+                    auditMsg = "found a lost token: cuid = " + tokenRecord.getId();
+                    CMS.debug(method + ":" + auditMsg);
+                }
                 continue;
+            }
+        }
+
+        if (isRecover == true) { // this could be set in previous iteration
+            if (lostToken == null) {
+                auditMsg = "No lost token to be recovered; do enrollment";
+                CMS.debug(method + ":" + auditMsg);
+                //shouldn't even get here;  But if we do, just enroll
+            } else {
+                String reasonStr = lostToken.getReason();
+                //RevocationReason reason = RevocationReason.valueOf(reasonStr);
+                String origTokenType = selectedTokenType;
+                auditMsg = "isRecover true; reasonStr =" + reasonStr;
+                CMS.debug(method + ":" + auditMsg);
+
+                if (reasonStr.equals("keyCompromise")) {
+                    return processRecovery();
+                } else if (reasonStr.equals("onHold")) {
+                    /*
+                     * the inactive one becomes the temp token
+                     * No recovery scheme, basically we are going to
+                     * do the brand new enrollment
+                     */
+                    IConfigStore configStore = CMS.getConfigStore();
+                    String configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType()
+                            + ".temporaryToken.tokenType";
+                    try {
+                        String tmpTokenType = configStore.getString(configName);
+                    } catch (EPropertyNotFound e) {
+                        auditMsg = "configuration " + configName + " not found";
+                        CMS.debug(method + ":" + auditMsg);
+                        throw new TPSException(method + auditMsg);
+                    } catch (EBaseException e) {
+                        auditMsg = "configuration " + configName + " not found";
+                        CMS.debug(method + auditMsg);
+                        throw new TPSException(method + auditMsg);
+                    }
+                    return processRecovery();
+
+                } else if (reasonStr.equals("destroyed")) {
+                    return processRecovery();
+                } else {
+                    auditMsg = "No such lost reason: " + reasonStr + " for this cuid: " + aInfo.getCUIDhexStringPlain();
+                    CMS.debug(method + ":" + auditMsg);
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_NO_SUCH_LOST_REASON);
+                }
             }
         }
 
@@ -792,13 +828,355 @@ public class TPSEnrollProcessor extends TPSProcessor {
         return status;
     }
 
-    private TPSStatus processRenewal() {
-        TPSStatus status = TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED;
+    /*
+    * Renewal logic
+    *  1. Create Optional local TPS grace period per token profile,
+    *     per token type, such as signing or encryption.
+    *    This grace period must match how the CA is configured. Ex:
+    *    op.enroll.userKey.renewal.encryption.enable=true
+    *    op.enroll.userKey.renewal.encryption.gracePeriod.enable=true
+    *    op.enroll.userKey.renewal.encryption.gracePeriod.before=30
+    *    op.enroll.userKey.renewal.encryption.gracePeriod.after=30
+    *  2. In case of a grace period failure the code will go on
+    *     and attempt to renew the next certificate in the list.
+    *  3. In case of any other code failure, the code will abort
+    *     and leave the token untouched, while informing the user
+    *     with an error message.
+    *
+    */
+    private TPSStatus processRenewal(EnrolledCertsInfo certsInfo, SecureChannel channel, AppletInfo aInfo, TokenRecord tokenRecord)
+    throws TPSException {
+        TPSStatus status = TPSStatus.STATUS_ERROR_RENEWAL_FAILED;
+        String method = "TPSEnrollProcess.processRenewal";
+        String auditMsg;
+        CMS.debug(method + ": begins");
 
-        // TODO Auto-generated method stub
-        CMS.debug("TPSEnrollProcess.processRenewal: reached");
+        boolean noFailedCerts = true;
 
+        if (certsInfo == null || aInfo == null || channel == null) {
+            throw new TPSException(method + ": Bad Input data!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        TPSSubsystem tps =
+                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        int keyTypeNum = getNumberCertsToRenew();
+        /*
+         * Get certs from the tokendb for this token to find out about
+         * renewal possibility
+         */
+        ArrayList<TPSCertRecord> allCerts = tps.tdb.tdbGetCertificatesByCUID(tokenRecord.getId());
+
+        certsInfo.setNumCertsToEnroll(keyTypeNum);
+
+        CMS.debug(method + ": Number of certs to renew: " + keyTypeNum);
+
+        for (int i = 0; i < keyTypeNum; i++) {
+            /*
+             * e.g. op.enroll.userKey.renewal.keyType.value.0=signing
+             * e.g. op.enroll.userKey.renewal.keyType.value.1=encryption
+             */
+            String keyType = getRenewConfigKeyType(i);
+            boolean renewEnabled = getRenewEnabled(keyType);
+            CMS.debug(method + ": key type " + keyType);
+            if (!renewEnabled) {
+                CMS.debug(method + ": renew not enabled");
+                continue;
+            }
+
+            CMS.debug(method + ": renew enabled");
+
+            TokenKeyType keyTypeEnum;
+            if (keyType.equalsIgnoreCase("signing"))
+                keyTypeEnum = TokenKeyType.KEY_TYPE_SIGNING;
+            else if (keyType.equalsIgnoreCase("encryption"))
+                keyTypeEnum = TokenKeyType.KEY_TYPE_ENCRYPTION;
+            else
+                keyTypeEnum = TokenKeyType.KEY_TYPE_SIGNING_AND_ENCRYPTION;
+
+            //TODO: handle the $token$ config pattern for label?
+
+            certsInfo.setCurrentCertIndex(i);
+
+            CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
+            IConfigStore configStore = CMS.getConfigStore();
+
+            // find all config
+            String configName = null;
+            boolean graceEnabled = false;
+            String graceBeforeS = null;
+            String graceAfterS = null;
+            try {
+                String keyTypePrefix = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + ".renewal." + keyType;
+
+                //TODO: profileId is actually gotten in the CARemoteRequestHandler.
+                configName = keyTypePrefix + ".ca.profileId";
+                String profileId;
+                profileId = configStore.getString(configName);
+                CMS.debug(method + ": profileId: " + profileId);
+
+                configName = keyTypePrefix + ".gracePeriod.enable";
+                graceEnabled = configStore.getBoolean(configName, false);
+                if (graceEnabled) {
+                    CMS.debug(method + ": grace period check is enabled");
+                    configName = keyTypePrefix + ".gracePeriod.before";
+                    graceBeforeS = configStore.getString(configName, "");
+                    configName = keyTypePrefix + ".gracePeriod.after";
+                    graceAfterS = configStore.getString(configName, "");
+                } else {
+                    CMS.debug(method + ": grace period check is not enabled");
+                }
+
+                configName = keyTypePrefix + ".certId";
+                String certId = configStore.getString(configName, "C0");
+                CMS.debug(method + ": certId: " + certId);
+
+                configName = keyTypePrefix + ".certAttrId";
+                String certAttrId = configStore.getString(configName, "c0");
+                CMS.debug(method + ": certAttrId: " + certAttrId);
+
+                configName = keyTypePrefix + ".privateKeyAttrId";
+                String priKeyAttrId = configStore.getString(configName, "k0");
+                CMS.debug(method + ": privateKeyAttrId: " + priKeyAttrId);
+
+                configName = keyTypePrefix + ".publicKeyAttrId";
+                String publicKeyAttrId = configStore.getString(configName, "k1");
+                CMS.debug(method + ": publicKeyAttrId: " + publicKeyAttrId);
+
+            } catch (EBaseException e) {
+                throw new TPSException(method + ": Internal error finding config value: " + configName + ":"
+                        + e,
+                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+
+            // find the certs that match the keyType to renew
+            for (TPSCertRecord cert: allCerts) {
+                if (keyType.equals(cert.getKeyType())) {
+                    try {
+                        CMS.debug(method + ": cert " + cert.getId() + " with status:" + cert.getStatus());
+                        if (cert.getStatus().equals("revoked") ||
+                                cert.getStatus().equals("renewed")) {
+                            CMS.debug(method + ": cert status is not to be renewed");
+                            continue;
+                        }
+
+                        // check if within grace period to save us a trip (note: CA makes the final decision)
+                        if (graceEnabled) {
+                            try {
+                                if (!isCertWithinRenewalGracePeriod(cert, graceBeforeS, graceAfterS))
+                                    continue;
+                            } catch (TPSException ge) {
+                                // error in this will just log and keep going
+                                CMS.debug(method + ":" + ge + "; continue to try renewal");
+                            }
+                        }
+                        renewCertificate(cert, certsInfo, channel, aInfo, keyType);
+                        status = TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED;
+                    } catch (TPSException e) {
+                        CMS.debug(method + "renewCertificate: exception:" + e);
+                        noFailedCerts = false;
+                        break; //need to clean up half-done token later
+                    }
+                }
+            }
+        }
+
+        if (!noFailedCerts) {
+            // TODO: handle cleanup
+            auditMsg = "There has been failed cert renewal";
+            CMS.debug(method + ":" + auditMsg);
+            throw new TPSException(auditMsg + TPSStatus.STATUS_ERROR_RENEWAL_FAILED);
+        }
         return status;
+    }
+
+    /*
+     * isCertWithinRenewalGracePeriod - check if a cert is within the renewal grace period
+     * @param cert the cert to be renewed
+     * @param renewGraceBeforeS string representation of the # of days "before" cert expiration date
+     * @param renewGraceAfterS string representation of the # of days "after" cert expiration date
+     */
+    private boolean isCertWithinRenewalGracePeriod(TPSCertRecord cert, String renewGraceBeforeS, String renewGraceAfterS) throws TPSException {
+        String method = "TPSEnrollProcessor.isCertWithinRenewalGracePeriod";
+        int renewGraceBefore = 0;
+        int renewGraceAfter = 0;
+
+        if (cert == null || renewGraceBeforeS == null || renewGraceAfterS == null) {
+            CMS.debug(method + ": missing some input");
+            throw new TPSException(method + ": Bad Input data!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+        BigInteger renewGraceBeforeBI = new BigInteger(renewGraceBeforeS);
+        BigInteger renewGraceAfterBI = new BigInteger(renewGraceAfterS);
+
+        // -1 means no limit
+        if (renewGraceBeforeS == "")
+            renewGraceBefore = -1;
+        else
+            renewGraceBefore = Integer.parseInt(renewGraceBeforeS);
+
+        if (renewGraceAfterS == "")
+            renewGraceAfter = -1;
+        else
+            renewGraceAfter = Integer.parseInt(renewGraceAfterS);
+
+        if (renewGraceBefore > 0)
+            renewGraceBeforeBI = renewGraceBeforeBI.multiply(BigInteger.valueOf(1000 * 86400));
+        if (renewGraceAfter > 0)
+            renewGraceAfterBI = renewGraceAfterBI.multiply(BigInteger.valueOf(1000 * 86400));
+
+        Date origExpDate = cert.getValidNotAfter();
+        Date current = CMS.getCurrentDate();
+        long millisDiff = origExpDate.getTime() - current.getTime();
+        CMS.debug(method + ": millisDiff="
+                + millisDiff + " origExpDate=" + origExpDate.getTime() + " current=" + current.getTime());
+
+        /*
+         * "days", if positive, has to be less than renew_grace_before
+         * "days", if negative, means already past expiration date,
+         *     (abs value) has to be less than renew_grace_after
+         * if renew_grace_before or renew_grace_after are negative
+         *    the one with negative value is ignored
+         */
+        if (millisDiff >= 0) {
+            if ((renewGraceBefore > 0) && (millisDiff > renewGraceBeforeBI.longValue())) {
+                CMS.debug(method + ": renewal attempted outside of grace period;" +
+                        renewGraceBefore + " days before and " +
+                                renewGraceAfter + " days after original cert expiration date");
+                return false;
+            }
+        } else {
+            if ((renewGraceAfter > 0) && ((0 - millisDiff) > renewGraceAfterBI.longValue())) {
+                CMS.debug(method + ": renewal attempted outside of grace period;" +
+                        renewGraceBefore + " days before and " +
+                                renewGraceAfter + " days after original cert expiration date");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*
+     * renewCertificate - renew by serial number
+     */
+    private void renewCertificate(TPSCertRecord cert, EnrolledCertsInfo certsInfo, SecureChannel channel, AppletInfo aInfo, String keyType)
+        throws TPSException {
+        String method = "TPSEnrollProcessor.renewCertificate";
+        CMS.debug(method + " begins");
+
+        if (cert == null || certsInfo == null || aInfo == null || channel == null || aInfo == null || keyType == null) {
+            CMS.debug(method + ": missing some input");
+            throw new TPSException(method + ": Bad Input data!",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+        String serialS = cert.getSerialNumber();
+        CMS.debug(method + ": serial # =" + serialS);
+        String serialhex = serialS.substring(2); // strip off the "0x"
+        BigInteger serialBI = new BigInteger(serialhex, 16);
+
+        try {
+            String caConnID = getCAConnectorID();
+            CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConnID);
+
+            /*
+             * testing retrieveCertificate() to retrieve the old cert (to be used by Recovery)
+             * TODO: remove
+             */
+            CARetrieveCertResponse retrieveResponse = caRH.retrieveCertificate(serialBI);
+            String retrievedCertB64 = retrieveResponse.getCertB64();
+            CMS.debug(method + ": retrieved cert: " + retrievedCertB64);
+            // test ends - remove up to here
+
+            CARenewCertResponse renewResponse = caRH.renewCertificate(serialBI, cert.getType(), keyType);
+            String newCertB64 = renewResponse.getRenewedCertB64();
+            CMS.debug(method + ": renewed new cert: " + newCertB64);
+            /*
+             * TODO: fill up certsInfo and do the cert injection
+             */
+        } catch (EBaseException e) {
+            CMS.debug(method + ":" + e);
+            throw new TPSException(method + ": Exception thrown: " + e,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        return;
+    }
+
+    private boolean getRenewEnabled(String keyType) {
+        String method = "TPSEnrollProcessor.getRenewEnabled";
+        IConfigStore configStore = CMS.getConfigStore();
+        boolean enabled = false;
+
+        try {
+            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + ".renewal."
+                    + keyType + "." + "enable";
+            enabled = configStore.getBoolean(
+                    configValue, false);
+
+        } catch (EBaseException e) {
+            //default to false
+        }
+
+        CMS.debug(method + ": returning " + enabled);
+        return enabled;
+    }
+
+    private String getRenewConfigKeyType(int keyTypeIndex) throws TPSException {
+        String method = "TPSEnrollProcessor.getRenewConfigKeyType";
+        IConfigStore configStore = CMS.getConfigStore();
+        String keyType = null;
+
+        try {
+            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
+                    + TPSEngine.CFG_RENEW_KEYTYPE_VALUE + "." + keyTypeIndex;
+            keyType = configStore.getString(
+                    configValue, null);
+
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    method + ": Internal error finding config value: " + e,
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        //We would really like one of these to exist
+        if (keyType == null) {
+            throw new TPSException(
+                    method + ": Internal error finding config value: ",
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+        }
+
+        CMS.debug(method + ": returning: " + keyType);
+
+        return keyType;
+
+    }
+
+
+    private int getNumberCertsToRenew() throws TPSException {
+        String method = "TPSEnrollProcessor.getNumberCertsToRenew";
+
+        IConfigStore configStore = CMS.getConfigStore();
+        int keyTypeNum = 0;
+        try {
+            String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
+                    + TPSEngine.CFG_RENEW_KEYTYPE_NUM;
+            keyTypeNum = configStore.getInteger(
+                    configValue, 0);
+
+        } catch (EBaseException e) {
+            throw new TPSException(method + ": Internal error finding config value: "
+                    + e,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+
+        if (keyTypeNum == 0) {
+            throw new TPSException(
+                    method + ": invalid number of certificates to renew configured!",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        CMS.debug(method + ": returning: " + keyTypeNum);
+
+        return keyTypeNum;
     }
 
     private TPSStatus processRecovery() {
@@ -1176,6 +1554,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             certsInfo.addCertificate(x509Cert);
             certsInfo.addKType(cEnrollInfo.getKeyType());
             certsInfo.addOrigin(aInfo.getCUIDhexString());
+
+            certsInfo.addTokenType(selectedTokenType);
 
             SubjectPublicKeyInfo publicKeyInfo = null;
             try {

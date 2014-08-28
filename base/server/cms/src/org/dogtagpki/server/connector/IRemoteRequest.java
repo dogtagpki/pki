@@ -69,6 +69,8 @@ public interface IRemoteRequest {
     public static final String CA_RenewedCertificate = "renewedCertificate";
     public static final String CA_RENEWAL_SerialNum = "serial_num";
     public static final String CA_RENEWAL= "renewal";
+    public static final String CA_GET_CERT_B64CertOnly = "b64CertOnly";
+    public static final String CA_GET_CERT_SERIAL = "serialNumber";
 
     public static final String CA_REVOKE = "revoke";
     public static final String CA_REVOCATION_REASON = "revocationReason";
@@ -86,6 +88,7 @@ public interface IRemoteRequest {
     public static final String CA_RESPONSE_Certificate_b64 = "b64";
     public static final String CA_RESPONSE_Certificate_SubjectDN = "SubjectDN";
     public static final String CA_RESPONSE_Certificate_serial = "serialno";
+    public static final String CA_RESPONSE_Certificate_chain_b64 = "certChainBase64";
 
     // KRA request params
     public static final String KRA_UserId = "userid";

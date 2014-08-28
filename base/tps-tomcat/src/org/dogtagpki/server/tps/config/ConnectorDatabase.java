@@ -184,6 +184,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
         record.setProperty(prefix + "." + id + ".nickName", nickname);
         record.setProperty(prefix + "." + id + ".timeout", "30");
         record.setProperty(prefix + "." + id + ".uri.enrollment", "/ca/ee/ca/profileSubmitSSLClient");
+        record.setProperty(prefix + "." + id + ".uri.getcert", "/ca/ee/ca/displayBySerial");
         record.setProperty(prefix + "." + id + ".uri.renewal", "/ca/ee/ca/profileSubmitSSLClient");
         record.setProperty(prefix + "." + id + ".uri.revoke", "/ca/ee/subsystem/ca/doRevoke");
         record.setProperty(prefix + "." + id + ".uri.unrevoke", "/ca/ee/subsystem/ca/doUnrevoke");

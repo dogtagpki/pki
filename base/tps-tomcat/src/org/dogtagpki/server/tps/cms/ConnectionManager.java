@@ -19,9 +19,9 @@
 package org.dogtagpki.server.tps.cms;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
@@ -84,10 +84,11 @@ public class ConnectionManager
      *   tps.connector.ca1.nickName=subsystemCert cert-pki-tomcat TPS
      *   tps.connector.ca1.timeout=30
      *   # In the example below,
-     *   #   "enrollment", "renewal", "revoke", and "unrevoke"
+     *   #   "enrollment", "getcert", "renewal", "revoke", and "unrevoke"
      *   #   are what's being referred to as "op" in the multi-uri support code
      *   tps.connector.ca1.uri.enrollment=/ca/ee/ca/profileSubmitSSLClient
      *   tps.connector.ca1.uri.renewal=/ca/ee/ca/profileSubmitSSLClient
+     *   tps.connector.ca1.uri.getcert=/ca/ee/ca/displayBySerial
      *   tps.connector.ca1.uri.revoke=/ca/ee/subsystem/ca/doRevoke
      *   tps.connector.ca1.uri.unrevoke=/ca/ee/subsystem/ca/doUnrevoke
      */
