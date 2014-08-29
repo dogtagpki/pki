@@ -87,8 +87,6 @@ public class ClientCertImportCLI extends CLI {
             System.exit(-1);
         }
 
-        client = parent.getClient();
-
         byte[] bytes = null;
 
         String certPath = cmd.getOptionValue("cert");
@@ -110,7 +108,14 @@ public class ClientCertImportCLI extends CLI {
             isCACert = true;
 
         } else if (importFromCAServer) {
+
+            // late initialization
+            MainCLI mainCLI = (MainCLI)parent.parent;
+            mainCLI.init();
+
+            client = mainCLI.getClient();
             ClientConfig config = client.getConfig();
+
             String caServerURI = "http://" + config.getServerURI().getHost() + ":8080/ca";
 
             if (verbose) System.out.println("Downloading CA certificate from " + caServerURI + ".");
