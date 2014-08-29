@@ -107,13 +107,13 @@ rhcs_install_RootCA() {
                 echo "pki_audit_signing_token=$ROOTCA_AUDIT_SIGNING_TOKEN" >> $INSTANCECFG
                 echo "pki_audit_signing_nickname=$ROOTCA_AUDIT_SIGNING_NICKNAME" >> $INSTANCECFG
                 echo "pki_audit_signing_subject_dn=$ROOTCA_AUDIT_SIGNING_CERT_SUBJECT_NAME" >> $INSTANCECFG
-  		#echo "pki_ssl_server_key_type=$ROOTCA_SSL_SERVER_KEY_TYPE" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_size=$ROOTCA_SSL_SERVER_KEY_SIZE" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_algorithm=$ROOTCA_SSL_SERVER_KEY_ALGORITHM" >> $INSTANCECFG
-                #echo "pki_ssl_server_signing_algorithm=$ROOTCA_SSL_SERVER_SIGNING_ALGORITHM" >> $INSTANCECFG
-                #echo "pki_ssl_server_token=$ROOTCA_SSL_SERVER_TOKEN" >> $INSTANCECFG
-                #echo "pki_ssl_server_nickname=$ROOTCA_SSL_SERVER_NICKNAME" >> $INSTANCECFG
-                #echo "pki_ssl_server_subject_dn=$ROOTCA_SSL_SERVER_CERT_SUBJECT_NAME" >> $INSTANCECFG
+  		echo "pki_ssl_server_key_type=$ROOTCA_SSL_SERVER_KEY_TYPE" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$ROOTCA_SSL_SERVER_KEY_SIZE" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$ROOTCA_SSL_SERVER_KEY_ALGORITHM" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$ROOTCA_SSL_SERVER_SIGNING_ALGORITHM" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$ROOTCA_SSL_SERVER_TOKEN" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$ROOTCA_SSL_SERVER_NICKNAME" >> $INSTANCECFG
+                echo "pki_ssl_server_subject_dn=$ROOTCA_SSL_SERVER_CERT_SUBJECT_NAME" >> $INSTANCECFG
 		echo "pki_subsystem_key_type=$ROOTCA_SUBSYSTEM_KEY_TYPE" >> $INSTANCECFG
                 echo "pki_subsystem_key_size=$ROOTCA_SUBYSTEM_KEY_SIZE" >> $INSTANCECFG
                 echo "pki_subsystem_key_algorithm=$ROOTCA_SUBSYSTEM_KEY_ALGORITHM" >> $INSTANCECFG
@@ -134,7 +134,6 @@ rhcs_install_RootCA() {
 		echo "pki_client_admin_cert_p12=$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12" >> $INSTANCECFG
 		echo "pki_backup_keys=$ROOTCA_BACKUP" >> $INSTANCECFG
 		echo "pki_backup_password=$ROOTCA_BACKUP_PASSWORD" >> $INSTANCECFG
-		echo "pki_backup_fname=$ROOTCA_BACKUP_FILE_NAME" >> $INSTANCECFG
 		echo "pki_client_database_dir=$CERTDB_DIR" >> $INSTANCECFG
 		echo "pki_client_database_password=$CERTDB_DIR_PASSWORD" >> $INSTANCECFG 
 		echo "pki_client_database_purge=$CLIENT_DB_PURGE" >> $INSTANCECFG
@@ -255,13 +254,13 @@ rhcs_install_kra() {
                 echo "pki_audit_signing_token=$(eval echo \$KRA${number}_AUDIT_SIGNING_TOKEN)" >> $INSTANCECFG
                 echo "pki_audit_signing_nickname=$(eval echo \$KRA${number}_AUDIT_SIGNING_NICKNAME)" >> $INSTANCECFG
                 echo "pki_audit_signing_subject_dn=$(eval echo \$KRA${number}_AUDIT_SIGNING_SUBJECT_DN)" >> $INSTANCECFG
-	 	#echo "pki_ssl_server_key_type=$(eval echo $KRA${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_size=$(eval echo $KRA${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_algorithm=$(eval echo $KRA${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
-                #echo "pki_ssl_server_signing_algorithm=$(eval echo $KRA${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
-                #echo "pki_ssl_server_token=$(eval echo $KRA${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
-                #echo "pki_ssl_server_nickname=$(eval echo $KRA${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
-                #echo "pki_ssl_server_subject_dn=$(eval echo $KRA${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
+	 	echo "pki_ssl_server_key_type=$(eval echo \$KRA${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$(eval echo \$KRA${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$(eval echo \$KRA${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$(eval echo \$KRA${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$(eval echo \$KRA${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$(eval echo \$KRA${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
+                echo "pki_ssl_server_subject_dn=$(eval echo \$KRA${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
                 echo "pki_admin_name=$(eval echo \$KRA${number}_ADMIN_USER)" >> $INSTANCECFG
                 echo "pki_admin_uid=$(eval echo \$KRA${number}_ADMIN_USER)" >> $INSTANCECFG
                 echo "pki_admin_email=$(eval echo \$KRA${number}_ADMIN_EMAIL)" >> $INSTANCECFG
@@ -278,7 +277,6 @@ rhcs_install_kra() {
 		echo "pki_issuing_ca_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_backup_keys=$ROOTCA_BACKUP" >> $INSTANCECFG
 		echo "pki_backup_password=$(eval echo \$KRA${number}_BACKUP_PASSWORD)" >> $INSTANCECFG
-		echo "pki_backup_fname=$(eval echo \$KRA${number}_BACKUP_FILE_NAME)" >> $INSTANCECFG
 		echo "pki_client_database_dir=$CERTDB_DIR" >> $INSTANCECFG
 		echo "pki_client_database_password=$CERTDB_DIR_PASSWORD" >> $INSTANCECFG 
 		echo "pki_client_database_purge=$CLIENT_DB_PURGE" >> $INSTANCECFG
@@ -387,13 +385,13 @@ rhcs_install_ocsp() {
                 echo "pki_audit_signing_token=$(eval echo \$OCSP${number}_AUDIT_SIGNING_TOKEN)" >> $INSTANCECFG
                 echo "pki_audit_signing_nickname=$(eval echo \$OCSP${number}_AUDIT_SIGNING_CERT_NICKNAME)" >> $INSTANCECFG
                 echo "pki_audit_signing_subject_dn=$(eval echo \$OCSP${number}_AUDIT_SIGNING_SUBJECT_DN)" >> $INSTANCECFG
-		#echo "pki_ssl_server_key_type=$(eval echo $OCSP${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_size=$(eval echo $OCSP${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_algorithm=$(eval echo $OCSP${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
-                #echo "pki_ssl_server_signing_algorithm=$(eval echo $OCSP${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
-                #echo "pki_ssl_server_token=$(eval echo $OCSP${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
-                #echo "pki_ssl_server_nickname=$(eval echo $OCSP${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
-                #echo "pki_ssl_server_subject_dn=$(eval echo $OCSP${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
+		echo "pki_ssl_server_key_type=$(eval echo \$OCSP${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$(eval echo \$OCSP${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$(eval echo \$OCSP${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$(eval echo \$OCSP${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$(eval echo \$OCSP${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$(eval echo \$OCSP${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
+                echo "pki_ssl_server_subject_dn=$(eval echo \$OCSP${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
 		echo "pki_admin_name=$(eval echo \$OCSP${number}_ADMIN_USER)" >> $INSTANCECFG
                 echo "pki_admin_uid=$(eval echo \$OCSP${number}_ADMIN_USER)" >> $INSTANCECFG
                 echo "pki_admin_email=$(eval echo \$OCSP${number}_ADMIN_EMAIL)" >> $INSTANCECFG
@@ -410,7 +408,6 @@ rhcs_install_ocsp() {
                 echo "pki_issuing_ca_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_backup_keys=$ROOTCA_BACKUP" >> $INSTANCECFG
 		echo "pki_backup_password=$(eval echo \$OCSP${number}_BACKUP_PASSWORD)" >> $INSTANCECFG
-		echo "pki_backup_fname=$(eval echo \$OCSP${number}_BACKUP_FILE_NAME)" >> $INSTANCECFG
 		echo "pki_client_database_dir=$CERTDB_DIR" >> $INSTANCECFG
 		echo "pki_client_database_password=$CERTDB_DIR_PASSWORD" >> $INSTANCECFG 
 		echo "pki_client_database_purge=$CLIENT_DB_PURGE" >> $INSTANCECFG
@@ -509,13 +506,13 @@ rhcs_install_tks() {
                 echo "pki_audit_signing_token=$(eval echo \$TKS${number}_AUDIT_SIGNING_TOKEN)" >> $INSTANCECFG
                 echo "pki_audit_signing_nickname=$(eval echo \$TKS${number}_AUDIT_SIGNING_CERT_NICKNAME)" >> $INSTANCECFG
                 echo "pki_audit_signing_subject_dn=$(eval echo \$TKS${number}_AUDIT_SIGNING_SUBJECT_DN)" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_type=$(eval echo $TKS${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_size=$(eval echo $TKS${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_algorithm=$(eval echo $TKS${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
-                #echo "pki_ssl_server_signing_algorithm=$(eval echo $TKS${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
-                #echo "pki_ssl_server_token=$(eval echo $TKS${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
-                #echo "pki_ssl_server_nickname=$(eval echo $TKS${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
-                #echo "pki_ssl_server_subject_dn=$(eval echo $TKS${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_type=$(eval echo \$TKS${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$(eval echo \$TKS${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$(eval echo \$TKS${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$(eval echo \$TKS${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$(eval echo \$TKS${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$(eval echo \$TKS${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
+                echo "pki_ssl_server_subject_dn=$(eval echo \$TKS${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
 
 		echo "pki_admin_name=$(eval echo \$TKS${number}_ADMIN_USER)" >> $INSTANCECFG
                 echo "pki_admin_uid=$(eval echo \$TKS${number}_ADMIN_USER)" >> $INSTANCECFG
@@ -533,7 +530,6 @@ rhcs_install_tks() {
                 echo "pki_issuing_ca_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_backup_keys=$ROOTCA_BACKUP" >> $INSTANCECFG
 		echo "pki_backup_password=$(eval echo \$TKS${number}_BACKUP_PASSWORD)" >> $INSTANCECFG
-		echo "pki_backup_fname=$(eval echo \$TKS${number}_BACKUP_FILE_NAME)" >> $INSTANCECFG
 		echo "pki_client_database_dir=$CERTDB_DIR" >> $INSTANCECFG
 		echo "pki_client_database_password=$CERTDB_DIR_PASSWORD" >> $INSTANCECFG 
 		echo "pki_client_database_purge=$CLIENT_DB_PURGE" >> $INSTANCECFG
@@ -613,7 +609,7 @@ rhcs_install_cloneCA()
         rlLog "Creating CLONE CA Instance"
                 rlLog "Setting up Dogtag CLONE CA instance ............."
                 echo "[DEFAULT]" > $INSTANCECFG
-                echo "pki_instance_name=$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME)" >> $INSTANCECFG
+                echo "pki_instance_name=$(eval echo \$CLONE_CA${number}_TOMCAT_INSTANCE_NAME)" >> $INSTANCECFG
                 echo "pki_https_port=$(eval echo \$CLONE_CA${number}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_http_port=$(eval echo \$CLONE_CA${number}_UNSECURE_PORT)" >> $INSTANCECFG
                 echo "pki_ajp_port=$(eval echo \$CLONE_CA${number}_AJP_PORT)" >> $INSTANCECFG
@@ -647,7 +643,15 @@ rhcs_install_cloneCA()
                 echo "pki_admin_key_type=$(eval echo \$CLONE_CA${number}_ADMIN_KEY_TYPE)" >> $INSTANCECFG
                 echo "pki_admin_subject_dn=$(eval echo \$CLONE_CA${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$CLONE_CA${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
-                echo "pki_import_admin_cert=$(eval echo \$CLONE_CA${number}_ADMIN_IMPORT_CERT)" >> $INSTANCECFG
+
+                echo "pki_ssl_server_key_type=$(eval echo \$CLONE_CA${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$(eval echo \$CLONE_CA${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$(eval echo \$CLONE_CA${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$(eval echo \$CLONE_CA${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$(eval echo \$CLONE_CA${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$(eval echo \$CLONE_CA${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
+                echo "pki_ssl_server_subject_dn=$(eval echo \$CLONE_CA${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
+		echo "pki_import_admin_cert=$(eval echo \$CLONE_CA${number}_ADMIN_IMPORT_CERT)" >> $INSTANCECFG
                 echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$(eval echo \$CLONE_CA${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
 		echo "pki_security_domain_hostname=$master_hostname" >> $INSTANCECFG
 		echo "pki_security_domain_https_port=$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
@@ -674,17 +678,17 @@ rhcs_install_cloneCA()
                 rlAssertGrep "$exp_message2" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE_CA${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE_CA${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
                 exp_message5_1="https://$HOSTNAME_CLONE:$(eval echo \$CLONE_CA${number}_SECURE_PORT)/ca"
                 rlAssertGrep "$exp_message5_1" "$INSTANCE_CREATE_OUT"
-                #echo "export CA_SERVER_ROOT=/var/lib/pki/$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME)/ca" >> /opt/rhqa_pki/env.sh
+                #echo "export CA_SERVER_ROOT=/var/lib/pki/$(eval echo \$CLONE_CA${number}_TOMCAT_INSTANCE_NAME)/ca" >> /opt/rhqa_pki/env.sh
      rlPhaseEnd
 
 }
@@ -723,14 +727,14 @@ rhcs_install_SubCA(){
                 echo "pki_client_pkcs12_password=$(eval echo \$SUBCA${number}_CLIENT_PKCS12_PASSWORD)" >> $INSTANCECFG
                 echo "pki_admin_password=$(eval echo \$SUBCA${number}_ADMIN_PASSWORD)" >> $INSTANCECFG
                 echo "pki_ds_password=$(eval echo \$SUBCA${number}_DS_PASSWORD)" >> $INSTANCECFG
-                echo "pki_subordinate=True" >> $INSTANCECFG     
      		echo "pki_ds_password=$(eval echo \$SUBCA${number}_LDAP_ROOTDNPWD)" >> $INSTANCECFG   
                 echo "pki_client_dir=$(eval echo \$SUBCA${number}_CLIENT_DIR)" >> $INSTANCECFG
-                echo "pki_issuing_ca=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
 
                 echo "[CA]" >> $INSTANCECFG
 
+                echo "pki_subordinate=True" >> $INSTANCECFG     
                 echo "pki_admin_name=$(eval echo \$SUBCA${number}_ADMIN_USER)" >> $INSTANCECFG
+                echo "pki_issuing_ca=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_admin_uid=$(eval echo \$SUBCA${number}_ADMIN_USER)" >> $INSTANCECFG
                 echo "pki_admin_email=$(eval echo \$SUBCA${number}_ADMIN_EMAIL)" >> $INSTANCECFG
                 echo "pki_admin_dualkey=$(eval echo \$SUBCA${number}_ADMIN_DUAL_KEY)" >> $INSTANCECFG
@@ -769,13 +773,13 @@ rhcs_install_SubCA(){
                 echo "pki_audit_signing_token=$(eval echo \$SUBCA${number}_AUDIT_SIGNING_TOKEN)" >> $INSTANCECFG
                 echo "pki_audit_signing_nickname=$(eval echo \$SUBCA${number}_AUDIT_SIGNING_NICKNAME)" >> $INSTANCECFG
                 echo "pki_audit_signing_subject_dn=$(eval echo \$SUBCA${number}_AUDIT_SIGNING_CERT_SUBJECT_NAME)" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_type=$(eval echo $SUBCA${number}_SSL_SERVER_KEY_TYPE" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_size=$(eval echo $SUBCA${number}_SSL_SERVER_KEY_SIZE" >> $INSTANCECFG
-                #echo "pki_ssl_server_key_algorithm=$(eval echo $SUBCA${number}_SSL_SERVER_KEY_ALGORITHM" >> $INSTANCECFG
-                #echo "pki_ssl_server_signing_algorithm=$(eval echo $SUBCA${number}_SSL_SERVER_SIGNING_ALGORITHM" >> $INSTANCECFG
-                #echo "pki_ssl_server_token=$(eval echo $SUBCA${number}_SSL_SERVER_TOKEN" >> $INSTANCECFG
-                #echo "pki_ssl_server_nickname=$(eval echo $SUBCA${number}_SSL_SERVER_NICKNAME" >> $INSTANCECFG
-		#echo "pki_ssl_server_subject_dn=$(eval echo $(eval echo $SUBCA${number}_SSL_SERVER_CERT_SUBJECT_NAME" >> $INSTANCECFG
+                echo "pki_ssl_server_key_type=$(eval echo \$SUBCA${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$(eval echo \$SUBCA${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$(eval echo \$SUBCA${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$(eval echo \$SUBCA${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$(eval echo \$SUBCA${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$(eval echo \$SUBCA${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
+		echo "pki_ssl_server_subject_dn=$(eval echo \$SUBCA${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
 		echo "pki_security_domain_hostname=$(hostname)" >> $INSTANCECFG
                 echo "pki_security_domain_https_port=$(eval echo \$SUBCA${number}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_security_domain_user=$(eval echo \$SUBCA${number}_ADMIN_USER)" >> $INSTANCECFG
@@ -791,7 +795,6 @@ rhcs_install_SubCA(){
 		echo "pki_ds_database=$(eval echo \$SUBCA${number}_LDAP_INSTANCE_NAME)" >> $INSTANCECFG
 		echo "pki_backup_keys=$(eval echo \$SUBCA${number}_BACKUP)" >> $INSTANCECFG
                 echo "pki_backup_password=$(eval echo \$SUBCA${number}_BACKUP_PASSWORD)" >> $INSTANCECFG
-                echo "pki_backup_fname=$(eval echo \$SUBCA${number}_BACKUP_FILE_NAME)" >> $INSTANCECFG
                 echo "pki_client_database_dir=$(eval echo \$SUBCA${number}_CERTDB_DIR)" >> $INSTANCECFG
                 echo "pki_client_database_password=$(eval echo \$SUBCA${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
                 echo "pki_client_database_purge=$(eval echo \$SUBCA${number}_CLIENT_DB_PURGE)" >> $INSTANCECFG
@@ -853,11 +856,11 @@ rhcs_install_cloneKRA(){
         rlLog "Creating CLONE KRA Instance"
                 rlLog "Setting up Dogtag CLONE KRA instance ............."
                 echo "[DEFAULT]" > $INSTANCECFG
-                echo "pki_instance_name=$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME)" >> $INSTANCECFG
-                echo "pki_https_port=$(eval echo \$CLONE_CA${number}_SECURE_PORT)" >> $INSTANCECFG
-                echo "pki_http_port=$(eval echo \$CLONE_CA${number}_UNSECURE_PORT)" >> $INSTANCECFG
-                echo "pki_ajp_port=$(eval echo \$CLONE_CA${number}_AJP_PORT)" >> $INSTANCECFG
-                echo "pki_tomcat_server_port=$(eval echo \$CLONE_CA${number}_TOMCAT_SERVER_PORT)" >> $INSTANCECFG
+                echo "pki_instance_name=$(eval echo \$CLONE_KRA${number}_TOMCAT_INSTANCE_NAME)" >> $INSTANCECFG
+                echo "pki_https_port=$(eval echo \$CLONE_KRA${number}_SECURE_PORT)" >> $INSTANCECFG
+                echo "pki_http_port=$(eval echo \$CLONE_KRA${number}_UNSECURE_PORT)" >> $INSTANCECFG
+                echo "pki_ajp_port=$(eval echo \$CLONE_KRA${number}_AJP_PORT)" >> $INSTANCECFG
+                echo "pki_tomcat_server_port=$(eval echo \$CLONE_KRA${number}_TOMCAT_SERVER_PORT)" >> $INSTANCECFG
                 echo "pki_user=$(eval echo \$CLONE${number}_USER)" >> $INSTANCECFG
                 echo "pki_group=$(eval echo \$CLONE${number}_GROUP)" >> $INSTANCECFG
                 echo "pki_audit_group=$(eval echo \$CLONE${number}_GROUP_AUDIT)" >> $INSTANCECFG
@@ -892,6 +895,13 @@ rhcs_install_cloneKRA(){
                 echo "pki_admin_key_type=$(eval echo \$CLONE_KRA${number}_ADMIN_KEY_TYPE)" >> $INSTANCECFG
                 echo "pki_admin_subject_dn=$(eval echo \$CLONE_KRA${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$CLONE_KRA${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
+		echo "pki_ssl_server_key_type=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
+                echo "pki_ssl_server_subject_dn=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
                 echo "pki_import_admin_cert=$CLONE_ADMIN_IMPORT_CERT" >> $INSTANCECFG
  		echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$(eval echo \$${MASTER_KRA}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
                 echo "pki_security_domain_name=$DOMAIN" >> $INSTANCECFG
@@ -911,17 +921,17 @@ rhcs_install_cloneKRA(){
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message4="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message4" "$INSTANCE_CREATE_OUT"
-                exp_message5="systemctl status pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message5="systemctl status pki-tomcatd@$(eval echo \$CLONE_KRA${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
                 exp_message6="To restart the subsystem:"
                 rlAssertGrep "$exp_message6" "$INSTANCE_CREATE_OUT"
-                exp_message7=" systemctl restart pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message7=" systemctl restart pki-tomcatd@$(eval echo \$CLONE_KRA${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message7" "$INSTANCE_CREATE_OUT"
                 exp_message8="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message8" "$INSTANCE_CREATE_OUT"
-                exp_message8_1="https://$master_hostname:$(eval echo \$CLONE_CA${number}_SECURE_PORT)/kra"
+                exp_message8_1="https://$master_hostname:$(eval echo \$CLONE_KRA${number}_SECURE_PORT)/kra"
                 rlAssertGrep "$exp_message8_1" "$INSTANCE_CREATE_OUT"
-#                echo "export KRA_SERVER_ROOT=/var/lib/pki/$(eval echo \$CLONE{number}_TOMCAT_INSTANCE_NAME)/kra" >> /opt/rhqa_pki/env.sh
+#                echo "export KRA_SERVER_ROOT=/var/lib/pki/$(eval echo \$CLONE_KRA{number}_TOMCAT_INSTANCE_NAME)/kra" >> /opt/rhqa_pki/env.sh
 
      rlPhaseEnd
 }
@@ -950,11 +960,11 @@ rhcs_install_cloneOCSP(){
         rlLog "Creating CLONE OCSP Instance"
                 rlLog "Setting up Dogtag OCSP instance ............."
                 echo "[DEFAULT]" > $INSTANCECFG
-                echo "pki_instance_name=$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME)" >> $INSTANCECFG
-                echo "pki_https_port=$(eval echo \$CLONE_CA${number}_SECURE_PORT)" >> $INSTANCECFG
-                echo "pki_http_port=$(eval echo \$CLONE_CA${number}_UNSECURE_PORT)" >> $INSTANCECFG
-                echo "pki_ajp_port=$(eval echo \$CLONE_CA${number}_AJP_PORT)" >> $INSTANCECFG
-                echo "pki_tomcat_server_port=$(eval echo \$CLONE_CA${number}_TOMCAT_SERVER_PORT)" >> $INSTANCECFG
+                echo "pki_instance_name=$(eval echo \$CLONE_OCSP${number}_TOMCAT_INSTANCE_NAME)" >> $INSTANCECFG
+                echo "pki_https_port=$(eval echo \$CLONE_OCSP${number}_SECURE_PORT)" >> $INSTANCECFG
+                echo "pki_http_port=$(eval echo \$CLONE_OCSP${number}_UNSECURE_PORT)" >> $INSTANCECFG
+                echo "pki_ajp_port=$(eval echo \$CLONE_OCSP${number}_AJP_PORT)" >> $INSTANCECFG
+                echo "pki_tomcat_server_port=$(eval echo \$CLONE_OCSP${number}_TOMCAT_SERVER_PORT)" >> $INSTANCECFG
                 echo "pki_user=$(eval echo \$CLONE${number}_USER)" >> $INSTANCECFG
                 echo "pki_group=$(eval echo \$CLONE${number}_GROUP)" >> $INSTANCECFG
                 echo "pki_audit_group=$(eval echo \$CLONE${number}_GROUP_AUDIT)" >> $INSTANCECFG
@@ -984,6 +994,13 @@ rhcs_install_cloneOCSP(){
                 echo "pki_admin_key_type=$(eval echo \$CLONE_OCSP${number}_ADMIN_KEY_TYPE)" >> $INSTANCECFG
                 echo "pki_admin_subject_dn=$(eval echo \$CLONE_OCSP${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$CLONE_OCSP${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
+		echo "pki_ssl_server_key_type=$(eval echo \$CLONE_OCSP${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$(eval echo \$CLONE_OCSP${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$(eval echo \$CLONE_OCSP${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$(eval echo \$CLONE_OCSP${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$(eval echo \$CLONE_OCSP${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$(eval echo \$CLONE_OCSP${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
+                echo "pki_ssl_server_subject_dn=$(eval echo \$CLONE_OCSP${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
                 echo "pki_import_admin_cert=$CLONE_ADMIN_IMPORT_CERT" >> $INSTANCECFG
                 echo "pki_admin_password=$(eval echo \$CLONE_OCSP${number}_ADMIN_PASSWORD)" >> $INSTANCECFG
 		echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$(eval echo \$CLONE_OCSP${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
@@ -1009,17 +1026,17 @@ rhcs_install_cloneOCSP(){
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE_OCSP${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE_OCSP${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
-                exp_message5_1="https://$BEAKERCLONE:$(eval echo \$CLONE_CA${number}_SECURE_PORT)/ocsp"
+                exp_message5_1="https://$BEAKERCLONE:$(eval echo \$CLONE_OCSP${number}_SECURE_PORT)/ocsp"
                 rlAssertGrep "$exp_message5_1" "$INSTANCE_CREATE_OUT"
-                #echo "export OCSP_SERVER_ROOT=/var/lib/pki/$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME)/ocsp" >> /opt/rhqa_pki/env.sh
+                #echo "export OCSP_SERVER_ROOT=/var/lib/pki/$(eval echo \$CLONE_OCSP${number}_TOMCAT_INSTANCE_NAME)/ocsp" >> /opt/rhqa_pki/env.sh
      rlPhaseEnd
 
 }
@@ -1049,11 +1066,11 @@ rhcs_install_cloneTKS(){
         rlLog "Creating CLONE TKS Instance"
                 rlLog "Setting up Dogtag TKS CLONE Instance"
                 echo "[DEFAULT]" > $INSTANCECFG
-                echo "pki_instance_name=$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME)" >> $INSTANCECFG
-                echo "pki_https_port=$(eval echo \$CLONE_CA${number}_SECURE_PORT)" >> $INSTANCECFG
-                echo "pki_http_port=$(eval echo \$CLONE_CA${number}_UNSECURE_PORT)" >> $INSTANCECFG
-                echo "pki_ajp_port=$(eval echo \$CLONE_CA${number}_AJP_PORT)" >> $INSTANCECFG
-                echo "pki_tomcat_server_port=$(eval echo \$CLONE_CA${number}_TOMCAT_SERVER_PORT)" >> $INSTANCECFG
+                echo "pki_instance_name=$(eval echo \$CLONE_TKS${number}_TOMCAT_INSTANCE_NAME)" >> $INSTANCECFG
+                echo "pki_https_port=$(eval echo \$CLONE_TKS${number}_SECURE_PORT)" >> $INSTANCECFG
+                echo "pki_http_port=$(eval echo \$CLONE_TKS${number}_UNSECURE_PORT)" >> $INSTANCECFG
+                echo "pki_ajp_port=$(eval echo \$CLONE_TKS${number}_AJP_PORT)" >> $INSTANCECFG
+                echo "pki_tomcat_server_port=$(eval echo \$CLONE_TKS${number}_TOMCAT_SERVER_PORT)" >> $INSTANCECFG
                 echo "pki_user=$(eval echo \$CLONE${number}_USER)" >> $INSTANCECFG
                 echo "pki_group=$(eval echo \$CLONE${number}_GROUP)" >> $INSTANCECFG
                 echo "pki_audit_group=$(eval echo \$CLONE${number}_GROUP_AUDIT)" >> $INSTANCECFG
@@ -1089,6 +1106,13 @@ rhcs_install_cloneTKS(){
                 echo "pki_admin_key_type=$(eval echo \$CLONE_TKS${number}_ADMIN_KEY_TYPE)" >> $INSTANCECFG
                 echo "pki_admin_subject_dn=$(eval echo \$CLONE_TKS${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$CLONE_TKS${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
+		echo "pki_ssl_server_key_type=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_KEY_TYPE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_size=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_KEY_SIZE)" >> $INSTANCECFG
+                echo "pki_ssl_server_key_algorithm=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_KEY_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_signing_algorithm=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_SIGNING_ALGORITHM)" >> $INSTANCECFG
+                echo "pki_ssl_server_token=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_TOKEN)" >> $INSTANCECFG
+                echo "pki_ssl_server_nickname=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
+                echo "pki_ssl_server_subject_dn=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
  		echo "pki_import_admin_cert=$CLONE_ADMIN_IMPORT_CERT" >> $INSTANCECFG
                 echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$TKS1_ADMIN_CERT_NICKNAME.p12" >> $INSTANCECFG
                 echo "pki_ds_hostname=$(hostname)" >> $INSTANCECFG
@@ -1107,15 +1131,15 @@ rhcs_install_cloneTKS(){
                 rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
                 exp_message3_1="To check the status of the subsystem:"
                 rlAssertGrep "$exp_message3_1" "$INSTANCE_CREATE_OUT"
-                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$CLONE_TKS${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message3_2" "$INSTANCE_CREATE_OUT"
                 exp_message4_1="To restart the subsystem:"
                 rlAssertGrep "$exp_message4_1" "$INSTANCE_CREATE_OUT"
-                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE${number}_TOMCAT_INSTANCE_NAME).service"
+                exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$CLONE_TKS${number}_TOMCAT_INSTANCE_NAME).service"
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
-                exp_message5_1="https://$(hostname):$(eval echo \$CLONE_CA${number}_SECURE_PORT)/tks"
+                exp_message5_1="https://$(hostname):$(eval echo \$CLONE_TKS${number}_SECURE_PORT)/tks"
                 rlAssertGrep "$exp_message5_1" "$INSTANCE_CREATE_OUT"
      rlPhaseEnd
 }
