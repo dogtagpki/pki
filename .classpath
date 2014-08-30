@@ -12,7 +12,6 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/cms/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/cmscore/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/test"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/silent/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/functional/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/kra/src"/>
