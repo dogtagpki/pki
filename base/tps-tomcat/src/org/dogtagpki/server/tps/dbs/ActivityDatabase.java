@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.tps.main.Util;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -51,22 +52,12 @@ public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
     public ActivityRecord log(
             String ip, String tokenID, String operation, String result,
             String message, String userID, String tokenType) throws Exception {
-
         Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH) + 1;
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
-        int second = c.get(Calendar.SECOND);
-        int microSecond = c.get(Calendar.MILLISECOND) * 1000;
-        long threadID = Thread.currentThread().getId();
 
-        String id = String.format(
-                "%04d%02d%02d%02d%02d%02d%06d.%x",
-                year, month, day,
-                hour, minute, second, microSecond,
-                threadID);
+        String timeString = Util.getTimeStampString(true);
+        long threadID = Thread.currentThread().getId();
+        String threadIDS = String.format("%x", threadID);
+        String id = timeString + "." + threadIDS;
 
         ActivityRecord activityRecord = new ActivityRecord();
         activityRecord.setId(id);

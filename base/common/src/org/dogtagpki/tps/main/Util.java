@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.Calendar;
 
 import netscape.security.x509.AuthorityKeyIdentifierExtension;
 import netscape.security.x509.KeyIdentifier;
@@ -330,6 +331,41 @@ public class Util {
         KeyIdentifier kid =
                 (KeyIdentifier) certSKI.get(SubjectKeyIdentifierExtension.KEY_ID);
         return (CMS.BtoA(kid.getIdentifier()).trim());
+    }
+
+    /*
+     * getTimeStampString() gets current time in string format
+     * @param addMicroSeconds true if microseconds wanted in result; false otherwise
+     * @return time stamp in String
+     */
+    public static String getTimeStampString(boolean addMicroSeconds) {
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH) + 1;
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE);
+        int second = c.get(Calendar.SECOND);
+
+        String timeString = "";
+        if (addMicroSeconds) {
+            /*
+             * TODO: Java does not support microseconds;  Deal with that later
+             */
+            int microSecond = c.get(Calendar.MILLISECOND) * 1000;
+
+            timeString = String.format(
+                    "%04d%02d%02d%02d%02d%02d%06d",
+                    year, month, day,
+                    hour, minute, second, microSecond);
+        } else {
+            timeString = String.format(
+                    "%04d%02d%02d%02d%02d%02d",
+                    year, month, day,
+                    hour, minute, second);
+        }
+
+        return timeString;
     }
 
 }

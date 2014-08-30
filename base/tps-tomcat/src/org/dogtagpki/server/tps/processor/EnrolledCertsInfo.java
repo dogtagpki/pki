@@ -169,8 +169,8 @@ public class EnrolledCertsInfo {
             String serialNumber = "0x" + hexSerial;
             certRecord.setSerialNumber(serialNumber);
 
-            //id - TODO - calculate the real id later
-            String id = serialNumber+":"+uid;
+            String uniqueString = Util.getTimeStampString(false);
+            String id = hexSerial + "." + uniqueString;
 
             certRecord.setId(id);
             CMS.debug("EnrolledCertsInfo.toTPSCertRecords: converting cert:"+ certRecord.getId());
