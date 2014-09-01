@@ -27,6 +27,7 @@ import os
 import fileinput
 import random
 import re
+import requests.exceptions
 import shutil
 from shutil import Error, WindowsError
 import string
@@ -2649,20 +2650,9 @@ class KRAConnector:
                 self.mdict['pki_target_cs_cfg'])
             krahost = cs_cfg.get('service.machineName')
             kraport = cs_cfg.get('pkicreate.secure_port')
-            cahost = cs_cfg.get('cloning.ca.hostname')
-            caport = cs_cfg.get('cloning.ca.httpsport')
-            if cahost is None or\
-               caport is None:
-                config.pki_log.warning(
-                    log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.error(
-                    log.PKIHELPER_UNDEFINED_CA_HOST_PORT,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                if critical_failure:
-                    raise Exception(log.PKIHELPER_UNDEFINED_CA_HOST_PORT)
-                else:
-                    return
+            proxy_secure_port = cs_cfg.get('proxy.securePort', '')
+            if proxy_secure_port != '':
+                kraport = proxy_secure_port
 
             # retrieve subsystem nickname
             subsystemnick = cs_cfg.get('kra.cert.subsystem.nickname')
@@ -2703,9 +2693,49 @@ class KRAConnector:
                 else:
                     return
 
-            self.execute_using_sslget(
-                caport, cahost, subsystemnick,
-                token_pwd, krahost, kraport)
+            # Note: this is a hack to resolve Trac Ticket 1113
+            # We need to remove the KRA connector data from all relevant clones,
+            # but we have no way of easily identifying which instances are
+            # the right ones.  Instead, We will attempt to remove the KRA
+            # connector from all CAs in the security domain.
+            # The better - and long term solution is to store the connector
+            # configuration in LDAP so that updating one clone will
+            # automatically update the rest.
+            # TODO(alee): Fix this logic once we move connector data to LDAP
+
+            # get a list of all the CA's in the security domain
+            # noinspection PyBroadException
+            # pylint: disable-msg=W0703
+            sechost = cs_cfg.get('securitydomain.host')
+            secport = cs_cfg.get('securitydomain.httpsadminport')
+            try:
+                ca_list = self.get_ca_list_from_security_domain(
+                    sechost, secport)
+            except Exception as e:
+                config.pki_log.error(
+                    "unable to access security domain. Continuing .. " + str(e),
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                ca_list = []
+
+            for ca in ca_list:
+                ca_host = ca.hostname
+                ca_port = ca.secure_port
+
+                # catching all exceptions because we do not want to break if
+                # the auth is not successful or servers are down.  In the
+                # worst case, we will time out anyways.
+                # noinspection PyBroadException
+                # pylint: disable-msg=W0703
+                try:
+                    self.execute_using_sslget(
+                        ca_port, ca_host, subsystemnick,
+                        token_pwd, krahost, kraport)
+                except Exception:
+                    # ignore exceptions
+                    config.pki_log.warning(
+                        log.PKIHELPER_KRACONNECTOR_DEREGISTER_FAILURE_4,
+                        str(krahost), str(kraport), str(ca_host), str(ca_port),
+                        extra=config.PKI_INDENTATION_LEVEL_2)
 
         except subprocess.CalledProcessError as exc:
             config.pki_log.warning(
@@ -2718,6 +2748,24 @@ class KRAConnector:
             if critical_failure:
                 raise
         return
+
+    @staticmethod
+    def get_ca_list_from_security_domain(sechost, secport):
+        sd_connection = pki.client.PKIConnection(
+            protocol='https',
+            hostname=sechost,
+            port=secport,
+            subsystem='ca')
+        sd = pki.system.SecurityDomainClient(sd_connection)
+        try:
+            info = sd.get_security_domain_info()
+        except requests.exceptions.HTTPError as e:
+            config.pki_log.info(
+                "unable to access security domain through REST interface.  " +
+                "Trying old interface. " + str(e),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            info = sd.get_old_security_domain_info()
+        return info.systems['CA'].hosts.values()
 
     def execute_using_pki(
             self, caport, cahost, subsystemnick,
@@ -2732,8 +2780,7 @@ class KRAConnector:
                    "ca-kraconnector-del", krahost, str(kraport)]
 
         output = subprocess.check_output(command,
-                                         stderr=subprocess.STDOUT,
-                                         shell=True)
+                                         stderr=subprocess.STDOUT)
 
         error = re.findall("ClientResponseFailure:(.*?)", output)
         if error:

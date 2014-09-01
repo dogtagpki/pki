@@ -27,7 +27,7 @@ import ldap
 import logging
 import os
 import random
-import requests
+import requests.exceptions
 import string
 import subprocess
 import xml.etree.ElementTree as ET

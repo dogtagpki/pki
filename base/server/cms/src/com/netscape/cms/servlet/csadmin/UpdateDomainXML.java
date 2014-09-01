@@ -96,7 +96,8 @@ public class UpdateDomainXML extends CMSServlet {
             conn = connFactory.getConn();
             conn.delete(dn);
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() != LDAPException.NO_SUCH_OBJECT) {
+            int resultCode = e.getLDAPResultCode();
+            if (resultCode != LDAPException.NO_SUCH_OBJECT) {
                 status = FAILED;
                 CMS.debug("Failed to delete entry" + e.toString());
             }
@@ -129,7 +130,9 @@ public class UpdateDomainXML extends CMSServlet {
             conn = connFactory.getConn();
             conn.modify(dn, mod);
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() != LDAPException.NO_SUCH_OBJECT) {
+            int resultCode = e.getLDAPResultCode();
+            if ((resultCode != LDAPException.NO_SUCH_OBJECT) &&
+                (resultCode != LDAPException.NO_SUCH_ATTRIBUTE)) {
                 status = FAILED;
                 CMS.debug("Failed to modify entry" + e.toString());
             }

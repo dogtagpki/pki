@@ -22,8 +22,8 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -41,17 +41,19 @@ public interface KRAConnectorResource {
 
     @POST
     @Path("add")
-    public void addConnector(KRAConnectorInfo info);
+    @ClientResponseType(entityType=Void.class)
+    public Response addConnector(KRAConnectorInfo info);
 
     @POST
-    @Path("add")
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
-    public void addConnector(MultivaluedMap<String, String> form);
+    @Path("remove")
+    @ClientResponseType(entityType=Void.class)
+    public Response removeConnector(@QueryParam("host") String host, @QueryParam("port") String port);
 
     @POST
     @Path("remove")
     @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
-    public void removeConnector(@FormParam("host") String host, @FormParam("port") String port);
+    @ClientResponseType(entityType=Void.class)
+    public Response removeConnectorForm(@FormParam("host") String host, @FormParam("port") String port);
 
     @GET
     @ClientResponseType(entityType = KRAConnectorInfo.class)

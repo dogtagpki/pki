@@ -20,7 +20,6 @@ package org.dogtagpki.server.ca.rest;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -51,13 +50,14 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
     private HttpServletRequest servletRequest;
 
     @Override
-    public void addConnector(KRAConnectorInfo info) {
+    public Response addConnector(KRAConnectorInfo info) {
 
         if (info == null) throw new BadRequestException("KRA connector info is null.");
 
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.addConnector(info);
+            return createNoContentResponse();
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -65,7 +65,7 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
     }
 
     @Override
-    public void removeConnector(String host, String port) {
+    public Response removeConnector(String host, String port) {
 
         if (host == null) throw new BadRequestException("KRA connector host is null.");
         if (port == null) throw new BadRequestException("KRA connector port is null.");
@@ -73,6 +73,7 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
         try {
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             processor.removeConnector(host, port);
+            return createNoContentResponse();
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
@@ -80,9 +81,8 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
     }
 
     @Override
-    public void addConnector(MultivaluedMap<String, String> form) {
-        KRAConnectorInfo info = new KRAConnectorInfo(form);
-        addConnector(info);
+    public Response removeConnectorForm(String host, String port) {
+        return removeConnector(host, port);
     }
 
     @Override
