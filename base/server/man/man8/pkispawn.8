@@ -26,9 +26,6 @@ Sets up an instance of Certificate Server.  This utility creates any of the Java
 \fBNote:\fP 
 A 389 Directory Server instance must be configured and running before this script can be run. Certificate Server requires an internal directory database. The default configuration assumes a Directory Server instance running on the same machine on port 389.  For more information on creating a Directory Server instance, see
 .B setup-ds.pl(8).
-.TP
-\fBNote:\fP 
-This utility creates only Java-based subsystems. The Apache-based Certificate Server subsystems (RA and TPS) are created using \fBpkicreate\fP. 
 .PP
 An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem on a single machine.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  To create an instance with a CA and a KRA, simply run pkispawn twice, with values 
 .I -s CA 

@@ -23,10 +23,6 @@ pkidestroy -s <subsystem> -i <instance> [-u <secutiry domain username>] [-W <sec
 .SH DESCRIPTION
 Removes a subsystem from an instance of Certificate Server.  This utility removes any of the Java-based Certificate Server subsystems (CA, KRA, OCSP, and TKS).
 .PP
-.TP
-\fBNote:\fP 
-This utility is only used for Java-based subsystems. The Apache-based Certificate Server subsystems (RA and TPS) are removed using \fBpkiremove\fP.
-.PP
 An instance can contain multiple subsystems, although it may contain at most one of each type of subsystem.  So, for example, an instance could contain CA and KRA subsystems,  but not two CA subsystems.  If \fBpkidestroy\fP is invoked on the last subsystem in the instance, then that instance is removed.  Typically, as subsystems need to contact the CA to update the security domain, the CA instance should be the last instance to be removed.
 
 .SH OPTIONS

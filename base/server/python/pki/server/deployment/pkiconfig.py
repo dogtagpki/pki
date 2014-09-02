@@ -38,14 +38,12 @@ PKI_DEPLOYMENT_DEFAULT_USER = "pkiuser"
 
 PKI_SUBSYSTEMS = ["CA", "KRA", "OCSP", "RA", "TKS", "TPS"]
 PKI_SIGNED_AUDIT_SUBSYSTEMS = ["CA", "KRA", "OCSP", "TKS", "TPS"]
-PKI_APACHE_SUBSYSTEMS = ["RA"]
 PKI_TOMCAT_SUBSYSTEMS = ["CA", "KRA", "OCSP", "TKS", "TPS"]
 PKI_BASE_RESERVED_NAMES = ["alias", "bin", "ca", "common", "conf", "kra",
                            "lib", "logs", "ocsp", "temp", "tks", "tps",
                            "webapps", "work"]
 PKI_CONFIGURATION_RESERVED_NAMES = ["CA", "java", "nssdb", "rpm-gpg",
                                     "rsyslog", "tls"]
-PKI_APACHE_REGISTRY_RESERVED_NAMES = ["ra"]
 PKI_TOMCAT_REGISTRY_RESERVED_NAMES = ["ca", "kra", "ocsp", "tks", "tps"]
 
 PKI_INDENTATION_LEVEL_0 = {'indent': ''}
@@ -71,7 +69,6 @@ PKI_DEPLOYMENT_LOG_ROOT = "/var/log/pki"
 #        the default 'instance' name may be overridden by the value specified
 #        in the configuration file (the value in the default configuration file
 #        should always match the 'default' instance name specified below).
-PKI_DEPLOYMENT_DEFAULT_APACHE_INSTANCE_NAME = "pki-apache"
 PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME = "pki-tomcat"
 
 DEFAULT_DEPLOYMENT_CONFIGURATION = "default.cfg"

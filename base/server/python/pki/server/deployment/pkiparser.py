@@ -182,10 +182,6 @@ class PKIConfigParser:
             default_instance_name = 'pki-tomcat'
             default_http_port = '8080'
             default_https_port = '8443'
-        else:
-            default_instance_name = 'pki-apache'
-            default_http_port = '80'
-            default_https_port = '443'
 
         application_version = str(pki.upgrade.Version(
             pki.implementation_version()))
@@ -386,9 +382,6 @@ class PKIConfigParser:
         if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
             if self.pki_config.has_section('Tomcat'):
                 web_server_dict = dict(self.pki_config.items('Tomcat'))
-        else:
-            if self.pki_config.has_section('Apache'):
-                web_server_dict = dict(self.pki_config.items('Apache'))
 
         if web_server_dict:
             web_server_dict[0] = None
@@ -750,37 +743,7 @@ class PKIConfigParser:
             self.mdict['PKI_REGISTRY_FILE_SLOT'] = \
                 os.path.join(self.mdict['pki_subsystem_registry_path'],
                              self.mdict['pki_instance_name'])
-            if self.mdict['pki_subsystem'] in\
-               config.PKI_APACHE_SUBSYSTEMS:
-                self.mdict['FORTITUDE_APACHE_SLOT'] = None
-                self.mdict['FORTITUDE_AUTH_MODULES_SLOT'] = None
-                self.mdict['FORTITUDE_DIR_SLOT'] = None
-                self.mdict['FORTITUDE_LIB_DIR_SLOT'] = None
-                self.mdict['FORTITUDE_MODULE_SLOT'] = None
-                self.mdict['FORTITUDE_NSS_MODULES_SLOT'] = None
-                self.mdict['HTTPD_CONF_SLOT'] = None
-                self.mdict['LIB_PREFIX_SLOT'] = None
-                self.mdict['NON_CLIENTAUTH_SECURE_PORT_SLOT'] = None
-                self.mdict['NSS_CONF_SLOT'] = None
-                self.mdict['OBJ_EXT_SLOT'] = None
-                self.mdict['PKI_LOCKDIR_SLOT'] = \
-                    os.path.join("/var/lock/pki",
-                                 "apache")
-                self.mdict['PKI_PIDDIR_SLOT'] = \
-                    os.path.join("/var/run/pki",
-                                 "apache")
-                self.mdict['PKI_WEB_SERVER_TYPE_SLOT'] = "apache"
-                self.mdict['PORT_SLOT'] = None
-                self.mdict['PROCESS_ID_SLOT'] = None
-                self.mdict['REQUIRE_CFG_PL_SLOT'] = None
-                self.mdict['SECURE_PORT_SLOT'] = None
-                self.mdict['SECURITY_LIBRARIES_SLOT'] = None
-                self.mdict['PKI_HOSTNAME_SLOT'] = None
-                self.mdict['SERVER_ROOT_SLOT'] = None
-                self.mdict['SYSTEM_LIBRARIES_SLOT'] = None
-                self.mdict['SYSTEM_USER_LIBRARIES_SLOT'] = None
-                self.mdict['TMP_DIR_SLOT'] = None
-            elif self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 self.mdict['INSTALL_TIME_SLOT'] = \
                     self.mdict['pki_install_time']
                 self.mdict['PKI_ADMIN_SECURE_PORT_SLOT'] = \
@@ -1006,7 +969,7 @@ class PKIConfigParser:
                 if self.mdict['pki_subsystem'] == "CA":
                     self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
                         self.mdict['pki_random_serial_numbers_enable'].lower()
-            # Shared Apache/Tomcat NSS security database name/value pairs
+            # Tomcat NSS security database name/value pairs
             self.mdict['pki_shared_pfile'] = \
                 os.path.join(
                     self.mdict['pki_instance_configuration_path'],
@@ -1041,7 +1004,7 @@ class PKIConfigParser:
                     self.mdict['pki_subsystem_configuration_path'],
                     "noise")
             self.mdict['pki_self_signed_noise_bytes'] = 1024
-            # Shared Apache/Tomcat NSS security database convenience
+            # Tomcat NSS security database convenience
             # symbolic links
             self.mdict['pki_subsystem_configuration_password_conf_link'] = \
                 os.path.join(
@@ -1058,7 +1021,6 @@ class PKIConfigParser:
             # 'Subsystem Name'  Configuration name/value pairs
             # 'Token'           Configuration name/value pairs
             #
-            #     Apache - [RA]
             #     Tomcat - [CA], [KRA], [OCSP], [TKS], [TPS]
             #            - [CA Clone], [KRA Clone], [OCSP Clone], [TKS Clone],
             #              [TPS Clone]
@@ -1148,7 +1110,6 @@ class PKIConfigParser:
 
             # 'Backup' Configuration name/value pairs
             #
-            #     Apache - [RA]
             #     Tomcat - [CA], [KRA], [OCSP], [TKS], [TPS]
             #            - [External CA]
             #            - [Subordinate CA]
@@ -1210,14 +1171,7 @@ class PKIConfigParser:
                 "spawn" + "_" + "manifest" + "." + \
                 self.mdict['pki_timestamp']
             # Compose this "systemd" execution management command
-            if self.mdict['pki_subsystem'] in\
-               config.PKI_APACHE_SUBSYSTEMS:
-                self.mdict['pki_registry_initscript_command'] = \
-                    "systemctl" + " " + \
-                    "restart" + " " + \
-                    "pki-apached" + "@" + \
-                    self.mdict['pki_instance_name'] + "." + "service"
-            elif self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 self.mdict['pki_registry_initscript_command'] = \
                     "systemctl" + " " + \
                     "restart" + " " + \
@@ -1249,9 +1203,7 @@ class PKIConfigParser:
             parser.optionxform = str
             parser.read(config.PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE)
             # Slots configuration file name/value pairs
-            if config.pki_subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                self.slots_dict = dict(parser.items('Apache'))
-            elif config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
                 self.slots_dict = dict(parser.items('Tomcat'))
         except ConfigParser.ParsingError, err:
             rv = err

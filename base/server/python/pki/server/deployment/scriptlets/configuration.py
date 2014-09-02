@@ -80,15 +80,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_client_secmod_database'],
             password_file=deployer.mdict['pki_client_password_conf'])
 
-        # Start/Restart this Apache/Tomcat PKI Process
-        if deployer.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-            apache_instance_subsystems = \
-                deployer.instance.apache_instance_subsystems()
-            if apache_instance_subsystems == 1:
-                deployer.systemd.start()
-            elif apache_instance_subsystems > 1:
-                deployer.systemd.restart()
-        elif deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+        # Start/Restart this Tomcat PKI Process
+        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # Optionally prepare to enable a java debugger
             # (e. g. - 'eclipse'):
             if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
@@ -115,14 +108,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Construct PKI Subsystem Configuration Data
         data = None
-        if deployer.mdict['pki_instance_type'] == "Apache":
-            if deployer.mdict['pki_subsystem'] == "RA":
-                config.pki_log.info(
-                    log.PKI_CONFIG_NOT_YET_IMPLEMENTED_1,
-                    deployer.mdict['pki_subsystem'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                return self.rv
-        elif deployer.mdict['pki_instance_type'] == "Tomcat":
+        if deployer.mdict['pki_instance_type'] == "Tomcat":
             # CA, KRA, OCSP, TKS, or TPS
             data = deployer.config_client.construct_pki_configuration_data()
 
@@ -136,12 +122,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if deployer.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-           deployer.instance.apache_instance_subsystems() == 1:
-            if deployer.directory.exists(deployer.mdict['pki_client_dir']):
-                deployer.directory.delete(deployer.mdict['pki_client_dir'])
-            deployer.symlink.delete(deployer.mdict['pki_systemd_service_link'])
-        elif deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
+        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
                 and len(deployer.instance.tomcat_instance_subsystems()) == 1:
             if deployer.directory.exists(deployer.mdict['pki_client_dir']):
                 deployer.directory.delete(deployer.mdict['pki_client_dir'])

@@ -84,11 +84,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.FINALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         deployer.file.modify(deployer.mdict['pki_destroy_log'], silent=True)
-        # Start this Apache/Tomcat PKI Process
-        if deployer.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-           deployer.instance.apache_instance_subsystems() >= 1:
-            deployer.systemd.start()
-        elif deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
+        # Start this Tomcat PKI Process
+        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
                 and len(deployer.instance.tomcat_instance_subsystems()) >= 1:
             deployer.systemd.start()
         config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,

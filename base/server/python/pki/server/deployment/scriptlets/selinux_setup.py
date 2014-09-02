@@ -69,9 +69,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 # add SELinux contexts when adding the first subsystem
                 if deployer.mdict['pki_subsystem'] in \
-                        config.PKI_APACHE_SUBSYSTEMS and \
-                        deployer.instance.apache_instance_subsystems() == 1 \
-                        or deployer.mdict['pki_subsystem'] in \
                         config.PKI_TOMCAT_SUBSYSTEMS and \
                         len(deployer.instance.tomcat_instance_subsystems()) == 1:
 
@@ -167,9 +164,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             try:
                 # remove SELinux contexts when removing the last subsystem
                 if (deployer.mdict['pki_subsystem'] in
-                        config.PKI_APACHE_SUBSYSTEMS and
-                        deployer.instance.apache_instance_subsystems() == 0 or
-                        deployer.mdict['pki_subsystem'] in
                         config.PKI_TOMCAT_SUBSYSTEMS and
                         len(deployer.instance.tomcat_instance_subsystems()) == 0):
 

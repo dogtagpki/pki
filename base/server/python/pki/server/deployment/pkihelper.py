@@ -425,20 +425,7 @@ class Namespace:
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
                     self.mdict['pki_instance_configuration_path']))
-        if self.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-            # Top-Level Apache PKI registry path reserved name collision
-            if self.mdict['pki_instance_name'] in\
-               config.PKI_APACHE_REGISTRY_RESERVED_NAMES:
-                config.pki_log.error(
-                    log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
-                    self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_registry_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(
-                    log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
-                        self.mdict['pki_instance_name'],
-                        self.mdict['pki_instance_registry_path']))
-        elif self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+        if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # Top-Level Tomcat PKI registry path reserved name collision
             if self.mdict['pki_instance_name'] in\
                config.PKI_TOMCAT_REGISTRY_RESERVED_NAMES:
@@ -868,53 +855,6 @@ class Instance:
 
     def __init__(self, deployer):
         self.mdict = deployer.mdict
-
-    def apache_instance_subsystems(self):
-        rv = 0
-        try:
-            # count number of PKI subsystems present
-            # within the specified Apache instance
-            for subsystem in config.PKI_APACHE_SUBSYSTEMS:
-                path = self.mdict['pki_instance_path'] + "/" + subsystem.lower()
-                if os.path.exists(path) and os.path.isdir(path):
-                    rv += 1
-            config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2,
-                                 self.mdict['pki_instance_path'],
-                                 rv, extra=config.PKI_INDENTATION_LEVEL_2)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            raise
-        return rv
-
-    def apache_instances(self):
-        rv = 0
-        try:
-            # Since ALL directories under the top-level PKI 'apache' registry
-            # directory SHOULD represent PKI Apache instances, and there
-            # shouldn't be any stray files or symbolic links at this level,
-            # simply count the number of PKI 'apache' instances (directories)
-            # present within the PKI 'apache' registry directory
-            for instance in\
-                    os.listdir(self.mdict['pki_instance_type_registry_path']):
-                if os.path.isdir(
-                        os.path.join(
-                            self.mdict['pki_instance_type_registry_path'],
-                            instance)) and not\
-                   os.path.islink(
-                       os.path.join(
-                           self.mdict['pki_instance_type_registry_path'],
-                           instance)):
-                    rv += 1
-            config.pki_log.debug(log.PKIHELPER_APACHE_INSTANCES_2,
-                                 self.mdict['pki_instance_type_registry_path'],
-                                 rv,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            raise
-        return rv
 
     def pki_instance_subsystems(self):
         rv = 0
@@ -2048,10 +1988,6 @@ class Password:
                     with open(path, "w") as fd:
                         if pin_sans_token:
                             fd.write(str(pin))
-                        elif self.mdict['pki_subsystem'] in \
-                                config.PKI_APACHE_SUBSYSTEMS:
-                            fd.write(self.mdict['pki_self_signed_token'] +
-                                     ":" + str(pin))
                         else:
                             fd.write(self.mdict['pki_self_signed_token'] +
                                      "=" + str(pin))
@@ -2062,10 +1998,6 @@ class Password:
                 with open(path, "w") as fd:
                     if pin_sans_token:
                         fd.write(str(pin))
-                    elif self.mdict['pki_subsystem'] in\
-                            config.PKI_APACHE_SUBSYSTEMS:
-                        fd.write(self.mdict['pki_self_signed_token'] +
-                                 ":" + str(pin))
                     else:
                         fd.write(self.mdict['pki_self_signed_token'] +
                                  "=" + str(pin))
@@ -3316,11 +3248,7 @@ class Systemd(object):
             if reload_daemon:
                 self.daemon_reload(critical_failure)
             # Compose this "systemd" execution management command
-            if self.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-                service = "pki-apached" + "@" +\
-                          self.mdict['pki_instance_name'] + "." +\
-                          "service"
-            elif self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 service = "pki-tomcatd" + "@" +\
                           self.mdict['pki_instance_name'] + "." +\
                           "service"
@@ -3371,11 +3299,7 @@ class Systemd(object):
         try:
             service = None
             # Compose this "systemd" execution management command
-            if self.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-                service = "pki-apached" + "@" +\
-                          self.mdict['pki_instance_name'] + "." +\
-                          "service"
-            elif self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 service = "pki-tomcatd" + "@" +\
                           self.mdict['pki_instance_name'] + "." +\
                           "service"
@@ -3430,11 +3354,7 @@ class Systemd(object):
             # Execute the "systemd daemon-reload" management lifecycle command
             if reload_daemon:
                 self.daemon_reload(critical_failure)
-            if self.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS:
-                service = "pki-apached" + "@" +\
-                          self.mdict['pki_instance_name'] + "." +\
-                          "service"
-            elif self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
                 service = "pki-tomcatd" + "@" +\
                           self.mdict['pki_instance_name'] + "." +\
                           "service"

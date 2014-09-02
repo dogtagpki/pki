@@ -51,7 +51,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # deployer.directory.copy(
         #   deployer.mdict['pki_source_conf_path'],
         #   deployer.mdict['pki_subsystem_configuration_path'])
-        # establish instance-based Apache/Tomcat specific subsystems
+        # establish instance-based Tomcat specific subsystems
         if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
             # establish instance-based Tomcat PKI subsystem base
             if deployer.mdict['pki_subsystem'] == "CA":

@@ -288,25 +288,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_subsystem'] == 'TKS':
             deployer.symlink.delete(deployer.mdict['pki_symkey_jar_link'])
 
-        if deployer.mdict['pki_subsystem'] in config.PKI_APACHE_SUBSYSTEMS and\
-           deployer.instance.apache_instance_subsystems() == 0:
-            # remove Apache instance base
-            deployer.directory.delete(deployer.mdict['pki_instance_path'])
-            # remove Apache instance logs
-            # remove shared NSS security database path for this instance
-            deployer.directory.delete(deployer.mdict['pki_database_path'])
-            # remove Apache instance configuration
-            deployer.directory.delete(
-                deployer.mdict['pki_instance_configuration_path'])
-            # remove Apache instance registry
-            deployer.directory.delete(
-                deployer.mdict['pki_instance_registry_path'])
-            # remove Apache PKI registry (if empty)
-            if deployer.instance.apache_instances() == 0:
-                deployer.directory.delete(
-                    deployer.mdict['pki_instance_type_registry_path'])
-
-        elif deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
+        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
                 and len(deployer.instance.tomcat_instance_subsystems()) == 0:
             # remove Tomcat instance base
             deployer.directory.delete(deployer.mdict['pki_instance_path'])

@@ -137,11 +137,10 @@ PKISPAWN_END_MESSAGE_2 = \
 PKISPAWN_EPILOG = """
 REMINDER:
 
-    If two or more Apache or Tomcat PKI 'instances' are specified via
+    If two or more Tomcat PKI 'instances' are specified via
     separate configuration files, remember that the following parameters
     MUST differ between PKI 'instances':
 
-        Apache:  'pki_instance_name', 'pki_http_port', and 'pki_https_port'
         Tomcat:  'pki_instance_name', 'pki_http_port', 'pki_https_port',
                  'pki_ajp_port', and 'pki_tomcat_server_port'
 
@@ -151,10 +150,6 @@ REMINDER:
 
 
 # PKI Deployment "Helper" Messages
-PKIHELPER_APACHE_INSTANCE_SUBSYSTEMS_2 = \
-    "instance '%s' contains '%d' Apache PKI subsystems"
-PKIHELPER_APACHE_INSTANCES_2 = \
-    "PKI Apache registry '%s' contains '%d' Apache PKI instances"
 PKIHELPER_APPLY_SLOT_SUBSTITUTION_1 = \
     "applying in-place slot substitutions on '%s'"
 PKIHELPER_CERTUTIL_GENERATE_CSR_1 = "executing '%s'"

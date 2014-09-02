@@ -113,6 +113,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #            tightly-coupled shared instance.
         #
         deployer.security_domain.deregister(token)
-        # ALWAYS Stop this Apache/Tomcat PKI Process
+        # ALWAYS Stop this Tomcat PKI Process
         deployer.systemd.stop()
         return self.rv
