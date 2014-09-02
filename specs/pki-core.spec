@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          0.8%{?dist}
+Release:          0.9%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -13,6 +13,9 @@ Group:            System Environment/Daemons
 
 %bcond_without    server
 %bcond_without    javadoc
+# ignore unpackaged files from native 'tpsclient'
+# REMINDER:  Remove this '%define' once 'tpsclient' is rewritten as a Java app
+%define _unpackaged_files_terminate_build 0
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -25,7 +28,7 @@ BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
 BuildRequires:    nspr-devel
-BuildRequires:    nss-devel
+BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
@@ -54,6 +57,19 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-28
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 7.1.0
+
+# additional build requirements needed to build native 'tpsclient'
+# REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
+BuildRequires:    apr-devel
+BuildRequires:    apr-util-devel
+BuildRequires:    cyrus-sasl-devel
+BuildRequires:    httpd-devel >= 2.4.2
+BuildRequires:    pcre-devel
+BuildRequires:    python
+BuildRequires:    systemd
+BuildRequires:    svrcore-devel
+BuildRequires:    zlib
+BuildRequires:    zlib-devel
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -435,14 +451,27 @@ provided by the PKI Core used by the Certificate System.
 Summary:          Certificate System - Token Processing Service
 Group:            System Environment/Daemons
 
-BuildArch:        noarch
-
 Provides:         pki-tps
+Provides:         pki-tps-client = %{version}-%{release}
+
+Obsoletes:        pki-tps-client < %{version}-%{release}
+
 Requires:         java-headless >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
+
+# additional runtime requirements needed to run native 'tpsclient'
+# REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
+Requires:         mod_nss
+Requires:         mod_perl
+Requires:         mod_revocator
+Requires:         nss >= 3.14.3
+Requires:         nss-tools >= 3.14.3
+Requires:         openldap-clients
+Requires:         perl-Mozilla-LDAP
+Requires:         pki-symkey = %{version}-%{release}
 
 %description -n   pki-tps-tomcat
 The Token Processing System (TPS) is an optional PKI subsystem that acts
@@ -459,6 +488,10 @@ Token Key Service (TKS)) to fulfill the user's requests.
 
 TPS also interacts with the token database, an LDAP server that stores
 information about individual tokens.
+
+The utility "tpsclient" is a test tool that interacts with TPS.  This
+tool is useful to test TPS server configs without risking an actual
+smart card.
 
 %{overview}
 
@@ -490,6 +523,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -781,6 +815,11 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %{_datadir}/pki/tps/webapps/
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
+# files for native 'tpsclient'
+# REMINDER:  Remove this comment once 'tpsclient' is rewritten as a Java app
+%{_bindir}/tpsclient
+%{_libdir}/tps/libtps.so
+%{_libdir}/tps/libtokendb.so
 
 %if %{with javadoc}
 %files -n pki-javadoc
@@ -791,6 +830,13 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Fri Aug 29 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.9
+- Merged jmagne@redhat.com's spec file changes from the stand-alone
+  'pki-tps-client' package needed to build/run the native 'tpsclient'
+  command line utility into this 'pki-core' spec file under the 'tps' package.
+- Original tps libararies must be built to support this native utility.
+- Modifies tps package from 'noarch' into 'architecture-specific' package
+
 * Wed Aug 27 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.8
 - PKI TRAC Ticket #1127 - Remove 'pki-ra', 'pki-setup', and 'pki-silent'
   packages . . .

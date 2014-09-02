@@ -25,8 +25,6 @@ elseif (BUILD_REDHAT_PKI_THEME)
     set(APPLICATION_FLAVOR_REDHAT_PKI_THEME TRUE)
 elseif (BUILD_PKI_CORE)
     set(APPLICATION_FLAVOR_PKI_CORE TRUE)
-elseif (BUILD_PKI_TPS)
-    set(APPLICATION_FLAVOR_PKI_TPS TRUE)
 elseif (BUILD_PKI_CONSOLE)
     set(APPLICATION_FLAVOR_PKI_CONSOLE TRUE)
 elseif (BUILD_PKI_MIGRATE)
@@ -58,9 +56,8 @@ include(Java)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/classes)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
 
-# required for all PKI components EXCEPT IPA_PKI_THEME and PKI_TPS
-if (NOT APPLICATION_FLAVOR_IPA_PKI_THEME   AND
-    NOT APPLICATION_FLAVOR_PKI_TPS)
+# required for all PKI components EXCEPT IPA_PKI_THEME
+if (NOT APPLICATION_FLAVOR_IPA_PKI_THEME)
     include(JUnit)
 
     add_custom_target(test)
@@ -79,7 +76,6 @@ endif ()
 
 # ONLY required for Java-based PKI components
 if (APPLICATION_FLAVOR_PKI_CORE      OR
-    APPLICATION_FLAVOR_PKI_TPS       OR
     APPLICATION_FLAVOR_PKI_CONSOLE   OR
     APPLICATION_FLAVOR_DOGTAG_PKI_THEME OR
     APPLICATION_FLAVOR_PKI_MIGRATE)
@@ -87,14 +83,10 @@ if (APPLICATION_FLAVOR_PKI_CORE      OR
     find_package(JNI REQUIRED)
 endif ()
 
-# ONLY required for PKI_CORE or PKI_TPS
-if (APPLICATION_FLAVOR_PKI_CORE   OR
-    APPLICATION_FLAVOR_PKI_TPS)
+# ONLY required for PKI_CORE
+if (APPLICATION_FLAVOR_PKI_CORE)
     find_package(Ldap REQUIRED)
-endif ()
-
-# ONLY required for PKI_TPS
-if (APPLICATION_FLAVOR_PKI_TPS)
+    # required for native 'tpsclient' utility
     find_package(APR REQUIRED)
     find_package(Svrcore REQUIRED)
 endif ()
@@ -154,7 +146,6 @@ add_custom_target(clean-cmake
 
 # check subdirectories
 if (APPLICATION_FLAVOR_PKI_CORE      OR
-    APPLICATION_FLAVOR_PKI_TPS       OR
     APPLICATION_FLAVOR_PKI_CONSOLE   OR
     APPLICATION_FLAVOR_PKI_MIGRATE)
     add_subdirectory(base)

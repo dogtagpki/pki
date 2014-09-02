@@ -17,6 +17,8 @@ if (APPLICATION_FLAVOR_PKI_CORE)
         add_subdirectory(tks)
         add_subdirectory(tps)
         add_subdirectory(setup)
+        # required for native 'tpsclient' utility
+        add_subdirectory(tps-client)
 
         if(WITH_JAVADOC)
             add_subdirectory(javadoc)
@@ -37,10 +39,6 @@ if (APPLICATION_FLAVOR_PKI_CORE)
     )
 
 endif (APPLICATION_FLAVOR_PKI_CORE)
-
-if (APPLICATION_FLAVOR_PKI_TPS)
-    add_subdirectory(tps-client)
-endif (APPLICATION_FLAVOR_PKI_TPS)
 
 if (APPLICATION_FLAVOR_PKI_CONSOLE)
     add_subdirectory(test)

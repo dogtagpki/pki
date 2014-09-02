@@ -46,6 +46,8 @@ fi
 
 if [ "$WITHOUT_SERVER" = "" ]; then
     PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps-tomcat setup"
+    # required for native 'tpsclient' utility
+    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST tps-client"
 fi
 
 ##
