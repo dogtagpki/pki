@@ -26,6 +26,7 @@ import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
 import org.dogtagpki.server.tps.cms.CARenewCertResponse;
 import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
+import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.cms.KRARecoverKeyResponse;
 import org.dogtagpki.server.tps.cms.KRAServerSideKeyGenResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
@@ -818,13 +819,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         String tmpTokenType = configStore.getString(configName);
                         setSelectedTokenType(tmpTokenType);
                     } catch (EPropertyNotFound e) {
-                        auditMsg = "configuration " + configName + " not found";
+                        auditMsg = " configuration " + configName + " not found";
                         CMS.debug(method + ":" + auditMsg);
-                        throw new TPSException(method + auditMsg);
+                        throw new TPSException(method + ":" + auditMsg);
                     } catch (EBaseException e) {
-                        auditMsg = "configuration " + configName + " not found";
-                        CMS.debug(method + auditMsg);
-                        throw new TPSException(method + auditMsg);
+                        auditMsg = " configuration " + configName + " not found";
+                        CMS.debug(method + ":" + auditMsg);
+                        throw new TPSException(method + ":" + auditMsg);
                     }
                     return processRecovery(lostToken, certsInfo, channel, aInfo);
 
@@ -1150,10 +1151,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     private TPSStatus processRecovery(TokenRecord toBeRecovered, EnrolledCertsInfo certsInfo, SecureChannel channel,
             AppletInfo aInfo) throws TPSException, IOException {
-
+        String method = "TPSEnrollProcessor.processRecover";
+        String auditMsg;
         TPSStatus status = TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED;
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        IConfigStore configStore = CMS.getConfigStore();
+
         CMS.debug("TPSEnrollProcessor.processRecovery: entering:");
 
         if (toBeRecovered == null || certsInfo == null || channel == null || aInfo == null) {
@@ -1258,10 +1262,22 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 }
                 String b64cert = null;
                 if (serialToRecover != null) {
+                    // get recovery conn id
+                    String caConnId;
+                    String config = "op.enroll." + certToRecover.getType() + ".keyGen." + certToRecover.getKeyType() + ".ca.conn";
+                    try {
+                        caConnId = configStore.getString(config);
+                    } catch (Exception e) {
+                        auditMsg = "cannot find config:" + config;
+                        CMS.debug(method + ":" + auditMsg);
+                        throw new TPSException(
+                                method + ":" + auditMsg,
+                                TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+                    }
                     CMS.debug("TPSEnrollProcessor.processRecovery: Selecting cert to recover: " + serialToRecover);
 
                     CARetrieveCertResponse certResponse = tps.getEngine().recoverCertificate(certToRecover,
-                            serialToRecover, keyTypeValue, getCAConnectorID());
+                            serialToRecover, keyTypeValue, caConnId);
 
                     b64cert = certResponse.getCertB64();
                     CMS.debug("TPSEnrollProcessor.processRecovery: recoverd cert blob: " + b64cert);
@@ -1279,10 +1295,37 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     generateCertificate(certsInfo, channel, aInfo, keyTypeValue, TPSEngine.ENROLL_MODES.MODE_RECOVERY,
                             actualCertIndex, cEnrollInfo);
 
-                    //ToDo:   write code to unrevoke this certificate.
-                    // Right now we are not handling cert satus correctly in the TPS UI anyway.
-                    //Fix that first and then do this.
+                    // unrevoke cert if needed
+                    if (certToRecover.getStatus().equalsIgnoreCase("revoked_on_hold")) {
+                        auditMsg = "unrevoking cert...";
+                        CMS.debug(method + ":" + auditMsg);
 
+                        CARemoteRequestHandler caRH = null;
+                        try {
+                            caRH = new CARemoteRequestHandler(caConnId);
+
+                            CARevokeCertResponse response =
+                                    caRH.revokeCertificate(false /*unrevoke*/, serialToRecover,
+                                            certToRecover.getCertificate(),
+                                            null);
+                            CMS.debug(method + ": response status =" + response.getStatus());
+
+                        } catch (EBaseException e) {
+                            auditMsg = "failed getting CARemoteRequestHandler";
+                            CMS.debug(method + ":" + auditMsg);
+                            throw new TPSException(method + ":" + auditMsg, TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+                        }
+                    }
+
+                    // set cert status to active
+                    certToRecover.setStatus("active");
+                    try {
+                        tps.tdb.tdbUpdateCertEntry(certToRecover);
+                    } catch (Exception e) {
+                        auditMsg = "failed tdbUpdateCertEntry";
+                        CMS.debug(method + ":" + auditMsg);
+                        throw new TPSException(method + ":" + auditMsg, TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+                    }
                 } else {
 
                 }

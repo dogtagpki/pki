@@ -121,13 +121,23 @@ public class TokenService extends PKIService implements TokenResource {
         return TokenStatus.PERM_LOST;
     }
 
-    public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState) {
+    public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState) throws Exception {
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
         switch (tokenState) {
         case UNINITIALIZED:
             tokenRecord.setStatus("uninitialized");
             tokenRecord.setReason(null);
             break;
         case ACTIVE:
+            String origStatus = tokenRecord.getStatus();
+            String origReason = tokenRecord.getReason();
+            if (origStatus.equalsIgnoreCase("lost") &&
+                    origReason.equalsIgnoreCase("onHold")) {
+                //unrevoke certs
+                tps.tdb.unRevokeCertsByCUID(tokenRecord.getId());
+            }
+
             tokenRecord.setStatus("active");
             tokenRecord.setReason(null);
             break;
@@ -135,18 +145,39 @@ public class TokenService extends PKIService implements TokenResource {
         case TEMP_LOST_PERM_LOST:
             tokenRecord.setStatus("lost");
             tokenRecord.setReason("keyCompromise");
+
+            //revoke certs
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "keyCompromise");
             break;
         case DAMAGED:
             tokenRecord.setStatus("lost");
             tokenRecord.setReason("destroyed");
+
+            //revoke certs
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "destroyed");
+
             break;
         case TEMP_LOST:
             tokenRecord.setStatus("lost");
             tokenRecord.setReason("onHold");
+
+            // put certs onHold
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "onHold");
             break;
         case TERMINATED:
+            String reason = "keyCompromise";
+            String origStatus2 = tokenRecord.getStatus();
+            String origReason2 = tokenRecord.getReason();
+            // temp token looks at "onHold"
+            if (origStatus2.equalsIgnoreCase("lost") &&
+                    origReason2.equalsIgnoreCase("onHold")) {
+                reason = "onHold";
+            }
             tokenRecord.setStatus("terminated");
-            tokenRecord.setReason(null);
+            tokenRecord.setReason(reason);
+
+            //revoke certs
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), reason) ;
             break;
         default:
             throw new PKIException("Unsupported token state: " + tokenState);
@@ -182,7 +213,7 @@ public class TokenService extends PKIService implements TokenResource {
         return tokenData;
     }
 
-    public TokenRecord createTokenRecord(TokenData tokenData) {
+    public TokenRecord createTokenRecord(TokenData tokenData) throws Exception {
 
         TokenRecord tokenRecord = new TokenRecord();
         tokenRecord.setId(tokenData.getID());

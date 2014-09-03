@@ -986,16 +986,13 @@ public class TPSProcessor {
     }
 
     /*
-     * revokeCertificates revokes certificates on the token specified
-     * @param cuid the cuid of the token to revoke certificates
-     * @return auditMsg captures the audit message
-     * @throws TPSException in case of error
+     * revokeCertsAtFormat returns a boolean that tells if config wants to revoke certs on the token during format
      */
-    protected void revokeCertificates(String cuid) throws TPSException {
-        String auditMsg = "";
-        final String method = "TPSProcessor.revokeCertificates";
+    protected boolean revokeCertsAtFormat() {
+        String method = "revokeCertsAtFormat";
+        String auditMsg;
+        CMS.debug(method + ": begins");
 
-        //bail out if not configured to revoke cert
         IConfigStore configStore = CMS.getConfigStore();
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert";
         boolean revokeCert = false;
@@ -1005,13 +1002,45 @@ public class TPSProcessor {
             auditMsg = method + ": config not found: " + configName +
                     "; default to false";
             CMS.debug(auditMsg);
-            return;
         }
         if (!revokeCert) {
             auditMsg = method + ":  revokeCert = false";
             CMS.debug(auditMsg);
-            return;
         }
+        return revokeCert;
+    }
+
+    protected RevocationReason getRevocationReasonAtFormat() {
+        String method = "getRevocationReasonAtFormat";
+        String auditMsg;
+
+        IConfigStore configStore = CMS.getConfigStore();
+        String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.revokeReason";
+        RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
+        try {
+            int revokeReasonInt = configStore.getInteger(configName);
+            revokeReason = RevocationReason.fromInt(revokeReasonInt);
+        } catch (EBaseException e) {
+            auditMsg = method + ": config not found: " + configName +
+                    "; default to unspecified";
+            CMS.debug(auditMsg);
+            revokeReason = RevocationReason.UNSPECIFIED;
+        }
+
+        return revokeReason;
+    }
+
+    /*
+     * revokeCertificates revokes certificates on the token specified
+     * @param cuid the cuid of the token to revoke certificates
+     * @return auditMsg captures the audit message
+     * @throws TPSException in case of error
+     *
+     * TODO: maybe make this a callback function later
+     */
+    protected void revokeCertificates(String cuid, RevocationReason revokeReason, String caConnId) throws TPSException {
+        String auditMsg = "";
+        final String method = "TPSProcessor.revokeCertificates";
 
         if (cuid == null) {
             auditMsg = "cuid null";
@@ -1027,7 +1056,6 @@ public class TPSProcessor {
             throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
 
-        String caConnId = getCAConnectorID();
         CARemoteRequestHandler caRH = null;
         try {
             caRH = new CARemoteRequestHandler(caConnId);
@@ -1100,17 +1128,7 @@ public class TPSProcessor {
                 }
                 continue;
             }
-            configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.revokeReason";
-            RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
-            try {
-                int revokeReasonInt = configStore.getInteger(configName);
-                revokeReason = RevocationReason.fromInt(revokeReasonInt);
-            } catch (EBaseException e) {
-                auditMsg = method + ": config not found: " + configName +
-                        "; default to unspecified";
-                CMS.debug(auditMsg);
-                revokeReason = RevocationReason.UNSPECIFIED;
-            }
+
             String hexSerial = cert.getSerialNumber();
             if (hexSerial.length() >= 3 && hexSerial.startsWith("0x")) {
                 String serial = hexSerial.substring(2); // skip over the '0x'
@@ -1364,10 +1382,13 @@ public class TPSProcessor {
         channel.externalAuthenticate();
         tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
 
-        if (isTokenPresent) {
+        if (isTokenPresent && revokeCertsAtFormat()) {
             // Revoke certificates on token, if so configured
+            RevocationReason reason = getRevocationReasonAtFormat();
+            String caConnId = getCAConnectorID();
+
             try {
-                revokeCertificates(tokenRecord.getId());
+                revokeCertificates(tokenRecord.getId(), reason, caConnId);
             } catch (TPSException te) {
                 // failed revocation; capture message and continue
                 auditMsg = te.getMessage();

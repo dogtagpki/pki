@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,6 +25,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import netscape.security.x509.RevocationReason;
+
+import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
+import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.tps.main.TPSException;
@@ -274,5 +279,147 @@ public class TPSTokendb {
         }
 
         return certRecords;
+    }
+
+    public void revokeCertsByCUID(String cuid, String tokenReason) throws Exception {
+        String method = "TPStokendb.revokeCertsByCUID";
+        CMS.debug(method + ": called");
+        if (cuid == null)
+            throw new TPSException(method + ": cuid null");
+        revokeCertsByCUID(true, cuid, tokenReason);
+    }
+
+    public void unRevokeCertsByCUID(String cuid) throws Exception {
+        String method = "TPStokendb.unRevokeCertsByCUID";
+        CMS.debug(method + ": called");
+        if (cuid == null)
+            throw new TPSException(method + ": cuid null");
+        revokeCertsByCUID(false, cuid, null /* null for unrevoke*/);
+    }
+
+    /*
+     * revokeCertsByCUID
+     * @param isRevoke true if to revoke; false to unrevoke
+     * @param cuid cuid of token to revoke/unrevoke
+     * @param onHold true if revocation is to put onHold; false if to really revoke
+     */
+    private void revokeCertsByCUID(boolean isRevoke, String cuid, String tokenReason) throws Exception {
+        String method = "TPSTokendb.revokeCertsByCUID";
+        if (cuid == null)
+            throw new TPSException(method + ": cuid null");
+        String auditMsg;
+        IConfigStore configStore = CMS.getConfigStore();
+        ArrayList<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertificatesByCUID(cuid);
+        if (tokenReason != null) {
+            if (!tokenReason.equalsIgnoreCase("onHold") &&
+                    !tokenReason.equalsIgnoreCase("destroyed") &&
+                    !tokenReason.equalsIgnoreCase("keyCompromise")) {
+                auditMsg = "unknown tokenRecord lost reason:" + tokenReason;
+                CMS.debug(method + ":" + auditMsg);
+                throw new Exception(method + ":" + auditMsg);
+            }
+
+        }
+        for (TPSCertRecord cert : certRecords) {
+            // get conn id
+            String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
+            String connID = configStore.getString(config);
+
+            RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
+
+            if (isRevoke) {
+                auditMsg = "called to revoke";
+                CMS.debug(method + ":" + auditMsg);
+                boolean revokeCert = false;
+
+                // get revoke or not
+                config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() +
+                        ".recovery." + tokenReason + ".revokeCert";
+                //TODO: temporaryToken doesn't have all params; default to false if not found for now
+                revokeCert = configStore.getBoolean(config, false); // default to false
+                if (!revokeCert) {
+                    auditMsg = "cert not to be revoked:" + cert.getSerialNumber();
+                    CMS.debug(method + ":" + auditMsg);
+                    continue;
+                }
+                auditMsg = "cert to be revoked:" + cert.getSerialNumber();
+                CMS.debug(method + ":" + auditMsg);
+
+                // get revoke reason
+                config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() +
+                        ".recovery." + tokenReason + ".revokeCert.reason";
+                int reasonInt = configStore.getInteger(config, 0);
+                revokeReason = RevocationReason.fromInt(reasonInt);
+            } else { // is unrevoke
+                auditMsg = "called to unrevoke";
+                CMS.debug(method + ":" + auditMsg);
+                if (!cert.getStatus().equalsIgnoreCase("revoked_on_hold")) {
+                    auditMsg = "cert record current status is not revoked_on_hold; cannot unrevoke";
+                    CMS.debug(method + ":" + auditMsg);
+                    continue;// TODO: continue or bail?
+                }
+            }
+
+            CARemoteRequestHandler caRH = null;
+            caRH = new CARemoteRequestHandler(connID);
+            String hexSerial = cert.getSerialNumber();
+            if (hexSerial.length() >= 3 && hexSerial.startsWith("0x")) {
+                String serial = hexSerial.substring(2); // skip over the '0x'
+                BigInteger bInt = new BigInteger(serial, 16);
+                String serialStr = bInt.toString();
+                CMS.debug(method + ": found cert hex serial: " + serial +
+                        " dec serial:" + serialStr);
+                CARevokeCertResponse response =
+                        caRH.revokeCertificate(isRevoke, serialStr, cert.getCertificate(),
+                                revokeReason);
+                CMS.debug(method + ": response status =" + response.getStatus());
+            } else {
+                auditMsg = "mulformed hex serial number :" + hexSerial;
+                CMS.debug(method + ": " + auditMsg);
+                throw new Exception(auditMsg);
+            }
+
+            // update certificate status
+            if (isRevoke) {
+                if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
+                    cert.setStatus("revoked_on_hold");
+                } else {
+                    cert.setStatus("revoked");
+                }
+            } else {
+                cert.setStatus("active");
+            }
+            tps.certDatabase.updateRecord(cert.getId(), cert);
+            auditMsg = "cert (un)revoked:" + cert.getSerialNumber();
+            CMS.debug(method + ":" + auditMsg);
+            //TODO: tdbActivity
+        }
+    }
+
+    public void tdbAddCertEntry(TPSCertRecord certRecord, String status)
+            throws Exception {
+        certRecord.setStatus(status);
+
+        tps.certDatabase.addRecord(certRecord.getId(), certRecord);
+    }
+
+    public void tdbUpdateCertEntry(TPSCertRecord certRecord)
+            throws Exception {
+        String method = "TPSTokendb.tdbUpdateCertEntry";
+        String id = certRecord.getId();
+        TPSCertRecord existingCertRecord;
+        try {
+            existingCertRecord = tps.certDatabase.getRecord(id);
+        } catch (Exception e) {
+            CMS.debug(method + ": token entry not found; Adding");
+            // add and exit
+            tdbAddCertEntry(certRecord, certRecord.getStatus());
+            return;
+        }
+        // cert found; modify
+        CMS.debug(method + ": cert entry found; Modifying with status: "+ certRecord.getStatus());
+        // don't change the create time of an existing token record; put it back
+        certRecord.setCreateTime(existingCertRecord.getCreateTime());
+        tps.certDatabase.updateRecord(id, certRecord);
     }
 }

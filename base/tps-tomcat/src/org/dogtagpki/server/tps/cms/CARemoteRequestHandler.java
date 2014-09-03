@@ -201,7 +201,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             BigInteger serialno)
             throws EBaseException {
 
-        CMS.debug("CARemoteRequestHandler: renewCertificate(): begins.");
+        CMS.debug("CARemoteRequestHandler: retrieveCertificate(): begins.");
         if (serialno == null) {
             throw new EBaseException("CARemoteRequestHandler: retrieveCertificate(): input parameter null.");
         }

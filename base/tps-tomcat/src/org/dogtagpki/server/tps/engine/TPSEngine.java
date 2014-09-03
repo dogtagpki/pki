@@ -424,8 +424,18 @@ public class TPSEngine {
             String userid,
             TPSBuffer sDesKey,
             String b64cert, String drmConnId) throws TPSException {
-
+        String method = "TPSEngine.recoverKey";
         CMS.debug("TPSEngine.recoverKey");
+        if (cuid == null)
+            CMS.debug(method + ": cuid null");
+        else if (userid == null)
+            CMS.debug(method + ": userid null");
+        else if (sDesKey == null)
+            CMS.debug(method + ": isDesKey null");
+        else if (b64cert == null)
+            CMS.debug(method + ": b64cert null");
+        else if (drmConnId == null)
+            CMS.debug(method + ": drmConnId null");
 
         if (cuid == null || userid == null || sDesKey == null || b64cert == null || drmConnId == null) {
             throw new TPSException("TPSEngine.recoverKey: invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
