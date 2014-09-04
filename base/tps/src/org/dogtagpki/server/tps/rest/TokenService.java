@@ -543,6 +543,11 @@ public class TokenService extends PKIService implements TokenResource {
         try {
             TokenDatabase database = subsystem.getTokenDatabase();
             tokenRecord = database.getRecord(tokenID);
+
+            //delete all certs associated with this token
+            CMS.debug("TokenService.removeToken: about to remove all certificates associated with the token first");
+            subsystem.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
+
             database.removeRecord(tokenID);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DELETE, tokenRecord,
                 ipAddress, msg, "success", remoteUser);

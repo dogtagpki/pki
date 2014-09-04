@@ -281,6 +281,31 @@ public class TPSTokendb {
         return certRecords;
     }
 
+    public void tdbRemoveCertificatesByCUID(String cuid)
+        throws Exception {
+        String method = "TPSTokendb.tdbRemoveCertificatesByCUID";
+        if (cuid == null)
+            throw new Exception(method + ": cuid null");
+
+        String filter = cuid;
+        Iterator<TPSCertRecord> records;
+        try {
+             records = tps.certDatabase.findRecords(filter).iterator();
+        } catch (Exception e) {
+            CMS.debug(method + ":" + e);
+            throw new Exception(method + ":" + e);
+        }
+
+        while (records.hasNext()) {
+            TPSCertRecord certRecord = records.next();
+            // make sure the cuid matches the tokenID instead of the origin !
+            if (certRecord.getTokenID().equalsIgnoreCase(cuid)) {
+                tps.certDatabase.removeRecord(certRecord.getId());
+                CMS.debug(method + ":" + "cert removed:" + certRecord.getId());
+            }
+        }
+    }
+
     public void revokeCertsByCUID(String cuid, String tokenReason) throws Exception {
         String method = "TPStokendb.revokeCertsByCUID";
         CMS.debug(method + ": called");
