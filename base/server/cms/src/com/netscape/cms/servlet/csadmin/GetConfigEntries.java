@@ -180,9 +180,11 @@ public class GetConfigEntries extends CMSServlet {
                         continue;
                 }
 
-                Node container = xmlObj.createContainer(root, "Config");
-                xmlObj.addItemToContainer(container, "name", name);
-                xmlObj.addItemToContainer(container, "value", value);
+                if (value != null) {
+                    Node container = xmlObj.createContainer(root, "Config");
+                    xmlObj.addItemToContainer(container, "name", name);
+                    xmlObj.addItemToContainer(container, "value", value);
+                }
             }
         }
 
@@ -192,7 +194,8 @@ public class GetConfigEntries extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            CMS.debug("Failed to send the XML output: " + e);
+            e.printStackTrace();
         }
     }
 
