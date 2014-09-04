@@ -152,6 +152,33 @@ Output (const char *fmt, ...)
   va_end (ap);
 }
 
+static void
+printBuf (Buffer * buf)
+{
+  int sum = 0;
+
+  BYTE *data = *buf;
+  int i = 0;
+  if (buf->size () > 255)
+    {
+      Output ("printBuf: TOO BIG to print");
+      return;
+    }
+  Output ("Begin printing buffer =====");
+  for (i = 0; i < (int) buf->size (); i++)
+    {
+      printf ("%02x ", (unsigned char) data[i]);
+      sum++;
+      if (sum == 10)
+        {
+          printf ("\n");
+          sum = 0;
+        }
+    }
+  Output ("End printing buffer =====");
+}
+
+
 
 #ifdef VERBOSE
 static void
@@ -275,28 +302,52 @@ RA_Conn::SendMsg (RA_Msg * msg)
 {
   char msgbuf[MAX_RA_MSG_SIZE];
   char chunk[MAX_RA_MSG_SIZE];
+  char extsbuf[MAX_RA_MSG_SIZE];
+
+  memset(msgbuf,0, sizeof(msgbuf));
+  memset(chunk, 0, sizeof(chunk));
+  memset(extsbuf,0, sizeof(extsbuf));
+
+  char *encodedExts = NULL;
 
   /* send chunk size */
   if (msg->GetType () == MSG_BEGIN_OP)
     {
       RA_Begin_Op_Msg *begin = (RA_Begin_Op_Msg *) msg;
-      sprintf (msgbuf, "%s=%d&%s=%d", PARAM_MSG_TYPE, MSG_BEGIN_OP,
+      snprintf (msgbuf, MAX_RA_MSG_SIZE, "%s=%d&%s=%d", PARAM_MSG_TYPE, MSG_BEGIN_OP,
 	       PARAM_OPERATION, begin->GetOpType ());
       NameValueSet *exts = begin->GetExtensions ();
       if (exts != NULL)
 	{
-	  sprintf (msgbuf, "%s&%s=", msgbuf, PARAM_EXTENSIONS);
+          strncat(msgbuf,"&",MAX_RA_MSG_SIZE - strlen(msgbuf) - 1);
+          strncat(msgbuf,PARAM_EXTENSIONS,MAX_RA_MSG_SIZE - strlen(msgbuf) - 1);
+          strncat(msgbuf,"=",MAX_RA_MSG_SIZE - strlen(msgbuf) - 1);
+
 	  for (int i = 0; i < exts->Size (); i++)
 	    {
 	      if (i != 0)
 		{
-		  sprintf (msgbuf, "%s%%26", msgbuf);
+                  strncat(extsbuf,"%%26",MAX_RA_MSG_SIZE - strlen(extsbuf) - 1);
 		}
 	      char *name = exts->GetNameAt (i);
-	      sprintf (msgbuf, "%s%s=%s",
-		       msgbuf, name, exts->GetValueAsString (name));
+
+              strncat(extsbuf,name,MAX_RA_MSG_SIZE - strlen(extsbuf) - 1); 
+              strncat(extsbuf,"=",MAX_RA_MSG_SIZE - strlen(extsbuf) - 1); 
+              strncat(extsbuf,exts->GetValueAsString(name),MAX_RA_MSG_SIZE - strlen(extsbuf) - 1);
+
 	    }
+
+            printf("extsbuf: %s \n", extsbuf);
+
+            encodedExts = Util::URLEncode(extsbuf);
+
 	}
+
+      if(encodedExts) {
+          strncat(msgbuf,encodedExts,MAX_RA_MSG_SIZE - strlen(msgbuf) - 1);
+          printf("msgbuf: %s \n", msgbuf);
+          PR_Free(encodedExts);   
+      }
       CreateChunkEntity (msgbuf, chunk, 4096);
     }
   else if (msg->GetType () == MSG_LOGIN_RESPONSE)
@@ -994,6 +1045,7 @@ RA_Conn::ReadMsg (RA_Token * token)
   else if (msg_type == MSG_TOKEN_PDU_REQUEST)
     {
       char *pdu_encoded = params->GetValue (PARAM_PDU_DATA);
+      Output("PDU_REQUEST: pdu_encoded = %s", pdu_encoded);
       Buffer *apdu_data = Util::URLDecode (pdu_encoded);
 
 #ifdef VERBOSE
