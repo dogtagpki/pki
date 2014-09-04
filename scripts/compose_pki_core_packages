@@ -45,7 +45,7 @@ if [ "$WITHOUT_JAVADOC" = "" ]; then
 fi
 
 if [ "$WITHOUT_SERVER" = "" ]; then
-    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps-tomcat setup"
+    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps setup"
     # required for native 'tpsclient' utility
     PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST tps-client"
 fi
@@ -161,12 +161,7 @@ else
 	cp -p VERSION ${PKI_CORE_BASE_DIR}
 	for component in ${PKI_COMPONENT_LIST} ;
 	do
-		if [ "${component}" = "tps-tomcat" ] ; then
-			# rename tps-tomcat to tps
-			dest="tps"
-		else
-			dest="${component}"
-		fi
+		dest="${component}"
 
 		# copying ${PKI_BASE_DIR}/${component} to ${PKI_CORE_BASE_DIR}/${dest}
 		cd ${component}

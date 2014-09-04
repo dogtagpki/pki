@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          0.9%{?dist}
+Release:          0.10%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -113,7 +113,7 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
   * pki-kra                                                            \
   * pki-ocsp                                                           \
   * pki-tks                                                            \
-  * pki-tps-tomcat                                                     \
+  * pki-tps                                                            \
   * pki-javadoc                                                        \
                                                                        \
 which comprise the following corresponding PKI subsystems:             \
@@ -447,14 +447,15 @@ provided by the PKI Core used by the Certificate System.
 %{overview}
 
 
-%package -n       pki-tps-tomcat
+%package -n       pki-tps
 Summary:          Certificate System - Token Processing Service
 Group:            System Environment/Daemons
 
-Provides:         pki-tps
-Provides:         pki-tps-client = %{version}-%{release}
+Provides:         pki-tps-tomcat
+Provides:         pki-tps-client
 
-Obsoletes:        pki-tps-client < %{version}-%{release}
+Obsoletes:        pki-tps-tomcat
+Obsoletes:        pki-tps-client
 
 Requires:         java-headless >= 1:1.7.0
 Requires:         pki-server = %{version}-%{release}
@@ -473,7 +474,7 @@ Requires:         openldap-clients
 Requires:         perl-Mozilla-LDAP
 Requires:         pki-symkey = %{version}-%{release}
 
-%description -n   pki-tps-tomcat
+%description -n   pki-tps
 The Token Processing System (TPS) is an optional PKI subsystem that acts
 as a Registration Authority (RA) for authenticating and processing
 enrollment requests, PIN reset requests, and formatting requests from
@@ -804,7 +805,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %{_datadir}/pki/tks/setup/
 %{_datadir}/pki/tks/webapps/
 
-%files -n pki-tps-tomcat
+%files -n pki-tps
 %defattr(-,root,root,-)
 %doc base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
@@ -830,6 +831,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Wed Sep  3 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.10
+- PKI TRAC Ticket #1017 - Rename pki-tps-tomcat to pki-tps
+
 * Fri Aug 29 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.9
 - Merged jmagne@redhat.com's spec file changes from the stand-alone
   'pki-tps-client' package needed to build/run the native 'tpsclient'
