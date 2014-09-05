@@ -1572,6 +1572,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             cEnrollInfo.setProfileId(profileId);
             cEnrollInfo.setCertId(certId);
             cEnrollInfo.setCertAttrId(certAttrId);
+            cEnrollInfo.setKeyType(keyType);
 
             // These setting are key related and have no meaning in renewal.
             if (isRenewal == false) {
@@ -1584,7 +1585,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 cEnrollInfo.setKeyUser(keyUser);
                 cEnrollInfo.setPrivateKeyNumber(priKeyNumber);
                 cEnrollInfo.setPublicKeyNumber(pubKeyNumber);
-                cEnrollInfo.setKeyType(keyType);
                 cEnrollInfo.setKeyTypePrefix(keyTypePrefix);
             }
 
@@ -1886,10 +1886,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
 
             certsInfo.addCertificate(x509Cert);
-            // In renewal case, we don't need to save this info.
-            if (!isRenewal) {
-                certsInfo.addKType(cEnrollInfo.getKeyType());
-            }
+            certsInfo.addKType(cEnrollInfo.getKeyType());
 
             //Add origin, special handling for recovery case.
             if (isRecovery == true) {
