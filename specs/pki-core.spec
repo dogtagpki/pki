@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          0.10%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -14,7 +14,7 @@ Group:            System Environment/Daemons
 %bcond_without    server
 %bcond_without    javadoc
 # ignore unpackaged files from native 'tpsclient'
-# REMINDER:  Remove this '%define' once 'tpsclient' is rewritten as a Java app
+# REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
 %define _unpackaged_files_terminate_build 0
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -831,6 +831,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Wed Sep  3 2014 Dogtag Team <pki-devel@redhat.com> 10.2.0-1
+- Update release number for release build
+
 * Wed Sep  3 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.10
 - PKI TRAC Ticket #1017 - Rename pki-tps-tomcat to pki-tps
 
@@ -844,6 +847,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 * Wed Aug 27 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-0.8
 - PKI TRAC Ticket #1127 - Remove 'pki-ra', 'pki-setup', and 'pki-silent'
   packages . . .
+
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.2.0-0.5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
 * Wed Aug 13 2014 Jack Magne <jmagne@redhat.com> - 10.2.0-0.7
 - Respin to include the applet files with the rpm install. No change

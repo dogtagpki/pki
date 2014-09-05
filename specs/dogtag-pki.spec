@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.2.0
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -129,6 +129,12 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Wed Sep  3 2014 Dogtag Team <pki-devel@redhat.com> 10.2.0-1
+- Update release number for release build
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 10.1.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Fri Nov 22 2013 Dogtag Team <pki-devel@redhat.com> 10.2.0-0.1
 - Updated version number to 10.2.0-0.1.
 
