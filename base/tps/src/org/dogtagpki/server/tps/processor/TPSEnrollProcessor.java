@@ -316,8 +316,17 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
         //update the tokendb with new certs
         CMS.debug("TPSEnrollProcessor.enroll: updating tokendb with certs.");
+        try {
+            // clean up the cert records used to belong to this token in tokendb
+            tps.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
+        } catch (Exception e) {
+            auditMsg = "Attempt to clean up record with tdbRemoveCertificatesByCUID failed; token probably clean; continue anyway:" + e;
+            CMS.debug("TPSEnrollProcessor.enroll:" + auditMsg);
+        }
+        CMS.debug("TPSEnrollProcessor.enroll: adding certs to token with tdbAddCertificatesForCUID...");
         ArrayList<TPSCertRecord> certRecords = certsInfo.toTPSCertRecords(tokenRecord.getId(), tokenRecord.getUserID());
         tps.tdb.tdbAddCertificatesForCUID(tokenRecord.getId(), certRecords);
+        CMS.debug("TPSEnrollProcessor.enroll: tokendb updated with certs to the cuid so that it reflects what's on the token");
 
         auditMsg = "appletVersion=" + lastObjVer + "; tokenType =" + selectedTokenType + "; userid =" + userid;
         if (renewed) {
