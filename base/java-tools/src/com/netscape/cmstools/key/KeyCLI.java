@@ -99,11 +99,7 @@ public class KeyCLI extends CLI {
             // where the max line length is 64.
             System.out.println("  Public Key: \n");
             String publicKey = Utils.base64encode(info.getPublicKey());
-            int i = 0;
-            for(i=0;i<publicKey.length()/64;i++){
-                System.out.println(publicKey.substring(i*64, i*64 + 64));
-            }
-            System.out.println(publicKey.substring(i*64));
+            System.out.println(publicKey);
             System.out.println();
         }
     }
