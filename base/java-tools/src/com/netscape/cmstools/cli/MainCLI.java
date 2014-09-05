@@ -489,10 +489,12 @@ public class MainCLI extends CLI {
             System.out.println();
         }
 
-        // Do not call CryptoManager.initialize() on client-init and client-cert-import
+        // Do not call CryptoManager.initialize() on some commands
         // because otherwise the database will be locked.
         String command = cmdArgs[0];
-        if (!command.equals("client-init") && !command.equals("client-cert-import")) {
+        if (!command.equals("client-init") &&
+                !command.equals("client-cert-import") &&
+                !command.equals("client-cert-request")) {
             init();
         }
 

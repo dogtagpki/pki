@@ -26,6 +26,7 @@ import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -155,6 +156,18 @@ public class CertCLI extends CLI {
         if (showEncoded && encoded != null) {
             System.out.println();
             System.out.println(encoded);
+        }
+    }
+
+    public static void printCertRequestInfos(CertRequestInfos infos) {
+        boolean first = true;
+        for (CertRequestInfo info : infos.getEntries()) {
+            if (first) {
+                first = false;
+            } else {
+                System.out.println();
+            }
+            printCertRequestInfo(info);
         }
     }
 

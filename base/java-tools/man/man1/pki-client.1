@@ -21,6 +21,7 @@ pki-client \- Command-Line Interface for managing the security database on Certi
 \fBpki\fR [CLI options] \fBclient\fR
 \fBpki\fR [CLI options] \fBclient-init\fR [command options]
 \fBpki\fR [CLI options] \fBclient-cert-find\fR [command options]
+\fBpki\fR [CLI options] \fBclient-cert-request\fR <subject DN> [command options]
 \fBpki\fR [CLI options] \fBclient-cert-import\fR [command options]
 \fBpki\fR [CLI options] \fBclient-cert-del\fR [command options]
 .fi
@@ -42,6 +43,11 @@ This command is to create a new security database for the client.
 \fBpki\fR [CLI options] \fBclient-cert-find\fR [command options]
 .RS 4
 This command is to list certificates in the client security database.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBclient-cert-request\fR <subject DN> [command options]
+.RS 4
+This command is to generate and submit a certificate request.
 .RE
 .PP
 \fBpki\fR [CLI options] \fBclient-cert-import\fR [command options]
@@ -67,6 +73,10 @@ To create a new database execute the following command:
 To view certificates in the security database:
 
 .B pki -d <security database location> -c <security database password> client-cert-find
+
+To request a certificate:
+
+.B pki -d <security database location> -c <security database password> client-cert-request <subject DN>
 
 To import a certificate into the security database:
 

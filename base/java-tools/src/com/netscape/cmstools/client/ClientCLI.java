@@ -36,6 +36,7 @@ public class ClientCLI extends CLI {
         addModule(new ClientCertFindCLI(this));
         addModule(new ClientCertImportCLI(this));
         addModule(new ClientCertRemoveCLI(this));
+        addModule(new ClientCertRequestCLI(this));
     }
 
     public String getFullName() {

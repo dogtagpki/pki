@@ -79,6 +79,7 @@ def run_java_cli(args):
         '/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar',
         '/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar',
         '/usr/share/java/jaxb-api.jar',
+        '/usr/share/java/ldapjdk.jar',
         '/usr/share/java/servlet.jar',
         resteasy_lib + '/jaxrs-api.jar',
         resteasy_lib + '/resteasy-atom-provider.jar',

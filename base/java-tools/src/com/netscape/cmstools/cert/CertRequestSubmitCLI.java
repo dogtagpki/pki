@@ -3,7 +3,6 @@ package com.netscape.cmstools.cert;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Scanner;
 
 import javax.xml.bind.JAXBException;
@@ -12,7 +11,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
-import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -61,7 +59,7 @@ public class CertRequestSubmitCLI extends CLI {
             CertEnrollmentRequest erd = getEnrollmentRequest(cmdArgs[0]);
             CertRequestInfos cri = certCLI.certClient.enrollRequest(erd);
             MainCLI.printMessage("Submitted certificate request");
-            printRequestInformation(cri);
+            CertCLI.printCertRequestInfos(cri);
 
         } catch (FileNotFoundException e) {
             System.err.println("Error: " + e.getMessage());
@@ -77,19 +75,6 @@ public class CertRequestSubmitCLI extends CLI {
         try (Scanner scanner = new Scanner(new File(fileName))) {
             String xml = scanner.useDelimiter("\\A").next();
             return CertEnrollmentRequest.fromXML(xml);
-        }
-    }
-
-    private void printRequestInformation(CertRequestInfos cri) {
-        Collection<CertRequestInfo> allRequests = cri.getEntries();
-        boolean first = true;
-        for (CertRequestInfo x : allRequests) {
-            if (first) {
-                first = false;
-            } else {
-                System.out.println();
-            }
-            CertCLI.printCertRequestInfo(x);
         }
     }
 }
