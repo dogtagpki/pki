@@ -17,6 +17,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.CLI;
@@ -188,5 +189,8 @@ public class CertRequestReviewCLI extends CLI {
         } else {
             throw new Error("Invalid action: " + action);
         }
+
+        CertRequestInfo certRequest = certCLI.certClient.getRequest(requestId);
+        CertCLI.printCertRequestInfo(certRequest);
     }
 }
