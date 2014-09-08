@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.2.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -15,11 +15,10 @@ ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 
 %define dogtag_pki_theme_version   10.2.0
 %define esc_version                1.1.0
-%define jss_version                4.2.6-28
+%define jss_version                4.2.6-31
 %define pki_core_version           10.2.0
 %define pki_kra_version            10.2.0
 %define pki_ocsp_version           10.2.0
-%define pki_ra_version             10.2.0
 %define pki_tks_version            10.2.0
 %define pki_tps_version            10.2.0
 %define pki_console_version        10.2.0
@@ -59,7 +58,6 @@ Requires:         pki-javadoc >= %{pki_core_version}
 # of ALL other Dogtag PKI subsystems
 Requires:         pki-kra >= %{pki_kra_version}
 Requires:         pki-ocsp >= %{pki_ocsp_version}
-Requires:         pki-ra >= %{pki_ra_version}
 Requires:         pki-tks >= %{pki_tks_version}
 Requires:         pki-tps >= %{pki_tps_version}
 
@@ -84,12 +82,11 @@ Conflicts:        redhat-pki
 
 %description
 The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
-six subsystems and a client (for use by a Token Management System):
+five subsystems and a client (for use by a Token Management System):
 
   * Certificate Authority (CA)
   * Data Recovery Manager (DRM)
   * Online Certificate Status Protocol (OCSP) Manager
-  * Registration Authority (RA)
   * Token Key Service (TKS)
   * Token Processing System (TPS)
   * Enterprise Security Client (ESC)
@@ -99,21 +96,12 @@ user/group administration of CA, DRM, OCSP, and TKS, javadocs on portions
 of the Dogtag API, as well as various command-line tools used to assist with
 a PKI deployment.
 
-To successfully deploy instances of a CA, DRM, OCSP, or TKS,
+To successfully deploy instances of a CA, DRM, OCSP, TKS, or TPS,
 a Tomcat Web Server must be up and running locally on this machine.
-
-To successfully deploy instances of an RA, or TPS,
-an Apache Web Server must be up and running locally on this machine.
 
 To meet the database storage requirements of each CA, DRM, OCSP, TKS, or TPS
 instance, a 389 Directory Server must be up and running either locally on
 this machine, or remotely over the attached network connection.
-
-To meet the database storage requirements of an RA, an SQLite database will
-be created locally on this machine each time a new RA instance is created.
-
-After installation of this package, use the 'pkicreate' and 'pkiremove'
-utilities to respectively create and remove PKI instances.
 
 %prep
 cat > README <<EOF
@@ -129,6 +117,12 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Sun Sep  7 2014 Dogtag Team <pki-devel@redhat.com> 10.2.0-2
+- Updated release number for release build
+- Revised dependencies
+- Removed RA references
+- Changed Apache TPS references to Tomcat TPS references
+
 * Wed Sep  3 2014 Dogtag Team <pki-devel@redhat.com> 10.2.0-1
 - Update release number for release build
 
