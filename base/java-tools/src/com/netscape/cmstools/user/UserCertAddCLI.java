@@ -20,11 +20,14 @@ package com.netscape.cmstools.user;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Scanner;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.io.FileUtils;
 
+import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.user.UserCertData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
@@ -44,13 +47,16 @@ public class UserCertAddCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <User ID> --input <file> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <User ID> [OPTIONS...]", options);
     }
 
     public void createOptions() {
         Option option = new Option(null, "input", true, "Input file");
         option.setArgName("file");
-        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option(null, "serial", true, "Serial number of certificate in CA");
+        option.setArgName("serial number");
         options.addOption(option);
     }
 
@@ -81,16 +87,44 @@ public class UserCertAddCLI extends CLI {
             System.exit(-1);
         }
 
-        String userId = cmdArgs[0];
-        String file = cmd.getOptionValue("input");
+        String userID = cmdArgs[0];
+        String inputFile = cmd.getOptionValue("input");
+        String serialNumber = cmd.getOptionValue("serial");
 
-        // get cert from file
-        if (verbose) {
-            System.out.println("Reading cert from "+file+".");
-        }
-        String encoded = new Scanner(new File(file)).useDelimiter("\\A").next();
-        if (verbose) {
-            System.out.println(encoded);
+        String encoded;
+
+        if (inputFile != null && serialNumber != null) {
+            System.err.println("Error: Conflicting options: --input and --serial.");
+            printHelp();
+            System.exit(-1);
+            return;
+
+        } else if (inputFile != null) {
+            if (verbose) {
+                System.out.println("Reading certificate from " + inputFile + ".");
+            }
+
+            encoded = FileUtils.readFileToString(new File(inputFile));
+            if (verbose) {
+                System.out.println(encoded);
+            }
+
+        } else if (serialNumber != null) {
+            if (verbose) {
+                System.out.println("Downloading certificate " + serialNumber + ".");
+            }
+
+            client = parent.getClient();
+            CertClient certClient = new CertClient(client, "ca");
+
+            CertData certData = certClient.getCert(new CertId(serialNumber));
+            encoded = certData.getEncoded();
+
+        } else {
+            System.err.println("Error: Missing input file or serial number.");
+            printHelp();
+            System.exit(-1);
+            return;
         }
 
         UserCertData userCertData = new UserCertData();
@@ -100,7 +134,7 @@ public class UserCertAddCLI extends CLI {
             System.out.println(userCertData);
         }
 
-        userCertData = userCertCLI.userClient.addUserCert(userId, userCertData);
+        userCertData = userCertCLI.userClient.addUserCert(userID, userCertData);
 
         MainCLI.printMessage("Added certificate \"" + userCertData.getID() + "\"");
 
