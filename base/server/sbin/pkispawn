@@ -464,14 +464,7 @@ def main(argv):
                   e.message['desc']
             sys.exit(1)
 
-        if ((config.pki_subsystem == "KRA" or
-             config.pki_subsystem == "OCSP") and
-            not config.str2bool(parser.mdict['pki_standalone'])) or\
-           config.pki_subsystem == "TKS" or\
-           config.pki_subsystem == "TPS" or\
-           config.str2bool(parser.mdict['pki_clone']) or\
-           (config.pki_subsystem == "CA" and
-            config.str2bool(parser.mdict['pki_subordinate'])):
+        if parser.mdict['pki_security_domain_type'] != "new":
             try:
                 # Verify existence of Security Domain Password
                 if not 'pki_security_domain_password' in parser.mdict or\

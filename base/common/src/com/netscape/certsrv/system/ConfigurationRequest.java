@@ -82,6 +82,7 @@ public class ConfigurationRequest {
     private static final String STANDALONE = "standAlone";
     private static final String STEP_TWO = "stepTwo";
     private static final String GENERATE_SERVER_CERT = "generateServerCert";
+    private static final String SUBORDINATE_SECURITY_DOMAIN_NAME = "subordinateSecurityDomainName";
 
     // TPS specific parameters
     private static final String AUTHDB_BASEDN = "authdbBaseDN";
@@ -105,6 +106,7 @@ public class ConfigurationRequest {
     public static final String TOKEN_DEFAULT = "Internal Key Storage Token";
     public static final String NEW_DOMAIN = "newdomain";
     public static final String EXISTING_DOMAIN = "existingdomain";
+    public static final String NEW_SUBDOMAIN = "newsubdomain";
 
     @XmlElement
     protected String pin;
@@ -281,6 +283,9 @@ public class ConfigurationRequest {
     protected String sharedDB;
 
     @XmlElement
+    protected String subordinateSecurityDomainName;
+
+    @XmlElement
     protected String sharedDBUserDN;
 
     public ConfigurationRequest() {
@@ -337,6 +342,7 @@ public class ConfigurationRequest {
         authdbHost = form.getFirst(AUTHDB_HOST);
         authdbPort = form.getFirst(AUTHDB_PORT);
         authdbSecureConn = form.getFirst(AUTHDB_SECURE_CONN);
+        subordinateSecurityDomainName = form.getFirst(SUBORDINATE_SECURITY_DOMAIN_NAME);
 
         String value = form.getFirst(CA_URI);
         if (!StringUtils.isEmpty(value)) setCaUri(new URI(value));
@@ -997,6 +1003,14 @@ public class ConfigurationRequest {
         this.createNewDB = createNewDB;
     }
 
+    public String getSubordinateSecurityDomainName() {
+        return subordinateSecurityDomainName;
+    }
+
+    public void setSubordinateSecurityDomainName(String subordinateSecurityDomainName) {
+        this.subordinateSecurityDomainName = subordinateSecurityDomainName;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -1056,6 +1070,7 @@ public class ConfigurationRequest {
                ", sharedDBUserDN=" + sharedDBUserDN +
                ", createNewDB=" + createNewDB +
                ", setupReplication=" + setupReplication +
+               ", subordinateSecurityDomainName" + subordinateSecurityDomainName +
                "]";
     }
 

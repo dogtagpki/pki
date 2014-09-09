@@ -1078,24 +1078,23 @@ class PKIConfigParser:
                 # Stand-alone PKI
                 self.mdict['pki_security_domain_type'] = "new"
                 self.mdict['pki_issuing_ca'] = "External CA"
-            elif config.pki_subsystem != "CA" or\
-                    config.str2bool(self.mdict['pki_clone']) or\
-                    config.str2bool(self.mdict['pki_subordinate']):
+            elif (config.pki_subsystem != "CA" or
+                    config.str2bool(self.mdict['pki_clone']) or
+                    config.str2bool(self.mdict['pki_subordinate'])):
                 # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-                # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone, or
+                # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone
                 # Subordinate CA
                 self.mdict['pki_security_domain_type'] = "existing"
                 self.mdict['pki_security_domain_uri'] = \
                     "https" + "://" + \
                     self.mdict['pki_security_domain_hostname'] + ":" + \
                     self.mdict['pki_security_domain_https_port']
-
             elif config.str2bool(self.mdict['pki_external']):
                 # External CA
                 self.mdict['pki_security_domain_type'] = "new"
                 self.mdict['pki_issuing_ca'] = "External CA"
             else:
-                # PKI CA
+                # PKI CA (master)
                 self.mdict['pki_security_domain_type'] = "new"
 
             # 'External CA' Configuration name/value pairs

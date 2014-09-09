@@ -52,7 +52,6 @@ from .pkiconfig import pki_selinux_config_ports as ports
 from . import pkimanifest as manifest
 from . import pkimessages as log
 from .pkiparser import PKIConfigParser
-import pki.account
 import pki.client
 import pki.system
 
@@ -503,6 +502,9 @@ class ConfigurationFile:
                                      extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKI_SUBORDINATE_UNSUPPORTED_1,
                                 self.subsystem)
+            if config.str2bool(
+                    self.mdict['pki_subordinate_create_new_security_domain']):
+                self.confirm_data_exists('pki_subordinate_security_domain_name')
 
     def confirm_external_step_two(self):
         # ALWAYS defined via 'pkiparser.py'
@@ -3414,6 +3416,7 @@ class ConfigClient:
         # generic extension support in CSR - for external CA
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
+        self.security_domain_type = self.mdict['pki_security_domain_type']
 
     def configure_pki_data(self, data):
         config.pki_log.info(
@@ -3626,15 +3629,14 @@ class ConfigClient:
         self.set_hierarchy_parameters(data)
 
         # Security Domain
-        if ((self.subsystem != "CA" or self.clone or self.subordinate) and
-                not self.standalone):
-            # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
-            # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone, or
-            # Subordinate CA
+        if self.security_domain_type != "new":
             self.set_existing_security_domain(data)
         else:
             # PKI CA, External CA, or Stand-alone PKI
             self.set_new_security_domain(data)
+
+        if self.subordinate:
+            self.set_subca_security_domain(data)
 
         # database
         if self.subsystem != "RA":
@@ -3942,6 +3944,13 @@ class ConfigClient:
     def set_new_security_domain(self, data):
         data.securityDomainType = "newdomain"
         data.securityDomainName = self.mdict['pki_security_domain_name']
+
+    def set_subca_security_domain(self, data):
+        if config.str2bool(
+                self.mdict['pki_subordinate_create_new_security_domain']):
+            data.securityDomainType = "newsubdomain"
+            data.subordinateSecurityDomainName = (
+                self.mdict['pki_subordinate_security_domain_name'])
 
     def set_database_parameters(self, data):
         data.dsHost = self.mdict['pki_ds_hostname']

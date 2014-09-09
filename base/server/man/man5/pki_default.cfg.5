@@ -184,7 +184,7 @@ Name of the back-end database.  It is advised that the Certificate Server have i
 \x'-1'\fBpki_issuing_ca_hostname, pki_issuing_ca_https_port, pki_issuing_ca_uri\fR
 .IP
 Hostname and port, or URI of the issuing CA.  Required for installations of subordinate CA and non-CA subsystems.  This should point to the CA that will issue the relevant system certificates for the subsystem.  In a default install, this defaults to the CA subsystem within the same instance.  The URI has the format https://<ca_hostname>:<ca_https_port>.
-
+.PP
 .SS MISCELLANEOUS PARAMETERS
 \x'-1'\fBpki_restart_configured_instance\fR
 .IP
@@ -263,6 +263,15 @@ Required for the second step of the external CA signing process.  This is the lo
 \x'-1'\fBpki_subordinate\fR
 .IP
 Specifies whether the new CA which will be a subordinate of another CA.  The master CA is specified by \fBpki_issuing_ca\fP.  Defaults to False.
+.TP
+.B pki_subordinate_create_new_security_domain
+.IP
+Set to \fBTrue\fP if the subordinate CA will host its own security domain.  Defaults to \fBFalse\fP.
+.TP
+.B pki_subordinate_security_domain_name
+.IP
+Used when \fBpki_subordinate_create_security_domain\fP is set to \fBTrue\fP.  Specifies the name of the security domain to be hosted on the subordinate CA.
+
 .SS STANDALONE PKI PARAMETERS
 A stand-alone PKI subsystem is defined as a non-CA PKI subsystem that does not contain a CA as a part of its deployment, and functions as its own security domain.  Currently, only stand-alone DRMs are supported.
 .TP

@@ -304,10 +304,36 @@ pki_security_domain_user=caadmin
 [CA]
 pki_subordinate=True
 pki_issuing_ca=https://<master_ca_hostname>:<master_ca_https_port>
-pki_ca_signing_subject_dn=cn=CA Subordinate Signing ,o=example.com
+pki_ca_signing_subject_dn=cn=CA Subordinate Signing,o=example.com
 .fi
 .PP
 A sub-CA derives its certificate configuration -- such as allowed extensions and validity periods -- from a superior or root CA. Otherwise, the configuration of the CA is independent of the root CA, so it is its own instance rather than a clone. A sub-CA is configured using the pki_subordinate parameter and a pointer to the CA which issues the sub-CA's certificates.
+.PP
+\fBNote:\fP The value of \fBpki_ca_signing_subject_dn\fP of a subordinate CA should be different from the root CA's signing subject DN.
+.SS Installing a subordinate CA which hosts its own security domain
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_security_domain_password=\fIpassword123\fP
+pki_security_domain_hostname=<master CA security domain hostname>
+pki_security_domain_https_port=<master CA security domain https port>
+pki_security_domain_user=caadmin
+
+[CA]
+pki_subordinate=True
+pki_issuing_ca=https://<master ca hostname>:<master ca https port>
+pki_ca_signing_subject_dn=cn=CA Subordinate Signing,o=example.com
+pki_subordinate_create_new_security_domain=True
+pki_subordinate_security_domain_name=Subordinate CA Security Domain
+.fi
+.PP
+In this section, the subordinate CA logs onto and registers with the security domain CA (using parameters \fBpki_security_domain_hostname\fP, \fBpki_security_domain_https_port\fP, \fBpki_security_domain_user\fP and \fBpki_security_domain_password\fP) as in the previous section, but also creates and hosts a new security domain.  To do this, \fBpki_subordinate_create_new_security_domain\fP must be set to \fBTrue\fP.  The subordinate CA security domain name can also be specified by specifying a value for \fBpki_subordinate_security_domain_name\fP.
 .PP
 \fBNote:\fP The value of \fBpki_ca_signing_subject_dn\fP of a subordinate CA should be different from the root CA's signing subject DN.
 .SS Installing an externally signed CA

@@ -222,28 +222,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // Done Panel
         // Create or update security domain
         CMS.debug("=== Done Panel ===");
-        try {
-            String securityDomainType = data.getSecurityDomainType();
-            if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-                ConfigurationUtils.createSecurityDomain();
-            } else {
-                ConfigurationUtils.updateSecurityDomain();
-            }
-            cs.putString("service.securityDomainPort", CMS.getAgentPort());
-            cs.putString("securitydomain.store", "ldap");
-            cs.commit(false);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException("Error while updating security domain: " + e);
-        }
-
-        try {
-            if (!data.getSharedDB()) ConfigurationUtils.setupDBUser();
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in creating or updating dbuser: " + e);
-        }
-
+        setupSecurityDomain(data);
+        setupDBUser(data);
         finalizeConfiguration(data);
 
         cs.putInteger("cs.state", 1);
@@ -266,6 +246,46 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         Utils.exec("chmod 00660 " + restart_server);
 
         response.setStatus(SUCCESS);
+    }
+
+    private void setupDBUser(ConfigurationRequest data) {
+        try {
+            if (!data.getSharedDB()) ConfigurationUtils.setupDBUser();
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Errors in creating or updating dbuser: " + e);
+        }
+    }
+
+    private void setupSecurityDomain(ConfigurationRequest data) {
+        try {
+            String securityDomainType = data.getSecurityDomainType();
+            if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
+                CMS.debug("Creating new security domain");
+                ConfigurationUtils.createSecurityDomain();
+            } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
+                CMS.debug("Creating subordinate CA security domain");
+
+                // switch out security domain parameters from issuing CA security domain
+                // to subordinate CA hosted security domain
+                cs.putString("securitydomain.name", data.getSubordinateSecurityDomainName());
+                cs.putString("securitydomain.host", CMS.getEENonSSLHost());
+                cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
+                cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
+                cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
+                cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
+                ConfigurationUtils.createSecurityDomain();
+            } else {
+                CMS.debug("Updating existing security domain");
+                ConfigurationUtils.updateSecurityDomain();
+            }
+            cs.putString("service.securityDomainPort", CMS.getAgentPort());
+            cs.putString("securitydomain.store", "ldap");
+            cs.commit(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException("Error while updating security domain: " + e);
+        }
     }
 
     public Collection<String> getCertList(ConfigurationRequest request) {
@@ -737,10 +757,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     CMS.debug("local CA selected");
                     url = url.substring(url.indexOf("https"));
                     cs.putString("preop.ca.url", url);
-
                     URL urlx = new URL(url);
                     String host = urlx.getHost();
                     int port = urlx.getPort();
+
                     int admin_port = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
                             host, port, "CA", "SecurePort", "SecureAdminPort");
 
@@ -841,79 +861,109 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String securityDomainType = data.getSecurityDomainType();
         String securityDomainName = data.getSecurityDomainName();
-        String securityDomainURL = data.getSecurityDomainUri();
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-            CMS.debug("Creating new security domain");
-            cs.putString("preop.securitydomain.select", "new");
-            cs.putString("securitydomain.select", "new");
-            cs.putString("preop.securitydomain.name", securityDomainName);
-            cs.putString("securitydomain.name", securityDomainName);
-            cs.putString("securitydomain.host", CMS.getEENonSSLHost());
-            cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
-            cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
-            cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
-            cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
-            // Stand-alone PKI (Step 1)
-            if (data.getStandAlone()) {
-                cs.putString("preop.cert.subsystem.type", "remote");
-            } else {
-                cs.putString("preop.cert.subsystem.type", "local");
-            }
-            cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
-
+            configureNewSecurityDomain(data, securityDomainName);
+        } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
+            CMS.debug("Configuring new subordinate root CA");
+            configureNewSecurityDomain(data, data.getSubordinateSecurityDomainName());
+            String securityDomainURL = data.getSecurityDomainUri();
+            domainXML = logIntoSecurityDomain(data, securityDomainURL);
         } else {
             CMS.debug("Joining existing security domain");
             cs.putString("preop.securitydomain.select", "existing");
             cs.putString("securitydomain.select", "existing");
             cs.putString("preop.cert.subsystem.type", "remote");
             cs.putString("preop.cert.subsystem.profile", "caInternalAuthSubsystemCert");
-
-            CMS.debug("Getting certificate chain");
-            // contact and log onto security domain
-            URL secdomainURL;
-            String host;
-            int port;
-            try {
-                secdomainURL = new URL(securityDomainURL);
-                host = secdomainURL.getHost();
-                port = secdomainURL.getPort();
-                cs.putString("securitydomain.host", host);
-                cs.putInteger("securitydomain.httpsadminport",port);
-                ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Failed to import certificate chain from security domain master: " + e);
-            }
-
-            CMS.debug("Getting install token");
-            // log onto security domain and get token
-            String user = data.getSecurityDomainUser();
-            String pass = data.getSecurityDomainPassword();
-            String installToken;
-            try {
-                installToken = ConfigurationUtils.getInstallToken(host, port, user, pass);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Failed to obtain installation token from security domain: " + e);
-            }
-
-            if (installToken == null) {
-                CMS.debug("Install token is null");
-                throw new PKIException("Failed to obtain installation token from security domain");
-            }
-            CMS.setConfigSDSessionId(installToken);
-
-            CMS.debug("Getting domain XML");
-            try {
-                domainXML = ConfigurationUtils.getDomainXML(host, port, true);
-                ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e);
-            }
+            String securityDomainURL = data.getSecurityDomainUri();
+            domainXML = logIntoSecurityDomain(data, securityDomainURL);
         }
         return domainXML;
+    }
+
+    private void configureNewSecurityDomain(ConfigurationRequest data, String securityDomainName) {
+        CMS.debug("Creating new security domain");
+        cs.putString("preop.securitydomain.select", "new");
+        cs.putString("securitydomain.select", "new");
+        cs.putString("preop.securitydomain.name", securityDomainName);
+        cs.putString("securitydomain.name", securityDomainName);
+        cs.putString("securitydomain.host", CMS.getEENonSSLHost());
+        cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
+        cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
+        cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
+        cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
+        // Stand-alone PKI (Step 1)
+        if (data.getStandAlone()) {
+            cs.putString("preop.cert.subsystem.type", "remote");
+        } else {
+            cs.putString("preop.cert.subsystem.type", "local");
+        }
+        cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
+    }
+
+    private String logIntoSecurityDomain(ConfigurationRequest data, String securityDomainURL) {
+        URL secdomainURL;
+        String host;
+        int port;
+        try {
+            CMS.debug("Resolving security domain URL" + securityDomainURL);
+            secdomainURL = new URL(securityDomainURL);
+            host = secdomainURL.getHost();
+            port = secdomainURL.getPort();
+            cs.putString("securitydomain.host", host);
+            cs.putInteger("securitydomain.httpsadminport",port);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException("Failed to resolve security domain URL");
+        }
+
+        getCertChainFromSecurityDomain(host, port);
+        getInstallToken(data, host, port);
+
+        return getDomainXML(host, port);
+    }
+
+    private String getDomainXML(String host, int port) {
+        CMS.debug("Getting domain XML");
+        String domainXML = null;
+        try {
+            domainXML = ConfigurationUtils.getDomainXML(host, port, true);
+            ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e);
+        }
+        return domainXML;
+    }
+
+    private void getCertChainFromSecurityDomain(String host, int port) {
+        CMS.debug("Getting security domain cert chain");
+        try {
+            ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException("Failed to import certificate chain from security domain master: " + e);
+        }
+    }
+
+    private void getInstallToken(ConfigurationRequest data, String host, int port) {
+        CMS.debug("Getting install token");
+        // log onto security domain and get token
+        String user = data.getSecurityDomainUser();
+        String pass = data.getSecurityDomainPassword();
+        String installToken;
+        try {
+            installToken = ConfigurationUtils.getInstallToken(host, port, user, pass);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new PKIException("Failed to obtain installation token from security domain: " + e);
+        }
+
+        if (installToken == null) {
+            CMS.debug("Install token is null");
+            throw new PKIException("Failed to obtain installation token from security domain");
+        }
+        CMS.setConfigSDSessionId(installToken);
     }
 
     public void configureSubsystem(ConfigurationRequest request,
@@ -1002,7 +1052,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (data.getSecurityDomainName() == null) {
                 throw new BadRequestException("Security Domain Name is not provided");
             }
-        } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
+        } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN) ||
+                   domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
             if (data.getStandAlone()) {
                 throw new BadRequestException("Existing security domains are not valid for stand-alone PKI subsytems");
             }
@@ -1024,6 +1075,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         } else {
             throw new BadRequestException("Invalid security domain URI provided");
+        }
+
+        // validate subordinate CA security domain settings
+        if (domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
+            if (StringUtils.isEmpty(data.getSubordinateSecurityDomainName())) {
+                throw new BadRequestException("Subordinate CA security domain name not provided");
+            }
         }
 
         if ((data.getSubsystemName() == null) || (data.getSubsystemName().length() ==0)) {
