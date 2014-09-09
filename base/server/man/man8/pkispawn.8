@@ -18,7 +18,7 @@
 pkispawn \- Sets up an instance of Certificate Server.
 
 .SH SYNOPSIS
-pkispawn -s <subsystem> -f <config_file> [-h] [-v] [-p <prefix>]
+pkispawn \-s <subsystem> \-f <config_file> [\-h] [\-v] [\-p <prefix>]
 
 .SH DESCRIPTION
 Sets up an instance of Certificate Server.  This utility creates any of the Java-based Certificate Server subsystems (CA, KRA, OCSP, and TKS). 
@@ -86,7 +86,7 @@ for details.
 If no options are specified, pkispawn will provide an interactive menu to collect the parameters needed to install
 the Certificate Server instance.  Note that only the most basic installation options are provided.  This includes root CAs,
 KRAs, OCSPs and TKS, connecting to the LDAP port of a directory server.  More complicated setups such as: cloned subsystems, subordinate or externally signed CAs, subsystems that connect to the directory server using LDAPS, and subsystems that are customized beyond the options described below -  require the use of a configuration file with the
--f option.
+\-f option.
 .PP
 The interactive option is most useful for those users getting familiar with Certificate Server.  The parameters collected are
 written to the installation file of the subsystem, which can be found at \fB/etc/sysconfig/pki/tomcat/<instance name>/<subsystem>/deployment.cfg.\fP
@@ -96,7 +96,7 @@ The following parameters are queried interactively during the installation proce
 \fBSubsystem Type\fP
 .TP
 \fISubsystem (CA/KRA/OCSP/TKS):\fP
-the type of subsystem to be installed. Prompted when the -s option is not specified.  The default value chosen is CA.
+the type of subsystem to be installed. Prompted when the \-s option is not specified.  The default value chosen is CA.
 .PP
 \fBInstance Specific Parameters\fP
 .TP
@@ -117,7 +117,7 @@ the AJP port of the Tomcat instance. The default value is 8009.
 \fIManagement port:\fP
 the management port of the Tomcat instance. The default value is 8005.
 .PP
-\fBAdministrative User Parameters\f
+\fBAdministrative User Parameters\fP
 .TP
 \fIUsername:\fP
 the username of the administrator of this subsystem. The default value is <ca/kra/tks/ocsp>admin.
@@ -131,7 +131,7 @@ An optional parameter that can be used to import an already available CA admin c
 \fIExport certificate:\fP
 setup the path where the admin certificate of this <subsystem> should be stored. The default value is /root/.dogtag/pki-tomcat/<ca/kra/tks/ocsp>_admin.cert.
 .PP
-\fBDirectory Server Parameters\f
+\fBDirectory Server Parameters\fP
 .TP
 \fIHostname:\fP
 Hostname of the directory server instance.  The default value is the hostname of the system.
@@ -148,7 +148,7 @@ the bind DN required to connect for the directory server. This user must have su
 \fIPassword:\fP
 password for the bind DN.
 .PP
-\fBSecurity Domain Parameters\f
+\fBSecurity Domain Parameters\fP
 .TP
 \fIName:\fP
 the name of the security domain. Required only if installing a root CA. Default value: <DNS domain name> Security Domain.
@@ -167,7 +167,7 @@ password for the security domain administrator. Required for all subsystems that
 
 .SH EXAMPLES
 .SS CA using default configuration
-\x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
 .PP
 where \fImyconfig.txt\fP contains the following text:
 .IP
@@ -194,7 +194,7 @@ A PKCS #12 file containing the administrator certificate is created in \fI$HOME/
 .PP
 To access the agent pages, first import the CA certificate by accessing the CA End Entity Pages and clicking on the Retrieval Tab.  Be sure to trust the CA certificate.  Then, import the administrator certificate in the PKCS #12 file.
 .SS KRA, OCSP, or TKS using default configuration
-\x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
 .PP
 where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP contains the following text: 
 .IP
@@ -208,7 +208,7 @@ pki_security_domain_password=\fIpassword123\fP
 .PP
 The \fBpki_security_domain_password\fP is the admin password of the CA installed in the same default instance. This command should be run after a CA is installed.  This installs another subsystem within the same default instance using the certificate generated for the CA administrator for the subsystem's administrator.  This allows a user to access both subsystems on the browser with a single administrator certificate.  To access the new subsystem's functionality, simply point the browser to https://<hostname>:8443 and click the relevant top-level links.
 .SS KRA, OCSP, or TKS connecting to a remote CA
-\x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
 .PP
 where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP contains the following text:
 .IP
@@ -233,7 +233,7 @@ The subsystem section is [KRA], [OCSP], or [TKS].  This example assumes that the
 .PP 
 A new administrator certificate is generated for the new subsystem and stored in a PKCS #12 file in \fI$HOME/.dogtag/pki-tomcat\fP.
 .SS Installing a CA clone
-\x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
 .PP 
 where \fImyconfig.txt\fP contains the following text:
 .IP
@@ -260,7 +260,7 @@ A cloned CA is a CA which uses the same signing, OCSP signing, and audit signing
 Before the clone can be generated, the Directory Server must be created that is separate from the master CA's Directory Server.  The example assumes that the master CA and cloned CA are on different machines, and that their Directory Servers are on port 389.  In addition, the master's system certs and keys have been stored in a PKCS #12 file that is copied over to the clone subsystem in the location specified in <path_to_pkcs12_file>.  This file is created when the master CA is installed; it can also be generated using \fBPKCS12Export\fP.  The file needs to be readable by the user the Certificate Server runs as (by default, pkiuser) and be given the SELinux context pki_tomcat_cert_t.
 .PP
 .SS Installing a KRA, OCSP, or TKS clone
-\x'-1'\fBpkispawn -s <subsystem> -f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
 .PP
 where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP contains the following text:
 .IP
@@ -287,7 +287,7 @@ As with a CA clone, a KRA, OCSP, or TKS clone uses the same certificates and bas
 .PP
 The subsystem section is [KRA], [OCSP], or [TKS].
 .SS Installing a subordinate CA
-\x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
 .PP
 where \fImyconfig.txt\fP contains the following text:
 .IP
@@ -311,7 +311,7 @@ A sub-CA derives its certificate configuration -- such as allowed extensions and
 .PP
 \fBNote:\fP The value of \fBpki_ca_signing_subject_dn\fP of a subordinate CA should be different from the root CA's signing subject DN.
 .SS Installing an externally signed CA
-\x'-1'\fBpkispawn -s CA -f myconfig.txt\fR
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
 .PP
 This is a two step process.
 .PP

@@ -101,7 +101,7 @@ To list all certificates in the CA:
 
 .B pki ca-cert-find
 
-It is also possible to search for and list specific certificates by adding a search filter.  Use \fBpki ca-cert-find --help\fP to see options.  For example, to search based on issuance date:
+It is also possible to search for and list specific certificates by adding a search filter.  Use \fBpki ca-cert-find \-\-help\fP to see options.  For example, to search based on issuance date:
 
 .B pki ca-cert-find --issuedOnFrom 2012-06-15
 
@@ -132,7 +132,7 @@ The list of profiles can be viewed using the CLI command:
 
 The XML template file for a profile type can be created by calling the ca-cert-request-profile-show CLI command. For example:
 
-\fBpki ca-cert-request-profile-show <profileID> --output <file to store the XML template>\fP
+\fBpki ca-cert-request-profile-show <profileID> \-\-output <file to store the XML template>\fP
 
 will store the XML template of the request in the specified output file.
 
@@ -144,9 +144,9 @@ Then, an agent needs to review the request by running the following command:
 
 .B pki <agent authentication> ca-cert-request-review <request ID> --file <file to store the certificate request>
 
-The --file <filename> and --action <action> options are mutually exclusive (i. e. - only one or the other may be specified during command invocation).
+The \-\-file <filename> and \-\-action <action> options are mutually exclusive (i. e. - only one or the other may be specified during command invocation).
 
-If the --file <filename> option is specified, the certificate request, as well as the defaults and constraints of the enrollment profile, will be retrieved and stored in the output file provided by the --file option.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
+If the \-\-file <filename> option is specified, the certificate request, as well as the defaults and constraints of the enrollment profile, will be retrieved and stored in the output file provided by the \-\-file option.  The agent can examine the file and override any values if necessary.  To process the request, enter the appropriate action when prompted:
 
 .B Action (approve/reject/cancel/update/validate/assign/unassign):
 
