@@ -20,13 +20,19 @@ package com.netscape.cmstools.client;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.net.URI;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.io.FileUtils;
 
+import com.netscape.certsrv.cert.CertClient;
+import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -45,7 +51,7 @@ public class ClientCertImportCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
     }
 
     public void createOptions() {
@@ -58,6 +64,14 @@ public class ClientCertImportCLI extends CLI {
         options.addOption(option);
 
         options.addOption(null, "ca-server", false, "Import CA certificate from CA server");
+
+        option = new Option(null, "serial", true, "Serial number of certificate in CA");
+        option.setArgName("serial number");
+        options.addOption(option);
+
+        option = new Option(null, "trust", true, "Trust attributes. Default: u,u,u.");
+        option.setArgName("trust attributes");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
@@ -81,100 +95,120 @@ public class ClientCertImportCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 0) {
+        if (cmdArgs.length > 1) {
             System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
-        }
-
-        byte[] bytes = null;
-
-        String certPath = cmd.getOptionValue("cert");
-        String caCertPath = cmd.getOptionValue("ca-cert");
-        boolean importFromCAServer = cmd.hasOption("ca-server");
-
-        boolean isCACert = false;
-
-        // load the certificate
-        if (certPath != null) {
-            if (verbose) System.out.println("Loading certificate from " + certPath + ".");
-            bytes = FileUtils.readFileToByteArray(new File(certPath));
-
-
-        } else if (caCertPath != null) {
-            if (verbose) System.out.println("Loading CA certificate from " + caCertPath + ".");
-            bytes = FileUtils.readFileToByteArray(new File(caCertPath));
-
-            isCACert = true;
-
-        } else if (importFromCAServer) {
-
-            // late initialization
-            MainCLI mainCLI = (MainCLI)parent.parent;
-            mainCLI.init();
-
-            client = mainCLI.getClient();
-            ClientConfig config = client.getConfig();
-
-            String caServerURI = "http://" + config.getServerURI().getHost() + ":8080/ca";
-
-            if (verbose) System.out.println("Downloading CA certificate from " + caServerURI + ".");
-            bytes = client.downloadCACertChain(caServerURI);
-
-            isCACert = true;
-
-        } else {
-            System.err.println("Error: Missing certificate to import");
             printHelp();
             System.exit(-1);
         }
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
 
-        if (mainCLI.config.getCertNickname() == null) {
-            System.err.println("Error: Certificate nickname is required.");
+        String nickname = null;
+
+        // Get nickname from command argument if specified.
+        if (cmdArgs.length > 0) {
+            nickname = cmdArgs[0];
+        }
+
+        // Otherwise, get nickname from authentication option -n.
+        // This code is used to provide backward compatibility.
+        // TODO: deprecate/remove this code in 10.3.
+        if (nickname == null) {
+            nickname = mainCLI.config.getCertNickname();
+        }
+
+        if (nickname == null) {
+            System.err.println("Error: Missing certificate nickname.");
             System.exit(-1);
         }
 
-        File certDatabase = mainCLI.certDatabase;
-        File certFile = new File(certDatabase, "import.crt");
+        String certPath = cmd.getOptionValue("cert");
+        String caCertPath = cmd.getOptionValue("ca-cert");
+        boolean importFromCAServer = cmd.hasOption("ca-server");
+        String serialNumber = cmd.getOptionValue("serial");
+        String trustAttributes = cmd.getOptionValue("trust", "u,u,u");
 
-        try {
+        File certFile;
+
+        // load the certificate
+        if (certPath != null) {
+            if (verbose) System.out.println("Loading certificate from " + certPath + ".");
+            certFile = new File(certPath);
+
+        } else if (caCertPath != null) {
+            if (verbose) System.out.println("Loading CA certificate from " + caCertPath + ".");
+            certFile = new File(caCertPath);
+
+            trustAttributes = "CT,c,";
+
+        } else if (importFromCAServer) {
+
+            // late initialization
+            mainCLI.init();
+
+            client = mainCLI.getClient();
+            URI serverURI = mainCLI.config.getServerURI();
+
+            String caServerURI = serverURI.getScheme() + "://" +
+                serverURI.getHost() + ":" + serverURI.getPort() + "/ca";
+
+            if (verbose) System.out.println("Downloading CA certificate from " + caServerURI + ".");
+            byte[] bytes = client.downloadCACertChain(caServerURI);
+
+            certFile = File.createTempFile("pki-client-cert-import-", ".crt", mainCLI.certDatabase);
+            certFile.deleteOnExit();
+
             try (FileOutputStream out = new FileOutputStream(certFile)) {
                 out.write(bytes);
             }
 
-            String flag;
-            if (isCACert) {
-                if (verbose) System.out.println("Importing CA certificate.");
-                flag = "CT,c,";
+            trustAttributes = "CT,c,";
 
-            } else {
-                if (verbose) System.out.println("Importing certificate.");
-                flag = "u,u,u";
+        } else if (serialNumber != null) {
+
+            // connect to CA anonymously
+            ClientConfig config = new ClientConfig(mainCLI.config);
+            config.setCertDatabase(null);
+            config.setCertPassword(null);
+            config.setCertNickname(null);
+
+            PKIClient client = new PKIClient(config, null);
+            CertClient certClient = new CertClient(client, "ca");
+
+            CertData certData = certClient.getCert(new CertId(serialNumber));
+
+            certFile = File.createTempFile("pki-client-cert-import-", ".crt", mainCLI.certDatabase);
+            certFile.deleteOnExit();
+
+            String encoded = certData.getEncoded();
+            try (PrintWriter out = new PrintWriter(new FileWriter(certFile))) {
+                out.write(encoded);
             }
 
-            String[] commands = {
-                    "/usr/bin/certutil", "-A",
-                    "-d", certDatabase.getAbsolutePath(),
-                    "-i", certFile.getAbsolutePath(),
-                    "-n", mainCLI.config.getCertNickname(),
-                    "-t", flag
-            };
-
-            Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec(commands);
-
-            int rc = p.waitFor();
-            if (rc != 0) {
-                MainCLI.printMessage("Import failed");
-                return;
-            }
-
-            MainCLI.printMessage("Imported certificate \"" + mainCLI.config.getCertNickname() + "\"");
-
-        } finally {
-            certFile.delete();
+        } else {
+            System.err.println("Error: Missing certificate to import");
+            printHelp();
+            System.exit(-1);
+            return;
         }
+
+        String[] commands = {
+                "/usr/bin/certutil", "-A",
+                "-d", mainCLI.certDatabase.getAbsolutePath(),
+                "-i", certFile.getAbsolutePath(),
+                "-n", nickname,
+                "-t", trustAttributes
+        };
+
+        Runtime rt = Runtime.getRuntime();
+        Process p = rt.exec(commands);
+
+        int rc = p.waitFor();
+        if (rc != 0) {
+            MainCLI.printMessage("Import failed");
+            return;
+        }
+
+        MainCLI.printMessage("Imported certificate \"" + nickname + "\"");
     }
 }

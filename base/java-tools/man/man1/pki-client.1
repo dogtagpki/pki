@@ -22,8 +22,8 @@ pki-client \- Command-Line Interface for managing the security database on Certi
 \fBpki\fR [CLI options] \fBclient-init\fR [command options]
 \fBpki\fR [CLI options] \fBclient-cert-find\fR [command options]
 \fBpki\fR [CLI options] \fBclient-cert-request\fR <subject DN> [command options]
-\fBpki\fR [CLI options] \fBclient-cert-import\fR [command options]
-\fBpki\fR [CLI options] \fBclient-cert-del\fR [command options]
+\fBpki\fR [CLI options] \fBclient-cert-import\fR <nickname> [command options]
+\fBpki\fR [CLI options] \fBclient-cert-del\fR <nickname> [command options]
 .fi
 
 .SH DESCRIPTION
@@ -50,12 +50,12 @@ This command is to list certificates in the client security database.
 This command is to generate and submit a certificate request.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBclient-cert-import\fR [command options]
+\fBpki\fR [CLI options] \fBclient-cert-import\fR <nickname> [command options]
 .RS 4
 This command is to view a certificate in the client security database.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBclient-cert-del\fR [command options]
+\fBpki\fR [CLI options] \fBclient-cert-del\fR <nickname> [command options]
 .RS 4
 This command is to delete a certificate from the client security database.
 .RE
@@ -78,13 +78,25 @@ To request a certificate:
 
 .B pki -d <security database location> -c <security database password> client-cert-request <subject DN>
 
-To import a certificate into the security database:
+To import a certificate from a file into the security database:
 
-.B pki -d <security database location> -c <security database password> -n <certificate nickname> client-cert-import --cert <certificate file>
+.B pki -d <security database location> -c <security database password> client-cert-import <nickname> --cert <certificate file>
+
+To import a CA certificate from a file into the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-import <nickname> --ca-cert <CA certificate file>
+
+To import a certificate from CA server into the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-import <nickname> --serial <serial number>
+
+To import a CA certificate from CA server into the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-import <nickname> --ca-server
 
 To delete a certificate from the security database:
 
-.B pki -d <security database location> -c <security database password> client-cert-del <certificate nickname>
+.B pki -d <security database location> -c <security database password> client-cert-del <nickname>
 
 .SH AUTHORS
 Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.

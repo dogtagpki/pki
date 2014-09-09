@@ -57,6 +57,19 @@ public class ClientConfig {
     String password;
     String messageFormat;
 
+    public ClientConfig() {
+    }
+
+    public ClientConfig(ClientConfig config) {
+        serverURI = config.serverURI;
+        certDatabase = config.certDatabase;
+        certNickname = config.certNickname;
+        certPassword = config.certPassword;
+        username = config.username;
+        password = config.password;
+        messageFormat = config.messageFormat;
+    }
+
     @XmlElement(name="ServerURI")
     public URI getServerURI() {
         return serverURI;
