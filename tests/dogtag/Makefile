@@ -47,6 +47,8 @@ run: $(FILES) build
 	cp ./shared/pki-user-cli-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-cert-cli-lib.sh
 	cp ./shared/pki-cert-cli-lib.sh /opt/rhqa_pki/.
+	rm -f /opt/rhqa_pki/pki-key-cli-lib.sh
+	cp ./shared/pki-key-cli-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/dummycert1.pem
 	cp ./shared/dummycert1.pem /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/build.xml
@@ -131,6 +133,16 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-find-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-del-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-show-ca.sh
+	#key KRA
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-generate-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-find-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-template-find-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-template-show-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-request-find-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-request-show-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-show-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-mod-kra.sh 
 
 clean:
 	rm -f *~ $(BUILT_FILES)

@@ -414,6 +414,57 @@ rlJournalStart
 		run_pki_cert_show
 		run_pki_cert_request_show
 	fi
+	KEY_CONFIG_KRA_UPPERCASE=$(echo $KEY_CONFIG_KRA | tr [a-z] [A-Z]) 
+	if [ "$KEY_CONFIG_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key config tests
+		 run_pki-key-kra_tests
+	fi
+	KEY_GENERATE_KRA_UPPERCASE=$(echo $KEY_GENERATE_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_GENERATE_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key generate tests
+		  subsystemType=kra
+		  run_pki-key-generate-kra_tests $subsystemType $MYROLE
+	fi
+	KEY_FIND_KRA_UPPERCASE=$(echo $KEY_FIND_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_FIND_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key find tests
+		  subsystemType=kra
+		  run_pki-key-find-kra_tests $subsystemType $MYROLE
+	fi
+	KEY_TEMPLATE_FIND_KRA_UPPERCASE=$(echo $KEY_TEMPLATE_FIND_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_TEMPLATE_FIND_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key template-find tests
+		 run_pki-key-template-find-kra_tests
+	fi
+	KEY_TEMPLATE_SHOW_KRA_UPPERCASE=$(echo $KEY_TEMPLATE_SHOW_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_TEMPLATE_SHOW_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key template-show tests
+		 run_pki-key-template-show-kra_tests
+	fi
+	KEY_REQUEST_FIND_KRA_UPPERCASE=$(echo $KEY_REQUEST_FIND_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_REQUEST_FIND_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key request-find tests 
+		  subsystemType=kra
+		  run_pki-key-request-find-kra_tests $subsystemType $MYROLE
+	fi
+	KEY_SHOW_KRA_UPPERCASE=$(echo $KEY_SHOW_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_SHOW_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key-show tests 
+		  subsystemType=kra
+		  run_pki-key-show-kra_tests $subsystemType $MYROLE
+	fi
+	KEY_REQUEST_SHOW_KRA_UPPERCASE=$(echo $KEY_REQUEST_SHOW_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_REQUEST_SHOW_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key-show tests 
+		  subsystemType=kra
+		  run_pki-key-request-show-kra_tests $subsystemType $MYROLE
+	fi
+	KEY_MOD_KRA_UPPERCASE=$(echo $KEY_MOD_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_MOD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key-mod tests
+		  subsystemType=kra
+		  run_pki-key-mod-kra_tests $subsystemType $MYROLE
+	fi
 	USER_CLEANUP_CA_UPPERCASE=$(echo $USER_CLEANUP_CA | tr [a-z] [A-Z])
         #Clean up role users (admin agent etc) created in CA
         if [ "$USER_CLEANUP_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
