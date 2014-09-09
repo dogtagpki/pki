@@ -612,3 +612,41 @@ cert-release-hold_expect_data()
         echo "send -- \"y\\r\"" >> $expfile
         echo "expect eof" >> $expfile
 }
+##################################################
+# Returns Subsystem used by particular Topology
+#get_topo_stack takes 2 arguments, 
+#1. Role 
+#2. Ouptut file to save the topology details
+#Examples:
+#get_topo_stack MASTER $TmpDir/topo_file
+#local KRA_INST=$(cat $TmpDir/topo_file | grep MY_KRA | cut -d= -f2)
+#local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+################################################
+get_topo_stack()
+{
+	MY_ROLE=$1
+	TOPO_FILE=$2
+	if [ $MY_ROLE == "MASTER" ]; then
+        	echo "MY_CA=ROOTCA" > $TOPO_FILE
+	        echo "MY_KRA=KRA3" >> $TOPO_FILE
+        	echo "MY_OCSP=OCSP3" >> $TOPO_FILE
+	        echo "MY_TKS=TKS1" >> $TOPO_FILE
+	elif [ $MY_ROLE == "SUBCA1" ]; then
+        	echo "MY_CA=SUBCA1" > $TOPO_FILE
+	        echo "MY_KRA=KRA1" >> $TOPO_FILE
+        	echo "MY_OCSP=OCSP1" >> $TOPO_FILE
+	elif [ $MY_ROLE = "SUBCA2" ]; then
+        	echo "MY_CA=SUBCA2" >> $TOPO_FILE
+	        echo "MY_KRA=KRA2" >> $TOPO_FILE
+        	echo "MY_OCSP=OCSP2" >> $TOPO_FILE
+	elif [ $MY_ROLE = "CLONECA1" ]; then
+        	echo "MY_CA=CLONE_CA1" > $TOPO_FILE
+	        echo "MY_KRA=CLONE_KRA1" >> $TOPO_FILE
+        	echo "MY_OCSP=CLONE_OCSP1" >> $TOPO_FILE
+	elif [ $MY_ROLE = "CLONECA2" ]; then
+        	echo "MY_CA=CLONE_CA2" > $TOPO_FILE
+	        echo "MY_KRA=CLONE_KRA2" >> $TOPO_FILE
+        	echo "MY_OCSP=CLONE_OCSP2" >> $TOPO_FILE
+	fi
+}
+#################################################################
