@@ -317,7 +317,19 @@ create_new_cert_request()
 		rlLog "Execute generateCRMFRequest to generate CRMF Request"
 		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file 1> $dir/crmf.out" 0 "Execute generateCRMFRequest to generata CRMF Request"
 	fi
-	
+	### FIXME: This should not be needed, But putting here temporarily so as to not break this function API
+
+        if [ "$MYROLE" == "MASTER" ]; then
+                ROOTCA_TOMCAT_INSTANCE_NAME=pki-master
+                CA_SERVER_ROOT=/var/lib/pki/$ROOTCA_TOMCAT_INSTANCE_NAME/ca/
+	elif [  $MY_ROLE == "SUBCA1" ]; then
+		SUBCA1_TOMCAT_INSTANCE_NAME=pki-subca1
+		CA_SERVER_ROOT=/var/lib/pki/$SUBCA1_TOMCAT_INSTANCE_NAME/ca/
+	elif [ $MY_ROLE = "SUBCA2" ]; then
+		SUBCA2_TOMCAT_INSTANCE_NAME=pki-subca2
+		CA_SERVER_ROOT=/var/lib/pki/$SUBCA2_TOMCAT_INSTANCE_NAME/ca/
+	fi
+
 	if [ "$request_type" == "crmf" ] && [ "$archive" == "true" ];then
 		rlLog "Get Transport Cert"
 		rlRun "cat $CA_SERVER_ROOT/conf/CS.cfg | grep ca.connector.KRA.transportCert | awk -F \"=\" '{print \$2}' > transport.txt"
