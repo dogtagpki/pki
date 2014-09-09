@@ -17,9 +17,7 @@ string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_P
 option(WITH_JAVADOC "Build Javadoc" ON)
 option(WITH_SERVER "Build Server" ON)
 
-if (BUILD_IPA_PKI_THEME)
-    set(APPLICATION_FLAVOR_IPA_PKI_THEME TRUE)
-elseif (BUILD_DOGTAG_PKI_THEME)
+if (BUILD_DOGTAG_PKI_THEME)
     set(APPLICATION_FLAVOR_DOGTAG_PKI_THEME TRUE)
 elseif (BUILD_REDHAT_PKI_THEME)
     set(APPLICATION_FLAVOR_REDHAT_PKI_THEME TRUE)
@@ -56,18 +54,15 @@ include(Java)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/classes)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
 
-# required for all PKI components EXCEPT IPA_PKI_THEME
-if (NOT APPLICATION_FLAVOR_IPA_PKI_THEME)
-    include(JUnit)
+# required for all PKI components
+include(JUnit)
 
-    add_custom_target(test)
-endif ()
+add_custom_target(test)
 
 # search for libraries
 
 # required for all PKI components EXCEPT Theme-based components and PKI_MIGRATE
-if (NOT APPLICATION_FLAVOR_IPA_PKI_THEME      AND
-    NOT APPLICATION_FLAVOR_DOGTAG_PKI_THEME   AND
+if (NOT APPLICATION_FLAVOR_DOGTAG_PKI_THEME   AND
     NOT APPLICATION_FLAVOR_REDHAT_PKI_THEME   AND
     NOT APPLICATION_FLAVOR_PKI_MIGRATE)
     find_package(NSPR REQUIRED)
@@ -152,9 +147,7 @@ if (APPLICATION_FLAVOR_PKI_CORE      OR
 endif ()
 
 # 'Themes' MUST be "mutually-exclusive"!
-if (APPLICATION_FLAVOR_IPA_PKI_THEME)
-    add_subdirectory(dogtag)
-elseif (APPLICATION_FLAVOR_DOGTAG_PKI_THEME)
+if (APPLICATION_FLAVOR_DOGTAG_PKI_THEME)
     add_subdirectory(dogtag)
 elseif (APPLICATION_FLAVOR_REDHAT_PKI_THEME)
     add_subdirectory(redhat)

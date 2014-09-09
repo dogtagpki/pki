@@ -21,13 +21,12 @@ Usage()
 	printf "            <startrev> is the starting SVN revision\n\n"
 	printf "            <endrev> is the ending SVN revision\n\n"
 	printf "            <srpm> is one of the following:\n\n"
-	printf "                 ipa-pki-theme\n"
 	printf "                 pki-core\n\n"
 	printf "            <basever> is the version of the specified <srpm>\n"
 	printf "\n"
 	printf "IMPORTANT:  Successful use of this script relies upon separation\n"
-	printf "            of 'pki-core' and 'ipa-pki-theme' check-ins.  All\n"
-	printf "            patch files automatically produced by this script\n"
+	printf "            of 'pki-core' check-ins.  All patch files\n"
+	printf "            automatically produced by this script\n"
 	printf "            should be applied and tested thoroughly before\n"
 	printf "            being accepted as proper patches.\n\n"
 }
@@ -36,7 +35,6 @@ Usage()
 ##
 ## Identify source associated with srpm
 ##
-IPA_PKI_THEME="dogtag/ca-ui dogtag/common-ui"
 PKI_CORE="base/ca base/common base/java-tools base/native-tools base/selinux base/setup base/symkey base/util"
 
 
@@ -57,8 +55,6 @@ basever=$4
 
 if [ ${srpm} == "pki-core" ]; then
     source=${PKI_CORE}
-elif [ ${srpm} == "ipa-pki-theme" ]; then
-    source=${IPA_PKI_THEME}
 else
     printf "ERROR:  Invalid <srpm> specified!\n"
 	Usage

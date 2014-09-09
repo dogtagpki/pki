@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.2.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -17,14 +17,11 @@ ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %define esc_version                1.1.0
 %define jss_version                4.2.6-31
 %define pki_core_version           10.2.0
-%define pki_kra_version            10.2.0
-%define pki_ocsp_version           10.2.0
-%define pki_tks_version            10.2.0
-%define pki_tps_version            10.2.0
 %define pki_console_version        10.2.0
 %define tomcatjss_version          7.1.0
 
 Requires:         apache-commons-codec
+Requires:         selinux-policy-base >= 3.11.1-43
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL top-level Dogtag PKI support packages
@@ -43,23 +40,18 @@ Requires:         dogtag-pki-console-theme >= %{dogtag_pki_theme_version}
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core packages
 Requires:         pki-ca >= %{pki_core_version}
+Requires:         pki-kra >= %{pki_core_version}
+Requires:         pki-ocsp >= %{pki_core_version}
+Requires:         pki-tks >= %{pki_core_version}
+Requires:         pki-tps >= %{pki_core_version}
 Requires:         pki-server >= %{pki_core_version}
 Requires:         pki-tools >= %{pki_core_version}
 Requires:         pki-symkey >= %{pki_core_version}
 Requires:         pki-base >= %{pki_core_version}
 
-Requires:         selinux-policy-base >= 3.11.1-43
-
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI core javadocs
 Requires:         pki-javadoc >= %{pki_core_version}
-
-# Make certain that this 'meta' package requires the latest version(s)
-# of ALL other Dogtag PKI subsystems
-Requires:         pki-kra >= %{pki_kra_version}
-Requires:         pki-ocsp >= %{pki_ocsp_version}
-Requires:         pki-tks >= %{pki_tks_version}
-Requires:         pki-tps >= %{pki_tps_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of Dogtag PKI console
@@ -68,17 +60,6 @@ Requires:         pki-console >= %{pki_console_version}
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL Dogtag PKI clients
 Requires:         esc >= %{esc_version}
-
-# NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
-#        top-level meta package supplies Dogtag themes for use by the
-#        certificate server packages:
-#
-#          * dogtag-pki-theme (Dogtag Certificate System deployments)
-#            * dogtag-pki-server-theme
-#            * dogtag-pki-console-theme
-#
-Obsoletes:        ipa-pki
-Conflicts:        redhat-pki
 
 %description
 The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
@@ -103,6 +84,14 @@ To meet the database storage requirements of each CA, DRM, OCSP, TKS, or TPS
 instance, a 389 Directory Server must be up and running either locally on
 this machine, or remotely over the attached network connection.
 
+NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
+       top-level meta package supplies Dogtag themes for use by the
+       certificate server packages:
+
+         * dogtag-pki-theme (Dogtag Certificate System deployments)
+           * dogtag-pki-server-theme
+           * dogtag-pki-console-theme
+
 %prep
 cat > README <<EOF
 This package is just a "meta-package" whose dependencies pull in all of the
@@ -117,6 +106,12 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Tue Sep  9 2014 Matthew Harmsen <mharmsen@redhat.com> 10.2.0-3
+- PKI TRAC Ticket #1136 - Remove ipa-pki-theme component
+- Remove 'ca-ui', 'kra-ui', 'ocsp-ui', 'ra-ui', 'tks-ui', and 'tps-ui'
+  directories
+- Consolidate 'pki-core' packages
+
 * Sun Sep  7 2014 Dogtag Team <pki-devel@redhat.com> 10.2.0-2
 - Updated release number for release build
 - Revised dependencies

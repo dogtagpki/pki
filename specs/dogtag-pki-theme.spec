@@ -1,6 +1,6 @@
 Name:             dogtag-pki-theme
 Version:          10.2.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -21,27 +21,11 @@ ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %endif
 
 %global overview                                                       \
-Several PKI packages require a "virtual" theme component.  These       \
+Several PKI packages utilize a "virtual" theme component.  These       \
 "virtual" theme components are "Provided" by various theme "flavors"   \
-including "dogtag", "redhat", and "ipa".  Consequently,                \
-all "dogtag", "redhat", and "ipa" theme components MUST be             \
-mutually exclusive!                                                    \
-                                                                       \
-On Fedora systems, the "dogtag" theme packages are the ONLY available  \
-theme components.                                                      \
-                                                                       \
-Similarly, the "ipa" theme packages are ONLY available on RHEL         \
-systems, and represent the default theme components.                   \
-                                                                       \
-Alternatively, on RHEL systems, if the "dogtag" theme packages are     \
-available as EPEL packages, while they may be used as a transparent    \
-replacement for their corresponding "ipa" theme package, they are not  \
-intended to be used as a replacement for their corresponding "redhat"  \
-theme components.                                                      \
-                                                                       \
-Finally, if available for a RHEL system (e. g. - RHCS subscription),   \
-each "redhat" theme package MUST be used as a transparent replacement  \
-for its corresponding "ipa" theme package or "dogtag" theme package.   \
+including "dogtag" or a user customized theme package.  Consequently,  \
+all "dogtag" and any customized theme components MUST be mutually      \
+exclusive!                                                             \
 %{nil}
 
 %description %{overview}
@@ -50,36 +34,6 @@ for its corresponding "ipa" theme package or "dogtag" theme package.   \
 %package -n       dogtag-pki-server-theme
 Summary:          Certificate System - PKI Server Framework User Interface
 Group:            System Environment/Base
-
-%if 0%{?rhel}
-# EPEL version of Dogtag "theme" conflicts with all versions of Red Hat "theme"
-Conflicts:        redhat-pki-server-theme
-Conflicts:        redhat-pki-common-theme
-Conflicts:        redhat-pki-common-ui
-Conflicts:        redhat-pki-ca-theme
-Conflicts:        redhat-pki-ca-ui
-Conflicts:        redhat-pki-kra-theme
-Conflicts:        redhat-pki-kra-ui
-Conflicts:        redhat-pki-ocsp-theme
-Conflicts:        redhat-pki-ocsp-ui
-Conflicts:        redhat-pki-tks-theme
-Conflicts:        redhat-pki-tks-ui
-Conflicts:        redhat-pki-ra-theme
-Conflicts:        redhat-pki-ra-ui
-Conflicts:        redhat-pki-tps-theme
-Conflicts:        redhat-pki-tps-ui
-
-# EPEL version of Dogtag "theme" ALWAYS replaces ALL versions of IPA "theme"
-Obsoletes:        ipa-pki-server-theme <= 9999
-Obsoletes:        ipa-pki-common-theme <= 9999
-Obsoletes:        ipa-pki-ca-theme <= 9999
-Obsoletes:        ipa-pki-kra-theme <= 9999
-
-Provides:         ipa-pki-server-theme = %{version}-%{release}
-Provides:         ipa-pki-common-theme = %{version}-%{release}
-Provides:         ipa-pki-ca-theme = %{version}-%{release}
-Provides:         ipa-pki-kra-theme = %{version}-%{release}
-%endif
 
 Obsoletes:        dogtag-pki-common-theme <= %{version}-%{release}
 Obsoletes:        dogtag-pki-common-ui
@@ -116,10 +70,6 @@ Provides:         pki-ocsp-ui = %{version}-%{release}
 Provides:         dogtag-pki-tks-theme = %{version}-%{release}
 Provides:         pki-tks-theme = %{version}-%{release}
 Provides:         pki-tks-ui = %{version}-%{release}
-
-Provides:         dogtag-pki-ra-theme = %{version}-%{release}
-Provides:         pki-ra-theme = %{version}-%{release}
-Provides:         pki-ra-ui = %{version}-%{release}
 
 Provides:         dogtag-pki-tps-theme = %{version}-%{release}
 Provides:         pki-tps-theme = %{version}-%{release}
@@ -213,6 +163,12 @@ cd build
 
 
 %changelog
+* Tue Sep  9 2014 Matthew Harmsen <mharmsen@redhat.com> 10.2.0-2
+- PKI TRAC Ticket #1136 - Remove ipa-pki-theme component
+- Remove 'ca-ui', 'kra-ui', 'ocsp-ui', 'ra-ui', 'tks-ui', and 'tps-ui'
+  directories
+- Consolidate 'pki-core' packages
+
 * Wed Sep  3 2014 Dogtag Team <pki-devel@redhat.com> 10.2.0-1
 - Update release number for release build
 
