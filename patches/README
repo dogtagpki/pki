@@ -1,0 +1,8 @@
+Patches for use by hybrid builds of the compose scripts located in the
+'pki/scripts' directory.
+
+Sample Naming Formats:
+
+           patches/pki-core-selinux-f16.patch
+	       patches/pki-core-selinux-f17-1.patch
+	       patches/pki-core-selinux-f17.patch

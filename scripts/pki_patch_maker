@@ -35,7 +35,7 @@ Usage()
 ##
 ## Identify source associated with srpm
 ##
-PKI_CORE="base/ca base/common base/java-tools base/native-tools base/selinux base/setup base/symkey base/util"
+PKI_CORE="base/ca base/common base/java-tools base/native-tools base/setup base/symkey base/util"
 
 
 ##
