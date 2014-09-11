@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.1
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -21,6 +21,7 @@ BuildRequires:    ldapjdk
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
+BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    openldap-devel
@@ -31,16 +32,19 @@ BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
 %if  0%{?rhel}
-BuildRequires:    resteasy-base-atom-provider
-BuildRequires:    resteasy-base-jaxb-provider
-BuildRequires:    resteasy-base-jaxrs
-BuildRequires:    resteasy-base-jaxrs-api
-BuildRequires:    resteasy-base-jettison-provider
+BuildRequires:    resteasy-base-atom-provider >= 3.0.6-1
+BuildRequires:    resteasy-base-client >= 3.0.6-1
+BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 %else
 BuildRequires:    resteasy >= 3.0.1-3
 %endif
 
+%if ! 0%{?rhel}
 BuildRequires:    pylint
+%endif
 BuildRequires:    python-requests
 BuildRequires:    libselinux-python
 BuildRequires:    policycoreutils-python
@@ -54,7 +58,7 @@ BuildRequires:    tomcatjss >= 7.1.0
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
 %if 0%{?rhel}
-ExcludeArch:      ppc ppc64 s390 s390x
+ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %endif
 
 %global saveFileContext() \
@@ -183,6 +187,7 @@ Requires:         apache-commons-codec
 Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
+Requires:         jakarta-commons-httpclient
 Requires:         java >= 1:1.7.0
 Requires:         javassist
 Requires:         jettison
@@ -510,12 +515,14 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
+%if ! 0%{?rhel}
 # Scanning the python code with pylint. A return value of 0 represents there are no
 # errors or warnings reported by pylint.
 sh ../pylint-build-scan.sh %{buildroot} `pwd`
 if [ $? -eq 1 ]; then
     exit 1
 fi
+%endif
 
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
@@ -967,6 +974,12 @@ fi
 
 
 %changelog
+* Thu Sep 11 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.1-2
+- Add missing 'jakarta-commons-httpclient' build and runtime requirement
+- Exclude the 'ppcle' and 'ppc64le' platforms from being built on RHEL platforms
+- Update 'resteasy-base' requirements on RHEL platforms
+- Suppress pylint on RHEL platforms
+
 * Fri Mar 21 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.1-1
 - PKI TRAC Ticket #840 - pkispawn requires policycoreutils-python (mharmsen)
 - Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python (mharmsen)
