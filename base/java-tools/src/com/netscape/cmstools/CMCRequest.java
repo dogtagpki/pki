@@ -826,7 +826,7 @@ public class CMCRequest {
     public static void main(String[] s) {
         String numRequests = null;
         String dbdir = null, nickname = null;
-        String tokenName = PR_INTERNAL_TOKEN_NAME;
+        String tokenName = null;
         String ifilename = null, ofilename = null, password = null, format = null;
         String confirmCertEnable = "false", confirmCertIssuer = null, confirmCertSerial = null;
         String getCertEnable = "false", getCertIssuer = null, getCertSerial = null;
