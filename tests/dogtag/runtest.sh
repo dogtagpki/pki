@@ -87,6 +87,9 @@
 . ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-add.sh
 . ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-find.sh
 . ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-del.sh
+. ./acceptance/bugzilla/tomcatjss-bugs.sh
+. ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh
+. ./acceptance/bugzilla/pki-core-bugs/CSbackup-bug.sh
 
 PACKAGE="pki-tools"
 
@@ -414,6 +417,13 @@ rlJournalStart
 		run_pki_cert_show
 		run_pki_cert_request_show
 	fi
+	BUG_VERIFICATION_UPPERCASE=$(echo $BUG_VERIFICATION | tr [a-z] [A-Z])
+        if [ "$BUG_VERIFICATION_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                #Execute pki bigInt tests
+                run_CS-backup-bug-verification
+                run_pki-core-bug-verification
+                run_tomcatjss-bug-verification
+        fi
 	KEY_CONFIG_KRA_UPPERCASE=$(echo $KEY_CONFIG_KRA | tr [a-z] [A-Z]) 
 	if [ "$KEY_CONFIG_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
 		# Execute pki key config tests
