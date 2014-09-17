@@ -39,7 +39,6 @@
 
 # Include tests
 . ./topologies.sh
-#. ./acceptance/quickinstall/rhcs-set-time.sh
 . ./acceptance/quickinstall/rhcs-set-time.sh
 . ./acceptance/quickinstall/rhcs-install.sh
 . ./acceptance/cli-tests/pki-tests-setup/create-role-users.sh
@@ -91,8 +90,6 @@
 . ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh
 . ./acceptance/bugzilla/pki-core-bugs/CSbackup-bug.sh
 
-PACKAGE="pki-tools"
-
 # Make sure TESTORDER is initialized or multihost may have issues
 TESTORDER=1
 dir1="/opt/rhqa_pki/CodeCoveragePKIhtml"
@@ -121,7 +118,6 @@ rlJournalStart
     rlPhaseEnd
 
     rlPhaseStartSetup "RHCS tests"
-	#Execute pki user config tests
 	TEST_ALL_UPPERCASE=$(echo $TEST_ALL | tr [a-z] [A-Z])
 	QUICKINSTALL_UPPERCASE=$(echo $QUICKINSTALL | tr [a-z] [A-Z])
 	TOPO1_UPPERCASE=$(echo $TOPO1 | tr [a-z] [A-Z])
@@ -134,13 +130,23 @@ rlJournalStart
 	TOPO8_UPPERCASE=$(echo $TOPO8 | tr [a-z] [A-Z])
 	
         if [ "$QUICKINSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ]; then
-		  run_rhcs_set_time 
-                  run_rhcs_install_set_vars
-                  run_rhcs_install_quickinstall
-		  #Set-up role users
-	  	  subsystemId=ROOTCA
-		  subsystemType=ca
-		  run_pki-user-cli-user-ca_tests $subsystemId $subsystemType $MYROLE
+		run_rhcs_set_time 
+		run_rhcs_install_set_vars
+		run_rhcs_install_quickinstall
+		#Set-up role users
+		get_topo_stack $MYROLE /tmp/topo_file
+	        CA_INST=$(cat /tmp/topo_file | grep MY_CA | cut -d= -f2)
+		rlLog "Subsystem ID CA=$CA_INST"
+		run_pki-user-cli-role-user-create-tests $CA_INST ca $MYROLE
+	        KRA_INST=$(cat /tmp/topo_file | grep MY_KRA | cut -d= -f2)
+		rlLog "Subsystem ID KRA=$KRA_INST"
+		run_pki-user-cli-role-user-create-tests $KRA_INST kra $MYROLE
+		OCSP_INST=$(cat /tmp/topo_file | grep MY_OCSP | cut -d= -f2)
+                rlLog "Subsystem ID OCSP=$OCSP_INST"
+                run_pki-user-cli-role-user-create-tests $OCSP_INST ocsp $MYROLE
+                TKS_INST=$(cat /tmp/topo_file | grep MY_TKS | cut -d= -f2)
+                rlLog "Subsystem ID TKS=$TKS_INST"
+                run_pki-user-cli-role-user-create-tests $TKS_INST tks $MYROLE
         elif [ "$TOPO1_UPPERCASE" = "TRUE" ]; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_1
@@ -166,6 +172,8 @@ rlJournalStart
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_8
         fi
+	
+	######## PKI USER CA TESTS ############
 	PKI_USER_CA_UPPERCASE=$(echo $PKI_USER_CA | tr [a-z] [A-Z])
         if [ "$PKI_USER_CA_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-add-ca tests
@@ -243,6 +251,8 @@ rlJournalStart
                 # Execute pki user-cert-del-ca tests
                   run_pki-user-cli-user-cert-delete-ca_tests
         fi
+
+	######## PKI CA_USER TESTS ############
 	PKI_CA_USER_UPPERCASE=$(echo $PKI_CA_USER | tr [a-z] [A-Z])
         if [ "$PKI_CA_USER_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user tests
@@ -289,6 +299,8 @@ rlJournalStart
                 # Execute pki ca-user-membership-del tests
                   run_pki-ca-user-cli-ca-user-membership-del_tests
         fi
+
+	######## PKI CERT TESTS ############
 	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
         if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] ; then
                 #Execute pki cert tests
@@ -364,6 +376,19 @@ rlJournalStart
                 # Execute pki cert-find tests
                   run_pki-cert-find-ca_tests
         fi
+
+	######## PKI GROUP CA TESTS ############
+	PKI_GROUP_CA_TEST_UPPERCASE=$(echo $PKI_GROUP_CA_TEST | tr [a-z] [A-Z])
+        if [ "$PKI_GROUP_CA_TEST_UPPERCASE" = "TRUE" ] ; then
+                #Execute pki group tests for ca
+		run_pki-group-cli-group-add-ca_tests
+                run_pki-group-cli-group-show-ca_tests
+                run_pki-group-cli-group-find-ca_tests
+                run_pki-group-cli-group-mod-ca_tests
+                run_pki-group-cli-group-del-ca_tests
+                run_pki-group-cli-group-member-add-ca_tests
+                run_pki-group-cli-group-member-find-ca_tests
+	fi
 	GROUP_ADD_UPPERCASE=$(echo $GROUP_ADD | tr [a-z] [A-Z])
         if [ "$GROUP_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki group-add-ca tests
@@ -417,6 +442,8 @@ rlJournalStart
 		run_pki_cert_show
 		run_pki_cert_request_show
 	fi
+
+	######## PKI BUG VERIFICATIONS ############
 	BUG_VERIFICATION_UPPERCASE=$(echo $BUG_VERIFICATION | tr [a-z] [A-Z])
         if [ "$BUG_VERIFICATION_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
                 #Execute pki bigInt tests
@@ -424,6 +451,21 @@ rlJournalStart
                 run_pki-core-bug-verification
                 run_tomcatjss-bug-verification
         fi
+
+	######## PKI KEY KRA TESTS ############
+	PKI_KEY_KRA_TESTS_UPPERCASE=$(echo $PKI_KEY_KRA_TESTS | tr [a-z] [A-Z])
+        if [ "$PKI_KEY_KRA_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=kra
+		run_pki-key-kra_tests
+		run_pki-key-generate-kra_tests $subsystemType $MYROLE
+		run_pki-key-find-kra_tests $subsystemType $MYROLE
+		run_pki-key-template-find-kra_tests
+		run_pki-key-template-show-kra_tests
+		run_pki-key-request-find-kra_tests $subsystemType $MYROLE
+		run_pki-key-show-kra_tests $subsystemType $MYROLE
+		run_pki-key-request-show-kra_tests $subsystemType $MYROLE
+		run_pki-key-mod-kra_tests $subsystemType $MYROLE
+	fi
 	KEY_CONFIG_KRA_UPPERCASE=$(echo $KEY_CONFIG_KRA | tr [a-z] [A-Z]) 
 	if [ "$KEY_CONFIG_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
 		# Execute pki key config tests
@@ -475,14 +517,19 @@ rlJournalStart
 		  subsystemType=kra
 		  run_pki-key-mod-kra_tests $subsystemType $MYROLE
 	fi
+
+	######## PKI USER TESTS ############
 	USER_CLEANUP_CA_UPPERCASE=$(echo $USER_CLEANUP_CA | tr [a-z] [A-Z])
         #Clean up role users (admin agent etc) created in CA
         if [ "$USER_CLEANUP_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-cleanup-ca tests
-                  run_pki-user-cli-user-cleanup-ca_tests
+		CA_INST=$(cat /tmp/topo_file | grep MY_CA | cut -d= -f2)
+                rlLog "Subsystem ID CA=$CA_INST"
+                run_pki-user-cli-user-cleanup_tests $CA_INST ca $MY_ROLE
 	fi
         rlPhaseEnd
 
+	######## DEV UNIT TESTS ############
 	DEV_JAVA_TESTS_UPPERCASE=$(echo $DEV_JAVA_TESTS | tr [a-z] [A-Z])
         if [ "$DEV_JAVA_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
         rlPhaseStartSetup "Dev Tests"
@@ -490,6 +537,7 @@ rlJournalStart
         rlPhaseEnd
         fi
 
+	######## CODE COVERAGE TESTS ############
 	CODE_COVERAGE_UPPERCASE=$(echo $CODE_COVERAGE | tr [a-z] [A-Z])
 	if [ $CODE_COVERAGE_UPPERCASE = "TRUE" ] ; then
 	        rlPhaseStartSetup "JACOCO Code coverage report"

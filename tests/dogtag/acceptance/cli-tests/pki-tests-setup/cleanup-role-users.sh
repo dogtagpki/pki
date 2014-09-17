@@ -33,16 +33,9 @@
 . /opt/rhqa_pki/rhcs-shared.sh
 . /opt/rhqa_pki/pki-cert-cli-lib.sh
 . /opt/rhqa_pki/env.sh
-
-######################################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-cleanup-ca.sh
-######################################################################################
-
-########################################################################
-# Test Suite Globals
 ########################################################################
 
-run_pki-user-cli-user-cleanup-ca_tests(){
+run_pki-user-cli-user-cleanup_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
@@ -82,16 +75,22 @@ fi
 			  -h $SUBSYSTEM_HOST \
                           -t $SUBSYSTEM_TYPE \
                           -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                           user-del  $userid_del > $TmpDir/pki-user-del-ca-00$i.out"  \
+                           user-del  $userid_del > $TmpDir/pki-user-del-00$i.out"  \
                            0 \
                            "Deleted user  $userid_del"
-                rlAssertGrep "Deleted user \"$userid_del\"" "$TmpDir/pki-user-del-ca-00$i.out"
-		rlRun "certutil -D -d $CERTDB_DIR -n $userid_del"
+                rlAssertGrep "Deleted user \"$userid_del\"" "$TmpDir/pki-user-del-00$i.out"
+		echo "$userid_del" | grep UTCA
+		if [$? -eq 0 ] ; then
+			rlLog "$userid_del UTCA user"
+		else
+			rlRun "certutil -D -d $CERTDB_DIR -n $userid_del"
+		fi
                 let i=$i+1
         done
-       # rlRun "rm -rf $TmpDir" 0 "Removing temp directory"
-       # rlRun "rm -rf $CERTDB_DIR"
-       # rlRun "rm -rf $UNTRUSTED_CERT_DB_LOCATION"
+	#rlRun "certutil -D -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA"
+       	#rlRun "rm -rf $TmpDir" 0 "Removing temp directory"
+       	#rlRun "rm -rf $CERTDB_DIR"
+       	#rlRun "rm -rf $UNTRUSTED_CERT_DB_LOCATION"
     rlPhaseEnd
 }
 
