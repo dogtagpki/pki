@@ -4,8 +4,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.1.1
-Release:          2%{?dist}
+Version:          10.1.2
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -974,6 +974,10 @@ fi
 
 
 %changelog
+* Thu Sep 18 2014 Ade Lee <alee@redhat.com> 10.1.2-1
+- Backport fix for  ticket 499
+- Bump version to ensure migration scripts are run
+
 * Thu Sep 11 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.1-2
 - Add missing 'jakarta-commons-httpclient' build and runtime requirement
 - Exclude the 'ppcle' and 'ppc64le' platforms from being built on RHEL platforms
