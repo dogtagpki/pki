@@ -181,7 +181,7 @@ public class TPSEngine {
     public static final Object RECOVERY_RECOVER_LAST = "RecoverLast";
 
     public static final String CFG_OVERWRITE = "overwrite";
-    public static final String PIN_RESET_OP = "pin_reset";
+    public static final String PIN_RESET_OP = "pinReset";
     public static final String ENROLL_MODE_ENROLLMENT = ENROLL_OP;
     public static final String ENROLL_MODE_RECOVERY = RECOVERY_OP;
     public static final String ERNOLL_MODE_RENEWAL = RENEWAL_OP;

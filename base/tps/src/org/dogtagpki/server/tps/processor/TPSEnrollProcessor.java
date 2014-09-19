@@ -19,7 +19,6 @@ import netscape.security.x509.X509CertImpl;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
-import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
@@ -36,7 +35,6 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.engine.TPSEngine.ENROLL_MODES;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
-import org.dogtagpki.tps.apdu.ExternalAuthenticateAPDU.SecurityLevel;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
@@ -50,8 +48,6 @@ import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.IAuthCredentials;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -394,198 +390,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
         channel.writeObject(zobjidBuf, tokenData);
 
         CMS.debug("TPSEnrollProcessor.writeFinalPKCS11ObjectToToken:  leaving successfully ...");
-
-    }
-
-    private void checkAndAuthenticateUser(AppletInfo appletInfo, String tokenType) throws TPSException {
-        IAuthCredentials userCred;
-        IAuthToken authToken;
-        TokenRecord tokenRecord = getTokenRecord();
-        if (!isExternalReg) {
-            // authenticate per profile/tokenType configuration
-            String configName = TPSEngine.OP_ENROLL_PREFIX + "." + tokenType + ".auth.enable";
-            IConfigStore configStore = CMS.getConfigStore();
-
-            TPSSubsystem tps =
-                    (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-            //TPSSession session = getSession();
-            boolean isAuthRequired;
-            try {
-                CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: getting config: " + configName);
-                isAuthRequired = configStore.getBoolean(configName, true);
-            } catch (EBaseException e) {
-                CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: Internal Error obtaining mandatory config values. Error: "
-                        + e);
-                throw new TPSException("TPS error getting config values from config store.",
-                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
-            }
-            if (isAuthRequired) {
-                try {
-                    TPSAuthenticator userAuth =
-                            getAuthentication(TPSEngine.OP_ENROLL_PREFIX, tokenType);
-                    userCred = requestUserId(TPSEngine.ENROLL_OP, appletInfo.getCUIDhexString(), userAuth,
-                            beginMsg.getExtensions());
-                    userid = (String) userCred.get(userAuth.getAuthCredName());
-                    CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: userCred (attempted) userid=" + userid);
-                    // initialize userid first for logging purposes in case authentication fails
-                    tokenRecord.setUserID(userid);
-                    authToken = authenticateUser(TPSEngine.ENROLL_OP, userAuth, userCred);
-                    userid = authToken.getInString("userid");
-                    tokenRecord.setUserID(userid);
-                    CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: auth passed: userid: "
-                            + authToken.get("userid"));
-
-                } catch (Exception e) {
-                    // all exceptions are considered login failure
-                    CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
-                    String msg = "TPS error user authentication failed:" + e;
-                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), msg,
-                            "failure");
-
-                    throw new TPSException(msg,
-                            TPSStatus.STATUS_ERROR_LOGIN);
-                }
-            } else {
-                throw new TPSException(
-                        "TPSEnrollProcessor.checkAndAuthenticateUser: TPS enrollment must have authentication enabled.",
-                        TPSStatus.STATUS_ERROR_LOGIN);
-
-            }
-
-        }
-    }
-
-    private void checkAndHandlePinReset(SecureChannel channel) throws TPSException, IOException {
-
-        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset entering...");
-
-        if (channel == null) {
-            throw new TPSException("TPSEnrollProcessor.checkAndHandlePinReset: invalid input data!",
-                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
-        }
-
-        IConfigStore configStore = CMS.getConfigStore();
-
-        String pinResetEnableConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_PIN_RESET_ENABLE;
-
-        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + pinResetEnableConfig);
-
-        String minLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_PIN_RESET_MIN_LEN;
-
-        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + minLenConfig);
-
-        String maxLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_PIN_RESET_MAX_LEN;
-
-        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + maxLenConfig);
-
-        String maxRetriesConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_PIN_RESET_MAX_RETRIES;
-
-        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + maxRetriesConfig);
-
-        String pinStringConfig = TPSEngine.CFG_PIN_RESET_STRING;
-
-        CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset config to check: " + pinStringConfig);
-
-        boolean enabled = false;
-        int minLen;
-        int maxLen;
-        int maxRetries;
-        String stringName;
-
-        try {
-
-            enabled = configStore.getBoolean(pinResetEnableConfig, true);
-
-            if (enabled == false) {
-                CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset:  Pin Reset not allowed by configuration, exiting...");
-                return;
-
-            }
-
-            minLen = configStore.getInteger(minLenConfig, 4);
-            maxLen = configStore.getInteger(maxLenConfig, 10);
-            maxRetries = configStore.getInteger(maxRetriesConfig, 0x7f);
-            stringName = configStore.getString(pinStringConfig, "password");
-
-            CMS.debug("TPSEnrollProcessor.checkAndHandlePinReset: config vals: enabled: " + enabled + " minLen: "
-                    + minLen + " maxLen: " + maxLen);
-
-        } catch (EBaseException e) {
-            throw new TPSException(
-                    "TPSEnrollProcessor.checkAndHandlePinReset: internal error in getting value from config.");
-        }
-
-        String new_pin = requestNewPin(minLen, maxLen);
-
-        channel.createPin(0x0, maxRetries, stringName);
-
-        channel.resetPin(0x0, new_pin);
-
-    }
-
-    private void checkAndUpgradeApplet(AppletInfo appletInfo) throws TPSException, IOException {
-        // TODO Auto-generated method stub
-
-        CMS.debug("checkAndUpgradeApplet: entering..");
-
-        SecurityLevel securityLevel = SecurityLevel.SECURE_MSG_MAC;
-
-        boolean useEncryption = checkUpdateAppletEncryption();
-
-        String tksConnId = getTKSConnectorID();
-        if (useEncryption)
-            securityLevel = SecurityLevel.SECURE_MSG_MAC_ENC;
-
-        if (checkForAppletUpdateEnabled()) {
-
-            String targetAppletVersion = checkForAppletUpgrade("op." + currentTokenOperation);
-            targetAppletVersion = targetAppletVersion.toLowerCase();
-
-            String currentAppletVersion = formatCurrentAppletVersion(appletInfo);
-
-            CMS.debug("TPSEnrollProcessor.checkAndUpgradeApplet: currentAppletVersion: " + currentAppletVersion
-                    + " targetAppletVersion: " + targetAppletVersion);
-
-            if (targetAppletVersion.compareTo(currentAppletVersion) != 0) {
-
-                CMS.debug("TPSEnrollProessor.checkAndUpgradeApplet: Upgrading applet to : " + targetAppletVersion);
-                upgradeApplet("op." + currentTokenOperation, targetAppletVersion, securityLevel, getBeginMessage()
-                        .getExtensions(),
-                        tksConnId, 5, 12);
-            } else {
-                CMS.debug("TPSEnrollProcessor.checkAndUpgradeApplet: applet already at correct version.");
-            }
-        }
-
-    }
-
-    protected boolean checkUpdateAppletEncryption() throws TPSException {
-
-        CMS.debug("TPSEnrollProcessor.checkUpdateAppletEncryption entering...");
-
-        IConfigStore configStore = CMS.getConfigStore();
-
-        String appletEncryptionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
-                + TPSEngine.CFG_UPDATE_APPLET_ENCRYPTION;
-
-        CMS.debug("TPSEnrollProcessor.checkUpdateAppletEncryption config to check: " + appletEncryptionConfig);
-
-        boolean appletEncryption = false;
-
-        try {
-            appletEncryption = configStore.getBoolean(appletEncryptionConfig, false);
-        } catch (EBaseException e) {
-            //Default TPSException will return a "contact admin" error code.
-            throw new TPSException(
-                    "TPSEnrollProcessor.checkUpdateAppletEncryption: internal error in getting value from config.");
-        }
-
-        CMS.debug("TPSEnrollProcessor.checkUpdateAppletEncryption returning: " + appletEncryption);
-        return appletEncryption;
 
     }
 

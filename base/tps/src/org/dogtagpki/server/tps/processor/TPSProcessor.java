@@ -154,6 +154,10 @@ public class TPSProcessor {
         selectedTokenType = theTokenType;
 
         TokenRecord tokenRecord = getTokenRecord();
+
+        if(tokenRecord == null) {
+            throw new NullPointerException("TPSProcessor.setSelectedTokenType: Can't find token record for token!");
+        }
         tokenRecord.setType(selectedTokenType);
     }
 
@@ -543,6 +547,68 @@ public class TPSProcessor {
                 cardCryptogram, hostChallenge, hostCryptogram, keyInfoData);
 
         return channel;
+    }
+
+    protected boolean checkUpdateAppletEncryption() throws TPSException {
+
+        CMS.debug("TPSProcessor.checkUpdateAppletEncryption entering...");
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String appletEncryptionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_UPDATE_APPLET_ENCRYPTION;
+
+        CMS.debug("TPSProcessor.checkUpdateAppletEncryption config to check: " + appletEncryptionConfig);
+
+        boolean appletEncryption = false;
+
+        try {
+            appletEncryption = configStore.getBoolean(appletEncryptionConfig, false);
+        } catch (EBaseException e) {
+            //Default TPSException will return a "contact admin" error code.
+            throw new TPSException(
+                    "TPSProcessor.checkUpdateAppletEncryption: internal error in getting value from config.");
+        }
+
+        CMS.debug("TPSProcessor.checkUpdateAppletEncryption returning: " + appletEncryption);
+        return appletEncryption;
+
+    }
+
+    protected void checkAndUpgradeApplet(AppletInfo appletInfo) throws TPSException, IOException {
+        // TODO Auto-generated method stub
+
+        CMS.debug("checkAndUpgradeApplet: entering..");
+
+        SecurityLevel securityLevel = SecurityLevel.SECURE_MSG_MAC;
+
+        boolean useEncryption = checkUpdateAppletEncryption();
+
+        String tksConnId = getTKSConnectorID();
+        if (useEncryption)
+            securityLevel = SecurityLevel.SECURE_MSG_MAC_ENC;
+
+        if (checkForAppletUpdateEnabled()) {
+
+            String targetAppletVersion = checkForAppletUpgrade("op." + currentTokenOperation);
+            targetAppletVersion = targetAppletVersion.toLowerCase();
+
+            String currentAppletVersion = formatCurrentAppletVersion(appletInfo);
+
+            CMS.debug("TPSProcessor.checkAndUpgradeApplet: currentAppletVersion: " + currentAppletVersion
+                    + " targetAppletVersion: " + targetAppletVersion);
+
+            if (targetAppletVersion.compareTo(currentAppletVersion) != 0) {
+
+                CMS.debug("TPSProcessor.checkAndUpgradeApplet: Upgrading applet to : " + targetAppletVersion);
+                upgradeApplet("op." + currentTokenOperation, targetAppletVersion, securityLevel, getBeginMessage()
+                        .getExtensions(),
+                        tksConnId, 5, 12);
+            } else {
+                CMS.debug("TPSProcessor.checkAndUpgradeApplet: applet already at correct version.");
+            }
+        }
+
     }
 
     protected void upgradeApplet(String operation, String new_version, SecurityLevel securityLevel,
@@ -1472,6 +1538,8 @@ public class TPSProcessor {
 
             opDefault = TPSEngine.CFG_DEF_PIN_RESET_PROFILE_RESOLVER;
             opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
+        } else{
+            throw new TPSException("TPSProcessor.getResolverInstanceName: Invalid operation type, can not calculate resolver instance!",TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         String config = opPrefix +
@@ -2396,6 +2464,154 @@ public class TPSProcessor {
 
         return finalVersion;
 
+    }
+
+    protected void checkAndHandlePinReset(SecureChannel channel) throws TPSException, IOException {
+
+        CMS.debug("TPSProcessor.checkAndHandlePinReset entering...");
+
+        if (channel == null) {
+            throw new TPSException("TPSProcessor.checkAndHandlePinReset: invalid input data!",
+                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+        }
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String pinResetEnableConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_PIN_RESET_ENABLE;
+
+        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + pinResetEnableConfig);
+
+        String minLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_PIN_RESET_MIN_LEN;
+
+        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + minLenConfig);
+
+        String maxLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_PIN_RESET_MAX_LEN;
+
+        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + maxLenConfig);
+
+        String maxRetriesConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_PIN_RESET_MAX_RETRIES;
+
+        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + maxRetriesConfig);
+
+        String pinStringConfig = TPSEngine.CFG_PIN_RESET_STRING;
+
+        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + pinStringConfig);
+
+        boolean enabled = false;
+        int minLen;
+        int maxLen;
+        int maxRetries;
+        String stringName;
+
+        try {
+
+            enabled = configStore.getBoolean(pinResetEnableConfig, true);
+
+            if (enabled == false) {
+                CMS.debug("TPSProcessor.checkAndHandlePinReset:  Pin Reset not allowed by configuration, exiting...");
+                return;
+
+            }
+
+            minLen = configStore.getInteger(minLenConfig, 4);
+            maxLen = configStore.getInteger(maxLenConfig, 10);
+            maxRetries = configStore.getInteger(maxRetriesConfig, 0x7f);
+            stringName = configStore.getString(pinStringConfig, "password");
+
+            CMS.debug("TPSProcessor.checkAndHandlePinReset: config vals: enabled: " + enabled + " minLen: "
+                    + minLen + " maxLen: " + maxLen);
+
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    "TPSProcessor.checkAndHandlePinReset: internal error in getting value from config.");
+        }
+
+        String new_pin = requestNewPin(minLen, maxLen);
+
+        channel.createPin(0x0, maxRetries, stringName);
+
+        channel.resetPin(0x0, new_pin);
+
+    }
+
+    protected void checkAndAuthenticateUser(AppletInfo appletInfo, String tokenType) throws TPSException {
+        IAuthCredentials userCred;
+        IAuthToken authToken;
+        TokenRecord tokenRecord = getTokenRecord();
+        String method = "checkAndAuthenticateUser";
+
+        String opPrefix = null;
+
+        if(TPSEngine.ENROLL_OP.equals( currentTokenOperation)) {
+            opPrefix = TPSEngine.OP_ENROLL_PREFIX;
+        } else if (TPSEngine.FORMAT_OP.equals(currentTokenOperation)) {
+            opPrefix = TPSEngine.OP_FORMAT_PREFIX;
+        } else {
+            opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
+        }
+
+
+        if (!isExternalReg) {
+            // authenticate per profile/tokenType configuration
+            String configName = opPrefix + "." + tokenType + ".auth.enable";
+            IConfigStore configStore = CMS.getConfigStore();
+
+            TPSSubsystem tps =
+                    (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            //TPSSession session = getSession();
+            boolean isAuthRequired;
+            try {
+                CMS.debug("TPSProcessor.checkAndAuthenticateUser: getting config: " + configName);
+                isAuthRequired = configStore.getBoolean(configName, true);
+            } catch (EBaseException e) {
+                CMS.debug("TPSProcessor.checkAndAuthenticateUser: Internal Error obtaining mandatory config values. Error: "
+                        + e);
+                throw new TPSException("TPS error getting config values from config store.",
+                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+
+
+
+            CMS.debug(method + ": opPrefox: " + opPrefix);
+
+            if (isAuthRequired) {
+                try {
+                    TPSAuthenticator userAuth =
+                            getAuthentication(opPrefix, tokenType);
+                    userCred = requestUserId(TPSEngine.ENROLL_OP, appletInfo.getCUIDhexString(), userAuth,
+                            beginMsg.getExtensions());
+                    userid = (String) userCred.get(userAuth.getAuthCredName());
+                    CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: userCred (attempted) userid=" + userid);
+                    // initialize userid first for logging purposes in case authentication fails
+                    tokenRecord.setUserID(userid);
+                    authToken = authenticateUser(TPSEngine.ENROLL_OP, userAuth, userCred);
+                    userid = authToken.getInString("userid");
+                    tokenRecord.setUserID(userid);
+                    CMS.debug("TPSProcessor.checkAndAuthenticateUser: auth passed: userid: "
+                            + authToken.get("userid"));
+
+                } catch (Exception e) {
+                    // all exceptions are considered login failure
+                    CMS.debug("TPSProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
+                    String msg = "TPS error user authentication failed:" + e;
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), msg,
+                            "failure");
+
+                    throw new TPSException(msg,
+                            TPSStatus.STATUS_ERROR_LOGIN);
+                }
+            } else {
+                throw new TPSException(
+                        "TPSProcessor.checkAndAuthenticateUser: TPS enrollment must have authentication enabled.",
+                        TPSStatus.STATUS_ERROR_LOGIN);
+
+            }
+
+        }
     }
 
     public static void main(String[] args) {

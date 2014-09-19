@@ -20,11 +20,17 @@ package org.dogtagpki.server.tps.processor;
 import java.io.IOException;
 
 import org.dogtagpki.server.tps.TPSSession;
+import org.dogtagpki.server.tps.TPSSubsystem;
+import org.dogtagpki.server.tps.channel.SecureChannel;
+import org.dogtagpki.server.tps.dbs.ActivityDatabase;
+import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.tps.token.TokenStatus;
 
 public class TPSPinResetProcessor extends TPSProcessor {
 
@@ -40,21 +46,88 @@ public class TPSPinResetProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
         setBeginMessage(beginMsg);
-        setCurrentTokenOperation("pinReset");
+        setCurrentTokenOperation(TPSEngine.PIN_RESET_OP);
 
         resetPin();
 
     }
 
-    private void resetPin() throws TPSException {
+    private void resetPin() throws TPSException, IOException {
 
+        String method = "TPSPinResetProcessor.resetPin()";
         //ToDo: Implement full pin reset processor, the pin reset portion
         // of an enrollment works fine. We just need to finish this to perform
         // a completely stand alone pin reset of an already enrolled token.
-        CMS.debug("TPSPinResetProcessor.resetPin: entering...");
+        CMS.debug(method + ": entering...");
 
-        throw new TPSException("TPSPinResetProcessor.resetPin: Pin Reset standalone operation not yet supported!",
-                TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+        String auditMsg = null;
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
+        AppletInfo appletInfo = null;
+        TokenRecord tokenRecord = null;
+
+        statusUpdate(10, "PROGRESS_START_PIN_RESET");
+
+        try {
+            appletInfo = getAppletInfo();
+        } catch (TPSException e) {
+            auditMsg = e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                    "failure");
+
+            throw e;
+        }
+        appletInfo.setAid(getCardManagerAID());
+
+        tokenRecord = isTokenRecordPresent(appletInfo);
+
+        if(tokenRecord == null) {
+            //We can't reset the pin of a token that does not exist.
+
+            CMS.debug(method + ": Token does not exist!");
+            throw new TPSException(method + " Can't reset pin of token that does not exist ",TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+        }
+
+        TokenStatus status = tokenRecord.getTokenStatus();
+
+        CMS.debug(method + ": Token status: " + status);
+
+        if(!status.equals(TokenStatus.ACTIVE)) {
+            throw new TPSException(method + " Attempt to reset pin of token not currently active!",TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+
+        }
+
+        session.setTokenRecord(tokenRecord);
+
+        String resolverInstName = getResolverInstanceName();
+
+        String tokenType = null;
+
+        tokenType = resolveTokenProfile(resolverInstName, appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+        CMS.debug(method + ": resolved tokenType: " + tokenType);
+
+        statusUpdate(15, "PROGRESS_PIN_RESET_RESOLVE_PROFILE");
+
+        checkProfileStateOK();
+
+        checkAndAuthenticateUser(appletInfo, tokenType);
+
+        checkAndUpgradeApplet(appletInfo);
+        appletInfo = getAppletInfo();
+
+
+        //Check and upgrade keys if called for
+
+        SecureChannel channel = checkAndUpgradeSymKeys();
+        channel.externalAuthenticate();
+
+        checkAndHandlePinReset(channel);
+
+        statusUpdate(100, "PROGRESS_PIN_RESET_COMPLETE");
+
+        CMS.debug(method + ": Token Pin successfully reset!");
+
 
     }
 
