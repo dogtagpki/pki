@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.2
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -31,13 +31,13 @@ BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
-%if  0%{?rhel}
+%if 0%{?rhel}
 BuildRequires:    resteasy-base-atom-provider >= 3.0.6-1
 BuildRequires:    resteasy-base-client >= 3.0.6-1
-BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
+BuildRequires:    resteasy-base-jettison-provider >= 3.0.6-1
 %else
 BuildRequires:    resteasy >= 3.0.1-3
 %endif
@@ -197,12 +197,12 @@ Requires:         ldapjdk
 Requires:         python-ldap
 Requires:         python-lxml
 Requires:         python-requests >= 1.1.0-3
-%if  0%{?rhel}
-Requires:    resteasy-base-atom-provider
-Requires:    resteasy-base-jaxb-provider
-Requires:    resteasy-base-jaxrs
-Requires:    resteasy-base-jaxrs-api
-Requires:    resteasy-base-jettison-provider
+%if 0%{?rhel}
+Requires:    resteasy-base-atom-provider >= 3.0.6-1
+Requires:    resteasy-base-jaxb-provider >= 3.0.6-1
+Requires:    resteasy-base-jaxrs >= 3.0.6-1
+Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
+Requires:    resteasy-base-jettison-provider >= 3.0.6-1
 %else
 Requires:         resteasy >= 3.0.1-3
 %endif
@@ -273,7 +273,11 @@ Requires:         policycoreutils-python
 Requires:         selinux-policy-base >= 3.11.1-43
 Obsoletes:        pki-selinux
 
+%if 0%{?rhel}
+Requires:         tomcat >= 7.0.54
+%else
 Requires:         tomcat >= 7.0.47
+%endif
 
 Requires:         velocity
 Requires(post):   systemd-units
@@ -974,6 +978,16 @@ fi
 
 
 %changelog
+* Fri Sep 19 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.2-2
+- Bugzilla Bug #1108303 - Rebase pki-core to 10.1 (RHEL)
+- Bugzilla Bug #1117073 - pki-core ppc64le is missing from ExcludeArch line
+  of spec file (RHEL)
+- Bumped required runtime version of tomcat >= 7.0.54 (RHEL)
+- Changed buildtime requirement from 'resteasy-base-jackson-provider >= 3.0.6-1'
+  to 'resteasy-base-jettison-provider >= 3.0.6-1' (RHEL)
+- Added version number of '>= 3.0.6-1' to runtime requirements for all
+  'resteasy-base' packages (RHEL)
+
 * Thu Sep 18 2014 Ade Lee <alee@redhat.com> 10.1.2-1
 - Backport fix for  ticket 499
 - Bump version to ensure migration scripts are run
