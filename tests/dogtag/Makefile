@@ -143,6 +143,10 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-request-show-kra.sh
 	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-show-kra.sh
 	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-mod-kra.sh 
+	chmod a+X ./acceptance/cli-tests/pki-key-cli/pki-key-cli-archive-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-key-cli/pki-key-cli-recover-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-key-cli/pki-key-cli-retrieve-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-key-cli/pki-key-cli-request-review-kra.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs.sh
 	chmod a+x ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh

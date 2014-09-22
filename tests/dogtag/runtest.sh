@@ -86,6 +86,19 @@
 . ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-add.sh
 . ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-find.sh
 . ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-membership-del.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-generate-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-find-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-template-find-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-template-show-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-request-find-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-show-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-request-show-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-mod-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-archive-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-recover-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-retrieve-kra.sh
+. ./acceptance/cli-tests/pki-key-cli/pki-key-cli-request-review-kra.sh
 . ./acceptance/bugzilla/tomcatjss-bugs.sh
 . ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh
 . ./acceptance/bugzilla/pki-core-bugs/CSbackup-bug.sh
@@ -465,6 +478,11 @@ rlJournalStart
 		run_pki-key-show-kra_tests $subsystemType $MYROLE
 		run_pki-key-request-show-kra_tests $subsystemType $MYROLE
 		run_pki-key-mod-kra_tests $subsystemType $MYROLE
+		run_pki-key-recover-kra_tests $subsystemType $MYROLE
+		run_pki-key-archive-kra_tests $subsystemType $MYROLE
+		run_pki-key-retrieve-kra_tests $subsystemType $MYROLE
+		run_pki-key-request-review-kra_tests $subsystemType $MYROLE
+
 	fi
 	KEY_CONFIG_KRA_UPPERCASE=$(echo $KEY_CONFIG_KRA | tr [a-z] [A-Z]) 
 	if [ "$KEY_CONFIG_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
@@ -517,7 +535,31 @@ rlJournalStart
 		  subsystemType=kra
 		  run_pki-key-mod-kra_tests $subsystemType $MYROLE
 	fi
-
+	KEY_RECOVER_KRA_UPPERCASE=$(echo $KEY_RECOVER_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_RECOVER_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key-recover tests
+		subsystemType=kra
+		run_pki-key-recover-kra_tests $subsystemType $MYROLE
+	fi
+	KEY_ARCHIVE_KRA_UPPERCASE=$(echo $KEY_ARCHIVE_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_ARCHIVE_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key-archive tests
+		subsystemType=kra
+		run_pki-key-archive-kra_tests $subsystemType $MYROLE
+	fi
+	KEY_RETRIEVE_KRA_UPPERCASE=$(echo $KEY_RETRIEVE_KRA | tr [a-z] [A-Z])	
+	if [ "$KEY_RETRIEVE_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key-retrieve tests
+		subsystemType=kra
+		run_pki-key-retrieve-kra_tests $subsystemType $MYROLE
+	fi
+	KEY_REQUEST_REVIEW_KRA_UPPERCASE=$(echo $KEY_REQUEST_REVIEW_KRA | tr [a-z] [A-Z])
+	if [ "$KEY_REQUEST_REVIEW_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+		# Execute pki key-request-review tests
+		subsystemType=kra
+		run_pki-key-request-review-kra_tests $subsystemType $MYROLE
+	fi
+	
 	######## PKI USER TESTS ############
 	USER_CLEANUP_CA_UPPERCASE=$(echo $USER_CLEANUP_CA | tr [a-z] [A-Z])
         #Clean up role users (admin agent etc) created in CA
