@@ -38,7 +38,7 @@
 . /opt/rhqa_pki/pki-key-cli-lib.sh
 . /opt/rhqa_pki/env.sh
 
-run_pki-kra-key-archive-kra_tests()
+run_pki-key-archive-kra_tests()
 {
         local cs_Type=$1
         local cs_Role=$2
