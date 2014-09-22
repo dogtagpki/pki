@@ -37,6 +37,7 @@ run: $(FILES) build
 	#rm -rf /opt/rhqa_pki
 	mkdir -p /opt/rhqa_pki
 	mkdir -p /opt/rhqa_pki/java
+	mkdir -p /opt/rhqa_pki/jars
 	#rm -f /opt/rhqa_pki/env.sh
 	cp -n ./shared/env.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/rhcs-shared.sh
@@ -54,8 +55,8 @@ run: $(FILES) build
 	rm -f /opt/rhqa_pki/build.xml
 	cp ./shared/build.xml /opt/rhqa_pki/.
 	chmod a+x /opt/rhqa_pki/*.sh
-	rm -f /opt/rhqa_pki/java/generateCRMFRequest.jar
-	cp  ./shared/generateCRMFRequest.jar /opt/rhqa_pki/java/
+	rm -f /opt/rhqa_pki/jars/pki-qe-tools.jar
+	cp  ./shared/pki-qe-tools.jar /opt/rhqa_pki/jars/
 	rm -f /opt/rhqa_pki/pki-auth-plugin-lib.sh
 	cp ./shared/pki-auth-plugin-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-config-lib.sh
