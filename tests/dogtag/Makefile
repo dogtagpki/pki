@@ -34,11 +34,8 @@ FILES=$(METADATA) runtest.sh topologies.sh Makefile PURPOSE shared acceptance de
 .PHONY: all install download clean
 
 run: $(FILES) build
-	#rm -rf /opt/rhqa_pki
 	mkdir -p /opt/rhqa_pki
-	mkdir -p /opt/rhqa_pki/java
 	mkdir -p /opt/rhqa_pki/jars
-	#rm -f /opt/rhqa_pki/env.sh
 	cp -n ./shared/env.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/rhcs-shared.sh
 	cp ./shared/rhcs-shared.sh /opt/rhqa_pki/.

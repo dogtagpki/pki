@@ -50,6 +50,31 @@
 
 run_pki-user-cli-user-cert-find-ca_tests(){
 
+subsystemId=$1
+SUBSYSTEM_TYPE=$2
+MYROLE=$3
+
+if [ "$TOPO9" = "TRUE" ] ; then
+        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+        prefix=$subsystemId
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+elif [ "$MYROLE" = "MASTER" ] ; then
+        if [[ $subsystemId == SUBCA* ]]; then
+                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+                prefix=$subsystemId
+                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+        else
+                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                prefix=ROOTCA
+                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        fi
+else
+        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+        prefix=$MYROLE
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+fi
+
+SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 
 	#####Create temporary dir to save the output files #####
     rlPhaseStartSetup "pki_user_cli_user_cert-find-ca-startup: Create temporary directory"
@@ -68,7 +93,7 @@ testname="pki_user_cert_find"
 
 ##### pki_user_cli_user_cert_find_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-find-configtest-001: pki user-cert-find configuration test"
-        rlRun "pki user-cert-find --help > $TmpDir/pki_user_cert_find_cfg.out 2>&1" \
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-find --help > $TmpDir/pki_user_cert_find_cfg.out 2>&1" \
                 0 \
                 "User cert find configuration"
         rlAssertGrep "usage: user-cert-find <User ID> \[OPTIONS...\]" "$TmpDir/pki_user_cert_find_cfg.out"
@@ -84,12 +109,14 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
         i=0
         k=2
         rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-add --fullName=\"$user1fullname\" $user1"
         while [ $i -lt 2 ] ; do
                 cert_type="pkcs10"
-                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
                 local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -98,7 +125,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                 serialdecuser1[$i]=$decimal_valid_serialNumber_pkcs10
 
                 cert_type="crmf"
-                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
                 local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
                 local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
@@ -106,26 +133,34 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                 serialhexuser1_crmf[$i]=$cert_serialNumber_crmf
                 serialdecuser1_crmf[$i]=$decimal_valid_serialNumber_crmf
                 rlLog "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002pkcs10$i.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002pkcs10$i.pem  > $TmpDir/useraddcert__002_$i.out" \
                             0 \
                             "Cert is added to the user $user1"
 
                 rlLog "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002crmf$i.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_002crmf$i.pem  > $TmpDir/useraddcert__002_$i.out" \
                             0 \
@@ -133,13 +168,17 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
                 let i=$i+1
         done
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 > $TmpDir/pki_user_cert_find_ca_002.out" \
                     0 \
@@ -149,16 +188,16 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
         rlAssertGrep "Number of entries returned $numcertsuser1" "$TmpDir/pki_user_cert_find_ca_002.out"
         i=0
         while [ $i -lt 2 ] ; do
-                rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
+                rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_002.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_002.out"
+                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
 
-                rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
+                rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Serial Number: ${serialhexuser1_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_002.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_002.out"
+                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_002.out"
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_002.out"
 
                let i=$i+1
@@ -170,12 +209,14 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
         i=0
 	k=3
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    user-add --fullName=\"$user2fullname\" $user2"
         while [ $i -lt 12 ] ; do
 		cert_type="pkcs10"
-		rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+		rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
                 local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -183,7 +224,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
                 serialhexuser2[$i]=$cert_serialNumber_pkcs10
                 serialdecuser2[$i]=$decimal_valid_serialNumber_pkcs10
 		cert_type="crmf"
-                rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
                 local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
                 local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
@@ -191,15 +232,19 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
                 serialhexuser2_crmf[$i]=$cert_serialNumber_crmf
                 serialdecuser2_crmf[$i]=$decimal_valid_serialNumber_crmf
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $user2 --input $TmpDir/pki_user_cert_find-CA_validcert_003pkcs10$i.pem  > $TmpDir/useraddcert__003_$i.out" \
                             0 \
                             "Cert is added to the user $user2"
 		rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $user2 --input $TmpDir/pki_user_cert_find-CA_validcert_003crmf$i.pem  > $TmpDir/useraddcert__003crmf_$i.out" \
                             0 \
@@ -207,13 +252,17 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
                 let i=$i+1
         done
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user2"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
 		   user-cert-find $user2 > $TmpDir/pki_user_cert_find_ca_003.out" \
                     0 \
@@ -222,15 +271,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
         rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_003.out"
         i=0
         while [ $i -lt 10 ] ; do
-        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
+        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_003.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_003.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
-	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_003.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_003.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_003.out"
 
                 let i=$i+1
@@ -239,7 +288,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
         rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-004: Find the certs of a user in CA --userid only - user does not exist"
-	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find tuser"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find tuser"
         errmsg="UserNotFoundException: User tuser not found"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - User not found message should be thrown when finding certs assigned to a user that does not exist"
@@ -248,18 +297,24 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-005: Find the certs of a user in CA --userid only - no certs added to the user"
 
 	rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-add $user3 --fullName=\"$user3fullname\""
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user3"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user3 > $TmpDir/pki_user_cert_find_ca_005.out" \
                     0 \
@@ -273,13 +328,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-006: Find the certs of a user in CA --size - a number less than the actual number of certs"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1 --size=2"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 --size=2 > $TmpDir/pki_user_cert_find_ca_006.out" \
                     0 \
@@ -287,28 +346,32 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-006: Find the certs of a user i
         rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_006.out"
 	rlAssertGrep "Number of entries returned 2" "$TmpDir/pki_user_cert_find_ca_006.out"
 	i=0
-        	rlAssertGrep "Cert ID: 2;${serialdecuser1[0]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
+        	rlAssertGrep "Cert ID: 2;${serialdecuser1[0]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
         	rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_006.out"
         	rlAssertGrep "Serial Number: ${serialhexuser1[0]}" "$TmpDir/pki_user_cert_find_ca_006.out"
-        	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_006.out"
+        	rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_006.out"
         	rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
-		rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[0]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
+		rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[0]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_006.out"
                 rlAssertGrep "Serial Number: ${serialhexuser1_crmf[0]}" "$TmpDir/pki_user_cert_find_ca_006.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_006.out"
+                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_006.out"
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-007: Find the certs of a user in CA --size=0"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1 --size=0"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 --size=0 > $TmpDir/pki_user_cert_find_ca_007.out" \
                     0 \
@@ -318,7 +381,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-007: Find the certs of a user i
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-008: Find the certs of a user in CA --size=-1"
-	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --size=-1"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --size=-1"
         errmsg="The value for size shold be greater than or equal to 0"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - the value for --size should not be less than 0"
@@ -328,13 +391,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-009: Find the certs of a user in CA --size - a number greater than number of certs assigned to the user"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1 --size=50"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 --size=50 > $TmpDir/pki_user_cert_find_ca_009.out" \
                     0 \
@@ -343,15 +410,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-009: Find the certs of a user i
         rlAssertGrep "Number of entries returned $numcertsuser1" "$TmpDir/pki_user_cert_find_ca_009.out"
 	i=0
         while [ $i -lt 2 ] ; do
-        rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
+        rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_009.out"
         rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_009.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_009.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_009.out"
         rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
-	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_009.out"
         rlAssertGrep "Serial Number: ${serialhexuser1_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_009.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_009.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_009.out"
         rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_009.out"
                 let i=$i+1
         done
@@ -362,13 +429,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-010: Find the certs of a user in CA --start - a number less than the actual number of certs"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1 --start=2"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 --start=2 > $TmpDir/pki_user_cert_find_ca_010.out" \
                     0 \
@@ -378,15 +449,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-010: Find the certs of a user i
         rlAssertGrep "Number of entries returned $newnumcerts" "$TmpDir/pki_user_cert_find_ca_010.out"
 	i=1
 	 while [ $i -lt 2 ] ; do
-                rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
+                rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_010.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_010.out"
+                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
-		rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
+		rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Serial Number: ${serialhexuser1_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_010.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_010.out"
+                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_010.out"
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_010.out"
 		let i=$i+1
 	done
@@ -395,13 +466,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-011: Find the certs of a user in CA --start=0"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1 --start=0"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 --start=0 > $TmpDir/pki_user_cert_find_ca_011.out" \
                     0 \
@@ -410,15 +485,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-011: Find the certs of a user i
         rlAssertGrep "Number of entries returned $numcertsuser1" "$TmpDir/pki_user_cert_find_ca_011.out"
 	i=0
         while [ $i -lt 2 ] ; do
-        rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Cert ID: 2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_011.out"
         rlAssertGrep "Serial Number: ${serialhexuser1[$i]}" "$TmpDir/pki_user_cert_find_ca_011.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_011.out"
         rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
-	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_011.out"
         rlAssertGrep "Serial Number: ${serialhexuser1_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_011.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_011.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_011.out"
         rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_011.out"
                 let i=$i+1
         done
@@ -427,13 +502,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-012: Find the certs of a user in CA --start=0 - multiple pages"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user2 --start=0"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user2 --start=0 > $TmpDir/pki_user_cert_find_ca_012.out" \
                     0 \
@@ -442,15 +521,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-012: Find the certs of a user i
         rlAssertGrep "Number of entries returned 20" "$TmpDir/pki_user_cert_find_ca_012.out"
 	i=0
         while [ $i -lt 10 ] ; do
-        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
+        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_012.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_012.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
-	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_012.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_012.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_012.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_012.out"
 
                 let i=$i+1
@@ -459,7 +538,7 @@ rlPhaseEnd
 
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-013: Find the certs of a user in CA --start=-1"
-	 command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --start=-1"
+	 command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --start=-1"
         rlLog "Executing : $command"
         errmsg="The value for start shold be greater than or equal to 0"
 	errorcode=255
@@ -470,13 +549,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-014: Find the certs of a user in CA --start - a number greater than number of certs assigned to the user"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1 --start=50"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 --start=50 > $TmpDir/pki_user_cert_find_ca_014.out" \
                     0 \
@@ -490,13 +573,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-015: Find the certs of a user in CA --start=0 --size=0"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1 --start=0 --size=0"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 --start=0 --size=0 > $TmpDir/pki_user_cert_find_ca_015.out" \
                     0 \
@@ -511,12 +598,14 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016-tier1: Find the certs of a 
 	i=0
         k=16
         rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-add --fullName=\"$newuserfullname\" $newuserid"
         while [ $i -lt 2 ] ; do
                 cert_type="pkcs10"
-                rlRun "generate_user_cert $cert_info $k \"$newuserid$(($i+1))\" \"$newuserfullname$(($i+1))\" $newuserid$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                rlRun "generate_user_cert $cert_info $k \"$newuserid$(($i+1))\" \"$newuserfullname$(($i+1))\" $newuserid$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
                 local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
@@ -525,7 +614,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016-tier1: Find the certs of a 
                 serialdecuser1[$i]=$decimal_valid_serialNumber_pkcs10
 
                 cert_type="crmf"
-                rlRun "generate_user_cert $cert_info $k \"$newuserid$(($i+1))\" \"$newuserfullname$(($i+1))\" $newuserid$(($i+1))@example.org $testname $cert_type $i" 0  "Generating temp cert"
+                rlRun "generate_user_cert $cert_info $k \"$newuserid$(($i+1))\" \"$newuserfullname$(($i+1))\" $newuserid$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
                 local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
                 local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
@@ -533,26 +622,34 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016-tier1: Find the certs of a 
                 serialhexuser1_crmf[$i]=$cert_serialNumber_crmf
                 serialdecuser1_crmf[$i]=$decimal_valid_serialNumber_crmf
                 rlLog "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $newuserid --input $TmpDir/pki_user_cert_find-CA_validcert_0016pkcs10$i.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $newuserid --input $TmpDir/pki_user_cert_find-CA_validcert_0016pkcs10$i.pem  > $TmpDir/useraddcert__0016_$i.out" \
                             0 \
                             "Cert is added to the user $newuserid"
 
                 rlLog "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $newuserid --input $TmpDir/pki_user_cert_find-CA_validcert_0016crmf$i.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $newuserid --input $TmpDir/pki_user_cert_find-CA_validcert_0016crmf$i.pem  > $TmpDir/useraddcert__0016_$i.out" \
                             0 \
@@ -561,13 +658,17 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016-tier1: Find the certs of a 
         done
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $newuserid --start=1 --size=1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $newuserid --start=1 --size=1 > $TmpDir/pki_user_cert_find_ca_016.out" \
                     0 \
@@ -575,19 +676,21 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016-tier1: Find the certs of a 
         rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_016.out"
         rlAssertGrep "Number of entries returned 1" "$TmpDir/pki_user_cert_find_ca_016.out"
 	i=1
-	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[0]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid$i,E=$newuserid$i@example.org,CN=$newuserfullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_016.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser1_crmf[0]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid$i,E=$newuserid$i@example.org,CN=$newuserfullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_016.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_016.out"
         rlAssertGrep "Serial Number: ${serialhexuser1_crmf[0]}" "$TmpDir/pki_user_cert_find_ca_016.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_016.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_016.out"
         rlAssertGrep "Subject: UID=$newuserid$i,E=$newuserid$i@example.org,CN=$newuserfullname$i,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_016.out"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-del $newuserid"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-017: Find the certs of a user in CA --start=-1 --size=-1"
-	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --start=-1 --size=-1"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --start=-1 --size=-1"
         errmsg="The value for start and size should be greater than or equal to 0"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - the value for --size and --start should not be less than 0"
@@ -598,13 +701,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-018: Find the certs of a user in CA --start --size equal to page size - default page size=20 entries"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user2 --start=20 --size=20"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user2 --start=20 --size=20 > $TmpDir/pki_user_cert_find_ca_018.out" \
                     0 \
@@ -613,15 +720,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-018: Find the certs of a user i
         rlAssertGrep "Number of entries returned 4" "$TmpDir/pki_user_cert_find_ca_018.out"
 	i=10
         while [ $i -lt 12 ] ; do
-        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
+        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_018.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_018.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
-	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_018.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_018.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_018.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_018.out"
                 let i=$i+1
         done 
@@ -630,13 +737,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-019: Find the certs of a user in CA --start=0 --size greater than default page size - default page size=20 entries"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user2 --start=0 --size=22"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user2 --start=0 --size=22 > $TmpDir/pki_user_cert_find_ca_019.out" \
                     0 \
@@ -645,15 +756,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-019: Find the certs of a user i
         rlAssertGrep "Number of entries returned 22" "$TmpDir/pki_user_cert_find_ca_019.out"
         i=0
         while [ $i -lt 11 ] ; do
-        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
+        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_019.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_019.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
-	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
+	rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_019.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_019.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_019.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_019.out"
                 let i=$i+1
         done
@@ -662,13 +773,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-020: Find the certs of a user in CA --start - values greater than default page size --size=1"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user2 --start=22 --size=1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user2 --start=22 --size=1 > $TmpDir/pki_user_cert_find_ca_020.out" \
                     0 \
@@ -676,10 +791,10 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-020: Find the certs of a user i
         rlAssertGrep "$numcertsuser2 entries matched" "$TmpDir/pki_user_cert_find_ca_020.out"
         rlAssertGrep "Number of entries returned 1" "$TmpDir/pki_user_cert_find_ca_020.out"
         i=11
-        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_020.out"
+        rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_020.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_020.out"
         rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_020.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_020.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_020.out"
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_020.out"
 rlPhaseEnd
 
@@ -687,13 +802,17 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-021: Find the certs of a user in CA --start - values greater than default page size --size - value greater than the available number of certs from the start value"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user2 --start=40 --size=10"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user2 --start=22 --size=10 > $TmpDir/pki_user_cert_find_ca_021.out" \
                     0 \
@@ -702,15 +821,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-021: Find the certs of a user i
         rlAssertGrep "Number of entries returned 2" "$TmpDir/pki_user_cert_find_ca_021.out"
         i=11
 	while [ $i -lt 12 ] ; do
-        	rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
+        	rlAssertGrep "Cert ID: 2;${serialdecuser2[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
         	rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_021.out"
         	rlAssertGrep "Serial Number: ${serialhexuser2[$i]}" "$TmpDir/pki_user_cert_find_ca_021.out"
-        	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_021.out"
+        	rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_021.out"
         	rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
-		rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
+		rlAssertGrep "Cert ID: 2;${serialdecuser2_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_021.out"
                 rlAssertGrep "Serial Number: ${serialhexuser2_crmf[$i]}" "$TmpDir/pki_user_cert_find_ca_021.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_021.out"
+                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_021.out"
                 rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_021.out"
 
 		let i=$i+1
@@ -722,26 +841,32 @@ rlPhaseEnd
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to user - Subject Name has i18n Characters"
         k=22
 	cert_type="pkcs10"
-        rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname $cert_type" 0  "Generating temp cert"
+        rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix" 0  "Generating temp cert"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
         local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
         rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-cert-add $user1 --input $TmpDir/pki_user_cert_find-CA_validcert_0022pkcs10.pem  > $TmpDir/useraddcert__0022.out" \
                             0 \
                             "Cert is added to the user $user1"
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                               -t ca \
                                user-cert-find $user1"
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                    user-cert-find $user1 > $TmpDir/pki_user_cert_find_ca_022.out" \
                     0 \
@@ -751,16 +876,16 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to use
         rlAssertGrep "$numcertsuser1 entries matched" "$TmpDir/pki_user_cert_find_ca_022.out"
         rlAssertGrep "Number of entries returned $numcertsuser1" "$TmpDir/pki_user_cert_find_ca_022.out"
 
-        rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_022.out"
+        rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_022.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_find_ca_022.out"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$TmpDir/pki_user_cert_find_ca_022.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_find_ca_022.out"
+        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_find_ca_022.out"
         rlAssertGrep "Subject: UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_022.out"
 
         rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-023: Find the certs of a user as CA_agentV should fail"
-	command="pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a valid agent user"
@@ -768,7 +893,7 @@ rlPhaseEnd
 
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-024: Find the certs of a user as CA_auditorV should fail"
-	command="pki -d $CERTDB_DIR -n CA_auditorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a valid auditor user"
@@ -779,7 +904,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-025: Find the certs of a user a
 	rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-	command="pki -d $CERTDB_DIR -n CA_adminE -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 	errorcode=255
@@ -791,7 +916,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-026: Find the certs of a user a
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-	command="pki -d $CERTDB_DIR -n CA_agentE -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 	errorcode=255
@@ -800,21 +925,21 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-026: Find the certs of a user a
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-027: Find the certs of a user as CA_adminR should fail"
-	command="pki -d $CERTDB_DIR -n CA_adminR -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="PKIException: Unauthorized"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an admin user with a revoked cert"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-028: Find the certs of a user as CA_agentR should fail"
-	command="pki -d $CERTDB_DIR -n CA_agentR -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="PKIException: Unauthorized"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an agent user with a revoked cert"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-029: Find the certs of a user as CA_adminUTCA should fail"
-	command="pki -d $CERTDB_DIR -n CA_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_adminUTCA"
@@ -822,7 +947,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-029: Find the certs of a user a
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-030: Find the certs of a user as CA_agentUTCA should fail"
-	command="pki -d $CERTDB_DIR -n CA_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_agentUTCA"
@@ -830,14 +955,14 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-030: Find the certs of a user a
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-031: Find the certs of a user as CA_operatorV should fail"
-	command="pki -d $CERTDB_DIR -n CA_operatorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_operatorV"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-032: Find the certs of a user as a user not associated with any role, should fail"
-	command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a user not assigned to any role"
@@ -845,14 +970,14 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-032: Find the certs of a user a
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-033-tier1: Find the certs of a user missing User ID"
-        command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find"
+        command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find"
         errmsg="Error: No User ID specified."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when no User ID provided"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-034: Find the certs of a user missing User ID with --size and --start options"
-        command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-find --size=1 --start=1"
+        command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find --size=1 --start=1"
         errmsg="Error: No User ID specified."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when no User ID provided"
@@ -865,8 +990,10 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         while [ $j -lt 4 ] ; do
                eval usr=\$user$j
                rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del  $usr > $TmpDir/pki-user-del-ca-user-symbol-00$j.out" \
                            0 \
                            "Deleted user $usr"
@@ -880,5 +1007,3 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
     rlPhaseEnd
 
 }
-
-

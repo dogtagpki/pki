@@ -41,6 +41,32 @@
 # pki user-cert ran without any options should show all the command line options of pki cert
 run_pki-user-cert()
 {
+subsystemId=$1
+SUBSYSTEM_TYPE=$2
+MYROLE=$3
+
+if [ "$TOPO9" = "TRUE" ] ; then
+        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+        prefix=$subsystemId
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+elif [ "$MYROLE" = "MASTER" ] ; then
+        if [[ $subsystemId == SUBCA* ]]; then
+                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+                prefix=$subsystemId
+                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+        else
+                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                prefix=ROOTCA
+                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        fi
+else
+        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+        prefix=$MYROLE
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+fi
+
+SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+
 	rlPhaseStartSetup "Create Temporary Directory "
 	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
 	rlRun "pushd $TmpDir"

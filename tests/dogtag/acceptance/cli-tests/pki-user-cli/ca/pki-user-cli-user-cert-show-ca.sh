@@ -49,6 +49,31 @@
 ########################################################################
 
 run_pki-user-cli-user-cert-show-ca_tests(){
+ubsystemId=$1
+SUBSYSTEM_TYPE=$2
+MYROLE=$3
+
+if [ "$TOPO9" = "TRUE" ] ; then
+        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+        prefix=$subsystemId
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+elif [ "$MYROLE" = "MASTER" ] ; then
+        if [[ $subsystemId == SUBCA* ]]; then
+                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+                prefix=$subsystemId
+                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+        else
+                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                prefix=ROOTCA
+                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        fi
+else
+        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+        prefix=$MYROLE
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+fi
+
+SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 
 	##### Create temporary directory to save output files #####
     rlPhaseStartSetup "pki_user_cli_user_cert-show-ca-startup: Create temporary directory"
@@ -85,7 +110,7 @@ testname="pki_user_cert_show"
 	rlPhaseStartTest "pki_user_cli_user_cert-show-CA-002: Show certs assigned to a user - valid UserID and CertID"
                 k=2	
         	rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$user2fullname\" $user2"
 		cert_type="pkcs10"
@@ -102,57 +127,57 @@ testname="pki_user_cert_show"
                 decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
 
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                             user-cert-add $user2 --input $TmpDir/pki_user_cert_show-CA_validcert_002pkcs10.pem  > $TmpDir/pki_user_cert_show_CA_useraddcert_002.out" \
                             0 \
                             "Cert is added to the user $user2"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\""
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\""
 		rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_002.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_002.out" \
 			0 \
 			"Show cert assigned to $user2"
 
-		rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
-        	rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
+		rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
+        	rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
         	rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
         	rlAssertGrep "Serial Number: $cert_serialNumber_pkcs10" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
-        	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
+        	rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
         	rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_002.out"
 
 		rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                             user-cert-add $user2 --input $TmpDir/pki_user_cert_show-CA_validcert_002crmf.pem  > $TmpDir/pki_user_cert_show_CA_useraddcert_002crmf.out" \
                             0 \
                             "Cert is added to the user $user2"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\""
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\""
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out" \
                         0 \
                         "Show cert assigned to $user2"
 
-                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
+                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_crmf" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_002crmf.out"
 
 	rlPhaseEnd
@@ -161,12 +186,12 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-003: pki user-cert-show should fail if an invalid Cert ID is provided"
                 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '3;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '3;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
 	        errmsg="ResourceNotFoundException: No certificates found for $user2"
 		errorcode=255
         	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when an invalid Cert ID is provided"
 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '3;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '3;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user2"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when an invalid Cert ID is provided"
@@ -176,12 +201,12 @@ testname="pki_user_cert_show"
 	##### Show certs asigned to a user - User does not exist #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-004: pki user-cert-show should fail if a non-existing User ID is provided"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show testuser4 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show testuser4 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="UserNotFoundException: User testuser4 not found"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when a non existing user is provided"
 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show testuser4 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show testuser4 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="UserNotFoundException: User testuser4 not found"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when a non existing user is provided"
@@ -191,15 +216,15 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-005: pki user-cert-show should fail is there is a mismatch of User ID and Cert ID"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$user1fullname\" $user1"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user1"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when there is a Cert ID and User ID mismatch"
 		
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user1"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when there is a Cert ID and User ID mismatch"
@@ -208,7 +233,7 @@ testname="pki_user_cert_show"
 	##### Show certs asigned to a user - no User ID #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-006-tier1: pki user-cert-show should fail if User ID is not provided"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;50;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=u16,E=u16@example.org,CN=New User1,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;50;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=u16,E=u16@example.org,CN=New User1,OU=Engineering,O=Example,C=US'"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when User ID is not provided"
@@ -220,15 +245,15 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-007-tier1: pki user-cert-show should fail if Cert ID is not provided"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"New User1\" u16"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show u16"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show u16"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when Cert ID is not provided"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-del u16"
 		rlLog "FAIL: https://fedorahosted.org/pki/ticket/967"
@@ -238,22 +263,22 @@ testname="pki_user_cert_show"
 
 	rlPhaseStartTest "pki_user_cli_user_cert-show-CA-008: Show certs assigned to a user - --encoded option - Valid Cert ID and User ID"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded"
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
 			   -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded > $TmpDir/pki_user_cert_show_CA_usershowcert_008.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded > $TmpDir/pki_user_cert_show_CA_usershowcert_008.out" \
                         0 \
                         "Show cert assigned to user - --encoded option"
-		rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
+		rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_pkcs10" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
 
 		rlLog "$(cat $TmpDir/pki_user_cert_show_CA_usershowcert_008.out | grep Subject | awk -F":" '{print $2}')"
@@ -261,22 +286,22 @@ testname="pki_user_cert_show"
 		rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded"
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded > $TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded > $TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out" \
                         0 \
                         "Show cert assigned to user - --encoded option"
-                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
+                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_crmf" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
 
 	        rlLog "$(cat $TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out | grep Subject | awk -F":" '{print $2}')"
@@ -287,12 +312,12 @@ testname="pki_user_cert_show"
 	  ##### Show certs asigned to a user - --encoded option - no User ID #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-009: pki user-cert-show should fail if User ID is not provided with --encoded option"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --encoded"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --encoded"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when User ID is not provided"
 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --encoded"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --encoded"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when User ID is not provided"
@@ -303,7 +328,7 @@ testname="pki_user_cert_show"
         ##### Show certs asigned to a user - no Cert ID #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0010: pki user-cert-show should fail if Cert ID is not provided with --encoded option"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when Cert ID is not provided"
@@ -315,61 +340,61 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0011: Show certs assigned to a user - --output <file> option - Valid Cert ID, User ID and file"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output.out"
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output.out"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
 			   -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output.out > $TmpDir/pki_user_cert_show_CA_usershowcert_0011.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output.out > $TmpDir/pki_user_cert_show_CA_usershowcert_0011.out" \
                         0 \
                         "Show cert assigned to user - --output <file> option"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output.out"
         	rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output.out"
 		rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usercertshow_output.out -noout -serial 1> $TmpDir/temp_out-openssl" 0 "Run openssl to verify PEM output"
         rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl"
-	rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
+	rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_pkcs10" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out"
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out > $TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out > $TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out" \
                         0 \
                         "Show cert assigned to user - --output <file> option"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out"
                 rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
         rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf"
-        rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
+        rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_crmf" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
         rlPhaseEnd
 
 	##### Show certs asigned to a user - --output <file> option - no User ID #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0012: pki user-cert-show should fail if User ID is not provided with --output <file> option"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output $TmpDir/user_cert_show_output0012"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output $TmpDir/user_cert_show_output0012"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when User ID is not provided"
 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output $TmpDir/user_cert_show_output0012"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output $TmpDir/user_cert_show_output0012"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when User ID is not provided"
@@ -380,7 +405,7 @@ testname="pki_user_cert_show"
         ##### Show certs asigned to a user - --output <file> option - no Cert ID #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0013: pki user-cert-show should fail if Cert ID is not provided with --output <file> option"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1 --output $TmpDir/user_cert_show_output0013"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1 --output $TmpDir/user_cert_show_output0013"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when Cert ID is not provided"
@@ -391,12 +416,12 @@ testname="pki_user_cert_show"
 	##### Show certs asigned to a user - --output <file> option - Directory does not exist #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0014: pki user-cert-show should fail if --output <file> directory does not exist"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output /tmp/tmpDir/user_cert_show_output0014"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output /tmp/tmpDir/user_cert_show_output0014"
                 errmsg="FileNotFoundException: /tmp/tmpDir/user_cert_show_output0014 (No such file or directory)"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when output file does not exist"
 		
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output /tmp/tmpDir/user_cert_show_output0014"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output /tmp/tmpDir/user_cert_show_output0014"
                 errmsg="FileNotFoundException: /tmp/tmpDir/user_cert_show_output0014 (No such file or directory)"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when output file does not exist"
@@ -406,7 +431,7 @@ testname="pki_user_cert_show"
 	##### Show certs asigned to a user - --output <file> option - without <file> argument #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0015: pki user-cert-show should fail if --output option file argument is not provided"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --output"
                 errmsg="Error: Missing argument for option: output"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when output option does not have an argument"
@@ -416,22 +441,22 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0016: Show certs assigned to a user - --pretty option - Valid Cert ID, User ID"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty"
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
 			   -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty > $TmpDir/pki_user_cert_show_CA_usershowcert_0016.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty > $TmpDir/pki_user_cert_show_CA_usershowcert_0016.out" \
                         0 \
                         "Show cert assigned to user - --pretty option"
-		rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
+		rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_pkcs10" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
 		rlAssertGrep "Signature Algorithm" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
 		rlAssertGrep "Validity" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
@@ -440,22 +465,22 @@ testname="pki_user_cert_show"
 		rlAssertGrep "Signature" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016.out"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty"
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty > $TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --pretty > $TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out" \
                         0 \
                         "Show cert assigned to user - --pretty option"
-                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
+                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_crmf" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
                 rlAssertGrep "Signature Algorithm" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
                 rlAssertGrep "Validity" "$TmpDir/pki_user_cert_show_CA_usershowcert_0016crmf.out"
@@ -468,12 +493,12 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0017: pki user-cert-show should fail if User ID is not provided with --pretty option"
 		rlLog "$user2"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --pretty"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --pretty"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when User ID is not provided"
 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --pretty"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' --pretty"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when User ID is not provided"
@@ -484,7 +509,7 @@ testname="pki_user_cert_show"
         ##### Show certs asigned to a user - --pretty option - no Cert ID #####
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0018: pki user-cert-show should fail if Cert ID is not provided with --pretty option"
-		 command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1 --pretty"
+		 command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user1 --pretty"
                 errmsg="Error: Incorrect number of arguments specified."
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when Cert ID is not provided"
@@ -499,7 +524,7 @@ testname="pki_user_cert_show"
 		newuserid=newuser
 		newuserfullname="New User"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-add --fullName=\"$newuserfullname\" $newuserid"
                 cert_type="pkcs10"
@@ -516,29 +541,29 @@ testname="pki_user_cert_show"
                 decimal_valid_serialNumber_crmf_new=$(echo "ibase=16;$CONV_UPP_VAL_CRMF_new"|bc)
 
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                             user-cert-add $newuserid --input $TmpDir/pki_user_cert_show-CA_validcert_0019pkcs10.pem  > $TmpDir/pki_user_cert_show_CA_useraddcert_0019.out" \
                             0 \
                             "Cert is added to the user $user2"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $newuserid \"2;$decimal_valid_serialNumber_pkcs10_new;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\" --encoded --pretty --output $TmpDir/user_cert_show_output0019"
+                            user-cert-show $newuserid \"2;$decimal_valid_serialNumber_pkcs10_new;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\" --encoded --pretty --output $TmpDir/user_cert_show_output0019"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
 			   -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $newuserid \"2;$decimal_valid_serialNumber_pkcs10_new;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\" --encoded --pretty --output $TmpDir/user_cert_show_output0019 > $TmpDir/pki_user_cert_show_CA_usershowcert_0019.out" \
+                            user-cert-show $newuserid \"2;$decimal_valid_serialNumber_pkcs10_new;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\" --encoded --pretty --output $TmpDir/user_cert_show_output0019 > $TmpDir/pki_user_cert_show_CA_usershowcert_0019.out" \
                         0 \
                         "Show cert assigned to user - --pretty, --output and --encoded options"
-		rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10_new;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10_new;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
+		rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10_new;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10_new;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_pkcs10_new" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
                 rlAssertGrep "Subject: UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
                 rlAssertGrep "Signature Algorithm" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
                 rlAssertGrep "Validity" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
@@ -553,7 +578,7 @@ testname="pki_user_cert_show"
                 rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10_new" "$TmpDir/temp_out-openssl"
 		
 		rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                             user-cert-add $newuserid --input $TmpDir/pki_user_cert_show-CA_validcert_0019crmf.pem  > $TmpDir/pki_user_cert_show_CA_useraddcert_0019crmf.out" \
@@ -561,22 +586,22 @@ testname="pki_user_cert_show"
                             "Cert is added to the user $newuserid"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $newuserid \"2;$decimal_valid_serialNumber_crmf_new;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\" --encoded --pretty --output $TmpDir/user_cert_show_output0019crmf"
+                            user-cert-show $newuserid \"2;$decimal_valid_serialNumber_crmf_new;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\" --encoded --pretty --output $TmpDir/user_cert_show_output0019crmf"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $newuserid \"2;$decimal_valid_serialNumber_crmf_new;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\" --encoded --pretty --output $TmpDir/user_cert_show_output0019crmf > $TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out" \
+                            user-cert-show $newuserid \"2;$decimal_valid_serialNumber_crmf_new;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\" --encoded --pretty --output $TmpDir/user_cert_show_output0019crmf > $TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out" \
                         0 \
                         "Show cert assigned to user - --pretty, --output and --encoded options"
-                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf_new;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf_new;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
+                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf_new;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf_new;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_crmf_new" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
                 rlAssertGrep "Subject: UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
                 rlAssertGrep "Signature Algorithm" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
                 rlAssertGrep "Validity" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
@@ -590,7 +615,7 @@ testname="pki_user_cert_show"
                 rlRun "openssl x509 -in $TmpDir/user_cert_show_output0019crmf -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
                 rlAssertGrep "serial=$CONV_UPP_VAL_CRMF_new" "$TmpDir/temp_out-openssl_crmf"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                             user-del $newuserid"
         rlPhaseEnd
@@ -599,12 +624,12 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0020: Show certs assigned to a user - as CA_agentV should fail"
 		rlLog "$user2"
-		command="pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_agentV"
 
-		command="pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_agentV"
@@ -613,11 +638,11 @@ testname="pki_user_cert_show"
 	##### Show certs asigned to a user - as CA_auditorV ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0021: Show certs assigned to a user - as CA_auditorV should fail"
-		command="pki -d $CERTDB_DIR -n CA_auditorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_auditorV"
-		command="pki -d $CERTDB_DIR -n CA_auditorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_auditorV"
@@ -632,12 +657,12 @@ testname="pki_user_cert_show"
 		rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-		command="pki -d $CERTDB_DIR -n CA_adminE -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_adminE"
 
-		command="pki -d $CERTDB_DIR -n CA_adminE -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_adminE"
@@ -650,12 +675,12 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0023: pki user-cert-show should fail if an incomplete Cert ID is provided"
 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user2"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when an incomplete Cert ID is provided"
 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user2"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when an incomplete Cert ID is provided"
@@ -669,12 +694,12 @@ testname="pki_user_cert_show"
                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-		command="pki -d $CERTDB_DIR -n CA_agentE -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_agentE"
 
-		command="pki -d $CERTDB_DIR -n CA_agentE -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_agentE"
@@ -686,12 +711,12 @@ testname="pki_user_cert_show"
        ##### Show certs asigned to a user - as CA_adminR ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0025: Show certs assigned to a user - as CA_adminR should fail"
-		command="pki -d $CERTDB_DIR -n CA_adminR -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="PKIException: Unauthorized"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_adminR"
 
-		command="pki -d $CERTDB_DIR -n CA_adminR -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="PKIException: Unauthorized"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_adminR"
@@ -701,12 +726,12 @@ testname="pki_user_cert_show"
        ##### Show certs asigned to a user - as CA_agentR ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0026: Show certs assigned to a user - as CA_agentR should fail"
-		command="pki -d $CERTDB_DIR -n CA_agentR -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="PKIException: Unauthorized"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_agentR"
 
-		command="pki -d $CERTDB_DIR -n CA_agentR -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="PKIException: Unauthorized"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_agentR"
@@ -716,12 +741,12 @@ testname="pki_user_cert_show"
         ##### Show certs asigned to a user - as CA_adminUTCA ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0027: Show certs assigned to a user - as CA_adminUTCA should fail"
-		command="pki -d $CERTDB_DIR -n CA_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_adminUTCA"
 
-		command="pki -d $CERTDB_DIR -n CA_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_adminUTCA"
@@ -732,12 +757,12 @@ testname="pki_user_cert_show"
 	##### Show certs asigned to a user - as CA_agentUTCA ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0028: Show certs assigned to a user - as CA_agentUTCA should fail"
-		command="pki -d $CERTDB_DIR -n CA_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_agentUTCA"
 
-		command="pki -d $CERTDB_DIR -n CA_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_agentUTCA"
@@ -748,12 +773,12 @@ testname="pki_user_cert_show"
         ##### Show certs asigned to a user - as CA_operatorV ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0029: Show certs assigned to a user - as CA_operatorV should fail"
-		command="pki -d $CERTDB_DIR -n CA_operatorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_operatorV"
 
-		command="pki -d $CERTDB_DIR -n CA_operatorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_operatorV"
@@ -764,22 +789,22 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0030: Show certs assigned to a user - --encoded and --output options - Valid Cert ID, User ID and file"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded --output $TmpDir/user_cert_show_output0030"
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded --output $TmpDir/user_cert_show_output0030"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded --output $TmpDir/user_cert_show_output0030 > $TmpDir/pki_user_cert_show_CA_usershowcert_0030.out 2>&1" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded --output $TmpDir/user_cert_show_output0030 > $TmpDir/pki_user_cert_show_CA_usershowcert_0030.out 2>&1" \
                         0 \
                         "Show cert assigned to user - --output and --encoded options"
-                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
+                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_pkcs10" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
@@ -789,22 +814,22 @@ testname="pki_user_cert_show"
 	        rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded --output $TmpDir/user_cert_show_output0030crmf"
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded --output $TmpDir/user_cert_show_output0030crmf"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded --output $TmpDir/user_cert_show_output0030crmf > $TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --encoded --output $TmpDir/user_cert_show_output0030crmf > $TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out" \
                         0 \
                         "Show cert assigned to user - --output and --encoded options"
-                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
-                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
+                rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
+                rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
                 rlAssertGrep "Serial Number: $cert_serialNumber_crmf" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
-                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
+                rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
@@ -818,12 +843,12 @@ testname="pki_user_cert_show"
         ##### Show certs asigned to a user - as a user not associated with any role##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0031: Show certs assigned to a user - as as a user not associated with any role, should fail"
-		command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as $user1"
 
-		command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as $user1"
@@ -835,7 +860,7 @@ testname="pki_user_cert_show"
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0032: Show certs assigned to a user - switch position of the required options"
                 
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' $user2"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-show '2;$decimal_valid_serialNumber_crmf;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US' $user2"
                 errmsg="User Not Found"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when options are switched position"
@@ -854,29 +879,29 @@ rlPhaseStartTest "pki_user_cli_user_cert-show-CA-033: Show certs assigned to use
         local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
         local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
         rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_adminV \
+                           -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                             user-cert-add $user1 --input $TmpDir/pki_user_cert_show-CA_validcert_0033pkcs10.pem  > $TmpDir/pki_user_cert_show_CA_useraddcert_0033.out" \
                             0 \
                             "Cert is added to the user $user1"
-	rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_useraddcert_0033.out"
+	rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_useraddcert_0033.out"
         rlLog "Executing: pki -d $CERTDB_DIR/ \
-                              -n CA_adminV \
+                              -n ${prefix}_adminV \
                               -c $CERTDB_DIR_PASSWORD \
                               -t ca \
-                               user-cert-show $user1 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\""
+                               user-cert-show $user1 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\""
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
                    -t ca \
-                   user-cert-show $user1 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_ca_0033.out" \
+                   user-cert-show $user1 \"2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_ca_0033.out" \
                     0 \
                     "Show certs assigned to $user1 with i18n chars"
-	rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033.out"
+	rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain;UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_ca_0033.out"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$TmpDir/pki_user_cert_show_ca_0033.out"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_ca_0033.out"
+        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=${prefix}_DOMAIN Security Domain" "$TmpDir/pki_user_cert_show_ca_0033.out"
         rlAssertGrep "Subject: UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033.out"
 
 	
@@ -890,7 +915,7 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         while [ $j -lt 3 ] ; do
                eval usr=\$user$j
                rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
                            user-del  $usr > $TmpDir/pki-user-del-ca-user-symbol-00$j.out" \
                            0 \
@@ -905,5 +930,3 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
     rlPhaseEnd
 
 }
-
-

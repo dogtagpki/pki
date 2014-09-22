@@ -59,6 +59,33 @@ run_pki-user-cli-user-show-ca_tests(){
     user5=abc@
     user6=abc?
     user7=0
+subsystemId=$1
+SUBSYSTEM_TYPE=$2
+MYROLE=$3
+
+if [ "$TOPO9" = "TRUE" ] ; then
+        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+        prefix=$subsystemId
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+elif [ "$MYROLE" = "MASTER" ] ; then
+        if [[ $subsystemId == SUBCA* ]]; then
+                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+                prefix=$subsystemId
+                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+        else
+                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                prefix=ROOTCA
+                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        fi
+else
+        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+        prefix=$MYROLE
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+fi
+
+SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+untrusted_cert_db_location=$UNTRUSTED_CERT_DB_LOCATION
+untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 
     rlPhaseStartSetup "pki_user_cli_user_show-ca-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -75,20 +102,26 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseEnd
 
      ##### Tests to show CA users ####
-    rlPhaseStartTest "pki_user_cli_user_show-CA-001: Add user to CA using CA_adminV and show user"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-001: Add user to CA using ${prefix}_adminV and show user"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=\"$user1fullname\" $user1" \
 		    0 \
-                    "Add user $user1 using CA_adminV"
+                    "Add user $user1 using ${prefix}_adminV"
         rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user1"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user1 > $TmpDir/pki-user-show-ca-001.out" \
 		    0 \
 		    "Show user $user1"
@@ -100,14 +133,18 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseStartTest "pki_user_cli_user_show-CA-002: maximum length of user id"
 	user2=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user2" \
 		    0 \
-                    "Add user $user2 using CA_adminV"
+                    "Add user $user2 using ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user2 > $TmpDir/pki-user-show-ca-001_1.out" \
                     0 \
                     "Show $user2 user"
@@ -125,14 +162,18 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-003: User id with # character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user3" \
 		    0 \
-                    "Add user $user3 using CA_adminV"
+                    "Add user $user3 using ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user3 > $TmpDir/pki-user-show-ca-001_2.out" \
                     0 \
                     "Show $user3 user"
@@ -143,14 +184,18 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-004: User id with $ character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user4" \
 		    0 \
-                    "Add user $user4 using CA_adminV"
+                    "Add user $user4 using ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user4 > $TmpDir/pki-user-show-ca-001_3.out" \
                     0 \
                     "Show $user4 user"
@@ -161,14 +206,18 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-005: User id with @ character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user5" \
                     0 \
-                    "Add $user5 using CA_adminV"
+                    "Add $user5 using ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user5 > $TmpDir/pki-user-show-ca-001_4.out" \
                     0 \
                     "Show $user5 user"
@@ -179,14 +228,18 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-006: User id with ? character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user6" \
                     0 \
-                    "Add $user6 using CA_adminV"
+                    "Add $user6 using ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user6 > $TmpDir/pki-user-show-ca-001_5.out" \
                     0 \
                     "Show $user6 user"
@@ -197,14 +250,18 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-007: User id as 0"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user7" \
                     0 \
-                    "Add user $user7 using CA_adminV"
+                    "Add user $user7 using ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user7 > $TmpDir/pki-user-show-ca-001_6.out" \
                     0 \
                     "Show user $user7"
@@ -216,14 +273,18 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseStartTest "pki_user_cli_user_show-CA-008: --email with maximum length"
 	email=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=\"$email\" u1" \
 		    0 \
-		    "Added user using CA_adminV with maximum --email length"
+		    "Added user using ${prefix}_adminV with maximum --email length"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u1 > $TmpDir/pki-user-show-ca-001_7.out" \
                     0 \
                     "Show user u1"
@@ -242,14 +303,18 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseStartTest "pki_user_cli_user_show-CA-009: --email with maximum length and symbols"
 	email=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email='$email'  u2" \
 		    0 \
-		    "Added user using CA_adminV with maximum --email length and character symbols in it"
+		    "Added user using ${prefix}_adminV with maximum --email length and character symbols in it"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u2 > $TmpDir/pki-user-show-ca-001_8.out" \
                     0 \
                     "Show user u2"
@@ -267,14 +332,18 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-010: --email with # character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=#  u3" \
                     0 \
-                    "Add user u3 using pki CA_adminV"
+                    "Add user u3 using pki ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u3 > $TmpDir/pki-user-show-ca-001_9.out" \
 		     0 \
                     "Add user u3"
@@ -286,17 +355,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-011: --email with * character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=*  u4" \
 		    0 \
-                    "Add user u4 using pki CA_adminV"
+                    "Add user u4 using pki ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u4 > $TmpDir/pki-user-show-ca-001_10.out" \
                     0 \
-                    "Show user u4 using CA_adminV"
+                    "Show user u4 using ${prefix}_adminV"
         rlAssertGrep "User \"u4\"" "$TmpDir/pki-user-show-ca-001_10.out"
         rlAssertGrep "User ID: u4" "$TmpDir/pki-user-show-ca-001_10.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_10.out"
@@ -305,17 +378,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-012: --email with $ character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=$  u5" \
 		    0 \
-                    "Add user u5 using pki CA_adminV"
+                    "Add user u5 using pki ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u5 > $TmpDir/pki-user-show-ca-001_11.out" \
                     0 \
-                    "Show user u5 using CA_adminV"
+                    "Show user u5 using ${prefix}_adminV"
         rlAssertGrep "User \"u5\"" "$TmpDir/pki-user-show-ca-001_11.out"
         rlAssertGrep "User ID: u5" "$TmpDir/pki-user-show-ca-001_11.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_11.out"
@@ -324,17 +401,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-013: --email as number 0"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=0  u6" \
 		    0 \
-                    "Add user u6 using pki CA_adminV"
+                    "Add user u6 using pki ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u6 > $TmpDir/pki-user-show-ca-001_12.out" \
                     0 \
-                    "Show user u6 using CA_adminV"
+                    "Show user u6 using ${prefix}_adminV"
         rlAssertGrep "User \"u6\"" "$TmpDir/pki-user-show-ca-001_12.out"
         rlAssertGrep "User ID: u6" "$TmpDir/pki-user-show-ca-001_12.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_12.out"
@@ -344,17 +425,21 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseStartTest "pki_user_cli_user_show-CA-014: --state with maximum length"
 	state=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=\"$state\" u7 " \
 		    0 \
-                    "Add user u7 using pki CA_adminV with maximum --state length"
+                    "Add user u7 using pki ${prefix}_adminV with maximum --state length"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u7 > $TmpDir/pki-user-show-ca-001_13.out" \
                     0 \
-                    "Show user u7 using CA_adminV"
+                    "Show user u7 using ${prefix}_adminV"
         rlAssertGrep "User \"u7\"" "$TmpDir/pki-user-show-ca-001_13.out"
         rlAssertGrep "User ID: u7" "$TmpDir/pki-user-show-ca-001_13.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_13.out"
@@ -370,17 +455,21 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseStartTest "pki_user_cli_user_show-CA-015: --state with maximum length and symbols"
 	state=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state='$state' u8" \
 		    0 \
-                    "Add user u8 using pki CA_adminV with maximum --state length and symbols"
+                    "Add user u8 using pki ${prefix}_adminV with maximum --state length and symbols"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u8 > $TmpDir/pki-user-show-ca-001_14.out" \
                     0 \
-                    "Show user u8 using CA_adminV"
+                    "Show user u8 using ${prefix}_adminV"
         rlAssertGrep "User \"u8\"" "$TmpDir/pki-user-show-ca-001_14.out"
         rlAssertGrep "User ID: u8" "$TmpDir/pki-user-show-ca-001_14.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_14.out"
@@ -395,17 +484,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-016: --state with # character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=#  u9" \
 		    0 \
-                    "Added user using CA_adminV with --state # character"
+                    "Added user using ${prefix}_adminV with --state # character"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u9 > $TmpDir/pki-user-show-ca-001_15.out" \
                     0 \
-                    "Show user u9 using CA_adminV"
+                    "Show user u9 using ${prefix}_adminV"
         rlAssertGrep "User \"u9\"" "$TmpDir/pki-user-show-ca-001_15.out"
         rlAssertGrep "User ID: u9" "$TmpDir/pki-user-show-ca-001_15.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_15.out"
@@ -414,17 +507,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-017: --state with * character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=*  u10" \
 		    0 \
-                    "Adding user using CA_adminV with --state * character"
+                    "Adding user using ${prefix}_adminV with --state * character"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u10 > $TmpDir/pki-user-show-ca-001_16.out" \
                     0 \
-                    "Show user u10 using CA_adminV"
+                    "Show user u10 using ${prefix}_adminV"
         rlAssertGrep "User \"u10\"" "$TmpDir/pki-user-show-ca-001_16.out"
         rlAssertGrep "User ID: u10" "$TmpDir/pki-user-show-ca-001_16.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_16.out"
@@ -433,17 +530,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-018: --state with $ character"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=$  u11" \
 		    0 \
-                    "Adding user using CA_adminV with --state $ character"
+                    "Adding user using ${prefix}_adminV with --state $ character"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u11 > $TmpDir/pki-user-show-ca-001_17.out" \
                     0 \
-                    "Show user u11 using CA_adminV"
+                    "Show user u11 using ${prefix}_adminV"
         rlAssertGrep "User \"u11\"" "$TmpDir/pki-user-show-ca-001_17.out"
         rlAssertGrep "User ID: u11" "$TmpDir/pki-user-show-ca-001_17.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_17.out"
@@ -452,17 +553,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-019: --state as number 0"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=0  u12" \
 		    0 \
-                    "Adding user using CA_adminV with --state 0"
+                    "Adding user using ${prefix}_adminV with --state 0"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u12 > $TmpDir/pki-user-show-ca-001_18.out" \
                     0 \
-                    "Show pki CA_adminV user"
+                    "Show pki ${prefix}_adminV user"
         rlAssertGrep "User \"u12\"" "$TmpDir/pki-user-show-ca-001_18.out"
         rlAssertGrep "User ID: u12" "$TmpDir/pki-user-show-ca-001_18.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_18.out"
@@ -473,17 +578,21 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseStartTest "pki_user_cli_user_show-CA-020: --phone with maximum length"
 	phone=`cat /dev/urandom | tr -dc '0-9' | fold -w 2048 | head -n 1`
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --phone=\"$phone\" u13" \
 		    0 \
-                    "Adding user using CA_adminV with maximum --phone length"
+                    "Adding user using ${prefix}_adminV with maximum --phone length"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u13 > $TmpDir/pki-user-show-ca-001_19.out" \
                     0 \
-                    "Show user u13 using CA_adminV"
+                    "Show user u13 using ${prefix}_adminV"
         rlAssertGrep "User \"u13\"" "$TmpDir/pki-user-show-ca-001_19.out"
         rlAssertGrep "User ID: u13" "$TmpDir/pki-user-show-ca-001_19.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_19.out"
@@ -492,17 +601,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-021: --phone as negative number -1230"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --phone=-1230  u14" \
 		    0 \
-                    "Adding user using CA_adminV with --phone as negative number -1230"
+                    "Adding user using ${prefix}_adminV with --phone as negative number -1230"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u14 > $TmpDir/pki-user-show-ca-001_24.out" \
                     0 \
-                    "Show user u14 using CA_adminV"
+                    "Show user u14 using ${prefix}_adminV"
         rlAssertGrep "User \"u14\"" "$TmpDir/pki-user-show-ca-001_24.out"
         rlAssertGrep "User ID: u14" "$TmpDir/pki-user-show-ca-001_24.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_24.out"
@@ -511,17 +624,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-022: --type as Auditors"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=Auditors u15" \
 		    0 \
-                    "Adding user using CA_adminV with --type as Auditors"
+                    "Adding user using ${prefix}_adminV with --type as Auditors"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u15 > $TmpDir/pki-user-show-ca-001_25.out" \
                     0 \
-                    "Show user u15 using CA_adminV"
+                    "Show user u15 using ${prefix}_adminV"
         rlAssertGrep "User \"u15\"" "$TmpDir/pki-user-show-ca-001_25.out"
         rlAssertGrep "User ID: u15" "$TmpDir/pki-user-show-ca-001_25.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_25.out"
@@ -530,17 +647,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-023: --type Certificate Manager Agents"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Certificate Manager Agents\" u16" \
 		    0 \
-                    "Adding user using CA_adminV with --type Certificate Manager Agents"
+                    "Adding user using ${prefix}_adminV with --type Certificate Manager Agents"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u16 > $TmpDir/pki-user-show-ca-001_26.out" \
                     0 \
-                    "Show user u16 using CA_adminV"
+                    "Show user u16 using ${prefix}_adminV"
         rlAssertGrep "User \"u16\"" "$TmpDir/pki-user-show-ca-001_26.out"
         rlAssertGrep "User ID: u16" "$TmpDir/pki-user-show-ca-001_26.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_26.out"
@@ -549,17 +670,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-024: --type Registration Manager Agents"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Registration Manager Agents\"  u17" \
 		    0 \
-                    "Adding user using CA_adminV with --type Registration Manager Agents"
+                    "Adding user using ${prefix}_adminV with --type Registration Manager Agents"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u17 > $TmpDir/pki-user-show-ca-001_27.out" \
                     0 \
-                    "Show user u17 using CA_adminV"
+                    "Show user u17 using ${prefix}_adminV"
         rlAssertGrep "User \"u17\"" "$TmpDir/pki-user-show-ca-001_27.out"
         rlAssertGrep "User ID: u17" "$TmpDir/pki-user-show-ca-001_27.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_27.out"
@@ -568,17 +693,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-025: --type Subsytem Group"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Subsytem Group\"  u18" \
 		     0 \
-                    "Adding user using CA_adminV with --type Subsytem Group"
+                    "Adding user using ${prefix}_adminV with --type Subsytem Group"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u18 > $TmpDir/pki-user-show-ca-001_28.out" \
                     0 \
-                    "Show user u18 using CA_adminV"
+                    "Show user u18 using ${prefix}_adminV"
         rlAssertGrep "User \"u18\"" "$TmpDir/pki-user-show-ca-001_28.out"
         rlAssertGrep "User ID: u18" "$TmpDir/pki-user-show-ca-001_28.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_28.out"
@@ -587,17 +716,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-026: --type Security Domain Administrators"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Security Domain Administrators\" u19" \
 		    0 \
-                    "Adding user using CA_adminV with --type Security Domain Administrators"
+                    "Adding user using ${prefix}_adminV with --type Security Domain Administrators"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u19 > $TmpDir/pki-user-show-ca-001_29.out" \
                     0 \
-                    "Show user u19 using CA_adminV"
+                    "Show user u19 using ${prefix}_adminV"
         rlAssertGrep "User \"u19\"" "$TmpDir/pki-user-show-ca-001_29.out"
         rlAssertGrep "User ID: u19" "$TmpDir/pki-user-show-ca-001_29.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_29.out"
@@ -606,17 +739,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-027: --type ClonedSubsystems"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=ClonedSubsystems u20" \
 		    0 \
-		    "Adding user using CA_adminV with --type ClonedSubsystems"
+		    "Adding user using ${prefix}_adminV with --type ClonedSubsystems"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u20 > $TmpDir/pki-user-show-ca-001_30.out" \
                     0 \
-                    "Show user u20 using CA_adminV"
+                    "Show user u20 using ${prefix}_adminV"
         rlAssertGrep "User \"u20\"" "$TmpDir/pki-user-show-ca-001_30.out"
         rlAssertGrep "User ID: u20" "$TmpDir/pki-user-show-ca-001_30.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_30.out"
@@ -625,17 +762,21 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-028: --type Trusted Managers"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Trusted Managers\" u21" \
 		    0 \
-                    "Adding user using CA_adminV with --type Trusted Managers"
+                    "Adding user using ${prefix}_adminV with --type Trusted Managers"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u21 > $TmpDir/pki-user-show-ca-001_31.out" \
                     0 \
-                    "Show user u21 using CA_adminV"
+                    "Show user u21 using ${prefix}_adminV"
         rlAssertGrep "User \"u21\"" "$TmpDir/pki-user-show-ca-001_31.out"
         rlAssertGrep "User ID: u21" "$TmpDir/pki-user-show-ca-001_31.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_31.out"
@@ -644,19 +785,23 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-029: Show user with -t ca option"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-add --fullName=\"$user1fullname\"  u22" \
 		    0 \
-                    "Adding user u22 using CA_adminV"
+                    "Adding user u22 using ${prefix}_adminV"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-show u22 > $TmpDir/pki-user-show-ca-001_32.out" \
                     0 \
-                    "Show user u22 using CA_adminV"
+                    "Show user u22 using ${prefix}_adminV"
         rlAssertGrep "User \"u22\"" "$TmpDir/pki-user-show-ca-001_32.out"
         rlAssertGrep "User ID: u22" "$TmpDir/pki-user-show-ca-001_32.out"
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-show-ca-001_32.out"
@@ -669,8 +814,10 @@ run_pki-user-cli-user-show-ca_tests(){
         state="NC"
         type="Administrators"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-add --fullName=\"$user1fullname\"  \
                     --email $email \
@@ -680,14 +827,16 @@ run_pki-user-cli-user-show-ca_tests(){
                     --type $type \
                      u23" \
 		    0 \
-                    "Adding user u23 using CA_adminV" 
+                    "Adding user u23 using ${prefix}_adminV" 
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-show u23 > $TmpDir/pki-user-show-ca-001_33.out" \
                     0 \
-                    "Show user u23 using CA_adminV"
+                    "Show user u23 using ${prefix}_adminV"
         rlAssertGrep "User \"u23\"" "$TmpDir/pki-user-show-ca-001_33.out"
         rlAssertGrep "User ID: u23" "$TmpDir/pki-user-show-ca-001_33.out"
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-show-ca-001_33.out"
@@ -699,7 +848,7 @@ run_pki-user-cli-user-show-ca_tests(){
 
     #Negative Cases
     rlPhaseStartTest "pki_user_cli_user_show-CA-031: Missing required option user id"
-	command="pki -d $CERTDB_DIR  -n CA_adminV  -c $CERTDB_DIR_PASSWORD -t ca user-show" 
+	command="pki -d $CERTDB_DIR  -n ${prefix}_adminV  -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -t ca user-show" 
         rlLog "Executing $command"
         errmsg="Error: No User ID specified."
         errorcode=255
@@ -708,8 +857,10 @@ run_pki-user-cli-user-show-ca_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-032: Checking if user id case sensitive "
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-show U23 > $TmpDir/pki-user-show-ca-001_35.out 2>&1" \
                     0 \
@@ -723,44 +874,44 @@ run_pki-user-cli-user-show-ca_tests(){
         rlAssertGrep "State: $state" "$TmpDir/pki-user-show-ca-001_35.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-033: Should not be able to show user using a revoked cert CA_adminR"
-        command="pki -d $CERTDB_DIR -n CA_adminR -c $CERTDB_DIR_PASSWORD user-show u23"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-033: Should not be able to show user using a revoked cert ${prefix}_adminR"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a admin having revoked cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-034: Should not be able to show user using a agent with revoked cert CA_agentR"
-        command="pki -d $CERTDB_DIR  -n CA_agentR -c $CERTDB_DIR_PASSWORD user-show u23"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-034: Should not be able to show user using a agent with revoked cert ${prefix}_agentR"
+        command="pki -d $CERTDB_DIR  -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a agent having revoked cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-035: Should not be able to show user using a valid agent CA_agentV user"
-        command="pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD user-show u23"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-035: Should not be able to show user using a valid agent ${prefix}_agentV user"
+        command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
-        errmsg="ForbiddenException: Authorization failed"
+        errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a agent cert"
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-036: Should not be able to show user using a CA_agentR user"
-        command="pki -d $CERTDB_DIR -n CA_agentR -c $CERTDB_DIR_PASSWORD user-show u23"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-036: Should not be able to show user using a ${prefix}_agentR user"
+	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a revoked agent cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-037: Should not be able to show user using admin user with expired cert CA_adminE"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-037: Should not be able to show user using admin user with expired cert ${prefix}_adminE"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
-        command="pki -d $CERTDB_DIR -n CA_adminE -c $CERTDB_DIR_PASSWORD user-show u23"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="PKIException: Unauthorized"
         errorcode=255
@@ -769,11 +920,11 @@ run_pki-user-cli-user-show-ca_tests(){
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-038: Should not be able to show user using CA_agentE cert"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-038: Should not be able to show user using ${prefix}_agentE cert"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
-        command="pki -d $CERTDB_DIR -n CA_agentE -c $CERTDB_DIR_PASSWORD user-show u23"
+        command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="PKIException: Unauthorized"
         errorcode=255
@@ -782,32 +933,36 @@ run_pki-user-cli-user-show-ca_tests(){
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-039: Should not be able to show user using a CA_auditV"
-        command="pki -d $CERTDB_DIR -n CA_auditV -c $CERTDB_DIR_PASSWORD user-show u23"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-039: Should not be able to show user using a ${prefix}_auditV"
+        command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
-        errmsg="ForbiddenException: Authorization failed"
+        errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a audit cert"
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-040: Should not be able to show user using a CA_operatorV"
-        command="pki -d $CERTDB_DIR -n CA_operatorV -c $CERTDB_DIR_PASSWORD user-show u23"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-040: Should not be able to show user using a ${prefix}_operatorV"
+        command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
-        errmsg="ForbiddenException: Authorization failed"
+        errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a operator cert"
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-041: Should not be able to show user using a cert created from a untrusted CA CA_adminUTCA"
-        rlLog "Executing: pki -d /tmp/untrusted_cert_db \
-                   -n CA_adminUTCA \
-                   -c Password \
+    rlPhaseStartTest "pki_user_cli_user_show-CA-041: Should not be able to show user using a cert created from a untrusted CA ${prefix}_adminUTCA"
+        rlLog "Executing: pki -d $untrusted_cert_db_location \
+                   -n ${prefix}_adminUTCA \
+                   -c $untrusted_cert_db_password \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23"
-        rlRun "pki -d /tmp/untrusted_cert_db \
-                   -n CA_adminUTCA \
-                   -c Password \
+        rlRun "pki -d $untrusted_cert_db_location \
+                   -n ${prefix}_adminUTCA \
+                   -c $untrusted_cert_db_password \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-adminUTCA-002.out 2>&1" \
                     255 \
                     "Should not be able to show user u23 using a untrusted cert"
@@ -822,30 +977,32 @@ run_pki-user-cli-user-show-ca_tests(){
         local valid_serialNumber
         local temp_out="$TmpDir/usercert-show.out"
         rlRun "create_cert_request $TEMP_NSS_DB Password pkcs10 rsa 2048 \"pki User1\" \"pkiUser1\" \
-                \"pkiuser1@example.org\" \"Engineering\" \"Example.Inc\" "US" "--" "ret_reqstatus" "ret_requestid"" 0 "Generating  pkcs10 Certificate Request"
-        rlLog "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
+                \"pkiuser1@example.org\" \"Engineering\" \"Example.Inc\" "US" "--" "ret_reqstatus" "ret_requestid" $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT)" 0 "Generating  pkcs10 Certificate Request"
+        rlLog "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"${prefix}_agentV\" -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-cert-request-review $ret_requestid \
                 --action approve 1"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
+        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"${prefix}_agentV\" -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-cert-request-review $ret_requestid \
                 --action approve 1> $TmpDir/pki-approve-out" 0 "Approve Certificate requeset"
         rlAssertGrep "Approved certificate request $ret_requestid" "$TmpDir/pki-approve-out"
-        rlLog "pki cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
-        rlRun "pki cert-request-show $ret_requestid > $TmpDir/usercert-show1.out"
+        rlLog "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-request-show $ret_requestid > $TmpDir/usercert-show1.out"
         valid_serialNumber=`cat $TmpDir/usercert-show1.out | grep 'Certificate ID' | sed 's/ //g' | cut -d: -f2`
         rlLog "valid_serialNumber=$valid_serialNumber"
         #Import user certs to $TEMP_NSS_DB
-        rlRun "pki cert-show $valid_serialNumber --encoded > $temp_out" 0 "command pki cert-show $valid_serialNumber --encoded"
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $valid_serialNumber --encoded > $temp_out" 0 "command pki cert-show $valid_serialNumber --encoded"
         rlRun "certutil -d $TEMP_NSS_DB -A -n pkiUser1 -i $temp_out  -t "u,u,u""
         local expfile="$TmpDir/expfile_pkiuser1.out"
         rlLog "Executing: pki -d $TEMP_NSS_DB \
                    -n pkiUser1 \
                    -c Password \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
-        echo "spawn -noecho pki -d $TEMP_NSS_DB -n pkiUser1 -c Password user-show u13" > $expfile
-        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$CA_DOMAIN Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain'
+        echo "spawn -noecho pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $TEMP_NSS_DB -n pkiUser1 -c Password user-show u13" > $expfile
+        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$(eval echo \$${prefix}_DOMAIN) Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$(eval echo \$${prefix}_DOMAIN) Security Domain'
 Import CA certificate (Y/n)? \"" >> $expfile
         echo "send -- \"Y\r\"" >> $expfile
-        echo "expect \"CA server URI \[http://$HOSTNAME:$CA_UNSECURE_PORT/ca\]: \"" >> $expfile
-        echo "send -- \"\r\"" >> $expfile
+        echo "expect \"CA server URI \[http://$HOSTNAME:8080/ca\]: \"" >> $expfile
+        echo "send -- \"http://$HOSTNAME:$(eval echo \$${prefix}_UNSECURE_PORT)/ca\r\"" >> $expfile
         echo "expect eof" >> $expfile
 	echo "catch wait result" >> $expfile
         echo "exit [lindex \$result 3]" >> $expfile
@@ -856,33 +1013,43 @@ Import CA certificate (Y/n)? \"" >> $expfile
     rlPhaseStartTest "pki_user_cli_user_show-CA-043: user id length exceeds maximum limit defined in the schema"
         user_length_exceed_max=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10000 | head -n 1`
         rlLog "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show  \"$user_length_exceed_max\""
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show \"$user_length_exceed_max\" > $TmpDir/pki-user-show-ca-001_50.out 2>&1" \
                     255 \
-                    "Show user using CA_adminV with user id length exceed maximum defined in ldap schema"
+                    "Show user using ${prefix}_adminV with user id length exceed maximum defined in ldap schema"
         rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-show-ca-001_50.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-044: user id with i18n characters"
         rlLog "user-add userid ÖrjanÄke with i18n characters"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test 'ÖrjanÄke' > $TmpDir/pki-user-show-ca-001_56.out 2>&1" \
                     0 \
                     "Adding uid ÖrjanÄke with i18n characters"
 	rlLog "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show 'ÖrjanÄke'"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show 'ÖrjanÄke' > $TmpDir/pki-user-show-ca-001_56_2.out" \
                     0 \
                     "Show user 'ÖrjanÄke'"
@@ -893,18 +1060,24 @@ Import CA certificate (Y/n)? \"" >> $expfile
     rlPhaseStartTest "pki_user_cli_user_show-CA-045: userid with i18n characters"
         rlLog "user-add userid ÉricTêko with i18n characters"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test 'ÉricTêko' > $TmpDir/pki-user-show-ca-001_57.out 2>&1" \
                     0 \
                     "Adding user id ÉricTêko with i18n characters"
 	rlLog "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show 'ÉricTêko'"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show 'ÉricTêko' > $TmpDir/pki-user-show-ca-001_57_2.out" \
                     0 \
                     "Show user 'ÉricTêko'"
@@ -913,27 +1086,31 @@ Import CA certificate (Y/n)? \"" >> $expfile
     rlPhaseEnd 
 
     rlPhaseStartTest "pki_user_cli_user_cleanup-046: Deleting the temp directory and users"
-	del_user=($CA_adminV_user $CA_adminR_user $CA_adminE_user $CA_adminUTCA_user $CA_agentV_user $CA_agentR_user $CA_agentE_user $CA_agentUTCA_user $CA_auditV_user $CA_operatorV_user)
+	del_user=(${prefix}_adminV_user ${prefix}_adminR_user ${prefix}_adminE_user ${prefix}_adminUTCA_user ${prefix}_agentV_user ${prefix}_agentR_user ${prefix}_agentE_user ${prefix}_agentUTCA_user ${prefix}_auditV_user ${prefix}_operatorV_user)
 
-        #===Deleting users created using CA_adminV cert===#
+        #===Deleting users created using ${prefix}_adminV cert===#
         i=1
         while [ $i -lt 24 ] ; do
                rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del  u$i > $TmpDir/pki-user-del-ca-user-00$i.out" \
                            0 \
                            "Deleted user  u$i"
                 rlAssertGrep "Deleted user \"u$i\"" "$TmpDir/pki-user-del-ca-user-00$i.out"
                 let i=$i+1
         done
-        #===Deleting users(symbols) created using CA_adminV cert===#
+        #===Deleting users(symbols) created using ${prefix}_adminV cert===#
         j=1
         while [ $j -lt 8 ] ; do
                eval usr=\$user$j
                rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del  $usr > $TmpDir/pki-user-del-ca-user-symbol-00$j.out" \
                            0 \
                            "Deleted user $usr"
@@ -941,18 +1118,22 @@ Import CA certificate (Y/n)? \"" >> $expfile
                 let j=$j+1
         done
 
-	#===Deleting i18n users created using CA_adminV cert===#
+	#===Deleting i18n users created using ${prefix}_adminV cert===#
         rlRun "pki -d $CERTDB_DIR \
-                -n CA_adminV \
+                -n ${prefix}_adminV \
                 -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                 user-del 'ÖrjanÄke' > $TmpDir/pki-user-del-ca-user-i18n_1.out" \
                 0 \
                 "Deleted user ÖrjanÄke"
         rlAssertGrep "Deleted user \"ÖrjanÄke\"" "$TmpDir/pki-user-del-ca-user-i18n_1.out"
 
         rlRun "pki -d $CERTDB_DIR \
-                -n CA_adminV \
+                -n ${prefix}_adminV \
                 -c $CERTDB_DIR_PASSWORD \
+ 		   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                 user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-user-i18n_2.out" \
                 0 \
                 "Deleted user ÉricTêko"

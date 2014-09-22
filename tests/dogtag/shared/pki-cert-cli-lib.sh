@@ -76,17 +76,21 @@ local country="${11}"
 local profilename="${12}"
 local request_status="${13}"
 local request_id="${14}"
-local cert_subject="${15}"
+local cert_subject="${17}"
+local host="${15}"
+local port="${16}"
 local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+local prefix="${18}"
 
 #### First we create  NSS Database
-
+	rlLog "In create_cert"
 	if [ -d "$dir" ]
 	then
 		rlLog "$dir Directory exists"
 	else
 		rlLog "Creating Security Database"
-		rlRun "pki -d $dir -c $password client-init" 0 "Initializing Security Database"
+		rlLog "pki -d $dir -c $password -h $host -p $port client-init" 0 "Initializing Security Database"
+		rlRun "pki -d $dir -c $password -h $host -p $port client-init" 0 "Initializing Security Database"
 		RETVAL=$?
 		if  [ $RETVAL != 0 ]; then
 		  rlFail "FAIL :: NSS Database was not created"
@@ -129,6 +133,7 @@ local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 	fi
 
 	if [ "$request_type" == "pkcs10" ];then
+		rlLog "PKCS10Client -p $password -d $dir -a $algo -l $key_size -o $dir/$cert_request_file -n \"$subject\""
 		rlRun "PKCS10Client -p $password -d $dir -a $algo -l $key_size -o $dir/$cert_request_file -n \"$subject\" 1> $dir/pkcs10.out" 0 "Generating PKCS10 Request for $subject"
 		RETVAL=$?
 		if [ $RETVAL != 0 ]; then
@@ -137,12 +142,14 @@ local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 		fi
 	fi
 	if [ "$request_type" == "crmf" ] && [ "$profilename" != "caDualCert" ];then
-		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
 		rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+		rlLog "Executing java -cp"
+		rlLog "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $dir/$cert_request_file 1> $dir/crmf.out"
 		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $dir/$cert_request_file 1> $dir/crmf.out" 0 "Execute generateCRMFRequest to generate CRMF Request"
 	fi
 	if [ "$request_type" == "crmf" ] && [ "$profilename" == "caDualCert" ];then
-		rlRun "cat $CA_SERVER_ROOT/conf/CS.cfg | grep ca.connector.KRA.transportCert | awk -F \"=\" '{print \$2}' > transport.txt" 0 "Get Transport Cert"
+		rlRun "cat $(eval echo \$${prefix}_SERVER_ROOT)/conf/CS.cfg | grep ca.connector.KRA.transportCert | awk -F \"=\" '{print \$2}' > transport.txt" 0 "Get Transport Cert"
 		rlRun "CRMFPopClient -d $dir -p $password -o $dir/$cert_request_file -n \"$subject\" -a $algo -l $key_size -u $uid -r $uid 1> $dir/CRMFPopClient.out" 0 "Executing CRMFPopClient"
 		RETVAL=$?
 		if [ $RETVAL != 0 ]; then
@@ -173,7 +180,7 @@ local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 	local xml_profile_file=$dir/$cert_request_file_$profilename.xml
 
 	rlLog "Getting the $profilename XML file to submit the request"
-	rlRun "pki -d $dir -c $password cert-request-profile-show $profilename --output $xml_profile_file"
+	rlRun "pki -d $dir -c $password -h $host -p $port cert-request-profile-show $profilename --output $xml_profile_file"
 	pid=$!
 	wait $pid
 	if [ $? != 0 ]; then
@@ -212,7 +219,7 @@ local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 #### submit the request to CA 
 
 	rlLog "Submit PKCS10 Request to CA"
-	rlRun "pki -d $dir -c $password cert-request-submit $xml_profile_file >> $dir/$cert_request_file_sumbit" 0 "Submit Request"
+	rlRun "pki -d $dir -c $password -h $host -p $port cert-request-submit $xml_profile_file >> $dir/$cert_request_file_sumbit" 0 "Submit Request"
 	RETVAL=$?
         if [ $RETVAL != 0 ]; then
                 rlFail "We have some problem getting $profile xml"
@@ -226,7 +233,7 @@ local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 	eval "$request_id"="'$REQUEST_ID'"		
 	rlLog "Request id : $request_id"
 	eval "$cert_subject"="'$subject'"
-	return 0 
+	return 0
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 ##############################
@@ -479,23 +486,30 @@ submit_new_request(){
 }
 generate_user_cert()
 {
-                local reqstatus
-                local requestid
-                local requestdn
-                local CERT_INFO="$1"
-                local file_no="$2"
-                local user_id="$3"
-                local userfullname="$4"
-                local ext=".out"
-                local cert_ext=".pem"
-                local req_email="$5"
-                local num="$8"
-                local file_name="$6"
-                local cert_type="$7"
-                local TEMP_NSS_DB="$TmpDir/nssdb"
-                        rlRun "create_cert_request $TEMP_NSS_DB redhat123 $cert_type rsa 2048 \"$userfullname\" \"$user_id\" "$req_email" "Engineering" "Example" "US" "--" "reqstatus" "requestid" "requestdn""
+	local reqstatus
+        local requestid
+        local requestdn
+        local CERT_INFO="$1"
+        local file_no="$2"
+        local user_id="$3"
+        local userfullname="$4"
+        local ext=".out"
+        local cert_ext=".pem"
+        local req_email="$5"
+        local num="${11}"
+        local file_name="$6"
+        local cert_type="$7"
+	local host="${8}"
+	local port="${9}"
+	local prefix="${10}"
+        local TEMP_NSS_DB="$TmpDir/nssdb"
+		rlLog "In generate user cert"
+	
+		rlLog "create_cert_request $TEMP_NSS_DB redhat123 $cert_type rsa 2048 \"$userfullname\" \"$user_id\" "$req_email" "Engineering" "Example" "US" "--" "reqstatus" "requestid" $host $port "requestdn" $prefix"
 
-                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext" 0 "Executing pki cert-request-show $requestid"
+                        rlRun "create_cert_request $TEMP_NSS_DB redhat123 $cert_type rsa 2048 \"$userfullname\" \"$user_id\" "$req_email" "Engineering" "Example" "US" "--" "reqstatus" "requestid" $host $port "requestdn" $prefix"
+
+                rlRun "pki -h $host -p $port cert-request-show $requestid > $TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext" 0 "Executing pki cert-request-show $requestid"
                 rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
                 rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
                 rlAssertGrep "Status: pending" "$TmpDir/$file_name-CA_certrequestshow_00$file_no$cert_type$num$ext"
@@ -503,19 +517,23 @@ generate_user_cert()
 
                 #Agent Approve the certificate after reviewing the cert for the user
                 rlLog "Executing: pki -d $CERTDB_DIR/ \
-                                      -n CA_agentV \
+                                      -n ${prefix}_agentV \
+				      -h $host \
+				      -p $port \
                                       -c $CERTDB_DIR_PASSWORD \
                                       -t ca \
                                       cert-request-review --action=approve $requestid"
                 rlRun "pki -d $CERTDB_DIR/ \
-                           -n CA_agentV \
+                           -n ${prefix}_agentV \
+				-h $host \
+			     -p $port \
                            -c $CERTDB_DIR_PASSWORD \
                            -t ca \
                            cert-request-review --action=approve $requestid > $TmpDir/$file_name-CA_certapprove_00$file_no$cert_type$num$ext" \
                            0 \
                            "CA agent approve the cert"
                 rlAssertGrep "Approved certificate request $requestid" "$TmpDir/$file_name-CA_certapprove_00$file_no$cert_type$num$ext"
-                rlRun "pki cert-request-show $requestid > $TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext" 0 "Executing pki cert-request-show $requestid"
+                rlRun "pki -h $host -p $port cert-request-show $requestid > $TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext" 0 "Executing pki cert-request-show $requestid"
                 rlAssertGrep "Request ID: $requestid" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
                 rlAssertGrep "Type: enrollment" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
                 rlAssertGrep "Status: complete" "$TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext"
@@ -523,7 +541,7 @@ generate_user_cert()
                 local certificate_serial_number=`cat $TmpDir/$file_name-CA_certapprovedshow_00$file_no$cert_type$num$ext | grep "Certificate ID:" | awk '{print $3}'`
                 rlLog "Cerificate Serial Number=$certificate_serial_number"
                 #Verify the certificate is valid
-                rlRun "pki cert-show  $certificate_serial_number --encoded > $TmpDir/$file_name-CA_certificate_show_00$file_no$cert_type$num$ext" 0 "Executing pki cert-show $certificate_serial_number"
+                rlRun "pki -h $host -p $port cert-show  $certificate_serial_number --encoded > $TmpDir/$file_name-CA_certificate_show_00$file_no$cert_type$num$ext" 0 "Executing pki cert-show $certificate_serial_number"
 
                 rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/$file_name-CA_certificate_show_00$file_no$cert_type$num$ext > $TmpDir/$file_name-CA_validcert_00$file_no$cert_type$num$cert_ext"
                  rlRun "certutil -d $TEMP_NSS_DB -A -n \"$user_id-$cert_type\" -i $TmpDir/$file_name-CA_validcert_00$file_no$cert_type$num$cert_ext  -t "u,u,u""

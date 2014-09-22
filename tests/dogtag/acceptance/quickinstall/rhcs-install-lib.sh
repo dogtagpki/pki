@@ -158,7 +158,7 @@ rhcs_install_RootCA() {
 		echo "pki_security_manager=$SECURITY_MANAGER" >> $INSTANCECFG
 
                 ROOTCA_DOMAIN=`hostname -d`
-		echo "export CA_DOMAIN=$ROOTCA_DOMAIN" >> /opt/rhqa_pki/env.sh
+		echo "export ROOTCA_DOMAIN=$ROOTCA_DOMAIN" >> /opt/rhqa_pki/env.sh
 		cat $INSTANCECFG
 		rlLog "EXECUTING: pkispawn -s CA -f $INSTANCECFG -v "
 		rlRun "pkispawn -s CA -f $INSTANCECFG -v > $INSTANCE_CREATE_OUT  2>&1"
@@ -804,7 +804,7 @@ rhcs_install_SubCA(){
                 echo "pki_enable_access_log=$ENABLE_ACCESS_LOG" >> $INSTANCECFG
                 echo "pki_enable_java_debugger=$ENABLE_JAVA_DEBUG" >> $INSTANCECFG
                 echo "pki_security_manager=$SECURITY_MANAGER" >> $INSTANCECFG
-                echo "export DOMAIN=$(eval echo \$SUBCA${number}_DOMAIN)" >> /opt/rhqa_pki/env.sh
+                echo "export SUBCA${number}_DOMAIN=$(eval echo \$SUBCA${number}_DOMAIN)" >> /opt/rhqa_pki/env.sh
                 cat $INSTANCECFG
 
                 rlLog "EXECUTING: pkispawn -s CA -f $INSTANCECFG -v "
