@@ -75,39 +75,13 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
     public LDAPConfigStore(
         ILdapConnFactory dbFactory,
         String dn, LDAPAttribute[] createAttrs, String attr
-    ) throws EBaseException {
+    ) {
         super(null);  // top-level store without a name
 
         this.dbFactory = dbFactory;
         this.dn = dn;
         this.createAttrs = createAttrs;
         this.attr = attr;
-
-        LDAPConnection conn = dbFactory.getConn();
-
-        String[] readAttrs = {attr};
-        try {
-            LDAPEntry ldapEntry = conn.read(dn, readAttrs);
-
-            Enumeration<String> vals = ldapEntry.getAttribute(attr).getStringValues();
-            InputStream data = new ByteArrayInputStream(vals.nextElement().getBytes());
-            load(data);
-        } catch (LDAPException e) {
-            // if there is no such object, we will create it on commit()
-            if (e.getLDAPResultCode() != LDAPException.NO_SUCH_OBJECT) {
-                throw new EBaseException(
-                    "Error reading LDAPConfigStore '"
-                    + dn + "': " + e.toString()
-                );
-            }
-        } catch (IOException e) {
-            throw new EBaseException(
-                "Error reading LDAPConfigStore '"
-                + dn + "': " + e.toString()
-            );
-        } finally {
-            dbFactory.returnConn(conn);
-        }
     }
 
     @Override

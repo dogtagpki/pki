@@ -17,15 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.profile;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.Thread;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.controls.LDAPEntryChangeControl;
+import netscape.ldap.controls.LDAPPersistSearchControl;
+import netscape.ldap.util.DN;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -42,10 +51,13 @@ import com.netscape.cmscore.base.LDAPConfigStore;
 
 public class LDAPProfileSubsystem
         extends AbstractProfileSubsystem
-        implements IProfileSubsystem {
+        implements IProfileSubsystem, Runnable {
 
     private String dn;
     private ILdapConnFactory dbFactory;
+
+    private boolean stopped = false;
+    private Thread monitor;
 
     /**
      * Initializes this subsystem with the given configuration
@@ -65,9 +77,6 @@ public class LDAPProfileSubsystem
         mProfiles = new Hashtable<String, IProfile>();
         mProfileClassIds = new Hashtable<String, String>();
 
-        IPluginRegistry registry = (IPluginRegistry)
-                CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
-
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         dbFactory = CMS.getLdapBoundConnFactory();
@@ -85,60 +94,57 @@ public class LDAPProfileSubsystem
 
         // read profile id, implementation, and its configuration files
         String basedn = cs.getString("internaldb.basedn");
-        String dn = "ou=certificateProfiles,ou=ca," + basedn;
-        LDAPConnection conn = dbFactory.getConn();
+        dn = "ou=certificateProfiles,ou=ca," + basedn;
 
-        String[] attrs = {"cn", "classId"};
-        try {
-            LDAPSearchResults ldapProfiles = conn.search(
-                dn, LDAPConnection.SCOPE_ONE, "(objectclass=*)", attrs, false);
+        monitor = new Thread(this, "profileChangeMonitor");
+        monitor.start();
+    }
 
-            while (ldapProfiles.hasMoreElements()) {
-                String id = "<unknown>";
-                try {
-                    LDAPEntry ldapProfile = ldapProfiles.next();
+    /**
+     * Read the given LDAPEntry into the profile subsystem.
+     */
+    private void readProfile(LDAPEntry ldapProfile) {
+        IPluginRegistry registry = (IPluginRegistry)
+            CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
-                    id = (String)
-                        ldapProfile.getAttribute("cn").getStringValues().nextElement();
+        String profileId = (String)
+            ldapProfile.getAttribute("cn").getStringValues().nextElement();
 
-                    String classid = (String)
-                        ldapProfile.getAttribute("classId").getStringValues().nextElement();
+        String classId = (String)
+            ldapProfile.getAttribute("classId").getStringValues().nextElement();
 
-                    IPluginInfo info = registry.getPluginInfo("profile", classid);
-                    if (info == null) {
-                        CMS.debug("Error loading profile: No plugins for type : profile, with id " + classid);
-                    } else {
-                        CMS.debug("Start Profile Creation - " + id + " " + classid + " " + info.getClassName());
-                        createProfile(id, classid, info.getClassName());
-                        CMS.debug("Done Profile Creation - " + id);
-                    }
-                } catch (LDAPException e) {
-                    CMS.debug("Error reading profile '" + id + "'; skipping.");
-                }
-            }
-        } catch (LDAPException e) {
-            throw new EBaseException("Error reading profiles: " + e.toString());
-        } finally {
+        Enumeration<String> vals =
+            ldapProfile.getAttribute("certProfileConfig").getStringValues();
+        InputStream data = new ByteArrayInputStream(vals.nextElement().getBytes());
+
+        IPluginInfo info = registry.getPluginInfo("profile", classId);
+        if (info == null) {
+            CMS.debug("Error loading profile: No plugins for type : profile, with classId " + classId);
+        } else {
             try {
-                dbFactory.returnConn(conn);
-            } catch (Exception e) {
-                throw new EProfileException("Error releasing the ldap connection" + e.toString());
+                CMS.debug("Start Profile Creation - " + profileId + " " + classId + " " + info.getClassName());
+                createProfile(profileId, classId, info.getClassName(), data);
+                CMS.debug("Done Profile Creation - " + profileId);
+            } catch (EProfileException e) {
+                CMS.debug("Error creating profile '" + profileId + "'; skipping.");
             }
         }
+    }
 
-        Enumeration<String> ee = getProfileIds();
-
-        while (ee.hasMoreElements()) {
-            String id = ee.nextElement();
-
-            CMS.debug("Registered Confirmation - " + id);
-        }
+    public synchronized IProfile createProfile(String id, String classid, String className)
+            throws EProfileException {
+        return createProfile(id, classid, className, null);
     }
 
     /**
      * Creates a profile instance.
+     *
+     * createProfile could theoretically be called simultaneously
+     * with the same profileId from Monitor and ProfileService,
+     * so the method is synchronized.
      */
-    public IProfile createProfile(String id, String classid, String className)
+    private synchronized IProfile createProfile(
+            String id, String classid, String className, InputStream data)
             throws EProfileException {
         try {
             String[] objectClasses = {"top", "certProfile"};
@@ -150,12 +156,15 @@ public class LDAPProfileSubsystem
 
             IConfigStore subStoreConfig = new LDAPConfigStore(
                 dbFactory, createProfileDN(id), createAttrs, "certProfileConfig");
+            if (data != null)
+                subStoreConfig.load(data);
 
             CMS.debug("LDAPProfileSubsystem: initing " + className);
             IProfile profile = (IProfile) Class.forName(className).newInstance();
             profile.setId(id);
             profile.init(this, subStoreConfig);
-            mProfileIds.addElement(id);
+            if (!mProfiles.containsKey(id))
+                mProfileIds.addElement(id);
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);
             return profile;
@@ -187,9 +196,39 @@ public class LDAPProfileSubsystem
             }
         }
 
+        forgetProfile(id);
+    }
+
+    private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) {
+        DN profilesDN = new DN(dn);
+
+        if (oldDN.isDescendantOf(profilesDN))
+            forgetProfile(oldDN.explodeDN(true)[0]);
+
+        if ((new DN(entry.getDN())).isDescendantOf(profilesDN))
+            readProfile(entry);
+    }
+
+    /**
+     * Forget a profile without deleting it from the database.
+     *
+     * This method is used when the profile change monitor receives
+     * notification that a profile was deleted.
+     */
+    private void forgetProfile(String id) {
         mProfileIds.removeElement(id);
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
+    }
+
+    private void forgetProfile(LDAPEntry entry) {
+        String profileId = (String)
+            entry.getAttribute("cn").getStringValues().nextElement();
+        if (profileId == null) {
+            CMS.debug("forgetProfile: error retrieving cn (profileId) from LDAPEntry");
+        } else {
+            forgetProfile(profileId);
+        }
     }
 
     /**
@@ -205,6 +244,12 @@ public class LDAPProfileSubsystem
      * <P>
      */
     public void shutdown() {
+        stopped = true;
+        monitor = null;
+        forgetAllProfiles();
+    }
+
+    private void forgetAllProfiles() {
         mProfileIds.clear();
         mProfiles.clear();
         mProfileClassIds.clear();
@@ -217,12 +262,93 @@ public class LDAPProfileSubsystem
         if (id == null) {
             throw new EProfileException("CMS_PROFILE_ID_NOT_FOUND");
         }
-        String basedn;
-        try {
-            basedn = CMS.getConfigStore().getString("internaldb.basedn");
-        } catch (EBaseException e) {
-            throw new EProfileException("CMS_PROFILE_DELETE_UNKNOWNPROFILE");
+        return "cn=" + id + "," + dn;
+    }
+
+    public void run() {
+        int op = LDAPPersistSearchControl.ADD
+            | LDAPPersistSearchControl.MODIFY
+            | LDAPPersistSearchControl.DELETE
+            | LDAPPersistSearchControl.MODDN;
+        LDAPPersistSearchControl persistCtrl =
+            new LDAPPersistSearchControl(op, false, true, true);
+
+        LDAPConnection conn;
+
+        CMS.debug("Profile change monitor: starting.");
+
+        while (!stopped) {
+            forgetAllProfiles();
+            try {
+                conn = dbFactory.getConn();
+            } catch (ELdapException e) {
+                CMS.debug("Profile change monitor: failed to get LDAPConnection. Retrying in 1 second.");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+                continue;
+            }
+            try {
+                LDAPSearchConstraints cons = conn.getSearchConstraints();
+                cons.setServerControls(persistCtrl);
+                cons.setBatchSize(1);
+                cons.setServerTimeLimit(0 /* seconds */);
+                LDAPSearchResults results = conn.search(
+                    dn, LDAPConnection.SCOPE_ONE, "(objectclass=*)",
+                    null, false, cons);
+                while (!stopped && results.hasMoreElements()) {
+                    LDAPEntry entry = results.next();
+                    LDAPEntryChangeControl changeControl = null;
+                    LDAPControl[] changeControls = results.getResponseControls();
+                    if (changeControls != null) {
+                        for (LDAPControl control : changeControls) {
+                            if (control instanceof LDAPEntryChangeControl) {
+                                changeControl = (LDAPEntryChangeControl) control;
+                                break;
+                            }
+                        }
+                    }
+                    CMS.debug("Profile change monitor: Processed change controls.");
+                    if (changeControl != null) {
+                        int changeType = changeControl.getChangeType();
+                        switch (changeType) {
+                        case LDAPPersistSearchControl.ADD:
+                            CMS.debug("Profile change monitor: ADD");
+                            readProfile(entry);
+                            break;
+                        case LDAPPersistSearchControl.DELETE:
+                            CMS.debug("Profile change monitor: DELETE");
+                            forgetProfile(entry);
+                            break;
+                        case LDAPPersistSearchControl.MODIFY:
+                            CMS.debug("Profile change monitor: MODIFY");
+                            readProfile(entry);
+                            break;
+                        case LDAPPersistSearchControl.MODDN:
+                            CMS.debug("Profile change monitor: MODDN");
+                            handleMODDN(new DN(changeControl.getPreviousDN()), entry);
+                            break;
+                        default:
+                            CMS.debug("Profile change monitor: unknown change type: " + changeType);
+                            break;
+                        }
+                    } else {
+                        CMS.debug("Profile change monitor: immediate result");
+                        readProfile(entry);
+                    }
+                }
+            } catch (LDAPException e) {
+                CMS.debug("Profile change monitor: Caught exception: " + e.toString());
+            } finally {
+                try {
+                    dbFactory.returnConn(conn);
+                } catch (Exception e) {
+                    CMS.debug("Profile change monitor: Error releasing the LDAPConnection" + e.toString());
+                }
+            }
         }
-        return "cn=" + id + ",ou=certificateProfiles,ou=ca," + basedn;
+        CMS.debug("Profile change monitor: stopping.");
     }
 }
