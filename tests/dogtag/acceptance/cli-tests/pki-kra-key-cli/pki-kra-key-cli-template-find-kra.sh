@@ -36,7 +36,7 @@
 . /usr/share/beakerlib/beakerlib.sh
 . /opt/rhqa_pki/env.sh
 
-run_pki-kra-kra-key-template-find-kra_tests()
+run_pki-kra-key-template-find-kra_tests()
 {
 	rlPhaseStartSetup "Create Temporary Directory"
 	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -51,7 +51,7 @@ run_pki-kra-kra-key-template-find-kra_tests()
 	rlAssertGrep "    --help   Show help options" "$temp_out"
 	rlPhaseEnd
 	
-	rlPhaseStartTest "pki_key_template_find-001: Run pki kra-key-template-find to display all the key archival templates"
+	rlPhaseStartTest "pki_kra_key_template_find-001: Run pki kra-key-template-find to display all the key archival templates"
 	local temp_out1="$TmpDir/pki_key_template_find_001"
 	rlLog "Executing pki kra-key-template-find"
 	rlRun "pki kra-key-template-find 1> $temp_out1" 
