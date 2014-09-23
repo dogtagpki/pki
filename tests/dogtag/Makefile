@@ -53,7 +53,7 @@ run: $(FILES) build
 	cp ./shared/build.xml /opt/rhqa_pki/.
 	chmod a+x /opt/rhqa_pki/*.sh
 	rm -f /opt/rhqa_pki/jars/pki-qe-tools.jar
-	cp  ./shared/pki-qe-tools.jar /opt/rhqa_pki/jars/
+	cp  ./shared/jars/pki-qe-tools.jar /opt/rhqa_pki/jars/
 	rm -f /opt/rhqa_pki/pki-auth-plugin-lib.sh
 	cp ./shared/pki-auth-plugin-lib.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/pki-config-lib.sh
