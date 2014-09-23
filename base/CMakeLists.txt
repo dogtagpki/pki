@@ -44,8 +44,3 @@ if (APPLICATION_FLAVOR_PKI_CONSOLE)
     add_subdirectory(test)
     add_subdirectory(console)
 endif (APPLICATION_FLAVOR_PKI_CONSOLE)
-
-if (APPLICATION_FLAVOR_PKI_MIGRATE)
-    add_subdirectory(test)
-    add_subdirectory(migrate)
-endif (APPLICATION_FLAVOR_PKI_MIGRATE)

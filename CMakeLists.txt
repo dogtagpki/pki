@@ -25,8 +25,6 @@ elseif (BUILD_PKI_CORE)
     set(APPLICATION_FLAVOR_PKI_CORE TRUE)
 elseif (BUILD_PKI_CONSOLE)
     set(APPLICATION_FLAVOR_PKI_CONSOLE TRUE)
-elseif (BUILD_PKI_MIGRATE)
-    set(APPLICATION_FLAVOR_PKI_MIGRATE TRUE)
 endif ()
 
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
@@ -61,10 +59,9 @@ add_custom_target(test)
 
 # search for libraries
 
-# required for all PKI components EXCEPT Theme-based components and PKI_MIGRATE
+# required for all PKI components EXCEPT Theme-based components
 if (NOT APPLICATION_FLAVOR_DOGTAG_PKI_THEME   AND
-    NOT APPLICATION_FLAVOR_REDHAT_PKI_THEME   AND
-    NOT APPLICATION_FLAVOR_PKI_MIGRATE)
+    NOT APPLICATION_FLAVOR_REDHAT_PKI_THEME)
     find_package(NSPR REQUIRED)
     find_package(NSS REQUIRED)
 endif ()
@@ -72,8 +69,7 @@ endif ()
 # ONLY required for Java-based PKI components
 if (APPLICATION_FLAVOR_PKI_CORE      OR
     APPLICATION_FLAVOR_PKI_CONSOLE   OR
-    APPLICATION_FLAVOR_DOGTAG_PKI_THEME OR
-    APPLICATION_FLAVOR_PKI_MIGRATE)
+    APPLICATION_FLAVOR_DOGTAG_PKI_THEME)
     find_package(Java REQUIRED)
     find_package(JNI REQUIRED)
 endif ()
@@ -141,8 +137,7 @@ add_custom_target(clean-cmake
 
 # check subdirectories
 if (APPLICATION_FLAVOR_PKI_CORE      OR
-    APPLICATION_FLAVOR_PKI_CONSOLE   OR
-    APPLICATION_FLAVOR_PKI_MIGRATE)
+    APPLICATION_FLAVOR_PKI_CONSOLE)
     add_subdirectory(base)
 endif ()
 
