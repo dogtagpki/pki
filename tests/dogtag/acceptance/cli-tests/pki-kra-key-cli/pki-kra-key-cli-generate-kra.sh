@@ -2,11 +2,11 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-cert-cli
-#   Description: PKI KEY CLI tests
+#   runtest.sh of /CoreOS/rhcs/acceptance/cli-tests/pki-kra-key-cli
+#   Description: PKI KRA KEY CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The following pki key cli commands needs to be tested:
-#  pki key-generate
+# The following pki kra key cli commands needs to be tested:
+#  pki kra-key-generate
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   Author: Niranjan Mallapadi <mrniranjan@redhat.com>
