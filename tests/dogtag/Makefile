@@ -145,6 +145,20 @@ build: $(BUILT_FILES)
 	chmod a+X ./acceptance/cli-tests/pki-key-cli/pki-key-cli-recover-kra.sh
 	chmod a+X ./acceptance/cli-tests/pki-key-cli/pki-key-cli-retrieve-kra.sh
 	chmod a+X ./acceptance/cli-tests/pki-key-cli/pki-key-cli-request-review-kra.sh
+	#kra key
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-generate-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-find-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-template-find-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-template-show-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-request-find-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-request-show-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-show-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-mod-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-archive-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-recover-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-retrieve-kra.sh
+	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-request-review-kra.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs.sh
 	chmod a+x ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh
