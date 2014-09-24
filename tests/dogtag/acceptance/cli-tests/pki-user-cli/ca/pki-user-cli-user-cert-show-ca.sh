@@ -49,7 +49,7 @@
 ########################################################################
 
 run_pki-user-cli-user-cert-show-ca_tests(){
-ubsystemId=$1
+subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
 

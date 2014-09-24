@@ -177,7 +177,7 @@ $(METADATA): Makefile
 	@echo "Path:            $(TEST_DIR)" >> $(METADATA)
 	@echo "Description:     Package containing tests and libraries for rhcs beaker tests" >> $(METADATA)
 	@echo "Type:            FUNCTIONAL" >> $(METADATA)
-	@echo "TestTime:        360m" >> $(METADATA)
+	@echo "TestTime:        480m" >> $(METADATA)
 	@echo "RunFor:          rhcs" >> $(METADATA)
 	@echo "Requires:        expect" >> $(METADATA)
 	@echo "Priority:        Normal" >> $(METADATA)
