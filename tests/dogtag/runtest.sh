@@ -362,17 +362,18 @@ rlJournalStart
 	CERT_TEST_UPPERCASE=$(echo $CERT_TEST | tr [a-z] [A-Z])
         if [ "$CERT_TEST_UPPERCASE" = "TRUE" ] ; then
                 #Execute pki cert tests
-                 run_pki-cert-ca_tests
-                 run_pki-cert-revoke-ca_tests
-                 run_pki-cert-show-ca_tests
-                 run_pki-cert-request-show-ca_tests
-                 run_pki-cert-release-hold-ca_tests
-                 run_pki-cert-hold-ca_tests
-		 run_pki-cert-request-submit_tests
-		 run_pki-cert-request-profile-find-ca_tests
-		 run_pki-cert-request-profile-show-ca_tests
-		 run_pki-cert-request-review-ca_tests
-		 run_pki-cert-request-find-ca_tests
+		 subsystemType=ca
+                 run_pki-cert-ca_tests 
+                 run_pki-cert-revoke-ca_tests $subsystemType $MYROLE
+                 run_pki-cert-show-ca_tests $subsystemType $MYROLE
+                 run_pki-cert-request-show-ca_tests $subsystemType $MYROLE
+                 run_pki-cert-release-hold-ca_tests $subsystemType $MYROLE
+                 run_pki-cert-hold-ca_tests $subsystemType $MYROLE
+		 run_pki-cert-request-submit_tests $subsystemType $MYROLE
+		 run_pki-cert-request-profile-find-ca_tests $subsystemType $MYROLE
+		 run_pki-cert-request-profile-show-ca_tests $subsystemType $MYROLE
+		 run_pki-cert-request-review-ca_tests $subsystemType $MYROLE
+		 run_pki-cert-request-find-ca_tests $subsystemType $MYROLE
         fi
         CERT_CONFIG_CA_UPPERCASE=$(echo $CERT_CONFIG_CA | tr [a-z] [A-Z])
         if [ "$CERT_CONFIG_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
@@ -382,57 +383,68 @@ rlJournalStart
         CERT_SHOW_CA_UPPERCASE=$(echo $CERT_SHOW_CA | tr [a-z] [A-Z])
         if [ "$CERT_SHOW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-show tests
-                  run_pki-cert-show-ca_tests
+		  subsystemType=ca
+                  run_pki-cert-show-ca_tests $subsystemType $MYROLE
         fi
         CERT_REQUEST_SHOW_CA_UPPERCASE=$(echo $CERT_REQUEST_SHOW_CA | tr [a-z] [A-Z])
         if [ "$CERT_REQUEST_SHOW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-request-show tests
-                  run_pki-cert-request-show-ca_tests
+		  subsystemType=ca 
+                  run_pki-cert-request-show-ca_tests $subsystemType $MYROLE
         fi
         CERT_REVOKE_CA_UPPERCASE=$(echo $CERT_REVOKE_CA | tr [a-z] [A-Z])
         if [ "$CERT_REVOKE_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-revoke tests
-                  run_pki-cert-revoke-ca_tests
+		  subsystemType=ca
+		  run_pki-cert-revoke-ca_tests $subsystemType $MYROLE
         fi
         CERT_RELEASE_HOLD_CA_UPPERCASE=$(echo $CERT_RELEASE_HOLD_CA | tr [a-z] [A-Z])
         if [ "$CERT_RELEASE_HOLD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-release-hold tests
-                  run_pki-cert-release-hold-ca_tests
+		  subsystemType=ca
+                  run_pki-cert-release-hold-ca_tests $subsystemType $MYROLE
         fi
         CERT_HOLD_CA_UPPERCASE=$(echo $CERT_HOLD_CA | tr [a-z] [A-Z])
         if [ "$CERT_HOLD_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-hold tests
-                  run_pki-cert-hold-ca_tests
+		  subsystemType=ca
+                  run_pki-cert-hold-ca_tests $subsystemType $MYROLE
         fi
 	CERT_REQUEST_SUBMIT_CA_UPPERCASE=$(echo $CERT_REQUEST_SUBMIT_CA | tr [a-z] [A-Z])
         if [ "$CERT_REQUEST_SUBMIT_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-hold tests
-                  run_pki-cert-request-submit_tests
+		  subsystemType=ca
+                  run_pki-cert-request-submit_tests $subsystemType $MYROLE
         fi
         CERT_REQUEST_PROFILE_FIND_CA_UPPERCASE=$(echo $CERT_REQUEST_PROFILE_FIND_CA | tr [a-z] [A-Z])
         if [ "$CERT_REQUEST_PROFILE_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-request-profile-find tests
-                  run_pki-cert-request-profile-find-ca_tests
+		  subsystemType=ca
+                  run_pki-cert-request-profile-find-ca_tests $subsystemType $MYROLE
         fi
         CERT_REQUEST_PROFILE_SHOW_CA_UPPERCASE=$(echo $CERT_REQUEST_PROFILE_SHOW_CA | tr [a-z] [A-Z])
         if [ "$CERT_REQUEST_PROFILE_SHOW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-request-profile-show tests
-                  run_pki-cert-request-profile-show-ca_tests
+		  subsystemType=ca
+                  run_pki-cert-request-profile-show-ca_tests $subsystemType $MYROLE
         fi
         CERT_REQUEST_REVIEW_CA_UPPERCASE=$(echo $CERT_REQUEST_REVIEW_CA | tr [a-z] [A-Z])
         if [ "$CERT_REQUEST_REVIEW_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-request-review tests
-                  run_pki-cert-request-review-ca_tests
+		  subsystemType=ca
+                  run_pki-cert-request-review-ca_tests $subsystemType $MYROLE
         fi
         CERT_REQUEST_FIND_CA_UPPERCASE=$(echo $CERT_REQUEST_FIND_CA | tr [a-z] [A-Z])
         if [ "$CERT_REQUEST_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-request-find tests
-                  run_pki-cert-request-find-ca_tests
+		  subsystemType=ca
+                  run_pki-cert-request-find-ca_tests $subsystemType $MYROLE
         fi
         CERT_FIND_CA_UPPERCASE=$(echo $CERT_FIND_CA | tr [a-z] [A-Z])
         if [ "$CERT_FIND_CA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki cert-find tests
-                  run_pki-cert-find-ca_tests
+		  subsystemType=ca
+                  run_pki-cert-find-ca_tests $subsystemType $MYROLE
         fi
 
 	######## PKI GROUP CA TESTS ############
