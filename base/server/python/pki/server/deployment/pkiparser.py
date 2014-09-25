@@ -542,6 +542,9 @@ class PKIConfigParser:
             if not self.pki_master_dict.has_key('pki_external') or\
                not len(self.pki_master_dict['pki_external']):
                 self.pki_master_dict['pki_external'] = "false"
+            if not self.pki_master_dict.has_key('pki_req_ext_add') or\
+               not len(self.pki_master_dict['pki_req_ext_add']):
+                self.pki_master_dict['pki_req_ext_add'] = "false"
             if not self.pki_master_dict.has_key('pki_external_step_two') or\
                not len(self.pki_master_dict['pki_external_step_two']):
                 self.pki_master_dict['pki_external_step_two'] = "false"

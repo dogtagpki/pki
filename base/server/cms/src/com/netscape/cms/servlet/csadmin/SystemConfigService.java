@@ -275,6 +275,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     if (cdata.getTag().equals(ct)) {
                         cdata_found = true;
                         CMS.debug("Found data for '" + ct + "'");
+                        if (ct.equals("signing") &&
+                                cdata.getReqExtOID() != null &&
+                                cdata.getReqExtData() != null) {
+                            CMS.debug("SystemConfigService:processCerts: adding request extension to config");
+                            cs.putString("preop.cert.signing.ext.oid", cdata.getReqExtOID());
+                            cs.putString("preop.cert.signing.ext.data", cdata.getReqExtData());
+                            cs.putBoolean("preop.cert.signing.ext.critical", cdata.getReqExtCritical());
+                        }
+
                         break;
                     }
                 }
@@ -342,6 +351,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("preop.cert." + ct + ".signingalgorithm", signingalgorithm);
                 cs.putString("preop.cert." + ct + ".nickname", nickname);
                 cs.putString("preop.cert." + ct + ".dn", dn);
+                cs.commit(false);
 
                 if (!data.getStepTwo()) {
                     if (keytype.equals("ecc")) {

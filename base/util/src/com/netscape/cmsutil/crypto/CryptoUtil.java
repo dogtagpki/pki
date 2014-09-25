@@ -45,7 +45,10 @@ import java.util.Vector;
 import javax.crypto.SecretKey;
 
 import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS10Attribute;
+import netscape.security.pkcs.PKCS10Attributes;
 import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.PKCS9Attribute;
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
@@ -61,6 +64,7 @@ import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.CertificateValidity;
 import netscape.security.x509.CertificateVersion;
 import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extensions;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X500Signer;
 import netscape.security.x509.X509CertImpl;
@@ -1176,14 +1180,38 @@ public class CryptoUtil {
     public static PKCS10 createCertificationRequest(String subjectName,
             X509Key pubk, PrivateKey prik, String alg)
             throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
+            InvalidKeyException, IOException, CertificateException,
+            SignatureException {
+        return createCertificationRequest(subjectName, pubk, prik, alg, null);
+    }
+
+    /*
+     * This createCertificationRequest() allows extensions to be added to the CSR
+     */
+    public static PKCS10 createCertificationRequest(String subjectName,
+            X509Key pubk, PrivateKey prik, String alg, Extensions exts)
+            throws NoSuchAlgorithmException, NoSuchProviderException,
+            InvalidKeyException, IOException, CertificateException,
+            SignatureException {
         X509Key key = pubk;
         java.security.Signature sig = java.security.Signature.getInstance(alg,
                 "Mozilla-JSS");
 
         sig.initSign(prik);
-        PKCS10 pkcs10 = new PKCS10(key);
+        PKCS10 pkcs10 = null;
+
+        if (exts != null) {
+            PKCS10Attribute attr = new
+                    PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID,
+                            exts);
+            PKCS10Attributes attrs = new PKCS10Attributes();
+
+            attrs.setAttribute(attr.getAttributeValue().getName(), attr);
+
+            pkcs10 = new PKCS10(key, attrs);
+        } else {
+            pkcs10 = new PKCS10(key);
+        }
         X500Name name = new X500Name(subjectName);
         X500Signer signer = new X500Signer(sig, name);
 
@@ -1342,6 +1370,25 @@ public class CryptoUtil {
 
     public static byte[] string2byte(String id) {
         return (new BigInteger(id, 16)).toByteArray();
+    }
+
+    /**
+     * Converts string containing pairs of characters in the range of '0'
+     * to '9', 'a' to 'f' to an array of bytes such that each pair of
+     * characters in the string represents an individual byte
+     */
+    public static byte[] hexString2Bytes(String string) {
+        if (string == null)
+            return null;
+        int stringLength = string.length();
+        if ((stringLength == 0) || ((stringLength % 2) != 0))
+            return null;
+        byte[] bytes = new byte[(stringLength / 2)];
+        for (int i = 0, b = 0; i < stringLength; i += 2, ++b) {
+            String nextByte = string.substring(i, (i + 2));
+            bytes[b] = (byte) Integer.parseInt(nextByte, 0x10);
+        }
+        return bytes;
     }
 
     /**

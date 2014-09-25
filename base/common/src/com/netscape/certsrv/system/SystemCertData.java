@@ -43,6 +43,9 @@ public class SystemCertData {
     public static final String SUBJECT_DN = "subjectDN";
     public static final String CERT = "cert";
     public static final String CERT_CHAIN = "certChain";
+    public static final String REQUEST_EXT_OID = "req_ext_oid";
+    public static final String REQUEST_EXT_CRITICAL = "req_ext_critial";
+    public static final String REQUEST_EXT_DATA = "req_ext_data";
 
     @XmlElement
     protected String tag;
@@ -80,6 +83,15 @@ public class SystemCertData {
     @XmlElement
     protected String certChain;
 
+    @XmlElement
+    protected String req_ext_oid;
+
+    @XmlElement
+    protected String req_ext_critical;
+
+    @XmlElement
+    protected String req_ext_data;
+
     public SystemCertData() {
         // required for JAXB
     }
@@ -97,6 +109,10 @@ public class SystemCertData {
         subjectDN = form.getFirst(SUBJECT_DN);
         cert = form.getFirst(CERT);
         certChain = form.getFirst(CERT_CHAIN);
+        //support extension in CSR
+        req_ext_oid = form.getFirst(REQUEST_EXT_OID);
+        req_ext_critical = form.getFirst(REQUEST_EXT_CRITICAL);
+        req_ext_data = form.getFirst(REQUEST_EXT_DATA);
     }
 
     /**
@@ -265,6 +281,30 @@ public class SystemCertData {
      */
     public void setCertChain(String certChain) {
         this.certChain = certChain;
+    }
+
+    /**
+     * @return the req_ext_oid
+     */
+    public String getReqExtOID() {
+        return req_ext_oid;
+    }
+
+    /**
+     * @return the req_ext_data
+     */
+    public String getReqExtData() {
+        return req_ext_data;
+    }
+
+    /**
+     * @return the req_ext_critical
+     */
+    public boolean getReqExtCritical() {
+        if (req_ext_critical.equals("true"))
+            return true;
+        else
+            return false;
     }
 
 }

@@ -71,8 +71,14 @@ import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS10;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.BasicConstraintsExtension;
 import netscape.security.x509.CertificateChain;
+import netscape.security.x509.Extension;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.KeyUsageExtension;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
@@ -2598,6 +2604,7 @@ public class ConfigurationUtils {
             EBaseException, InvalidKeyException, NotInitializedException, TokenException, NoSuchAlgorithmException,
             NoSuchProviderException, CertificateException, SignatureException, IOException {
 
+        CMS.debug("ConfigurationUtils: handleCertRequest() begins");
         // get public key
         String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
         String algorithm = config.getString(PCERT_PREFIX + certTag + ".keyalgorithm");
@@ -2631,7 +2638,12 @@ public class ConfigurationUtils {
         String caDN = config.getString(PCERT_PREFIX + certTag + ".dn");
 
         cert.setDN(caDN);
-        PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk, privk, algorithm);
+        Extensions exts = null;
+        if (certTag.equals("signing")) {
+            CMS.debug("handleCertRequest: certTag is siging -- about to call createBasicCAExtensions()");
+            exts = createBasicCAExtensions(config);
+        }
+        PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk, privk, algorithm, exts);
 
         CMS.debug("handleCertRequest: created cert request");
         byte[] certReqb = certReq.toByteArray();
@@ -2644,6 +2656,68 @@ public class ConfigurationUtils {
         cert.setRequest(certReqf);
 
     }
+
+    /*
+     * createBasicCAExtensions creates the basic Extensions needed for a CSR to a
+     * CA signing certificate
+     */
+    private static Extensions createBasicCAExtensions(IConfigStore config) throws IOException {
+        Extensions exts = new Extensions();
+        CMS.debug("ConfigurationUtils: createBasicCAExtensions: begins");
+
+        // create BasicConstraintsExtension
+        BasicConstraintsExtension bcExt = new BasicConstraintsExtension(true, -1);
+        exts.add(bcExt);
+
+        // create KeyUsageExtension
+        boolean[] kuBits = new boolean[KeyUsageExtension.NBITS];
+        for (int i = 0; i < kuBits.length; i++) {
+            kuBits[i] = false;
+        }
+        kuBits[KeyUsageExtension.DIGITAL_SIGNATURE_BIT] = true;
+        kuBits[KeyUsageExtension.NON_REPUDIATION_BIT] = true;
+        kuBits[KeyUsageExtension.KEY_CERTSIGN_BIT] = true;
+        kuBits[KeyUsageExtension.CRL_SIGN_BIT] = true;
+        KeyUsageExtension kuExt = new KeyUsageExtension(true, kuBits);
+        exts.add(kuExt);
+        /* save this for later when we want to allow more selection for pkispawn configuration
+        // create NSCertTypeExtension
+        boolean[] nsBits = new boolean[NSCertTypeExtension.NBITS];
+        for (int i = 0; i < nsBits.length; i++) {
+            nsBits[i] = false;
+        }
+        nsBits[NSCertTypeExtension.SSL_CA_BIT] = true;
+        NSCertTypeExtension nsctExt = new NSCertTypeExtension(false, nsBits);
+        exts.add(nsctExt);
+        */
+
+        // add a generic extension
+        Extension genExt = null;
+        try {
+            String oidString = config.getString(PCERT_PREFIX + "signing.ext.oid");
+            String dataString = config.getString(PCERT_PREFIX + "signing.ext.data");
+            boolean critical = false;
+            if (oidString != null && dataString != null) {
+                CMS.debug("ConfigurationUtils: createBasicCAExtensions: processing generic extension");
+                critical = config.getBoolean("preop.cert.signing.ext.critical");
+                ObjectIdentifier oid = new ObjectIdentifier(oidString);
+
+                byte data[] = CryptoUtil.hexString2Bytes(dataString);
+                DerOutputStream out = new DerOutputStream();
+                out.putOctetString(data);
+                genExt = new Extension(oid, critical, out.toByteArray());
+                out.close();
+
+                exts.add(genExt);
+                CMS.debug("ConfigurationUtils: createBasicCAExtensions: generic extension added: " + oidString);
+            }
+        } catch (EBaseException e) {
+            CMS.debug("ConfigurationUtils: createBasicCAExtensions: generic extension not processed:" + e);
+        }
+
+        return exts;
+    }
+
 
     public static X509Key getECCX509Key(IConfigStore config, String certTag) throws EPropertyNotFound, EBaseException,
             InvalidKeyException {
