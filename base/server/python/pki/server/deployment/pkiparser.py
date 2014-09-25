@@ -569,6 +569,9 @@ class PKIConfigParser:
             if not 'pki_external' in self.mdict or\
                not len(self.mdict['pki_external']):
                 self.mdict['pki_external'] = "false"
+            if not 'pki_req_ext_add' in self.mdict or\
+               not len(self.mdict['pki_req_ext_add']):
+                self.mdict['pki_req_ext_add'] = "false"
             if not 'pki_external_step_two' in self.mdict or\
                not len(self.mdict['pki_external_step_two']):
                 self.mdict['pki_external_step_two'] = "false"

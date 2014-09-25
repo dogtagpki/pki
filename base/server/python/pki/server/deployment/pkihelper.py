@@ -447,7 +447,16 @@ class ConfigurationFile:
         self.mdict = deployer.mdict
         # set useful 'boolean' object variables for this class
         self.clone = config.str2bool(self.mdict['pki_clone'])
+        # generic extension support in CSR - for external CA
+        self.add_req_ext = config.str2bool(
+            self.mdict['pki_req_ext_add'])
         self.external = config.str2bool(self.mdict['pki_external'])
+        if self.external:
+            # generic extension support in CSR - for external CA
+            if self.add_req_ext:
+                self.req_ext_oid = self.mdict['pki_req_ext_oid']
+                self.req_ext_critical = self.mdict['pki_req_ext_critical']
+                self.req_ext_data = self.mdict['pki_req_ext_data']
         self.external_step_two = config.str2bool(
             self.mdict['pki_external_step_two'])
         self.skip_configuration = config.str2bool(
@@ -660,6 +669,11 @@ class ConfigurationFile:
                     # External CA (Step 1)
                     self.confirm_data_exists("pki_external_csr_path")
                     self.confirm_missing_file("pki_external_csr_path")
+                    # generic extension support in CSR - for external CA
+                    if self.add_req_ext:
+                        self.confirm_data_exists("pki_req_ext_oid")
+                        self.confirm_data_exists("pki_req_ext_critical")
+                        self.confirm_data_exists("pki_req_ext_data")
                 else:
                     # External CA (Step 2)
                     self.confirm_data_exists("pki_external_ca_cert_chain_path")
@@ -3397,6 +3411,9 @@ class ConfigClient:
         self.subordinate = config.str2bool(self.mdict['pki_subordinate'])
         # set useful 'string' object variables for this class
         self.subsystem = self.mdict['pki_subsystem']
+        # generic extension support in CSR - for external CA
+        self.add_req_ext = config.str2bool(
+            self.mdict['pki_req_ext_add'])
 
     def configure_pki_data(self, data):
         config.pki_log.info(
@@ -3715,6 +3732,14 @@ class ConfigClient:
                     cert1 = self.create_system_cert("ca_signing")
                     cert1.signingAlgorithm = \
                         self.mdict['pki_ca_signing_signing_algorithm']
+                    # generic extension support in CSR - for external CA
+                    if self.add_req_ext:
+                        cert1.req_ext_oid = \
+                            self.mdict['pki_req_ext_oid']
+                        cert1.req_ext_critical = \
+                            self.mdict['pki_req_ext_critical']
+                        cert1.req_ext_data = \
+                            self.mdict['pki_req_ext_data']
                 if self.external_step_two:
                     # External CA (Step 2) or Stand-alone PKI (Step 2)
                     if not self.subsystem == "CA":
