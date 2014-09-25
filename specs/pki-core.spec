@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -37,11 +37,14 @@ BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
 %if  0%{?rhel}
-BuildRequires:    resteasy-base-atom-provider
-BuildRequires:    resteasy-base-jaxb-provider
-BuildRequires:    resteasy-base-jaxrs
-BuildRequires:    resteasy-base-jaxrs-api
-BuildRequires:    resteasy-base-jackson-provider
+# 'resteasy-base' is a subset of the complete set of
+# 'resteasy' packages and consists of what is needed to
+# support the PKI Restful interface on RHEL platforms
+BuildRequires:    resteasy-base-atom-provider >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
+BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
+BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
 BuildRequires:    resteasy >= 3.0.6-2
 %endif
@@ -213,11 +216,14 @@ Requires:         python-ldap
 Requires:         python-lxml
 Requires:         python-requests >= 1.1.0-3
 %if  0%{?rhel}
-Requires:    resteasy-base-atom-provider
-Requires:    resteasy-base-jaxb-provider
-Requires:    resteasy-base-jaxrs
-Requires:    resteasy-base-jaxrs-api
-Requires:    resteasy-base-jackson-provider
+# 'resteasy-base' is a subset of the complete set of
+# 'resteasy' packages and consists of what is needed to
+# support the PKI Restful interface on RHEL platforms
+Requires:    resteasy-base-atom-provider >= 3.0.6-1
+Requires:    resteasy-base-jaxb-provider >= 3.0.6-1
+Requires:    resteasy-base-jaxrs >= 3.0.6-1
+Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
+Requires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
 Requires:         resteasy >= 3.0.6-2
 %endif
@@ -831,6 +837,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Wed Sep 24 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-2
+- PKI TRAC Ticket #1130 - Add RHEL/CentOS conditionals to spec
+
 * Wed Sep  3 2014 Dogtag Team <pki-devel@redhat.com> 10.2.0-1
 - Update release number for release build
 
