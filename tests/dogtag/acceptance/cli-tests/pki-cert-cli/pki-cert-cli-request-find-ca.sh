@@ -41,6 +41,9 @@
 run_pki-cert-request-find-ca_tests()
 {
 
+        local cs_Type=$1
+        local cs_Role=$2
+
 	# Creating Temporary Directory for pki cert-show
         rlPhaseStartSetup "pki cert-request_show Temporary Directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -48,24 +51,26 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseEnd
 	
 	# Local Variables
-	local CA_agentV_user=CA_agentV
-        local CA_auditV_user=CA_auditV
-        local CA_operatorV_user=CA_operatorV
-        local CA_adminV_user=CA_adminV
-        local CA_agentR_user=CA_agentR
-        local CA_adminR_user=CA_adminR
-        local CA_adminE_user=CA_adminE
-        local CA_agentE_user=CA_agentE
+	get_topo_stack $cs_Role $TmpDir/topo_file
+	local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+	local CA_agentV_user=$CA_INST\_agentV
+        local CA_auditV_user=$CA_INST\_auditV
+        local CA_operatorV_user=$CA_INST\_operatorV
+        local CA_adminV_user=$CA_INST\_adminV
+        local CA_agentR_user=$CA_INST\_agentR
+        local CA_adminR_user=$CA_INST\_adminR
+        local CA_adminE_user=$CA_INST\_adminE
+        local CA_agentE_user=$CA_INST\_agentE
         local TEMP_NSS_DB="$TmpDir/nssdb"
 	local TEMP_NSS_DB_PWD="redhat"
         local exp="$TmpDir/expfile.out"
         local expout="$TmpDir/exp_out"
 	local cert_info="$TmpDir/cert_info"
 	local cert_request_find=$TmpDir/cert-request-find.out
-	local target_port=8080
-	local target_https_port=8443
-        local tmp_ca_host=$(hostname)
-        local target_host=$tmp_ca_host
+	local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
+	local target_https_port=$(eval echo \$${CA_INST}_SECURE_PORT)
+        local tmp_ca_host=$(eval echo \$${cs_Role})
+        local target_host=$(eval echo \$${cs_Role})
 	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 	local cert_request_submit="$TEMP_NSS_DB/pki-cert-request-submit.out"
 	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
@@ -111,12 +116,14 @@ run_pki-cert-request-find-ca_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
 	rlRun "generate_cert_request_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-	rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $cert_request_submit" 0 "Submit certificate request"
+	rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $cert_request_submit" 0 "Submit certificate request"
 	rlAssertGrep "Request Status: pending" "$cert_request_submit"
 	rlAssertGrep "Operation Result: success" "$cert_request_submit"
 	local request_id=$(cat  $cert_request_submit | grep "Request ID:" | awk -F ": " '{print $2}')
 	rlLog "Executing pki -d $CERTDB_DIR -n "$CA_agentV_user" -c $CERTDB_DIR_PASSWORD --type enrollment --status pending --maxResults 1000"
 	rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
 		-n "$CA_agentV_user" \
 		-c $CERTDB_DIR_PASSWORD cert-request-find \
 		--type enrollment \
@@ -154,11 +161,13 @@ run_pki-cert-request-find-ca_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
         rlLog "Update $profile xml with certificate request details"
         rlRun "generate_cert_request_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $cert_request_submit" 0 "Submit certificate request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $cert_request_submit" 0 "Submit certificate request"
         rlAssertGrep "Request Status: pending" "$cert_request_submit"
         rlAssertGrep "Operation Result: success" "$cert_request_submit"
         local request_id=$(cat  $cert_request_submit | grep "Request ID:" | awk -F ": " '{print $2}')
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 ca-cert-request-review $request_id \
@@ -166,6 +175,8 @@ run_pki-cert-request-find-ca_tests()
         rlAssertGrep "Canceled certificate request $request_id" "$TmpDir/$request_id-pkcs10-approve-out"	
 	rlLog "Executing pki -d $CERTDB_DIR -n "$CA_agentV_user" -c $CERTDB_DIR_PASSWORD --type enrollment --status canceled --maxResults 1000"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type enrollment \
@@ -203,11 +214,13 @@ run_pki-cert-request-find-ca_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
         rlLog "Update $profile xml with certificate request details"
         rlRun "generate_cert_request_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $cert_request_submit" 0 "Submit certificate request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $cert_request_submit" 0 "Submit certificate request"
         rlAssertGrep "Request Status: pending" "$cert_request_submit"
         rlAssertGrep "Operation Result: success" "$cert_request_submit"
         local request_id=$(cat  $cert_request_submit | grep "Request ID:" | awk -F ": " '{print $2}')
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 ca-cert-request-review $request_id \
@@ -215,6 +228,8 @@ run_pki-cert-request-find-ca_tests()
         rlAssertGrep "Rejected certificate request $request_id" "$TmpDir/$request_id-pkcs10-approve-out"
         rlLog "Search Enrollment type requests with status rejected"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type enrollment \
@@ -251,11 +266,13 @@ run_pki-cert-request-find-ca_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
         rlLog "Update $profile xml with certificate request details"
         rlRun "generate_cert_request_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $cert_request_submit" 0 "Submit certificate request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $cert_request_submit" 0 "Submit certificate request"
         rlAssertGrep "Request Status: pending" "$cert_request_submit"
         rlAssertGrep "Operation Result: success" "$cert_request_submit"
         local request_id=$(cat  $cert_request_submit | grep "Request ID:" | awk -F ": " '{print $2}')
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 ca-cert-request-review $request_id \
@@ -263,6 +280,8 @@ run_pki-cert-request-find-ca_tests()
         rlAssertGrep "Approved certificate request $request_id" "$TmpDir/$request_id-pkcs10-approve-out"
         rlLog "Executing pki -d $CERTDB_DIR n "$CA_agentV_user" -c $CERTDB_DIR_PASSWORD cert-request-find --type enrollment --status complete -size 1000"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type enrollment \
@@ -281,6 +300,8 @@ run_pki-cert-request-find-ca_tests()
 	rlLog "Executing pki -d $CERTDB_DIR -n "$CA_agentV_user" -c $CERTDB_DIR_PASSWORD \
 		--type enrollment  --status all --size 1000"
 	rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
 		-n \"$CA_agentV_user\" \
 		-c $CERTDB_DIR_PASSWORD cert-request-find \
 		--type enrollment \
@@ -299,11 +320,15 @@ run_pki-cert-request-find-ca_tests()
 	local tmp_max_results=1
 	rlLog "Executing pki -d $CERTDB_DIR \
 		-n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
 		-c $CERTDB_DIR_PASSWORD cert-request-find\
 		--type enrollment \
 		--status pending \
 		--maxResults $tmp_max_results" 
 	rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
 		-n \"$CA_agentV_user\" \
 		-c $CERTDB_DIR_PASSWORD cert-request-find \
 		--type enrollment \
@@ -316,12 +341,16 @@ run_pki-cert-request-find-ca_tests()
         local tmp_max_results=3
         local tmp_start=$(expr $request_id - 3)
         rlLog "Executing pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find\
                 --type enrollment \
                 --size $tmp_max_results \
                 --start $tmp_start"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type enrollment \
@@ -355,8 +384,8 @@ run_pki-cert-request-find-ca_tests()
 		org: \
 		country: \
 		archive:false \
-		host: \
-		port:8080 \
+		host:$target_host \
+		port:$target_port \
                 profile:$profile \
 		cert_db:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -364,17 +393,19 @@ run_pki-cert-request-find-ca_tests()
                 cert_info:$cert_info \
 		expect_data:$exp"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-        rlRun "pki cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
+        rlRun "pki -h $target_host -p $target_port cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
         local STRIP_HEX=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL=${STRIP_HEX^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
         rlLog "Modify caManualRenewal profile xml to add serial Number $cert_serialNumber to be submitted for renewal"
         rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/SerialNumber\" -v $decimal_valid_serialNumber $TmpDir/$cert_serialNumber-renewal.xml"
-        rlRun "pki cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $cert_request_submit" 0 "Submit renewal request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $cert_request_submit" 0 "Submit renewal request"
         local renewal_request_id=$(cat $cert_request_submit  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $renewal_request_id" "$cert_request_submit"
         rlLog "Search pending requests"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type renewal \
@@ -404,8 +435,8 @@ run_pki-cert-request-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host:$(hostname) \
-                port:8080 \
+                host:$target_host \
+                port:$target_port \
                 profile:$profile \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -413,16 +444,18 @@ run_pki-cert-request-find-ca_tests()
                 cert_info:$cert_info \
                 expect_data:$exp"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-        rlRun "pki cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
+        rlRun "pki -h $target_host -p $target_port cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
         local STRIP_HEX=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL=${STRIP_HEX^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
         rlLog "Modify caManualRenewal profile xml to add serial Number $cert_serialNumber to be submitted for renewal"
         rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/SerialNumber\" -v $decimal_valid_serialNumber $TmpDir/$cert_serialNumber-renewal.xml"
-        rlRun "pki cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $cert_request_submit" 0 "Submit renewal request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $cert_request_submit" 0 "Submit renewal request"
         local request_id=$(cat $cert_request_submit  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $request_id" "$cert_request_submit"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 ca-cert-request-review $request_id \
@@ -430,6 +463,8 @@ run_pki-cert-request-find-ca_tests()
 	rlAssertGrep "Canceled certificate request $request_id" "$TmpDir/$request_id-pkcs10-approve-out"
         rlLog "Search cancelled requests"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type renewal \
@@ -459,8 +494,8 @@ run_pki-cert-request-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host:$(hostname) \
-                port:8080 \
+                host:$target_host \
+                port:$target_port \
                 profile:$profile \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -468,16 +503,18 @@ run_pki-cert-request-find-ca_tests()
                 cert_info:$cert_info \
                 expect_data:$exp"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-        rlRun "pki cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
+        rlRun "pki -h $target_host -p $target_port cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
         local STRIP_HEX=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL=${STRIP_HEX^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
         rlLog "Modify caManualRenewal profile xml to add serial Number $cert_serialNumber to be submitted for renewal"
         rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/SerialNumber\" -v $decimal_valid_serialNumber $TmpDir/$cert_serialNumber-renewal.xml"
-        rlRun "pki cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $cert_request_submit" 0 "Submit renewal request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $cert_request_submit" 0 "Submit renewal request"
         local request_id=$(cat $cert_request_submit  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $request_id" "$cert_request_submit"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 ca-cert-request-review $request_id \
@@ -485,6 +522,8 @@ run_pki-cert-request-find-ca_tests()
         rlAssertGrep "Rejected certificate request $request_id" "$TmpDir/$request_id-pkcs10-approve-out"
         rlLog "Search rejected requests"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type renewal \
@@ -514,8 +553,8 @@ run_pki-cert-request-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host:$(hostname) \
-                port:8080 \
+                host:$target_host \
+                port:$target_port \
                 profile:$profile \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -523,16 +562,18 @@ run_pki-cert-request-find-ca_tests()
                 cert_info:$cert_info \
                 expect_data:$exp"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-        rlRun "pki cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
+        rlRun "pki -h $target_host -p $target_port cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
         local STRIP_HEX=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL=${STRIP_HEX^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
         rlLog "Modify caManualRenewal profile xml to add serial Number $cert_serialNumber to be submitted for renewal"
         rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/SerialNumber\" -v $decimal_valid_serialNumber $TmpDir/$cert_serialNumber-renewal.xml"
-        rlRun "pki cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $cert_request_submit" 0 "Submit renewal request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $cert_request_submit" 0 "Submit renewal request"
         local request_id=$(cat $cert_request_submit  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $request_id" "$cert_request_submit"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 ca-cert-request-review $request_id \
@@ -540,6 +581,8 @@ run_pki-cert-request-find-ca_tests()
         rlAssertGrep "Approved certificate request $request_id" "$TmpDir/$request_id-pkcs10-approve-out"
         rlLog "Search Approved renewal requests"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type renewal \
@@ -556,6 +599,8 @@ run_pki-cert-request-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_request_find-0012: Search renewal request with status all"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
 		-n "$CA_agentV_user" \
 		-c $CERTDB_DIR_PASSWORD cert-request-find \
 		--type renewal \
@@ -573,9 +618,11 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseStartTest "pki_cert_request_find-0013: search pending renewal requests with --maxResults 1"
         local tmp_max_results=1
         local tmp_start=$renewal_request_id
-        rlLog "Executing pki -d $CERTDB_DIR -n \"$CA_agentV_user\" -c $CERTDB_DIR_PASSWORD cert-request-find \
+        rlLog "Executing pki -d $CERTDB_DIR -h $target_host -p $target_port -n \"$CA_agentV_user\" -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type renewal --status pending --maxResults $tmp_max_results"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
 		--status pending \
@@ -602,9 +649,9 @@ run_pki-cert-request-find-ca_tests()
 		subject_c: \
 		archive:false \
                 req_profile: \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
@@ -612,15 +659,19 @@ run_pki-cert-request-find-ca_tests()
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	local cert_requestid=$(cat $cert_info  | grep cert_requestid | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason unspecified 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
 	rlLog "Search completed Revocation requests"
 	rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
 		-n \"$CA_agentV_user\" \
 		-c $CERTDB_DIR_PASSWORD cert-request-find \
 		--type revocation \
@@ -639,6 +690,8 @@ run_pki-cert-request-find-ca_tests()
 	local tmp_start_value=5
 	rlLog "Executing pki cert-request-find with --start <valid-input>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --start $tmp_start_value > $cert_request_find" 0
@@ -648,12 +701,14 @@ run_pki-cert-request-find-ca_tests()
 	fi
 	rlAssertGrep "Request ID: $tmp_start_Value" "$cert_request_find"
         rlPhaseEnd
-	
+
 	rlPhaseStartTest "pki_cert_request_find-0016: Issue pki cert-request-find with --start 5 and --size 5 , which should return 5 results"
         local tmp_start_value=5
 	local tmp_size_value=5
         rlLog "Executing pki cert-request-find with --start <valid-input>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --start $tmp_start_value \
@@ -669,6 +724,8 @@ run_pki-cert-request-find-ca_tests()
 	rlPhaseStartTest "pki_cert_request_find-0017: Issue pki cert-request-find  with --start <junk data> and verify no search results are returned"
 	rlLog "Executing pki cert-request-find with --start <junk value>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --start \"aaa\" > $cert_request_find 2>&1" 1,255
@@ -678,6 +735,8 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseStartTest "pki_cert_request_find-0018: Issue pki cert-request-find  with --start <negative value> and verify no search results are returned"
 	rlLog "Executing pki cert-request-find with --start <negative value>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --start -1 > $cert_request_find" 
@@ -688,6 +747,8 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseStartTest "pki_cert_request_find-0019: Issue pki cert-request-find with --start <novalue> and verify command help is returned"
 	rlLog "Executing pki cert-request-find --start <no-value>"
 	rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --start > $cert_request_find 2>&1" 1,255
@@ -709,6 +770,8 @@ run_pki-cert-request-find-ca_tests()
         local tmp_large_number1=$(cat /dev/urandom | tr -dc '0-9' | fold -w 200 | head -n 1)
         rlLog "Executing pki cert-request-find --start $tmp_large_number1"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
 		-n "$CA_agentV_user" \
 		-c $CERTDB_DIR_PASSWORD cert-request-find \
 		--start $tmp_large_number1 > $cert_request_find 2>&1" 1,255
@@ -719,6 +782,8 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseStartTest "pki_cert_request_find-0021: Issue pki cert-request-find with --maxResults 1 and verify search results are returned"
 	rlLog "Executing pki cert-request-find with --maxResults <valid-input>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
 		--type enrollment \
@@ -730,6 +795,8 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseStartTest "pki_cert_request_find-0022: Issue pki cert-request-find with --maxResults <junk data> and verify no search results are returned"
 	rlLog "Executing pki cert-request-find with --maxResults <junk-data>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type enrollment \
@@ -741,6 +808,8 @@ run_pki-cert-request-find-ca_tests()
 	rlPhaseStartTest "pki_cert_request_find-0023: Issue pki cert-request-find with --maxResults <no value> and verify command help is returned"
 	rlLog "Executing pki cert-request-find with --maxResults <no-value>"
 	rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type enrollment \
@@ -764,6 +833,8 @@ run_pki-cert-request-find-ca_tests()
 	local tmp_large_number1=$(cat /dev/urandom | tr -dc '0-9' | fold -w 50 | head -n 1)
         rlLog "Executing pki cert-request-find with --maxResults <no-value>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --type enrollment \
@@ -776,6 +847,8 @@ run_pki-cert-request-find-ca_tests()
         local tmp_size_value=5
 	rlLog "Executing pki cert-request-find with --size <valid-input>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --size $tmp_size_value > $cert_request_find" 0
@@ -785,6 +858,8 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseStartTest "pki_cert_request_find-0026: Issue pki cert-request-find  with --size <junk data> and verify no search results are returned"
 	rlLog "Executing pki cert-request-find with --size <junk-data>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --size \"$tmp_junk_data\" > $cert_request_find 2>&1" 1,255
@@ -794,6 +869,8 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseStartTest "pki_cert_request_find-0027: Issue pki cert-request-find  with --size <negative value> and verify no search results are returned"
 	rlLog "Executing pki cert-request-find with --size <negative value>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_agentV_user\" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --size -1 > $cert_request_find"
@@ -803,6 +880,8 @@ run_pki-cert-request-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_request_find-0028: Issue pki cert-request-find with --size <novalue> and verify command help is returned"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --size > $cert_request_find 2>&1" 1,255
@@ -820,8 +899,11 @@ run_pki-cert-request-find-ca_tests()
         rlAssertGrep "                                revocation, all)" "$cert_request_find"
         rlPhaseEnd
 
+
         rlPhaseStartTest "pki_cert_request_find-0029: Issue pki cert-request-find with --size <maximum Integer value>"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n "$CA_agentV_user" \
                 -c $CERTDB_DIR_PASSWORD cert-request-find \
                 --size $tmp_large_number1 > $cert_request_find 2>&1" 1,255
@@ -830,25 +912,26 @@ run_pki-cert-request-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_request_find-0030: Issue pki cert-request-find using valid agent cert"
         rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-request-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-request-find 1> $cert_request_find"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-request-find 1> $cert_request_find"
         rlAssertGrep "Number of entries returned 20" "$cert_request_find"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_request_find-0031: Issue pki cert-request-find using revoked Agent cert and verify no search results are returned"
         rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentR_user\" cert-request-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentR_user\" cert-request-find >> $cert_request_find 2>&1" 1,255
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_agentR_user\" cert-request-find >> $cert_request_find 2>&1" 1,255
         rlAssertGrep "PKIException: Unauthorized" "$cert_request_find"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_request_find-0032: Issue pki cert-request-find using valid admin cert and verify no search results are returned"
         rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_adminV_user\" cert-request-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_adminV_user\" cert-request-find > $cert_request_find 2>&1" 1,255
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.certrequests, operation: execute" "$cert_request_find"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_adminV_user\" cert-request-find > $cert_request_find 2>&1" 1,255
+        rlAssertGrep "ForbiddenException: Authorization Error" "$cert_request_find"
         rlPhaseEnd
+
 
 	rlPhaseStartTest "pki_cert_request_find-0033: Issue pki cert-request-find using Expired admin cert"
         local cur_date=$(date)
-        local end_date=$(certutil -L -d $CERTDB_DIR -n CA_adminE | grep "Not After" | awk -F ": " '{print $2}')
+        local end_date=$(certutil -L -d $CERTDB_DIR -n $CA_adminE_user | grep "Not After" | awk -F ": " '{print $2}')
         rlLog "Current Date/Time: $(date)"
         rlLog "Current Date/Time: before modifying using chrony $(date)"
         rlRun "chronyc -a 'manual on' 1> $TmpDir/chrony.out" 0 "Set chrony to manual mode"
@@ -857,7 +940,7 @@ run_pki-cert-request-find-ca_tests()
         rlRun "chronyc -a -m 'offline' 'settime $end_date + 1 day' 'makestep' 'manual reset' 1> $TmpDir/chrony.out"
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
         rlLog "Date after modifying using chrony: $(date)"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_adminE_user\" cert-request-find > $cert_request_find 2>&1" 1,255
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_adminE_user\" cert-request-find > $cert_request_find 2>&1" 1,255
         rlAssertGrep "ProcessingException: Unable to invoke request" "$cert_request_find"
         rlLog "Set the date back to its original date & time"
         rlRun "chronyc -a -m 'settime $cur_date + 10 seconds' 'makestep' 'manual reset' 'online' 1> $TmpDir/chrony.out"
@@ -867,7 +950,7 @@ run_pki-cert-request-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_request_find-0034: Issue pki cert-request-find using Expired agent cert"
         local cur_date=$(date)
-        local end_date=$(certutil -L -d $CERTDB_DIR -n CA_agentE | grep "Not After" | awk -F ": " '{print $2}')
+        local end_date=$(certutil -L -d $CERTDB_DIR -n $CA_agentE_user | grep "Not After" | awk -F ": " '{print $2}')
         rlLog "Current Date/Time: $(date)"
         rlLog "Current Date/Time: before modifying using chrony $(date)"
         rlRun "chronyc -a 'manual on' 1> $TmpDir/chrony.out" 0 "Set chrony to manual mode"
@@ -877,6 +960,8 @@ run_pki-cert-request-find-ca_tests()
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
         rlLog "Date after modifying using chrony: $(date)"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentE_user\" \
                 cert-request-find > $cert_request_find 2>&1" 1,255
@@ -887,16 +972,17 @@ run_pki-cert-request-find-ca_tests()
         rlLog "Current Date/Time after setting system date back using chrony $(date)"
         rlPhaseEnd
 
+
         rlPhaseStartTest "pki_cert_request_find-0035: Issue pki cert-request-find using valid audit cert"
-        rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_auditV_user\" cert-request-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_auditV_user\" cert-request-find > $cert_request_find 2>&1" 1,255
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.certrequests, operation: execute" "$cert_request_find"
+        rlLog "Executing pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_auditV_user\" cert-request-find"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_auditV_user\" cert-request-find > $cert_request_find 2>&1" 1,255
+        rlAssertGrep "ForbiddenException: Authorization Error" "$cert_request_find"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_request_find-0036: Issue pki cert-request-find using valid operator cert"
-        rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_operatorV_user\" cert-request-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_operatorV_user\" cert-request-find > $cert_request_find 2>&1" 1,255
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.certrequests, operation: execute" "$cert_request_find"
+        rlLog "Executing pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_operatorV_user\" cert-request-find"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_operatorV_user\" cert-request-find > $cert_request_find 2>&1" 1,255
+        rlAssertGrep "ForbiddenException: Authorization Error" "$cert_request_find"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_request_find-0037: Issue pki cert-request-find using normal user cert(without any privileges)"
@@ -905,6 +991,8 @@ run_pki-cert-request-find-ca_tests()
         local pki_pwd="Secret123"
         rlLog "Create user $pki_user"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -n \"$CA_adminV_user\" \
                 -c $CERTDB_DIR_PASSWORD \
                 ca-user-add $pki_user \
@@ -923,43 +1011,51 @@ run_pki-cert-request-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile:$profile \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
                 certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlLog "Get the $pki_user cert in a output file"
-        rlRun "pki cert-show $cert_serialNumber --encoded --output $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --encoded --output $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-cert-show.out"
         rlAssertGrep "Certificate \"$cert_serialNumber\"" "$TEMP_NSS_DB/pki-cert-show.out"
-        rlRun "pki cert-show 0x1 --encoded --output  $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/ca-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show 0x1 --encoded --output  $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/ca-cert-show.out"
         rlAssertGrep "Certificate \"0x1\"" "$TEMP_NSS_DB/ca-cert-show.out"
         rlLog "Add the $pki_user cert to $TEMP_NSS_DB NSS DB"
         rlRun "pki -d $TEMP_NSS_DB \
+		-h $target_host \
+		-p $target_port \
                 -c $TEMP_NSS_DB_PWD \
                 -n "$pki_user" client-cert-import \
                 --cert $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-client-cert.out"
         rlAssertGrep "Imported certificate \"$pki_user\"" "$TEMP_NSS_DB/pki-client-cert.out"
         rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
         rlRun "pki -d $TEMP_NSS_DB \
+		-h $target_host \
+		-p $target_port \
                 -c $TEMP_NSS_DB_PWD \
-                -n \"CA Signing Certificate - $CA_DOMAIN Security Domain\" client-cert-import \
+                -n \"casigningcert\" client-cert-import \
                 --ca-cert $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/pki-ca-cert.out"
-        rlAssertGrep "Imported certificate \"CA Signing Certificate - $CA_DOMAIN Security Domain\"" "$TEMP_NSS_DB/pki-ca-cert.out"
+        rlAssertGrep "Imported certificate \"casigningcert\"" "$TEMP_NSS_DB/pki-ca-cert.out"
         rlRun "pki -d $CERTDB_DIR \
-                -n CA_adminV \
+		-h $target_host \
+		-p $target_port \
+                -n $CA_adminV_user \
                 -c $CERTDB_DIR_PASSWORD \
                 -t ca user-cert-add $pki_user \
                 --input $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki_user_cert_add.out" 0 "Cert is added to the user $pki_user"
        rlRun "pki -d $TEMP_NSS_DB \
+		-h $target_host \
+		-p $target_port \
                 -c $TEMP_NSS_DB_PWD \
                 -n \"$pki_user\" \
                 cert-request-find > $cert_request_find 2>&1" 1,255
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.certrequests, operation: execute" "$cert_request_find"
+        rlAssertGrep "ForbiddenException: Authorization Error" "$cert_request_find"
         rlPhaseEnd
-	
+
 	rlPhaseStartTest "pki_cert_request_find-0038: Issue pki cert-request-find using host URI parameter(https)"
 	rlLog "Executing pki -d $CERTDB_DIR U https://$target_host:$target_https_port cert-request-find"
         rlRun "pki -d $CERTDB_DIR \
@@ -971,6 +1067,8 @@ run_pki-cert-request-find-ca_tests()
         rlPhaseStartTest "pki_cert_request_find-0039: Issue pki cert-request-find using valid user"
         rlLog "Executing pki cert-request-find using user $pki_user"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -u $pki_user \
                 -w $pki_pwd \
                 cert-request-find > $cert_request_find 2>&1" 1,255
@@ -982,6 +1080,8 @@ run_pki-cert-request-find-ca_tests()
         local invalid_pki_user_pwd=Secret123
         rlLog "Executing pki cert-request-find using user $pki_user"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -u $invalid_pki_user \
                 -w $invalid_pki_user_pwd \
                 cert-request-find > $cert_request_find 2>&1" 1,255
@@ -992,5 +1092,4 @@ run_pki-cert-request-find-ca_tests()
 	rlRun "popd"
 	rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     	rlPhaseEnd
-
 }
