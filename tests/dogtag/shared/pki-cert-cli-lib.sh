@@ -319,7 +319,7 @@ create_new_cert_request()
 		fi
 	fi
 	if [ "$request_type" == "crmf" ] && [ "$archive" != "true" ];then
-		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+		rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
 		rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
 		rlLog "Execute generateCRMFRequest to generate CRMF Request"
 		rlRun "java -cp $CLASSPATH generateCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file 1> $dir/crmf.out" 0 "Execute generateCRMFRequest to generata CRMF Request"
@@ -329,10 +329,10 @@ create_new_cert_request()
         if [ "$MYROLE" == "MASTER" ]; then
                 ROOTCA_TOMCAT_INSTANCE_NAME=pki-master
                 CA_SERVER_ROOT=/var/lib/pki/$ROOTCA_TOMCAT_INSTANCE_NAME/ca/
-	elif [  $MY_ROLE == "SUBCA1" ]; then
+	elif [  "$MY_ROLE" == "SUBCA1" ]; then
 		SUBCA1_TOMCAT_INSTANCE_NAME=pki-subca1
 		CA_SERVER_ROOT=/var/lib/pki/$SUBCA1_TOMCAT_INSTANCE_NAME/ca/
-	elif [ $MY_ROLE = "SUBCA2" ]; then
+	elif [ "$MY_ROLE" = "SUBCA2" ]; then
 		SUBCA2_TOMCAT_INSTANCE_NAME=pki-subca2
 		CA_SERVER_ROOT=/var/lib/pki/$SUBCA2_TOMCAT_INSTANCE_NAME/ca/
 	fi
@@ -340,7 +340,7 @@ create_new_cert_request()
 	if [ "$request_type" == "crmf" ] && [ "$archive" == "true" ];then
 		rlLog "Get Transport Cert"
 		rlRun "cat $CA_SERVER_ROOT/conf/CS.cfg | grep ca.connector.KRA.transportCert | awk -F \"=\" '{print \$2}' > transport.txt"
-		rlRun "CRMFPopClient -d $dir -p $password -o $cert_request_file -n "$subject" -a $algo -l $key_size -u $uid -r $uid 1> $dir/CRMFPopClient.out" 0 "Executing CRMFPopClient"
+		rlRun "CRMFPopClient -d $dir -p $password -o $cert_request_file -n \"$subject\" -a $algo -l $key_size -u $uid -r $uid 1> $dir/CRMFPopClient.out" 0 "Executing CRMFPopClient"
 		RETVAL=$?
                 if [ $RETVAL != 0 ]; then
                         rlFail "CRMFPopClient Failed"
@@ -636,6 +636,7 @@ generate_new_cert()
 	rlAssertGrep "Operation Result: success" "$tmp_nss_db/$rand-request-result.txt"
 	local cert_requestid=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_ID_RETURNED" | cut -d":" -f2)
 	local cert_requestdn=$(cat $tmp_nss_db/$rand-request-result.txt |grep "REQUEST_DN" | cut -d":" -f2)
+	local cert_requeststatus=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_SUBMIT_STATUS" | cut -d":" -f2)
 	if [ "$target_host" == "" ]; then
                target_host="$(hostname)"
         fi
@@ -672,6 +673,7 @@ generate_new_cert()
 	echo decimal_valid_serialNumber-$decimal_valid_serialNumber >> $cert_info
 	echo cert_requestid-$cert_requestid >> $cert_info
 	echo cert_requestdn-$cert_requestdn >> $cert_info
+	echo cert_requeststatus-$cert_requeststatus >> $cert_info
 	return 0;
 }
 #########################################################################
