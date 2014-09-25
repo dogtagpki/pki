@@ -40,29 +40,11 @@
 
 run_pki-cert-request-submit_tests()
 {
-
-	local invalid_serialNumber=$(cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1)
-	local invalid_hex_serialNumber=0x$(echo "ibase=16;$invalid_serialNumber"|bc)
-	local CA_agentV_user=CA_agentV
-	local CA_auditV_user=CA_auditV
-	local CA_operatorV_user=CA_operatorV
-	local CA_adminV_user=CA_adminV
-	local CA_agentR_user=CA_agentR
-	local CA_adminR_user=CA_adminR
-	local CA_adminE_user=CA_adminE
-	local CA_agentE_user=CA_agentE
-	local pkcs10_reqstatus
-	local pkcs10_requestid
-	local crmf_reqstatus
-	local crmf_requestid
-	local decimal_valid_serialNumber
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-	local cert_req_info="$TmpDir/cert_req_info.out"
-	local target_host=$(hostname)
-	local target_port=8080
+	
+	local cs_Type=$1
+	local cs_Role=$2
 
 	# Creating Temporary Directory for pki cert-show
-
         rlPhaseStartSetup "pki cert-request-submit Temporary Directory"
         rlRun "TmpDir=\$(mktemp -d)" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
@@ -73,8 +55,32 @@ run_pki-cert-request-submit_tests()
         local cert_info="$TmpDir/cert_info"
         rlPhaseEnd
 	
+	#local variables
+	get_topo_stack $cs_Role $TmpDir/topo_file
+	local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        local invalid_serialNumber=$(cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1)
+        local invalid_hex_serialNumber=0x$(echo "ibase=16;$invalid_serialNumber"|bc)
+        local CA_agentV_user=$CA_INST\_agentV
+        local CA_auditV_user=$CA_INST\_auditV
+        local CA_operatorV_user=$CA_INST\_operatorV
+        local CA_adminV_user=$CA_INST\_adminV
+        local CA_agentR_user=$CA_INST\_agentR
+        local CA_adminR_user=$CA_INST\_adminR
+        local CA_adminE_user=$CA_INST\_adminE
+        local CA_agentE_user=$CA_INST\_agentE
+        local pkcs10_reqstatus
+        local pkcs10_requestid
+        local crmf_reqstatus
+        local crmf_requestid
+        local decimal_valid_serialNumber
+        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local cert_req_info="$TmpDir/cert_req_info.out"
+        local target_host=$(eval echo \$${cs_Role})
+        local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
+	local target_https_port=$(eval echo \$${CA_INST}_SECURE_PORT)
+	
 	rlPhaseStartTest "pki_cert_cli-configtest: pki cert-request-submit --help configuration test"
-	rlRun "pki cert-request-submit --help > $TmpDir/cert-request-submit.out 2>&1" 0 "pki cert-request-submit --help"
+	rlRun "pki -h $target_host -p $target_port cert-request-submit --help > $TmpDir/cert-request-submit.out 2>&1" 0 "pki cert-request-submit --help"
 	rlAssertGrep "usage: cert-request-submit <filename> \[OPTIONS...\]" "$TmpDir/cert-request-submit.out"
 	rlAssertGrep "    --help   Show help options" "$TmpDir/cert-request-submit.out"
 	rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/cert-request-submit.out"
@@ -90,11 +96,12 @@ run_pki-cert-request-submit_tests()
 	rlRun "pki -d $TEMP_NSS_DB \
 		-h $target_host \
 		-p $target_port \
-		-c $TEMP_NSS_DB_PWD cert-request-profile-show $profile \
+		-c $TEMP_NSS_DB_PWD \
+		cert-request-profile-show $profile \
 		 --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
 	rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-	rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+	rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
 	local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
 	rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
 	local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -104,6 +111,8 @@ run_pki-cert-request-submit_tests()
 	rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
@@ -123,7 +132,7 @@ run_pki-cert-request-submit_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -131,6 +140,8 @@ run_pki-cert-request-submit_tests()
         rlAssertGrep "Request Status: pending" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         rlAssertGrep "Operation Result: success" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 ca-cert-request-review $REQUEST_ID \
@@ -152,7 +163,7 @@ run_pki-cert-request-submit_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -162,6 +173,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-crmf-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-crmf-approve-out"
@@ -181,7 +194,7 @@ run_pki-cert-request-submit_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -191,6 +204,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-crmf-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-crmf-approve-out"
@@ -206,10 +221,10 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $TEMP_NSS_DB \
                 -h $target_host \
                 -p $target_port \
-                -c $TEMP_NSS_DB_PWD cert-request-profile-show $profile \
+                -c $TEMP_NSS_DB_PWD  cert-request-profile-show $profile \
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -219,6 +234,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-crmf-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-crmf-approve-out"
@@ -238,7 +255,7 @@ run_pki-cert-request-submit_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -248,6 +265,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-crmf-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-crmf-approve-out"
@@ -263,11 +282,14 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $TEMP_NSS_DB \
                 -h $target_host \
                 -p $target_port \
-                -c $TEMP_NSS_DB_PWD cert-request-profile-show $profile \
+                -c $TEMP_NSS_DB_PWD \
+		cert-request-profile-show $profile \
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -h $target_host \
+		-p $target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -277,6 +299,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-crmf-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-crmf-approve-out"
@@ -285,19 +309,38 @@ run_pki-cert-request-submit_tests()
 	rlPhaseStartTest "pki_cert_request_submit-008: Submit anonymous cert renewal request and very by approving the request" 
 	local profile=caUserCert
 	rlLog "Generate cert with validity period of 1 Day"
-	rlRun "generate_modified_cert validity_period:\"1 Day\" tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
-		req_type:pkcs10 algo:rsa key_size:2048 subjec_cn:\"Foo User3\" uid:FooUser3 email:FooUser3@example.org \
-		ou:Foo_Example_IT org:Foobar.Org country:US archive:false host:${hostname} port:8080 \
-		profile:$profile cert_db:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD admin_nick:\"$CA_agentV_user\" \
-		cert_info:$cert_info expect_data:$exp" 
+	rlRun "generate_modified_cert \
+		validity_period:\"1 Day\" \
+		tmp_nss_db:$TEMP_NSS_DB \
+		tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
+		req_type:pkcs10 \
+		algo:rsa \
+		key_size:2048 \
+		subjec_cn:\"Foo User3\" \
+		uid:FooUser3 \
+		email:FooUser3@example.org \
+		ou:Foo_Example_IT \
+		org:Foobar.Org \
+		country:US \
+		archive:false \
+		host:$target_host \
+		port:$target_port \
+		profile:$profile \
+		cert_db:$CERTDB_DIR \
+		cert_db_pwd:$CERTDB_DIR_PASSWORD \
+		admin_nick:\"$CA_agentV_user\" \
+		cert_info:$cert_info \
+		expect_data:$exp" 
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)	
-	rlRun "pki cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
+	rlRun "pki -h $target_host \
+		-p $target_port \
+		cert-request-profile-show caManualRenewal --output $TmpDir/$cert_serialNumber-renewal.xml" 0 "Get caManualRenewal profile xml"
 	local STRIP_HEX=$(echo $cert_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL=${STRIP_HEX^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
 	rlLog "Modify caManualRenewal profile xml to add serial Number $cert_serialNumber to be submitted for renewal"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/SerialNumber\" -v $decimal_valid_serialNumber $TmpDir/$cert_serialNumber-renewal.xml"
-	rlRun "pki cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $TmpDir/pki-cert-request-submit.out" 0 "Submit renewal request"
+	rlRun "pki -h $target_host -p $target_port cert-request-submit $TmpDir/$cert_serialNumber-renewal.xml 1> $TmpDir/pki-cert-request-submit.out" 0 "Submit renewal request"
 	local REQUEST_ID=$(cat $TmpDir/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
 	rlAssertGrep "Request ID: $REQUEST_ID" "$TmpDir/pki-cert-request-submit.out"
 	local REQUEST_SUBMIT_STATUS=$(cat $TmpDir/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -307,6 +350,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"	
@@ -315,7 +360,7 @@ run_pki-cert-request-submit_tests()
 	rlPhaseStartTest "pki_cert_request_submit-009: Submit a request using invalid xml file"
 	local invalid_data=$(cat /dev/urandom | tr -dc '0-9a-zA-Z' | fold -w 9000 | head -n 1)
 	rlRun "echo $invalid_data > $TmpDir/$rand-cert-profile.xml"
-	rlRun "pki cert-request-submit $TmpDir/$rand-cert-profile.xml 2> $TmpDir/pki-cert-request-submit.out" 255
+	rlRun "pki -h $target_host -p $target_port cert-request-submit $TmpDir/$rand-cert-profile.xml 2> $TmpDir/pki-cert-request-submit.out" 255
 	rlAssertGrep "Error: null" "$TmpDir/pki-cert-request-submit.out"
 	rlPhaseEnd
 	
@@ -334,7 +379,7 @@ run_pki-cert-request-submit_tests()
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
         rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v \"\" $xml_profile_file"
-        rlRun "pki cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -h $target_host -p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -360,6 +405,8 @@ run_pki-cert-request-submit_tests()
 	rlRun "pki -d $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
 		-n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
 		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $CA_agentV_user"
 	local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
@@ -370,6 +417,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
@@ -392,8 +441,9 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentE_user\" \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml \
-		2> $TEMP_NSS_DB/pki-cert-request-submit.out" 1,255 "Submit request using $CA_agentR_user"
+                -h $target_host \
+		-p $target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 2> $TEMP_NSS_DB/pki-cert-request-submit.out" 1,255 "Submit request using $CA_agentR_user"
 	rlAssertGrep "ProcessingException: Unable to invoke request" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         rlPhaseEnd
 
@@ -414,7 +464,9 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_adminV_user\" \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $CA_adminV_user"
+                -h $target_host \
+		-p $target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $CA_adminV_user"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -424,6 +476,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
@@ -446,7 +500,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_adminE_user\" \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 2> $TEMP_NSS_DB/pki-cert-request-submit.out" 255 "Submit request using $CA_adminR_user"
+                -h $target_host \
+		-p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 2> $TEMP_NSS_DB/pki-cert-request-submit.out" 255 "Submit request using $CA_adminR_user"
         rlAssertGrep "ProcessingException: Unable to invoke request" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         rlPhaseEnd
 
@@ -467,7 +522,9 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_auditV_user\" \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $CA_auditV_user"
+                -h $target_host \
+		-p $target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $CA_auditV_user"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -477,6 +534,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
@@ -499,7 +558,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_operatorV_user\" \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $CA_operatorV_user"
+                -h $target_host \
+		-p $target_port cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $CA_operatorV_user"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -509,6 +569,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
@@ -519,37 +581,47 @@ run_pki-cert-request-submit_tests()
         local pki_user_fullName="Pki User $rand"
         local pki_pwd="Secret123"
         rlLog "Create user $pki_user"
-        rlRun "pki -d $CERTDB_DIR -n \"$CA_adminV_user\" \
-                -c $CERTDB_DIR_PASSWORD ca-user-add $pki_user \
+        rlRun "pki -d $CERTDB_DIR \
+		-n \"$CA_adminV_user\" \
+		-h $target_host \
+		-p $target_port \
+                -c $CERTDB_DIR_PASSWORD \
+		ca-user-add $pki_user \
                 --fullName \"$pki_user_fullName\" \
                 --password $pki_pwd" 0 "Create $pki_user User"
         rlLog "Generate cert for user $pki_user"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 algo:rsa key_size:2048 subject_cn:\"$pki_user_fullName\" subject_uid:$pki_user \
                 subject_email:$pki_user@example.org subject_ou: subject_o: subject_c: archive:false \
-                req_profile:$profile target_host: protocol: port: cert_db_dir:$CERTDB_DIR \
+                req_profile:$profile target_host:$target_host protocol: port:$target_port cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlLog "Get the $pki_user cert in a output file"
-        rlRun "pki cert-show $cert_serialNumber --encoded --output $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --encoded --output $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-cert-show.out"
         rlAssertGrep "Certificate \"$cert_serialNumber\"" "$TEMP_NSS_DB/pki-cert-show.out"
-        rlRun "pki cert-show 0x1 --encoded --output  $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/ca-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show 0x1 --encoded --output  $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/ca-cert-show.out"
         rlAssertGrep "Certificate \"0x1\"" "$TEMP_NSS_DB/ca-cert-show.out"
         rlLog "Add the $pki_user cert to $TEMP_NSS_DB NSS DB"
         rlRun "pki -d $TEMP_NSS_DB \
                 -c $TEMP_NSS_DB_PWD \
+		-h $target_host \
+		-p $target_port \
                 -n "$pki_user" client-cert-import \
                 --cert $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-client-cert.out"
         rlAssertGrep "Imported certificate \"$pki_user\"" "$TEMP_NSS_DB/pki-client-cert.out"
         rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
         rlRun "pki -d $TEMP_NSS_DB \
                 -c $TEMP_NSS_DB_PWD \
-                -n \"CA Signing Certificate - $CA_DOMAIN Security Domain\" client-cert-import \
+		-h $target_host \
+		-p $target_port \
+                -n \"casigningcert\" client-cert-import \
                 --ca-cert $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/pki-ca-cert.out"
-        rlAssertGrep "Imported certificate \"CA Signing Certificate - $CA_DOMAIN Security Domain\"" "$TEMP_NSS_DB/pki-ca-cert.out"
-        rlRun "pki -d $CERTDB_DIR \
-                -n CA_adminV \
+        rlAssertGrep "Imported certificate \"casigningcert\"" "$TEMP_NSS_DB/pki-ca-cert.out"
+	rlRun "pki -d $CERTDB_DIR \
+                -n $CA_adminV_user \
                 -c $CERTDB_DIR_PASSWORD \
+		-h $target_host \
+		-p $target_port \
                 -t ca user-cert-add $pki_user \
                 --input $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki_user_cert_add.out" 0 "Cert is added to the user $pki_user"
         rlRun "create_new_cert_request nss_db:$TEMP_NSS_DB nss_db_pwd:$TEMP_NSS_DB_PWD req_type:pkcs10 algo:rsa \
@@ -567,7 +639,9 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $TEMP_NSS_DB \
                 -c $TEMP_NSS_DB_PWD \
                 -n \"$pki_user\" \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $pki_user_fullName"
+                -h $target_host \
+		-p $target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request using $pki_user_fullName"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -577,6 +651,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
@@ -596,8 +672,10 @@ run_pki-cert-request-submit_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki -U http://$target_host:$target_port \
-			cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -d $CERTDB_DIR \
+		-c $CERTDB_DIR_PASSWORD \
+		-U http://$target_host:$target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -607,14 +685,16 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
         rlPhaseEnd
 
+
         rlPhaseStartTest "pki_cert_request_submit-0019: Submit cert request using host URI parameter(https)"
         local profile=caUserCert
-        local target_https_port=8443
         rlRun "create_new_cert_request nss_db:$TEMP_NSS_DB nss_db_pwd:$TEMP_NSS_DB_PWD req_type:crmf algo:rsa \
                 key_size:2048 subject_cn:\"Foo User8\" subject_uid:FooUser8 subject_email:FooUser8@foobar.org \
 		subject_ou:Foo_Example_IT subject_org:FooBar.Org subject_country:US archive:false \
@@ -627,8 +707,8 @@ run_pki-cert-request-submit_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-        rlRun "pki -d $CERTDB_DIR -U https://$target_host:$target_https_port \
-                        cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
+        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -U https://$target_host:$target_https_port \
+                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
         rlAssertGrep "Request ID: $REQUEST_ID" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         local REQUEST_SUBMIT_STATUS=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out | grep "Operation Result" | awk -F ": " '{print $2}')
@@ -638,6 +718,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
@@ -660,13 +742,19 @@ run_pki-cert-request-submit_tests()
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
 	rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
-	rlRun "pki -d $CERTDB_DIR -n \"$CA_adminV_user\" \
-		-c $CERTDB_DIR_PASSWORD ca-user-add $pki_user \
+	rlRun "pki -d $CERTDB_DIR \
+		-n \"$CA_adminV_user\" \
+		-c $CERTDB_DIR_PASSWORD \
+		-h $target_host \
+		-p $target_port \
+		ca-user-add $pki_user \
 		--fullName \"$pki_user_fullName\" \
 		--password $pki_pwd" 0 "Create $pki_user User"
         rlRun "pki -d $CERTDB_DIR \
 		-u $pki_user \
 		-w $pki_pwd \
+		-h $target_host \
+		-p $target_port \
 		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml \
 		1> $TEMP_NSS_DB/pki-cert-request-submit.out" 0 "Submit request for approval"
         local REQUEST_ID=$(cat $TEMP_NSS_DB/pki-cert-request-submit.out  | grep "Request ID" | awk -F ": " '{print $2}')
@@ -678,6 +766,8 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
+		-h $target_host \
+		-p $target_port \
                 ca-cert-request-review $REQUEST_ID \
                 --action approve 1> $TmpDir/$REQUEST_ID-pkcs10-approve-out" 0 "As $CA_agentV_user Approve certificate request $REQUEST_ID"
         rlAssertGrep "Approved certificate request $REQUEST_ID" "$TmpDir/$REQUEST_ID-pkcs10-approve-out"
@@ -702,7 +792,9 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -u $pki_user \
                 -w $pki_pwd \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml \
+                -h $target_host \
+		-p $target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml \
 		2> $TEMP_NSS_DB/pki-cert-request-submit.out" 1,255 "Submit cert request for approval"
         rlAssertGrep "PKIException: Unauthorized" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         rlPhaseEnd
@@ -734,7 +826,9 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_adminE_user\" \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml \
+                -h $target_host \
+		-p $target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml \
 		2> $TEMP_NSS_DB/pki-cert-request-submit.out" 255 "Submit request using $CA_adminE_user"
         rlAssertGrep "ProcessingException: Unable to invoke request" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         rlLog "Set the date back to it's original date & time"
@@ -751,9 +845,9 @@ run_pki-cert-request-submit_tests()
                 cert_request_file:$TEMP_NSS_DB/$rand-request.pem \
                 cert_subject_file:$TEMP_NSS_DB/$rand-subject.out" 0 "Generate pkcs10 request for $profile"
         rlRun "pki -d $TEMP_NSS_DB \
-                -h $target_host \
-                -p $target_port \
-                -c $TEMP_NSS_DB_PWD cert-request-profile-show $profile \
+                -c $TEMP_NSS_DB_PWD \
+		-h $target_host \
+		-p $target_port cert-request-profile-show $profile \
                  --output $TEMP_NSS_DB/$rand-profile.xml 1> $TEMP_NSS_DB/$rand-profile.xml-out"
         rlLog "Update $profile xml with certificate request details"
         rlRun "generate_xml $TEMP_NSS_DB/$rand-request.pem $TEMP_NSS_DB/$rand-subject.out $TEMP_NSS_DB/$rand-profile.xml $profile"
@@ -770,7 +864,9 @@ run_pki-cert-request-submit_tests()
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentE_user\" \
-                cert-request-submit $TEMP_NSS_DB/$rand-profile.xml \
+                -h $target_host \
+		-p $target_port \
+		cert-request-submit $TEMP_NSS_DB/$rand-profile.xml \
 		2> $TEMP_NSS_DB/pki-cert-request-submit.out" 255 "Submit request using $CA_agentE_user"
         rlAssertGrep "ProcessingException: Unable to invoke request" "$TEMP_NSS_DB/pki-cert-request-submit.out"
         rlLog "Set the date back to it's original date & time"
