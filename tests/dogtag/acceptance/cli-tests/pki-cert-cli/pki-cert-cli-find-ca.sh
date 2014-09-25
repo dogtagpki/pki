@@ -41,34 +41,10 @@
 
 run_pki-cert-find-ca_tests()
 {
-
-	local CA_agentV_user=CA_agentV
-	local CA_auditV_user=CA_auditV
-        local CA_operatorV_user=CA_operatorV
-        local CA_adminV_user=CA_adminV
-        local CA_agentR_user=CA_agentR
-        local CA_adminR_user=CA_adminR
-        local CA_adminE_user=CA_adminE
-	local CA_agentE_user=CA_agentE
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-	local i18n_user1_fullname="Örjan Äke $rand"
-        local i18n_user1="Örjan_Äke_$rand"
-	local i18n_user2_fullname="Éric Têko $rand"
-        local i18n_user2="Éric_Têko_$rand"
-        local i18n_user3_fullname="éénentwintig dvidešimt $rand"
-        local i18n_user3="éénentwintig_dvidešimt_$rand"
-	local i18n_user4_fullname="kakskümmend üks $rand"
-	local i18n_user4="kakskümmend_üks_$rand"
-	local i18n_user5_fullname="двадцять один тридцять $rand"
-	local i18n_user5="двадцять_один_тридцять_$rand"
-	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
-	local admin_cert_nickname="PKI Administrator for $CA_DOMAIN"
-        local target_host=$(hostname)
-        local target_port=8080
-	local target_https_port=8443
+	local cs_Type=$1
+        local cs_Role=$2
 
 	# Creating Temporary Directory for pki cert-show
-
         rlPhaseStartSetup "pki cert-find Temporary Directory"
         rlRun "TmpDir=\$(mktemp -d)" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
@@ -83,9 +59,37 @@ run_pki-cert-find-ca_tests()
 	local certout="$TmpDir/cert_out"
         rlPhaseEnd
 
+	#local Variables
+	get_topo_stack $cs_Role $TmpDir/topo_file
+	local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+	local CA_agentV_user=$CA_INST\_agentV
+        local CA_auditV_user=$CA_INST\_auditV
+        local CA_operatorV_user=$CA_INST\_operatorV
+        local CA_adminV_user=$CA_INST\_adminV
+        local CA_agentR_user=$CA_INST\_agentR
+        local CA_adminR_user=$CA_INST\_adminR
+        local CA_adminE_user=$CA_INST\_adminE
+        local CA_agentE_user=$CA_INST\_agentE
+        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local i18n_user1_fullname="Örjan Äke $rand"
+        local i18n_user1="Örjan_Äke_$rand"
+        local i18n_user2_fullname="Éric Têko $rand"
+        local i18n_user2="Éric_Têko_$rand"
+        local i18n_user3_fullname="éénentwintig dvidešimt $rand"
+        local i18n_user3="éénentwintig_dvidešimt_$rand"
+        local i18n_user4_fullname="kakskümmend üks $rand"
+        local i18n_user4="kakskümmend_üks_$rand"
+        local i18n_user5_fullname="двадцять один тридцять $rand"
+        local i18n_user5="двадцять_один_тридцять_$rand"
+        local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+        local admin_cert_nickname="PKI Administrator for $CA_DOMAIN"
+        local target_host=$(eval echo \$${cs_Role})
+        local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
+        local target_https_port=$(eval echo \$${CA_INST}_SECURE_PORT)
+
 	# pki cert cli config test
 	rlPhaseStartTest "pki_cert_cli-configtest: pki cert-show --help configuration test"
-	rlRun "pki cert-find --help > $TmpDir/cert-find.out 2>&1" 0 "pki cert-find --help"
+	rlRun "pki -h $target_host -p $target_port cert-find --help > $TmpDir/cert-find.out 2>&1" 0 "pki cert-find --help"
 	rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$TmpDir/cert-find.out"
     	rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$TmpDir/cert-find.out"
     	rlAssertGrep "    --certTypeSSLClient <on|off>           Certifiate Type: SSL Client" "$TmpDir/cert-find.out"
@@ -135,81 +139,80 @@ run_pki-cert-find-ca_tests()
 	local tmp_profile=caUserCert
 	local tmp_new_user_profile=caUserCert$rand
 	rlLog "Get $tmp_profile xml file"
-	rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_user_profile-Temp1.xml"
+	rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_agentV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_user_profile-Temp1.xml"
 	rlRun "sed -i s/"$tmp_profile"/"$tmp_new_user_profile/" $TmpDir/$tmp_new_user_profile-Temp1.xml"
 	rlRun "enable_netscape_ext \"$TmpDir/$tmp_new_user_profile-Temp1.xml\" \"nsCertEmail\""
-	rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_user_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
+	rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_user_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
 	rlAssertGrep "Added profile $tmp_new_user_profile" "$TmpDir/cert-profile-add.out"
-	rlRun "pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_user_profile"
+	rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_agentV_user -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_user_profile"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-001: Verify no search results are returned with certTypeSecureEmail off when Netscape Ext. are not set ony any certs"
 	rlLog "Executing  pki cert-find --certTypeSecureEmail off"
-	rlRun "pki cert-find --certTypeSecureEmail off 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --certTypeSecureEmail off 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
 	rlAssertNotGrep "20 entries found" "$cert_find_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-002: Verify no search results are returned with certTypeSecureEmail on when Netscape Ext. are not set on any certs"
 	rlLog "Executing pki cert-find --certTypeSecureEmail on"
-	rlRun "pki cert-find --certTypeSecureEmail on 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --certTypeSecureEmail on 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
 	rlAssertNotGrep "20 entries found" "$cert_find_info"
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-003: Verify no search results are returned with certTypeSSLClient off when Netscape Ext. are not set ony any certs"
         rlLog "Executing  pki cert-find --certTypeSSLClient off"
-        rlRun "pki cert-find --certTypeSSLClient off 1> $cert_find_info"
-	
-        rlAssertNotGrep "20 entries found" "$cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLClient off 1> $cert_find_info"
+	rlAssertNotGrep "20 entries found" "$cert_find_info"
 	rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-004: Verify no search results are returned with certTypeSSLClient on when Netscape Ext. are not set on any certs"
         rlLog "Executing pki cert-find --certTypeSSLClient on"
-        rlRun "pki cert-find --certTypeSSLClient on 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLClient on 1> $cert_find_info"
         rlAssertNotGrep "20 entries found" "$cert_find_info"
 	rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd	
 
         rlPhaseStartTest "pki_cert_find-005: Verify no search results are returned with certTypeSSLServer off when Netscape Ext. are not set ony any certs"
         rlLog "Executing  pki cert-find --certTypeSSLServer off"
-        rlRun "pki cert-find --certTypeSSLServer off 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLServer off 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "20 entries found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-006: Verify no search results are returned with certTypeSSLServer on when Netscape Ext. are not set on any certs"
         rlLog "Executing pki cert-find --certTypeSSLServer on"
-        rlRun "pki cert-find --certTypeSSLServer on 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLServer on 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "20 entries found" "$cert_find_info"
         rlPhaseEnd
-	
+
         rlPhaseStartTest "pki_cert_find-007: Verify no search results are returned with certTypeSubEmailCA off when Netscape Ext. are not set ony any certs"
         rlLog "Executing  pki cert-find --certTypeSubEmailCA off"
-        rlRun "pki cert-find --certTypeSubEmailCA off 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubEmailCA off 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "20 entries found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-008: Verify no search results are returned with certTypeSubEmailCA on when Netscape Ext. are not set on any certs"
         rlLog "Executing pki cert-find --certTypeSubEmailCA on"
-        rlRun "pki cert-find --certTypeSubEmailCA on 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubEmailCA on 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "20 entries found" "$cert_find_info"
         rlPhaseEnd	
 
         rlPhaseStartTest "pki_cert_find-009: Verify no search results are returned with certTypeSubSSLCA off when Netscape Ext. are not set ony any certs"
         rlLog "Executing  pki cert-find --certTypeSubSSLCA off"
-        rlRun "pki cert-find --certTypeSubSSLCA off 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA off 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "20 entries found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0010: Verify no search results are returned with certTypeSubSSLCA on when Netscape Ext. are not set on any certs"
         rlLog "Executing pki cert-find --certTypeSubSSLCA on"
-        rlRun "pki cert-find --certTypeSubSSLCA on 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA on 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "20 entries found" "$cert_find_info"
         rlPhaseEnd
@@ -229,25 +232,25 @@ run_pki-cert-find-ca_tests()
 		subject_c: \
 		archive:false \
 		req_profile:$tmp_new_user_profile \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	local cert_requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
-	rlRun "pki cert-find -certTypeSecureEmail on 1> $cert_find_info"
-	rlRun "pki cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
+	rlRun "pki -h $target_host -p $target_port cert-find --certTypeSecureEmail on 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
 	rlAssertGrep "Subject DN: $cert_requestdn" "$cert_find_info"
 	rlAssertGrep "Identifier: Netscape Certificate Type - 2.16.840.1.113730.1.1" "$TmpDir/$cert_serialNumber-cert-show.out"
 	rlAssertGrep "Secure Email" "$TmpDir/$cert_serialNumber-cert-show.out"
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0012: verify No certs with nsCertEmail extension are returned with --certTypeSecureEmail off"
-	rlLog "Executing pki cert-find --certTypeSecureEmail off"
-        rlRun "pki cert-find --certTypeSecureEmail off 1> $cert_find_info"
+	rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSecureEmail off"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSecureEmail off 1> $cert_find_info"
 	rlAssertNotGrep "20 entries found"  "$cert_find_info"
 	rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
@@ -255,14 +258,14 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_find-0013: verify no certs are returned with --certTypeSecureEmail SomeJunkValue"
 	rlLog "Executing pki cert-find --certTypeSecureEmail \"$tmp_junk_data\""
-        rlRun "pki cert-find --certTypeSecureEmail \"$tmp_junk_data\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSecureEmail \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0014: verify no certs are returned with when nothing is passed to --certTypeSecureEmail"
-	rlLog "Executing pki cert-find --certTypeSecureEmail"
-	rlRun "pki cert-find --certTypeSecureEmail >> $cert_find_info 2>&1" 1,255 
+	rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSecureEmail"
+	rlRun "pki -h $target_host -p $target_port cert-find --certTypeSecureEmail >> $cert_find_info 2>&1" 1,255 
 	rlAssertGrep "Error: Missing argument for option: certTypeSecureEmail" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -312,12 +315,12 @@ run_pki-cert-find-ca_tests()
         local tmp_profile=caServerCert
         local tmp_new_sslclient_profile=caServerCert$rand
         rlLog "Get $tmp_profile xml file"
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_sslclient_profile-Temp1.xml"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_sslclient_profile-Temp1.xml"
         rlRun "sed -i s/"$tmp_profile"/"$tmp_new_sslclient_profile/" $TmpDir/$tmp_new_sslclient_profile-Temp1.xml"
         rlRun "enable_netscape_ext \"$TmpDir/$tmp_new_sslclient_profile-Temp1.xml\" \"nsCertSSLClient\""
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_sslclient_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_sslclient_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
         rlAssertGrep "Added profile $tmp_new_sslclient_profile" "$TmpDir/cert-profile-add.out"
-        rlRun "pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_sslclient_profile"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_agentV_user -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_sslclient_profile"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0015: verify certs with nsCertSSLClient extension are returned with --certTypeSSLClient on"
@@ -335,40 +338,40 @@ run_pki-cert-find-ca_tests()
 		subject_c: \
 		archive:false \
 		req_profile:$tmp_new_sslclient_profile \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
-        rlRun "pki cert-find --certTypeSSLClient on --size 1000 1> $cert_find_info"
-        rlRun "pki cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLClient on --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "Subject DN: $cert_requestdn" "$cert_find_info"
         rlAssertGrep "Identifier: Netscape Certificate Type - 2.16.840.1.113730.1.1" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "SSL Client" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0016: verify No certs with nsCertSSLClient extension are returned with --certTypeSSLClient off"
-	rlLog "Executing pki cert-find --certTypeSSLClient off"
-        rlRun "pki cert-find --certTypeSSLClient off 1> $cert_find_info"
+	rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSSLClient off"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLClient off 1> $cert_find_info"
         rlAssertNotGrep "20 entries found"  "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0017: verify no certs are returned with --certTypeSSLClient SomeJunkValue"
-        rlLog "Executing pki cert-find --certTypeSSLClient \"$tmp_junk_data\""
-        rlRun "pki cert-find --certTypeSSLClient \"$tmp_junk_data\" 1> $cert_find_info"
+        rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSSLClient \"$tmp_junk_data\""
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLClient \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0018: verify no certs are returned with when nothing is passed to --certTypeSSLClient"
-        rlLog "Executing pki cert-find --certTypeSSLClient"
-        rlRun "pki cert-find --certTypeSSLClient >> $cert_find_info 2>&1" 1,255
+        rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSSLClient"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLClient >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: certTypeSSLClient" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -419,12 +422,12 @@ run_pki-cert-find-ca_tests()
 	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local tmp_new_sslserver_profile=caServerCert$rand
         rlLog "Get $tmp_profile xml file"
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_sslserver_profile-Temp1.xml"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_sslserver_profile-Temp1.xml"
         rlRun "sed -i s/"$tmp_profile"/"$tmp_new_sslserver_profile/" $TmpDir/$tmp_new_sslserver_profile-Temp1.xml"
         rlRun "enable_netscape_ext \"$TmpDir/$tmp_new_sslserver_profile-Temp1.xml\" \"nsCertSSLServer\""
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_sslserver_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_sslserver_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
         rlAssertGrep "Added profile $tmp_new_sslserver_profile" "$TmpDir/cert-profile-add.out"
-        rlRun "pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_sslserver_profile"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_agentV_user -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_sslserver_profile"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0019: verify certs with nsCertSSLServer extension are returned with --certTypeSSLServer on"
@@ -442,40 +445,40 @@ run_pki-cert-find-ca_tests()
 		subject_c: \
 		archive:false \
 		req_profile:$tmp_new_sslserver_profile \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
-        rlRun "pki cert-find --certTypeSSLServer on --size 1000 1> $cert_find_info"
-        rlRun "pki cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLServer on --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "Subject DN: $cert_requestdn" "$cert_find_info"
         rlAssertGrep "Identifier: Netscape Certificate Type - 2.16.840.1.113730.1.1" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "SSL Server" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0020: verify No certs with nsCertSSLServer extension are returned with --certTypeSSLServer off"
-        rlLog "Executing pki cert-find --certTypeSSLServer off"
-        rlRun "pki cert-find --certTypeSSLServer off 1> $cert_find_info"
+        rlLog "Executing pki -h $target_host -p $target_port  cert-find --certTypeSSLServer off"
+        rlRun "pki -h $target_host -p $target_port  cert-find --certTypeSSLServer off 1> $cert_find_info"
         rlAssertNotGrep "20 entries found"  "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0021: verify no certs are returned with --certTypeSSLServer SomeJunkValue"
-        rlLog "Executing pki cert-find --certTypeSSLServer \"$tmp_junk_data\""
-        rlRun "pki cert-find --certTypeSSLServer \"$tmp_junk_data\" 1> $cert_find_info"
+        rlLog "Executing pki -h $target_host -p $target_port  cert-find --certTypeSSLServer \"$tmp_junk_data\""
+        rlRun "pki -h $target_host -p $target_port  cert-find --certTypeSSLServer \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0022: verify no certs are returned with when nothing is passed to --certTypeSSLServer"
-        rlLog "Executing pki cert-find --certTypeSSLServer"
-        rlRun "pki cert-find --certTypeSSLServer >> $cert_find_info 2>&1" 1,255
+        rlLog "Executing pki -h $target_host -p $target_port  cert-find --certTypeSSLServer"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLServer >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: certTypeSSLServer" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -526,12 +529,12 @@ run_pki-cert-find-ca_tests()
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local tmp_new_server_client_profile=caServerCert$rand
         rlLog "Get $tmp_profile xml file"
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_server_client_profile-Temp1.xml"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port  -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_server_client_profile-Temp1.xml"
         rlRun "sed -i s/"$tmp_profile"/"$tmp_new_server_client_profile/" $TmpDir/$tmp_new_server_client_profile-Temp1.xml"
         rlRun "enable_netscape_ext \"$TmpDir/$tmp_new_server_client_profile-Temp1.xml\" \"nsCertSSLServer\" \"nsCertSSLClient\""
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_server_client_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_server_client_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
         rlAssertGrep "Added profile $tmp_new_server_client_profile" "$TmpDir/cert-profile-add.out"
-        rlRun "pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_server_client_profile"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_agentV_user -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_server_client_profile"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0023: verify certs with nsCertSSLServer & nsCertSSLClient extension are returned with --certTypeSSLServer on --certTypeSSLClient on"
@@ -549,18 +552,18 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile:$tmp_new_server_client_profile \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
                 certdb_nick:\"$CA_agentV_user\" \
                 cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
-	rlLog "Executing pki cert-find --certTypeSSLServer on --certTypeSSLClient on"
-        rlRun "pki cert-find --certTypeSSLServer on --certTypeSSLClient on --size 1000 1> $cert_find_info"
-        rlRun "pki cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
+	rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSSLServer on --certTypeSSLClient on"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSSLServer on --certTypeSSLClient on --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "Subject DN: $cert_requestdn" "$cert_find_info"
         rlAssertGrep "Identifier: Netscape Certificate Type - 2.16.840.1.113730.1.1" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "SSL Server" "$TmpDir/$cert_serialNumber-cert-show.out"
@@ -571,12 +574,12 @@ run_pki-cert-find-ca_tests()
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local tmp_new_emailca_profile=caOtherCert$rand
         rlLog "Get $tmp_profile xml file"
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_emailca_profile-Temp1.xml"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_emailca_profile-Temp1.xml"
         rlRun "sed -i s/"$tmp_profile"/"$tmp_new_emailca_profile/" $TmpDir/$tmp_new_emailca_profile-Temp1.xml"
         rlRun "enable_netscape_ext \"$TmpDir/$tmp_new_emailca_profile-Temp1.xml\" \"nsCertEmailCA\""
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_emailca_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_emailca_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
         rlAssertGrep "Added profile $tmp_new_emailca_profile" "$TmpDir/cert-profile-add.out"
-        rlRun "pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_emailca_profile"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_agentV_user -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_emailca_profile"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0024: verify certs with nsCertEmailCA extension are returned with --certTypeSubEmailCA on"
@@ -594,17 +597,17 @@ run_pki-cert-find-ca_tests()
 		subject_c: \
 		archive:false \
 		req_profile:$tmp_new_emailca_profile \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
-        rlRun "pki cert-find --certTypeSubEmailCA on --size 1000 1> $cert_find_info"
-        rlRun "pki cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubEmailCA on --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "Subject DN: $cert_requestdn" "$cert_find_info"
         rlAssertGrep "Identifier: Netscape Certificate Type - 2.16.840.1.113730.1.1" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "Secure Email CA" "$TmpDir/$cert_serialNumber-cert-show.out"
@@ -612,22 +615,22 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0025: verify No certs with nsCertEmailCA extension are returned with --certTypeSubEmailCA off"
         rlLog "Executing pki cert-find --certTypeSubEmailCA off"
-        rlRun "pki cert-find --certTypeSubEmailCA off 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubEmailCA off 1> $cert_find_info"
         rlAssertNotGrep "20 entries found"  "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0026: verify no certs are returned with --certTypeSubEmailCA SomeJunkValue"
-        rlLog "Executing pki cert-find --certTypeSubEmailCA \"$tmp_junk_data\""
-        rlRun "pki cert-find --certTypeSubEmailCA \"$tmp_junk_data\" 1> $cert_find_info"
+        rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSubEmailCA \"$tmp_junk_data\""
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubEmailCA \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0027: verify no certs are returned with when nothing is passed to --certTypeSubEmailCA"
-        rlLog "Executing pki cert-find --certTypeSubEmailCA"
-        rlRun "pki cert-find --certTypeSubEmailCA >> $cert_find_info 2>&1" 1,255
+        rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSubEmailCA"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubEmailCA >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: certTypeSubEmailCA" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -678,12 +681,12 @@ run_pki-cert-find-ca_tests()
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local tmp_new_sslca_profile=caOtherCert$rand
         rlLog "Get $tmp_profile xml file"
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_sslca_profile-Temp1.xml"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_sslca_profile-Temp1.xml"
         rlRun "sed -i s/"$tmp_profile"/"$tmp_new_sslca_profile/" $TmpDir/$tmp_new_sslca_profile-Temp1.xml"
         rlRun "enable_netscape_ext \"$TmpDir/$tmp_new_sslca_profile-Temp1.xml\" \"nsCertSSLCA\""
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_sslca_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_sslca_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
         rlAssertGrep "Added profile $tmp_new_sslca_profile" "$TmpDir/cert-profile-add.out"
-        rlRun "pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_sslca_profile"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_agentV_user -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_sslca_profile"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0028: verify certs with nsCertSSLCA extension are returned with --certTypeSubSSLCA on"
@@ -701,40 +704,40 @@ run_pki-cert-find-ca_tests()
 		subject_c: \
 		archive:false \
 		req_profile:$tmp_new_sslca_profile \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
-        rlRun "pki cert-find --certTypeSubSSLCA on --size 1000 1> $cert_find_info"
-        rlRun "pki cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA on --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "Subject DN: $cert_requestdn" "$cert_find_info"
         rlAssertGrep "Identifier: Netscape Certificate Type - 2.16.840.1.113730.1.1" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "SSL CA" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0029: verify No certs with nsCertSSLServer extension are returned with --certTypeSubSSLCA off"
-        rlLog "Executing pki cert-find --certTypeSubSSLCA off"
-        rlRun "pki cert-find --certTypeSubSSLCA off 1> $cert_find_info"
+        rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA off"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA off 1> $cert_find_info"
         rlAssertNotGrep "20 entries found"  "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0030: verify no certs are returned with --certTypeSubSSLCA SomeJunkValue"
-        rlLog "Executing pki cert-find --certTypeSubSSLCA \"$tmp_junk_data\""
-        rlRun "pki cert-find --certTypeSubSSLCA \"$tmp_junk_data\" 1> $cert_find_info"
+        rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA \"$tmp_junk_data\""
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1047"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0031: verify no certs are returned with when nothing is passed to --certTypeSubSSLCA"
-        rlLog "Executing pki cert-find --certTypeSubSSLCA"
-        rlRun "pki cert-find --certTypeSubSSLCA >> $cert_find_info 2>&1" 1,255
+        rlLog "Executing pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: certTypeSubSSLCA" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -785,12 +788,12 @@ run_pki-cert-find-ca_tests()
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local tmp_new_email_ssl_ca_profile=caOtherCert$rand
         rlLog "Get $tmp_profile xml file"
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_email_ssl_ca_profile-Temp1.xml"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_email_ssl_ca_profile-Temp1.xml"
         rlRun "sed -i s/"$tmp_profile"/"$tmp_new_email_ssl_ca_profile/" $TmpDir/$tmp_new_email_ssl_ca_profile-Temp1.xml"
         rlRun "enable_netscape_ext \"$TmpDir/$tmp_new_email_ssl_ca_profile-Temp1.xml\" \"nsCertEmailCA\" \"nsCertSSLCA\""
-        rlRun "pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_email_ssl_ca_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-add $TmpDir/$tmp_new_email_ssl_ca_profile-Temp1.xml 1> $TmpDir/cert-profile-add.out"
         rlAssertGrep "Added profile $tmp_new_email_ssl_ca_profile" "$TmpDir/cert-profile-add.out"
-        rlRun "pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_email_ssl_ca_profile"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_agentV_user -c $CERTDB_DIR_PASSWORD ca-profile-enable $tmp_new_email_ssl_ca_profile"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0032: verify certs with nsCertSSLCA and nsCertEmail CA extension are returned with --certTypeSubSSLCA on --certTypeSubEmailCA on"
@@ -809,9 +812,9 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile:$tmp_new_email_ssl_ca_profile \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
                 certdb_nick:\"$CA_agentV_user\" \
@@ -819,8 +822,8 @@ run_pki-cert-find-ca_tests()
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_requestdn=$(cat $cert_info | grep cert_requestdn | cut -d- -f2)
 	rlLog "Executing pki cert-find --certTypeSubSSLCA on --certTypeSubEmailCA on --size 1000"
-        rlRun "pki cert-find --certTypeSubSSLCA on --certTypeSubEmailCA on --size 1000 1> $cert_find_info"
-        rlRun "pki cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSubSSLCA on --certTypeSubEmailCA on --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --pretty 1> $TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "Subject DN: $cert_requestdn" "$cert_find_info"
         rlAssertGrep "Identifier: Netscape Certificate Type - 2.16.840.1.113730.1.1" "$TmpDir/$cert_serialNumber-cert-show.out"
         rlAssertGrep "SSL CA" "$TmpDir/$cert_serialNumber-cert-show.out"
@@ -828,19 +831,19 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_find-0033: verify certs which have Country US in subject name are returned with --country US"
 	rlLog "Executing pki cert-find --country US"
-	rlRun "pki cert-find --country US 1> $cert_find_info" 
+	rlRun "pki -h $target_host -p $target_port cert-find --country US 1> $cert_find_info" 
 	rlRun "cat $cert_find_info | grep \"Subject DN:\" | grep US" 0 "verify certs which have Country US in subject name"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0034: verify no certs are returned when junk value is passed to --country"
 	rlLog "Executing pki cert-find --country \"$tmp_junk_data\""
-        rlRun "pki cert-find --country \"$tmp_junk_data\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --country \"$tmp_junk_data\" 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0035: verify --country <novalue> returns error and command help is returned"
 	rlLog "Executing pki cert-find --country"
-	rlRun "pki cert-find --country >> $cert_find_info 2>&1" 1,255
+	rlRun "pki -h $target_host -p $target_port cert-find --country >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: country" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -888,7 +891,7 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_find-0036: verify certs which have country US in subject name are returned with --country uS (case insensitive test)"
 	rlLog "Executing pki cert-find --country uS"
-        rlRun "pki cert-find --country uS 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --country uS 1> $cert_find_info"
         rlRun "cat $cert_find_info | grep \"Subject DN:\" | grep US"  0 "verify certs which have Country US in subject name"
         rlPhaseEnd
 
@@ -906,15 +909,15 @@ run_pki-cert-find-ca_tests()
 		subject_c:US \
 		archive:false \
 		req_profile:caUserCert \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"	
 	rlLog "Executing pki cert-find --email FooUser$rand@example.org"
-        rlRun "pki cert-find --email FooUser$rand@example.org 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --email FooUser$rand@example.org 1> $cert_find_info"
         rlRun "cat $cert_find_info | grep \"Subject DN:\" | grep FooUser$rand@example.org" \
 		0 "Verify search results return cert having E=FooUser$rand@example.org in subject"
         rlPhaseEnd
@@ -934,9 +937,9 @@ run_pki-cert-find-ca_tests()
                 subject_c:IN \
                 archive:false \
                 req_profile:$tmp_new_user_profile \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
                 certdb_nick:\"$CA_agentV_user\" \
@@ -944,20 +947,20 @@ run_pki-cert-find-ca_tests()
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
         rlLog "Executing pki cert-find --certTypeSecureEmail on --country IN --email FooNewUser$rand@example.org"
-        rlRun "pki cert-find --certTypeSecureEmail on --country IN --email FooUser$rand@example.org 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --certTypeSecureEmail on --country IN --email FooUser$rand@example.org 1> $cert_find_info"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
 	rlAssertGrep "Subject DN: $cert_subject" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0039: verify no certs are returned when junk value is passed to --email"
         rlLog "Executing pki cert-find --email \"$tmp_junk_data\""
-        rlRun "pki cert-find --email \"$tmp_junk_data\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --email \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0040: verify --email <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --email"
-        rlRun "pki cert-find --email >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --email >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: email" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -1005,7 +1008,7 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_find-0041: verify certs which have <SpecificEmailid@example.org> in subject name are returned with --email <specificemailid@example.org> (case insensitive test)"
         rlLog "Executing pki cert-find --email foouser$rand@exampl.eorg"
-        rlRun "pki cert-find --email foouser$rand@example.org 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --email foouser$rand@example.org 1> $cert_find_info"
         rlRun "cat $cert_find_info | grep \"Subject DN:\" | grep FooUser$rand@example.org" \
 	0 "Verify cert having E=FooUser$rand@example.org in subjectDN is returned"
         rlPhaseEnd
@@ -1026,15 +1029,15 @@ run_pki-cert-find-ca_tests()
 		subject_c:US \
 		archive:false \
 		req_profile:caUserCert \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         rlLog "Executing pki cert-find --email FooUser$rand\.2@example.org"
-        rlRun "pki cert-find --email FooUser$rand\.2@example.org 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --email FooUser$rand\.2@example.org 1> $cert_find_info"
         rlRun "cat $cert_find_info | grep \"Subject DN:\" | grep FooUser$rand\.2@example.org" \
 	0 "Verify Cert having E=FooUser$rand\.2@example.org in Subject Name is returned"
 	rlPhaseEnd
@@ -1042,7 +1045,7 @@ run_pki-cert-find-ca_tests()
 	rlPhaseStartTest "pki_cert_find-0043: Search certs issued by Admin user (caadmin)"
 	local profile_user=caadmin
 	rlLog "Executing pki cert-find --issuedBy $profile_user"
-	rlRun "pki cert-find --issuedBy $profile_user --size 1000 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --issuedBy $profile_user --size 1000 1> $cert_find_info"
 	local tmp_result=$(cat $cert_find_info | grep \"Issued By\" | grep -v $profile_user | wc -l)
 	if [ $tmp_result != 0 ]; then
 	rlFail "Search results include certs not issued by $profile_user"
@@ -1050,9 +1053,9 @@ run_pki-cert-find-ca_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0044: Search certs issued by Admin user (CA_agentV)"
-        local profile_user=CA_agentV
+        local profile_user=$CA_INST\_agentV
         rlLog "Executing pki cert-find --issuedBy $profile_user"
-        rlRun "pki cert-find --issuedBy $profile_user --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedBy $profile_user --size 1000 1> $cert_find_info"
         local tmp_result=$(cat $cert_find_info | grep \"Issued By\" | grep -v $profile_user | wc -l)
         if [ $tmp_result != 0 ]; then
         rlFail "Search results include certs not issued by $profile_user"
@@ -1062,7 +1065,7 @@ run_pki-cert-find-ca_tests()
 	rlPhaseStartTest "pki_cert_find-0045: search certs issued by system (system)"
 	local profile_user=system
         rlLog "Executing pki cert-find --issuedBy $profile_user"
-        rlRun "pki cert-find --issuedBy $profile_user --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedBy $profile_user --size 1000 1> $cert_find_info"
         local tmp_result=$(cat $cert_find_info | grep \"Issued By\" | grep -v $profile_user | wc -l)
         if [ $tmp_result != 0 ]; then
         rlFail "Search results include certs not issued by $profile_user"
@@ -1074,8 +1077,12 @@ run_pki-cert-find-ca_tests()
         local pki_user_fullName="PKI Temporary User $rand"
         local pki_pwd="Secret123"
         rlLog "Create user $pki_user"
-        rlRun "pki -d $CERTDB_DIR -n \"$CA_adminV_user\" \
-                -c $CERTDB_DIR_PASSWORD ca-user-add $pki_user \
+        rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
+		-n \"$CA_adminV_user\" \
+                -c $CERTDB_DIR_PASSWORD \
+		ca-user-add $pki_user \
                 --fullName \"$pki_user_fullName\" \
                 --password $pki_pwd" 0 "Create $pki_user User"
         rlLog "Generate cert for user $pki_user"
@@ -1092,38 +1099,46 @@ run_pki-cert-find-ca_tests()
 		subject_c: \
 		archive:false \
 	        req_profile:$profile \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 	        cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlLog "Get the $pki_user cert in a output file"
-        rlRun "pki cert-show $cert_serialNumber --encoded --output $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --encoded --output $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-cert-show.out"
         rlAssertGrep "Certificate \"$cert_serialNumber\"" "$TEMP_NSS_DB/pki-cert-show.out"
-        rlRun "pki cert-show 0x1 --encoded --output  $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/ca-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show 0x1 --encoded --output  $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/ca-cert-show.out"
         rlAssertGrep "Certificate \"0x1\"" "$TEMP_NSS_DB/ca-cert-show.out"
         rlLog "Add the $pki_user cert to $TEMP_NSS_DB NSS DB"
         rlRun "pki -d $TEMP_NSS_DB \
+		-h $target_host \
+		-p $target_port \
                 -c $TEMP_NSS_DB_PWD \
                 -n "$pki_user" client-cert-import \
                 --cert $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-client-cert.out"
         rlAssertGrep "Imported certificate \"$pki_user\"" "$TEMP_NSS_DB/pki-client-cert.out"
         rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
         rlRun "pki -d $TEMP_NSS_DB \
+		-h $target_host \
+		-p $target_port \
                 -c $TEMP_NSS_DB_PWD \
-                -n \"CA Signing Certificate - $CA_DOMAIN Security Domain\" client-cert-import \
+                -n \"$CA_adminV_user\" client-cert-import \
                 --ca-cert $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/pki-ca-cert.out"
-        rlAssertGrep "Imported certificate \"CA Signing Certificate - $CA_DOMAIN Security Domain\"" "$TEMP_NSS_DB/pki-ca-cert.out"
+        rlAssertGrep "Imported certificate" "$TEMP_NSS_DB/pki-ca-cert.out"
         rlRun "pki -d $CERTDB_DIR \
-                -n CA_adminV \
+		-h $target_host \
+		-p $target_port \
+                -n $CA_adminV_user \
                 -c $CERTDB_DIR_PASSWORD \
                 -t ca user-cert-add $pki_user \
                 --input $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki_user_cert_add.out"
 	rlRun "pki -d $CERTDB_DIR \
-		-n \"$admin_cert_nickname\" \
+		-h $target_host \
+		-p $target_port \
+		-n \"$CA_adminV_user\" \
 		-c $CERTDB_DIR_PASSWORD \
 		-t ca group-member-add \"Certificate Manager Agents\" $pki_user > $TmpDir/pki-user-add-ca-group.out"
    	rlAssertGrep "Added group member \"$pki_user\"" "$TmpDir/pki-user-add-ca-group.out"
@@ -1143,22 +1158,22 @@ run_pki-cert-find-ca_tests()
 		subject_c:FR \
 		archive:false \
 		req_profile: \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$TEMP_NSS_DB \
 		cert_db_pwd:$TEMP_NSS_DB_PWD certdb_nick:\"$pki_user\" cert_info:$cert_info"
 	let i=$i+1
 	done
 	rlLog "Delete user $pki_user" 
-	rlRun "pki -d $CERTDB_DIR -n \"$admin_cert_nickname\" -c $CERTDB_DIR_PASSWORD ca-user-del $pki_user 1> $TmpDir/delete-user-$pki_user.out"
+	rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n \"$CA_adminV_user\" -c $CERTDB_DIR_PASSWORD ca-user-del $pki_user 1> $TmpDir/delete-user-$pki_user.out"
 	rlAssertGrep "Deleted user \"$pki_user\"" "$TmpDir/delete-user-$pki_user.out"
 	rlPhaseEnd
 	
 	rlPhaseStartTest "pki_cert_find-0046: search certs issued by deleted Agent user"
 	local profile_user=$pki_user
         rlLog "Executing pki cert-find --issuedBy $profile_user"
-        rlRun "pki cert-find --issuedBy $profile_user --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedBy $profile_user --size 1000 1> $cert_find_info"
         local tmp_result=$(cat $cert_find_info | grep \"Issued By\" | grep -v $profile_user | wc -l)
         if [ $tmp_result != 0 ]; then
         rlFail "Search results include certs not issued by $profile_user"
@@ -1167,13 +1182,13 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0047: verify no certs are returned when junk value is passed to --issuedBy"
         rlLog "Executing pki cert-find --issuedBy \"$tmp_junk_data\""
-        rlRun "pki cert-find --issuedBy \"$tmp_junk_data\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedBy \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0048: verify --issuedBy <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --issuedBy"
-        rlRun "pki cert-find --issuedBy >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedBy >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: issuedBy" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -1221,7 +1236,7 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_find-0049: Multiple Searches: search certs having specific emailid ,country and issued by Agent which no longer exists"
 	rlLog "Executing pki cert-find --email Foo-$rand-User1@example.org --country FR --issuedBy pki_tmpuser_$rand"
-	rlRun "pki cert-find --email Foo-$rand-User1@example.org --country FR --issuedBy pki_tmpuser_$rand 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --email Foo-$rand-User1@example.org --country FR --issuedBy pki_tmpuser_$rand 1> $cert_find_info"
 	rlAssertGrep "Foo-$rand-User1@example.org" "$cert_find_info"
 	rlAssertGrep "C=FR" "$cert_find_info"
 	rlAssertGrep "Issued By: pki_tmpuser_$rand" "$cert_find_info"
@@ -1245,14 +1260,14 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         let i=$i+1
         done
-	rlRun "pki cert-find --issuedOnFrom $tmp_cur_date --size 1000 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --issuedOnFrom $tmp_cur_date --size 1000 1> $cert_find_info"
 	local find_tmp_result1=$(cat $cert_find_info | grep "Not Valid Before" | awk -F "Not Valid Before: " '{print $2}' | grep -v "$(date +%b\ %d)" | wc -l)
 	local find_tmp_result2=$(cat $cert_find_info | grep "Not Valid Before" | awk -F "Not Valid Before: " '{print $2}' | grep -v "$(date +%Y)" | wc -l)
         if [ $find_tmp_result1 != 0 && $find_temp_result!=0 ]; then
@@ -1262,20 +1277,20 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_find-0051: verify no certs are returned when invalid date is passed to --issuedOnFrom"
         local tmp_cur_date=$(date +%d-%Y-%m)
-        rlRun "pki cert-find --issuedOnFrom $tmp_cur_date --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedOnFrom $tmp_cur_date --size 1000 1> $cert_find_info"
 	rlAssertGrep "0 entries found" "$cert_find_info"
 	rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0052: verify no certs are returned when junk value is passed to --issuedOnFrom"
         rlLog "Executing pki cert-find --issuedOnFrom \"$tmp_junk_data\""
-        rlRun "pki cert-find --issuedOnFrom \"$tmp_junk_data\" 2> $cert_find_info" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedOnFrom \"$tmp_junk_data\" 2> $cert_find_info" 1,255
 	rlAssertGrep "ParseException: Unparseable date: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0053: verify --issuedOnFrom <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --issuedOnFrom"
-        rlRun "pki cert-find --issuedOnFrom >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedOnFrom >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: issuedOnFrom" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -1348,9 +1363,9 @@ run_pki-cert-find-ca_tests()
                 subject_c:US \
                 archive:false \
                 req_profile:caServerCert \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
                 certdb_nick:\"$CA_agentV_user\" \
@@ -1360,7 +1375,7 @@ run_pki-cert-find-ca_tests()
         rlLog "Set the date back to it\'s original date & time"
         rlRun "chronyc -a -m 'settime $cur_date + 10 seconds' 'makestep' 'manual reset' 'online' 1> $TmpDir/chrony.out"
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
-        rlRun "pki cert-find --issuedOnTo $tmp_cur_date --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedOnTo $tmp_cur_date --size 1000 1> $cert_find_info"
         local find_tmp_result1=$(cat $cert_find_info  | grep "Not Valid Before" | awk -F "Not Valid Before: " '{print $2}' | grep "$(date +%b --date='1 month')" | wc -l)
 	local find_tmp_result2=$(cat $cert_find_info  | grep "Not Valid Before" | awk -F "Not Valid Before: " '{print $2}' | grep "$(date +%d --date='1 day')" | wc -l)
         if [[ $find_tmp_result1 != 0 ]] && [[ $find_temp_result2 != 0 ]] ;  then
@@ -1371,20 +1386,20 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0055: verify no certs are returned when invalid date is passed to --issuedOnTo"
         local tmp_fail_cur_date=$(date +%Y-%d-%m)
-        rlRun "pki cert-find --issuedOnTo $tmp_fail_cur_date --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedOnTo $tmp_fail_cur_date --size 1000 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0056: verify no certs are returned when junk value is passed to --issuedOnTo"
         rlLog "Executing pki cert-find --issuedOnTo \"$tmp_junk_data\""
-        rlRun "pki cert-find --issuedOnTo \"$tmp_junk_data\" 2> $cert_find_info" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedOnTo \"$tmp_junk_data\" 2> $cert_find_info" 1,255
         rlAssertGrep "ParseException: Unparseable date: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0057: verify --issuedOnTo <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --issuedOnTo"
-        rlRun "pki cert-find --issuedOnTo >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --issuedOnTo >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: issuedOnTo" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -1432,7 +1447,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0058: Multiple Searches: search certs having specific emailid ,country, appproved by specific agent on specific date"
 	rlLog "Executing pki cert-find --email Foo-$rand-User1@example.org --country FR --issuedBy pki_tmpuser_$rand --issuedOnTo $tmp_cur_date"
-        rlRun "pki cert-find --email Foo-$rand-User1@example.org --country FR --issuedBy pki_tmpuser_$rand --issuedOnTo $tmp_cur_date 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --email Foo-$rand-User1@example.org --country FR --issuedBy pki_tmpuser_$rand --issuedOnTo $tmp_cur_date 1> $cert_find_info"
         rlAssertGrep "Foo-$rand-User1@example.org" "$cert_find_info"
         rlAssertGrep "C=FR" "$cert_find_info" 
         rlAssertGrep "Issued By: pki_tmpuser_$rand" "$cert_find_info"
@@ -1442,7 +1457,7 @@ run_pki-cert-find-ca_tests()
 	rlPhaseStartTest "pki_cert_find-0059: search and return all certs which have serial Number less than or equal to specific serial Number using --maxSerialNumber"
 	local max_serial_number=0xf
 	rlLog "Executing pki cert-find --maxSerialNumber $max_serial_number"
-	rlRun "pki cert-find --maxSerialNumber $max_serial_number 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --maxSerialNumber $max_serial_number 1> $cert_find_info"
         local strip_hex_serialNumber=$(echo $max_serial_number | cut -dx -f2)
         local conv_upp_val=${strip_hex_serialNumber^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$conv_upp_val"|bc)
@@ -1452,19 +1467,19 @@ run_pki-cert-find-ca_tests()
 	rlPhaseStartTest "pki_cert_find-0060: search and return all certs which have serialNumber less than or equal to specific serial Number using --maxSerialNumber <decimalNumber>"
         local max_serial_number=15
         rlLog "Executing pki cert-find --maxSerialNumber $max_serial_number"
-        rlRun "pki cert-find --maxSerialNumber $max_serial_number 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --maxSerialNumber $max_serial_number 1> $cert_find_info"
         rlAssertGrep "Number of entries returned $max_serial_number" "$cert_find_info"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0061: verify no certs are returned when junk value is passed to --maxSerialNumber"
         rlLog "Executing pki cert-find --maxSerialNumber \"$tmp_junk_data\""
-        rlRun "pki cert-find --maxSerialNumber \"$tmp_junk_data\" 2> $cert_find_info" 1,255
-        rlAssertGrep "ParseException: Unparseable serialNumber \"$tmp_junk_data\"" "$cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --maxSerialNumber \"$tmp_junk_data\" 2> $cert_find_info" 0
+        rlAssertGrep "0 Entries Found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0062: verify --maxSerialNumber <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --maxSerialNumber"
-        rlRun "pki cert-find --maxSerialNumber >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --maxSerialNumber >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: maxSerialNumber" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -1513,7 +1528,7 @@ run_pki-cert-find-ca_tests()
 	rlPhaseStartTest "pki_cert_find-0063: search and return all certs which have serial Number equal to more than specific serial Number using --minSerialNumber"
         local min_serial_number=0xf
         rlLog "Executing pki cert-find --minSerialNumber $min_serial_number"
-        rlRun "pki cert-find --maxSerialNumber $min_serial_number 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --maxSerialNumber $min_serial_number 1> $cert_find_info"
         local strip_hex_serialNumber=$(echo $min_serial_number | cut -dx -f2)
         local conv_upp_val=${strip_hex_serialNumber^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$conv_upp_val"|bc)
@@ -1523,19 +1538,19 @@ run_pki-cert-find-ca_tests()
         rlPhaseStartTest "pki_cert_find-0064: search and return all certs which have serialNumber more than or equal to specific serial Number using --minSerialNumber <decimalNumber>"
         local min_serial_number=15
         rlLog "Executing pki cert-find --maxSerialNumber $min_serial_number"
-        rlRun "pki cert-find --maxSerialNumber $min_serial_number 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --maxSerialNumber $min_serial_number 1> $cert_find_info"
         rlAssertGrep "Number of entries returned $min_serial_number" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0065: verify no certs are returned when junk value is passed to --minSerialNumber"
         rlLog "Executing pki cert-find --minSerialNumber \"$tmp_junk_data\""
-        rlRun "pki cert-find --minSerialNumber \"$tmp_junk_data\" 2> $cert_find_info" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --minSerialNumber \"$tmp_junk_data\" 2> $cert_find_info" 1,255
         rlAssertGrep "ParseException: Unparseable serialNumber \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0066: verify --minSerialNumber <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --minSerialNumber"
-        rlRun "pki cert-find --minSerialNumber >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --minSerialNumber >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: minSerialNumber" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -1594,13 +1609,13 @@ run_pki-cert-find-ca_tests()
 		subject_c: \
 		archive:false \
 		req_profile: \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	rlLog "Executing pki cert-find --name \"IDM User $rand\""
-	rlRun "pki cert-find --name \"IDM User $rand\" 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --name \"IDM User $rand\" 1> $cert_find_info"
 	rlAssertGrep "CN=IDM User $rand" "$cert_find_info"
 	rlAssertGrep "Number of entries returned 1" "$cert_find_info"
 	rlPhaseEnd
@@ -1618,13 +1633,13 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         rlLog "Executing pki cert-find --name \"idm qauser $rand\""
-        rlRun "pki cert-find --name \"idm qaUser $rand\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --name \"idm qaUser $rand\" 1> $cert_find_info"
         rlAssertGrep "CN=IDM QAUser $rand" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
 	rlPhaseEnd 
@@ -1642,13 +1657,13 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         rlLog "Executing pki cert-find --name \"$i18n_user1_fullname\""
-        rlRun "pki cert-find --name \"$i18n_user1_fullname\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --name \"$i18n_user1_fullname\" 1> $cert_find_info"
         rlAssertGrep "CN=$i18n_user1_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
 	rlPhaseEnd
@@ -1666,13 +1681,13 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         rlLog "Executing pki cert-find --name \"$i18n_user2_fullname\""
-        rlRun "pki cert-find --name \"$i18n_user2_fullname\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --name \"$i18n_user2_fullname\" 1> $cert_find_info"
         rlAssertGrep "CN=$i18n_user2_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
@@ -1690,13 +1705,13 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         rlLog "Executing pki cert-find --name \"$i18n_user3_fullname\""
-        rlRun "pki cert-find --name \"$i18n_user3_fullname\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --name \"$i18n_user3_fullname\" 1> $cert_find_info"
         rlAssertGrep "CN=$i18n_user3_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
@@ -1714,13 +1729,13 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         rlLog "Executing pki cert-find --name \"$i18n_user4_fullname\""
-        rlRun "pki cert-find --name \"$i18n_user4_fullname\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --name \"$i18n_user4_fullname\" 1> $cert_find_info"
         rlAssertGrep "CN=$i18n_user4_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
@@ -1738,13 +1753,13 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         rlLog "Executing pki cert-find --name \"$i18n_user5_fullname\""
-        rlRun "pki cert-find --name \"$i18n_user5_fullname\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --name \"$i18n_user5_fullname\" 1> $cert_find_info"
         rlAssertGrep "CN=$i18n_user5_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
@@ -1763,9 +1778,9 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"	
 	rlLog "Generate 5 Certs with subject Names:UID=pkiqa$rand{user}$i,E=pkiqa$rand{user}$i@example.org,CN=PKIQA $rand User$i"
@@ -1784,28 +1799,28 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         let i=$i+1
         done
 	rlLog "Executing pki cert-find --name \"PKIQA $rand User\" --matchExactly"
-        rlRun "pki cert-find --name \"PKIQA $rand User\" --matchExactly 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --name \"PKIQA $rand User\" --matchExactly 1> $cert_find_info"
         rlAssertGrep "CN=PKIQA $rand User" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0075: verify no certs are returned when junk value is passed to --name"
         rlLog "Executing pki cert-find --name \"$tmp_junk_data\""
-        rlRun "pki cert-find --name \"$tmp_junk_data\" 1> $cert_find_info" 
+        rlRun "pki -h $target_host -p $target_port cert-find --name \"$tmp_junk_data\" 1> $cert_find_info" 
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0076: verify --name <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --name"
-        rlRun "pki cert-find --name >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --name >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: name" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -1853,21 +1868,21 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0077: search certs with valid user id using --uid"
         rlLog "Executing pki cert-find --uid idmuser$rand"
-        rlRun "pki cert-find --uid idmuser$rand 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid idmuser$rand 1> $cert_find_info"
         rlAssertGrep "UID=idmuser$rand" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0078: search certs with valid user id using --uid(case insensitive test)"
         rlLog "Executing pki cert-find --uid idmqauser$rand"
-        rlRun "pki cert-find --uid idmqauser$rand 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid idmqauser$rand 1> $cert_find_info"
         rlAssertGrep "UID=idmQAuser$rand" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0079: Test-1: search certs with user id having i18n characters using --uid"
         rlLog "Executing pki cert-find --uid $i18n_user1"
-        rlRun "pki cert-find --uid $i18n_user1 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid $i18n_user1 1> $cert_find_info"
         rlAssertGrep "UID=$i18n_user1" "$cert_find_info"
 	rlAssertGrep "CN=$i18n_user1_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
@@ -1875,7 +1890,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0080: Test-2: search certs with user id having i18n characters using --uid"
         rlLog "Executing pki cert-find --uid $i18n_user2"
-        rlRun "pki cert-find --uid $i18n_user2 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid $i18n_user2 1> $cert_find_info"
         rlAssertGrep "UID=$i18n_user2" "$cert_find_info"
 	rlAssertGrep "CN=$i18n_user2_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
@@ -1883,7 +1898,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0081: Test-3: search certs with user id having i18n characters using --uid"
         rlLog "Executing pki cert-find --uid $i18n_user3"
-        rlRun "pki cert-find --uid $i18n_user3 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid $i18n_user3 1> $cert_find_info"
         rlAssertGrep "UID=$i18n_user3" "$cert_find_info"
 	rlAssertGrep "CN=$i18n_user3_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
@@ -1891,7 +1906,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0082: Test-4: search certs with user id having i18n characters using --uid"
         rlLog "Executing pki cert-find --uid $i18n_user4"
-        rlRun "pki cert-find --uid $i18n_user4 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid $i18n_user4 1> $cert_find_info"
         rlAssertGrep "UID=$i18n_user4" "$cert_find_info"
 	rlAssertGrep "CN=$i18n_user4_fullname" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
@@ -1899,7 +1914,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0083: Test-5: search certs with user id having i18n characters using --uid"
         rlLog "Executing pki cert-find --name $i18n_user5"
-        rlRun "pki cert-find --uid $i18n_user5 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid $i18n_user5 1> $cert_find_info"
         rlAssertGrep "CN=$i18n_user5_fullname" "$cert_find_info"
 	rlAssertGrep "UID=$i18n_user5" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
@@ -1907,14 +1922,14 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0084: search certs with common name using --name and --matchExactly"
         rlLog "Executing pki cert-find --uid pkiqa$rand\User --matchExactly"
-        rlRun "pki cert-find --uid pkiqa$rand\User --matchExactly 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid pkiqa$rand\User --matchExactly 1> $cert_find_info"
         rlAssertGrep "UID=pkiqa$rand\User" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0085: Multiple Searches: search certs with match specific CN, OrganizationUnit and email id"
 	rlLog "Executing pki cert-find --name "$i18n_user1_fullname" --orgUnit ExampleQE1 --email test@example.org --matchExactly"
-	rlRun "pki cert-find --name \"$i18n_user1_fullname\" --orgUnit ExampleQE1 --email test@example.org --matchExactly 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --name \"$i18n_user1_fullname\" --orgUnit ExampleQE1 --email test@example.org --matchExactly 1> $cert_find_info"
 	rlAssertGrep "E=test@example.org" "$cert_find_info"
 	rlAssertGrep "CN=$i18n_user1_fullname" "$cert_find_info"
 	rlAssertGrep "OU=ExampleQE1" "$cert_find_info"
@@ -1922,13 +1937,13 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0086: verify no certs are returned when junk value is passed to --uid"
         rlLog "Executing pki cert-find --uid \"$tmp_junk_data\""
-        rlRun "pki cert-find --uid \"$tmp_junk_data\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --uid \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
           
         rlPhaseStartTest "pki_cert_find-0087: verify --uid <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --uid"
-        rlRun "pki cert-find --uid >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --uid >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: uid" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -1988,13 +2003,13 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         rlLog "Executing pki cert-find --org \"$tmp_org\""
-        rlRun "pki cert-find --org \"$tmp_org\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --org \"$tmp_org\" 1> $cert_find_info"
         rlAssertGrep "O=$tmp_org" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
@@ -2002,21 +2017,21 @@ run_pki-cert-find-ca_tests()
         rlPhaseStartTest "pki_cert_find-0089: search certs with valid organization name using --org(case In-sensitive)"
 	local case_tmp_org="example orGANizaTION $rand"
         rlLog "Executing pki cert-find --org \"$case_tmp_org\""
-        rlRun "pki cert-find --org \"$case_tmp_org\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --org \"$case_tmp_org\" 1> $cert_find_info"
         rlAssertGrep "O=$tmp_org" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0090: verify no certs are returned when junk value is passed to --org"
         rlLog "Executing pki cert-find --org \"$tmp_junk_data\""
-        rlRun "pki cert-find --org \"$tmp_junk_data\" 1> $cert_find_info" 
+        rlRun "pki -h $target_host -p $target_port cert-find --org \"$tmp_junk_data\" 1> $cert_find_info" 
         rlAssertGrep "0 entries found" "$cert_find_info"
 	rlAssertNotGrep "Number of entries" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0091: verify --org <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --org"
-        rlRun "pki cert-find --org >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --org >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: org" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -2076,13 +2091,13 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         rlLog "Executing pki cert-find --orgUnit \"$tmp_org_unit\""
-        rlRun "pki cert-find --orgUnit \"$tmp_org_unit\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --orgUnit \"$tmp_org_unit\" 1> $cert_find_info"
         rlAssertGrep "OU=$tmp_org_unit" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
@@ -2090,21 +2105,21 @@ run_pki-cert-find-ca_tests()
         rlPhaseStartTest "pki_cert_find-0093: search certs with valid organization name using --orgUnit(case In-sensitive)"
         local case_tmp_org_unit="orGANizaTION UNIT $rand"
         rlLog "Executing pki cert-find --orgUnit \"$case_tmp_org_unit\""
-        rlRun "pki cert-find --orgUnit \"$case_tmp_org_unit\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --orgUnit \"$case_tmp_org_unit\" 1> $cert_find_info"
         rlAssertGrep "OU=$tmp_org_unit" "$cert_find_info"
         rlAssertGrep "Number of entries returned 1" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0094: verify no certs are returned when junk value is passed to --orgUnit"
         rlLog "Executing pki cert-find --orgUnit \"$tmp_junk_data\""
-        rlRun "pki cert-find --orgUnit \"$tmp_junk_data\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --orgUnit \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0095: verify --orgUnit <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --orgUnit"
-        rlRun "pki cert-find --orgUnit >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --orgUnit >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: orgUnit" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -2164,22 +2179,24 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
 	rlAssertNotGrep "0 entries found" "$cert_find_info"
 	rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1053"
         rlPhaseEnd	
@@ -2198,24 +2215,26 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
-        rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1053"
+        rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1053"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0098: search certs which have been revoked with reason CA_Compromise using --revocationReason CA_Compromise"
@@ -2232,24 +2251,26 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
-        rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1053"
+        rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1053"
         rlPhaseEnd	
 
         rlPhaseStartTest "pki_cert_find-0099: search certs which have been revoked with reason Affiliation_Changed using --revocationReason Affiliation_Changed"
@@ -2266,24 +2287,26 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
-        rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1053"
+        rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1053"
         rlPhaseEnd
 
 
@@ -2301,24 +2324,26 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
-        rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1053"
+        rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1053"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0101: search certs which have been revoked with reason Cessation_of_Operation using --revocationReason Cessation_of_Operation"
@@ -2335,24 +2360,26 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
-        rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1053"
+        rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1053"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0102: search certs which have been revoked with reason Certificate_Hold using --revocationReason Certificate_Hold"
@@ -2369,24 +2396,26 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
 	rlAssertGrep "Placed certificate \"$cert_serialNumber\" on-hold" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
-        rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1053"
+        rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1053"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0103: search certs which have been revoked with reason Privilege_Withdrawn using --revocationReason Privilege_Withdrawn"
@@ -2403,24 +2432,26 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason 1> $cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
-        rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1053"
+        rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1053"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0104: search certs which have been revoked with reason unspecified (Numeric Code 0) using --revocationReason 0"
@@ -2438,22 +2469,24 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason_code"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
@@ -2473,22 +2506,24 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason_code"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
@@ -2508,22 +2543,24 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason_code"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
@@ -2543,22 +2580,24 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason_code"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
@@ -2578,22 +2617,24 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason_code"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
@@ -2613,22 +2654,24 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason_code"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
@@ -2648,22 +2691,24 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Placed certificate \"$cert_serialNumber\" on-hold" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason_code"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
@@ -2683,35 +2728,37 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revocationReason $tmp_revoke_reason_code"
-        rlRun "pki cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason $tmp_revoke_reason_code --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0112: verify no certs are returned when junk value is passed to --revocationReason"
         rlLog "Executing pki cert-find --revocationReason \"$tmp_junk_data\""
-        rlRun "pki cert-find --revocationReason \"$tmp_junk_data\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0113: verify --revocationReason  <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --revocationReason"
-        rlRun "pki cert-find --revocationReason >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: revocationReason" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -2757,7 +2804,7 @@ run_pki-cert-find-ca_tests()
         rlAssertGrep "    --validNotBeforeTo <YYYY-MM-DD>        Valid not before end date" "$cert_find_info"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_cert_find-0114: search certs which have been revoked by Admin User using --revokedBy caadmin"
+	rlPhaseStartTest "pki_cert_find-0114: search certs which have been revoked by Admin User using --revokedBy caadmincert"
 	local tmp_revoked_user=caadmin
         local tmp_revoke_reason=unspecified
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
@@ -2772,32 +2819,34 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
-                -n \"$admin_cert_nickname\" \
+                -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
 	rlLog "Executing pki cert-find --revokedBy $tmp_revoked_user --minSerialNumber $cert_serialNumber"
-	rlRun "pki cert-find --revokedBy $tmp_revoked_user --minSerialNumber $cert_serialNumber $1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --revokedBy $tmp_revoked_user --minSerialNumber $cert_serialNumber 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
 	rlAssertGrep "Subject DN: $cert_subject" "$cert_find_info"
 	rlAssertGrep "Number of entries" "$cert_find_info"
 	rlAssertNotGrep "0 entries found" "$cert_find_info"
-	rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1054"
+	rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1054"
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0115: search certs which have been revoked by Agent User using --revokedBy CA_agentV"
-        local tmp_revoked_user=CA_agentV
+        local tmp_revoked_user=$CA_INST\_agentV
         local tmp_revoke_reason=Key_Compromise
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
                 myreq_type:pkcs10 \
@@ -2811,47 +2860,49 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n $tmp_revoked_user \
                 cert-revoke $cert_serialNumber --force --reason $tmp_revoke_reason 1> $expout" 0
         rlAssertGrep "Revoked certificate \"$cert_serialNumber\"" "$expout"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$expout"
-        rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
+        rlAssertGrep "Issuer: CN=PKI $CA_INST Signing Cert,O=redhat" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --revokedBy $tmp_revoked_user --minSerialNumber $cert_serialNumber"
-        rlRun "pki cert-find --revokedBy $tmp_revoked_user --minSerialNumber $cert_serialNumber 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedBy $tmp_revoked_user --minSerialNumber $cert_serialNumber 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
 	rlAssertGrep "Subject DN: $cert_subject" "$cert_find_info"
         rlAssertGrep "Number of entries" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
-	rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1054"
+	rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1054"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0116: search certs which have been revoked by agent CA_agentV --revoked CA_agentV(case-insensitive)"
-	tmp_revoked_user=CA_aGENTv
+	tmp_revoked_user=$CA_INST\_aGENTv
         rlLog "Executing pki cert-find --revokedBy $tmp_revoked_user --size 1000"
-        rlRun "pki cert-find --revokedBy $tmp_revoked_user --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedBy $tmp_revoked_user --size 1000 1> $cert_find_info"
         rlAssertGrep "Number of entries" "$cert_find_info"
         rlAssertNotGrep "0 entries found" "$cert_find_info"
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0117: verify no certs are returned when junk value is passed to --revocationReason"
         rlLog "Executing pki cert-find --name \"$tmp_junk_data\""
-        rlRun "pki cert-find --revocationReason \"$tmp_junk_data\" 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason \"$tmp_junk_data\" 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0118: verify --revocationReason  <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --revocationReason"
-        rlRun "pki cert-find --revocationReason >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --revocationReason >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: revocationReason" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -2896,6 +2947,7 @@ run_pki-cert-find-ca_tests()
         rlAssertGrep "    --validNotBeforeFrom <YYYY-MM-DD>      Valid not before start date" "$cert_find_info"
         rlAssertGrep "    --validNotBeforeTo <YYYY-MM-DD>        Valid not before end date" "$cert_find_info"
         rlPhaseEnd
+
 
         rlPhaseStartTest "pki_cert_find-0119: search certs with which have been revoked from Current date --revokedOnFrom <YYYY-MM-DD>"
         local tmp_cur_date=$(date +%Y-%m-%d)
@@ -2915,27 +2967,29 @@ run_pki-cert-find-ca_tests()
                 subject_c: \
                 archive:false \
                 req_profile: \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD certdb_nick:\"$CA_agentV_user\" cert_info:$cert_info"
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason unspecified 1> $expout" 0
         let i=$i+1
         done
-        rlRun "pki cert-find --revokedOnFrom $tmp_cur_date --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnFrom $tmp_cur_date --size 1000 1> $cert_find_info"
 	rlAssertGrep "Number of entries" "$cert_find_info"
 	rlAssertNotGrep "0 entries found" "$cert_find_info"
-        rlLog "PKI TICKET:: https//fedorahosted.org/pki/ticket/1055"
+        rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1055"
         rlPhaseEnd	
 
         rlPhaseStartTest "pki_cert_find-0120: verify no certs are returned when invalid date is passed to --revokedOnFrom"
         local tmp_fail_cur_date=$(date +%d-%Y-%m)
-        rlRun "pki cert-find --revokedOnFrom $tmp_fail_cur_date --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnFrom $tmp_fail_cur_date --size 1000 1> $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
 	rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/1072"
@@ -2943,13 +2997,13 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0121: verify no certs are returned when junk value is passed to --revokedOnFrom"
         rlLog "Executing pki cert-find --revokedOnFrom \"$tmp_junk_data\""
-        rlRun "pki cert-find --revokedOnFrom \"$tmp_junk_data\" 2> $cert_find_info" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnFrom \"$tmp_junk_data\" 2> $cert_find_info" 1,255
         rlAssertGrep "ParseException: Unparseable date: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0122: verify --revokedOnFrom <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --revokedOnFrom"
-        rlRun "pki cert-find --revokedOnFrom >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnFrom >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: revokedOnFrom" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -2997,7 +3051,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0123: search revoked certs which are issued from Current date --revokedOnTo <YYYY-MM-DD>"
         local tmp_cur_date=$(date +%Y-%m-%d)
-        rlRun "pki cert-find --revokedOnTo $tmp_cur_date --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnTo $tmp_cur_date --size 1000 1> $cert_find_info"
 	rlAssertNotGrep "Status: VALID" "$cert_find_info"
 	rlAssertGrep "Number of entries returned" "$cert_find_info"
 	rlAssertNotGrep "0 entries found" "$cert_find_info"
@@ -3006,7 +3060,7 @@ run_pki-cert-find-ca_tests()
         rlPhaseStartTest "pki_cert_find-0124: Test-1 verify no revoked certs are returned when invalid date is passed to --revokedOnTo YYYY-DD-MM" 
         local tmp_cur_date=$(date +%Y-28-%m)
 	rlLog "Executing pki cert-find --revokedOnTo $tmp_cur_date"
-        rlRun "pki cert-find --revokedOnTo $tmp_cur_date --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnTo $tmp_cur_date --size 1000 1> $cert_find_info"
 	rlAssertNotGrep "Status: Revoked" "$cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
@@ -3016,7 +3070,7 @@ run_pki-cert-find-ca_tests()
         rlPhaseStartTest "pki_cert_find-0125: Test-2 verify no revoked certs are returned when invalid date is passed to --revokedOnTo 2048-22-06"
 	local tmp_cur_date=2048-22-06
         rlLog "Executing pki cert-find --revokedOnTo $tmp_cur_date"
-        rlRun "pki cert-find --revokedOnTo $tmp_cur_date --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnTo $tmp_cur_date --size 1000 1> $cert_find_info"
 	rlAssertNotGrep "Status: Revoked" "$cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
@@ -3025,13 +3079,13 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0126: verify no revoked certs are returned when junk value is passed to --revokedOnTo"
         rlLog "Executing pki cert-find --revokedOnTo \"$tmp_junk_data\""
-        rlRun "pki cert-find --revokedOnTo \"$tmp_junk_data\" 2> $cert_find_info" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnTo \"$tmp_junk_data\" 2> $cert_find_info" 1,255
         rlAssertGrep "ParseException: Unparseable date: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0127: verify --revokedOnTo <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --revokedOnTo"
-        rlRun "pki cert-find --revokedOnTo >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --revokedOnTo >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: revokedOnTo" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3080,26 +3134,26 @@ run_pki-cert-find-ca_tests()
 	rlPhaseStartTest "pki_cert_find-0128: return a fixed number of search results using --size <validNumber>"
 	local tmp_search_size=15
 	rlLog "Executing pki cert-find --size $tmp_search_size"
-	rlRun "pki cert-find --size $tmp_search_size 1> $cert_find_info" 
+	rlRun "pki -h $target_host -p $target_port cert-find --size $tmp_search_size 1> $cert_find_info" 
 	rlAssertGrep "Number of entries returned $tmp_search_size" "$cert_find_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0129: verify if search results are returned if a very large number is passed to --size"
 	local tmp_search_size=$(cat /dev/urandom | tr -dc '0-9' | fold -w 20 | head -n 1)
         rlLog "Executing pki cert-find --size $tmp_search_size"
-        rlRun "pki cert-find --size $tmp_search_size > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --size $tmp_search_size > $cert_find_info 2>&1" 1,255
 	rlAssertGrep "NumberFormatException: For input string: \"$tmp_search_size\"" "$cert_find_info"
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0130: verify no search results are returned when junk value is passed to --size"
         rlLog "Executing pki cert-find --size \"$tmp_junk_data\""
-        rlRun "pki cert-find --size \"$tmp_junk_data\" 2> $cert_find_info" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --size \"$tmp_junk_data\" 2> $cert_find_info" 1,255
         rlAssertGrep "NumberFormatException: For input string: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0131: verify --size <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --size"
-        rlRun "pki cert-find --size >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --size >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: size" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3149,7 +3203,7 @@ run_pki-cert-find-ca_tests()
         local tmp_search_size=15
 	local tmp_start_from=$(expr 5 + 1)
         rlLog "Executing pki cert-find --size $tmp_search_size --start $tmp_start_from"
-        rlRun "pki cert-find --size $tmp_search_size 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --size $tmp_search_size 1> $cert_find_info"
 	local cert_start_serialNumber=0x$(echo "obase=16;$tmp_start_from"|bc)
 	rlAssertGrep "Serial Number: $cert_start_serialNumber" "$cert_find_info"
         rlAssertGrep "Number of entries returned $tmp_search_size" "$cert_find_info"
@@ -3157,13 +3211,13 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_find-0133: verify no search results are returned when junk value is passed to --start"
         rlLog "Executing pki cert-find --start \"$tmp_junk_data\""
-        rlRun "pki cert-find --start \"$tmp_junk_data\" 2> $cert_find_info" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --start \"$tmp_junk_data\" 2> $cert_find_info" 1,255
         rlAssertGrep "NumberFormatException: For input string: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0134: verify --start <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --start"
-        rlRun "pki cert-find --start >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --start >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: start" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3224,16 +3278,16 @@ run_pki-cert-find-ca_tests()
 		subject_c:US \
                 archive:false \
 		req_profile:caServerCert \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
 	local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
 	rlLog "Executing pki cert-find --state North Carolina"
-	rlRun "pki cert-find --state \"$tmp_cert_state\" 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --state \"$tmp_cert_state\" 1> $cert_find_info"
 	rlRun "echo $cert_subject | grep \"$tmp_cert_state\""
 	rlAssertGrep "Subject DN: $cert_subject" "$cert_find_info"
 	rlAssertGrep "Number of entries returned" "$cert_find_info"
@@ -3241,14 +3295,14 @@ run_pki-cert-find-ca_tests()
         
 	rlPhaseStartTest "pki_cert_find-0136: verify no search results are returned when junk value is passed to --state"
         rlLog "Executing pki cert-find --state \"$tmp_junk_data\""
-        rlRun "pki cert-find --state \"$tmp_junk_data\" 1> $cert_find_info" 
+        rlRun "pki -h $target_host -p $target_port cert-find --state \"$tmp_junk_data\" 1> $cert_find_info" 
         rlAssertGrep "0 entries found" "$cert_find_info"
 	rlAssertNotGrep "Number of entries returned" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0137: verify --state <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --state"
-        rlRun "pki cert-find --state >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --state >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: state" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3309,16 +3363,16 @@ run_pki-cert-find-ca_tests()
                 subject_c:US \
                 archive:false \
                 req_profile:caServerCert \
-                target_host: \
+                target_host:$target_host \
                 protocol: \
-                port: \
+                port:$target_port \
                 cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
                 certdb_nick:\"$CA_agentV_user\" \
                 cert_info:$cert_info"
 	local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
         rlLog "Executing pki cert-find --locality North Carolina"
-        rlRun "pki cert-find --locality \"$tmp_cert_locality\" 1> $cert_find_info" 
+        rlRun "pki -h $target_host -p $target_port cert-find --locality \"$tmp_cert_locality\" 1> $cert_find_info" 
         rlRun "echo $cert_subject | grep $tmp_cert_locality"
         rlAssertGrep "$tmp_cert_locality" "$cert_find_info"
         rlAssertGrep "Number of entries returned" "$cert_find_info"
@@ -3327,14 +3381,14 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0139: verify no search results are returned when junk value is passed to --locality"
         rlLog "Executing pki cert-find --state \"$tmp_junk_data\""
-        rlRun "pki cert-find --locality \"$tmp_junk_data\" 1> $cert_find_info" 
+        rlRun "pki -h $target_host -p $target_port cert-find --locality \"$tmp_junk_data\" 1> $cert_find_info" 
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlAssertNotGrep "Number of entries returned" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0140: verify --locality <novalue> returns error and command help is returned"
         rlLog "Executing pki cert-find --locality"
-        rlRun "pki cert-find --locality >> $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --locality >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: locality" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3383,14 +3437,14 @@ run_pki-cert-find-ca_tests()
 	rlPhaseStartTest "pki_cert_find-0141: search all certs with status VALID"
 	local tmp_cert_status=VALID
 	rlLog "Executing pki cert-find --state $tmp_cert_status"
-	rlRun "pki cert-find --status $tmp_cert_status 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --status $tmp_cert_status 1> $cert_find_info"
 	rlAssertGrep "Status: $tmp_cert_status" "$cert_find_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0142: search all certs with status REVOKED"
         local tmp_cert_status=REVOKED
         rlLog "Executing pki cert-find --state $tmp_cert_status"
-        rlRun "pki cert-find --status $tmp_cert_status 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --status $tmp_cert_status 1> $cert_find_info"
         rlAssertGrep "Status: $tmp_cert_status" "$cert_find_info"
 	rlPhaseEnd
 
@@ -3401,7 +3455,7 @@ run_pki-cert-find-ca_tests()
         rlRun "generate_modified_cert validity_period:\"$validityperiod\" \
 		tmp_nss_db:$TEMP_NSS_DB \
 		tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
-                req_type:crmf \
+                req_type:pkcs10 \
 		algo:rsa \
 		key_size:2048 \
 		cn: \
@@ -3411,8 +3465,8 @@ run_pki-cert-find-ca_tests()
 		org: \
 		country: \
 		archive:false \
-		host: \
-		port: \
+		host:$target_host \
+		port:$target_port \
 		profile: \
                 cert_db:$CERTDB_DIR \
 		cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -3429,6 +3483,8 @@ run_pki-cert-find-ca_tests()
         rlLog "Date after modifying using chrony: $(date)"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlRun "pki -d  $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentV_user\" \
                 cert-revoke $cert_serialNumber --force --reason Key_Compromise 1> $expout" 0
@@ -3437,7 +3493,7 @@ run_pki-cert-find-ca_tests()
         rlAssertGrep "Issuer: CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain" "$expout"
         rlAssertGrep "Status: REVOKED" "$expout"
         rlLog "Executing pki cert-find --state $tmp_cert_status"
-        rlRun "pki cert-find --status $tmp_cert_status 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --status $tmp_cert_status 1> $cert_find_info"
         rlAssertGrep "Status: $tmp_cert_status" "$cert_find_info"
         rlLog "Set the date back to it's original date & time"
         rlRun "chronyc -a -m 'settime $cur_date + 10 seconds' 'makestep' 'manual reset' 'online' 1> $TmpDir/chrony.out"
@@ -3454,7 +3510,7 @@ run_pki-cert-find-ca_tests()
         rlRun "generate_modified_cert validity_period:\"$validityperiod\" \
                 tmp_nss_db:$TEMP_NSS_DB \
                 tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
-                req_type:crmf \
+                req_type:pkcs10 \
                 algo:rsa \
                 key_size:2048 \
                 cn:\"Test User1 $rand\" \
@@ -3464,8 +3520,8 @@ run_pki-cert-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host: \
-                port: \
+                host:$target_host \
+                port:$target_port \
                 profile: \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -3476,7 +3532,7 @@ run_pki-cert-find-ca_tests()
 	local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
 	local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
 	rlLog "Executing pki cert-find --validityCount $validityperiod --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-	rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 1> $cert_find_info"
 	rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
 	rlAssertGrep "Subject DN: $cert_subject"  "$cert_find_info"
 	rlAssertGrep "Number of entries returned" "$cert_find_info"
@@ -3491,7 +3547,7 @@ run_pki-cert-find-ca_tests()
         rlRun "generate_modified_cert validity_period:\"$validityperiod\" \
                 tmp_nss_db:$TEMP_NSS_DB \
                 tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
-                req_type:crmf \
+                req_type:pkcs10 \
                 algo:rsa \
                 key_size:2048 \
                 cn:\"Test User2 $rand\" \
@@ -3501,8 +3557,8 @@ run_pki-cert-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host: \
-                port: \
+                host:$target_host \
+                port:$target_port \
                 profile: \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -3513,7 +3569,7 @@ run_pki-cert-find-ca_tests()
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
         rlLog "Executing pki cert-find --validityCount $validityperiod --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 1> $cert_find_info"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertGrep "Subject DN: $cert_subject"  "$cert_find_info"
         rlAssertGrep "Number of entries returned" "$cert_find_info"
@@ -3528,7 +3584,7 @@ run_pki-cert-find-ca_tests()
         rlRun "generate_modified_cert validity_period:\"$validityperiod\" \
                 tmp_nss_db:$TEMP_NSS_DB \
                 tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
-                req_type:crmf \
+                req_type:pkcs10 \
                 algo:rsa \
                 key_size:2048 \
                 cn:\"Test User3 $rand\" \
@@ -3538,8 +3594,8 @@ run_pki-cert-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host: \
-                port: \
+                host:$target_host \
+                port:$target_port \
                 profile: \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -3550,7 +3606,7 @@ run_pki-cert-find-ca_tests()
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
         rlLog "Executing pki cert-find --validityCount $validityperiod --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 1> $cert_find_info"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertGrep "Subject DN: $cert_subject"  "$cert_find_info"
         rlAssertGrep "Number of entries returned" "$cert_find_info"
@@ -3567,7 +3623,7 @@ run_pki-cert-find-ca_tests()
         rlRun "generate_modified_cert validity_period:\"$invalidperiod\" \
                 tmp_nss_db:$TEMP_NSS_DB \
                 tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
-                req_type:crmf \
+                req_type:pkcs10 \
                 algo:rsa \
                 key_size:2048 \
                 cn:\"Test User4 $rand\" \
@@ -3577,8 +3633,8 @@ run_pki-cert-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host: \
-                port: \
+                host:$target_host \
+                port:$target_port \
                 profile: \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -3591,7 +3647,7 @@ run_pki-cert-find-ca_tests()
         rlRun "generate_modified_cert validity_period:\"$validityperiod\" \
                 tmp_nss_db:$TEMP_NSS_DB \
                 tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
-                req_type:crmf \
+                req_type:pkcs10 \
                 algo:rsa \
                 key_size:2048 \
                 cn:\"Test User4 $rand\" \
@@ -3601,8 +3657,8 @@ run_pki-cert-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host: \
-                port: \
+                host:$target_host \
+                port:$target_port \
                 profile: \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -3613,7 +3669,7 @@ run_pki-cert-find-ca_tests()
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         local cert_subject=$(cat $cert_info | grep cert_subject | cut -d- -f2)
         rlLog "Executing pki cert-find --validityCount $validityperiod --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 1> $cert_find_info"
         rlAssertGrep "Serial Number: $cert_serialNumber" "$cert_find_info"
         rlAssertGrep "Subject DN: $cert_subject"  "$cert_find_info"
         rlAssertGrep "Number of entries returned" "$cert_find_info"
@@ -3625,7 +3681,7 @@ run_pki-cert-find-ca_tests()
         local validityoperation=">="
         local validityunit="month"
 	rlLog "Executing pki cert-find --validityCount $validityperiod --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 > $cert_find_info 2>&1" 1,255
 	rlAssertGrep "NumberFormatException: For input string: \"$validitycount\"" "$cert_find_info"
         rlPhaseEnd
 
@@ -3634,7 +3690,7 @@ run_pki-cert-find-ca_tests()
         local validityoperation=">="
         local validityunit="month"
         rlLog "Executing pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit --size 1000 > $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: validityCount" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3685,7 +3741,7 @@ run_pki-cert-find-ca_tests()
         local validityoperation="dfdfd"
         local validityunit="month"
         rlLog "Executing pki cert-find --validityCount $validityperiod --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit > $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit > $cert_find_info"
         rlAssertGrep "0 entries found" "$cert_find_info"
         rlPhaseEnd
 
@@ -3694,7 +3750,7 @@ run_pki-cert-find-ca_tests()
         local validityoperation=
         local validityunit="month"
         rlLog "Executing pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation "$validityoperation" --validityUnit $validityunit > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation "$validityoperation" --validityUnit $validityunit > $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: validityOperation" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3708,7 +3764,7 @@ run_pki-cert-find-ca_tests()
         local validityoperation=">="
         local validityunit="dkfdlkfaksdfdfdd1212"
         rlLog "Executing pki cert-find --validityCount $validityperiod --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit > $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Invalid validity duration unit: $validityunit" "$cert_find_info"
         rlPhaseEnd
 
@@ -3717,7 +3773,7 @@ run_pki-cert-find-ca_tests()
         local validityoperation=">="
         local validityunit=
         rlLog "Executing pki cert-find --validityCount --validityOperation \"$validityoperation\" --validityUnit $validityunit"
-        rlRun "pki cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validityCount $validitycount --validityOperation \"$validityoperation\" --validityUnit $validityunit > $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: validityUnit" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3768,7 +3824,7 @@ run_pki-cert-find-ca_tests()
 	local tmp_start_date=$(date +%Y-%m-%d)
 	local tmp_end_date=$(date +%Y-%m-%d)
 	rlLog "Executing pki cert-find --validNotBeforeFrom $tmp_start_date --validNotBeforeTo $tmp_end_date --size 1000"
-	rlRun "pki cert-find --validNotBeforeFrom $tmp_start_date --validNotBeforeTo $tmp_end_date --size 1000 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --validNotBeforeFrom $tmp_start_date --validNotBeforeTo $tmp_end_date --size 1000 1> $cert_find_info"
 	rlAssertNotGrep "Not Valid Before: $(date +%a --date='1 day')" "$cert_find_info"
 	rlAssertNotGrep "Not Valid Before: $(date +%a --date='1 day ago')" "$cert_find_info"
 	rlPhaseEnd
@@ -3781,7 +3837,7 @@ run_pki-cert-find-ca_tests()
         rlRun "generate_modified_cert validity_period:\"$validityperiod\" \
                 tmp_nss_db:$TEMP_NSS_DB \
                 tmp_nss_db_pwd:$TEMP_NSS_DB_PWD \
-                req_type:crmf \
+                req_type:pkcs10 \
                 algo:rsa \
                 key_size:2048 \
                 cn: \
@@ -3791,8 +3847,8 @@ run_pki-cert-find-ca_tests()
                 org: \
                 country: \
                 archive:false \
-                host: \
-                port: \
+                host:$target_host \
+                port:$target_port \
                 profile: \
                 cert_db:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
@@ -3811,7 +3867,7 @@ run_pki-cert-find-ca_tests()
         rlLog "Date after modifying using chrony: $(date)"
 	rlLog "Cert End date: $cert_end_date"
         rlLog "Executing pki cert-find --validNotAfterFrom $tmp_start_date --validNotAfterTo $tmp_end_date --size 1000 1> $cert_find_info"
-        rlRun "pki cert-find --validNotAfterFrom $tmp_start_date --validNotAfterTo $tmp_end_date --size 1000  1> $cert_find_info"
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotAfterFrom $tmp_start_date --validNotAfterTo $tmp_end_date --size 1000  1> $cert_find_info"
 	rlAssertNotGrep "Not Valid After: $(date +%a --date='2 days ago')" "$cert_find_info"
 	rlAssertGrep "Not Valid After: $(date +%a --date='1 day ago')" "$cert_find_info"
         rlLog "Set the date back to it's original date & time"
@@ -3822,31 +3878,31 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0156: pki cert-find should not run when invalid data is passed to --validNotAfterTo"
         rlLog "Executing pki cert-find --validNotAfterTo $tmp_junk_data"
-        rlRun "pki cert-find --validNotAfterTo \"$tmp_junk_data\" > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotAfterTo \"$tmp_junk_data\" > $cert_find_info 2>&1" 1,255
         rlAssertGrep "ParseException: Unparseable date: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0157: pki cert-find should not run when invalid data is passed to --validNotAfterFrom"
         rlLog "Executing pki cert-find --validNotAfterFrom $tmp_junk_data"
-        rlRun "pki cert-find --validNotAfterFrom \"$tmp_junk_data\" > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotAfterFrom \"$tmp_junk_data\" > $cert_find_info 2>&1" 1,255
         rlAssertGrep "ParseException: Unparseable date: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0158: pki cert-find should not run when invalid data is passed to --validNotBeforeFrom"
         rlLog "Executing pki cert-find --validNotBeforeFrom $tmp_junk_data"
-        rlRun "pki cert-find --validNotBeforeFrom $tmp_junk_data > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotBeforeFrom $tmp_junk_data > $cert_find_info 2>&1" 1,255
         rlAssertGrep "ParseException: Unparseable date: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0159: pki cert-find should not run when invalid data is passed to --validNotBeforeTo"
         rlLog "Executing pki cert-find --validNotBeforeTo $tmp_junk_data"
-        rlRun "pki cert-find --validNotAfterFrom $tmp_junk_data > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotAfterFrom $tmp_junk_data > $cert_find_info 2>&1" 1,255
         rlAssertGrep "ParseException: Unparseable date: \"$tmp_junk_data\"" "$cert_find_info"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0160: pki cert-find should not run no data is passed to --validNotAfterTo"
         rlLog "Executing pki cert-find --validNotAfterTo"
-        rlRun "pki cert-find --validNotAfterTo > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotAfterTo > $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: validNotAfterTo" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3894,7 +3950,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0161: pki cert-find should not run no data is passed to --validNotAfterFrom"
         rlLog "Executing pki cert-find --validNotAfterFrom"
-        rlRun "pki cert-find --validNotAfterFrom > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotAfterFrom > $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: validNotAfterFrom" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3942,7 +3998,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0162: pki cert-find should not run no data is passed to --validNotBeforeTo"
         rlLog "Executing pki cert-find --validNotBeforeTo"
-        rlRun "pki cert-find --validNotBeforeTo > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotBeforeTo > $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: validNotBeforeTo" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -3990,7 +4046,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0163: pki cert-find should not run no data is passed to --validNotBeforeFrom"
         rlLog "Executing pki cert-find --validNotBeforeFrom"
-        rlRun "pki cert-find --validNotBeforeFrom > $cert_find_info 2>&1" 1,255
+        rlRun "pki -h $target_host -p $target_port cert-find --validNotBeforeFrom > $cert_find_info 2>&1" 1,255
         rlAssertGrep "Error: Missing argument for option: validNotBeforeFrom" "$cert_find_info"
         rlAssertGrep "usage: cert-find \[OPTIONS...\]" "$cert_find_info"
         rlAssertGrep "    --certTypeSecureEmail <on|off>         Certifiate Type: Secure Email" "$cert_find_info"
@@ -4038,11 +4094,11 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartTest "pki_cert_find-0164: search certs by passing search constraints through an input file"
 	rlLog "Executing pki --output $TmpDir cert-find --issuedBy system"
-	rlRun "pki --output $TmpDir cert-find --issuedBy system > $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port --output $TmpDir cert-find --issuedBy system > $cert_find_info"
 	rlLog "Get the xml tag data from $TmpDir/http-request-1 to a $TmpDir/cert-find-input.xml"
 	rlRun "cat $TmpDir/http-request-1  | grep \"<?xml\" >> $TmpDir/cert-find-input.xml"
 	rlLog "Executing pki cert-find --input $TmpDir/cert-find-input.xml"
-	rlRun "pki cert-find --input $TmpDir/cert-find-input.xml 1> $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --input $TmpDir/cert-find-input.xml 1> $cert_find_info"
 	rlAssertGrep "Number of entries returned" "$cert_find_info"
 	local tmp_check_result=$(cat $cert_find_info  | grep  "Issued By:" | grep -v system | wc -l)
 	if [ $tmp_check_result != 0 ]; then
@@ -4051,26 +4107,26 @@ run_pki-cert-find-ca_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0165: Issue pki cert-find using valid agent cert"
-	rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-find"
-	rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-find 1> $cert_find_info"
+	rlLog "Executing pki -d $CERTDB_DIR -h $target_host -p $target_port  -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-find"
+	rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_agentV_user\" cert-find 1> $cert_find_info"
 	rlAssertGrep "Number of entries returned 20" "$cert_find_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0166: Issue pki cert-find using revoked Agent cert and verify no search results are returned"
-	rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentR_user\" cert-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_agentR_user\" cert-find >> $cert_find_info 2>&1" 1,255
+	rlLog "Executing pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_agentR_user\" cert-find"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port  -c $CERTDB_DIR_PASSWORD -n \"$CA_agentR_user\" cert-find >> $cert_find_info 2>&1" 1,255
         rlAssertGrep "PKIException: Unauthorized" "$cert_find_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0167: Issue pki cert-find using valid admin cert and verify search results are returned"
         rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_adminV_user\" cert-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_adminV_user\" cert-find 1> $cert_find_info"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_adminV_user\" cert-find 1> $cert_find_info"
         rlAssertGrep "Number of entries returned 20" "$cert_find_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0168: Issue pki cert-find using Expired admin cert"
         local cur_date=$(date)
-        local end_date=$(certutil -L -d $CERTDB_DIR -n CA_adminE | grep "Not After" | awk -F ": " '{print $2}')
+        local end_date=$(certutil -L -d $CERTDB_DIR -n $CA_INST\_adminE | grep "Not After" | awk -F ": " '{print $2}')
         rlLog "Current Date/Time: $(date)"
         rlLog "Current Date/Time: before modifying using chrony $(date)"
         rlRun "chronyc -a 'manual on' 1> $TmpDir/chrony.out" 0 "Set chrony to manual mode"
@@ -4079,7 +4135,7 @@ run_pki-cert-find-ca_tests()
         rlRun "chronyc -a -m 'offline' 'settime $end_date + 1 day' 'makestep' 'manual reset' 1> $TmpDir/chrony.out"
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
         rlLog "Date after modifying using chrony: $(date)"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_adminE_user\" cert-find > $cert_find_info 2>&1" 1,255
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_adminE_user\" cert-find > $cert_find_info 2>&1" 1,255
         rlAssertGrep "ProcessingException: Unable to invoke request" "$cert_find_info"
         rlLog "Set the date back to it's original date & time"
         rlRun "chronyc -a -m 'settime $cur_date + 10 seconds' 'makestep' 'manual reset' 'online' 1> $TmpDir/chrony.out"
@@ -4089,7 +4145,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartTest "pki_cert_find-0169: Issue pki cert-find using Expired agent cert"
         local cur_date=$(date)
-        local end_date=$(certutil -L -d $CERTDB_DIR -n CA_agentE | grep "Not After" | awk -F ": " '{print $2}')
+        local end_date=$(certutil -L -d $CERTDB_DIR -n $CA_INST\_agentE | grep "Not After" | awk -F ": " '{print $2}')
         rlLog "Current Date/Time: $(date)"
         rlLog "Current Date/Time: before modifying using chrony $(date)"
         rlRun "chronyc -a 'manual on' 1> $TmpDir/chrony.out" 0 "Set chrony to manual mode"
@@ -4099,6 +4155,8 @@ run_pki-cert-find-ca_tests()
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
         rlLog "Date after modifying using chrony: $(date)"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"$CA_agentE_user\" \
                 cert-find > $cert_find_info 2>&1" 1,255 
@@ -4110,14 +4168,14 @@ run_pki-cert-find-ca_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0170: Issue pki cert-find using valid audit cert"
-        rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_auditV_user\" cert-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_auditV_user\" cert-find 1> $cert_find_info"
+        rlLog "Executing pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_auditV_user\" cert-find"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_auditV_user\" cert-find 1> $cert_find_info"
         rlAssertGrep "Number of entries returned 20" "$cert_find_info"
         rlPhaseEnd
 
         rlPhaseStartTest "pki_cert_find-0171: Issue pki cert-find using valid operator cert"
-        rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_operatorV_user\" cert-find"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"$CA_operatorV_user\" cert-find 1> $cert_find_info"
+        rlLog "Executing pki -d $CERTDB_DIR -h $target_host -p $target_port  -c $CERTDB_DIR_PASSWORD -n \"$CA_operatorV_user\" cert-find"
+        rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -c $CERTDB_DIR_PASSWORD -n \"$CA_operatorV_user\" cert-find 1> $cert_find_info"
         rlAssertGrep "Number of entries returned 20" "$cert_find_info"
         rlPhaseEnd
 	
@@ -4128,6 +4186,8 @@ run_pki-cert-find-ca_tests()
         local pki_pwd="Secret123"
         rlLog "Create user $pki_user"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
 		-n \"$CA_adminV_user\" \
                 -c $CERTDB_DIR_PASSWORD \
 		ca-user-add $pki_user \
@@ -4146,37 +4206,45 @@ run_pki-cert-find-ca_tests()
 		subject_c: \
 		archive:false \
                 req_profile:$profile \
-		target_host: \
+		target_host:$target_host \
 		protocol: \
-		port: \
+		port:$target_port \
 		cert_db_dir:$CERTDB_DIR \
                 cert_db_pwd:$CERTDB_DIR_PASSWORD \
 		certdb_nick:\"$CA_agentV_user\" \
 		cert_info:$cert_info"
         local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
         rlLog "Get the $pki_user cert in a output file"
-        rlRun "pki cert-show $cert_serialNumber --encoded --output $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show $cert_serialNumber --encoded --output $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-cert-show.out"
         rlAssertGrep "Certificate \"$cert_serialNumber\"" "$TEMP_NSS_DB/pki-cert-show.out"
-        rlRun "pki cert-show 0x1 --encoded --output  $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/ca-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show 0x1 --encoded --output  $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/ca-cert-show.out"
         rlAssertGrep "Certificate \"0x1\"" "$TEMP_NSS_DB/ca-cert-show.out"
         rlLog "Add the $pki_user cert to $TEMP_NSS_DB NSS DB"
         rlRun "pki -d $TEMP_NSS_DB \
+		-h $target_host \
+		-p $target_port \
                 -c $TEMP_NSS_DB_PWD \
                 -n "$pki_user" client-cert-import \
                 --cert $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki-client-cert.out"
         rlAssertGrep "Imported certificate \"$pki_user\"" "$TEMP_NSS_DB/pki-client-cert.out"
         rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
         rlRun "pki -d $TEMP_NSS_DB \
+		-h $target_host \
+		-p $target_port \
                 -c $TEMP_NSS_DB_PWD \
-                -n \"CA Signing Certificate - $CA_DOMAIN Security Domain\" client-cert-import \
+                -n \"$CA_adminV_user\" client-cert-import \
                 --ca-cert $TEMP_NSS_DB/ca_cert.pem 1> $TEMP_NSS_DB/pki-ca-cert.out"
-        rlAssertGrep "Imported certificate \"CA Signing Certificate - $CA_DOMAIN Security Domain\"" "$TEMP_NSS_DB/pki-ca-cert.out"
+        rlAssertGrep "Imported certificate" "$TEMP_NSS_DB/pki-ca-cert.out"
         rlRun "pki -d $CERTDB_DIR \
-                -n CA_adminV \
+		-h $target_host \
+		-p $target_port \
+                -n $CA_adminV_user \
                 -c $CERTDB_DIR_PASSWORD \
                 -t ca user-cert-add $pki_user \
                 --input $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki_user_cert_add.out" 0 "Cert is added to the user $pki_user"
        rlRun "pki -d $TEMP_NSS_DB \
+		-h $target_host \
+		-p $target_port \
                 -c $TEMP_NSS_DB_PWD \
                 -n \"$pki_user\" \
                 cert-find > $cert_find_info"
@@ -4193,6 +4261,8 @@ run_pki-cert-find-ca_tests()
 	rlPhaseStartTest "pki_cert_find-0174: Issue pki cert-find using valid user"
 	rlLog "Executing pki cert-find using user $pki_user"
 	rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
 		-u $pki_user \
 		-w $pki_pwd \
                 cert-find 1> $cert_find_info" 
@@ -4204,6 +4274,8 @@ run_pki-cert-find-ca_tests()
 	local invalid_pki_user_pwd=Secret123
         rlLog "Executing pki cert-find using user $pki_user"
         rlRun "pki -d $CERTDB_DIR \
+		-h $target_host \
+		-p $target_port \
                 -u $invalid_pki_user \
                 -w $invalid_pki_user_pwd \
                 cert-find > $cert_find_info 2>&1" 1,255
@@ -4214,9 +4286,9 @@ run_pki-cert-find-ca_tests()
 	local tmp_large_number1=1234567890
 	local tmp_large_number2=12345678901
 	rlLog "Executing pki cert-find --start $tmp_large_number1"
-	rlRun "pki cert-find --start $tmp_large_number1 > $cert_find_info"
+	rlRun "pki -h $target_host -p $target_port cert-find --start $tmp_large_number1 > $cert_find_info"
 	rlAssertGrep "entries found" "$cert_find_info"
-	rlRun "pki cert-find --start $tmp_large_number2 > $cert_find_info 2>&1" 255
+	rlRun "pki -h $target_host -p $target_port cert-find --start $tmp_large_number2 > $cert_find_info 2>&1" 255
 	rlAssertGrep "NumberFormatException: For input string: \"$tmp_large_number2\"" "$cert_find_info"
 	rlPhaseEnd
 
@@ -4224,9 +4296,9 @@ run_pki-cert-find-ca_tests()
 	local tmp_large_number1=1234567890
 	local tmp_large_number2=12345678901
         rlLog "Executing pki cert-find --size $tmp_large_number1"
-        rlRun "pki cert-find --size $tmp_large_number1 > $cert_find_info" 
+        rlRun "pki -h $target_host -p $target_port cert-find --size $tmp_large_number1 > $cert_find_info" 
         rlAssertGrep "entries found" "$cert_find_info"
-        rlRun "pki cert-find --size $tmp_large_number2 > $cert_find_info 2>&1" 255
+        rlRun "pki -h $target_host -p $target_port cert-find --size $tmp_large_number2 > $cert_find_info 2>&1" 255
         rlAssertGrep "NumberFormatException: For input string: \"$tmp_large_number2\"" "$cert_find_info"
 	rlPhaseEnd
 
@@ -4234,5 +4306,4 @@ run_pki-cert-find-ca_tests()
 	rlRun "popd"
 	rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     	rlPhaseEnd
-
 }
