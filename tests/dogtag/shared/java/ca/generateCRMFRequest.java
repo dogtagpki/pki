@@ -2,8 +2,6 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import org.mozilla.jss.ssl.*;
-import com.netscape.pkisilent.argparser.*;
-import com.netscape.pkisilent.common.*;  
 
 public class generateCRMFRequest
 {
