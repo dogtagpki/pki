@@ -211,7 +211,7 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
 
                 int maxLen = getInt(value);
 
-                if (minLen >= maxLen) {
+                if (maxLen >= 0 && minLen >= maxLen) {
                     CMS.debug("BasicConstraintExt:  minPathLen >= maxPathLen!");
 
                     throw new EPropertyException("bad value");
