@@ -123,15 +123,15 @@ cmd1="python -m SimpleHTTPServer"
 dir2="/opt/rhqa_pki/"
 cmd2="ant report"
 
-if   [ $(echo "$MASTER" | grep $(hostname -s)|wc -l) -gt 0 ]; then
+if   [ $(echo "$MASTER" | grep $(hostname -s)|wc -l) -gt 0 ] ; then
         MYROLE=MASTER
-elif [ $(echo "$CLONE1"  | grep $(hostname -s)|wc -l) -gt 0 ]; then
+elif [ $(echo "$CLONE1"  | grep $(hostname -s)|wc -l) -gt 0 ] ; then
         MYROLE=CLONE1
-elif [ $(echo "$CLONE2" | grep $(hostname -s)|wc -l) -gt 0 ]; then
+elif [ $(echo "$CLONE2" | grep $(hostname -s)|wc -l) -gt 0 ] ; then
         MYROLE=CLONE2
-elif [ $(echo "$SUBCA1" | grep $(hostname -s)|wc -l) -gt 0 ]; then
+elif [ $(echo "$SUBCA1" | grep $(hostname -s)|wc -l) -gt 0 ] ; then
         MYROLE=SUBCA1
-elif [ $(echo "$SUBCA2" | grep $(hostname -s)| wc -l) -gt 0 ]; then
+elif [ $(echo "$SUBCA2" | grep $(hostname -s)| wc -l) -gt 0 ] ; then
         MYROLE=SUBCA2
 else
         MYROLE=UNKNOWN
@@ -161,7 +161,7 @@ rlJournalStart
 	OCSP_INST=$(cat /tmp/topo_file | grep MY_OCSP | cut -d= -f2)
         TKS_INST=$(cat /tmp/topo_file | grep MY_TKS | cut -d= -f2)
 
-        if [ "$QUICKINSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ]; then
+        if [ "$QUICKINSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL" = "TRUE" ] ; then
 		run_rhcs_set_time 
 		run_rhcs_install_set_vars
 		run_rhcs_install_quickinstall
@@ -179,28 +179,28 @@ rlJournalStart
                 TKS_INST=$(cat /tmp/topo_file | grep MY_TKS | cut -d= -f2)
                 rlLog "Subsystem ID TKS=$TKS_INST"
                 run_pki-user-cli-role-user-create-tests $TKS_INST tks $MYROLE
-        elif [ "$TOPO1_UPPERCASE" = "TRUE" ]; then
+        elif [ "$TOPO1_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_1
-        elif [ "$TOPO2_UPPERCASE" = "TRUE" ]; then
+        elif [ "$TOPO2_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_2
-        elif [ "$TOPO3_UPPERCASE" = "TRUE" ]; then
+        elif [ "$TOPO3_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_3
-        elif [ "$TOPO4_UPPERCASE" = "TRUE" ]; then
+        elif [ "$TOPO4_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_4
-        elif [ "$TOPO5_UPPERCASE" = "TRUE" ]; then
+        elif [ "$TOPO5_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_5
-        elif [ "$TOPO6_UPPERCASE" = "TRUE" ]; then
+        elif [ "$TOPO6_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_6
-        elif [ "$TOPO7_UPPERCASE" = "TRUE" ]; then
+        elif [ "$TOPO7_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_7
-        elif [ "$TOPO8_UPPERCASE" = "TRUE" ]; then
+        elif [ "$TOPO8_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_8
         fi
@@ -314,48 +314,64 @@ rlJournalStart
 	PKI_CA_USER_UPPERCASE=$(echo $PKI_CA_USER | tr [a-z] [A-Z])
         if [ "$PKI_CA_USER_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user tests
-                  run_pki-ca-user-cli-ca-user-add_tests
-                  run_pki-ca-user-cli-ca-user-show_tests
-                  run_pki-ca-user-cli-ca-user-find_tests
-                  run_pki-ca-user-cli-ca-user-del_tests
-                  run_pki-ca-user-cli-ca-user-membership-add_tests
-                  run_pki-ca-user-cli-ca-user-membership-find_tests
-                  run_pki-ca-user-cli-ca-user-membership-del_tests
+		  subsystemId=$CA_INST
+		  subsystemType=ca
+                  run_pki-ca-user-cli-ca-user-add_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-ca-user-cli-ca-user-show_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-ca-user-cli-ca-user-find_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-ca-user-cli-ca-user-del_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-ca-user-cli-ca-user-membership-add_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-ca-user-cli-ca-user-membership-find_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-ca-user-cli-ca-user-membership-del_tests $subsystemId $subsystemType $MYROLE
         fi
         CA_USER_ADD_UPPERCASE=$(echo $CA_USER_ADD | tr [a-z] [A-Z])
         if [ "$CA_USER_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user-add tests
-                  run_pki-ca-user-cli-ca-user-add_tests
+		  subsystemId=$CA_INST
+		  subsystemType=ca
+                  run_pki-ca-user-cli-ca-user-add_tests $subsystemId $subsystemType $MYROLE
         fi
         CA_USER_SHOW_UPPERCASE=$(echo $CA_USER_SHOW | tr [a-z] [A-Z])
         if [ "$CA_USER_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user-show tests
-                  run_pki-ca-user-cli-ca-user-show_tests
+		  subsystemId=$CA_INST
+		  subsystemType=ca
+                  run_pki-ca-user-cli-ca-user-show_tests $subsystemId $subsystemType $MYROLE
         fi
         CA_USER_FIND_UPPERCASE=$(echo $CA_USER_FIND | tr [a-z] [A-Z])
         if [ "$CA_USER_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user-find-ca tests
-                  run_pki-ca-user-cli-ca-user-find_tests
+		  subsystemId=$CA_INST
+		  subsystemType=ca
+                  run_pki-ca-user-cli-ca-user-find_tests $subsystemId $subsystemType $MYROLE
         fi
         CA_USER_DEL_UPPERCASE=$(echo $CA_USER_DEL | tr [a-z] [A-Z])
         if [ "$CA_USER_DEL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user-del tests
-                  run_pki-ca-user-cli-ca-user-del_tests
+		  subsystemId=$CA_INST
+		  subsystemType=ca
+                  run_pki-ca-user-cli-ca-user-del_tests $subsystemId $subsystemType $MYROLE
         fi
         CA_USER_MEMBERSHIP_ADD_UPPERCASE=$(echo $CA_USER_MEMBERSHIP_ADD | tr [a-z] [A-Z])
         if [ "$CA_USER_MEMBERSHIP_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user-membership-add tests
-                  run_pki-ca-user-cli-ca-user-membership-add_tests
+		  subsystemId=$CA_INST
+		  subsystemType=ca
+                  run_pki-ca-user-cli-ca-user-membership-add_tests $subsystemId $subsystemType $MYROLE
         fi
 	CA_USER_MEMBERSHIP_FIND_UPPERCASE=$(echo $CA_USER_MEMBERSHIP_FIND | tr [a-z] [A-Z])
         if [ "$CA_USER_MEMBERSHIP_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user-membership-find tests
-                  run_pki-ca-user-cli-ca-user-membership-find_tests
+		  subsystemId=$CA_INST
+		  subsystemType=ca
+                  run_pki-ca-user-cli-ca-user-membership-find_tests $subsystemId $subsystemType $MYROLE
         fi
         CA_USER_MEMBERSHIP_DEL_UPPERCASE=$(echo $CA_USER_MEMBERSHIP_DEL | tr [a-z] [A-Z])
         if [ "$CA_USER_MEMBERSHIP_DEL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-user-membership-del tests
-                  run_pki-ca-user-cli-ca-user-membership-del_tests
+		  subsystemId=$CA_INST
+		  subsystemType=ca
+                  run_pki-ca-user-cli-ca-user-membership-del_tests $subsystemId $subsystemType $MYROLE
         fi
 
 	######## PKI CERT TESTS ############
@@ -505,7 +521,7 @@ rlJournalStart
                   run_pki-group-cli-group-member-show-ca_tests
         fi
 	BIG_INT_UPPERCASE=$(echo $BIG_INT | tr [a-z] [A-Z])
-	if [ "$BIG_INT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+	if [ "$BIG_INT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
 		#Execute pki bigInt tests
 		run_pki_big_int
 		run_pki_cert
@@ -515,7 +531,7 @@ rlJournalStart
 
 	######## PKI BUG VERIFICATIONS ############
 	BUG_VERIFICATION_UPPERCASE=$(echo $BUG_VERIFICATION | tr [a-z] [A-Z])
-        if [ "$BUG_VERIFICATION_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+        if [ "$BUG_VERIFICATION_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 #Execute pki bigInt tests
                 run_CS-backup-bug-verification
                 run_pki-core-bug-verification
@@ -524,7 +540,7 @@ rlJournalStart
 
 	######## PKI KEY KRA TESTS ############
 	PKI_KEY_KRA_TESTS_UPPERCASE=$(echo $PKI_KEY_KRA_TESTS | tr [a-z] [A-Z])
-        if [ "$PKI_KEY_KRA_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+        if [ "$PKI_KEY_KRA_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
 		subsystemType=kra
 		run_pki-key-kra_tests
 		run_pki-key-generate-kra_tests $subsystemType $MYROLE
@@ -619,7 +635,7 @@ rlJournalStart
 	
 	######## PKI KRA KEY TESTS ############
 	PKI_KRA_KEY_TESTS_UPPERCASE=$(echo $PKI_KRA_KEY_TESTS | tr [a-z] [A-Z])
-        if [ "$PKI_KRA_KEY_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+        if [ "$PKI_KRA_KEY_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
 		subsystemType=kra
 		run_pki-kra-key-kra_tests
 		run_pki-kra-key-generate-kra_tests $subsystemType $MYROLE
@@ -634,7 +650,7 @@ rlJournalStart
 		run_pki-kra-key-archive-kra_tests $subsystemType $MYROLE
 		run_pki-kra-key-retrieve-kra_tests $subsystemType $MYROLE
 		run_pki-kra-key-request-review-kra_tests $subsystemType $MYROLE
-
+	fi
 	KRA_KEY_CONFIG_UPPERCASE=$(echo $KRA_KEY_CONFIG | tr [a-z] [A-Z]) 
 	if [ "$KRA_KEY_CONFIG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
 		# Execute pki kra key config tests

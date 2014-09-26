@@ -39,40 +39,39 @@
 . /opt/rhqa_pki/env.sh
 
 ########################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-add-ca.sh
+#pki-user-cli-role-user-create-tests should be first executed prior to pki-user-cli-user-add-ca.sh
 ########################################################################
 
 ########################################################################
 # Test Suite Globals
 ########################################################################
 run_pki-user-cli-user-add-ca_tests(){
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
+	prefix=$subsystemId
+	if [ "$TOPO9" = "TRUE" ] ; then
+        	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+	        prefix=$subsystemId
+        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	elif [ "$MYROLE" = "MASTER" ] ; then
+        	if [[ $subsystemId == SUBCA* ]]; then
+                	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+	                prefix=$subsystemId
+        	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	        else
+        	        ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                	prefix=ROOTCA
+	                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        	fi
+	else
+        	ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+	        prefix=$MYROLE
+        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+	fi
 
-if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-        prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-                prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-        else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        fi
-else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-        prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-fi
-
-SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
-untrusted_cert_db_location=$UNTRUSTED_CERT_DB_LOCATION
-untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
+	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+	untrusted_cert_nickname=role_user_UTCA
 
      rlPhaseStartSetup "pki_user_cli_user_add-ca-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -870,7 +869,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
     rlPhaseEnd
 
         ##### Tests to add users using revoked cert#####
-    rlPhaseStartTest "pki_user_cli_user_add-CA-041: Should not be able to add user using a revoked cert ${prefix}_adminR"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-041: Should not be able to add user using a revoked cert CA_adminR"
 	rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_adminR \
                    -c $CERTDB_DIR_PASSWORD \
@@ -888,7 +887,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-revoke-adminR-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-042: Should not be able to add user using a agent with revoked cert ${prefix}_agentR"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-042: Should not be able to add user using a agent with revoked cert CA_agentR"
 	rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_agentR \
                    -c $CERTDB_DIR_PASSWORD \
@@ -908,7 +907,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 
 
         ##### Tests to add users using an agent user#####
-    rlPhaseStartTest "pki_user_cli_user_add-CA-043: Should not be able to add user using a valid agent ${prefix}_agentV user"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-043: Should not be able to add user using a valid agent CA_agentV user"
 	rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_agentV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -926,27 +925,27 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-add-ca-agentV-002.out"
     rlPhaseEnd
 
-	 ##### Tests to add users using ${prefix}_adminUTCA and CA_agentUTCA  user's certificate will be issued by an untrusted CA #####
-    rlPhaseStartTest "pki_user_cli_user_add-CA-044: Should not be able to add user using a ${prefix}_agentUTCA user"
-	rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n ${prefix}_agentR \
-                   -c $CERTDB_DIR_PASSWORD \
+	 ##### Tests to add users using CA_agentUTCA user's certificate will be issued by an untrusted CA #####
+    rlPhaseStartTest "pki_user_cli_user_add-CA-044: Should not be able to add user using a CA_agentUTCA user"
+	rlLog "Executing: pki -d $UNTRUSTED_CERT_DB_LOCATION \
+                   -n $untrusted_cert_nickname \
+                   -c $UNTRUSTED_CERT_DB_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
  		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=\"$user1fullname\" $user1"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n ${prefix}_agentR \
-                   -c $CERTDB_DIR_PASSWORD \
+        rlRun "pki -d $UNTRUSTED_CERT_DB_LOCATION \
+                   -n $untrusted_cert_nickname \
+                   -c $UNTRUSTED_CERT_DB_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
  		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                    user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-agentR-002.out 2>&1" \
+                    user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-agentUTCA-002.out 2>&1" \
                     255 \
                     "Should not be able to add user $user1 using a agent cert"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-agentR-002.out"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-add-ca-agentUTCA-002.out"
     rlPhaseEnd
 
     ##### Tests to add users using expired cert#####
-    rlPhaseStartTest "pki_user_cli_user_add-CA-045: Should not be able to add user using admin user with expired cert ${prefix}_adminE"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-045: Should not be able to add user using admin user with expired cert CA_adminE"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
         rlRun "date"
@@ -970,7 +969,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-046: Should not be able to add user using ${prefix}_agentE cert"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-046: Should not be able to add user using CA_agentE cert"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
         rlRun "date"
@@ -995,7 +994,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
     rlPhaseEnd
 
 	##### Tests to add users using audit users#####
-    rlPhaseStartTest "pki_user_cli_user_add-CA-047: Should not be able to add user using a ${prefix}_auditV"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-047: Should not be able to add user using a CA_auditV"
 	rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_auditV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1010,11 +1009,12 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                     user-add --fullName=\"$user1fullname\" $user1 > $TmpDir/pki-user-add-ca-auditV-002.out 2>&1" \
                     255 \
                     "Should not be able to add user $user1 using a audit cert"
-        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-add-ca-auditV-002.out"
+        rlAssertGrep "ForbiddenException: Authorization Error" "$TmpDir/pki-user-add-ca-auditV-002.out"
     rlPhaseEnd
 
+
 	##### Tests to add users using operator user###
-    rlPhaseStartTest "pki_user_cli_user_add-CA-048: Should not be able to add user using a ${prefix}_operatorV"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-048: Should not be able to add user using a CA_operatorV"
 	rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_operatorV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1032,14 +1032,14 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-add-ca-operatorV-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_add-CA-049: Should not be able to add user using a cert created from a untrusted CA ${prefix}_adminUTCA"
-	rlLog "Executing: pki -d $untrusted_cert_db_location \
-                   -n ${prefix}_adminUTCA \
-                   -c $untrusted_cert_db_password \
+    rlPhaseStartTest "pki_user_cli_user_add-CA-049: Should not be able to add user using a cert created from a untrusted CA CA_adminUTCA"
+	rlLog "Executing: pki -d $UNTRUSTED_CERT_DB_LOCATION \
+                   -n $untrusted_cert_nickname \
+                   -c $UNTRUSTED_CERT_DB_PASSWORD  \
  		   -h $SUBSYSTEM_HOST \
  		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=\"$user1fullname\" $user1"
-	echo "spawn -noecho pki -d $untrusted_cert_db_location -n ${prefix}_adminUTCA -c $untrusted_cert_db_password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-add --fullName=\"$user1fullname\" $user1" > $TmpDir/pki-user-add-ca-adminUTCA-002.out 
+	echo "spawn -noecho pki -d $UNTRUSTED_CERT_DB_LOCATION -n $untrusted_cert_nickname -c $UNTRUSTED_CERT_DB_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-add --fullName=\"$user1fullname\" $user1" > $TmpDir/pki-user-add-ca-adminUTCA-002.out 
 	echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$(eval echo \$${prefix}_DOMAIN) Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$(eval echo \$${prefix}_DOMAIN) Security Domain'
 Import CA certificate (Y/n)? \"" >> $TmpDir/pki-user-add-ca-adminUTCA-002.out
         echo "send -- \"Y\r\"" >> $TmpDir/pki-user-add-ca-adminUTCA-002.out

@@ -39,15 +39,8 @@
 . /opt/rhqa_pki/env.sh
 
 ######################################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-cert-delete-ca.sh
+#pki-user-cli-role-user-create-tests should be first executed prior to pki-user-cli-user-cert-delete-ca.sh
 ######################################################################################
-
-########################################################################
-# Test Suite Globals
-########################################################################
-
-########################################################################
-
 run_pki-user-cli-user-cert-delete-ca_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
@@ -353,12 +346,12 @@ local TEMP_NSS_DB_PASSWD="redhat123"
         rlPhaseStartTest "pki_user_cli_user_cert-del-CA-008: Delete certs assigned to a user - as CA_agentV should fail"
 		i=1
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication usinf cert CA_agentV"
 
 		 command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_agentV"
         rlPhaseEnd
@@ -368,12 +361,12 @@ local TEMP_NSS_DB_PASSWD="redhat123"
         rlPhaseStartTest "pki_user_cli_user_cert-del-CA-009: Delete certs assigned to a user - as CA_auditorV should fail"
 		i=1
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_auditorV"
 		
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_auditorV"
 
@@ -388,12 +381,12 @@ local TEMP_NSS_DB_PASSWD="redhat123"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_adminE"
 
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_adminE"
 
@@ -409,12 +402,12 @@ local TEMP_NSS_DB_PASSWD="redhat123"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_agentE"
 
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_agentE"
 
@@ -454,36 +447,36 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 
         rlPhaseEnd
 
-        ##### Delete certs asigned to a user - as CA_adminUTCA ##### 
+        ##### Delete certs asigned to a user - as role_user_UTCA ##### 
 
-        rlPhaseStartTest "pki_user_cli_user_cert-del-CA-0014: Delete certs assigned to a user - as CA_adminUTCA should fail"
+        rlPhaseStartTest "pki_user_cli_user_cert-del-CA-0014: Delete certs assigned to a user - as role_user_UTCA should fail"
                 i=1
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_adminUTCA"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert role_user_UTCA"
 
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_adminUTCA"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert role_user_UTCA"
 
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
-	 ##### Delete certs asigned to a user - as CA_agentUTCA ##### 
+	 ##### Delete certs asigned to a user - as role_user_UTCA ##### 
 
-        rlPhaseStartTest "pki_user_cli_user_cert-del-CA-0015: Delete certs assigned to a user - as CA_agentUTCA should fail"
+        rlPhaseStartTest "pki_user_cli_user_cert-del-CA-0015: Delete certs assigned to a user - as role_user_UTCA should fail"
                 i=1
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_agentUTCA"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert role_user_UTCA"
 
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_agentUTCA"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert role_user_UTCA"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
@@ -492,12 +485,12 @@ local TEMP_NSS_DB_PASSWD="redhat123"
         rlPhaseStartTest "pki_user_cli_user_cert-del-CA-0016: Delete certs assigned to a user - as CA_operatorV should fail"
                 i=1
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_operatorV"
 
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authentication using cert CA_operatorV"
 
@@ -582,12 +575,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-del-CA-0019: Delete certs assigned to u
         rlPhaseStartTest "pki_user_cli_user_cert-del-CA-0020: Delete certs assigned to a user - using a cert not assigned to any role should fail"
                 i=1
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n $user1$i-pkcs10 -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authenticating using a cert not assigned to any role"
 
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n $user1$i-crmf -c $CERTDB_DIR_PASSWORD user-cert-del $user1 '2;${serialdecuser1_crmf[$i]};$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Error should be thrown when authenticating using a cert not assigned to any role"
 

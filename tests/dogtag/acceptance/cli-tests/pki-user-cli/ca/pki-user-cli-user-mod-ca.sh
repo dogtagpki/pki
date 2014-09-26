@@ -39,7 +39,7 @@
 . /opt/rhqa_pki/env.sh
 
 ######################################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-add-ca.sh
+#pki-user-cli-role-user-create-tests should be first executed prior to pki-user-cli-user-add-ca.sh
 #pki-user-cli-user-add-ca.sh should be first executed prior to pki-user-cli-user-mod-ca.sh
 ######################################################################################
 
@@ -117,7 +117,7 @@ i18nuser_mod_email="kakskümmend@example.com"
 
 
      ##### Tests to modify CA users ####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-002: Modify a user's fullname in CA using ${prefix}_adminV"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-002: Modify a user's fullname in CA using ROOTCA_adminV"
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -143,7 +143,7 @@ i18nuser_mod_email="kakskümmend@example.com"
         rlAssertGrep "Full name: $user1_mod_fullname" "$TmpDir/pki-user-mod-ca-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-003: Modify a user's email,phone,state,password in CA using ${prefix}_adminV"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-003: Modify a user's email,phone,state,password in CA using ROOTCA_adminV"
          rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -734,13 +734,13 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-026: Modify user with --password "
     rlPhaseEnd
 
 ##### Tests to modify users using revoked cert#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-027: Should not be able to modify user using a revoked cert ${prefix}_adminR"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-027: Should not be able to modify user using a revoked cert ROOTCA_adminR"
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --fullName='$user1fullname' $user1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using a user having revoked cert"
     rlPhaseEnd
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-028: Should not be able to modify user using an agent or a revoked cert ${prefix}_agentR"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-028: Should not be able to modify user using an agent or a revoked cert ROOTCA_agentR"
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --fullName='$user1fullname' $user1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
@@ -748,14 +748,14 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-026: Modify user with --password "
     rlPhaseEnd
 
 ##### Tests to modify users using an agent user#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-029: Should not be able to modify user using a ${prefix}_agentV user"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-029: Should not be able to modify user using a ROOTCA_agentV user"
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --fullName='$user1fullname' $user1"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using a agent cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-030: Should not be able to modify user using a ${prefix}_agentR user"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-030: Should not be able to modify user using a ROOTCA_agentR user"
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --fullName='$user1fullname' $user1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
@@ -763,7 +763,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-026: Modify user with --password "
     rlPhaseEnd
 
 ##### Tests to modify users using expired cert#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-031: Should not be able to modify user using a ${prefix}_adminE cert"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-031: Should not be able to modify user using a ROOTCA_adminE cert"
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
@@ -775,7 +775,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-026: Modify user with --password "
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-032: Should not be able to modify user using a ${prefix}_agentE cert"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-032: Should not be able to modify user using a ROOTCA_agentE cert"
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
@@ -788,27 +788,27 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-026: Modify user with --password "
     rlPhaseEnd
 
  ##### Tests to modify users using audit users#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-033: Should not be able to modify user using a ${prefix}_auditV"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-033: Should not be able to modify user using a ROOTCA_auditV"
 	command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --fullName='$user1fullname' $user1"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using an audit cert"
     rlPhaseEnd
 
         ##### Tests to modify users using operator user###
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-034: Should not be able to modify user using a ${prefix}_operatorV"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-034: Should not be able to modify user using a ROOTCA_operatorV"
 	command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --fullName='$user1fullname' $user1"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 as ${prefix}_operatorV"
     rlPhaseEnd
 
-##### Tests to modify users using ${prefix}_adminUTCA and CA_agentUTCA  user's certificate will be issued by an untrusted CA users#####
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-035: Should not be able to modify user using a cert created from a untrusted CA ${prefix}_adminUTCA"
-	command="pki -d $untrusted_cert_db_location -n ${prefix}_adminUTCA -c $untrusted_cert_db_password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --fullName='$user1fullname' $user1"
+##### Tests to modify users using role_user_UTCA user's certificate will be issued by an untrusted CA users#####
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-035: Should not be able to modify user using a cert created from a untrusted CA ROOTCA_adminUTCA"
+	command="pki -d $untrusted_cert_db_location -n role_user_UTCA -c $untrusted_cert_db_password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --fullName='$user1fullname' $user1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 as adminUTCA"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 as role_user_UTCA"
     rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does not exist"
@@ -820,7 +820,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
 
 ##### Tests to modify CA users with empty parameters ####
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-037: Modify a user in CA using ${prefix}_adminV - fullname is empty"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-037: Modify a user in CA using ROOTCA_adminV - fullname is empty"
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -840,7 +840,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/833"
     rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_mod-CA-038: Modify a user in CA using ${prefix}_adminV - email is empty"
+	rlPhaseStartTest "pki_user_cli_user_mod-CA-038: Modify a user in CA using ROOTCA_adminV - email is empty"
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -874,7 +874,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
         rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-038_2.out"
     rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_mod-CA-039: Modify a user in CA using ${prefix}_adminV - phone is empty"
+	rlPhaseStartTest "pki_user_cli_user_mod-CA-039: Modify a user in CA using ROOTCA_adminV - phone is empty"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -890,10 +890,10 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
 	errmsg="BadRequestException: Invalid DN syntax."
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modifying User --phone is empty"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/836"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/833"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-040: Modify a user in CA using ${prefix}_adminV - state is empty"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-040: Modify a user in CA using ROOTCA_adminV - state is empty"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -908,12 +908,12 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
 	errmsg="BadRequestException: Invalid DN syntax."
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modify User --state is empty"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/836"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/833"
     rlPhaseEnd
 
 ##### Tests to modify CA users with the same value ####
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-041: Modify a user in CA using ${prefix}_adminV - fullname same old value"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-041: Modify a user in CA using ROOTCA_adminV - fullname same old value"
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -944,7 +944,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
 
 ##### Tests to modify CA users adding values to params which were previously empty ####
 
-    rlPhaseStartTest "pki_user_cli_user_mod-CA-042: Modify a user in CA using ${prefix}_adminV - adding values to params which were previously empty"
+    rlPhaseStartTest "pki_user_cli_user_mod-CA-042: Modify a user in CA using ROOTCA_adminV - adding values to params which were previously empty"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -977,7 +977,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
 
 ##### Tests to modify CA users having i18n chars in the fullname ####
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-043: Modify a user's fullname having i18n chars in CA using ${prefix}_adminV"
+rlPhaseStartTest "pki_user_cli_user_mod-CA-043: Modify a user's fullname having i18n chars in CA using ROOTCA_adminV"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1005,7 +1005,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-043: Modify a user's fullname having 
 
 ##### Tests to modify CA users having i18n chars in email ####
 
-rlPhaseStartTest "pki_user_cli_user_mod-CA-044: Modify a user's email having i18n chars in CA using ${prefix}_adminV"
+rlPhaseStartTest "pki_user_cli_user_mod-CA-044: Modify a user's email having i18n chars in CA using ROOTCA_adminV"
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --email=$i18nuser_mod_email $i18nuser"
 	errmsg="PKIException: LDAP error (21): error result"
 	errorcode=255

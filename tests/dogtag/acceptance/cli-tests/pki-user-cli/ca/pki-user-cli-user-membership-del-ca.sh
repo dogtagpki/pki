@@ -331,7 +331,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartTest "pki_user_cli_user_membership-del-CA-010: Should not be able to user-membership-del using a valid agent CA_agentV user"
 		command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-del user2 \"Administrators\""
 		rlLog "Executing $command"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to delete user-membership using a valid agent cert CA_agentV"
 	rlPhaseEnd
@@ -363,7 +363,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartTest "pki_user_cli_user_membership-del-CA-013: Should not be able to user-membership-del using CA_auditV cert"
                 command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-del user2 \"Administrators\""
 		rlLog "Executing $command"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-del using CA_auditV cert"
 	rlPhaseEnd
@@ -371,25 +371,25 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartTest "pki_user_cli_user_membership-del-CA-014: Should not be able to user-membership-del using CA_operatorV cert"
 		command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-del user2 \"Administrators\""
 		rlLog "Executing $command"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-del using CA_operatorV cert"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-del-CA-015: Should not be able to user-membership-del using CA_adminUTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n ${prefix}_adminUTCA -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-del user2 \"Administrators\""
+	rlPhaseStartTest "pki_user_cli_user_membership-del-CA-015: Should not be able to user-membership-del using role_user_UTCA cert"
+                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-del user2 \"Administrators\""
 		rlLog "Executing $command"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-del using CA_adminUTCA cert"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-del using role_user_UTCA cert"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-del-CA-016: Should not be able to user-membership-del using CA_agentUTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n ${prefix}_agentUTCA -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-del user2 \"Administrators\""
+	rlPhaseStartTest "pki_user_cli_user_membership-del-CA-016: Should not be able to user-membership-del using role_user_UTCA cert"
+                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-del user2 \"Administrators\""
 		rlLog "Executing $command"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-del using CA_agentUTCA cert"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-del using role_user_UTCA cert"
 		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
 	rlPhaseEnd
 
@@ -702,7 +702,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
 		#Trying to add a user using testuser1 should fail since testuser1 is not in Administrators group
 		command="pki -d $TEMP_NSS_DB  -n testuser1 -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-add --fullName=test_user u212"
 		rlLog "Executing $command"
-		errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+		errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to add users using non Administrator"
 	rlPhaseEnd
@@ -757,7 +757,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
                         --action approve"
                 command="pki -d $TEMP_NSS_DB -c Password -n \"testuser1\" -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-cert-request-review $ret_requestid --action approve"
                 rlLog "Executing: $command"
-                errmsg="Authorization failed on resource: certServer.ca.certrequests, operation: execute"
+                errmsg="Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Approve Certificate request using testuser1"	
 	rlPhaseEnd

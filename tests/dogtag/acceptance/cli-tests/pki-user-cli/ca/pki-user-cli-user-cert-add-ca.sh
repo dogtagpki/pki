@@ -39,15 +39,8 @@
 . /opt/rhqa_pki/env.sh
 
 ######################################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-add-ca.sh
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-cert-find-ca.sh
+#pki-user-cli-role-user-create-tests should be first executed prior to pki-user-cli-user-cert-find-ca.sh
 ######################################################################################
-
-########################################################################
-# Test Suite Globals
-########################################################################
-
-########################################################################
 
 run_pki-user-cli-user-cert-add-ca_tests(){
 subsystemId=$1
@@ -95,11 +88,17 @@ local TEMP_NSS_DB_PASSWD="redhat123"
         rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add --help > $TmpDir/pki_user_cert_add_cfg.out 2>&1" \
                 0 \
                 "User cert add configuration"
-        rlAssertGrep "user-cert-add <User ID> --input <file> \[OPTIONS...\]" "$TmpDir/pki_user_cert_add_cfg.out"
-        rlAssertGrep "--input <file>   Input file" "$TmpDir/pki_user_cert_add_cfg.out"
-	rlAssertGrep "--help           Show help options" "$TmpDir/pki_user_cert_add_cfg.out"
+        rlAssertGrep "usage: user-cert-add <User ID> --input <file> \[OPTIONS...\]" "$TmpDir/pki_user_cert_add_cfg.out"
+        rlAssertGrep "--input <file>             Input file" "$TmpDir/pki_user_cert_add_cfg.out"
+	rlAssertGrep "--help                     Show help options" "$TmpDir/pki_user_cert_add_cfg.out"
+	rlAssertGrep "--serial <serial number>   Serial number of certificate in CA" "$TmpDir/pki_user_cert_add_cfg.out"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
+# pki user-cert-add --help
+usage: user-cert-add <User ID> [OPTIONS...]
+    --help                     Show help options
+    --input <file>             Input file
+    --serial <serial number>   Serial number of certificate in CA
 
 	##### Tests to add certs to CA users ####
 	
@@ -508,7 +507,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-007-tier1: Add one cert to a use
  		 -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    user-add --fullName=\"New User1\" u1"
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $user2"
-	errmsg="Error: Missing required option: input"
+	errmsg="Error: Missing input file or serial number"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Input parameter missing"
 	rlRun "pki -d $CERTDB_DIR \
@@ -552,7 +551,7 @@ rlPhaseEnd
         ##### Add one cert to a user - Input file does not exist #####
 rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0010: Add one cert to a user should fail when Input file does not exist "
 		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $user2 --input $TmpDir/tempfile.pem"
-		errmsg="FileNotFoundException: $TmpDir/tempfile.pem (No such file or directory)"
+		errmsg="FileNotFoundException: $TmpDir/tempfile.pem does not exist"
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Input file does not exist"
 rlPhaseEnd
@@ -1290,7 +1289,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0019: Add an Admin user \"admin_
         rlAssertGrep "Serial Number: $cert_serialNumber_pkcs10" "$TmpDir/pki_user_cert_add_CA_useraddcert_0019.out"
         rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_add_CA_useraddcert_0019.out"
         rlAssertGrep "Subject: UID=admin_user,E=admin_user@example.org,CN=Admin User,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_add_CA_useraddcert_0019.out"
-        rlRun "certutil -d $TEMP_NSS_DB -A -n \"CA Signing Certificate - $(eval echo \$${prefix}_DOMAIN) Security Domain\" -i $CERTDB_DIR/ca_cert.pem -t \"CT,CT,CT\""
+        rlRun "certutil -d $TEMP_NSS_DB -A -n \"$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" -i $CERTDB_DIR/ca_cert.pem -t \"CT,CT,CT\""
         rlLog "pki -d $TEMP_NSS_DB/ \
  		-h $SUBSYSTEM_HOST \
  		 -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
@@ -1381,19 +1380,6 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0019: Add an Admin user \"admin_
  		 -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-del admin_user1"
-	rlRun "pki -d $TEMP_NSS_DB/ \
-                           -n admin_user1-crmf \
-                -h $SUBSYSTEM_HOST \
-                 -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                           -c $TEMP_NSS_DB_PASSWD \
-                            user-del new_test_user2"
-
-	rlRun "pki -d $TEMP_NSS_DB/ \
-                           -n admin_user1-crmf \
-                -h $SUBSYSTEM_HOST \
-                 -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                           -c $TEMP_NSS_DB_PASSWD \
-                            user-del new_test_user1"
 
 rlPhaseEnd
 
@@ -1618,12 +1604,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0021: Adding a cert as CA_agentV
         local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
         local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0021pkcs10.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_agentV"
 
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0021crmf.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_agentV"
 rlPhaseEnd
@@ -1655,13 +1641,13 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0022: Adding a cert as CA_audito
         local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
         local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc) 
 	command="pki -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0022pkcs10.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_auditorV"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
 	command="pki -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0022crmf.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_auditorV"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
@@ -1697,12 +1683,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0023: Adding a cert as CA_adminE
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
         rlRun "date"
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0023pkcs10.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_adminE"
 
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0023crmf.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_adminE"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
@@ -1813,12 +1799,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0026: Adding a cert as CA_agentE
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
         rlRun "date"
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0026pkcs10.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_agentE"
 
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0026crmf.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_agentE"
 
@@ -1826,9 +1812,9 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0026: Adding a cert as CA_agentE
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
 
-        ##### Adding a cert as CA_adminUTCA #####
+        ##### Adding a cert as role_user_UTCA #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0027: Adding a cert as CA_adminUTCA should fail"
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0027: Adding a cert as role_user_UTCA should fail"
         k=27
         local userid="new_user7"
         local userFullname="New User7"
@@ -1852,23 +1838,23 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0027: Adding a cert as CA_adminU
         local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
         local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
         local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
-	command="pki -d $CERTDB_DIR -n ${prefix}_adminUTCA -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027pkcs10.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	command="pki -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027pkcs10.pem"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_adminUTCA"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as role_user_UTCA"
 
-	command="pki -d $CERTDB_DIR -n ${prefix}_adminUTCA -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027crmf.pem"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	command="pki -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027crmf.pem"
+        errmsg="ForbiddenException: Authorization Error"
         errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_adminUTCA"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as role_user_UTCA"
 
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
 rlPhaseEnd
 
-        ##### Adding a cert as CA_agentUTCA #####
+        ##### Adding a cert as role_user_UTCA #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0028: Adding a cert as CA_agentUTCA should fail"
+rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0028: Adding a cert as role_user_UTCA should fail"
         k=28
         local userid="new_user8"
         local userFullname="New User8"
@@ -1892,15 +1878,15 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0028: Adding a cert as CA_agentU
         local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
         local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
         local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
-	command="pki -d $CERTDB_DIR -n ${prefix}_agentUTCA -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028pkcs10.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	command="pki -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028pkcs10.pem"
+	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_agentUTCA"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as role_user_UTCA"
 
-	command="pki -d $CERTDB_DIR -n ${prefix}_agentUTCA -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028crmf.pem"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	command="pki -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028crmf.pem"
+        errmsg="ForbiddenException: Authorization Error"
         errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_agentUTCA"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as role_user_UTCA"
 
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 
@@ -1933,12 +1919,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0029: Adding a cert as CA_operat
         local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
         local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
 	command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0029pkcs10.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_operatorV"
 
 	command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0029crmf.pem"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+        errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_operatorV"
 
@@ -1971,12 +1957,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-CA-0030: Adding a cert as user not 
         local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
         local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
 	command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0030pkcs10.pem"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to $userid as a user not associated with any group"
 
 	command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD -t ca -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0030crmf.pem"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+        errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to $userid as a user not associated with any group"
 
@@ -2085,6 +2071,4 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
-
-
 }

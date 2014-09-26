@@ -39,14 +39,8 @@
 . /opt/rhqa_pki/env.sh
 
 ######################################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-cert-find-ca.sh
+#pki-user-cli-role-user-create-tests should be first executed prior to pki-user-cli-user-cert-find-ca.sh
 ######################################################################################
-
-########################################################################
-# Test Suite Globals
-########################################################################
-
-########################################################################
 
 run_pki-user-cli-user-cert-find-ca_tests(){
 
@@ -886,7 +880,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to use
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-023: Find the certs of a user as CA_agentV should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+        errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a valid agent user"
 rlPhaseEnd
@@ -894,7 +888,7 @@ rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-024: Find the certs of a user as CA_auditorV should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+        errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a valid auditor user"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
@@ -906,7 +900,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-025: Find the certs of a user a
                                 rlRun "date"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+        errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an admin user with expired cert"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
@@ -918,7 +912,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-026: Find the certs of a user a
                                 rlRun "date"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+        errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an agent user with expired cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
@@ -938,32 +932,32 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-028: Find the certs of a user a
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an agent user with a revoked cert"
 rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_cert-find-CA-029: Find the certs of a user as CA_adminUTCA should fail"
-	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminUTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+rlPhaseStartTest "pki_user_cli_user_cert-find-CA-029: Find the certs of a user as role_user_UTCA should fail"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_adminUTCA"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as role_user_UTCA"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
-rlPhaseStartTest "pki_user_cli_user_cert-find-CA-030: Find the certs of a user as CA_agentUTCA should fail"
-	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentUTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+rlPhaseStartTest "pki_user_cli_user_cert-find-CA-030: Find the certs of a user as role_user_UTCA should fail"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+        errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_agentUTCA"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as role_user_UTCA"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-031: Find the certs of a user as CA_operatorV should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+        errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_operatorV"
 rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-032: Find the certs of a user as a user not associated with any role, should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
-        errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+        errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a user not assigned to any role"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
@@ -1005,5 +999,4 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         #rlRun "popd"
         #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
-
 }

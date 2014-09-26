@@ -40,7 +40,7 @@
 . /opt/rhqa_pki/env.sh
 
 ######################################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-add-ca.sh
+#pki-user-cli-role-user-create-tests should be first executed prior to pki-user-cli-user-add-ca.sh
 #pki-user-cli-user-add-ca.sh should be first executed prior to pki-user-cli-user-add-ca.sh
 ######################################################################################
 
@@ -102,12 +102,12 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
     rlPhaseEnd
 
      ##### Tests to show CA users ####
-    rlPhaseStartTest "pki_user_cli_user_show-CA-001: Add user to CA using ${prefix}_adminV and show user"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-001: Add user to CA using ROOTCA_adminV and show user"
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=\"$user1fullname\" $user1" \
 		    0 \
                     "Add user $user1 using ${prefix}_adminV"
@@ -115,13 +115,13 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user1"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user1 > $TmpDir/pki-user-show-ca-001.out" \
 		    0 \
 		    "Show user $user1"
@@ -136,7 +136,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user2" \
 		    0 \
                     "Add user $user2 using ${prefix}_adminV"
@@ -144,7 +144,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user2 > $TmpDir/pki-user-show-ca-001_1.out" \
                     0 \
                     "Show $user2 user"
@@ -165,7 +165,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user3" \
 		    0 \
                     "Add user $user3 using ${prefix}_adminV"
@@ -173,7 +173,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user3 > $TmpDir/pki-user-show-ca-001_2.out" \
                     0 \
                     "Show $user3 user"
@@ -187,7 +187,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user4" \
 		    0 \
                     "Add user $user4 using ${prefix}_adminV"
@@ -195,7 +195,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user4 > $TmpDir/pki-user-show-ca-001_3.out" \
                     0 \
                     "Show $user4 user"
@@ -209,7 +209,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user5" \
                     0 \
                     "Add $user5 using ${prefix}_adminV"
@@ -217,7 +217,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user5 > $TmpDir/pki-user-show-ca-001_4.out" \
                     0 \
                     "Show $user5 user"
@@ -231,7 +231,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user6" \
                     0 \
                     "Add $user6 using ${prefix}_adminV"
@@ -239,7 +239,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user6 > $TmpDir/pki-user-show-ca-001_5.out" \
                     0 \
                     "Show $user6 user"
@@ -253,7 +253,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test $user7" \
                     0 \
                     "Add user $user7 using ${prefix}_adminV"
@@ -261,7 +261,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show $user7 > $TmpDir/pki-user-show-ca-001_6.out" \
                     0 \
                     "Show user $user7"
@@ -276,7 +276,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=\"$email\" u1" \
 		    0 \
 		    "Added user using ${prefix}_adminV with maximum --email length"
@@ -284,7 +284,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u1 > $TmpDir/pki-user-show-ca-001_7.out" \
                     0 \
                     "Show user u1"
@@ -306,7 +306,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email='$email'  u2" \
 		    0 \
 		    "Added user using ${prefix}_adminV with maximum --email length and character symbols in it"
@@ -314,7 +314,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u2 > $TmpDir/pki-user-show-ca-001_8.out" \
                     0 \
                     "Show user u2"
@@ -335,7 +335,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=#  u3" \
                     0 \
                     "Add user u3 using pki ${prefix}_adminV"
@@ -343,7 +343,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u3 > $TmpDir/pki-user-show-ca-001_9.out" \
 		     0 \
                     "Add user u3"
@@ -358,7 +358,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=*  u4" \
 		    0 \
                     "Add user u4 using pki ${prefix}_adminV"
@@ -366,7 +366,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u4 > $TmpDir/pki-user-show-ca-001_10.out" \
                     0 \
                     "Show user u4 using ${prefix}_adminV"
@@ -381,7 +381,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=$  u5" \
 		    0 \
                     "Add user u5 using pki ${prefix}_adminV"
@@ -389,7 +389,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u5 > $TmpDir/pki-user-show-ca-001_11.out" \
                     0 \
                     "Show user u5 using ${prefix}_adminV"
@@ -404,7 +404,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --email=0  u6" \
 		    0 \
                     "Add user u6 using pki ${prefix}_adminV"
@@ -412,7 +412,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u6 > $TmpDir/pki-user-show-ca-001_12.out" \
                     0 \
                     "Show user u6 using ${prefix}_adminV"
@@ -428,7 +428,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=\"$state\" u7 " \
 		    0 \
                     "Add user u7 using pki ${prefix}_adminV with maximum --state length"
@@ -436,7 +436,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u7 > $TmpDir/pki-user-show-ca-001_13.out" \
                     0 \
                     "Show user u7 using ${prefix}_adminV"
@@ -458,7 +458,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state='$state' u8" \
 		    0 \
                     "Add user u8 using pki ${prefix}_adminV with maximum --state length and symbols"
@@ -466,7 +466,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u8 > $TmpDir/pki-user-show-ca-001_14.out" \
                     0 \
                     "Show user u8 using ${prefix}_adminV"
@@ -487,7 +487,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=#  u9" \
 		    0 \
                     "Added user using ${prefix}_adminV with --state # character"
@@ -495,7 +495,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u9 > $TmpDir/pki-user-show-ca-001_15.out" \
                     0 \
                     "Show user u9 using ${prefix}_adminV"
@@ -510,7 +510,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=*  u10" \
 		    0 \
                     "Adding user using ${prefix}_adminV with --state * character"
@@ -518,7 +518,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u10 > $TmpDir/pki-user-show-ca-001_16.out" \
                     0 \
                     "Show user u10 using ${prefix}_adminV"
@@ -533,7 +533,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=$  u11" \
 		    0 \
                     "Adding user using ${prefix}_adminV with --state $ character"
@@ -541,7 +541,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u11 > $TmpDir/pki-user-show-ca-001_17.out" \
                     0 \
                     "Show user u11 using ${prefix}_adminV"
@@ -556,7 +556,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --state=0  u12" \
 		    0 \
                     "Adding user using ${prefix}_adminV with --state 0"
@@ -564,7 +564,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u12 > $TmpDir/pki-user-show-ca-001_18.out" \
                     0 \
                     "Show pki ${prefix}_adminV user"
@@ -581,7 +581,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --phone=\"$phone\" u13" \
 		    0 \
                     "Adding user using ${prefix}_adminV with maximum --phone length"
@@ -589,7 +589,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u13 > $TmpDir/pki-user-show-ca-001_19.out" \
                     0 \
                     "Show user u13 using ${prefix}_adminV"
@@ -604,7 +604,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --phone=-1230  u14" \
 		    0 \
                     "Adding user using ${prefix}_adminV with --phone as negative number -1230"
@@ -612,7 +612,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u14 > $TmpDir/pki-user-show-ca-001_24.out" \
                     0 \
                     "Show user u14 using ${prefix}_adminV"
@@ -627,7 +627,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=Auditors u15" \
 		    0 \
                     "Adding user using ${prefix}_adminV with --type as Auditors"
@@ -635,7 +635,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u15 > $TmpDir/pki-user-show-ca-001_25.out" \
                     0 \
                     "Show user u15 using ${prefix}_adminV"
@@ -650,7 +650,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Certificate Manager Agents\" u16" \
 		    0 \
                     "Adding user using ${prefix}_adminV with --type Certificate Manager Agents"
@@ -658,7 +658,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u16 > $TmpDir/pki-user-show-ca-001_26.out" \
                     0 \
                     "Show user u16 using ${prefix}_adminV"
@@ -673,7 +673,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Registration Manager Agents\"  u17" \
 		    0 \
                     "Adding user using ${prefix}_adminV with --type Registration Manager Agents"
@@ -681,7 +681,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u17 > $TmpDir/pki-user-show-ca-001_27.out" \
                     0 \
                     "Show user u17 using ${prefix}_adminV"
@@ -696,7 +696,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Subsytem Group\"  u18" \
 		     0 \
                     "Adding user using ${prefix}_adminV with --type Subsytem Group"
@@ -704,7 +704,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u18 > $TmpDir/pki-user-show-ca-001_28.out" \
                     0 \
                     "Show user u18 using ${prefix}_adminV"
@@ -719,7 +719,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=\"Security Domain Administrators\" u19" \
 		    0 \
                     "Adding user using ${prefix}_adminV with --type Security Domain Administrators"
@@ -727,7 +727,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u19 > $TmpDir/pki-user-show-ca-001_29.out" \
                     0 \
                     "Show user u19 using ${prefix}_adminV"
@@ -742,7 +742,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test --type=ClonedSubsystems u20" \
 		    0 \
 		    "Adding user using ${prefix}_adminV with --type ClonedSubsystems"
@@ -750,7 +750,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u20 > $TmpDir/pki-user-show-ca-001_30.out" \
                     0 \
                     "Show user u20 using ${prefix}_adminV"
@@ -773,7 +773,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u21 > $TmpDir/pki-user-show-ca-001_31.out" \
                     0 \
                     "Show user u21 using ${prefix}_adminV"
@@ -788,7 +788,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-add --fullName=\"$user1fullname\"  u22" \
 		    0 \
@@ -797,7 +797,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-show u22 > $TmpDir/pki-user-show-ca-001_32.out" \
                     0 \
@@ -817,7 +817,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-add --fullName=\"$user1fullname\"  \
                     --email $email \
@@ -832,7 +832,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-show u23 > $TmpDir/pki-user-show-ca-001_33.out" \
                     0 \
@@ -860,7 +860,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-show U23 > $TmpDir/pki-user-show-ca-001_35.out 2>&1" \
                     0 \
@@ -874,7 +874,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "State: $state" "$TmpDir/pki-user-show-ca-001_35.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-033: Should not be able to show user using a revoked cert ${prefix}_adminR"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-033: Should not be able to show user using a revoked cert ROOTCA_adminR"
         command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="PKIException: Unauthorized"
@@ -882,7 +882,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a admin having revoked cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-034: Should not be able to show user using a agent with revoked cert ${prefix}_agentR"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-034: Should not be able to show user using a agent with revoked cert ROOTCA_agentR"
         command="pki -d $CERTDB_DIR  -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="PKIException: Unauthorized"
@@ -890,7 +890,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a agent having revoked cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-035: Should not be able to show user using a valid agent ${prefix}_agentV user"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-035: Should not be able to show user using a valid agent ROOTCA_agentV user"
         command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="ForbiddenException: Authorization Error"
@@ -899,7 +899,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-036: Should not be able to show user using a ${prefix}_agentR user"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-036: Should not be able to show user using a ROOTCA_agentR user"
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="PKIException: Unauthorized"
@@ -907,7 +907,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show user u23 using a revoked agent cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-037: Should not be able to show user using admin user with expired cert ${prefix}_adminE"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-037: Should not be able to show user using admin user with expired cert ROOTCA_adminE"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
@@ -920,7 +920,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-038: Should not be able to show user using ${prefix}_agentE cert"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-038: Should not be able to show user using ROOTCA_agentE cert"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
@@ -933,7 +933,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-039: Should not be able to show user using a ${prefix}_auditV"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-039: Should not be able to show user using a ROOTCA_auditV"
         command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="ForbiddenException: Authorization Error"
@@ -942,7 +942,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-040: Should not be able to show user using a ${prefix}_operatorV"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-040: Should not be able to show user using a ROOTCA_operatorV"
         command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u23"
         rlLog "Executing $command"
         errmsg="ForbiddenException: Authorization Error"
@@ -951,22 +951,22 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/965"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-041: Should not be able to show user using a cert created from a untrusted CA ${prefix}_adminUTCA"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-041: Should not be able to show user using a cert created from a untrusted CA role_user_UTCA"
         rlLog "Executing: pki -d $untrusted_cert_db_location \
-                   -n ${prefix}_adminUTCA \
+                   -n role_user_UTCA \
                    -c $untrusted_cert_db_password \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23"
         rlRun "pki -d $untrusted_cert_db_location \
-                   -n ${prefix}_adminUTCA \
+                   -n role_user_UTCA \
                    -c $untrusted_cert_db_password \
  		   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                    user-show u23 > $TmpDir/pki-user-show-ca-adminUTCA-002.out 2>&1" \
+                    user-show u23 > $TmpDir/pki-user-show-ca-role_user_UTCA-002.out 2>&1" \
                     255 \
                     "Should not be able to show user u23 using a untrusted cert"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-adminUTCA-002.out"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-show-ca-role_user_UTCA-002.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-ca-042: Should not be able to show user using a user cert"
@@ -995,7 +995,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
                    -n pkiUser1 \
                    -c Password \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         echo "spawn -noecho pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $TEMP_NSS_DB -n pkiUser1 -c Password user-show u13" > $expfile
         echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$(eval echo \$${prefix}_DOMAIN) Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$(eval echo \$${prefix}_DOMAIN) Security Domain'
@@ -1016,7 +1016,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show  \"$user_length_exceed_max\""
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
@@ -1035,7 +1035,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test 'ÖrjanÄke' > $TmpDir/pki-user-show-ca-001_56.out 2>&1" \
                     0 \
                     "Adding uid ÖrjanÄke with i18n characters"
@@ -1086,7 +1086,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
     rlPhaseEnd 
 
     rlPhaseStartTest "pki_user_cli_user_cleanup-046: Deleting the temp directory and users"
-	del_user=(${prefix}_adminV_user ${prefix}_adminR_user ${prefix}_adminE_user ${prefix}_adminUTCA_user ${prefix}_agentV_user ${prefix}_agentR_user ${prefix}_agentE_user ${prefix}_agentUTCA_user ${prefix}_auditV_user ${prefix}_operatorV_user)
+	del_user=(${prefix}_adminV_user ${prefix}_adminR_user ${prefix}_adminE_user role_user_UTCA_user ${prefix}_agentV_user ${prefix}_agentR_user ${prefix}_agentE_user ${prefix}_auditV_user ${prefix}_operatorV_user)
 
         #===Deleting users created using ${prefix}_adminV cert===#
         i=1
@@ -1122,8 +1122,8 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlRun "pki -d $CERTDB_DIR \
                 -n ${prefix}_adminV \
                 -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                 user-del 'ÖrjanÄke' > $TmpDir/pki-user-del-ca-user-i18n_1.out" \
                 0 \
                 "Deleted user ÖrjanÄke"
@@ -1132,8 +1132,8 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlRun "pki -d $CERTDB_DIR \
                 -n ${prefix}_adminV \
                 -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		-h $SUBSYSTEM_HOST \
+ 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                 user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-user-i18n_2.out" \
                 0 \
                 "Deleted user ÉricTêko"

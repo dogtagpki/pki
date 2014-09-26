@@ -442,7 +442,7 @@ user7=0
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-user-find-ca-0014.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-021: Should not be able to find user using a revoked cert ${prefix}_adminR"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-021: Should not be able to find user using a revoked cert ROOTCA_adminR"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_adminR \
                    -c $CERTDB_DIR_PASSWORD \
@@ -460,7 +460,7 @@ user7=0
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-revoke-adminR-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-022: Should not be able to find users using an agent with revoked cert ${prefix}_agentR"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-022: Should not be able to find users using an agent with revoked cert ROOTCA_agentR"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_agentR \
                    -c $CERTDB_DIR_PASSWORD \
@@ -478,7 +478,7 @@ user7=0
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-revoke-agentR-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-023: Should not be able to find users using a valid agent ${prefix}_agentV user"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-023: Should not be able to find users using a valid agent ROOTCA_agentV user"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_agentV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -496,7 +496,7 @@ user7=0
         rlAssertGrep "ForbiddenException: Authorization Error" "$TmpDir/pki-user-find-ca-agentV-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-024: Should not be able to find users using a ${prefix}_agentR user"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-024: Should not be able to find users using a ROOTCA_agentR user"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_agentR \
                    -c $CERTDB_DIR_PASSWORD \
@@ -514,7 +514,7 @@ user7=0
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-agentR-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-025: Should not be able to find users using admin user with expired cert ${prefix}_adminE"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-025: Should not be able to find users using admin user with expired cert ROOTCA_adminE"
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
 	rlRun "date --set='next day'" 0 "Set System date a day ahead"
 	rlRun "date"
@@ -538,7 +538,7 @@ user7=0
         rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-026: Should not be able to find users using ${prefix}_agentE cert"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-026: Should not be able to find users using ROOTCA_agentE cert"
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
 	rlRun "date --set='next day'" 0 "Set System date a day ahead"
 	rlRun "date"
@@ -562,7 +562,7 @@ user7=0
         rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
-     rlPhaseStartTest "pki_user_cli_user_find-ca-027: Should not be able to find users using a ${prefix}_auditV"
+     rlPhaseStartTest "pki_user_cli_user_find-ca-027: Should not be able to find users using a ROOTCA_auditV"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_auditV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -580,7 +580,7 @@ user7=0
         rlAssertGrep "ForbiddenException: Authorization Error" "$TmpDir/pki-user-find-ca-auditV-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-028: Should not be able to find users using a ${prefix}_operatorV"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-028: Should not be able to find users using a ROOTCA_operatorV"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_operatorV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -598,22 +598,22 @@ user7=0
         rlAssertGrep "ForbiddenException: Authorization Error" "$TmpDir/pki-user-find-ca-operatorV-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-029: Should not be able to find user using a cert created from a untrusted CA ${prefix}_adminUTCA"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-029: Should not be able to find user using a cert created from a untrusted CA role_user_UTCA"
         rlLog "Executing: pki -d $untrusted_cert_db_location \
-                   -n ${prefix}_adminUTCA \
+                   -n role_user_UTCA \
                    -c $untrusted_cert_db_password \
  		   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $untrusted_cert_db_location \
-                   -n ${prefix}_adminUTCA \
+                   -n role_user_UTCA \
  		   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -c $untrusted_cert_db_password \
-                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-adminUTCA-002.out 2>&1" \
+                    user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-role_user_UTCA-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using a untrusted cert"
-        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-adminUTCA-002.out"
+        rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-role_user_UTCA-002.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-030: Should not be able to find user using a user cert"

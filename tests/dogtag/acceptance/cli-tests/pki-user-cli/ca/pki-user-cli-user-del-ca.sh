@@ -39,9 +39,6 @@
 . /opt/rhqa_pki/pki-cert-cli-lib.sh
 . /opt/rhqa_pki/env.sh
 
-
-########################################################################
-# Test Suite Globals
 ########################################################################
 
 run_pki-user-cli-user-del-ca_tests(){
@@ -393,7 +390,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user u22 should not exist"	
     rlPhaseEnd 
      
-    rlPhaseStartTest "pki_user_cli_user_del-CA-010: Should not be able to delete user using a revoked cert ${prefix}_adminR"
+    rlPhaseStartTest "pki_user_cli_user_del-CA-010: Should not be able to delete user using a revoked cert ROOTCA_adminR"
 	#Add a user
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
@@ -427,7 +424,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-001.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-011: Should not be able to delete user using a agent with revoked cert ${prefix}_agentR"
+    rlPhaseStartTest "pki_user_cli_user_del-CA-011: Should not be able to delete user using a agent with revoked cert ROOTCA_agentR"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_agentR \
                    -c $CERTDB_DIR_PASSWORD \
@@ -452,7 +449,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-012: Should not be able to delete user using a valid agent ${prefix}_agentV user"
+    rlPhaseStartTest "pki_user_cli_user_del-CA-012: Should not be able to delete user using a valid agent ROOTCA_agentV user"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_agentV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -460,7 +457,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-del u23"
 	command="pki -d $CERTDB_DIR -n ${prefix}_agentV  -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a valid agent cert"
 	#Make sure user is not deleted
@@ -477,7 +474,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-003.out"
     rlPhaseEnd
     
-    rlPhaseStartTest "pki_user_cli_user_del-CA-013: Should not be able to delete user using a admin user with expired cert ${prefix}_adminE"
+    rlPhaseStartTest "pki_user_cli_user_del-CA-013: Should not be able to delete user using a admin user with expired cert ROOTCA_adminE"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
@@ -508,7 +505,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-004.out"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-014: Should not be able to delete a user using ${prefix}_agentE cert"
+    rlPhaseStartTest "pki_user_cli_user_del-CA-014: Should not be able to delete a user using ROOTCA_agentE cert"
 	rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
         rlRun "date"
         rlLog "Executing: pki -d $CERTDB_DIR \
@@ -538,7 +535,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-005.out"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-015: Should not be able to delete user using a ${prefix}_auditV"
+    rlPhaseStartTest "pki_user_cli_user_del-CA-015: Should not be able to delete user using a ROOTCA_auditV"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_auditV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -546,7 +543,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-del u23"
 	command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a audit cert"
 	#Make sure user is not deleted
@@ -563,7 +560,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-006.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-016: Should not be able to delete user using a ${prefix}_operatorV"
+    rlPhaseStartTest "pki_user_cli_user_del-CA-016: Should not be able to delete user using a ROOTCA_operatorV"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_operatorV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -571,7 +568,7 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-del u23"
 	command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a operator cert"
 	#Make sure user is not deleted
@@ -588,12 +585,12 @@ untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-007.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-017: Should not be able to delete user using a cert created from a untrusted CA ${prefix}_adminUTCA"
+    rlPhaseStartTest "pki_user_cli_user_del-CA-017: Should not be able to delete user using a cert created from a untrusted CA role_user_UTCA"
         rlLog "Executing: pki -d $untrusted_cert_db_location \
-                   -n ${prefix}_adminUTCA \
+                   -n role_user_UTCA \
                    -c $untrusted_cert_db_password \
                     user-del u23"
-	command="pki -d $untrusted_cert_db_location -n ${prefix}_adminUTCA -c $untrusted_cert_db_password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
+	command="pki -d $untrusted_cert_db_location -n role_user_UTCA -c $untrusted_cert_db_password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
 	errmsg="PKIException: Unauthorized"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a untrusted cert"
@@ -662,7 +659,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
                     "Show user u23"
         rlAssertGrep "User \"u23\"" "$TmpDir/pki-user-show-ca-009.out"
         rlAssertGrep "User ID: u23" "$TmpDir/pki-user-show-ca-009.out"
-        rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-009.out"	
+        rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-009.out"
 
 	#Cleanup:delete user u23
 	rlRun "pki -d $CERTDB_DIR \
@@ -759,7 +756,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user 'ÉricTêko' should not exist"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_del-${prefix}_cleanup-004: Deleting the temp directory"
+    rlPhaseStartTest "pki_user_cli_user_del-ROOTCA_cleanup-004: Deleting the temp directory"
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd

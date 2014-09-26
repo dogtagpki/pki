@@ -523,7 +523,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-024: Should not be able to user-membership-find using a valid agent CA_agentV user"
 		command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST user-membership-find userall --start=0 --size=5"
                 rlLog "Executing $command"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a valid agent CA_agentV user cert"
 	rlPhaseEnd
@@ -555,7 +555,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-027: Should not be able to user-membership-find using CA_auditV cert"
                 command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST user-membership-find userall --start=0 --size=5"
                 rlLog "Executing $command"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a valid auditor CA_auditV user cert"
         rlPhaseEnd
@@ -563,25 +563,25 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-028: Should not be able to user-membership-find using CA_operatorV cert"
                 command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST user-membership-find userall --start=0 --size=5"
                 rlLog "Executing $command"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a valid operator CA_operatorV user cert"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-029: Should not be able to user-membership-find using CA_adminUTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n ${prefix}_adminUTCA -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST -c Password user-membership-find userall --start=0 --size=5"
+	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-029: Should not be able to user-membership-find using role_user_UTCA cert"
+                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST -c Password user-membership-find userall --start=0 --size=5"
                 rlLog "Executing $command"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a untrusted CA_adminUTCA user cert"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a untrusted role_user_UTCA user cert"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-030: Should not be able to user-membership-find using CA_agentUTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n ${prefix}_agentUTCA -c Password -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST user-membership-find userall --start=0 --size=5"
+	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-030: Should not be able to user-membership-find using role_user_UTCA cert"
+                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST user-membership-find userall --start=0 --size=5"
                 rlLog "Executing $command"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a untrusted CA_agentUTCA user cert"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a untrusted role_user_UTCA user cert"
 		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 

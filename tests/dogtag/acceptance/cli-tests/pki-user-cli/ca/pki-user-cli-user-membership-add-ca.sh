@@ -427,7 +427,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartTest "pki_user_cli_user_membership-add-CA-015: Should not be able to user-membership-add using CA_auditV cert"
                 command="pki -d $CERTDB_DIR -n ${prefix}_auditV -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -c $CERTDB_DIR_PASSWORD user-membership-add testuser1 \"Administrators\""
 		rlLog "Executing $command"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-add using CA_auditV cert"
 	rlPhaseEnd
@@ -435,17 +435,17 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartTest "pki_user_cli_user_membership-add-CA-016: Should not be able to user-membership-add using CA_operatorV cert"
                 command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-add testuser1 \"Administrators\""
 		rlLog "Executing $command"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-add using CA_operatorV cert"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-add-CA-017: Should not be able to user-membership-add using CA_adminUTCA cert"
-		command="pki -d /tmp/untrusted_cert_db -n ${prefix}_adminUTCA -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-add testuser1 \"Administrators\""
+	rlPhaseStartTest "pki_user_cli_user_membership-add-CA-017: Should not be able to user-membership-add using role_user_UTCA cert"
+		command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-add testuser1 \"Administrators\""
 		rlLog "Executing $command"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-add using CA_adminUTCA cert"
+                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to user-membership-add using role_user_UTCA cert"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_user_cli_user_membership-add-CA-018: Should not be able to user-membership-add using CA_agentUTCA cert"
@@ -543,7 +543,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		#Trying to add a user using testuser1 should fail since testuser1 is not in Administrators group
 	        local expfile="$TmpDir/expfile_testuser1.out"	
 		echo "spawn -noecho pki -d $TEMP_NSS_DB -n testuser1 -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-add --fullName=test_user u39" > $expfile
-	        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on '$(eval echo $${prefix}_DOMAIN) indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain'
+	        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain'
 Import CA certificate (Y/n)? \"" >> $expfile
         	echo "send -- \"Y\r\"" >> $expfile
 	        echo "expect \"CA server URI \[http://$HOSTNAME:8080/ca\]: \"" >> $expfile
@@ -552,7 +552,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
 		echo "catch wait result" >> $expfile
 	        echo "exit [lindex \$result 3]" >> $expfile
         	rlRun "/usr/bin/expect -f $expfile 2>&1 >  $TmpDir/pki-user-add-ca-testuser1-002.out"  255 "Should not be able to add users using a non Administrator user"
-	        rlAssertGrep "ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute" "$TmpDir/pki-user-add-ca-testuser1-002.out"
+	        rlAssertGrep "ForbiddenException: Authorization Error" "$TmpDir/pki-user-add-ca-testuser1-002.out"
 
 		#Add testuser1 to Administrators group
 		rlRun "pki -d $CERTDB_DIR \
@@ -616,7 +616,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
                         --action approve"
 		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $TEMP_NSS_DB -c Password -n \"testuser1\" ca-cert-request-review $ret_requestid --action approve"
 		rlLog "Executing: $command"
-		errmsg="Authorization failed on resource: certServer.ca.certrequests, operation: execute"
+		errmsg="Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Approve Certificate request using testuser1"
 		
