@@ -417,13 +417,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public void rejectRequest(RequestId id) throws EBaseException {
         IRequest request = queue.findRequest(id);
-        request.setRequestStatus(RequestStatus.CANCELED);
+        request.setRequestStatus(RequestStatus.REJECTED);
         queue.updateRequest(request);
     }
 
     public void cancelRequest(RequestId id) throws EBaseException {
         IRequest request = queue.findRequest(id);
-        request.setRequestStatus(RequestStatus.REJECTED);
+        request.setRequestStatus(RequestStatus.CANCELED);
         queue.updateRequest(request);
     }
 
