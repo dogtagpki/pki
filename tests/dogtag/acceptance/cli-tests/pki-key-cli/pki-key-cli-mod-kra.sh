@@ -691,7 +691,7 @@ run_pki-key-mod-kra_tests()
 	rlLog "PKI TICKET::https://fedorahosted.org/pki/ticket/1117"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_mod-0018: Modifying the status of Key using expired Admin Cert should fail"
+	rlPhaseStartTest "pki_key_mod-0020: Modifying the status of Key using expired Admin Cert should fail"
         rlLog "Executing pki key-mod as $expired_admin_cert"
         local cur_date=$(date)
         local end_date=$(certutil -L -d $CERTDB_DIR -n $expired_admin_cert | grep "Not After" | awk -F ": " '{print $2}')
@@ -718,7 +718,7 @@ run_pki-key-mod-kra_tests()
 	rlPhaseEnd
 
 
-        rlPhaseStartTest "pki_key_mod-0018: Modifying the status of Key using expired Agent Cert should fail"
+        rlPhaseStartTest "pki_key_mod-0021: Modifying the status of Key using expired Agent Cert should fail"
         rlLog "Executing pki key-mod as $expired_admin_cert"
         local cur_date=$(date)
         local end_date=$(certutil -L -d $CERTDB_DIR -n $expired_admin_cert | grep "Not After" | awk -F ": " '{print $2}')
@@ -744,7 +744,7 @@ run_pki-key-mod-kra_tests()
         rlLog "Current Date/Time after setting system date back using chrony $(date)"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_mod-0019: Modifying the status of Key using audit cert should fail"
+	rlPhaseStartTest "pki_key_mod-0022: Modifying the status of Key using audit cert should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -774,7 +774,7 @@ run_pki-key-mod-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_mod_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0020: Modifying the status of Key using operator cert should fail"
+        rlPhaseStartTest "pki_key_mod-0023: Modifying the status of Key using operator cert should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -804,7 +804,7 @@ run_pki-key-mod-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_mod_output"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_mod-0023: Modifying the status of Key by connecting to KRA using https URI using valid agent cert should succeed"
+	rlPhaseStartTest "pki_key_mod-0024: Modifying the status of Key by connecting to KRA using https URI using valid agent cert should succeed"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -838,7 +838,7 @@ run_pki-key-mod-kra_tests()
 	rlPhaseEnd
 
 
-	rlPhaseStartTest "pki_key_mod-0024: Modifying the status of key using Normal user(Not a member of any group) cert should fail"
+	rlPhaseStartTest "pki_key_mod-0025: Modifying the status of key using Normal user(Not a member of any group) cert should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local pki_user="idm1_user_$rand"
         local pki_user_fullName="Idm1 User $rand"
@@ -914,7 +914,7 @@ run_pki-key-mod-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_mod_output"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_mod-0025: Modifying the status of key using Invalid user should fail"
+	rlPhaseStartTest "pki_key_mod-0026: Modifying the status of key using Invalid user should fail"
         local invalid_pki_user=test1
         local invalid_pki_user_pwd=Secret123
         rlLog "Executing pki key-mod using user $invalid_pki_user"
@@ -926,7 +926,7 @@ run_pki-key-mod-kra_tests()
         rlAssertGrep "PKIException: Unauthorized" "$key_mod_output"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_mod-0026: Modifying the status of key using Normal user(Not a member of any group) should fail"
+	rlPhaseStartTest "pki_key_mod-0027: Modifying the status of key using Normal user(Not a member of any group) should fail"
        	rlRun "pki -d $CERTDB_DIR\
                 -h $tmp_kra_host \
                 -p $target_unsecure_port \
@@ -936,7 +936,7 @@ run_pki-key-mod-kra_tests()
         rlAssertGrep "ForbiddenException: Authentication method not allowed" "$key_mod_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0027: Modifying the status of valid key of type asymmetric from active to Inactive should be successful"
+        rlPhaseStartTest "pki_key_mod-0028: Modifying the status of valid key of type asymmetric from active to Inactive should be successful"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=RSA
@@ -970,7 +970,7 @@ run_pki-key-mod-kra_tests()
         rlAssertGrep "Owner: $valid_agent_cert" "$key_mod_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0028: Modifying the status of Valid key of type asymmetric from Inactive to Active should be successful"
+        rlPhaseStartTest "pki_key_mod-0029: Modifying the status of Valid key of type asymmetric from Inactive to Active should be successful"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=RSA
@@ -1014,7 +1014,7 @@ run_pki-key-mod-kra_tests()
         rlAssertGrep "Owner: $valid_agent_cert" "$key_mod_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0029: Modifying the status of Rejected key of type asymmetric to active should succeed"
+        rlPhaseStartTest "pki_key_mod-0030: Modifying the status of Rejected key of type asymmetric to active should succeed"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=DSA
@@ -1045,7 +1045,7 @@ run_pki-key-mod-kra_tests()
         rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1137"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0030: Modifying the status of Rejected key of type asymmetric to inactive should succeed"
+        rlPhaseStartTest "pki_key_mod-0031: Modifying the status of Rejected key of type asymmetric to inactive should succeed"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=DSA
@@ -1076,7 +1076,7 @@ run_pki-key-mod-kra_tests()
         rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1137"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0031: Modifying the status of canceled key of type asymmetric to active should succeed"
+        rlPhaseStartTest "pki_key_mod-0032: Modifying the status of canceled key of type asymmetric to active should succeed"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=DSA
@@ -1107,7 +1107,7 @@ run_pki-key-mod-kra_tests()
         rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1137"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0032: Modifying the status of Canceled key of type asymmetric to inactive should succeed"
+        rlPhaseStartTest "pki_key_mod-0033: Modifying the status of Canceled key of type asymmetric to inactive should succeed"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=DSA
@@ -1138,7 +1138,7 @@ run_pki-key-mod-kra_tests()
         rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1137"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0033: Modifying the status of valid Asymmetric key from Active state to Unknown State(not inactive) should fail"
+        rlPhaseStartTest "pki_key_mod-0034: Modifying the status of valid Asymmetric key from Active state to Unknown State(not inactive) should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=RSA
@@ -1168,7 +1168,7 @@ run_pki-key-mod-kra_tests()
         rlAssertGrep "IllegalArgumentException: Invalid status value" "$key_mod_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_mod-0034: Modifying the status of valid Asymmetric key from Existing state to it's same existing should succeed"
+        rlPhaseStartTest "pki_key_mod-0035: Modifying the status of valid Asymmetric key from Existing state to it's same existing should succeed"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=RSA
