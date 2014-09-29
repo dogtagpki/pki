@@ -515,7 +515,7 @@ run_pki-key-archive-kra_tests()
 	rlAssertGrep "Authorization Error" "$key_archive_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_archive-0014: creating passphrase archival request using host URI parameter(https)"
+        rlPhaseStartTest "pki_key_archive-0015: creating passphrase archival request using host URI parameter(https)"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
@@ -535,7 +535,7 @@ run_pki-key-archive-kra_tests()
         rlAssertGrep "Status: complete" "$key_archive_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_archive-0015: creating passphrase archival request using valid user(Not a member of any group) should fail"
+        rlPhaseStartTest "pki_key_archive-0016: creating passphrase archival request using valid user(Not a member of any group) should fail"
         rlRun "pki -d $CERTDB_DIR\
                 -h $tmp_kra_host \
                 -p $target_unsecure_port \
@@ -545,7 +545,7 @@ run_pki-key-archive-kra_tests()
 		--passphrase $passphrase  > $key_archive_output 2>&1" 255,1 "Archive $passphrase as $pki_user_fullName"
         rlAssertGrep "'PKIException: Unauthorized" "$key_archive_output"
 
-        rlPhaseStartTest "pki_key_archive_0016: creating passphrase archival request using in-valid user should fail"
+        rlPhaseStartTest "pki_key_archive_0017: creating passphrase archival request using in-valid user should fail"
         local invalid_pki_user=test1
         local invalid_pki_user_pwd=Secret123
         rlLog "Executing pki key-request-find using user $pki_user"
