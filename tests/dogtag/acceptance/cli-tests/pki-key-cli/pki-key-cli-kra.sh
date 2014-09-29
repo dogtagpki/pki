@@ -46,7 +46,7 @@ run_pki-key-kra_tests()
 	rlRun "pushd $TmpDir"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_key --help Test: Show all the options of pki key"
+	rlPhaseStartTest "pki_key --help Test: Show all the options of pki ke"
 	local temp_out="$TmpDir/pki_key"
 	rlLog "Executing pki key --help"
 	rlRun "pki key --help 1> $temp_out" 0 "pki key --help"
