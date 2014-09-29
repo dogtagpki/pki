@@ -1983,7 +1983,7 @@ run_pki-key-generate-kra_tests()
         rlAssertGrep "BadRequestException: Can not archive already active existing key!" "$key_generate_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0084: Generating symmetric keys using valid admin cert should fail"
+        rlPhaseStartTest "pki_key_generate-0085: Generating symmetric keys using valid admin cert should fail"
 	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -2002,7 +2002,7 @@ run_pki-key-generate-kra_tests()
 	rlAssertGrep "ForbiddenException: Authorization Error" "$key_generate_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0085: Generating symmetric keys using revoked Agent cert should fail"
+        rlPhaseStartTest "pki_key_generate-0086: Generating symmetric keys using revoked Agent cert should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -2022,7 +2022,7 @@ run_pki-key-generate-kra_tests()
 	rlLog "PKI TICKET:: https://fedorahosted.org/pki/ticket/1117"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0086: Generating symmetric keys using admin(not a member of Agents Group) cert should fail"
+        rlPhaseStartTest "pki_key_generate-0087: Generating symmetric keys using admin(not a member of Agents Group) cert should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -2041,7 +2041,7 @@ run_pki-key-generate-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_generate_output"	
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0087: Generating symmetric key using Expired admin(not a member of Agents Group) cert should fail" 
+        rlPhaseStartTest "pki_key_generate-0088: Generating symmetric key using Expired admin(not a member of Agents Group) cert should fail" 
         local cur_date=$(date)
         local end_date=$(certutil -L -d $CERTDB_DIR -n CA_adminE | grep "Not After" | awk -F ": " '{print $2}')
         rlLog "Current Date/Time: $(date)"
@@ -2074,7 +2074,7 @@ run_pki-key-generate-kra_tests()
         rlLog "Current Date/Time after setting system date back using chrony $(date)"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0088: Generating using symmetric key using Expired agent cert should fail"
+        rlPhaseStartTest "pki_key_generate-0089: Generating using symmetric key using Expired agent cert should fail"
         local cur_date=$(date)
         local end_date=$(certutil -L -d $CERTDB_DIR -n CA_agentE | grep "Not After" | awk -F ": " '{print $2}')
         rlLog "Current Date/Time: $(date)"
@@ -2107,7 +2107,7 @@ run_pki-key-generate-kra_tests()
         rlLog "Current Date/Time after setting system date back using chrony $(date)"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0089: Generating symmetric key using valid audit cert should fail"
+        rlPhaseStartTest "pki_key_generate-0090: Generating symmetric key using valid audit cert should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -2126,7 +2126,7 @@ run_pki-key-generate-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_generate_output"
 	rlPhaseEnd
 	
-        rlPhaseStartTest "pki_key_generate-0090: Generate symmetric key using valid operator cert should fail"
+        rlPhaseStartTest "pki_key_generate-0091: Generate symmetric key using valid operator cert should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -2145,7 +2145,7 @@ run_pki-key-generate-kra_tests()
         rlAssertGrep "ProcessingException: Unable to invoke request" "$key_generate_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0091: Generate symmetric key using normal user cert(without any privileges) should fail"
+        rlPhaseStartTest "pki_key_generate-0092: Generate symmetric key using normal user cert(without any privileges) should fail"
         local pki_user="idm1_user_$rand"
         local pki_user_fullName="Idm1 User $rand"
         local pki_pwd="Secret123"
@@ -2227,7 +2227,7 @@ run_pki-key-generate-kra_tests()
         rlAssertGrep "ProcessingException: Unable to invoke request" "$key_generate_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0092: Generate symmetric key using host URI parameter(https)"
+        rlPhaseStartTest "pki_key_generate-0093: Generate symmetric key using host URI parameter(https)"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -2247,7 +2247,7 @@ run_pki-key-generate-kra_tests()
         rlAssertGrep "Status: complete" "$key_generate_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0093:Generate symmetric key using valid user should fail"
+        rlPhaseStartTest "pki_key_generate-0094:Generate symmetric key using valid user should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
@@ -2265,7 +2265,7 @@ run_pki-key-generate-kra_tests()
         rlAssertGrep "ForbiddenException: Authentication method not allowed" "$key_generate_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_generate-0093: Generating symmetric key using in-valid user should fail"
+        rlPhaseStartTest "pki_key_generate-0095: Generating symmetric key using in-valid user should fail"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local client_id=temp$rand
         local algo=AES
