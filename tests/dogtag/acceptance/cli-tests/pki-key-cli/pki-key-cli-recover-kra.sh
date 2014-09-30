@@ -208,7 +208,7 @@ run_pki-key-recover-kra_tests()
         rlAssertGrep "                                recovered" "$key_recover_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-004: Verify when no keyID is passed key-recover fails"
+        rlPhaseStartTest "pki_key_recover-005: Verify when no keyID is passed key-recover fails"
 	local invalid_key=1234545
         local key_id=$invalid_key
         rlLog "Create a recovery of key $key_id request"
@@ -221,7 +221,7 @@ run_pki-key-recover-kra_tests()
 	rlAssertGrep "NotFoundException: Key ID 0x12d671 not found" "$key_recover_output"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_recover-005: Verify when junk data is passed to ID, key-recover fails"
+	rlPhaseStartTest "pki_key_recover-006: Verify when junk data is passed to ID, key-recover fails"
         local key_id=$tmp_junk_data
         rlLog "Create a recovery of key $key_id request"
         rlRun "pki -d $CERTDB_DIR \
@@ -246,7 +246,7 @@ run_pki-key-recover-kra_tests()
         local key_id=$(cat $key_generate_output | grep "Key ID" | awk -F ": " '{print $2}')
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-006: Approving Recovery requests using Admin cert (not a member of agents group) should fail"
+        rlPhaseStartTest "pki_key_recover-007: Approving Recovery requests using Admin cert (not a member of agents group) should fail"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -h $tmp_kra_host \
@@ -256,7 +256,7 @@ run_pki-key-recover-kra_tests()
         rlAssertGrep "Authorization Error" "$key_recover_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-007: Approving recovery request using Revoked Agent cert should fail"
+        rlPhaseStartTest "pki_key_recover-008: Approving recovery request using Revoked Agent cert should fail"
 	rlLog "Executing pki -d <CERTDB_DIR> -c <CERTDB_PWD> -h $tmp_kra_host -c $target_unsecure_port -n $revoked_agent_cert key-recover --key $Key_id"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -267,7 +267,7 @@ run_pki-key-recover-kra_tests()
         rlAssertGrep "Authorization Error" "$key_recover_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-008: Approving recovery requests using  Revoked Admin cert should fail"
+        rlPhaseStartTest "pki_key_recover-009: Approving recovery requests using  Revoked Admin cert should fail"
 	rlLog "Executing pki -d <CERTDB_DIR> -c <CERTDB_PWD> -h $tmp_kra_host -c $target_unsecure_port -n $revoked_admin_cert key-recover --key $Key_id"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -278,7 +278,7 @@ run_pki-key-recover-kra_tests()
         rlAssertGrep "Authorization Error" "$key_recover_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-009: Approving recovery requests using Expired Admin cert should fail"
+        rlPhaseStartTest "pki_key_recover-0010: Approving recovery requests using Expired Admin cert should fail"
         rlLog "Executing pki key-recover as $expired_admin_cert"
         local cur_date=$(date)
         local end_date=$(certutil -L -d $CERTDB_DIR -n $expired_admin_cert | grep "Not After" | awk -F ": " '{print $2}')
@@ -304,7 +304,7 @@ run_pki-key-recover-kra_tests()
         rlLog "Current Date/Time after setting system date back using chrony $(date)"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-0010: Approving recovery requests using Expired Agent cert should fail"
+        rlPhaseStartTest "pki_key_recover-0011: Approving recovery requests using Expired Agent cert should fail"
         rlLog "Executing pki key-recover as $expired_agent_cert"
         local cur_date=$(date)
         local end_date=$(certutil -L -d $CERTDB_DIR -n $expired_agent_cert | grep "Not After" | awk -F ": " '{print $2}')
@@ -330,7 +330,7 @@ run_pki-key-recover-kra_tests()
         rlLog "Current Date/Time after setting system date back using chrony $(date)"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-0011: Approving recovery requests using Audit cert should fail"
+        rlPhaseStartTest "pki_key_recover-0012: Approving recovery requests using Audit cert should fail"
 	rlLog "Executing pki -d <CERTDB_DIR> -c <CERTDB_PWD> -h $tmp_kra_host -c $target_unsecure_port -n $valid_audit_cert key-recover --key $Key_id"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -341,7 +341,7 @@ run_pki-key-recover-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_recover_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-0012: Approving recovery request using Operator cert should fail"
+        rlPhaseStartTest "pki_key_recover-0013: Approving recovery request using Operator cert should fail"
 	rlLog "Executing pki -d <CERTDB_DIR> -c <CERTDB_PWD> -h $tmp_kra_host -c $target_unsecure_port -n $valid_operator_cert key-recover --key $Key_id"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -418,7 +418,7 @@ run_pki-key-recover-kra_tests()
                 --input $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki_user_cert_add.out" 0 "Cert is added to the user $pki_user"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_recover-0013: Approving recovery requests using Normal user cert should fail" 
+	rlPhaseStartTest "pki_key_recover-0014: Approving recovery requests using Normal user cert should fail" 
 	rlLog "Executing pki -d $TEMP_NSS_DB -c $TEMP_NSS_DB_PWD -h $tmp_kra_host -c $target_unsecure_port -n $pki_user key-recover --key $Key_id"
         rlRun "pki -d $TEMP_NSS_DB \
                 -c $TEMP_NSS_DB_PWD \
@@ -429,7 +429,7 @@ run_pki-key-recover-kra_tests()
 	rlAssertGrep "ForbiddenException: Authorization Error" "$key_recover_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-0014: Approving recovery request using valid agent cert over https URI should succed"
+        rlPhaseStartTest "pki_key_recover-0015: Approving recovery request using valid agent cert over https URI should succed"
 	rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -U https://$tmp_kra_host:$target_secure_port -n $valid_agent_cert key-recover --keyID $key_id"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -442,7 +442,7 @@ run_pki-key-recover-kra_tests()
         rlAssertGrep "Status: svc_pending" "$key_recover_output"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_recover-0015: Approving recovery requests using Normal user authentication should fail"
+	rlPhaseStartTest "pki_key_recover-0016: Approving recovery requests using Normal user authentication should fail"
 	rlLog "Executing pki -d $TEMP_NSS_DB -c $TEMP_NSS_DB_PWD -h $tmp_kra_host -c $target_unsecure_port -u $pki_user -w $pki_pwd key-recover --key $Key_id"
 	rlRun "pki -d $CERTDB_DIR \
 		-c $CERTDB_DIR_PASSWORD \
@@ -454,7 +454,7 @@ run_pki-key-recover-kra_tests()
 	rlAssertGrep "ForbiddenException: Authentication method not allowed" "$key_recover_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_recover-0015: Approving recovery requests using Invalid user authentication should fail"
+        rlPhaseStartTest "pki_key_recover-0017: Approving recovery requests using Invalid user authentication should fail"
 	local invalid_pki_user=test1
         local invalid_pki_user_pwd=Secret123
 	rlLog "Executing pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD \

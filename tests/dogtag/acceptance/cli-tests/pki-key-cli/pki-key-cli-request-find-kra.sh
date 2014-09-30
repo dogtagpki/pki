@@ -465,7 +465,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertGrep "Number of entries returned 10" "$key_request_find_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0024: Searching key requests with junk value passed to --MaxTime should fail"
+        rlPhaseStartTest "pki_key_request_find-0025: Searching key requests with junk value passed to --MaxTime should fail"
         local maxTime=$tmp_junk_data
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -476,7 +476,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertGrep "NumberFormatException: For input string: \"$tmp_junk_data\"" "$key_request_find_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0025: Searching key requests using valid admin cert should fail"	
+        rlPhaseStartTest "pki_key_request_find-0026: Searching key requests using valid admin cert should fail"	
 	rlLog "Executing pki key-request-find as $valid_admin_cert"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -488,7 +488,7 @@ run_pki-key-request-find-kra_tests()
 	rlAssertGrep "ForbiddenException: Authorization Error" "$key_request_find_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0026: Searching symmetric key requests using revoked Agent cert should fail"
+        rlPhaseStartTest "pki_key_request_find-0027: Searching symmetric key requests using revoked Agent cert should fail"
         rlLog "Executing pki key-request-find as $revoked Agent Cert"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -500,7 +500,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_request_find_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0027: Searching key requests using Expired admin(not a member of agents Group) cert should fail"
+        rlPhaseStartTest "pki_key_request_find-0028: Searching key requests using Expired admin(not a member of agents Group) cert should fail"
         rlLog "Executing pki key-request-find as $expired_admin_cert"
         local cur_date=$(date)
         local end_date=$(certutil -L -d $CERTDB_DIR -n $expired_admin_cert | grep "Not After" | awk -F ": " '{print $2}')
@@ -527,7 +527,7 @@ run_pki-key-request-find-kra_tests()
         rlPhaseEnd
 
 
-        rlPhaseStartTest "pki_key_request_find-0028: Searching key requests using Expired agent cert should fail"
+        rlPhaseStartTest "pki_key_request_find-0029: Searching key requests using Expired agent cert should fail"
         rlLog "Executing pki key-request-find as $expired_agent_cert"
         local cur_date=$(date)
         local end_date=$(certutil -L -d $CERTDB_DIR -n $expired_agent_cert | grep "Not After" | awk -F ": " '{print $2}')
@@ -553,7 +553,7 @@ run_pki-key-request-find-kra_tests()
         rlLog "Current Date/Time after setting system date back using chrony $(date)"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0029: Searching symmetric key requests using valid Audit cert should fail"
+        rlPhaseStartTest "pki_key_request_find-0030: Searching symmetric key requests using valid Audit cert should fail"
         rlLog "Executing pki key-request-find as $valid_audit_cert"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -565,7 +565,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_request_find_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0030: Searching symmetric key requests using valid Operator cert should fail"
+        rlPhaseStartTest "pki_key_request_find-0031: Searching symmetric key requests using valid Operator cert should fail"
         rlLog "Executing pki key-request-find as $valid_operator_cert"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -577,7 +577,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_request_find_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0031: Searching key requests using normal user cert(without any privileges) should fail"
+        rlPhaseStartTest "pki_key_request_find-0032: Searching key requests using normal user cert(without any privileges) should fail"
 	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
         local pki_user="idm1_user_$rand"
         local pki_user_fullName="Idm1 User $rand"
@@ -653,7 +653,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertGrep "ForbiddenException: Authorization Error" "$key_request_find_output"
         rlPhaseEnd	
 
-        rlPhaseStartTest "pki_key_request_find-0032: Search key requests using host URI parameter(https)"
+        rlPhaseStartTest "pki_key_request_find-0033: Search key requests using host URI parameter(https)"
         rlLog "Executing pki key-request-find using http host URI parameter(https)"
 	rlLog "tmp_kra_host=$tmp_kra_host"
 	rlLog "tmp_secure_port=$target_secure_port"
@@ -665,7 +665,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertGrep "Number of entries returned 20" "$key_request_find_output"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0033: Search symmetric keys using valid user(Not a member of any group) should fail"
+        rlPhaseStartTest "pki_key_request_find-0034: Search symmetric keys using valid user(Not a member of any group) should fail"
         rlRun "pki -d $CERTDB_DIR\
                 -h $tmp_kra_host \
                 -p $target_unsecure_port \
@@ -675,7 +675,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertNotGrep "Number of entries returned 20" "$key_request_find_output"
         rlAssertGrep "ForbiddenException: Authentication method not allowed" "$key_request_find_output"
         
-	rlPhaseStartTest "pki_key_request_find-0034: Searching symmetric keys using in-valid user should fail"
+	rlPhaseStartTest "pki_key_request_find-0035: Searching symmetric keys using in-valid user should fail"
         local invalid_pki_user=test1
         local invalid_pki_user_pwd=Secret123
         rlLog "Executing pki key-request-find using user $pki_user"
@@ -687,7 +687,7 @@ run_pki-key-request-find-kra_tests()
 	rlAssertGrep "PKIException: Unauthorized" "$key_request_find_output"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_request_find-0035: Searching key request of type symkeyGenRequest using agent cert"
+	rlPhaseStartTest "pki_key_request_find-0036: Searching key request of type symkeyGenRequest using agent cert"
 	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 	local req_type=symkeyGenRequest
 	local client_id=temp$rand
@@ -711,7 +711,7 @@ run_pki-key-request-find-kra_tests()
 	fi
 	rlPhaseEnd
 
-      	rlPhaseStartTest "pki_key_request_find-0036: Searching key request of type securityDataEnrollment using agent cert"
+      	rlPhaseStartTest "pki_key_request_find-0037: Searching key request of type securityDataEnrollment using agent cert"
         local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 	local client_id=temp$rand
 	local passphrase=Secret123
@@ -740,7 +740,7 @@ run_pki-key-request-find-kra_tests()
         fi
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_request_find-0037: Search key requests of type enrollment using agent cert"
+	rlPhaseStartTest "pki_key_request_find-0038: Search key requests of type enrollment using agent cert"
 	rlLog "Generate Cert using profile caDualCert"
 	profile=caDualCert
 	req_type=enrollment
@@ -778,7 +778,7 @@ run_pki-key-request-find-kra_tests()
         fi
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_request_find-0038: Searching key requests should fail when junk data is passed to --type"
+	rlPhaseStartTest "pki_key_request_find-0039: Searching key requests should fail when junk data is passed to --type"
 	req_type=$tmp_junk_data
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -789,7 +789,7 @@ run_pki-key-request-find-kra_tests()
 	rlAssertGrep "0 entries matched" "$key_request_find_output"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_key_request_Find-0039: Searching key request should fail and command help should be returned when no data is passed to --type"
+	rlPhaseStartTest "pki_key_request_Find-0040: Searching key request should fail and command help should be returned when no data is passed to --type"
         req_type=" "
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
@@ -808,7 +808,7 @@ run_pki-key-request-find-kra_tests()
         rlAssertGrep "    --type <type>                Request type" "$key_request_find_output"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_key_request_find-0040: Searching key requests with special characters passed to ClientID should give no results"
+        rlPhaseStartTest "pki_key_request_find-0041: Searching key requests with special characters passed to ClientID should give no results"
         local client_id="!?@~#*^_+$"
         rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
