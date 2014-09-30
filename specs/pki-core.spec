@@ -746,6 +746,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %{_mandir}/man1/pki-key.1.gz
 %{_mandir}/man1/pki-securitydomain.1.gz
 %{_mandir}/man1/pki-user.1.gz
+%{_mandir}/man1/pki-ca-profile.1.gz
 
 
 %if %{with server}
@@ -850,6 +851,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Wed Oct 15 2014 Abhishek Koneru <akoneru@redhat.com>
+- Added a man page for pki ca-profile commands.
+
 * Wed Oct 1 2014 Ade Lee <alee@redhat.com> 10.2.0-3
 - Disable pylint dependency for RHEL builds
 - Added jakarta-commons-httpclient requirements
