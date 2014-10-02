@@ -27,6 +27,7 @@ BuildRequires:    ldapjdk
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
+BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    openldap-devel
@@ -41,6 +42,7 @@ BuildRequires:    xerces-j2
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on RHEL platforms
 BuildRequires:    resteasy-base-atom-provider >= 3.0.6-1
+BuildRequires:    resteasy-base-client >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
@@ -209,6 +211,7 @@ Requires:         apache-commons-codec
 Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
+Requires:         jakarta-commons-httpclient
 Requires:         java-headless >= 1:1.7.0
 Requires:         javassist
 Requires:         jackson-jaxrs-json-provider
@@ -223,6 +226,7 @@ Requires:         python-requests >= 1.1.0-3
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on RHEL platforms
 Requires:    resteasy-base-atom-provider >= 3.0.6-1
+Requires:    resteasy-base-client >= 3.0.6-1
 Requires:    resteasy-base-jaxb-provider >= 3.0.6-1
 Requires:    resteasy-base-jaxrs >= 3.0.6-1
 Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
@@ -298,7 +302,11 @@ Requires:         policycoreutils-python
 Requires:         selinux-policy-base >= 3.11.1-43
 Obsoletes:        pki-selinux
 
+%if 0%{?rhel}
+Requires:         tomcat >= 7.0.54
+%else
 Requires:         tomcat >= 7.0.47
+%endif
 
 Requires:         velocity
 Requires(post):   systemd-units
@@ -844,6 +852,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %changelog
 * Wed Oct 1 2014 Ade Lee <alee@redhat.com> 10.2.0-3
 - Disable pylint dependency for RHEL builds
+- Added jakarta-commons-httpclient requirements
+- Added tomcat version for RHEL build
+- Added resteasy-base-client for RHEL build
 
 * Wed Sep 24 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-2
 - PKI TRAC Ticket #1130 - Add RHEL/CentOS conditionals to spec
