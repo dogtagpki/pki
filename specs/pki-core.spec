@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -49,7 +49,10 @@ BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 BuildRequires:    resteasy >= 3.0.6-2
 %endif
 
+%if ! 0%{?rhel}
 BuildRequires:    pylint
+%endif
+
 BuildRequires:    python-nss
 BuildRequires:    python-requests
 BuildRequires:    libselinux-python
@@ -575,12 +578,14 @@ ln -s %{_javadir}/pki/pki-tps.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WE
 
 %if %{with server}
 
+%if ! 0%{?rhel}
 # Scanning the python code with pylint. A return value of 0 represents there are no
 # errors or warnings reported by pylint.
 sh ../pylint-build-scan.sh %{buildroot} `pwd`
 if [ $? -eq 1 ]; then
     exit 1
 fi
+%endif
 
 %{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
 
@@ -837,6 +842,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Wed Oct 1 2014 Ade Lee <alee@redhat.com> 10.2.0-3
+- Disable pylint dependency for RHEL builds
+
 * Wed Sep 24 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-2
 - PKI TRAC Ticket #1130 - Add RHEL/CentOS conditionals to spec
 
