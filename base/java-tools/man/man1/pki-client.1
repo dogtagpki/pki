@@ -22,7 +22,9 @@ pki-client \- Command-Line Interface for managing the security database on Certi
 \fBpki\fR [CLI options] \fBclient-init\fR [command options]
 \fBpki\fR [CLI options] \fBclient-cert-find\fR [command options]
 \fBpki\fR [CLI options] \fBclient-cert-request\fR <subject DN> [command options]
-\fBpki\fR [CLI options] \fBclient-cert-import\fR <nickname> [command options]
+\fBpki\fR [CLI options] \fBclient-cert-import\fR [nickname] [command options]
+\fBpki\fR [CLI options] \fBclient-cert-mod\fR <nickname> [command options]
+\fBpki\fR [CLI options] \fBclient-cert-show\fR <nickname> [command options]
 \fBpki\fR [CLI options] \fBclient-cert-del\fR <nickname> [command options]
 .fi
 
@@ -50,7 +52,17 @@ This command is to list certificates in the client security database.
 This command is to generate and submit a certificate request.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBclient-cert-import\fR <nickname> [command options]
+\fBpki\fR [CLI options] \fBclient-cert-import\fR [nickname] [command options]
+.RS 4
+This command is to import a certificate into the client security database.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBclient-cert-mod\fR <nickname> [command options]
+.RS 4
+This command is to modify a certificate in the client security database.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBclient-cert-show\fR <nickname> [command options]
 .RS 4
 This command is to view a certificate in the client security database.
 .RE
@@ -80,11 +92,15 @@ To request a certificate:
 
 To import a certificate from a file into the security database:
 
-.B pki -d <security database location> -c <security database password> client-cert-import <nickname> --cert <certificate file>
+.B pki -d <security database location> -c <security database password> client-cert-import <nickname> --cert <path>
 
 To import a CA certificate from a file into the security database:
 
-.B pki -d <security database location> -c <security database password> client-cert-import <nickname> --ca-cert <CA certificate file>
+.B pki -d <security database location> -c <security database password> client-cert-import <nickname> --ca-cert <path>
+
+To import certificates and private keys from a PKCS #12 file into the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-import --pkcs12 <path> --pkcs12-password <password>
 
 To import a certificate from CA server into the security database:
 
@@ -93,6 +109,30 @@ To import a certificate from CA server into the security database:
 To import a CA certificate from CA server into the security database:
 
 .B pki -d <security database location> -c <security database password> client-cert-import <nickname> --ca-server
+
+To modify a certificate's trust attributes in the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-mod <nickname> --trust <trust attributes>
+
+To display a certificate in the security database:
+
+.B pki -d <security database location> -c <security database password> client-cert-show <nickname>
+
+To export a certificate from the security database into a PEM file:
+
+.B pki -d <security database location> -c <security database password> client-cert-show <nickname> --cert <path>
+
+To export a certificate chain with the private key from the security database into a PKCS #12 file:
+
+.B pki -d <security database location> -c <security database password> client-cert-show <nickname> --pkcs12 <path> --pkcs12-password <password>
+
+To export a certificate chain with the private key with a password file:
+
+.B pki -d <security database location> -c <security database password> client-cert-show <nickname> --pkcs12 <path> --pkcs12-password-file <path>
+
+To export a client certificate with the private key from the security database into a PEM file:
+
+.B pki -d <security database location> -c <security database password> client-cert-show <nickname> --client-cert <path>
 
 To delete a certificate from the security database:
 

@@ -494,7 +494,9 @@ public class MainCLI extends CLI {
         String command = cmdArgs[0];
         if (!command.equals("client-init") &&
                 !command.equals("client-cert-import") &&
-                !command.equals("client-cert-request")) {
+                !command.equals("client-cert-mod") &&
+                !command.equals("client-cert-request") &&
+                !command.equals("client-cert-show")) {
             init();
         }
 

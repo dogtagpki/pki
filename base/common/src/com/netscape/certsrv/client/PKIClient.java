@@ -104,6 +104,12 @@ public class PKIClient {
         this.verbose = verbose;
     }
 
+    public X509Certificate getCert(String nickname)
+            throws NotInitializedException, ObjectNotFoundException, TokenException {
+        CryptoManager manager = CryptoManager.getInstance();
+        return manager.findCertByNickname(nickname);
+    }
+
     public X509Certificate[] getCerts() throws NotInitializedException {
         CryptoManager manager = CryptoManager.getInstance();
         return manager.getPermCerts();
