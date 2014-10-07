@@ -325,6 +325,7 @@ do_writes(
     PRFileDesc *	ssl_sock	= (PRFileDesc *)a;
     PRUint32		sent  		= 0;
     PRInt32		count		= 0;
+    PRInt32 result = 0;
 
     while (sent < bigBuf.len) {
 
@@ -343,9 +344,10 @@ do_writes(
 	FPRINTF(stderr, "do_writes shutting down send socket\n");
     	/* PR_Shutdown(ssl_sock, PR_SHUTDOWN_SEND);  */
     }
+    result = (sent < bigBuf.len) ? SECFailure : SECSuccess;
 
-    FPRINTF(stderr, "do_writes exiting with (failure = %d)\n",sent<bigBuf.len == SECFailure);
-    return (sent < bigBuf.len) ? SECFailure : SECSuccess;
+    FPRINTF(stderr, "do_writes exiting with (result = %d)\n", result);
+    return result;
 }
 
 
