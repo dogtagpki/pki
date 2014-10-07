@@ -18,6 +18,7 @@
 #
 # Authors:
 #     Ade Lee <alee@redhat.com>
+#     Endi S. Dewata <edewata@redhat.com>
 
 """
 =========================================================================
@@ -32,10 +33,18 @@ See drmtest.readme.txt.
 """
 
 import base64
+import getopt
+import os
+import random
+import shutil
+import string
+import sys
+import tempfile
+import time
+
 import pki
 import pki.crypto
 import pki.key as key
-import time
 
 from pki.client import PKIConnection
 from pki.kra import KRAClient
@@ -75,18 +84,12 @@ def print_key_data(key_data):
         print "Private Data: " + base64.encodestring(key_data.data)
 
 
-def main():
+def run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password):
     """ test code execution """
 
     # set up the connection to the DRM, including authentication credentials
-    connection = PKIConnection('https', 'localhost', '8443', 'kra')
-    connection.set_authentication_cert('/tmp/auth.pem')
-
-    # create an NSS DB for crypto operations
-    certdb_dir = "/tmp/drmtest-certdb"
-    certdb_password = "redhat123"
-    pki.crypto.NSSCryptoProvider.setup_database(certdb_dir, certdb_password,
-                                                over_write=True)
+    connection = PKIConnection(protocol, hostname, port, 'kra')
+    connection.set_authentication_cert(client_cert)
 
     #create kraclient
     crypto = pki.crypto.NSSCryptoProvider(certdb_dir, certdb_password)
@@ -98,7 +101,7 @@ def main():
     transport_cert = kraclient.system_certs.get_transport_cert()
     print "Subject DN: " + transport_cert.subject_dn
     print transport_cert.encoded
-    crypto.import_cert(transport_nick, transport_cert, "u,u,u")
+    crypto.import_cert(transport_nick, transport_cert)
 
     # initialize the certdb for crypto operations
     # for NSS db, this must be done after importing the transport cert
@@ -286,5 +289,65 @@ def main():
     key_info = keyclient.get_key_info(response.request_info.get_key_id())
     print_key_info(key_info)
 
+
+def usage():
+    print 'Usage: drmtest.py [OPTIONS]'
+    print
+    print '  -P <protocol>                  KRA server protocol (default: https).'
+    print '  -h <hostname>                  KRA server hostname (default: localhost).'
+    print '  -p <port>                      KRA server port (default: 8443).'
+    print '  -n <path>                      KRA agent certificate and private key (default: kraagent.pem).'
+    print
+    print '  --help                         Show this help message.'
+
+
+def main(argv):
+    try:
+        opts, _ = getopt.getopt(argv[1:], 'h:P:p:n:d:c:', ['help'])
+
+    except getopt.GetoptError as e:
+        print 'ERROR: ' + str(e)
+        usage()
+        sys.exit(1)
+
+    protocol    = 'https'
+    hostname    = 'localhost'
+    port        = '8443'
+    client_cert = 'kraagent.pem'
+
+    for o, a in opts:
+        if o == '-P':
+            protocol = a
+
+        elif o == '-h':
+            hostname = a
+
+        elif o == '-p':
+            port = a
+
+        elif o == '-n':
+            client_cert = a
+
+        elif o == '--help':
+            usage()
+            sys.exit()
+
+        else:
+            print 'ERROR: unknown option ' + o
+            usage()
+            sys.exit(1)
+
+    certdb_dir = tempfile.mkdtemp(prefix='pki-kra-test-')
+    print "NSS database dir: %s" % certdb_dir
+
+    certdb_password = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(8))
+    print "NSS database password: %s" % certdb_password
+
+    try:
+        run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password)
+    finally:
+        shutil.rmtree(certdb_dir)
+
+
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

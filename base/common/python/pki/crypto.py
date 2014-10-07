@@ -102,7 +102,7 @@ class NSSCryptoProvider(CryptoProvider):
     """
 
     @staticmethod
-    def setup_database(db_dir, password, over_write=False):
+    def setup_database(db_dir, password=None, over_write=False, password_file=None):
         """ Create an NSS database """
         if os.path.exists(db_dir):
             if not over_write:
@@ -113,14 +113,20 @@ class NSSCryptoProvider(CryptoProvider):
                 os.remove(db_dir)
         os.makedirs(db_dir)
 
-        home = os.path.expanduser("~")
-        with tempfile.NamedTemporaryFile(dir=home) as pwd_file:
-            pwd_file.write(password)
-            pwd_file.flush()
-            command = ['certutil', '-N', '-d', db_dir, '-f', pwd_file.name]
+        try:
+            if password:
+                (f, password_file) = tempfile.mkstemp()
+                os.write(f, password)
+                os.close(f)
+
+            command = ['certutil', '-N', '-d', db_dir, '-f', password_file]
             subprocess.check_call(command)
 
-    def __init__(self, certdb_dir, certdb_password):
+        finally:
+            if password and password_file:
+                os.remove(password_file)
+
+    def __init__(self, certdb_dir, certdb_password=None, password_file=None):
         """ Initialize nss and nss related parameters
 
             This method expects a NSS database to have already been created at
@@ -128,7 +134,14 @@ class NSSCryptoProvider(CryptoProvider):
         """
         CryptoProvider.__init__(self)
         self.certdb_dir = certdb_dir
-        self.certdb_password = certdb_password
+
+        if certdb_password:
+            self.certdb_password = certdb_password
+
+        elif password_file:
+            with open(password_file, 'r') as f:
+                self.certdb_password = f.readline().strip()
+
         self.nonce_iv = "e4:bb:3b:d3:c3:71:2e:58"
 
     def initialize(self):
@@ -137,12 +150,18 @@ class NSSCryptoProvider(CryptoProvider):
         """
         nss.nss_init(self.certdb_dir)
 
-    def import_cert(self, cert_nick, cert, trust):
+    def import_cert(self, cert_nick, cert, trust=',,'):
         """ Import a certificate into the nss database
         """
+        # accept both CertData object or cert actual data
+        if type(cert).__name__ == 'CertData':
+            content = cert.encoded
+        else:
+            content = cert
+
         # certutil -A -d db_dir -n cert_nick -t trust -i cert_file
         with tempfile.NamedTemporaryFile() as cert_file:
-            cert_file.write(cert.binary)
+            cert_file.write(content)
             cert_file.flush()
             command = ['certutil', '-A', '-d', self.certdb_dir,
                        '-n', cert_nick, '-t', trust,

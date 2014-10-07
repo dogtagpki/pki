@@ -52,8 +52,6 @@ class KRAClient(object):
                         initialized beforehand.
         """
         self.connection = connection
+        self.crypto = crypto
         self.keys = key.KeyClient(connection, crypto, transport_cert_nick)
         self.system_certs = SystemCertClient(connection)
-
-
-
