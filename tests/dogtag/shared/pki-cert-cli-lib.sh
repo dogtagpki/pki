@@ -845,3 +845,114 @@ generate_cert_request_xml()
         fi
         return 0;
 }
+
+run_req_action_cert()
+{
+        local tmp_nss_db=$(echo $1| cut -d: -f2)
+        local tmp_nss_db_pwd=$(echo $2| cut -d: -f2)
+        local req_type=$(echo $3|cut -d: -f2)
+        local algo=$(echo $4|cut -d: -f2)
+        local key_size=$(echo $5|cut -d: -f2)
+        local subject_cn="$(echo $6|cut -d: -f2)"
+        local subject_uid="$(echo $7|cut -d: -f2)"
+        local subject_email="$(echo $8|cut -d: -f2)"
+        local subject_ou="$(echo $9|cut -d: -f2)"
+        local subject_o="$(echo ${10}|cut -d: -f2)"
+        local subject_c="$(echo ${11}|cut -d: -f2)"
+        local archive="$(echo ${12}|cut -d: -f2)"
+        local req_profile="$(echo ${13}|cut -d: -f2)"
+        local target_host="$(echo ${14}|cut -d: -f2)"
+        local target_protocol="$(echo ${15}|cut -d: -f2)"
+        local target_port="$(echo ${16}|cut -d: -f2)"
+        local cert_db_dir="$(echo ${17}|cut -d: -f2)"
+        local cert_db_pwd="$(echo ${18}|cut -d: -f2)"
+        local cert_db_nick="$(echo ${19}|cut -d: -f2)"
+        local target_cert_info="$(echo ${20}|cut -d: -f2)"
+        local certout="$tmp_nss_db/cert_out"
+        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+
+        rlRun "create_new_cert_request \
+        dir:$tmp_nss_db \
+        pass:$tmp_nss_db_pwd \
+        req_type:$req_type \
+        algo:$algo \
+        size:$key_size \
+        cn:\"$subject_cn\" \
+        uid:\"$subject_uid\" \
+        email:\"$subject_email\" \
+        ou:\"$subject_ou\" \
+        org:\"$subject_o\" \
+        country:\"$subject_c\" \
+        archive:$archive \
+        myreq:$tmp_nss_db/$rand-request.pem \
+        subj:$tmp_nss_db/$rand-request-dn.txt"
+         if [ $? != 0 ]; then
+         {
+                 rlFail "Request Creation failed"
+                 return 1;
+         }
+         fi
+        rlRun "submit_new_request dir:$tmp_nss_db \
+                pass:$tmp_nss_db_pwd \
+                cahost:$target_host \
+                nickname:\"$cert_db_nick\" \
+                protocol:$target_protocol \
+                port:$target_port \
+                url: \
+                username: \
+                userpwd: \
+                profile:$req_profile \
+                myreq:$tmp_nss_db/$rand-request.pem \
+                subj:$tmp_nss_db/$rand-request-dn.txt \
+                out:$tmp_nss_db/$rand-request-result.txt"
+         if [ $? != 0 ]; then
+         {
+                 rlFail "Request Submission failed"
+                 return 1;
+         }
+         fi
+        rlAssertGrep "Request Status: pending" "$tmp_nss_db/$rand-request-result.txt"
+        rlAssertGrep "Operation Result: success" "$tmp_nss_db/$rand-request-result.txt"
+        local cert_requestid=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_ID_RETURNED" | cut -d":" -f2)
+        local cert_requestdn=$(cat $tmp_nss_db/$rand-request-result.txt |grep "REQUEST_DN" | cut -d":" -f2)
+        local cert_requeststatus=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_SUBMIT_STATUS" | cut -d":" -f2)
+        if [ "$target_host" == "" ]; then
+               target_host="$(hostname)"
+        fi
+        if [ "$target_port" == "" ]; then
+                target_port=8080
+        fi
+        rlRun "pki -d $cert_db_dir \
+                 -c $cert_db_pwd \
+                 -h $target_host \
+                 -p $target_port \
+                 -n \"$cert_db_nick\" \
+                 ca-cert-request-review $cert_requestid \
+                 --action approve  > $tmp_nss_db/pki-req-approve-out 2>&1" 0,255
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ]
+        then
+                rlLog "We where here"
+                rlAssertGrep "Approved certificate request $cert_requestid" "$tmp_nss_db/pki-req-approve-out"
+                local valid_serialNumber=$(pki -h $target_host -p $target_port cert-request-show $cert_requestid | grep "Certificate ID" | sed 's/ //g' | cut -d: -f2)
+                local cert_start_date=$(pki -h $target_host -p $target_port cert-show $valid_serialNumber | grep "Not Before" | awk -F ": " '{print $2}')
+                local cert_end_date=$(pki -h $target_host -p $target_port cert-show $valid_serialNumber | grep "Not After" | awk -F ": " '{print $2}')
+                local cert_subject=$(pki -h $target_host -p $target_port cert-show $valid_serialNumber | grep "Subject" | awk -F ": " '{print $2}')
+                local STRIP_HEX=$(echo $valid_serialNumber | cut -dx -f2)
+                local CONV_UPP_VAL=${STRIP_HEX^^}
+                local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
+                echo cert_serialNumber-$valid_serialNumber > $cert_info
+                echo cert_start_date-$cert_start_date >> $cert_info
+                echo cert_end_date-$cert_end_date >> $cert_info
+                echo cert_subject-$cert_subject >> $cert_info
+                echo STRIP_HEX-$STRIP_HEX >> $cert_info
+                echo CONV_UPP_VAL-$CONV_UPP_VAL >> $cert_info
+                echo decimal_valid_serialNumber-$decimal_valid_serialNumber >> $cert_info
+                echo cert_requestid-$cert_requestid >> $cert_info
+                echo cert_requestdn-$cert_requestdn >> $cert_info
+                echo cert_requeststatus-$cert_requeststatus >> $cert_info
+        elif [ $RETVAL -eq 255 ]
+        then
+             echo PKI_ERROR=$(cat $tmp_nss_db/pki-req-approve-out) >> $cert_info
+        fi
+}

@@ -83,8 +83,8 @@ user2fullname="Test user2"
 user3=testuser3
 user3fullname="Test user3"
 cert_info="$TmpDir/cert_info"
-testname="pki_user_cert_find"
-
+local TEMP_NSS_DB="$TmpDir/nssdb"
+local TEMP_NSS_DB_PASSWD="redhat123"
 ##### pki_user_cli_user_cert_find_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-find-configtest-001: pki user-cert-find configuration test"
         rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-cert-find --help > $TmpDir/pki_user_cert_find_cfg.out 2>&1" \
@@ -97,11 +97,10 @@ testname="pki_user_cert_find"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
 
-     ##### Tests to find certs assigned to CA users ####
-
+	##### Find certs assigned to a CA user - with userid argument - this user has only a single page of certs ####
+	
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user in CA --userid only - single page of certs"
         i=0
-        k=2
         rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -109,21 +108,33 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
  		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-add --fullName=\"$user1fullname\" $user1"
         while [ $i -lt 2 ] ; do
-                cert_type="pkcs10"
-                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
-                local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
-                local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
-                local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
+        algo:rsa key_size:2048 subject_cn:\"$user1fullname$(($i+1))\" subject_uid:$user1$(($i+1)) subject_email:$user1$(($i+1))@example.org \
+        organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+        target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+        certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+        local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_pkcs10 --encoded > $TmpDir/pki_user_cert_find-CA_encoded_002pkcs10$i.out" 0 "Executing pki cert-show $cert_serialNumber_pkcs10"
+        rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_find-CA_encoded_002pkcs10$i.out > $TmpDir/pki_user_cert_find-CA_validcert_002pkcs10$i.pem"
+
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
+        algo:rsa key_size:2048 subject_cn:\"$user1fullname$(($i+1))\" subject_uid:$user1$(($i+1)) subject_email:$user1$(($i+1))@example.org \
+        organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+        target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+        certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+        local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
+        local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
+        local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_crmf --encoded > $TmpDir/pki_user_cert_find-CA_encoded_002crmf$i.out" 0 "Executing pki cert-show $cert_serialNumber_crmf"
+        rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_find-CA_encoded_002crmf$i.out > $TmpDir/pki_user_cert_find-CA_validcert_002crmf$i.pem"
+
                 serialhexuser1[$i]=$cert_serialNumber_pkcs10
                 serialdecuser1[$i]=$decimal_valid_serialNumber_pkcs10
 
-                cert_type="crmf"
-                rlRun "generate_user_cert $cert_info $k \"$user1$(($i+1))\" \"$user1fullname$(($i+1))\" $user1$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
-                local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-                local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
-                local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
-                local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
                 serialhexuser1_crmf[$i]=$cert_serialNumber_crmf
                 serialdecuser1_crmf[$i]=$decimal_valid_serialNumber_crmf
                 rlLog "pki -d $CERTDB_DIR/ \
@@ -198,10 +209,10 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-002: Find the certs of a user i
         done
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with userid argument - this user has multiple pages of certs ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user in CA --userid only - multiple pages of certs"
         i=0
-	k=3
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -209,22 +220,35 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
  		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    user-add --fullName=\"$user2fullname\" $user2"
         while [ $i -lt 12 ] ; do
-		cert_type="pkcs10"
-		rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
-                local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
-                local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
-                local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
+        algo:rsa key_size:2048 subject_cn:\"$user2fullname$(($i+1))\" subject_uid:$user2$(($i+1)) subject_email:$user2$(($i+1))@example.org \
+        organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+        target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+        certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+        local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_pkcs10 --encoded > $TmpDir/pki_user_cert_find-CA_encoded_003pkcs10$i.out" 0 "Executing pki cert-show $cert_serialNumber_pkcs10"
+        rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_find-CA_encoded_003pkcs10$i.out > $TmpDir/pki_user_cert_find-CA_validcert_003pkcs10$i.pem"
+
+        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
+        algo:rsa key_size:2048 subject_cn:\"$user2fullname$(($i+1))\" subject_uid:$user2$(($i+1)) subject_email:$user2$(($i+1))@example.org \
+        organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+        target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+        certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+        local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
+        local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
+        local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_crmf --encoded > $TmpDir/pki_user_cert_find-CA_encoded_003crmf$i.out" 0 "Executing pki cert-show $cert_serialNumber_crmf"
+        rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_find-CA_encoded_003crmf$i.out > $TmpDir/pki_user_cert_find-CA_validcert_003crmf$i.pem"
+
                 serialhexuser2[$i]=$cert_serialNumber_pkcs10
                 serialdecuser2[$i]=$decimal_valid_serialNumber_pkcs10
-		cert_type="crmf"
-                rlRun "generate_user_cert $cert_info $k \"$user2$(($i+1))\" \"$user2fullname$(($i+1))\" $user2$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
-                local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-                local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
-                local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
-                local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
                 serialhexuser2_crmf[$i]=$cert_serialNumber_crmf
                 serialdecuser2_crmf[$i]=$decimal_valid_serialNumber_crmf
+	
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -281,12 +305,16 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-003: Find the certs of a user i
 	rlAssertGrep "Number of entries returned 20" "$TmpDir/pki_user_cert_find_ca_003.out"
         rlPhaseEnd
 
+##### Find certs assigned to a CA user - with userid argument - user id does not exist ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-004: Find the certs of a user in CA --userid only - user does not exist"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find tuser"
         errmsg="UserNotFoundException: User tuser not found"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - User not found message should be thrown when finding certs assigned to a user that does not exist"
 rlPhaseEnd
+
+##### Find certs assigned to a CA user - with userid argument - no certs added to the user ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-005: Find the certs of a user in CA --userid only - no certs added to the user"
 
@@ -317,7 +345,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-005: Find the certs of a user i
 
 rlPhaseEnd
 
-##### Tests to find certs assigned to CA users using --size parameter ####
+##### Find certs assigned to a CA user - with --size option having an argument that is less than the actual number of certs assigned to the user ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-006: Find the certs of a user in CA --size - a number less than the actual number of certs"
 
@@ -352,6 +380,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-006: Find the certs of a user i
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_006.out"
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with --size=0 ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-007: Find the certs of a user in CA --size=0"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
@@ -374,6 +404,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-007: Find the certs of a user i
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki_user_cert_find_ca_007.out"
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with --size=-1 ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-008: Find the certs of a user in CA --size=-1"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --size=-1"
         errmsg="The value for size shold be greater than or equal to 0"
@@ -381,6 +413,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-008: Find the certs of a user i
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - the value for --size should not be less than 0"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/861"
 rlPhaseEnd
+
+##### Find certs assigned to a CA user - with --size option having an argument that is greater than the actual number of certs assigned to the user ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-009: Find the certs of a user in CA --size - a number greater than number of certs assigned to the user"
 
@@ -418,7 +452,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-009: Find the certs of a user i
         done
 rlPhaseEnd
 
-##### Tests to find certs assigned to CA users using --start parameter ####
+##### Find certs assigned to a CA user - with --start option having an argument that is less than the actual number of certs assigned to the user ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-010: Find the certs of a user in CA --start - a number less than the actual number of certs"
 
@@ -457,6 +491,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-010: Find the certs of a user i
 	done
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with --start=0 ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-011: Find the certs of a user in CA --start=0"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
@@ -492,6 +528,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-011: Find the certs of a user i
                 let i=$i+1
         done
 rlPhaseEnd
+
+##### Find certs assigned to a CA user - with --start=0, the user has multiple pages of certs ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-012: Find the certs of a user in CA --start=0 - multiple pages"
 
@@ -529,7 +567,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-012: Find the certs of a user i
                 let i=$i+1
         done
 rlPhaseEnd
-
+##### Find certs assigned to a CA user - with --start=-1 ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-013: Find the certs of a user in CA --start=-1"
 	 command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --start=-1"
@@ -539,6 +577,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-013: Find the certs of a user i
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - the value for --start should not be less than 0"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/929"
 rlPhaseEnd
+
+##### Find certs assigned to a CA user - with --start=50 ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-014: Find the certs of a user in CA --start - a number greater than number of certs assigned to the user"
 
@@ -562,7 +602,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-014: Find the certs of a user i
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki_user_cert_find_ca_014.out"
 rlPhaseEnd
 
-##### Tests to find certs assigned to CA users using --size and --start parameters ####
+##### Find certs assigned to a CA user - with --start=0 and size=0 ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-015: Find the certs of a user in CA --start=0 --size=0"
 
@@ -586,11 +626,12 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-015: Find the certs of a user i
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki_user_cert_find_ca_015.out"
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with --size=1 and --start=1 ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016-tier1: Find the certs of a user in CA --start=1 --size=1"
 	newuserid=newuser
 	newuserfullname="New User"
 	i=0
-        k=16
         rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -598,21 +639,31 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016-tier1: Find the certs of a 
  		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-add --fullName=\"$newuserfullname\" $newuserid"
         while [ $i -lt 2 ] ; do
-                cert_type="pkcs10"
-                rlRun "generate_user_cert $cert_info $k \"$newuserid$(($i+1))\" \"$newuserfullname$(($i+1))\" $newuserid$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
+		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
+                algo:rsa key_size:2048 subject_cn:\"$newuserfullname$(($i+1))\" subject_uid:$newuserid$(($i+1)) subject_email:$newuserid$(($i+1))@example.org \
+                organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+                target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+                certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
                 local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
                 local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
                 local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_pkcs10 --encoded > $TmpDir/pki_user_cert_find-CA_encoded_0016pkcs10.out" 0 "Executing pki cert-show $cert_serialNumber_pkcs10"
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_find-CA_encoded_0016pkcs10.out > $TmpDir/pki_user_cert_find-CA_validcert_0016pkcs10$i.pem"
                 serialhexuser1[$i]=$cert_serialNumber_pkcs10
                 serialdecuser1[$i]=$decimal_valid_serialNumber_pkcs10
 
-                cert_type="crmf"
-                rlRun "generate_user_cert $cert_info $k \"$newuserid$(($i+1))\" \"$newuserfullname$(($i+1))\" $newuserid$(($i+1))@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix $i" 0  "Generating temp cert"
+                rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
+                algo:rsa key_size:2048 subject_cn:\"$newuserfullname$(($i+1))\" subject_uid:$newuserid$(($i+1)) subject_email:$newuserid$(($i+1))@example.org \
+                organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+                target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+                certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
                 local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
                 local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
                 local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_crmf --encoded > $TmpDir/pki_user_cert_find-CA_encoded_0016crmf.out" 0 "Executing pki cert-show $cert_serialNumber_crmf"
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_find-CA_encoded_0016crmf.out > $TmpDir/pki_user_cert_find-CA_validcert_0016crmf$i.pem"
                 serialhexuser1_crmf[$i]=$cert_serialNumber_crmf
                 serialdecuser1_crmf[$i]=$decimal_valid_serialNumber_crmf
                 rlLog "pki -d $CERTDB_DIR/ \
@@ -683,6 +734,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-016-tier1: Find the certs of a 
                     user-del $newuserid"
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with --size=-1 and size=-1 ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-017: Find the certs of a user in CA --start=-1 --size=-1"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find $user1 --start=-1 --size=-1"
         errmsg="The value for start and size should be greater than or equal to 0"
@@ -691,6 +744,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-017: Find the certs of a user i
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/929"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/861"
 rlPhaseEnd
+
+##### Find certs assigned to a CA user - with --size=20 and size=20 ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-018: Find the certs of a user in CA --start --size equal to page size - default page size=20 entries"
 
@@ -728,6 +783,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-018: Find the certs of a user i
         done 
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with --start=0 and --size has an argument greater that default page size (20 certs) ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-019: Find the certs of a user in CA --start=0 --size greater than default page size - default page size=20 entries"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
@@ -764,6 +821,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-019: Find the certs of a user i
         done
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with --size=1 and --start has a value greater than the default page size ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-020: Find the certs of a user in CA --start - values greater than default page size --size=1"
 
         rlLog "Executing: pki -d $CERTDB_DIR/ \
@@ -792,6 +851,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-020: Find the certs of a user i
         rlAssertGrep "Subject: UID=$user2$(($i+1)),E=$user2$(($i+1))@example.org,CN=$user2fullname$(($i+1)),OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_find_ca_020.out"
 rlPhaseEnd
 
+##### Find certs assigned to a CA user - with --start has argument greater than default page size and size has an argument greater than the certs available from the --start value ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-021: Find the certs of a user in CA --start - values greater than default page size --size - value greater than the available number of certs from the start value"
 
@@ -833,13 +893,18 @@ rlPhaseEnd
 ##### Tests to find certs assigned to CA users - i18n characters ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to user - Subject Name has i18n Characters"
-        k=22
-	cert_type="pkcs10"
-        rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix" 0  "Generating temp cert"
-        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
-        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
-        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
+                algo:rsa key_size:2048 subject_cn:\"Örjan Äke\" subject_uid:\"Örjan Äke\" subject_email:test@example.org \
+                organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+                target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+                certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+                local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
+                local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+                local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_pkcs10 --encoded > $TmpDir/pki_user_cert_find-CA_encoded_0022pkcs10.out" 0 "Executing pki cert-show $cert_serialNumber_pkcs10"
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_find-CA_encoded_0022pkcs10.out > $TmpDir/pki_user_cert_find-CA_validcert_0022pkcs10.pem"
+
         rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -878,6 +943,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-022: Find certs assigned to use
 
         rlPhaseEnd
 
+#### Find certs assigned to a CA user - authenticating as a valid agent user ####
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-023: Find the certs of a user as CA_agentV should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="ForbiddenException: Authorization Error"
@@ -885,14 +952,16 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-023: Find the certs of a user a
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a valid agent user"
 rlPhaseEnd
 
+#### Find certs assigned to a CA user - authenticating as a valid auditor user ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-024: Find the certs of a user as CA_auditorV should fail"
-	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as a valid auditor user"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
+
+#### Find certs assigned to a CA user - authenticating as a admin user with expired cert ###
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-025: Find the certs of a user as CA_adminE"
 	rlRun "date --set='next day'" 0 "Set System date a day ahead"
@@ -906,6 +975,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-025: Find the certs of a user a
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
 
+#### Find certs assigned to a CA user - authenticating as an agent user with expired cert ###
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-026: Find the certs of a user as CA_agentE"
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
@@ -918,12 +989,16 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-026: Find the certs of a user a
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
 
+#### Find certs assigned to a CA user - authenticating as an admin user with revoked cert  ###
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-027: Find the certs of a user as CA_adminR should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
         errmsg="PKIException: Unauthorized"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an admin user with a revoked cert"
 rlPhaseEnd
+
+#### Find certs assigned to a CA user - authenticating as an agent user with revoked cert ###
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-028: Find the certs of a user as CA_agentR should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
@@ -932,21 +1007,27 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-028: Find the certs of a user a
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as an agent user with a revoked cert"
 rlPhaseEnd
 
+#### Find certs assigned to a CA user - authenticating as a user whose CA cert has not been trusted ###
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-029: Find the certs of a user as role_user_UTCA should fail"
-	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
-        errmsg="ForbiddenException: Authorization Error"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password user-cert-find $user2"
+        errmsg="PKIException: Unauthorized"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as role_user_UTCA"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
+#### Find certs assigned to a CA user - authenticating as a user whose CA cert has not been trusted ###
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-030: Find the certs of a user as role_user_UTCA should fail"
-	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
-        errmsg="ForbiddenException: Authorization Error"
+	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password user-cert-find $user2"
+        errmsg="PKIException: Unauthorized"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as role_user_UTCA"
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
+
+#### Find certs assigned to a CA user - authenticating as a valid operator user ###
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-031: Find the certs of a user as CA_operatorV should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
@@ -954,6 +1035,8 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-031: Find the certs of a user a
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when authenticated as CA_operatorV"
 rlPhaseEnd
+
+#### Find certs assigned to a CA user - authenticating as a user not associated with any role ###
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-032: Find the certs of a user as a user not associated with any role, should fail"
 	command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD user-cert-find $user2"
@@ -963,12 +1046,16 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-CA-032: Find the certs of a user a
         rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
+#### Find certs assigned to a CA user - userid is missing ###
+
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-033-tier1: Find the certs of a user missing User ID"
         command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find"
         errmsg="Error: No User ID specified."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - user-cert-find should fail when no User ID provided"
 rlPhaseEnd
+
+#### Find certs assigned to a CA user - user id missing with --start and --size options ###
 
 rlPhaseStartTest "pki_user_cli_user_cert-find-CA-034: Find the certs of a user missing User ID with --size and --start options"
         command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD user-cert-find --size=1 --start=1"

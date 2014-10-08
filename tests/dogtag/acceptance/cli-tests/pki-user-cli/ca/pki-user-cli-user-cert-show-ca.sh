@@ -82,8 +82,8 @@ user2fullname="Test user2"
 user3=testuser3
 user3fullname="Test user3"
 cert_info="$TmpDir/cert_info"
-testname="pki_user_cert_show"
-
+local TEMP_NSS_DB="$TmpDir/nssdb"
+local TEMP_NSS_DB_PASSWD="redhat123"
 ##### pki_user_cli_user_cert_show_ca-configtest ####
      rlPhaseStartTest "pki_user_cli_user_cert-show-configtest-001: pki user-cert-show configuration test"
         rlRun "pki -h $SUBSYSTEM_HOST user-cert-show --help > $TmpDir/pki_user_cert_show_cfg.out 2>&1" \
@@ -109,18 +109,30 @@ testname="pki_user_cert_show"
  		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
  		-h $SUBSYSTEM_HOST \
                             user-add --fullName=\"$user2fullname\" $user2"
-		cert_type="pkcs10"
-		rlRun "generate_user_cert $cert_info $k \"$user2\" \"$user2fullname\" $user2@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix" 0  "Generating temp cert"
-	        cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-        	local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
-        	CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
-        	decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
-		cert_type="crmf"
-		rlRun "generate_user_cert $cert_info $k \"$user2\" \"$user2fullname\" $user2@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix" 0  "Generating temp cert"
-                cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-                local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
-                CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
-                decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+
+		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
+        algo:rsa key_size:2048 subject_cn:\"$user2fullname\" subject_uid:$user2 subject_email:$user2@example.org \
+        organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+        target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+        certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+        local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
+        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_pkcs10 --encoded > $TmpDir/pki_user_cert_show-CA_encoded_002pkcs10.out" 0 "Executing pki cert-show $cert_serialNumber_pkcs10"
+        rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_show-CA_encoded_002pkcs10.out > $TmpDir/pki_user_cert_show-CA_validcert_002pkcs10.pem"
+
+		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
+        algo:rsa key_size:2048 subject_cn:\"$user2fullname\" subject_uid:$user2 subject_email:$user2@example.org \
+        organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+        target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+        certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+        local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+        local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
+        local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
+        local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_crmf --encoded > $TmpDir/pki_user_cert_show-CA_encoded_002crmf.out" 0 "Executing pki cert-show $cert_serialNumber_crmf"
+        rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_show-CA_encoded_002crmf.out > $TmpDir/pki_user_cert_show-CA_validcert_002crmf.pem"
 
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
@@ -300,8 +312,8 @@ testname="pki_user_cert_show"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_008.out"
 
 		rlLog "$(cat $TmpDir/pki_user_cert_show_CA_usershowcert_008.out | grep Subject | awk -F":" '{print $2}')"
-        	rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usershowcert_008.out -noout -serial 1> $TmpDir/temp_out-openssl" 0 "Run openssl to verify PEM output"
-		rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl"
+        	rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usershowcert_008.out -noout -serial 1> $TmpDir/temp_out-openssl_008" 0 "Run openssl to verify PEM output"
+		rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_008"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
@@ -327,8 +339,8 @@ testname="pki_user_cert_show"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out"
 
 	        rlLog "$(cat $TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out | grep Subject | awk -F":" '{print $2}')"
-        	rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
-        	rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf"
+        	rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf_008" 0 "Run openssl to verify PEM output"
+        	rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf_008"
         	rlPhaseEnd
 	
 	  ##### Show certs asigned to a user - --encoded option - no User ID #####
@@ -374,13 +386,13 @@ testname="pki_user_cert_show"
  		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
  		-h $SUBSYSTEM_HOST \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output.out > $TmpDir/pki_user_cert_show_CA_usershowcert_0011.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output_0011.out > $TmpDir/pki_user_cert_show_CA_usershowcert_0011.out" \
                         0 \
                         "Show cert assigned to user - --output <file> option"
-		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output.out"
-        	rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output.out"
-		rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usercertshow_output.out -noout -serial 1> $TmpDir/temp_out-openssl" 0 "Run openssl to verify PEM output"
-        rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl"
+		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_0011.out"
+        	rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_0011.out"
+		rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usercertshow_output_0011.out -noout -serial 1> $TmpDir/temp_out-openssl_0011" 0 "Run openssl to verify PEM output"
+        rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_0011"
 	rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
                 rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
@@ -401,13 +413,13 @@ testname="pki_user_cert_show"
  		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
  		-h $SUBSYSTEM_HOST \
                            -t ca \
-                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out > $TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out" \
+                            user-cert-show $user2 \"2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\" --output $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf_0011.out > $TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out" \
                         0 \
                         "Show cert assigned to user - --output <file> option"
-                rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out"
-                rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out"
-                rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
-        rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf"
+                rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf_0011.out"
+                rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf_0011.out"
+                rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf_0011.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf_0011" 0 "Run openssl to verify PEM output"
+        rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf_0011"
         rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
                 rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
@@ -556,9 +568,7 @@ testname="pki_user_cert_show"
         rlPhaseEnd
 
 	##### Show certs asigned to a user - --pretty, --encoded and --output options ##### 
-
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0019-tier1: Show certs assigned to a user - --pretty, --encoded and --output options - Valid Cert ID, User ID and file"
-		k=19
 		newuserid=newuser
 		newuserfullname="New User"
 		rlRun "pki -d $CERTDB_DIR \
@@ -567,18 +577,29 @@ testname="pki_user_cert_show"
  		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
  		-h $SUBSYSTEM_HOST \
                             user-add --fullName=\"$newuserfullname\" $newuserid"
-                cert_type="pkcs10"
-                rlRun "generate_user_cert $cert_info $k \"$newuserid\" \"$newuserfullname\" $newuserid@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix" 0  "Generating temp cert"
-                cert_serialNumber_pkcs10_new=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
+                algo:rsa key_size:2048 subject_cn:\"$newuserfullname\" subject_uid:$newuserid subject_email:$newuserid@example.org \
+                organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+                target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+                certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+                local cert_serialNumber_pkcs10_new=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_PKCS10_new=$(echo $cert_serialNumber_pkcs10_new | cut -dx -f2)
-                CONV_UPP_VAL_PKCS10_new=${STRIP_HEX_PKCS10_new^^}
-                decimal_valid_serialNumber_pkcs10_new=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10_new"|bc)
-                cert_type="crmf"
-                rlRun "generate_user_cert $cert_info $k \"$newuserid\" \"$newuserfullname\" $newuserid@example.org $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix" 0  "Generating temp cert"
-                cert_serialNumber_crmf_new=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local CONV_UPP_VAL_PKCS10_new=${STRIP_HEX_PKCS10_new^^}
+                local decimal_valid_serialNumber_pkcs10_new=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10_new"|bc)
+                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_pkcs10_new --encoded > $TmpDir/pki_user_cert_show-CA_encoded_0019pkcs10.out" 0 "Executing pki cert-show $cert_serialNumber_pkcs10_new"
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_show-CA_encoded_0019pkcs10.out > $TmpDir/pki_user_cert_show-CA_validcert_0019pkcs10.pem"
+
+                rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
+                algo:rsa key_size:2048 subject_cn:\"$newuserfullname\" subject_uid:$newuserid subject_email:$newuserid@example.org \
+                organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+                target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+                certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+                local cert_serialNumber_crmf_new=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
                 local STRIP_HEX_CRMF_new=$(echo $cert_serialNumber_crmf_new | cut -dx -f2)
-                CONV_UPP_VAL_CRMF_new=${STRIP_HEX_CRMF_new^^}
-                decimal_valid_serialNumber_crmf_new=$(echo "ibase=16;$CONV_UPP_VAL_CRMF_new"|bc)
+                local CONV_UPP_VAL_CRMF_new=${STRIP_HEX_CRMF_new^^}
+                local decimal_valid_serialNumber_crmf_new=$(echo "ibase=16;$CONV_UPP_VAL_CRMF_new"|bc)
+                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_crmf_new --encoded > $TmpDir/pki_user_cert_show-CA_encoded_0019crmf.out" 0 "Executing pki cert-show $cert_serialNumber_crmf_new"
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_show-CA_encoded_0019crmf.out > $TmpDir/pki_user_cert_show-CA_validcert_0019crmf.pem"
 
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
@@ -620,8 +641,8 @@ testname="pki_user_cert_show"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019.out"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/user_cert_show_output0019"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/user_cert_show_output0019"
-                rlRun "openssl x509 -in $TmpDir/user_cert_show_output0019 -noout -serial 1> $TmpDir/temp_out-openssl" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10_new" "$TmpDir/temp_out-openssl"
+                rlRun "openssl x509 -in $TmpDir/user_cert_show_output0019 -noout -serial 1> $TmpDir/temp_out-openssl_0019" 0 "Run openssl to verify PEM output"
+                rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10_new" "$TmpDir/temp_out-openssl_0019"
 		
 		rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
@@ -664,8 +685,8 @@ testname="pki_user_cert_show"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usershowcert_0019crmf.out"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/user_cert_show_output0019crmf"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/user_cert_show_output0019crmf"
-                rlRun "openssl x509 -in $TmpDir/user_cert_show_output0019crmf -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF_new" "$TmpDir/temp_out-openssl_crmf"
+                rlRun "openssl x509 -in $TmpDir/user_cert_show_output0019crmf -noout -serial 1> $TmpDir/temp_out-openssl_crmf_0019" 0 "Run openssl to verify PEM output"
+                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF_new" "$TmpDir/temp_out-openssl_crmf_0019"
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -692,11 +713,11 @@ testname="pki_user_cert_show"
 	##### Show certs asigned to a user - as CA_auditorV ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0021: Show certs assigned to a user - as CA_auditorV should fail"
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_auditorV"
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditorV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as CA_auditorV"
@@ -795,13 +816,13 @@ testname="pki_user_cert_show"
         ##### Show certs asigned to a user - as role_user_UTCA ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0027: Show certs assigned to a user - as role_user_UTCA should fail"
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization Error"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+                errmsg="PKIException: Unauthorized"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as role_user_UTCA"
 
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization Error"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+                errmsg="PKIException: Unauthorized"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as role_user_UTCA"
 
@@ -811,13 +832,13 @@ testname="pki_user_cert_show"
 	##### Show certs asigned to a user - as role_user_UTCA ##### 
 
         rlPhaseStartTest "pki_user_cli_user_cert-show-CA-0028: Show certs assigned to a user - as role_user_UTCA should fail"
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization Error"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password user-cert-show $user2 '2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+                errmsg="PKIException: Unauthorized""
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as role_user_UTCA"
 
-		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $CERTDB_DIR -n role_user_UTCA -c $CERTDB_DIR_PASSWORD user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
-                errmsg="ForbiddenException: Authorization Error"
+		command="pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password user-cert-show $user2 '2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US'"
+                errmsg="PKIException: Unauthorized""
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki user-cert-show should throw an error when authenticating as role_user_UTCA"
 
@@ -868,8 +889,8 @@ testname="pki_user_cert_show"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030.out"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/user_cert_show_output0030"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/user_cert_show_output0030"
-                rlRun "openssl x509 -in $TmpDir/user_cert_show_output0030 -noout -serial 1> $TmpDir/temp_out-openssl" 0 "Run openssl to verify PEM output"
-	        rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl"
+                rlRun "openssl x509 -in $TmpDir/user_cert_show_output0030 -noout -serial 1> $TmpDir/temp_out-openssl_0030" 0 "Run openssl to verify PEM output"
+	        rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_0030"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
@@ -897,8 +918,8 @@ testname="pki_user_cert_show"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usershowcert_0030crmf.out"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/user_cert_show_output0030crmf"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/user_cert_show_output0030crmf"
-                rlRun "openssl x509 -in $TmpDir/user_cert_show_output0030crmf -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf"
+                rlRun "openssl x509 -in $TmpDir/user_cert_show_output0030crmf -noout -serial 1> $TmpDir/temp_out-openssl_crmf_0030" 0 "Run openssl to verify PEM output"
+                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf_0030"
 
         rlPhaseEnd
 
@@ -933,13 +954,30 @@ testname="pki_user_cert_show"
 ### Tests to show certs assigned to CA users - i18n characters ####
 
 rlPhaseStartTest "pki_user_cli_user_cert-show-CA-033: Show certs assigned to user - Subject name has i18n Characters"
-        k=33
-	cert_type="pkcs10"
-        rlRun "generate_user_cert $cert_info $k \"Örjan Äke\" \"Örjan Äke\" "test@example.org" $testname $cert_type $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT) $prefix" 0  "Generating temp cert"
-        local cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-        local STRIP_HEX_PKCS10=$(echo $cert_serialNumber | cut -dx -f2)
-        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
-        local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
+                algo:rsa key_size:2048 subject_cn:\"Örjan Äke\" subject_uid:\"Örjan Äke\" subject_email:test@example.org \
+                organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+                target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+                certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+                local cert_serialNumber_pkcs10=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_PKCS10=$(echo $cert_serialNumber_pkcs10 | cut -dx -f2)
+                local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+                local decimal_valid_serialNumber_pkcs10=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_pkcs10 --encoded > $TmpDir/pki_user_cert_show-CA_encoded_0033pkcs10.out" 0 "Executing pki cert-show $cert_serialNumber_pkcs10"
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_show-CA_encoded_0033pkcs10.out > $TmpDir/pki_user_cert_show-CA_validcert_0033pkcs10.pem"
+
+                rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
+                algo:rsa key_size:2048 subject_cn:\"Örjan Äke\" subject_uid:\"Örjan Äke\" subject_email:test@example.org \
+                organizationalunit:Engineering organization:Example country:US archive:false req_profile:caUserCert \
+                target_host:$SUBSYSTEM_HOST protocol: port:$(eval echo \$${subsystemId}_UNSECURE_PORT) cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
+                certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
+                local cert_serialNumber_crmf=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+                local STRIP_HEX_CRMF=$(echo $cert_serialNumber_crmf | cut -dx -f2)
+                local CONV_UPP_VAL_CRMF=${STRIP_HEX_CRMF^^}
+                local decimal_valid_serialNumber_crmf=$(echo "ibase=16;$CONV_UPP_VAL_CRMF"|bc)
+                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $cert_serialNumber_crmf --encoded > $TmpDir/pki_user_cert_show-CA_encoded_0033crmf.out" 0 "Executing pki cert-show $cert_serialNumber_crmf"
+                rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_show-CA_encoded_0033crmf.out > $TmpDir/pki_user_cert_show-CA_validcert_0033crmf.pem"
+
         rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -968,11 +1006,41 @@ rlPhaseStartTest "pki_user_cli_user_cert-show-CA-033: Show certs assigned to use
                     "Show certs assigned to $user1 with i18n chars"
 	rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_ca_0033.out"
-        rlAssertGrep "Serial Number: $cert_serialNumber" "$TmpDir/pki_user_cert_show_ca_0033.out"
+        rlAssertGrep "Serial Number: $cert_serialNumber_pkcs10" "$TmpDir/pki_user_cert_show_ca_0033.out"
         rlAssertGrep "Issuer: $(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_show_ca_0033.out"
         rlAssertGrep "Subject: UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033.out"
 
-	
+	rlRun "pki -d $CERTDB_DIR/ \
+                           -n ${prefix}_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+                -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                -h $SUBSYSTEM_HOST \
+                           -t ca \
+                            user-cert-add $user1 --input $TmpDir/pki_user_cert_show-CA_validcert_0033crmf.pem  > $TmpDir/pki_user_cert_show_CA_useraddcert_0033crmf.out" \
+                            0 \
+                            "Cert is added to the user $user1"
+        rlAssertGrep "Added certificate \"2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_useraddcert_0033crmf.out"
+        rlLog "Executing: pki -d $CERTDB_DIR/ \
+                              -n ${prefix}_adminV \
+                              -c $CERTDB_DIR_PASSWORD \
+                -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                -h $SUBSYSTEM_HOST \
+                              -t ca \
+                               user-cert-show $user1 \"2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\""
+        rlRun "pki -d $CERTDB_DIR/ \
+                   -n ${prefix}_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+                -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                -h $SUBSYSTEM_HOST \
+                   -t ca \
+                   user-cert-show $user1 \"2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US\" > $TmpDir/pki_user_cert_show_ca_0033crmf.out" \
+                    0 \
+                    "Show certs assigned to $user1 with i18n chars"
+        rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033crmf.out"
+        rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_ca_0033crmf.out"
+        rlAssertGrep "Serial Number: $cert_serialNumber_crmf" "$TmpDir/pki_user_cert_show_ca_0033crmf.out"
+        rlAssertGrep "Issuer: $(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_user_cert_show_ca_0033crmf.out"
+        rlAssertGrep "Subject: UID=Örjan Äke,E=test@example.org,CN=Örjan Äke,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_ca_0033crmf.out"	
         rlPhaseEnd
 
 
@@ -995,7 +1063,7 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         done
 
 	#Delete temporary directory
-        rlRun "popd"
-        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        #rlRun "popd"
+        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 }
