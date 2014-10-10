@@ -2,11 +2,11 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-group-cli
+#   runtest.sh of /CoreOS/dogtag/acceptance/cli-tests/pki-ca-group-cli
 #   Description: PKI group-member-show CLI tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # The following pki cli commands needs to be tested:
-#  pki-group-cli-group-member-show   Show groups members
+#  pki-ca-group-cli-ca-group-member-show   Show groups members
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   Authors: Roshni Pattath <rpattath@redhat.com>
@@ -39,7 +39,7 @@
 . /opt/rhqa_pki/env.sh
 
 ######################################################################################
-#pki-user-cli-user-add-ca.sh should be first executed prior to pki-group-cli-group-member-show-ca.sh
+#create_role_users.sh should be first executed prior to pki-group-cli-group-member-show-ca.sh
 ######################################################################################
 
 ########################################################################
@@ -47,7 +47,7 @@
 ########################################################################
 
 ########################################################################
-run_pki-group-cli-group-member-show-ca_tests(){
+run_pki-ca-group-cli-ca-group-member-show_tests(){
     #local variables
     group1=test_group
     group1desc="Test Group"
@@ -55,7 +55,7 @@ run_pki-group-cli-group-member-show-ca_tests(){
     group2desc="Test Group 2"
     group3=test_group3
     group3desc="Test Group 3"
-    rlPhaseStartSetup "pki_group_cli_group_member_show-ca-startup: Create temporary directory"
+    rlPhaseStartSetup "pki_ca_group_cli_ca_group_member_show-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
     rlPhaseEnd
@@ -90,22 +90,22 @@ local TEMP_NSS_DB="$TmpDir/nssdb"
 local TEMP_NSS_DB_PASSWD="redhat123"
 cert_info="$TmpDir/cert_info"
 
-    rlPhaseStartTest "pki_group_member_show-configtest: pki group-member-show configuration test"
-        rlRun "pki group-member-show --help > $TmpDir/pki_group_member_show_cfg.out 2>&1" \
+    rlPhaseStartTest "pki_ca_group_member_show-configtest: pki ca-group-member-show configuration test"
+        rlRun "pki ca-group-member-show --help > $TmpDir/pki_ca_group_member_show_cfg.out 2>&1" \
                0 \
-               "pki group-member-show"
-        rlAssertGrep "usage: group-member-show <Group ID> <Member ID> \[OPTIONS...\]" "$TmpDir/pki_group_member_show_cfg.out"
-        rlAssertGrep "\--help   Show help options" "$TmpDir/pki_group_member_show_cfg.out"
+               "pki ca-group-member-show"
+        rlAssertGrep "usage: ca-group-member-show <Group ID> <Member ID> \[OPTIONS...\]" "$TmpDir/pki_ca_group_member_show_cfg.out"
+        rlAssertGrep "\--help   Show help options" "$TmpDir/pki_ca_group_member_show_cfg.out"
     rlPhaseEnd
 
      ##### Tests to show CA  groups ####
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-001: Add group to CA using CA_adminV, add a user to the group and show group member"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-001: Add group to CA using CA_adminV, add a user to the group and show group member"
 	rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-add --description=\"$group1desc\" $group1" \
+                    ca-group-add --description=\"$group1desc\" $group1" \
 		    0 \
                     "Add group $group1 using CA_adminV"
 	rlRun "pki -d $CERTDB_DIR \
@@ -113,7 +113,7 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    user-add --fullName=\"User1\" u1" \
+                    ca-user-add --fullName=\"User1\" u1" \
                     0 \
                     "Add user u1 using CA_adminV"
 	rlRun "pki -d $CERTDB_DIR \
@@ -121,7 +121,7 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-add $group1 u1" \
+                    ca-group-member-add $group1 u1" \
                     0 \
                     "Add user u1 to group $group1 using CA_adminV"
 	rlLog "pki -d $CERTDB_DIR \
@@ -129,104 +129,108 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-show $group1 u1"
+                    ca-group-member-show $group1 u1"
 	rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-show $group1 u1 > $TmpDir/pki_group_member_show_groupshow001.out" \
+                    ca-group-member-show $group1 u1 > $TmpDir/pki_ca_group_member_show_groupshow001.out" \
                     0 \
                     "Show group members of $group1"
-	rlAssertGrep "Group member \"u1\"" "$TmpDir/pki_group_member_show_groupshow001.out"
-	rlAssertGrep "User: u1" "$TmpDir/pki_group_member_show_groupshow001.out"
+	rlAssertGrep "Group member \"u1\"" "$TmpDir/pki_ca_group_member_show_groupshow001.out"
+	rlAssertGrep "User: u1" "$TmpDir/pki_ca_group_member_show_groupshow001.out"
 	rlPhaseEnd
 
 
     #Negative Cases
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-002: Missing required option group id"
-	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT -t ca group-member-show u1" 
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-002: Missing required option group id"
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show u1" 
         errmsg="Error: Incorrect number of arguments specified."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot show group members without group id"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-003: Missing required option member id"
-        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT -t ca group-member-show $group1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-003: Missing required option member id"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1"
         errmsg="Error: Incorrect number of arguments specified."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot show group members without member id"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-004: A non existing member ID"
-        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT -t ca group-member-show $group1 user1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-004: A non existing member ID"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 user1"
         errmsg="ResourceNotFoundException: Group member user1 not found"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot show group members with a non-existing member id"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-005: A non existing group ID"
-        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT -t ca group-member-show group1 u1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-005: A non existing group ID"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show group1 u1"
         errmsg="GroupNotFoundException: Group group1 not found"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot show group members with a non-existing group id"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-006: Checking if member id case sensitive "
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-006: Checking if member id case sensitive "
+	rlLog "pki -d $CERTDB_DIR \
+                   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
+                    ca-group-member-show $group1 U1"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                   -t ca \
-                    group-member-show $group1 U1 > $TmpDir/pki-group-member-show-ca-006.out 2>&1" \
+                    ca-group-member-show $group1 U1 > $TmpDir/pki-ca-group-member-show-006.out 2>&1" \
                     0 \
                     "Member ID is not case sensitive"
-	rlAssertGrep "User \"U1\"" "$TmpDir/pki-group-member-show-ca-006.out"
-        rlAssertGrep "User: u1" "$TmpDir/pki-group-member-show-ca-006.out"
+	rlAssertGrep "User \"U1\"" "$TmpDir/pki-ca-group-member-show-006.out"
+        rlAssertGrep "User: u1" "$TmpDir/pki-ca-group-member-show-006.out"
 	rlLog "PKI TICKET: https://fedorahosted.org/pki/ticket/1069"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-007: Checking if group id case sensitive "
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-007: Checking if group id case sensitive "
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                   -t ca \
-                    group-member-show TEST_GROUP u1 > $TmpDir/pki-group-member-show-ca-007.out 2>&1" \
+                    ca-group-member-show TEST_GROUP u1 > $TmpDir/pki-ca-group-member-show-007.out 2>&1" \
                     0 \
                     "Group ID is not case sensitive"
-        rlAssertGrep "Group member \"u1\"" "$TmpDir/pki-group-member-show-ca-007.out"
-        rlAssertGrep "User: u1" "$TmpDir/pki-group-member-show-ca-007.out"
+        rlAssertGrep "Group member \"u1\"" "$TmpDir/pki-ca-group-member-show-007.out"
+        rlAssertGrep "User: u1" "$TmpDir/pki-ca-group-member-show-007.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-008: Should not be able to show group member using a revoked cert CA_adminR"
-        command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group1 u1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-008: Should not be able to show group member using a revoked cert CA_adminR"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 u1"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members using a admin having revoked cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-009: Should not be able to show group member using an agent with revoked cert CA_agentR"
-        command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group1 u1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-009: Should not be able to show group member using an agent with revoked cert CA_agentR"
+        command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 u1"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members using a agent having revoked cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-010: Should not be able to show group members using a valid agent CA_agentV user"
-        command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group1 u1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-010: Should not be able to show group members using a valid agent CA_agentV user"
+        command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 u1"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members using a agent cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-011: Should not be able to show group members using admin user with expired cert CA_adminE"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-011: Should not be able to show group members using admin user with expired cert CA_adminE"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
-        command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group1 u1"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 u1"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members using an expired admin cert"
@@ -234,11 +238,11 @@ cert_info="$TmpDir/cert_info"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-012: Should not be able to show group members using CA_agentE cert"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-012: Should not be able to show group members using CA_agentE cert"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
-        command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group1 u1"
+        command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 u1"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members g7 using a agent cert"
@@ -246,22 +250,22 @@ cert_info="$TmpDir/cert_info"
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-013: Should not be able to show group members using a CA_auditV"
-        command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group1 u1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-013: Should not be able to show group members using a CA_auditV"
+        command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 u1"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members using a audit cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-014: Should not be able to show group members using a CA_operatorV"
-        command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group1 u1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-014: Should not be able to show group members using a CA_operatorV"
+        command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 u1"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members using a operator cert"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-015: Should not be able to show group members using a cert created from a untrusted CA CA_adminUTCA"
-	command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT group-member-show $group1 u1"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-015: Should not be able to show group members using a cert created from a untrusted CA CA_adminUTCA"
+	command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password  -h $CA_HOST -p $CA_PORT ca-group-member-show $group1 u1"
 	errmsg="PKIException: Unauthorized"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members using CA_adminUTCA"
@@ -296,13 +300,13 @@ cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-017: group id with i18n characters"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-017: group id with i18n characters"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-add --description=test 'ÖrjanÄke' > $TmpDir/pki-group-member-show-ca-001_56.out 2>&1" \
+                    ca-group-add --description=test 'ÖrjanÄke' > $TmpDir/pki-ca-group-member-show-001_56.out 2>&1" \
                     0 \
                     "Adding gid ÖrjanÄke with i18n characters"
 	rlRun "pki -d $CERTDB_DIR \
@@ -310,7 +314,7 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    user-add --fullName=test u3 > $TmpDir/pki-group-member-show-ca-001_57.out 2>&1" \
+                    ca-user-add --fullName=test u3 > $TmpDir/pki-ca-group-member-show-001_57.out 2>&1" \
                     0 \
                     "Adding user id u3"
 	rlRun "pki -d $CERTDB_DIR \
@@ -318,7 +322,7 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-add 'ÖrjanÄke' u3 > $TmpDir/pki-group-member-show-ca-001_56.out 2>&1" \
+                    ca-group-member-add 'ÖrjanÄke' u3 > $TmpDir/pki-ca-group-member-show-001_56.out 2>&1" \
                     0 \
                     "Adding user u3 to group ÖrjanÄke"
 	rlLog "pki -d $CERTDB_DIR \
@@ -326,26 +330,26 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-show 'ÖrjanÄke' u3"
+                    ca-group-member-show 'ÖrjanÄke' u3"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-show 'ÖrjanÄke' u3 > $TmpDir/pki-group-member-show-ca-001_56_2.out" \
+                    ca-group-member-show 'ÖrjanÄke' u3 > $TmpDir/pki-ca-group-member-show-001_56_2.out" \
                     0 \
                     "Show group member'ÖrjanÄke'"
-        rlAssertGrep "Group member \"u3\"" "$TmpDir/pki-group-member-show-ca-001_56_2.out"
-        rlAssertGrep "User: u3" "$TmpDir/pki-group-member-show-ca-001_56_2.out"
+        rlAssertGrep "Group member \"u3\"" "$TmpDir/pki-ca-group-member-show-001_56_2.out"
+        rlAssertGrep "User: u3" "$TmpDir/pki-ca-group-member-show-001_56_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_group_cli_group_member_show-CA-019: Add group to CA using CA_adminV, add a user to the group, delete the group member and show the group member"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-018: Add group to CA using CA_adminV, add a user to the group, delete the group member and show the group member"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-add --description=\"$group2desc\" $group2" \
+                    ca-group-add --description=\"$group2desc\" $group2" \
                     0 \
                     "Add group $group2 using CA_adminV"
         rlRun "pki -d $CERTDB_DIR \
@@ -353,7 +357,7 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    user-add --fullName=\"User2\" u2" \
+                    ca-user-add --fullName=\"User2\" u2" \
                     0 \
                     "Add user u2 using CA_adminV"
         rlRun "pki -d $CERTDB_DIR \
@@ -361,7 +365,7 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-add $group2 u2" \
+                    ca-group-member-add $group2 u2" \
                     0 \
                     "Add user u2 to group $group2 using CA_adminV"
         rlLog "pki -d $CERTDB_DIR \
@@ -369,53 +373,59 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-show $group2 u2"
+                    ca-group-member-show $group2 u2"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-show $group2 u2 > $TmpDir/pki_group_member_show_groupshow019.out" \
+                    ca-group-member-show $group2 u2 > $TmpDir/pki_ca_group_member_show_groupshow019.out" \
                     0 \
                     "Show group members of $group2"
-        rlAssertGrep "Group member \"u2\"" "$TmpDir/pki_group_member_show_groupshow019.out"
-        rlAssertGrep "User: u2" "$TmpDir/pki_group_member_show_groupshow019.out"
+        rlAssertGrep "Group member \"u2\"" "$TmpDir/pki_ca_group_member_show_groupshow019.out"
+        rlAssertGrep "User: u2" "$TmpDir/pki_ca_group_member_show_groupshow019.out"
 	rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-del $group2 u2"
-	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group2 u2"
+                    ca-group-member-del $group2 u2"
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group2 u2"
         errmsg="ResourceNotFoundException: Group member u2 not found"
         errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - group-member show should throw and error if the group member is deleted"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - ca-group-member show should throw and error if the group member is deleted"
 
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member_show-CA-020: Add group to CA using CA_adminV, add a user to the group, delete the user and show the group member"
+	rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-019: Add group to CA using CA_adminV, add a user to the group, delete the user and show the group member"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-add --description=\"$group3desc\" $group3" \
+                    ca-group-add --description=\"$group3desc\" $group3" \
                     0 \
                     "Add group $group3 using CA_adminV"
+	rlLog "pki -d $CERTDB_DIR \
+                   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
+                    ca-user-add --fullName=\"User4\" u4"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    user-add --fullName=\"User3\" u4" \
+                    ca-user-add --fullName=\"User4\" u4" \
                     0 \
-                    "Add user u4 using CA_adminV"
+                    "Add user u3 using CA_adminV"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-add $group3 u4" \
+                    ca-group-member-add $group3 u4" \
                     0 \
                     "Add user u4 to group $group3 using CA_adminV"
         rlLog "pki -d $CERTDB_DIR \
@@ -423,38 +433,38 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-show $group3 u4"
+                    ca-group-member-show $group3 u4"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-member-show $group3 u4 > $TmpDir/pki_group_member_show_groupshow020.out" \
+                    ca-group-member-show $group3 u4 > $TmpDir/pki_ca_group_member_show_groupshow020.out" \
                     0 \
                     "Show group members of $group3"
-        rlAssertGrep "Group member \"u4\"" "$TmpDir/pki_group_member_show_groupshow020.out"
-        rlAssertGrep "User: u4" "$TmpDir/pki_group_member_show_groupshow020.out"
+        rlAssertGrep "Group member \"u4\"" "$TmpDir/pki_ca_group_member_show_groupshow020.out"
+        rlAssertGrep "User: u4" "$TmpDir/pki_ca_group_member_show_groupshow020.out"
 	rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    user-del u4"
-	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-show $group3 u4"
+                    ca-user-del u4"
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show $group3 u4"
 	errmsg="ResourceNotFoundException: Group member u4 not found"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - group-member show should throw and error if the member user is deleted"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member_show-CA-021: A non existing member ID and group ID"
-        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT -t ca group-member-show group1 user1"
+	rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show-021: A non existing member ID and group ID"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-show group1 user1"
         errmsg="GroupNotFoundException: Group group1 not found"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot show group members with a non-existing member id and group id"
     rlPhaseEnd
 
 
-    rlPhaseStartTest "pki_group_cli_group_member_show_cleanup-021: Deleting the temp directory and groups"
+    rlPhaseStartTest "pki_ca_group_cli_ca_group_member_show_cleanup-022: Deleting the temp directory and groups"
 
         #===Deleting groups(symbols) created using CA_adminV cert===#
         j=1
@@ -465,7 +475,7 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                           group-del  $grp > $TmpDir/pki-group-del-ca-group-symbol-00$j.out" \
+                           ca-group-del  $grp > $TmpDir/pki-group-del-ca-group-symbol-00$j.out" \
                            0 \
                            "Deleted group $grp"
                 rlAssertGrep "Deleted group \"$grp\"" "$TmpDir/pki-group-del-ca-group-symbol-00$j.out"
@@ -479,7 +489,7 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                           user-del  u$j > $TmpDir/pki-user-del-ca-group-symbol-00$j.out" \
+                           ca-user-del  u$j > $TmpDir/pki-user-del-ca-group-symbol-00$j.out" \
                            0 \
                            "Deleted user u$j"
                 rlAssertGrep "Deleted user \"u$j\"" "$TmpDir/pki-user-del-ca-group-symbol-00$j.out"
@@ -492,13 +502,14 @@ cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                group-del 'ÖrjanÄke' > $TmpDir/pki-group-del-ca-group-i18n_1.out" \
+                ca-group-del 'ÖrjanÄke' > $TmpDir/pki-group-del-ca-group-i18n_1.out" \
                 0 \
                 "Deleted group ÖrjanÄke"
         rlAssertGrep "Deleted group \"ÖrjanÄke\"" "$TmpDir/pki-group-del-ca-group-i18n_1.out"
 
+
 	#Delete temporary directory
-        #rlRun "popd"
-        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 }

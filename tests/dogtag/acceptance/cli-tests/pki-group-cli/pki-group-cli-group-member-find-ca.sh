@@ -68,6 +68,36 @@ run_pki-group-cli-group-member-find-ca_tests(){
                 rlRun "pushd $TmpDir"
         rlPhaseEnd
 
+subsystemId=$1
+SUBSYSTEM_TYPE=$2
+MYROLE=$3
+
+if [ "$TOPO9" = "TRUE" ] ; then
+        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+        prefix=$subsystemId
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+elif [ "$MYROLE" = "MASTER" ] ; then
+        if [[ $subsystemId == SUBCA* ]]; then
+                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+                prefix=$subsystemId
+                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+        else
+                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                prefix=ROOTCA
+                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        fi
+else
+        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+        prefix=$MYROLE
+        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+fi
+
+CA_HOST=$(eval echo \$${MYROLE})
+CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
+local TEMP_NSS_DB="$TmpDir/nssdb"
+local TEMP_NSS_DB_PASSWD="redhat123"
+local cert_info="$TmpDir/cert_info"
+
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-002: pki group-member-find --help configuration test"
                 rlRun "pki group-member-find --help > $TmpDir/pki_group_member_find_cfg.out 2>&1" \
                         0 \
@@ -93,12 +123,16 @@ run_pki-group-cli-group-member-find-ca_tests(){
                 i=1
                 while [ $i -lt 15 ] ; do
                        rlLog "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				  -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-add --fullName=\"fullNameu$i\" u$i "
                        rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+			 	  -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-add --fullName=\"fullNameu$i\" u$i > $TmpDir/pki-group-member-find-user-find-ca-00$i.out" \
                                    0 \
                                    "Adding user u$i"
@@ -108,12 +142,16 @@ run_pki-group-cli-group-member-find-ca_tests(){
                         rlLog "Adding the user to a group"
                         eval gid=\$groupid$i
                         rlLog "pki -d $CERTDB_DIR \
-                                   -n CA_adminV \
-                                   -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                     group-member-add \"$gid\" u$i"
                         rlRun "pki -d $CERTDB_DIR \
-                                    -n CA_adminV \
-                                    -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                      group-member-add \"$gid\" u$i > $TmpDir/pki-group-member-find-groupadd-ca-00$i.out" \
                                      0 \
                                      "Adding user u$i to group \"$gid\""
@@ -121,8 +159,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
                         rlAssertGrep "User: u$i" "$TmpDir/pki-group-member-find-groupadd-ca-00$i.out"
                         rlLog "Check if the user is added to the group"
                         rlRun "pki -d $CERTDB_DIR \
-                                   -n CA_adminV \
-                                   -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                     group-member-find \"$gid\" > $TmpDir/pki-group-member-find-groupadd-find-ca-00$i.out" \
                                     0 \
                                     "Find group-members with group \"$gid\""
@@ -134,8 +174,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-005: Find group-member when the same user is added to many groups"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             user-add --fullName=\"fullName_userall\" userall > $TmpDir/pki-group-member-find-user-find-ca-userall-001.out" \
                             0 \
                             "Adding user userall"
@@ -147,12 +189,16 @@ run_pki-group-cli-group-member-find-ca_tests(){
                 while [ $i -lt 15 ] ; do
                         eval gid=\$groupid$i
                         rlLog "pki -d $CERTDB_DIR \
-                                   -n CA_adminV \
-                                   -c $CERTDB_DIR_PASSWORD \
+			 	   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                     group-member-add \"$gid\" userall"
                         rlRun "pki -d $CERTDB_DIR \
-                                   -n CA_adminV \
-                                   -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                     group-member-add \"$gid\" userall > $TmpDir/pki-group-member-find-groupadd-ca-userall-00$i.out" \
                                     0 \
                                     "Adding user userall to group \"$gid\""
@@ -160,8 +206,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
                         rlAssertGrep "User: userall" "$TmpDir/pki-group-member-find-groupadd-ca-userall-00$i.out"
                         rlLog "Check if the user is added to the group"
                         rlRun "pki -d $CERTDB_DIR \
-                                   -n CA_adminV \
-                                   -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                     group-member-find \"$gid\" > $TmpDir/pki-group-member-find-groupadd-find-ca-userall-00$i.out" \
                                     0 \
                                     "Find user membership to group \"$gid\""
@@ -174,8 +222,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-006: Find group-member when many users are added to one group"
 		i=1
 		rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    group-add --description=\"Test group\" group1 > $TmpDir/pki-group-member-find-groupadd-ca-006.out" \
                                    0 \
                                    "Adding group group1"
@@ -184,12 +234,16 @@ run_pki-group-cli-group-member-find-ca_tests(){
                         rlAssertGrep "Description: Test group" "$TmpDir/pki-group-member-find-groupadd-ca-006.out"
                 while [ $i -lt 15 ] ; do
                        rlLog "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				  -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-add --fullName=\"fullNameuser$i\" user$i "
                        rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				  -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-add --fullName=\"fullNameuser$i\" user$i > $TmpDir/pki-group-member-find-useradd-ca-00$i.out" \
                                    0 \
                                    "Adding user user$i"
@@ -198,8 +252,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
                         rlAssertGrep "Full name: fullNameuser$i" "$TmpDir/pki-group-member-find-useradd-ca-00$i.out"
 			rlLog "Adding user user$i to group1"
 			rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    group-member-add group1 user$i > $TmpDir/pki-group-member-find-group-member-add-ca-00$i.out" \
                                    0 \
                                    "Adding user user$i"
@@ -210,8 +266,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 		let i=$i-1
 		rlLog "Find group members of group1"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                          -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 > $TmpDir/pki-group-member-find-ca-group1-006.out" \
                              0 \
                             "Find users added to group \"$gid\""
@@ -226,8 +284,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-007: Find group-member of a user from the 6th position (start=5)"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --start=5 > $TmpDir/pki-group-member-find-groupadd-find-ca-start-001.out" \
                             0 \
                             "Checking user added to group"
@@ -246,8 +306,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-008: Find all group members of a group (start=0)"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --start=0 > $TmpDir/pki-group-member-find-groupadd-find-ca-start-002.out" \
                             0 \
                             "Checking group members of a group "
@@ -262,7 +324,7 @@ run_pki-group-cli-group-member-find-ca_tests(){
         rlPhaseEnd
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-009: Find group members when page start is negative (start=-1)"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=-1"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=-1"
 		errmsg="--start option should have argument greater than 0"
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "group-member-find should fail if start is less than 0"
@@ -272,8 +334,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-010: Find group members when page start greater than available number of groups (start=15)"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --start=15 > $TmpDir/pki-group-member-find-groupadd-find-ca-start-004.out" \
                             0 \
                             "Checking group members of a group"
@@ -282,7 +346,7 @@ run_pki-group-cli-group-member-find-ca_tests(){
         rlPhaseEnd
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-011: Should not be able to find group members when page start is non integer"
-		command="pki -d $CERTDB_DIR  -n CA_adminV  -c $CERTDB_DIR_PASSWORD  group-member-find group1 --start=a"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=a"
 		errmsg="NumberFormatException: For input string: \"a\""
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group members when page start is non integer"
@@ -290,8 +354,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-012: Find group member when page size is 0 (size=0)"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --size=0 > $TmpDir/pki-group-member-find-groupadd-find-ca-size-006.out" 0 \
                             "group_member-find with size parameter as 0"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-group-member-find-groupadd-find-ca-size-006.out"
@@ -300,8 +366,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-013: Find group members when page size is 1 (size=1)"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --size=1 > $TmpDir/pki-group-member-find-groupadd-find-ca-size-007.out" 0 \
                             "group_member-find with size parameter as 1"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-group-member-find-groupadd-find-ca-size-007.out"
@@ -312,8 +380,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-014: Find group members when page size is 15 (size=15)"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --size=15 > $TmpDir/pki-group-member-find-groupadd-find-ca-size-009.out" 0 \
                             "group_member-find with size parameter as 15"
 		rlAssertGrep "14 entries matched" "$TmpDir/pki-group-member-find-groupadd-find-ca-size-009.out"
@@ -328,8 +398,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-015: Find group members when page size greater than available number of groups (size=100)"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --size=100 > $TmpDir/pki-group-member-find-groupadd-find-ca-size-0010.out"  0 \
                             "group_membership-find with size parameter as 100"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-group-member-find-groupadd-find-ca-size-0010.out"
@@ -343,7 +415,7 @@ run_pki-group-cli-group-member-find-ca_tests(){
         rlPhaseEnd
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-016: Find group-member when page size is negative (size=-1)"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD group-member-find group1 --size=-1"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --size=-1"
 		errmsg="--size option should have argument greater than 0"
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "group-member-find should fail if size is less than 0"
@@ -351,7 +423,7 @@ run_pki-group-cli-group-member-find-ca_tests(){
         rlPhaseEnd
 
         rlPhaseStartTest "pki_group_cli_group_member-find-CA-017: Should not be able to find group members when page size is non integer"
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD  group-member-find group1 --size=a"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --size=a"
 		errmsg="NumberFormatException: For input string: \"a\""
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "String cannot be used as input to size parameter "
@@ -359,13 +431,17 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-018: Find group members with -t ca option"
 		rlLog "Executing: pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                            -t ca \
                             group-member-find group1 --size=5"
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                            -t ca \
                             group-member-find group1 --size=5 > $TmpDir/pki-group-member-find-ca-018.out" \
 		            0 \
@@ -382,12 +458,16 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-019: Find group members with page start and page size option"
 		rlLog "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --start=6 --size=5"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group1 --start=6 --size=5 > $TmpDir/pki-group-member-find-ca-019.out" \
                             0 \
                             "Find group members with page start and page size option"
@@ -403,7 +483,7 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-020: Find group members with --size more than maximum possible value"
         	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD group-member-find group1 --size=$maximum_check"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --size=$maximum_check"
 		errmsg="NumberFormatException: For input string: \"$maximum_check\""
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "An exception should be thrown if size has a value greater than the maximum possible"
@@ -411,29 +491,29 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-021: Find  group members with --start more than maximum possible value"
 	        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
-		command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=$maximum_check"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=$maximum_check"
                 errmsg="NumberFormatException: For input string: \"$maximum_check\""
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "An exception should be thrown if start has a value greater than the maximum possible"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-022: Should not be able to group-member-find using a revoked cert CA_adminR"
-                command="pki -d $CERTDB_DIR -n CA_adminR -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=0 --size=5"
+                command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
 		errmsg="PKIException: Unauthorized"
 		errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group members using a revoked cert CA_adminR"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-023: Should not be able to group-member-find using an agent with revoked cert CA_agentR"
-		command="pki -d $CERTDB_DIR -n CA_agentR -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=0 --size=5"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
 		errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using an agent with revoked cert CA_agentR"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-024: Should not be able to group-member-find using a valid agent CA_agentV user"
-		command="pki -d $CERTDB_DIR -n CA_agentV -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=0 --size=5"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.groups, operation: execute"
+		command="pki -d $CERTDB_DIR -n ${prefix}_agentV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group members using a valid agent CA_agentV user cert"
 	rlPhaseEnd
@@ -441,8 +521,8 @@ run_pki-group-cli-group-member-find-ca_tests(){
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-025: Should not be able to group-member-find using admin user with expired cert CA_adminE"
 		rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
        		rlRun "date"
-		command="pki -d $CERTDB_DIR -n CA_adminE -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=0 --size=5"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.groups, operation: execute"
+		command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a expired admin CA_adminE user cert"
 		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
@@ -452,8 +532,8 @@ run_pki-group-cli-group-member-find-ca_tests(){
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-026: Should not be able to group-member-find using CA_agentE cert"
 		rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
                 rlRun "date"
-                command="pki -d $CERTDB_DIR -n CA_agentE -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=0 --size=5"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.groups, operation: execute"
+                command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a expired agent CA_agentE user cert"
                 rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
@@ -461,28 +541,28 @@ run_pki-group-cli-group-member-find-ca_tests(){
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-027: Should not be able to group-member-find using CA_auditV cert"
-                command="pki -d $CERTDB_DIR -n CA_auditV -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=0 --size=5"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.groups, operation: execute"
+                command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a valid auditor CA_auditV user cert"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-028: Should not be able to group-member-find using CA_operatorV cert"
-                command="pki -d $CERTDB_DIR -n CA_operatorV -c $CERTDB_DIR_PASSWORD group-member-find group1 --start=0 --size=5"
-                errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.groups, operation: execute"
+                command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
+                errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-members using a valid operator CA_operatorV user cert"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-CA-029: Should not be able to group-member-find using CA_adminUTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n CA_adminUTCA -c Password group-member-find group1 --start=0 --size=5"
+	rlPhaseStartTest "pki_group_cli_group_member-find-CA-029: Should not be able to group-member-find using role_user_UTCA cert"
+                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a untrusted CA_adminUTCA user cert"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-CA-030: Should not be able to group-member-find using CA_agentUTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n CA_agentUTCA -c Password group-member-find group1 --start=0 --size=5"
+	rlPhaseStartTest "pki_group_cli_group_member-find-CA-030: Should not be able to group-member-find using role_user_UTCA cert"
+                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT group-member-find group1 --start=0 --size=5"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a untrusted CA_agentUTCA user cert"
@@ -490,21 +570,26 @@ run_pki-group-cli-group-member-find-ca_tests(){
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-031:Find group-member for group id with i18n characters"
-		rlLog "user-add userid ÉricTêko with i18n characters"
                 rlLog "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
-                            user-add --fullName='Éric Têko' 'ÉricTêko'"
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
+                            user-add --fullName='u15' u15"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
-                            user-add --fullName='Éric Têko' 'ÉricTêko'" \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
+                            user-add --fullName='u15' u15" \
                             0 \
-                            "Adding uid ÉricTêko with i18n characters"	
+                            "Adding uid u15"	
 		rlLog "Create a group dadministʁasjɔ̃ with i18n characters"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-add 'dadministʁasjɔ̃' --description \"Admininstartors in French\" 2>&1 > $TmpDir/pki-group-member-add-groupadd-ca-031_1.out" \
                             0 \
                             "Adding group dadministʁasjɔ̃ with i18n characters"
@@ -512,34 +597,42 @@ run_pki-group-cli-group-member-find-ca_tests(){
                 rlAssertGrep "Group ID: dadministʁasjɔ̃" "$TmpDir/pki-group-member-add-groupadd-ca-031_1.out"
                 rlAssertGrep "Description: Admininstartors in French" "$TmpDir/pki-group-member-add-groupadd-ca-031_1.out"
 		rlLog "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
-                            group-member-add \"dadministʁasjɔ̃\" 'ÉricTêko'"
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
+                            group-member-add \"dadministʁasjɔ̃\" u15"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
-                           group-member-add \"dadministʁasjɔ̃\" 'ÉricTêko' > $TmpDir/pki-group-member-find-groupadd-ca-031_2.out" \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
+                           group-member-add \"dadministʁasjɔ̃\" u15 > $TmpDir/pki-group-member-find-groupadd-ca-031_2.out" \
                             0 \
-                            "Adding user ÉricTêko to group \"dadministʁasjɔ̃\""
-                rlAssertGrep "Added group member \"ÉricTêko\"" "$TmpDir/pki-group-member-find-groupadd-ca-031_2.out"
-                rlAssertGrep "User: ÉricTêko" "$TmpDir/pki-group-member-find-groupadd-ca-031_2.out"
+                            "Adding user u15 to group \"dadministʁasjɔ̃\""
+                rlAssertGrep "Added group member \"u15\"" "$TmpDir/pki-group-member-find-groupadd-ca-031_2.out"
+                rlAssertGrep "User: u15" "$TmpDir/pki-group-member-find-groupadd-ca-031_2.out"
                 rlLog "Check if the user is added to the group"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find \"dadministʁasjɔ̃\" > $TmpDir/pki-group-member-find-groupadd-find-ca-031_3.out" \
                             0 \
-                            "Find group-member ÉricTêko in \"dadministʁasjɔ̃\"" 
+                            "Find group-member u15 in \"dadministʁasjɔ̃\"" 
 	           rlAssertGrep "1 entries matched" "$TmpDir/pki-group-member-find-groupadd-find-ca-031_3.out"
-                rlAssertGrep "User: ÉricTêko" "$TmpDir/pki-group-member-find-groupadd-find-ca-031_3.out"	
+                rlAssertGrep "User: u15" "$TmpDir/pki-group-member-find-groupadd-find-ca-031_3.out"	
 	rlPhaseEnd
 
 
 	rlPhaseStartTest "pki_group_cli_group_member-find-CA-032: Find group-member - paging"
                 i=1
                 rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    group-add --description=\"Test group\" group2 > $TmpDir/pki-group-member-find-groupadd-ca-034.out" \
                                    0 \
                                    "Adding group group2"
@@ -548,12 +641,16 @@ run_pki-group-cli-group-member-find-ca_tests(){
                         rlAssertGrep "Description: Test group" "$TmpDir/pki-group-member-find-groupadd-ca-034.out"
                 while [ $i -lt 25 ] ; do
                        rlLog "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-add --fullName=\"fullNameuser$i\" userid$i "
                        rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				  -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-add --fullName=\"fullNameuser$i\" userid$i > $TmpDir/pki-group-member-find-paging-useradd-ca-00$i.out" \
                                    0 \
                                    "Adding user userid$i"
@@ -562,8 +659,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
                         rlAssertGrep "Full name: fullNameuser$i" "$TmpDir/pki-group-member-find-paging-useradd-ca-00$i.out"
                         rlLog "Adding user userid$i to group2"
                         rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    group-member-add group2 userid$i > $TmpDir/pki-group-member-find-paging-group-member-add-ca-00$i.out" \
                                    0 \
                                    "Adding user userid$i"
@@ -574,8 +673,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 		let i=$i-1
                 rlLog "Find group members of group2"
                 rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                          -c $CERTDB_DIR_PASSWORD \
+			   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             group-member-find group2 > $TmpDir/pki-group-member-find-ca-group1-034.out" \
                              0 \
                             "Find users added to group \"group2\""
@@ -592,10 +693,12 @@ run_pki-group-cli-group-member-find-ca_tests(){
 		
                 #===Deleting users created using CA_adminV cert===#
                 i=1
-                while [ $i -lt 15 ] ; do
+                while [ $i -lt 16 ] ; do
                        rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-del  u$i > $TmpDir/pki-user-del-ca-group-member-find-user-del-ca-00$i.out" \
                                    0 \
                                    "Deleted user u$i"
@@ -605,8 +708,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 		i=1
 		while [ $i -lt 15 ] ; do
                        rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-del  user$i > $TmpDir/pki-user-del-ca-group-member-find-user-del-ca-group1-00$i.out" \
                                    0 \
                                    "Deleted user user$i"
@@ -616,8 +721,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
 		i=1
 		while [ $i -lt 25 ] ; do
                        rlRun "pki -d $CERTDB_DIR \
-                                  -n CA_adminV \
-                                  -c $CERTDB_DIR_PASSWORD \
+				   -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                                    user-del  userid$i > $TmpDir/pki-user-del-ca-group-member-find-user-del-ca-group2-00$i.out" \
                                    0 \
                                    "Deleted user userid$i"
@@ -625,8 +732,10 @@ run_pki-group-cli-group-member-find-ca_tests(){
                         let i=$i+1
                 done
 		rlRun "pki -d $CERTDB_DIR \
-                           -n CA_adminV \
-                           -c $CERTDB_DIR_PASSWORD \
+			    -n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                             user-del  userall > $TmpDir/pki-user-del-ca-group-member-find-user-del-ca-userall.out" \
                             0 \
                             "Deleted user userall"
@@ -635,42 +744,39 @@ run_pki-group-cli-group-member-find-ca_tests(){
 
 		#===Deleting groups created using CA_adminV===#
                 rlRun "pki -d $CERTDB_DIR \
-                        -n CA_adminV \
-                        -c $CERTDB_DIR_PASSWORD \
+			-n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                         group-del 'group1' > $TmpDir/pki-user-del-ca-group1.out" \
                         0 \
                         "Deleting group group1"
                 rlAssertGrep "Deleted group \"group1\"" "$TmpDir/pki-user-del-ca-group1.out"
 
 		rlRun "pki -d $CERTDB_DIR \
-                        -n CA_adminV \
-                        -c $CERTDB_DIR_PASSWORD \
+			-n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
                         group-del 'group2' > $TmpDir/pki-user-del-ca-group2.out" \
                         0 \
                         "Deleting group group2"
                 rlAssertGrep "Deleted group \"group2\"" "$TmpDir/pki-user-del-ca-group2.out"
 
-		#===Deleting i18n users created using CA_adminV cert===#
-
-        	rlRun "pki -d $CERTDB_DIR \
-                	-n CA_adminV \
-	                -c $CERTDB_DIR_PASSWORD \
-        	        user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-user-i18n_2.out" \
-                	0 \
-	                "Deleting user ÉricTêko"
-        	rlAssertGrep "Deleted user \"ÉricTêko\"" "$TmpDir/pki-user-del-ca-user-i18n_2.out"
 
 	        #===Deleting i18n group created using CA_adminV cert===#
         	rlRun "pki -d $CERTDB_DIR \
-                	-n CA_adminV \
-	                -c $CERTDB_DIR_PASSWORD \
+			-n ${prefix}_adminV \
+                    -c $CERTDB_DIR_PASSWORD \
+                    -h $CA_HOST \
+                    -p $CA_PORT \
         	        group-del 'dadministʁasjɔ̃' > $TmpDir/pki-user-del-ca-group-i18n_1.out" \
                 	0 \
 	                "Deleting group dadministʁasjɔ̃"
         	rlAssertGrep "Deleted group \"dadministʁasjɔ̃\"" "$TmpDir/pki-user-del-ca-group-i18n_1.out"
 
 		#Delete temporary directory
-		rlRun "popd"
-		rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+		#rlRun "popd"
+		#rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
 	rlPhaseEnd
 }
