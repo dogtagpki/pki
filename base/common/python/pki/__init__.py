@@ -27,10 +27,10 @@ import re
 import requests
 
 
-CONF_DIR = '/etc/pki'
+CONF_DIR  = '/etc/pki'
 SHARE_DIR = '/usr/share/pki'
-BASE_DIR = '/var/lib'
-LOG_DIR = '/var/log/pki'
+BASE_DIR  = '/var/lib'
+LOG_DIR   = '/var/log/pki'
 
 PACKAGE_VERSION = SHARE_DIR + '/VERSION'
 CERT_HEADER = "-----BEGIN CERTIFICATE-----"

@@ -182,8 +182,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
     def instances(self):
 
         if self.instanceName and self.instanceType:
-            return [pki.server.PKIInstance(
-                self.instanceName, self.instanceType)]
+            instance = pki.server.PKIInstance(self.instanceName, self.instanceType)
+            instance.validate()
+            return [instance]
 
         instance_list = []
 
@@ -192,8 +193,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 for instanceName in os.listdir(pki.server.INSTANCE_BASE_DIR):
                     if not self.instanceName or \
                             self.instanceName == instanceName:
-                        instance_list.append(
-                            pki.server.PKIInstance(instanceName))
+                        instance = pki.server.PKIInstance(instanceName)
+                        instance.validate()
+                        instance_list.append(instance)
 
         if not self.instanceType or self.instanceType == 9:
             for s in pki.server.SUBSYSTEM_TYPES:
@@ -202,8 +204,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                             os.path.join(pki.server.REGISTRY_DIR, s)):
                         if not self.instanceName or \
                                 self.instanceName == instanceName:
-                            instance_list.append(
-                                pki.server.PKIInstance(instanceName, 9))
+                            instance = pki.server.PKIInstance(instanceName, 9)
+                            instance.validate()
+                            instance_list.append(instance)
 
         instance_list.sort()
 
@@ -212,7 +215,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
     def subsystems(self, instance):
 
         if self.subsystemName:
-            return [pki.server.PKISubsystem(instance, self.subsystemName)]
+            subsystem = pki.server.PKISubsystem(instance, self.subsystemName)
+            subsystem.validate()
+            return [subsystem]
 
         subsystem_list = []
 
@@ -222,8 +227,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 instance.name)
             for subsystemName in os.listdir(registry_dir):
                 if subsystemName in pki.server.SUBSYSTEM_TYPES:
-                    subsystem_list.append(
-                        pki.server.PKISubsystem(instance, subsystemName))
+                    subsystem = pki.server.PKISubsystem(instance, subsystemName)
+                    subsystem.validate()
+                    subsystem_list.append(subsystem)
         else:
             for subsystemName in pki.server.SUBSYSTEM_TYPES:
                 registry_dir = os.path.join(
@@ -231,8 +237,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                     subsystemName,
                     instance.name)
                 if os.path.exists(registry_dir):
-                    subsystem_list.append(
-                        pki.server.PKISubsystem(instance, subsystemName))
+                    subsystem = pki.server.PKISubsystem(instance, subsystemName)
+                    subsystem.validate()
+                    subsystem_list.append(subsystem)
 
         subsystem_list.sort()
 
