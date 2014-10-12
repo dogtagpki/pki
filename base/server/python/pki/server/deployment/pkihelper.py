@@ -40,6 +40,7 @@ from grp import getgrnam
 from pwd import getpwnam
 from pwd import getpwuid
 import xml.etree.ElementTree as ET
+from lxml import etree
 import zipfile
 import selinux
 if selinux.is_selinux_enabled():
@@ -4173,4 +4174,38 @@ class PKIDeployer:
         self.tps_connector = TPSConnector(self)
         self.config_client = ConfigClient(self)
 
+    def deploy_webapp(self, name, doc_base, descriptor):
+        """
+        Deploy a web application into a Tomcat instance.
 
+        This method will copy the specified deployment descriptor into
+        <instance>/conf/Catalina/localhost/<name>.xml and point the docBase
+        to the specified location. The web application will become available
+        under "/<name>" URL path.
+
+        See also: http://tomcat.apache.org/tomcat-7.0-doc/config/context.html
+
+        :param name: Web application name.
+        :type name: str
+        :param doc_base: Path to web application content.
+        :type doc_base: str
+        :param descriptor: Path to deployment descriptor (context.xml).
+        :type descriptor: str
+        """
+        new_descriptor = os.path.join(
+            self.mdict['pki_instance_configuration_path'],
+            "Catalina",
+            "localhost",
+            name + ".xml")
+
+        parser = etree.XMLParser(remove_blank_text=True)
+        document = etree.parse(descriptor, parser)
+
+        context = document.getroot()
+        context.set('docBase', doc_base)
+
+        with open(new_descriptor, 'w') as f:
+            f.write(etree.tostring(document, pretty_print=True))
+
+        os.chown(new_descriptor, self.mdict['pki_uid'], self.mdict['pki_gid'])
+        os.chmod(new_descriptor, config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)

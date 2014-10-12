@@ -1108,11 +1108,11 @@ verify_symlinks()
     pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_NAME}"
     pki_systemd_dir="/etc/systemd/system/pki-tomcatd.target.wants"
     pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_NAME}.service"
-    pki_ca_jar_dir="${PKI_INSTANCE_PATH}/webapps/ca/WEB-INF/lib"
-    pki_kra_jar_dir="${PKI_INSTANCE_PATH}/webapps/kra/WEB-INF/lib"
-    pki_ocsp_jar_dir="${PKI_INSTANCE_PATH}/webapps/ocsp/WEB-INF/lib"
-    pki_tks_jar_dir="${PKI_INSTANCE_PATH}/webapps/tks/WEB-INF/lib"
-    pki_tps_jar_dir="${PKI_INSTANCE_PATH}/webapps/tps/WEB-INF/lib"
+    pki_ca_jar_dir="${PKI_INSTANCE_PATH}/ca/webapps/ca/WEB-INF/lib"
+    pki_kra_jar_dir="${PKI_INSTANCE_PATH}/kra/webapps/kra/WEB-INF/lib"
+    pki_ocsp_jar_dir="${PKI_INSTANCE_PATH}/ocsp/webapps/ocsp/WEB-INF/lib"
+    pki_tks_jar_dir="${PKI_INSTANCE_PATH}/tks/webapps/tks/WEB-INF/lib"
+    pki_tps_jar_dir="${PKI_INSTANCE_PATH}/tps/webapps/tps/WEB-INF/lib"
 
     # '${PKI_INSTANCE_PATH}' symlinks
     base_symlinks=(
@@ -1126,8 +1126,7 @@ verify_symlinks()
         [alias]=${PKI_INSTANCE_PATH}/alias
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}/ca
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/ca
-        [registry]=${pki_registry_dir}
-        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+        [registry]=${pki_registry_dir})
 
     # '${pki_ca_jar_dir}' symlinks
     ca_jar_symlinks=(
@@ -1144,8 +1143,7 @@ verify_symlinks()
         [alias]=${PKI_INSTANCE_PATH}/alias
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}/kra
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/kra
-        [registry]=${pki_registry_dir}
-        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+        [registry]=${pki_registry_dir})
 
     # '${pki_kra_jar_dir}' symlinks
     kra_jar_symlinks=(
@@ -1162,8 +1160,7 @@ verify_symlinks()
         [alias]=${PKI_INSTANCE_PATH}/alias
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}/ocsp
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/ocsp
-        [registry]=${pki_registry_dir}
-        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+        [registry]=${pki_registry_dir})
 
     # '${pki_ocsp_jar_dir}' symlinks
     ocsp_jar_symlinks=(
@@ -1180,8 +1177,7 @@ verify_symlinks()
         [alias]=${PKI_INSTANCE_PATH}/alias
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}/tks
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tks
-        [registry]=${pki_registry_dir}
-        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+        [registry]=${pki_registry_dir})
 
     # '${pki_tks_jar_dir}' symlinks
     tks_jar_symlinks=(
@@ -1198,8 +1194,7 @@ verify_symlinks()
         [alias]=${PKI_INSTANCE_PATH}/alias
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}/tps
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tps
-        [registry]=${pki_registry_dir}
-        [webapps]=${PKI_INSTANCE_PATH}/webapps)
+        [registry]=${pki_registry_dir})
 
     # '${pki_tps_jar_dir}' symlinks
     tps_jar_symlinks=(

@@ -885,6 +885,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %changelog
 * Thu Jan  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.2-0.1
 - Updated version number to 10.2.2-0.1
+- Moved web application deployment locations.
 
 * Thu Jan  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.1-1
 - Update release number for release build

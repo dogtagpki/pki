@@ -1,0 +1,119 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2014 Red Hat, Inc.
+# All rights reserved.
+#
+
+import grp
+import os
+import pwd
+import shutil
+import signal
+import sys
+from lxml import etree
+
+import pki
+import pki.server.upgrade
+
+
+class MoveWebApplicationDeploymentLocations(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Move Web application deployment locations'
+
+        self.parser = etree.XMLParser(remove_blank_text=True)
+
+    def upgrade_subsystem(self, instance, subsystem):
+
+        subsystem_webapps = os.path.join(instance.base_dir, subsystem.name, 'webapps')
+        self.backup(subsystem_webapps)
+
+        # remove old subsystem webapps symlink
+        if os.path.islink(subsystem_webapps):
+            os.unlink(subsystem_webapps)
+
+        # create new subsytem webapps folder
+        if not os.path.exists(subsystem_webapps):
+            os.mkdir(subsystem_webapps)
+
+        uid = pwd.getpwnam('pkiuser').pw_uid
+        gid = grp.getgrnam('pkiuser').gr_gid
+
+        os.chown(subsystem_webapps, uid, gid)
+        os.chmod(subsystem_webapps, 0770)
+
+        # move subsystem webapp
+        subsystem_old_webapp = os.path.join(instance.base_dir, 'webapps', subsystem.name)
+        subsystem_new_webapp = os.path.join(subsystem_webapps, subsystem.name)
+        subsystem_context_xml = os.path.join(instance.conf_dir, 'Catalina', 'localhost', subsystem.name + '.xml')
+
+        self.move_webapp(subsystem_old_webapp, subsystem_new_webapp, subsystem_context_xml)
+
+    def upgrade_instance(self, instance):
+
+        common_webapps = os.path.join(instance.base_dir, 'common', 'webapps')
+        self.backup(common_webapps)
+
+        # create new common webapps folder
+        if not os.path.exists(common_webapps):
+            os.mkdir(common_webapps)
+
+        uid = pwd.getpwnam('pkiuser').pw_uid
+        gid = grp.getgrnam('pkiuser').gr_gid
+
+        os.chown(common_webapps, uid, gid)
+        os.chmod(common_webapps, 0770)
+
+        # move ROOT webapp
+        root_old_webapp = os.path.join(instance.base_dir, 'webapps', 'ROOT')
+        root_new_webapp = os.path.join(common_webapps, 'ROOT')
+        root_context_xml = os.path.join(instance.conf_dir, 'Catalina', 'localhost', 'ROOT.xml')
+
+        self.move_webapp(root_old_webapp, root_new_webapp, root_context_xml)
+
+        # move pki webapp
+        pki_old_webapp = os.path.join(instance.base_dir, 'webapps', 'pki')
+        pki_new_webapp = os.path.join(common_webapps, 'pki')
+        pki_context_xml = os.path.join(instance.conf_dir, 'Catalina', 'localhost', 'pki.xml')
+
+        self.move_webapp(pki_old_webapp, pki_new_webapp, pki_context_xml)
+
+    def move_webapp(self, old_webapp, new_webapp, context_xml):
+
+        if not os.path.exists(old_webapp):
+            return
+
+        # move old webapp to the new webapp
+        self.backup(old_webapp)
+        self.backup(new_webapp)
+
+        shutil.move(old_webapp, new_webapp)
+
+        # update docBase in context.xml
+        self.backup(context_xml)
+
+        document = etree.parse(context_xml, self.parser)
+
+        context = document.getroot()
+        doc_base = context.get('docBase')
+
+        context.set('docBase', new_webapp)
+
+        with open(context_xml, 'w') as f:
+            f.write(etree.tostring(document, pretty_print=True))

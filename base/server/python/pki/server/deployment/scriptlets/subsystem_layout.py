@@ -103,12 +103,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.file.copy(
                     deployer.mdict['pki_source_transportcert_profile'],
                     deployer.mdict['pki_target_transportcert_profile'])
-            # establish instance-based Tomcat PKI subsystem registry
-            # establish instance-based Tomcat PKI subsystem convenience
-            # symbolic links
-            deployer.symlink.create(
-                deployer.mdict['pki_tomcat_webapps_path'],
-                deployer.mdict['pki_subsystem_tomcat_webapps_link'])
         # establish instance-based subsystem convenience symbolic links
         deployer.symlink.create(
             deployer.mdict['pki_instance_database_link'],

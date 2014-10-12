@@ -56,6 +56,30 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_instance_configuration_path'],
                 ignore_cb=file_ignore_callback_src_server)
 
+            # Deploy ROOT web application
+            deployer.deploy_webapp(
+                "ROOT",
+                os.path.join(
+                    deployer.mdict['pki_tomcat_common_webapps_path'],
+                    "ROOT"),
+                os.path.join(
+                    deployer.mdict['pki_source_server_path'],
+                    "Catalina",
+                    "localhost",
+                    "ROOT.xml"))
+
+            # Deploy pki web application
+            deployer.deploy_webapp(
+                "pki",
+                os.path.join(
+                    deployer.mdict['pki_tomcat_common_webapps_path'],
+                    "pki"),
+                os.path.join(
+                    deployer.mdict['pki_source_server_path'],
+                    "Catalina",
+                    "localhost",
+                    "pki.xml"))
+
             # establish Tomcat instance base
             deployer.directory.create(deployer.mdict['pki_tomcat_common_path'])
             deployer.directory.create(
@@ -75,23 +99,23 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_instance_lib_log4j_properties'])
             deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])
 
-            # Copy /usr/share/pki/server/webapps to <instance>/webapps
+            # Copy /usr/share/pki/server/webapps to <instance>/common/webapps
             deployer.directory.copy(
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
                     "server",
                     "webapps"),
-                deployer.mdict['pki_tomcat_webapps_path'])
+                deployer.mdict['pki_tomcat_common_webapps_path'])
 
             # If desired and available,
             # copy selected server theme
-            # to <instance>/webapps/pki
-            if config.str2bool(deployer.mdict['pki_theme_enable']) and \
+            # to <instance>/common/webapps/pki
+            if config.str2bool(deployer.mdict['pki_theme_enable']) and\
                     os.path.exists(deployer.mdict['pki_theme_server_dir']):
                 deployer.directory.copy(
                     deployer.mdict['pki_theme_server_dir'],
                     os.path.join(
-                        deployer.mdict['pki_tomcat_webapps_path'],
+                        deployer.mdict['pki_tomcat_common_webapps_path'],
                         "pki"),
                     overwrite_flag=True)
 
