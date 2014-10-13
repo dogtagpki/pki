@@ -67,6 +67,7 @@ public abstract class APDU {
     protected TPSBuffer data = null;
     protected TPSBuffer plainText = null;
     protected TPSBuffer mac = null;
+    protected TPSBuffer trailer = null;
 
     public APDU() {
         data = new TPSBuffer();
@@ -99,6 +100,10 @@ public abstract class APDU {
 
     public void setMAC(TPSBuffer theMac) {
         mac = theMac;
+    }
+
+    public void setTrailer(TPSBuffer theTrailer) {
+        trailer = theTrailer;
     }
 
     /**
@@ -140,6 +145,10 @@ public abstract class APDU {
             encoding.add(mac);
         }
 
+        if (trailer != null) {
+            encoding.add(trailer);
+        }
+
         return encoding;
     }
 
@@ -156,7 +165,7 @@ public abstract class APDU {
         return mac;
     }
 
-    public void secureMessage(PK11SymKey encKey) throws EBaseException {
+    public void secureMessage(PK11SymKey encKey, byte protocol) throws EBaseException {
 
         if (encKey == null) {
             throw new EBaseException("APDU.secureData: No input encrytion session key!");
@@ -169,14 +178,24 @@ public abstract class APDU {
         TPSBuffer dataEncrypted = null;
 
         dataToEnc = new TPSBuffer();
-        dataToEnc.add((byte) data.size());
+
+        if(protocol == (byte) 1) {
+            dataToEnc.add((byte) data.size());
+        }
+
         dataToEnc.add(data);
 
         int dataSize = dataToEnc.size();
         int rem = dataSize % 8;
 
         if (rem == 0) {
-            padNeeded = 0;
+
+            if (protocol == (byte) 1) {
+                padNeeded = 0;
+            }
+            else if (protocol == (byte) 2) {
+                padNeeded = 8;
+            }
         } else if (dataSize < 8) {
             padNeeded = 8 - dataSize;
         } else {
@@ -196,6 +215,16 @@ public abstract class APDU {
         dataEncrypted = Util.encryptData(dataToEnc, encKey);
 
         data.set(dataEncrypted);
+    }
+
+    public void secureMessageSCP02(PK11SymKey encKey) throws EBaseException {
+
+        if (encKey == null) {
+            throw new EBaseException("APDU.secureDataSCP02: Invalid input data!");
+        }
+
+        secureMessage(encKey,(byte) 2);
+
     }
 
     public Type getType() {

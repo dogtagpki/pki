@@ -156,6 +156,12 @@ public class TPSBuffer {
         buf = newContents.toBytesArray();
     }
 
+    public void set(byte [] newContents) {
+        if (newContents == null)
+            return;
+        buf = newContents;
+    }
+
     /**
      * Append operators.
      */
@@ -359,6 +365,10 @@ public class TPSBuffer {
         long l4 = this.at(offset + 3) & 0xff;
 
         return l1 + l2 + l3 + l4;
+    }
+
+    public void reset() {
+        buf = new byte[0];
     }
 
     public static void main(String[] args) {

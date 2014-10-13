@@ -34,6 +34,9 @@ public interface IRemoteRequest {
     public static final String RESPONSE_STATUS_XML = "Status";
 
     // TKS request params
+    public static final String CHANNEL_PROTOCOL = "protocol";
+    public static final String SEQUENCE_COUNTER = "sequenceCounter";
+    public static final String DERIVATION_CONSTANT = "derivationConstant";
     public static final String SERVER_SIDE_KEYGEN = "serversideKeygen";
     public static final String TOKEN_CARD_CHALLENGE = "card_challenge";
     public static final String TOKEN_HOST_CHALLENGE = "host_challenge";
@@ -43,6 +46,7 @@ public interface IRemoteRequest {
     public static final String TOKEN_DATA_NUM_BYTES = "dataNumBytes";
     public static final String TOKEN_NEW_KEYINFO = "newKeyInfo";
     public static final String TOKEN_DATA = "data";
+    public static final String WRAPPED_DEK_SESSION_KEY = "wrappedDekKey";
 
     // TKS response params
     /* computeSessionKey responses */

@@ -22,51 +22,27 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-public class GetDataAPDU extends APDU {
-
-    public GetDataAPDU()
+public class LoadFileAPDUGP211 extends APDU {
+    /**
+     * Constructs Load File APDU.
+     */
+    public LoadFileAPDUGP211(byte refControl, byte blockNum, TPSBuffer theData)
     {
-        setCLA((byte) 0x80);
-        setINS((byte) 0xCA);
-        setP1((byte) 0x9F);
-        setP2((byte) 0x7F);
-    }
+        trailer = new TPSBuffer();
+        setCLA((byte) 0x84);
+        setINS((byte) 0xE8);
+        setP1(refControl);
+        setP2(blockNum);
 
-    public GetDataAPDU(byte[] identifier) {
-
-        this();
-
-        if(identifier != null && identifier.length == 2) {
-            setP1(identifier[0]);
-            setP2(identifier[1]);
-        }
+        setData(theData);
 
     }
 
     @Override
     public Type getType()
     {
-        return APDU.Type.APDU_GET_DATA;
+        return Type.APDU_LOAD_FILE;
     }
 
-    @Override
-    public TPSBuffer getEncoding()
-    {
-        TPSBuffer encoding = new TPSBuffer();
-
-        encoding.add(cla);
-        encoding.add(ins);
-        encoding.add(p1);
-        encoding.add(p2);
-        encoding.add((byte) 0x2D);
-
-        return encoding;
-    } /* Encode */
-
-    public static void main(String[] args) {
-        GetDataAPDU get_data = new GetDataAPDU();
-
-        get_data.dump();
-
-    }
 }
+

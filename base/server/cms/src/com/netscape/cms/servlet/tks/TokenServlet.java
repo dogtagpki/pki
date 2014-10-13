@@ -29,7 +29,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.connector.IRemoteRequest;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
@@ -47,8 +49,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.symkey.SessionKey;
-
-import org.dogtagpki.server.connector.IRemoteRequest;
 
 /**
  * A class representings an administration servlet for Token Key
@@ -106,6 +106,12 @@ public class TokenServlet extends CMSServlet {
 
     private final static String LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE =
             "LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE_4";
+
+    // Derivation Constants for SCP02
+    public final static byte[] C_MACDerivationConstant = { (byte) 0x01, (byte) 0x01 };
+    public final static byte[] ENCDerivationConstant = { 0x01, (byte) 0x82 };
+    public final static byte[] DEKDerivationConstant = { 0x01, (byte) 0x81 };
+    public final static byte[] R_MACDerivationConstant = { 0x01, 0x02 };
 
     /**
      * Constructs tks servlet.
@@ -216,86 +222,92 @@ public class TokenServlet extends CMSServlet {
 
     }
 
-    // AC: KDF SPEC CHANGE - read new setting value from config file 
+    // AC: KDF SPEC CHANGE - read new setting value from config file
     // (This value allows configuration of which master keys use the NIST SP800-108 KDF and which use the original KDF for backwards compatibility)
     // CAREFUL:  Result returned may be negative due to java's lack of unsigned types.
     //           Negative values need to be treated as higher key numbers than positive key numbers.
-    private static byte read_setting_nistSP800_108KdfOnKeyVersion(String keySet) throws Exception{
+    private static byte read_setting_nistSP800_108KdfOnKeyVersion(String keySet) throws Exception {
         String nistSP800_108KdfOnKeyVersion_map = "tks." + keySet + ".nistSP800-108KdfOnKeyVersion";
         // KDF phase1: default to 00
         String nistSP800_108KdfOnKeyVersion_value =
-            CMS.getConfigStore().getString(nistSP800_108KdfOnKeyVersion_map, "00" /*null*/);
+                CMS.getConfigStore().getString(nistSP800_108KdfOnKeyVersion_map, "00" /*null*/);
         short nistSP800_108KdfOnKeyVersion_short = 0;
         // if value does not exist in file
-        if (nistSP800_108KdfOnKeyVersion_value == null){
+        if (nistSP800_108KdfOnKeyVersion_value == null) {
             // throw
             //  (we want admins to pay attention to this configuration item rather than guessing for them)
-            throw new Exception("Required configuration value \"" + nistSP800_108KdfOnKeyVersion_map + "\" missing from configuration file.");
+            throw new Exception("Required configuration value \"" + nistSP800_108KdfOnKeyVersion_map
+                    + "\" missing from configuration file.");
         }
         // convert setting value (in ASCII-hex) to short
-        try{
+        try {
             nistSP800_108KdfOnKeyVersion_short = Short.parseShort(nistSP800_108KdfOnKeyVersion_value, 16);
-            if ((nistSP800_108KdfOnKeyVersion_short < 0) || (nistSP800_108KdfOnKeyVersion_short > (short)0x00FF)){
+            if ((nistSP800_108KdfOnKeyVersion_short < 0) || (nistSP800_108KdfOnKeyVersion_short > (short) 0x00FF)) {
                 throw new Exception("Out of range.");
             }
-        } catch(Throwable t){
-            throw new Exception("Configuration value \"" + nistSP800_108KdfOnKeyVersion_map + "\" is in incorrect format. " + 
-                                "Correct format is \"" + nistSP800_108KdfOnKeyVersion_map + "=xx\" where xx is key version specified in ASCII-HEX format.", t);
+        } catch (Throwable t) {
+            throw new Exception("Configuration value \"" + nistSP800_108KdfOnKeyVersion_map
+                    + "\" is in incorrect format. " +
+                    "Correct format is \"" + nistSP800_108KdfOnKeyVersion_map
+                    + "=xx\" where xx is key version specified in ASCII-HEX format.", t);
         }
         // convert to byte (anything higher than 0x7F is represented as a negative)
-        byte nistSP800_108KdfOnKeyVersion_byte = (byte)nistSP800_108KdfOnKeyVersion_short;
+        byte nistSP800_108KdfOnKeyVersion_byte = (byte) nistSP800_108KdfOnKeyVersion_short;
         return nistSP800_108KdfOnKeyVersion_byte;
     }
-    
-    // AC: KDF SPEC CHANGE - read new setting value from config file 
+
+    // AC: KDF SPEC CHANGE - read new setting value from config file
     // (This value allows configuration of the NIST SP800-108 KDF:
     //   If "true" we use the CUID parameter within the NIST SP800-108 KDF.
     //   If "false" we use the KDD parameter within the NIST SP800-108 KDF.
-    private static boolean read_setting_nistSP800_108KdfUseCuidAsKdd(String keySet) throws Exception{
+    private static boolean read_setting_nistSP800_108KdfUseCuidAsKdd(String keySet) throws Exception {
         String setting_map = "tks." + keySet + ".nistSP800-108KdfUseCuidAsKdd";
         // KDF phase1: default to "false"
         String setting_str =
-            CMS.getConfigStore().getString(setting_map, "false" /*null*/);
+                CMS.getConfigStore().getString(setting_map, "false" /*null*/);
         boolean setting_boolean = false;
         // if value does not exist in file
-        if (setting_str == null){
+        if (setting_str == null) {
             // throw
             //  (we want admins to pay attention to this configuration item rather than guessing for them)
             throw new Exception("Required configuration value \"" + setting_map + "\" missing from configuration file.");
         }
         // convert setting value to boolean
-        try{
+        try {
             setting_boolean = Boolean.parseBoolean(setting_str);
-        }catch(Throwable t){
-            throw new Exception("Configuration value \"" + setting_map + "\" is in incorrect format.  Should be either \"true\" or \"false\".", t);
+        } catch (Throwable t) {
+            throw new Exception("Configuration value \"" + setting_map
+                    + "\" is in incorrect format.  Should be either \"true\" or \"false\".", t);
         }
         return setting_boolean;
     }
-    
+
     // AC: KDF SPEC CHANGE - Audit logging helper functions.
     // Converts a byte array to an ASCII-hex string.
-    //   We implemented this ourselves rather than using this.pp.toHexArray() because 
-    //   the team preferred CUID and KDD strings to be without ":" separators every byte. 
+    //   We implemented this ourselves rather than using this.pp.toHexArray() because
+    //   the team preferred CUID and KDD strings to be without ":" separators every byte.
     final char[] bytesToHex_hexArray = "0123456789ABCDEF".toCharArray();
-    private String bytesToHex(byte[] bytes){
+
+    private String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
-        for (int i = 0; i < bytes.length; i++){
+        for (int i = 0; i < bytes.length; i++) {
             int thisChar = bytes[i] & 0x000000FF;
-            hexChars[i * 2] = bytesToHex_hexArray[thisChar >>> 4];    // div 16
-            hexChars[i*2 + 1] = bytesToHex_hexArray[thisChar & 0x0F];
+            hexChars[i * 2] = bytesToHex_hexArray[thisChar >>> 4]; // div 16
+            hexChars[i * 2 + 1] = bytesToHex_hexArray[thisChar & 0x0F];
         }
         return new String(hexChars);
     }
-    
+
     // AC: KDF SPEC CHANGE - Audit logging helper functions.
     // Safely converts a keyInfo byte array to a Key version hex string in the format: 0xa
-    // Since key version is always the first byte, this function returns the unsigned hex string representation of parameter[0]. 
+    // Since key version is always the first byte, this function returns the unsigned hex string representation of parameter[0].
     //   Returns "null" if parameter is null.
     //   Returns "invalid" if parameter.length < 1
-    private String log_string_from_keyInfo(byte[] xkeyInfo){
-        return (xkeyInfo == null) ? "null" : (xkeyInfo.length < 1 ? "invalid" : "0x" + Integer.toHexString((int)(xkeyInfo[0]) & 0x000000FF) );
+    private String log_string_from_keyInfo(byte[] xkeyInfo) {
+        return (xkeyInfo == null) ? "null" : (xkeyInfo.length < 1 ? "invalid" : "0x"
+                + Integer.toHexString((xkeyInfo[0]) & 0x000000FF));
     }
-    
+
     // AC: KDF SPEC CHANGE - Audit logging helper functions.
     // Safely converts a byte array containing specialDecoded information to an ASCII-hex string.
     // Parameters:
@@ -303,21 +315,551 @@ public class TokenServlet extends CMSServlet {
     // Returns:
     //   if specialDecoded is blank, returns "null"
     //   if specialDecoded != null, returns <ASCII-HEX string representation of specialDecoded>
-    private String log_string_from_specialDecoded_byte_array(byte[] specialDecoded){
-        if (specialDecoded == null){
+    private String log_string_from_specialDecoded_byte_array(byte[] specialDecoded) {
+        if (specialDecoded == null) {
             return "null";
-        }else{
+        } else {
             return bytesToHex(specialDecoded);
         }
     }
-    
+
+    /* Compute Session Key for SCP02
+     *  For simplicity compute just one session key,unless it is the DEK key case.
+     */
+
+    private void processComputeSessionKeySCP02(HttpServletRequest req, HttpServletResponse resp) throws EBaseException {
+
+        CMS.debug("TokenServlet.processComputeSessionKeySCP02 entering..");
+        String auditMessage = null;
+        String errorMsg = "";
+        String badParams = "";
+        String transportKeyName = "";
+        boolean missingParam = false;
+        String selectedToken = null;
+        String keyNickName = null;
+        byte[] drm_trans_wrapped_desKey = null;
+
+        byte[] xKDD = null;
+        byte nistSP800_108KdfOnKeyVersion = (byte) 0xff;
+        boolean nistSP800_108KdfUseCuidAsKdd = false;
+
+        IConfigStore sconfig = CMS.getConfigStore();
+
+        boolean isCryptoValidate = false;
+        byte[] keyInfo, CUID = null, session_key = null;
+
+        Exception missingSettingException = null;
+
+        String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
+
+        String rKDD = req.getParameter("KDD");
+        if ((rKDD == null) || (rKDD.length() == 0)) {
+            // KDF phase1: default to rCUID if not present
+            CMS.debug("TokenServlet: KDD not supplied, set to CUID before TPS change");
+            rKDD = rCUID;
+        }
+
+        String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
+
+        if ((rKeyInfo == null) || (rKeyInfo.equals(""))) {
+            badParams += " KeyInfo,";
+            CMS.debug("TokenServlet: processComputeSessionKeySCP02(): missing request parameter: key info");
+            missingParam = true;
+        }
+
+        keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+
+        String keySet = req.getParameter(IRemoteRequest.TOKEN_KEYSET);
+
+        if (keySet == null || keySet.equals("")) {
+            keySet = "defKeySet";
+        }
+        CMS.debug("TokenServlet.processComputeSessionKeySCP02: keySet selected: " + keySet + " keyInfo: " + rKeyInfo);
+
+        boolean serversideKeygen = false;
+
+        String rDerivationConstant = req.getParameter(IRemoteRequest.DERIVATION_CONSTANT);
+        String rSequenceCounter = req.getParameter(IRemoteRequest.SEQUENCE_COUNTER);
+
+        if ((rDerivationConstant == null) || (rDerivationConstant.equals(""))) {
+            badParams += " derivation_constant,";
+            CMS.debug("TokenServlet.processComputeSessionKeySCP02(): missing request parameter: derivation constant.");
+            missingParam = true;
+        }
+
+        if ((rSequenceCounter == null) || (rSequenceCounter.equals(""))) {
+            badParams += " sequence_counter,";
+            CMS.debug("TokenServlet.processComputeSessionKeySCP02(): missing request parameter: sequence counter.");
+            missingParam = true;
+        }
+
+        SessionContext sContext = SessionContext.getContext();
+
+        String agentId = "";
+        if (sContext != null) {
+            agentId =
+                    (String) sContext.get(SessionContext.USER_ID);
+        }
+
+        auditMessage = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
+                rCUID,
+                rKDD, // AC: KDF SPEC CHANGE - Log both CUID and KDD.
+                ILogger.SUCCESS,
+                agentId);
+
+        audit(auditMessage);
+
+        if (!missingParam) {
+            CUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+
+            if (CUID == null || CUID.length != 10) {
+                badParams += " CUID length,";
+                CMS.debug("TokenServlet.processCompureSessionKeySCP02: Invalid CUID length");
+                missingParam = true;
+            }
+
+            xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
+            if (xKDD == null || xKDD.length != 10) {
+                badParams += " KDD length,";
+                CMS.debug("TokenServlet: Invalid KDD length");
+                missingParam = true;
+            }
+
+            keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+            if (keyInfo == null || keyInfo.length != 2) {
+                badParams += " KeyInfo length,";
+                CMS.debug("TokenServlet: Invalid key info length.");
+                missingParam = true;
+            }
+
+            try {
+                nistSP800_108KdfOnKeyVersion = TokenServlet.read_setting_nistSP800_108KdfOnKeyVersion(keySet);
+                nistSP800_108KdfUseCuidAsKdd = TokenServlet.read_setting_nistSP800_108KdfUseCuidAsKdd(keySet);
+
+                // log settings read in to debug log along with xkeyInfo
+                CMS.debug("TokenServlet: ComputeSessionKeySCP02():  keyInfo[0] = 0x"
+                        + Integer.toHexString((keyInfo[0]) & 0x0000000FF)
+                        + ",  xkeyInfo[1] = 0x"
+                        + Integer.toHexString((keyInfo[1]) & 0x0000000FF)
+                        );
+                CMS.debug("TokenServlet: ComputeSessionKeySCP02():  Nist SP800-108 KDF will be used for key versions >= 0x"
+                        + Integer.toHexString((nistSP800_108KdfOnKeyVersion) & 0x0000000FF)
+                        );
+                if (nistSP800_108KdfUseCuidAsKdd == true) {
+                    CMS.debug("TokenServlet: ComputeSessionKeySCP02():  Nist SP800-108 KDF (if used) will use CUID instead of KDD.");
+                } else {
+                    CMS.debug("TokenServlet: ComputeSessionKeySCP02():  Nist SP800-108 KDF (if used) will use KDD.");
+                }
+                // conform to the set-an-error-flag mentality
+            } catch (Exception e) {
+                missingSettingException = e;
+                CMS.debug("TokenServlet: ComputeSessionKeySCP02():  Exception reading Nist SP800-108 KDF config values: "
+                        + e.toString());
+            }
+
+        }
+
+        String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
+        String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+        if (mappingValue == null) {
+            selectedToken =
+                    CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+            keyNickName = rKeyInfo;
+        } else {
+            StringTokenizer st = new StringTokenizer(mappingValue, ":");
+            if (st.hasMoreTokens())
+                selectedToken = st.nextToken();
+            if (st.hasMoreTokens())
+                keyNickName = st.nextToken();
+        }
+
+        keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
+        try {
+            mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+        } catch (EBaseException e1) {
+
+            e1.printStackTrace();
+        }
+        if (mappingValue == null) {
+            try {
+                selectedToken =
+                        CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+            } catch (EBaseException e) {
+
+                e.printStackTrace();
+            }
+            keyNickName = rKeyInfo;
+        } else {
+            StringTokenizer st = new StringTokenizer(mappingValue, ":");
+            if (st.hasMoreTokens())
+                selectedToken = st.nextToken();
+            if (st.hasMoreTokens())
+                keyNickName = st.nextToken();
+        }
+
+        CMS.debug("TokenServlet: processComputeSessionKeySCP02(): final keyNickname: " + keyNickName);
+        String useSoftToken_s = null;
+        try {
+            useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
+        } catch (EBaseException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        if (!useSoftToken_s.equalsIgnoreCase("true"))
+            useSoftToken_s = "false";
+
+        String rServersideKeygen = req.getParameter(IRemoteRequest.SERVER_SIDE_KEYGEN);
+        if (rServersideKeygen.equals("true")) {
+            CMS.debug("TokenServlet.processComputeSessionKeySCP02: serversideKeygen requested");
+            serversideKeygen = true;
+        } else {
+            CMS.debug("TokenServlet.processComputeSessionKeySCP02: serversideKeygen not requested");
+        }
+
+        transportKeyName = null;
+        try {
+            transportKeyName = getSharedSecretName(sconfig);
+        } catch (EBaseException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            CMS.debug("TokenServlet.processComputeSessionKeySCP02: Can't find transport key name!");
+
+        }
+
+        CMS.debug("TokenServlet: processComputeSessionKeySCP02(): tksSharedSymKeyName: " + transportKeyName);
+
+        CMS.debug("TokenServlet: ComputeSessionKeySCP02(): tksSharedSymKeyName: " + transportKeyName);
+
+        try {
+            isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
+        } catch (EBaseException eee) {
+        }
+
+        byte macKeyArray[] = null;
+        byte sequenceCounter[] = null;
+        byte derivationConstant[] = null;
+
+        boolean errorFound = false;
+
+        String dek_wrapped_desKeyString = null;
+        String keycheck_s = null;
+
+        if (selectedToken != null && keyNickName != null && transportKeyName != null && missingSettingException == null) {
+            try {
+                macKeyArray = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                        + keySet + ".mac_key"));
+
+                sequenceCounter = com.netscape.cmsutil.util.Utils.SpecialDecode(rSequenceCounter);
+                derivationConstant = com.netscape.cmsutil.util.Utils.SpecialDecode(rDerivationConstant);
+
+                //Use old style for the moment.
+                //ToDo: We need to use the nistXP800 params we have collected and send them down to symkey
+                //Perform in next ticket to fully implement nistXP800
+
+                session_key = SessionKey.ComputeSessionKeySCP02(
+                        selectedToken, keyNickName,
+                        keyInfo, CUID, macKeyArray, sequenceCounter, derivationConstant, useSoftToken_s, keySet,
+                        transportKeyName);
+
+                if (session_key == null) {
+                    CMS.debug("TokenServlet.computeSessionKeySCP02:Tried ComputeSessionKey, got NULL ");
+                    throw new EBaseException("Can't compute session key for SCP02!");
+
+                }
+
+                //Only do this for the dekSessionKey and if we are in the server side keygen case.
+                if (derivationConstant[0] == DEKDerivationConstant[0]
+                        && derivationConstant[1] == DEKDerivationConstant[1] && serversideKeygen == true) {
+
+                    CMS.debug("TokenServlet.computeSessionKeySCP02: We have the server side keygen case while generating the dek session key, wrap and return symkeys for the drm and token.");
+
+                    /**
+                     * 0. generate des key
+                     * 1. encrypt des key with dek key
+                     * 2. encrypt des key with DRM transport key
+                     * These two wrapped items are to be sent back to
+                     * TPS. 2nd item is to DRM
+                     **/
+
+                    PK11SymKey desKey = null;
+                    PK11SymKey dekKey = null;
+
+                    /*generate it on whichever token the master key is at*/
+                    if (useSoftToken_s.equals("true")) {
+                        CMS.debug("TokenServlet.computeSessionKeySCP02: key encryption key generated on internal");
+
+                        desKey = SessionKey.GenerateSymkey("internal");
+
+                    } else {
+                        CMS.debug("TokenServlet.computeSessionKeySCP02: key encryption key generated on "
+                                + selectedToken);
+                        desKey = SessionKey.GenerateSymkey(selectedToken);
+                    }
+                    if (desKey != null)
+                        CMS.debug("TokenServlet.computeSessionKeySCP02: key encryption key generated for " + rCUID);
+                    else {
+                        CMS.debug("TokenServlet.computeSessionKeySCP02: key encryption key generation failed for "
+                                + rCUID);
+                        throw new EBaseException(
+                                "TokenServlet.computeSessionKeySCP02: can't generate key encryption key");
+                    }
+
+                    CryptoToken token = null;
+                    if (useSoftToken_s.equals("true")) {
+                        //token = CryptoManager.getInstance().getTokenByName(selectedToken);
+                        token = CryptoManager.getInstance().getInternalCryptoToken();
+                    } else {
+                        token = CryptoManager.getInstance().getTokenByName(selectedToken);
+                    }
+
+                    //Now we have to create a sym key object for the wrapped session_key (dekKey)
+                    // session_key wrapped by the shared Secret
+
+                    PK11SymKey sharedSecret = getSharedSecretKey();
+
+                    if (sharedSecret == null) {
+                        throw new EBaseException(
+                                "TokenServlet.computeSessionKeySCP02: Can't find share secret sym key!");
+                    }
+
+                    dekKey = SessionKey.UnwrapSessionKeyWithSharedSecret(token.getName(), sharedSecret,
+                            session_key);
+
+                    if (dekKey == null) {
+                        throw new EBaseException(
+                                "TokenServlet.computeSessionKeySCP02: Can't unwrap DEK key onto the token!");
+                    }
+
+                    /*
+                     * ECBencrypt actually takes the 24 byte DES2 key
+                     * and discard the last 8 bytes before it encrypts.
+                     * This is done so that the applet can digest it
+                     */
+                    byte[] encDesKey =
+                            SessionKey.ECBencrypt(dekKey,
+                                    desKey);
+
+                    if (encDesKey == null) {
+                        throw new EBaseException("TokenServlet.computeSessionKeySCP02: Can't encrypt DEK key!");
+                    }
+
+                    dek_wrapped_desKeyString =
+                            com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
+
+                    byte[] keycheck =
+                            SessionKey.ComputeKeyCheck(desKey);
+
+                    if (keycheck == null) {
+                        throw new EBaseException(
+                                "TokenServlet.computeSessionKeySCP02: Can't compute key check for encrypted DEK key!");
+                    }
+
+                    keycheck_s =
+                            com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
+
+                    //use DRM transport cert to wrap desKey
+                    String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
+
+                    if ((drmTransNickname == null) || (drmTransNickname == "")) {
+                        CMS.debug("TokenServlet.computeSessionKeySCP02:did not find DRM transport certificate nickname");
+                        throw new EBaseException("can't find DRM transport certificate nickname");
+                    } else {
+                        CMS.debug("TokenServlet.computeSessionKeySCP02:drmtransport_cert_nickname=" + drmTransNickname);
+                    }
+
+                    X509Certificate drmTransCert = null;
+                    drmTransCert = CryptoManager.getInstance().findCertByNickname(drmTransNickname);
+                    // wrap kek session key with DRM transport public key
+
+                    PublicKey pubKey = drmTransCert.getPublicKey();
+                    String pubKeyAlgo = pubKey.getAlgorithm();
+
+                    KeyWrapper keyWrapper = null;
+                    //For wrapping symmetric keys don't need IV, use ECB
+                    if (pubKeyAlgo.equals("EC")) {
+                        keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.AES_ECB);
+                        keyWrapper.initWrap(pubKey, null);
+                    } else {
+                        keyWrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+                        keyWrapper.initWrap(pubKey, null);
+                    }
+
+                    drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
+                    CMS.debug("computeSessionKey.computeSessionKeySCP02:desKey wrapped with drm transportation key.");
+
+                    CMS.debug("computeSessionKey.computeSessionKeySCP02:desKey: Just unwrapped the dekKey onto the token to be wrapped on the way out.");
+
+                }
+
+            } catch (Exception e) {
+                CMS.debug("TokenServlet.computeSessionKeySCP02 Computing Session Key: " + e.toString());
+                errorFound = true;
+
+            }
+
+        }
+
+        String status = "0";
+        String value = "";
+        String outputString = "";
+
+        boolean statusDeclared = false;
+
+        if (session_key != null && session_key.length > 0 && errorFound == false) {
+            outputString =
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(session_key);
+        } else {
+
+            status = "1";
+            statusDeclared = true;
+        }
+
+        if (selectedToken == null || keyNickName == null) {
+            if (!statusDeclared) {
+                status = "4";
+                statusDeclared = true;
+            }
+        }
+
+        if (missingSettingException != null) {
+            if (!statusDeclared) {
+                status = "6";
+                statusDeclared = true;
+            }
+        }
+
+        if (missingParam) {
+            status = "3";
+        }
+
+        String drm_trans_wrapped_desKeyString = null;
+
+        if (!status.equals("0")) {
+            if (status.equals("1")) {
+                errorMsg = "Problem generating session key info.";
+            }
+
+            if (status.equals("4")) {
+                errorMsg = "Problem obtaining token information.";
+            }
+
+            if (status.equals("3")) {
+                if (badParams.endsWith(",")) {
+                    badParams = badParams.substring(0, badParams.length() - 1);
+                }
+                errorMsg = "Missing input parameters :" + badParams;
+            }
+
+            if (status.equals("6")) {
+                errorMsg = "Problem reading required configuration value.";
+            }
+
+        } else {
+
+            if (serversideKeygen == true) {
+
+                if (drm_trans_wrapped_desKey != null && drm_trans_wrapped_desKey.length > 0) {
+                    drm_trans_wrapped_desKeyString =
+                            com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
+                }
+
+                StringBuffer sb = new StringBuffer();
+                sb.append(IRemoteRequest.RESPONSE_STATUS + "=0&");
+                sb.append(IRemoteRequest.TKS_RESPONSE_SessionKey + "=");
+                sb.append(outputString);
+
+                //Now add the trans wrapped des key
+
+                if (drm_trans_wrapped_desKeyString != null) {
+                    sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey + "=");
+                    sb.append(drm_trans_wrapped_desKeyString);
+                }
+
+                if (dek_wrapped_desKeyString != null) {
+                    sb.append("&" + IRemoteRequest.TKS_RESPONSE_KEK_DesKey + "=");
+                    sb.append(dek_wrapped_desKeyString);
+                }
+
+                if (keycheck_s != null) {
+                    sb.append("&" + IRemoteRequest.TKS_RESPONSE_KeyCheck + "=");
+                    sb.append(keycheck_s);
+                }
+
+                value = sb.toString();
+            } else {
+                StringBuffer sb = new StringBuffer();
+                sb.append(IRemoteRequest.RESPONSE_STATUS + "=0&");
+                sb.append(IRemoteRequest.TKS_RESPONSE_SessionKey + "=");
+                sb.append(outputString);
+                value = sb.toString();
+            }
+
+        }
+
+        CMS.debug("TokenServlet:outputString.encode " + value);
+
+        try {
+            resp.setContentLength(value.length());
+            CMS.debug("TokenServlet:outputString.length " + value.length());
+            OutputStream ooss = resp.getOutputStream();
+            ooss.write(value.getBytes());
+            ooss.flush();
+            mRenderResult = false;
+        } catch (IOException e) {
+            CMS.debug("TokenServlet: " + e.toString());
+        }
+
+        if (status.equals("0")) {
+
+            String[] logParams = { log_string_from_specialDecoded_byte_array(CUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.SUCCESS, // Outcome
+                    status, // status
+                    agentId, // AgentID
+                    isCryptoValidate ? "true" : "false", // IsCryptoValidate
+                    serversideKeygen ? "true" : "false", // IsServerSideKeygen
+                    selectedToken, // SelectedToken
+                    keyNickName, // KeyNickName
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(keyInfo), // KeyInfo_KeyVersion
+                    "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
+                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
+                    logParams);
+
+        } else {
+
+            String[] logParams = { log_string_from_specialDecoded_byte_array(CUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.FAILURE, // Outcome
+                    status, // status
+                    agentId, // AgentID
+                    isCryptoValidate ? "true" : "false", // IsCryptoValidate
+                    serversideKeygen ? "true" : "false", // IsServerSideKeygen
+                    selectedToken, // SelectedToken
+                    keyNickName, // KeyNickName
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(keyInfo), // KeyInfo_KeyVersion
+                    "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
+                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
+                    errorMsg // Error
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
+                    logParams);
+        }
+
+        audit(auditMessage);
+
+    }
 
     private void processComputeSessionKey(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
-        byte[] card_challenge ,host_challenge,keyInfo, xCUID, session_key, xKDD;  // AC: KDF SPEC CHANGE: removed duplicative 'CUID' variable and added xKDD
+        byte[] card_challenge, host_challenge, keyInfo, xCUID, session_key, xKDD; // AC: KDF SPEC CHANGE: removed duplicative 'CUID' variable and added xKDD
 
         // AC: KDF SPEC CHANGE - new config file values (needed for symkey)
-        byte nistSP800_108KdfOnKeyVersion = (byte)0xff;
+        byte nistSP800_108KdfOnKeyVersion = (byte) 0xff;
         boolean nistSP800_108KdfUseCuidAsKdd = false;
 
         byte[] card_crypto, host_cryptogram, input_card_crypto;
@@ -327,7 +869,6 @@ public class TokenServlet extends CMSServlet {
         String errorMsg = "";
         String badParams = "";
         String transportKeyName = "";
-
         String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
 
         // AC: KDF SPEC CHANGE - read new KDD parameter from TPS
@@ -353,10 +894,10 @@ public class TokenServlet extends CMSServlet {
         IConfigStore sconfig = CMS.getConfigStore();
         boolean isCryptoValidate = true;
         boolean missingParam = false;
-        
+
         // AC: KDF SPEC CHANGE - flag for if there is an error reading our new setting
         Exception missingSetting_exception = null;
-        
+
         session_key = null;
         card_crypto = null;
         host_cryptogram = null;
@@ -373,11 +914,11 @@ public class TokenServlet extends CMSServlet {
 
         // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID
         auditMessage = CMS.getLogMessage(
-                         LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
-                        rCUID,
-                        rKDD,            // AC: KDF SPEC CHANGE - Log both CUID and KDD.
-                        ILogger.SUCCESS,
-                        agentId);
+                LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST,
+                rCUID,
+                rKDD, // AC: KDF SPEC CHANGE - Log both CUID and KDD.
+                ILogger.SUCCESS,
+                agentId);
 
         audit(auditMessage);
 
@@ -415,7 +956,7 @@ public class TokenServlet extends CMSServlet {
             badParams += " CUID,";
             missingParam = true;
         }
-        
+
         // AC: KDF SPEC CHANGE - read new KDD parameter from TPS
         if ((rKDD == null) || (rKDD.length() == 0)) {
             CMS.debug("TokenServlet: ComputeSessionKey(): missing request parameter: KDD");
@@ -445,11 +986,11 @@ public class TokenServlet extends CMSServlet {
         String keyNickName = null;
         boolean sameCardCrypto = true;
 
-        // AC: KDF SPEC CHANGE 
-        xCUID = null;       // avoid errors about non-initialization
-        xKDD = null;        // avoid errors about non-initialization
-        xkeyInfo = null;    // avoid errors about non-initialization
-        
+        // AC: KDF SPEC CHANGE
+        xCUID = null; // avoid errors about non-initialization
+        xKDD = null; // avoid errors about non-initialization
+        xkeyInfo = null; // avoid errors about non-initialization
+
         if (!missingParam) {
 
             xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
@@ -458,15 +999,15 @@ public class TokenServlet extends CMSServlet {
                 CMS.debug("TokenServlet: Invalid CUID length");
                 missingParam = true;
             }
-            
+
             // AC: KDF SPEC CHANGE - read new KDD parameter from TPS
             xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
             if (xKDD == null || xKDD.length != 10) {
-                        badParams += " KDD length,";
-                        CMS.debug("TokenServlet: Invalid KDD length");
-                        missingParam = true;
+                badParams += " KDD length,";
+                CMS.debug("TokenServlet: Invalid KDD length");
+                missingParam = true;
             }
-            
+
             xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
             if (xkeyInfo == null || xkeyInfo.length != 2) {
                 badParams += " KeyInfo length,";
@@ -490,9 +1031,6 @@ public class TokenServlet extends CMSServlet {
 
         }
 
-        // AC: KDF SPEC CHANGE - Remove duplicative variable.
-        // CUID = null;  
-        
         if (!missingParam) {
             card_challenge =
                     com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
@@ -500,32 +1038,31 @@ public class TokenServlet extends CMSServlet {
             host_challenge = com.netscape.cmsutil.util.Utils.SpecialDecode(rhost_challenge);
             keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
 
-            // CUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
-            // AC: KDF SPEC CHANGE: Removed duplicative variable/processing.
-
             // AC: KDF SPEC CHANGE - read new config file values (needed for symkey)
-            try{
+            //ToDo: Will use these values after completing next ticket
+            try {
                 nistSP800_108KdfOnKeyVersion = TokenServlet.read_setting_nistSP800_108KdfOnKeyVersion(keySet);
                 nistSP800_108KdfUseCuidAsKdd = TokenServlet.read_setting_nistSP800_108KdfUseCuidAsKdd(keySet);
 
                 // log settings read in to debug log along with xkeyInfo
                 CMS.debug("TokenServlet: ComputeSessionKey():  xkeyInfo[0] = 0x"
-                         + Integer.toHexString((int)(xkeyInfo[0]) & 0x0000000FF)
-                         + ",  xkeyInfo[1] = 0x"
-                         + Integer.toHexString((int)(xkeyInfo[1]) & 0x0000000FF)
-                         );
+                        + Integer.toHexString((xkeyInfo[0]) & 0x0000000FF)
+                        + ",  xkeyInfo[1] = 0x"
+                        + Integer.toHexString((xkeyInfo[1]) & 0x0000000FF)
+                        );
                 CMS.debug("TokenServlet: ComputeSessionKey():  Nist SP800-108 KDF will be used for key versions >= 0x"
-                         + Integer.toHexString((int)(nistSP800_108KdfOnKeyVersion) & 0x0000000FF)
-                         );
-                if (nistSP800_108KdfUseCuidAsKdd == true){
+                        + Integer.toHexString((nistSP800_108KdfOnKeyVersion) & 0x0000000FF)
+                        );
+                if (nistSP800_108KdfUseCuidAsKdd == true) {
                     CMS.debug("TokenServlet: ComputeSessionKey():  Nist SP800-108 KDF (if used) will use CUID instead of KDD.");
-                }else{
+                } else {
                     CMS.debug("TokenServlet: ComputeSessionKey():  Nist SP800-108 KDF (if used) will use KDD.");
                 }
-            // conform to the set-an-error-flag mentality
-            }catch(Exception e){
+                // conform to the set-an-error-flag mentality
+            } catch (Exception e) {
                 missingSetting_exception = e;
-                CMS.debug("TokenServlet: ComputeSessionKey():  Exception reading Nist SP800-108 KDF config values: " + e.toString());
+                CMS.debug("TokenServlet: ComputeSessionKey():  Exception reading Nist SP800-108 KDF config values: "
+                        + e.toString());
             }
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
@@ -555,12 +1092,12 @@ public class TokenServlet extends CMSServlet {
                             + selectedToken + " keyNickName=" + keyNickName);
                     session_key = SessionKey.ComputeSessionKey(
                             selectedToken, keyNickName, card_challenge,
-                             host_challenge,keyInfo,
-                             nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                             nistSP800_108KdfUseCuidAsKdd,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                             xCUID,                           // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                             xKDD,                            // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                             macKeyArray, useSoftToken_s, keySet, transportKeyName );
+                            host_challenge, keyInfo,
+                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                            macKeyArray, useSoftToken_s, keySet, transportKeyName);
 
                     if (session_key == null) {
                         CMS.debug("TokenServlet:Tried ComputeSessionKey, got NULL ");
@@ -573,12 +1110,12 @@ public class TokenServlet extends CMSServlet {
                                     + keySet + ".auth_key"));
                     enc_session_key = SessionKey.ComputeEncSessionKey(
                             selectedToken, keyNickName, card_challenge,
-                      host_challenge,keyInfo,
-                      nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                      nistSP800_108KdfUseCuidAsKdd,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                      xCUID,                           // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                      xKDD,                            // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                      encKeyArray, useSoftToken_s, keySet);
+                            host_challenge, keyInfo,
+                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                            encKeyArray, useSoftToken_s, keySet);
 
                     if (enc_session_key == null) {
                         CMS.debug("TokenServlet:Tried ComputeEncSessionKey, got NULL ");
@@ -603,12 +1140,12 @@ public class TokenServlet extends CMSServlet {
 
                         kek_key = SessionKey.ComputeKekKey(
                                 selectedToken, keyNickName, card_challenge,
-                             host_challenge,keyInfo,
-                             nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                             nistSP800_108KdfUseCuidAsKdd,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                             xCUID,                           // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                             xKDD,                            // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                             kekKeyArray, useSoftToken_s,keySet);
+                                host_challenge, keyInfo,
+                                nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                                nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                                xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                                xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                                kekKeyArray, useSoftToken_s, keySet);
 
                         CMS.debug("TokenServlet: called ComputeKekKey");
 
@@ -647,15 +1184,15 @@ public class TokenServlet extends CMSServlet {
                         if (desKey != null) {
                             // AC: KDF SPEC CHANGE - Output using CUID and KDD
                             CMS.debug("TokenServlet: key encryption key generated for CUID=" +
-                                trim(pp.toHexString(xCUID)) +
-                                ", KDD=" +
-                                trim(pp.toHexString(xKDD)));
+                                    trim(pp.toHexString(xCUID)) +
+                                    ", KDD=" +
+                                    trim(pp.toHexString(xKDD)));
                         } else {
                             // AC: KDF SPEC CHANGE - Output using CUID and KDD
                             CMS.debug("TokenServlet: key encryption key generation failed for CUID=" +
-                                trim(pp.toHexString(xCUID)) +
-                                ", KDD=" +
-                                trim(pp.toHexString(xKDD)));
+                                    trim(pp.toHexString(xCUID)) +
+                                    ", KDD=" +
+                                    trim(pp.toHexString(xKDD)));
 
                             throw new Exception("can't generate key encryption key");
                         }
@@ -729,12 +1266,12 @@ public class TokenServlet extends CMSServlet {
                                     + keySet + ".auth_key"));
                     host_cryptogram = SessionKey.ComputeCryptogram(
                             selectedToken, keyNickName, card_challenge,
-                      host_challenge,keyInfo,
-                      nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                      nistSP800_108KdfUseCuidAsKdd,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                      xCUID,                           // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                      xKDD,                            // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                      0, authKeyArray, useSoftToken_s, keySet);
+                            host_challenge, keyInfo,
+                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                            0, authKeyArray, useSoftToken_s, keySet);
 
                     if (host_cryptogram == null) {
                         CMS.debug("TokenServlet:Tried ComputeCryptogram, got NULL ");
@@ -743,13 +1280,12 @@ public class TokenServlet extends CMSServlet {
                     }
                     card_crypto = SessionKey.ComputeCryptogram(
                             selectedToken, keyNickName, card_challenge,
-                      host_challenge,keyInfo,
-                      nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                      nistSP800_108KdfUseCuidAsKdd,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                      xCUID,                           // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                      xKDD,                            // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                      1, authKeyArray, useSoftToken_s, keySet);
-
+                            host_challenge, keyInfo,
+                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                            1, authKeyArray, useSoftToken_s, keySet);
 
                     if (card_crypto == null) {
                         CMS.debug("TokenServlet:Tried ComputeCryptogram, got NULL ");
@@ -781,9 +1317,9 @@ public class TokenServlet extends CMSServlet {
                     CMS.getLogger().log(ILogger.EV_AUDIT,
                             ILogger.S_TKS,
                             ILogger.LL_INFO, "processComputeSessionKey for CUID=" +
-                            trim(pp.toHexString(xCUID)) +
-                            ", KDD=" +
-                            trim(pp.toHexString(xKDD)));
+                                    trim(pp.toHexString(xCUID)) +
+                                    ", KDD=" +
+                                    trim(pp.toHexString(xKDD)));
                 } catch (Exception e) {
                     CMS.debug(e);
                     CMS.debug("TokenServlet Computing Session Key: " + e.toString());
@@ -831,32 +1367,32 @@ public class TokenServlet extends CMSServlet {
                     com.netscape.cmsutil.util.Utils.SpecialEncode(host_cryptogram);
         } else {
             // AC: Bugfix: Don't override status's value if an error was already flagged
-            if (status.equals("0") == true){
+            if (status.equals("0") == true) {
                 status = "2";
             }
         }
 
         if (selectedToken == null || keyNickName == null) {
             // AC: Bugfix: Don't override status's value if an error was already flagged
-            if (status.equals("0") == true){
+            if (status.equals("0") == true) {
                 status = "4";
             }
         }
 
         if (!sameCardCrypto) {
             // AC: Bugfix: Don't override status's value if an error was already flagged
-            if (status.equals("0") == true){
+            if (status.equals("0") == true) {
                 // AC: Bugfix: Don't mis-represent host cryptogram mismatch errors as TPS parameter issues
                 status = "5";
             }
         }
 
         // AC: KDF SPEC CHANGE - check for settings file issue (flag)
-        if (missingSetting_exception != null){
+        if (missingSetting_exception != null) {
             // AC: Intentionally override previous errors if config file settings were missing.
             status = "6";
         }
-        
+
         if (missingParam) {
             // AC: Intentionally override previous errors if parameters were missing.
             status = "3";
@@ -874,7 +1410,7 @@ public class TokenServlet extends CMSServlet {
 
             // AC: Bugfix: Don't mis-represent card cryptogram mismatch errors as TPS parameter issues
             if (status.equals("5")) {
-               errorMsg = "Card cryptogram mismatch. Token likely has incorrect keys.";
+                errorMsg = "Card cryptogram mismatch. Token likely has incorrect keys.";
             }
 
             if (status.equals("4")) {
@@ -893,32 +1429,33 @@ public class TokenServlet extends CMSServlet {
                 errorMsg = "Missing input parameters :" + badParams;
             }
 
-            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS + "=" + status;
         } else {
             if (serversideKeygen == true) {
                 StringBuffer sb = new StringBuffer();
-                sb.append(IRemoteRequest.RESPONSE_STATUS+"=0&");
-                sb.append(IRemoteRequest.TKS_RESPONSE_SessionKey+"=");
+                sb.append(IRemoteRequest.RESPONSE_STATUS + "=0&");
+                sb.append(IRemoteRequest.TKS_RESPONSE_SessionKey + "=");
                 sb.append(outputString);
-                sb.append("&"+IRemoteRequest.TKS_RESPONSE_HostCryptogram+"=");
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_HostCryptogram + "=");
                 sb.append(cryptogram);
-                sb.append("&"+IRemoteRequest.TKS_RESPONSE_EncSessionKey+"=");
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_EncSessionKey + "=");
                 sb.append(encSessionKeyString);
-                sb.append("&"+IRemoteRequest.TKS_RESPONSE_KEK_DesKey+"=");
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KEK_DesKey + "=");
                 sb.append(kek_wrapped_desKeyString);
-                sb.append("&"+IRemoteRequest.TKS_RESPONSE_KeyCheck+"=");
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_KeyCheck + "=");
                 sb.append(keycheck_s);
-                sb.append("&"+IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey+"=");
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_DRM_Trans_DesKey + "=");
                 sb.append(drm_trans_wrapped_desKeyString);
                 value = sb.toString();
             } else {
+
                 StringBuffer sb = new StringBuffer();
-                sb.append(IRemoteRequest.RESPONSE_STATUS+"=0&");
-                sb.append(IRemoteRequest.TKS_RESPONSE_SessionKey+"=");
+                sb.append(IRemoteRequest.RESPONSE_STATUS + "=0&");
+                sb.append(IRemoteRequest.TKS_RESPONSE_SessionKey + "=");
                 sb.append(outputString);
-                sb.append("&"+IRemoteRequest.TKS_RESPONSE_HostCryptogram+"=");
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_HostCryptogram + "=");
                 sb.append(cryptogram);
-                sb.append("&"+IRemoteRequest.TKS_RESPONSE_EncSessionKey+"=");
+                sb.append("&" + IRemoteRequest.TKS_RESPONSE_EncSessionKey + "=");
                 sb.append(encSessionKeyString);
                 value = sb.toString();
             }
@@ -941,41 +1478,44 @@ public class TokenServlet extends CMSServlet {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD.
             //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
             //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-            String[] logParams = {  log_string_from_specialDecoded_byte_array(xCUID),                                   // CUID_decoded
-                                    log_string_from_specialDecoded_byte_array(xKDD),                                    // KDD_decoded
-                                    ILogger.SUCCESS,                                                                    // Outcome
-                                    status,                                                                             // status
-                                    agentId,                                                                            // AgentID
-                                    isCryptoValidate? "true":"false",                                                   // IsCryptoValidate
-                                    serversideKeygen? "true":"false",                                                   // IsServerSideKeygen
-                                    selectedToken,                                                                      // SelectedToken
-                                    keyNickName,                                                                        // KeyNickName
-                                    keySet,                                                                             // TKSKeyset
-                                    log_string_from_keyInfo(xkeyInfo),                                                  // KeyInfo_KeyVersion
-                                    "0x" + Integer.toHexString((int)nistSP800_108KdfOnKeyVersion & 0x000000FF),         // NistSP800_108KdfOnKeyVersion
-                                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd)                                      // NistSP800_108KdfUseCuidAsKdd
-                                 };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS, logParams);
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.SUCCESS, // Outcome
+                    status, // status
+                    agentId, // AgentID
+                    isCryptoValidate ? "true" : "false", // IsCryptoValidate
+                    serversideKeygen ? "true" : "false", // IsServerSideKeygen
+                    selectedToken, // SelectedToken
+                    keyNickName, // KeyNickName
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
+                    "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
+                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
+                    logParams);
+
         } else {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
             //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
             //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-            String[] logParams = {  log_string_from_specialDecoded_byte_array(xCUID),                                   // CUID_decoded
-                                    log_string_from_specialDecoded_byte_array(xKDD),                                    // KDD_decoded
-                                    ILogger.FAILURE,                                                                    // Outcome
-                                    status,                                                                             // status
-                                    agentId,                                                                            // AgentID
-                                    isCryptoValidate? "true":"false",                                                   // IsCryptoValidate
-                                    serversideKeygen? "true":"false",                                                   // IsServerSideKeygen
-                                    selectedToken,                                                                      // SelectedToken
-                                    keyNickName,                                                                        // KeyNickName
-                                    keySet,                                                                             // TKSKeyset
-                                    log_string_from_keyInfo(xkeyInfo),                                                  // KeyInfo_KeyVersion
-                                    "0x" + Integer.toHexString((int)nistSP800_108KdfOnKeyVersion & 0x000000FF),         // NistSP800_108KdfOnKeyVersion
-                                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd),                                     // NistSP800_108KdfUseCuidAsKdd
-                                    errorMsg                                                                            // Error
-                                 };
-            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE, logParams);
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.FAILURE, // Outcome
+                    status, // status
+                    agentId, // AgentID
+                    isCryptoValidate ? "true" : "false", // IsCryptoValidate
+                    serversideKeygen ? "true" : "false", // IsServerSideKeygen
+                    selectedToken, // SelectedToken
+                    keyNickName, // KeyNickName
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
+                    "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
+                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
+                    errorMsg // Error
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
+                    logParams);
 
         }
 
@@ -1014,18 +1554,18 @@ public class TokenServlet extends CMSServlet {
 
     private void processDiversifyKey(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
-        byte[] KeySetData,KeysValues,xCUID,xKDD;  // AC: KDF SPEC CHANGE: removed duplicative 'CUID' variable and added xKDD
+        byte[] KeySetData, xCUID, xKDD; // AC: KDF SPEC CHANGE: removed duplicative 'CUID' variable and added xKDD
 
         // AC: BUGFIX:  Record the actual parameters to DiversifyKey in the audit log.
         String oldKeyNickName = null;
         String newKeyNickName = null;
 
         // AC: KDF SPEC CHANGE - new config file values (needed for symkey)
-        byte nistSP800_108KdfOnKeyVersion = (byte)0xff;
+        byte nistSP800_108KdfOnKeyVersion = (byte) 0xff;
         boolean nistSP800_108KdfUseCuidAsKdd = false;
 
         // AC: BUGFIX for key versions higher than 09:  We need to initialize these variables in order for the compiler not to complain when we pass them to DiversifyKey.
-        byte[] xkeyInfo = null,xnewkeyInfo = null;
+        byte[] xkeyInfo = null, xnewkeyInfo = null;
 
         // AC: KDF SPEC CHANGE - flag for if there is an error reading our new setting
         Exception missingSetting_exception = null;
@@ -1033,6 +1573,7 @@ public class TokenServlet extends CMSServlet {
         boolean missingParam = false;
         String errorMsg = "";
         String badParams = "";
+        byte[] xWrappedDekKey = null;
 
         IConfigStore sconfig = CMS.getConfigStore();
         String rnewKeyInfo = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
@@ -1048,6 +1589,9 @@ public class TokenServlet extends CMSServlet {
             rKDD = rCUID;
         }
 
+        String rProtocol = req.getParameter(IRemoteRequest.CHANNEL_PROTOCOL);
+        String rWrappedDekKey = req.getParameter(IRemoteRequest.WRAPPED_DEK_SESSION_KEY);
+        int protocol = 1;
         String auditMessage = "";
 
         String keySet = req.getParameter(IRemoteRequest.TOKEN_KEYSET);
@@ -1066,13 +1610,13 @@ public class TokenServlet extends CMSServlet {
 
         // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID
         auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST,
-                        rCUID,
-                        rKDD,            // AC: KDF SPEC CHANGE - Log both CUID and KDD.
-                        ILogger.SUCCESS,
-                        agentId,
-                        oldMasterKeyName,
-                        newMasterKeyName);
+                LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST,
+                rCUID,
+                rKDD, // AC: KDF SPEC CHANGE - Log both CUID and KDD.
+                ILogger.SUCCESS,
+                agentId,
+                oldMasterKeyName,
+                newMasterKeyName);
 
         audit(auditMessage);
 
@@ -1081,14 +1625,14 @@ public class TokenServlet extends CMSServlet {
             CMS.debug("TokenServlet: processDiversifyKey(): missing request parameter: CUID");
             missingParam = true;
         }
-        
+
         // AC: KDF SPEC CHANGE - read new KDD parameter from TPS
         if ((rKDD == null) || (rKDD.length() == 0)) {
             CMS.debug("TokenServlet: processDiversifyKey(): missing request parameter: KDD");
             badParams += " KDD,";
             missingParam = true;
         }
-        
+
         if ((rnewKeyInfo == null) || (rnewKeyInfo.equals(""))) {
             badParams += " newKeyInfo,";
             CMS.debug("TokenServlet: processDiversifyKey(): missing request parameter: newKeyInfo");
@@ -1100,10 +1644,10 @@ public class TokenServlet extends CMSServlet {
             missingParam = true;
         }
 
-        // AC: KDF SPEC CHANGE 
-        xCUID = null;       // avoid errors about non-initialization
-        xKDD = null;        // avoid errors about non-initialization
-        xkeyInfo = null;    // avoid errors about non-initialization
+        // AC: KDF SPEC CHANGE
+        xCUID = null; // avoid errors about non-initialization
+        xKDD = null; // avoid errors about non-initialization
+        xkeyInfo = null; // avoid errors about non-initialization
         xnewkeyInfo = null; // avoid errors about non-initialization
 
         if (!missingParam) {
@@ -1118,6 +1662,29 @@ public class TokenServlet extends CMSServlet {
                 badParams += " NewKeyInfo length,";
                 CMS.debug("TokenServlet: Invalid new key info length");
                 missingParam = true;
+            }
+
+            if (rProtocol != null) {
+                try {
+                    protocol = Integer.parseInt(rProtocol);
+                } catch (NumberFormatException e) {
+                    protocol = 1;
+                }
+            }
+            CMS.debug("process DiversifyKey: protocol value: " + protocol);
+
+            if (protocol == 2) {
+
+                if ((rWrappedDekKey == null) || (rWrappedDekKey.equals(""))) {
+                    badParams += " WrappedDekKey,";
+                    CMS.debug("TokenServlet: processDiversifyKey(): missing request parameter: WrappedDekKey, with SCP02.");
+                    missingParam = true;
+                } else {
+
+                    CMS.debug("process DiversifyKey: wrappedDekKey value: " + rWrappedDekKey);
+                    xWrappedDekKey = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDekKey);
+                }
+
             }
         }
         String useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
@@ -1142,36 +1709,39 @@ public class TokenServlet extends CMSServlet {
             }
         }
         if (!missingParam) {
-          // CUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID); // AC: KDF SPEC CHANGE: Removed duplicative variable/processing.
+            // CUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID); // AC: KDF SPEC CHANGE: Removed duplicative variable/processing.
 
-          // AC: KDF SPEC CHANGE - read new config file values (needed for symkey)
-          try{
-              nistSP800_108KdfOnKeyVersion = TokenServlet.read_setting_nistSP800_108KdfOnKeyVersion(keySet);
-              nistSP800_108KdfUseCuidAsKdd = TokenServlet.read_setting_nistSP800_108KdfUseCuidAsKdd(keySet);
+            // AC: KDF SPEC CHANGE - read new config file values (needed for symkey)
 
-              // log settings read in to debug log along with xkeyInfo and xnewkeyInfo
-              CMS.debug("TokenServlet: processDiversifyKey():  xkeyInfo[0] (old) = 0x"
-                        + Integer.toHexString((int)(xkeyInfo[0]) & 0x0000000FF)
+            //ToDo: Refactor this, this same block occurs several times in the file
+            try {
+                nistSP800_108KdfOnKeyVersion = TokenServlet.read_setting_nistSP800_108KdfOnKeyVersion(keySet);
+                nistSP800_108KdfUseCuidAsKdd = TokenServlet.read_setting_nistSP800_108KdfUseCuidAsKdd(keySet);
+
+                // log settings read in to debug log along with xkeyInfo and xnewkeyInfo
+                CMS.debug("TokenServlet: processDiversifyKey():  xkeyInfo[0] (old) = 0x"
+                        + Integer.toHexString((xkeyInfo[0]) & 0x0000000FF)
                         + ",  xkeyInfo[1] (old) = 0x"
-                        + Integer.toHexString((int)(xkeyInfo[1]) & 0x0000000FF)
+                        + Integer.toHexString((xkeyInfo[1]) & 0x0000000FF)
                         + ",  xnewkeyInfo[0] = 0x"
-                        + Integer.toHexString((int)(xnewkeyInfo[0]) & 0x000000FF)
+                        + Integer.toHexString((xnewkeyInfo[0]) & 0x000000FF)
                         + ",  xnewkeyInfo[1] = 0x"
-                        + Integer.toHexString((int)(xnewkeyInfo[1]) & 0x000000FF)
-                       );
-              CMS.debug("TokenServlet: processDiversifyKey():  Nist SP800-108 KDF will be used for key versions >= 0x"
-                        + Integer.toHexString((int)(nistSP800_108KdfOnKeyVersion) & 0x0000000FF)
-                       );
-              if (nistSP800_108KdfUseCuidAsKdd == true){
-                  CMS.debug("TokenServlet: processDiversifyKey():  Nist SP800-108 KDF (if used) will use CUID instead of KDD.");
-              }else{
-                  CMS.debug("TokenServlet: processDiversifyKey():  Nist SP800-108 KDF (if used) will use KDD.");
-              }
-          // conform to the set-an-error-flag mentality
-          }catch(Exception e){
-              missingSetting_exception = e;
-              CMS.debug("TokenServlet: processDiversifyKey():  Exception reading Nist SP800-108 KDF config values: " + e.toString());
-          }
+                        + Integer.toHexString((xnewkeyInfo[1]) & 0x000000FF)
+                        );
+                CMS.debug("TokenServlet: processDiversifyKey():  Nist SP800-108 KDF will be used for key versions >= 0x"
+                        + Integer.toHexString((nistSP800_108KdfOnKeyVersion) & 0x0000000FF)
+                        );
+                if (nistSP800_108KdfUseCuidAsKdd == true) {
+                    CMS.debug("TokenServlet: processDiversifyKey():  Nist SP800-108 KDF (if used) will use CUID instead of KDD.");
+                } else {
+                    CMS.debug("TokenServlet: processDiversifyKey():  Nist SP800-108 KDF (if used) will use KDD.");
+                }
+                // conform to the set-an-error-flag mentality
+            } catch (Exception e) {
+                missingSetting_exception = e;
+                CMS.debug("TokenServlet: processDiversifyKey():  Exception reading Nist SP800-108 KDF config values: "
+                        + e.toString());
+            }
 
             if (mKeyNickName != null)
                 oldMasterKeyName = mKeyNickName;
@@ -1208,55 +1778,53 @@ public class TokenServlet extends CMSServlet {
                     newKeyNickName);
 
             byte kekKeyArray[] =
-                com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+                    com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
 
-          // AC: KDF SPEC CHANGE - check for error reading settings
-          if (missingSetting_exception == null){
-            KeySetData = SessionKey.DiversifyKey(oldSelectedToken,
-                     newSelectedToken, oldKeyNickName,
-                     newKeyNickName,
-                     xkeyInfo,                        // AC: KDF SPEC CHANGE - pass in old key info so symkey can make decision about which KDF version to use
-                     xnewkeyInfo,                     // AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!  This means the parameters must be byte[]
-                     nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                     nistSP800_108KdfUseCuidAsKdd,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                     xCUID,                           // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                     xKDD,                            // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                     kekKeyArray, useSoftToken_s, keySet);
+            // AC: KDF SPEC CHANGE - check for error reading settings
+            if (missingSetting_exception == null) {
+                KeySetData = SessionKey.DiversifyKey(oldSelectedToken,
+                        newSelectedToken, oldKeyNickName,
+                        newKeyNickName,
+                        xkeyInfo, // AC: KDF SPEC CHANGE - pass in old key info so symkey can make decision about which KDF version to use
+                        xnewkeyInfo, // AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!  This means the parameters must be byte[]
+                        nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                        nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                        xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                        xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                        (protocol == 2) ? xWrappedDekKey : kekKeyArray, useSoftToken_s, keySet, (byte) protocol);
 
-            if (KeySetData == null || KeySetData.length <= 1) {
+                if (KeySetData == null || KeySetData.length <= 1) {
+                    CMS.getLogger().log(ILogger.EV_AUDIT,
+                            ILogger.S_TKS,
+                            ILogger.LL_INFO, "process DiversifyKey: Missing MasterKey in Slot");
+                }
+
                 CMS.getLogger().log(ILogger.EV_AUDIT,
                         ILogger.S_TKS,
-                        ILogger.LL_INFO, "process DiversifyKey: Missing MasterKey in Slot");
-            }
+                        ILogger.LL_INFO,
+                        "process DiversifyKey for CUID=" +
+                                trim(pp.toHexString(xCUID)) + // AC: KDF SPEC CHANGE:  Log both CUID and KDD
+                                ", KDD=" +
+                                trim(pp.toHexString(xKDD))
+                                + ";from oldMasterKeyName=" + oldSelectedToken + ":" + oldKeyNickName
+                                + ";to newMasterKeyName=" + newSelectedToken + ":" + newKeyNickName);
 
-            CMS.getLogger().log(ILogger.EV_AUDIT,
-                    ILogger.S_TKS,
-                  ILogger.LL_INFO,
-                  "process DiversifyKey for CUID=" +
-                     trim(pp.toHexString(xCUID)) +  // AC: KDF SPEC CHANGE:  Log both CUID and KDD
-                  ", KDD=" +
-                     trim(pp.toHexString(xKDD))
-                            + ";from oldMasterKeyName=" + oldSelectedToken + ":" + oldKeyNickName
-                            + ";to newMasterKeyName=" + newSelectedToken + ":" + newKeyNickName);
+                resp.setContentType("text/html");
 
-            resp.setContentType("text/html");
-
-          } // AC: KDF SPEC CHANGE - endif no error reading settings from settings file
+            } // AC: KDF SPEC CHANGE - endif no error reading settings from settings file
 
         } // ! missingParam
 
-        //CMS.debug("TokenServlet:processDiversifyKey " +outputString);
-        //String value="keySetData=%00" if the KeySetData=byte[0]=0;
 
         String value = "";
         String status = "0";
 
         if (KeySetData != null && KeySetData.length > 1) {
-            value = IRemoteRequest.RESPONSE_STATUS+"=0&" + IRemoteRequest.TKS_RESPONSE_KeySetData+"=" +
-                     com.netscape.cmsutil.util.Utils.SpecialEncode(KeySetData);
+            value = IRemoteRequest.RESPONSE_STATUS + "=0&" + IRemoteRequest.TKS_RESPONSE_KeySetData + "=" +
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(KeySetData);
             CMS.debug("TokenServlet:process DiversifyKey.encode " + value);
-        // AC: KDF SPEC CHANGE - check for settings file issue (flag)
-        } else if (missingSetting_exception != null){
+            // AC: KDF SPEC CHANGE - check for settings file issue (flag)
+        } else if (missingSetting_exception != null) {
             status = "6";
             errorMsg = "Problem reading required configuration value.";
             value = "status=" + status;
@@ -1266,11 +1834,11 @@ public class TokenServlet extends CMSServlet {
                 badParams = badParams.substring(0, badParams.length() - 1);
             }
             errorMsg = "Missing input parameters: " + badParams;
-            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS + "=" + status;
         } else {
             errorMsg = "Problem diversifying key data.";
             status = "1";
-            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS + "=" + status;
         }
 
         resp.setContentLength(value.length());
@@ -1287,48 +1855,48 @@ public class TokenServlet extends CMSServlet {
 
         if (status.equals("0")) {
 
-                // AC: KDF SPEC CHANGE - Log both CUID and KDD
-                //                       Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
-                //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-                String[] logParams = {  log_string_from_specialDecoded_byte_array(xCUID),                               // CUID_decoded
-                                        log_string_from_specialDecoded_byte_array(xKDD),                                // KDD_decoded
-                                        ILogger.SUCCESS,                                                                // Outcome
-                                        status,                                                                         // status
-                                        agentId,                                                                        // AgentID
+            // AC: KDF SPEC CHANGE - Log both CUID and KDD
+            //                       Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
+            //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.SUCCESS, // Outcome
+                    status, // status
+                    agentId, // AgentID
 
-                                        // AC: BUGFIX:  Record the actual parameters to DiversifyKey in the audit log.
-                                        oldKeyNickName,                                                                 // oldMasterKeyName
-                                        newKeyNickName,                                                                 // newMasterKeyName
+                    // AC: BUGFIX:  Record the actual parameters to DiversifyKey in the audit log.
+                    oldKeyNickName, // oldMasterKeyName
+                    newKeyNickName, // newMasterKeyName
 
-                                        keySet,                                                                         // TKSKeyset
-                                        log_string_from_keyInfo(xkeyInfo),                                              // OldKeyInfo_KeyVersion
-                                        log_string_from_keyInfo(xnewkeyInfo),                                           // NewKeyInfo_KeyVersion
-                                        "0x" + Integer.toHexString((int)nistSP800_108KdfOnKeyVersion & 0x000000FF),     // NistSP800_108KdfOnKeyVersion
-                                        Boolean.toString(nistSP800_108KdfUseCuidAsKdd)                                  // NistSP800_108KdfUseCuidAsKdd
-                                     };
-                auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS, logParams);
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(xkeyInfo), // OldKeyInfo_KeyVersion
+                    log_string_from_keyInfo(xnewkeyInfo), // NewKeyInfo_KeyVersion
+                    "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
+                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS, logParams);
         } else {
-                // AC: KDF SPEC CHANGE - Log both CUID and KDD
-                //                       Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
-                //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-                String[] logParams = {  log_string_from_specialDecoded_byte_array(xCUID),                               // CUID_decoded
-                                        log_string_from_specialDecoded_byte_array(xKDD),                                // KDD_decoded
-                                        ILogger.FAILURE,                                                                // Outcome
-                                        status,                                                                         // status
-                                        agentId,                                                                        // AgentID
+            // AC: KDF SPEC CHANGE - Log both CUID and KDD
+            //                       Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
+            //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.FAILURE, // Outcome
+                    status, // status
+                    agentId, // AgentID
 
-                                        // AC: BUGFIX:  Record the actual parameters to DiversifyKey in the audit log.
-                                        oldKeyNickName,                                                                 // oldMasterKeyName
-                                        newKeyNickName,                                                                 // newMasterKeyName
+                    // AC: BUGFIX:  Record the actual parameters to DiversifyKey in the audit log.
+                    oldKeyNickName, // oldMasterKeyName
+                    newKeyNickName, // newMasterKeyName
 
-                                        keySet,                                                                         // TKSKeyset
-                                        log_string_from_keyInfo(xkeyInfo),                                              // OldKeyInfo_KeyVersion
-                                        log_string_from_keyInfo(xnewkeyInfo),                                           // NewKeyInfo_KeyVersion
-                                        "0x" + Integer.toHexString((int)nistSP800_108KdfOnKeyVersion & 0x000000FF),     // NistSP800_108KdfOnKeyVersion
-                                        Boolean.toString(nistSP800_108KdfUseCuidAsKdd),                                 // NistSP800_108KdfUseCuidAsKdd
-                                        errorMsg                                                                        // Error
-                                     };
-                auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE, logParams);
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(xkeyInfo), // OldKeyInfo_KeyVersion
+                    log_string_from_keyInfo(xnewkeyInfo), // NewKeyInfo_KeyVersion
+                    "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
+                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
+                    errorMsg // Error
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE, logParams);
         }
 
         audit(auditMessage);
@@ -1336,10 +1904,10 @@ public class TokenServlet extends CMSServlet {
 
     private void processEncryptData(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
-        byte[] keyInfo, xCUID, encryptedData, xkeyInfo, xKDD;  // AC: KDF SPEC CHANGE: removed duplicative 'CUID' variable and added xKDD
+        byte[] keyInfo, xCUID, encryptedData, xkeyInfo, xKDD; // AC: KDF SPEC CHANGE: removed duplicative 'CUID' variable and added xKDD
 
         // AC: KDF SPEC CHANGE - new config file values (needed for symkey)
-        byte nistSP800_108KdfOnKeyVersion = (byte)0xff;
+        byte nistSP800_108KdfOnKeyVersion = (byte) 0xff;
         boolean nistSP800_108KdfUseCuidAsKdd = false;
 
         // AC: KDF SPEC CHANGE - flag for if there is an error reading our new setting
@@ -1391,13 +1959,12 @@ public class TokenServlet extends CMSServlet {
 
         // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID
         String auditMessage = CMS.getLogMessage(
-                       LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST,
-                       rCUID,
-                       rKDD,            // AC: KDF SPEC CHANGE - Log both CUID and KDD.
-                       ILogger.SUCCESS,
-                       agentId,
-                       s_isRandom);
-
+                LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST,
+                rCUID,
+                rKDD, // AC: KDF SPEC CHANGE - Log both CUID and KDD.
+                ILogger.SUCCESS,
+                agentId,
+                s_isRandom);
         audit(auditMessage);
 
         if (isRandom) {
@@ -1441,9 +2008,9 @@ public class TokenServlet extends CMSServlet {
         }
 
         // AC: KDF SPEC CHANGE
-        xCUID = null;       // avoid errors about non-initialization
-        xKDD = null;        // avoid errors about non-initialization
-        xkeyInfo = null;    // avoid errors about non-initialization
+        xCUID = null; // avoid errors about non-initialization
+        xKDD = null; // avoid errors about non-initialization
+        xkeyInfo = null; // avoid errors about non-initialization
 
         if (!missingParam) {
             xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
@@ -1478,28 +2045,29 @@ public class TokenServlet extends CMSServlet {
         if (!missingParam) {
 
             // AC: KDF SPEC CHANGE - read new config file values (needed for symkey
-            try{
+            try {
                 nistSP800_108KdfOnKeyVersion = TokenServlet.read_setting_nistSP800_108KdfOnKeyVersion(keySet);
                 nistSP800_108KdfUseCuidAsKdd = TokenServlet.read_setting_nistSP800_108KdfUseCuidAsKdd(keySet);
 
                 // log settings read in to debug log along with xkeyInfo
                 CMS.debug("TokenServlet: processEncryptData():  xkeyInfo[0] = 0x"
-                          + Integer.toHexString((int)(xkeyInfo[0]) & 0x0000000FF)
-                          + ",  xkeyInfo[1] = 0x"
-                          + Integer.toHexString((int)(xkeyInfo[1]) & 0x0000000FF)
-                         );
+                        + Integer.toHexString((xkeyInfo[0]) & 0x0000000FF)
+                        + ",  xkeyInfo[1] = 0x"
+                        + Integer.toHexString((xkeyInfo[1]) & 0x0000000FF)
+                        );
                 CMS.debug("TokenServlet: processEncryptData():  Nist SP800-108 KDF will be used for key versions >= 0x"
-                          + Integer.toHexString((int)(nistSP800_108KdfOnKeyVersion) & 0x0000000FF)
-                         );
-                if (nistSP800_108KdfUseCuidAsKdd == true){
+                        + Integer.toHexString((nistSP800_108KdfOnKeyVersion) & 0x0000000FF)
+                        );
+                if (nistSP800_108KdfUseCuidAsKdd == true) {
                     CMS.debug("TokenServlet: processEncryptData():  Nist SP800-108 KDF (if used) will use CUID instead of KDD.");
-                }else{
+                } else {
                     CMS.debug("TokenServlet: processEncryptData():  Nist SP800-108 KDF (if used) will use KDD.");
                 }
-            // conform to the set-an-error-flag mentality
-            }catch(Exception e){
+                // conform to the set-an-error-flag mentality
+            } catch (Exception e) {
                 missingSetting_exception = e;
-                CMS.debug("TokenServlet: processEncryptData():  Exception reading Nist SP800-108 KDF config values: " + e.toString());
+                CMS.debug("TokenServlet: processEncryptData():  Exception reading Nist SP800-108 KDF config values: "
+                        + e.toString());
             }
 
             if (!isRandom)
@@ -1519,29 +2087,27 @@ public class TokenServlet extends CMSServlet {
 
             byte kekKeyArray[] =
                     com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
-          // AC: KDF SPEC CHANGE - check for error reading settings
-          if (missingSetting_exception == null){
+            // AC: KDF SPEC CHANGE - check for error reading settings
+            if (missingSetting_exception == null) {
 
-            encryptedData = SessionKey.EncryptData(
-                       selectedToken,keyNickName,data,keyInfo,
-                       nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                       nistSP800_108KdfUseCuidAsKdd,    // AC: KDF SPEC CHANGE - pass in configuration file value
-                       xCUID,                           // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                       xKDD,                            // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                       kekKeyArray, useSoftToken_s, keySet);
+                encryptedData = SessionKey.EncryptData(
+                        selectedToken, keyNickName, data, keyInfo,
+                        nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                        nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                        xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                        xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                        kekKeyArray, useSoftToken_s, keySet);
 
-          // AC: KDF SPEC CHANGE - Log both CUID and KDD
+                // AC: KDF SPEC CHANGE - Log both CUID and KDD
 
+                CMS.getLogger().log(ILogger.EV_AUDIT,
+                        ILogger.S_TKS,
+                        ILogger.LL_INFO, "process EncryptData for CUID=" +
+                                trim(pp.toHexString(xCUID)) +
+                                ", KDD=" +
+                                trim(pp.toHexString(xKDD)));
 
-            CMS.getLogger().log(ILogger.EV_AUDIT,
-                     ILogger.S_TKS,
-                     ILogger.LL_INFO,"process EncryptData for CUID="+
-                       trim(pp.toHexString(xCUID)) +
-                       ", KDD=" +
-                       trim(pp.toHexString(xKDD)));
-
-          } // AC: KDF SPEC CHANGE - endif no error reading settings from settings file
-
+            } // AC: KDF SPEC CHANGE - endif no error reading settings from settings file
 
         } // !missingParam
 
@@ -1551,13 +2117,13 @@ public class TokenServlet extends CMSServlet {
         String status = "0";
         if (encryptedData != null && encryptedData.length > 0) {
             // sending both the pre-encrypted and encrypted data back
-            value = IRemoteRequest.RESPONSE_STATUS+"=0&"
-                    + IRemoteRequest.TOKEN_DATA+"=" +
-                         com.netscape.cmsutil.util.Utils.SpecialEncode(data) +
-                    "&"+IRemoteRequest.TKS_RESPONSE_EncryptedData+"=" +
-                         com.netscape.cmsutil.util.Utils.SpecialEncode(encryptedData);
-        // AC: KDF SPEC CHANGE - check for settings file issue (flag)
-        } else if (missingSetting_exception != null){
+            value = IRemoteRequest.RESPONSE_STATUS + "=0&"
+                    + IRemoteRequest.TOKEN_DATA + "=" +
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(data) +
+                    "&" + IRemoteRequest.TKS_RESPONSE_EncryptedData + "=" +
+                    com.netscape.cmsutil.util.Utils.SpecialEncode(encryptedData);
+            // AC: KDF SPEC CHANGE - check for settings file issue (flag)
+        } else if (missingSetting_exception != null) {
             status = "6";
             errorMsg = "Problem reading required configuration value.";
             value = "status=" + status;
@@ -1567,11 +2133,11 @@ public class TokenServlet extends CMSServlet {
             }
             errorMsg = "Missing input parameters: " + badParams;
             status = "3";
-            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS + "=" + status;
         } else {
             errorMsg = "Problem encrypting data.";
             status = "1";
-            value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
+            value = IRemoteRequest.RESPONSE_STATUS + "=" + status;
         }
 
         CMS.debug("TokenServlet:process EncryptData.encode " + value);
@@ -1589,42 +2155,42 @@ public class TokenServlet extends CMSServlet {
         }
 
         if (status.equals("0")) {
-                // AC: KDF SPEC CHANGE - Log both CUID and KDD
-                //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
-                //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-                String[] logParams = {  log_string_from_specialDecoded_byte_array(xCUID),                               // CUID_decoded
-                                        log_string_from_specialDecoded_byte_array(xKDD),                                // KDD_decoded
-                                        ILogger.SUCCESS,                                                                // Outcome
-                                        status,                                                                         // status
-                                        agentId,                                                                        // AgentID
-                                        s_isRandom,                                                                     // isRandom
-                                        selectedToken,                                                                  // SelectedToken
-                                        keyNickName,                                                                    // KeyNickName
-                                        keySet,                                                                         // TKSKeyset
-                                        log_string_from_keyInfo(xkeyInfo),                                              // KeyInfo_KeyVersion
-                                        "0x" + Integer.toHexString((int)nistSP800_108KdfOnKeyVersion & 0x000000FF),     // NistSP800_108KdfOnKeyVersion
-                                        Boolean.toString(nistSP800_108KdfUseCuidAsKdd)                                  // NistSP800_108KdfUseCuidAsKdd
-                                     };
-                auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS, logParams);
+            // AC: KDF SPEC CHANGE - Log both CUID and KDD
+            //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
+            //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.SUCCESS, // Outcome
+                    status, // status
+                    agentId, // AgentID
+                    s_isRandom, // isRandom
+                    selectedToken, // SelectedToken
+                    keyNickName, // KeyNickName
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
+                    "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
+                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS, logParams);
         } else {
-                // AC: KDF SPEC CHANGE - Log both CUID and KDD
-                //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
-                //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-                String[] logParams = {  log_string_from_specialDecoded_byte_array(xCUID),                               // CUID_decoded
-                                        log_string_from_specialDecoded_byte_array(xKDD),                                // KDD_decoded
-                                        ILogger.FAILURE,                                                                // Outcome
-                                        status,                                                                         // status
-                                        agentId,                                                                        // AgentID
-                                        s_isRandom,                                                                     // isRandom
-                                        selectedToken,                                                                  // SelectedToken
-                                        keyNickName,                                                                    // KeyNickName
-                                        keySet,                                                                         // TKSKeyset
-                                        log_string_from_keyInfo(xkeyInfo),                                              // KeyInfo_KeyVersion
-                                        "0x" + Integer.toHexString((int)nistSP800_108KdfOnKeyVersion & 0x000000FF),     // NistSP800_108KdfOnKeyVersion
-                                        Boolean.toString(nistSP800_108KdfUseCuidAsKdd),                                 // NistSP800_108KdfUseCuidAsKdd
-                                        errorMsg                                                                        // Error
-                                     };
-                auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE, logParams);
+            // AC: KDF SPEC CHANGE - Log both CUID and KDD
+            //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
+            //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+                    log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
+                    ILogger.FAILURE, // Outcome
+                    status, // status
+                    agentId, // AgentID
+                    s_isRandom, // isRandom
+                    selectedToken, // SelectedToken
+                    keyNickName, // KeyNickName
+                    keySet, // TKSKeyset
+                    log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
+                    "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
+                    Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
+                    errorMsg // Error
+            };
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE, logParams);
         }
 
         audit(auditMessage);
@@ -1687,9 +2253,9 @@ public class TokenServlet extends CMSServlet {
         CMS.debug("TokenServlet::processComputeRandomData data size requested: " + dataSize);
 
         String auditMessage = CMS.getLogMessage(
-                       LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST,
-                       ILogger.SUCCESS,
-                       agentId);
+                LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST,
+                ILogger.SUCCESS,
+                agentId);
 
         audit(auditMessage);
 
@@ -1727,9 +2293,9 @@ public class TokenServlet extends CMSServlet {
         resp.setContentType("text/html");
         String value = "";
 
-        value = IRemoteRequest.RESPONSE_STATUS+"=" + status;
+        value = IRemoteRequest.RESPONSE_STATUS + "=" + status;
         if (status.equals("0")) {
-            value = value + "&"+IRemoteRequest.TKS_RESPONSE_RandomData+"=" + randomDataOut;
+            value = value + "&" + IRemoteRequest.TKS_RESPONSE_RandomData + "=" + randomDataOut;
         }
 
         try {
@@ -1746,17 +2312,17 @@ public class TokenServlet extends CMSServlet {
 
         if (status.equals("0")) {
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS,
-                        ILogger.SUCCESS,
-                        status,
-                        agentId);
+                    LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS,
+                    ILogger.SUCCESS,
+                    status,
+                    agentId);
         } else {
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE,
-                        ILogger.FAILURE,
-                        status,
-                        agentId,
-                        errorMsg);
+                    LOGGING_SIGNED_AUDIT_COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE,
+                    ILogger.FAILURE,
+                    status,
+                    agentId,
+                    errorMsg);
         }
 
         audit(auditMessage);
@@ -1771,7 +2337,7 @@ public class TokenServlet extends CMSServlet {
 
         try {
             authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "execute");
+                    mAuthzResourceName, "execute");
         } catch (Exception e) {
         }
 
@@ -1796,6 +2362,10 @@ public class TokenServlet extends CMSServlet {
         }
 
         String temp = req.getParameter(IRemoteRequest.TOKEN_CARD_CHALLENGE);
+        String protocol = req.getParameter(IRemoteRequest.CHANNEL_PROTOCOL);
+        String derivationConstant = req.getParameter(IRemoteRequest.DERIVATION_CONSTANT);
+        CMS.debug("Protocol: " + protocol + " temp: " + temp);
+
         setDefaultSlotAndKeyName(req);
         if (temp != null) {
             processComputeSessionKey(req, resp);
@@ -1805,6 +2375,12 @@ public class TokenServlet extends CMSServlet {
             processDiversifyKey(req, resp);
         } else if (req.getParameter(IRemoteRequest.TOKEN_DATA_NUM_BYTES) != null) {
             processComputeRandomData(req, resp);
+        } else if (protocol != null && protocol.contains("2") && (derivationConstant != null)) {
+            //SCP02 compute one session key.
+            processComputeSessionKeySCP02(req, resp);
+        } else {
+            throw new EBaseException("Process: Can't decide upon function to call!");
+
         }
     }
 
@@ -1818,4 +2394,54 @@ public class TokenServlet extends CMSServlet {
             throws ServletException, IOException {
         super.service(req, resp);
     }
+
+    private PK11SymKey getSharedSecretKey() throws EBaseException, NotInitializedException {
+
+        IConfigStore configStore = CMS.getConfigStore();
+        String sharedSecretName = null;
+        try {
+
+            sharedSecretName = getSharedSecretName(configStore);
+
+        } catch (EBaseException e) {
+            throw new EBaseException("TokenServlet.getSharedSecetKey: Internal error finding config value: "
+                    + e);
+
+        }
+
+        CMS.debug("TokenServlet.getSharedSecretTransportKey: calculated key name: " + sharedSecretName);
+
+        String symmKeys = null;
+        boolean keyPresent = false;
+        try {
+            symmKeys = SessionKey.ListSymmetricKeys("internal");
+            CMS.debug("TokenServlet.getSharedSecretTransportKey: symmKeys List: " + symmKeys);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            CMS.debug(e);
+        }
+
+        for (String keyName : symmKeys.split(",")) {
+            if (sharedSecretName.equals(keyName)) {
+                CMS.debug("TokenServlet.getSharedSecret: shared secret key found!");
+                keyPresent = true;
+                break;
+            }
+
+        }
+
+        if (!keyPresent) {
+            throw new EBaseException("TokenServlet.getSharedSecret: Can't find shared secret!");
+        }
+
+        // We know for now that shared secret is on this token
+        String tokenName = "Internal Key Storage Token";
+        PK11SymKey sharedSecret = SessionKey.GetSymKeyByName(tokenName, sharedSecretName);
+
+        CMS.debug("TokenServlet.getSharedSecret: SymKey returns: " + sharedSecret);
+
+        return sharedSecret;
+
+    }
+
 }

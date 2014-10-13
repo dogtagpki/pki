@@ -41,13 +41,14 @@ extern char sharedSecretSymKeyName[KEYNAMELENGTH];
 void GetDiversificationData(jbyte *cuidValue,BYTE *KDC,keyType keytype);
 PK11SymKey * ReturnSymKey( PK11SlotInfo *slot, char *keyname);
 void GetKeyName(jbyte *keyVersion,char *keyname);
-PK11SymKey * ComputeCardKeyOnToken(PK11SymKey *masterKey, BYTE* data);
+PK11SymKey * ComputeCardKeyOnToken(PK11SymKey *masterKey, BYTE* data,int protocol);
 PRStatus EncryptData(const Buffer &kek_key, PK11SymKey *card_key, Buffer &input, Buffer &output);
 PK11SlotInfo *ReturnSlot(char *tokenNameChars);
-PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotInfo *slot);
+PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotInfo *slot,int protocol);
 PK11SymKey *CreateUnWrappedSymKeyOnToken( PK11SlotInfo *slot, PK11SymKey * unWrappingKey, BYTE *keyToBeUnWrapped, int sizeOfKeyToBeUnWrapped, PRBool isPerm);
 PK11SymKey *ReturnDeveloperSymKey(PK11SlotInfo *slot, char *keyType, char *keySet, Buffer &inputKey);
 PK11SymKey *CreateDesKey24Byte(PK11SlotInfo *slot, PK11SymKey *origKey);
+PK11SymKey *UnwrapWrappedSymKeyOnToken( PK11SlotInfo *slot, PK11SymKey * unWrappingKey,int sizeOfWrappedKey, unsigned char * wrappedKeyData, PRBool isPerm);
 
 char *GetSharedSecretKeyName(char *newKeyName);
 

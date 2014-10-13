@@ -219,7 +219,6 @@ Java_com_netscape_symkey_SessionKey_EncryptData(JNIEnv * env, jclass this2, jstr
             if (masterKey != NULL)
             {
 
-
                 // ---------------------------------
                 // AC KDF SPEC CHANGE: Determine which KDF to use.
                 //
@@ -279,11 +278,9 @@ Java_com_netscape_symkey_SessionKey_EncryptData(JNIEnv * env, jclass this2, jstr
                     GetDiversificationData(kddValue,kekData,kek);
 
                     // AC: Derives the Kek key for the token.
-                    kekKey = ComputeCardKeyOnToken(masterKey,kekData);
+                    kekKey = ComputeCardKeyOnToken(masterKey,kekData,1);
 
                 } // endif use original KDF
-                // ---------------------------------
-
 
                 if (kekKey != NULL)
                 {

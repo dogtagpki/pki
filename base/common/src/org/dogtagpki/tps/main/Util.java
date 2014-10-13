@@ -43,6 +43,7 @@ import org.mozilla.jss.pkcs11.PK11SymKey;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.util.Utils;
+import com.netscape.symkey.SessionKey;
 
 public class Util {
 
@@ -171,6 +172,166 @@ public class Util {
         return Utils.SpecialEncode(data.toBytesArray());
     }
 
+    public static TPSBuffer computeEncEcbDes(PK11SymKey symKey, TPSBuffer input) throws EBaseException {
+
+        //Asssume 8 bytes message
+        if (symKey == null || input == null || input.size() != 8) {
+            throw new EBaseException("Util.computeEncEcbDes: invalid input data!");
+        }
+
+        CMS.debug("Util.computeEncEcbDes entering... ");
+
+        TPSBuffer result = null;
+        CryptoToken token = null;
+
+        int inputLen = input.size();
+
+        TPSBuffer message = new TPSBuffer(input);
+
+        CMS.debug("Util.computeEncEcbDes: input data. " + message.toHexString() + " input len: " + inputLen);
+
+        try {
+
+            token = CryptoManager.getInstance().getInternalKeyStorageToken();
+
+            PK11SymKey des = SessionKey.DeriveDESKeyFrom3DesKey(token.getName(), symKey, 0x00000121 /*CKM_DES_ECB */);
+
+            if (des == null) {
+                throw new EBaseException("Util.computeEncEcbDes: Can't derive single des key from triple des key!");
+            }
+
+            TPSBuffer desDebug = new TPSBuffer(des.getEncoded());
+
+            CMS.debug("des key debug bytes: " + desDebug.toHexString());
+
+            Cipher cipher = token.getCipherContext(EncryptionAlgorithm.DES_ECB);
+
+            result = new TPSBuffer();
+
+            cipher.initEncrypt(des);
+            byte[] ciphResult = cipher.doFinal(message.toBytesArray());
+
+            if (ciphResult.length != 8) {
+                throw new EBaseException("Invalid cipher in Util.computeEncEcbDes");
+            }
+
+            result.set(ciphResult);
+
+            CMS.debug("Util.computeEncEcbDes: encrypted bloc: " + result.toHexString());
+
+        } catch (Exception e) {
+            throw new EBaseException("Util.computeMACdes3des: Cryptographic problem encountered! " + e.toString());
+        }
+
+        return result;
+    }
+
+    public static TPSBuffer computeMACdes3des(PK11SymKey symKey, TPSBuffer input, TPSBuffer initialIcv)
+            throws EBaseException {
+
+        if (symKey == null || input == null || initialIcv == null || initialIcv.size() != 8) {
+            throw new EBaseException("Util.coputeMACdes3des: invalid input data!");
+        }
+
+        CMS.debug("Util.computeMACdes3des entering... Initial icv: " + initialIcv.toHexString());
+
+        TPSBuffer output = null;
+        TPSBuffer mac = null;
+        CryptoToken token = null;
+
+        int inputLen = input.size();
+
+        TPSBuffer message = new TPSBuffer(input);
+        CMS.debug("Util.computeMACdes3des entering... Input message: " + message.toHexString() + " message.size(): "
+                + message.size());
+
+        //Add the padding, looks like we need this even if the remainder is 0
+        int remainder = inputLen % 8;
+
+        CMS.debug("Util.computeMACdes3des remainder: " + remainder);
+
+        TPSBuffer macPad = new TPSBuffer(8);
+        macPad.setAt(0, (byte) 0x80);
+
+        TPSBuffer padBuff = macPad.substr(0, 8 - remainder);
+
+        message.add(padBuff);
+        inputLen += (8 - remainder);
+
+        CMS.debug("Util.computeMACdes3des: padded input data. " + message.toHexString() + " input len: " + inputLen);
+
+        try {
+
+            token = CryptoManager.getInstance().getInternalKeyStorageToken();
+
+            PK11SymKey des = SessionKey.DeriveDESKeyFrom3DesKey(token.getName(), symKey, 0x00000122 /* CKM_DES_CBC */);
+
+            if (des == null) {
+                throw new EBaseException("Util.computeMACdes3des: Can't derive single des key from tripe des key!");
+            }
+
+            TPSBuffer desDebug = new TPSBuffer(des.getEncoded());
+
+            CMS.debug("des key debug bytes: " + desDebug.toHexString());
+
+            Cipher cipher = token.getCipherContext(EncryptionAlgorithm.DES_CBC);
+            Cipher cipher3des = token.getCipherContext(EncryptionAlgorithm.DES3_CBC);
+            mac = new TPSBuffer(initialIcv);
+
+            AlgorithmParameterSpec algSpec = new IVParameterSpec(initialIcv.toBytesArray());
+
+            int inputOffset = 0;
+
+            while (inputLen > 8)
+            {
+
+                mac.set(message.substr(inputOffset, 8));
+
+                // CMS.debug("About to encrypt1des: " + mac.toHexString());
+                cipher.initEncrypt(des, algSpec);
+                byte[] ciphResult = cipher.doFinal(mac.toBytesArray());
+
+                if (ciphResult.length != mac.size()) {
+                    throw new EBaseException("Invalid cipher in Util.computeMAC");
+                }
+
+                mac.set(ciphResult);
+                algSpec = new IVParameterSpec(ciphResult);
+
+                // CMS.debug("Util.computeMACdes3des: des encrypted bloc: " + mac.toHexString());
+
+                inputLen -= 8;
+                inputOffset += 8;
+            }
+
+            // Now do the 3DES portion of the operation
+
+            TPSBuffer newICV = new TPSBuffer(mac);
+
+            CMS.debug("Util.computeMACdes3des: inputOffset: " + inputOffset);
+
+            mac.set(message.substr(inputOffset, 8));
+
+            CMS.debug("About to encrypt 3des: " + mac.toHexString() + " icv: " + newICV.toHexString());
+
+            cipher3des.initEncrypt(symKey, new IVParameterSpec(newICV.toBytesArray()));
+            byte[] ciphResultFinal = cipher3des.doFinal(mac.toBytesArray());
+
+            if (ciphResultFinal.length != mac.size()) {
+                throw new EBaseException("Invalid cipher in Util.computeMAC");
+            }
+
+            output = new TPSBuffer(ciphResultFinal);
+
+            CMS.debug("Util.computeMACdes3des: final mac results: " + output.toHexString());
+
+        } catch (Exception e) {
+            throw new EBaseException("Util.computeMACdes3des: Cryptographic problem encountered! " + e.toString());
+        }
+
+        return output;
+    }
+
     public static TPSBuffer computeMAC(PK11SymKey symKey, TPSBuffer input, TPSBuffer icv) throws EBaseException {
         TPSBuffer output = null;
         TPSBuffer result = null;
@@ -271,6 +432,8 @@ public class Util {
             throw new EBaseException("Util.encryptData: called with no sym key or no data!");
         }
 
+        CMS.debug("Util.encryptData: dataToEnc: " + dataToEnc.toHexString());
+
         CryptoToken token = null;
         try {
 
@@ -280,9 +443,11 @@ public class Util {
             AlgorithmParameterSpec algSpec = null;
 
             int len = EncryptionAlgorithm.DES3_CBC.getIVLength();
+
             byte[] iv = new byte[len]; // Assume iv set to 0's as in current TPS
 
             algSpec = new IVParameterSpec(iv);
+
             cipher.initEncrypt(encKey, algSpec);
 
             byte[] encryptedBytes = cipher.doFinal(dataToEnc.toBytesArray());

@@ -110,7 +110,7 @@ channel._013=#  * channel.instanceSize=18000
 channel._014=#  * channel.appletMemorySize=5000
 channel._015=#########################################
 channel.encryption=true
-channel.blocksize=248
+channel.blocksize=242
 channel.defKeyVersion=0
 channel.defKeyIndex=0
 cms.product.version=@APPLICATION_VERSION@

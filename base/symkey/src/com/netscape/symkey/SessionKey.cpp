@@ -349,6 +349,101 @@ JSS_PK11_getSymKeyPtr(JNIEnv *env, jobject symKeyObject, PK11SymKey **ptr)
         SYM_KEY_PROXY_SIG, (void**)ptr);
 }
 #endif                                            //STEAL_JSS
+
+
+/* ToDo: fully support nistSP800 in next ticket
+*/
+PK11SymKey *DeriveKeySCP02(PK11SymKey *cardKey, const Buffer& sequenceCounter, const Buffer& derivationConstant)
+{
+
+    PK11SymKey *key = NULL;
+    PK11SymKey *master = NULL;
+    unsigned char message[KEYLENGTH] = {0};
+    unsigned char derivationData[DES3_LENGTH] = {0};
+
+    PRBool invalid_mechanism = PR_TRUE;
+    SECStatus s = SECFailure;
+    int len = 0;
+    int i = 0;
+
+    SECItem *secParam = NULL;
+
+    PK11SlotInfo *slot = PK11_GetInternalKeySlot();
+    PK11Context *context = NULL;
+     SECItem param = { siBuffer, NULL, 0 };
+
+    unsigned char icv[EIGHT_BYTES] = { 0 };
+
+    if( sequenceCounter == NULL || derivationConstant == NULL || 
+        sequenceCounter.size() != 2 || derivationConstant.size() != 2 || 
+        cardKey == NULL) {
+         PR_fprintf(PR_STDERR,"In DeriveKeySCP02!  Error invalid input data!\n");
+         goto done;
+    }
+
+    PR_fprintf(PR_STDOUT,"In DeriveKeySCP02! \n");
+    PR_fprintf(PR_STDOUT,"In DeriveKeySCP02! seqCounter[0] : %d sequenceCounter [1] : %d \n", sequenceCounter[0], sequenceCounter[1]);
+    PR_fprintf(PR_STDOUT,"In DeriveKeySCP02! derivationConstant[0] : %x derivationConstant[1] : %x \n", derivationConstant[0], derivationConstant[1]);
+
+    master = cardKey;
+
+    message[0] = (unsigned char) derivationConstant[0];
+    message[1] = (unsigned char) derivationConstant[1];
+    message[2] = (unsigned char) sequenceCounter[0];
+    message[3] = (unsigned char) sequenceCounter[1];
+
+
+    //ToDo use the new NSS provided derive mechanisms for this operation
+    if(invalid_mechanism == PR_FALSE) {
+       // Use derive mechanisms
+    } else {
+
+        //Use encryption method
+        param.data = (unsigned char *) &icv;
+        param.len = 8;
+        secParam = PK11_ParamFromIV(CKM_DES3_CBC_PAD, &param);
+        context = PK11_CreateContextBySymKey(CKM_DES3_CBC_PAD, CKA_ENCRYPT, master, secParam);
+        if(context == NULL) {
+            goto done;
+        }
+         s = PK11_CipherOp(context,&derivationData[0] , &len, EIGHT_BYTES, &message[0], EIGHT_BYTES);
+
+         if (s != SECSuccess) { goto done; }
+        
+         s = PK11_CipherOp(context, &derivationData[EIGHT_BYTES], &len, EIGHT_BYTES, &message[EIGHT_BYTES], EIGHT_BYTES); 
+         if (s != SECSuccess) { goto done; } 
+
+         for(i = 0;i < EIGHT_BYTES ;i++)
+         {
+             derivationData[i+KEYLENGTH] = derivationData[i];
+         }
+
+         key = CreateUnWrappedSymKeyOnToken( slot,  master, &derivationData[0] , DES3_LENGTH, PR_FALSE );
+
+          PR_fprintf(PR_STDOUT,"In DeriveKeySCP02! calculated key: %p  \n", key);
+    }
+
+    done:
+
+    memset(derivationData, 0, sizeof derivationData);
+    if ( context != NULL) {
+        PK11_DestroyContext(context, PR_TRUE);
+        context = NULL;
+    }
+
+    if (slot) {
+        PK11_FreeSlot(slot);
+        slot = NULL;
+    }
+
+    if (secParam) {
+        SECITEM_FreeItem(secParam, PR_TRUE);
+        secParam = NULL;
+    }
+
+    return key;
+}
+
 // Function takes wither a symkey OR a keybuffer (for the default keyset case)
 // To derive a new key.
 PK11SymKey *DeriveKey(PK11SymKey *cardKey, const Buffer& hostChallenge, const Buffer& cardChallenge)
@@ -567,6 +662,369 @@ finish:
 }
 
 
+//ToDo: Fix this to conform the nistSP800
+//=================================================================================
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+/*
+ * Class:     com_netscape_cms_servlet_tks_RASessionKey
+ * Method:    ComputeSessionKeySCP02
+ * Signature: ([B[B[B[B)[B
+ */
+    JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeSessionKeySCP02
+        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jstring, jstring, jstring);
+#ifdef __cplusplus
+}
+#endif
+#define KEYLENGTH 16
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeSessionKeySCP02(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray keyInfo, jbyteArray CUID, jbyteArray devKeyArray, jbyteArray sequenceCounter, jbyteArray derivationConstant, jstring useSoftToken_s, jstring keySet, jstring sharedSecretKeyName)
+{
+    /* hardcode permanent dev key */
+    jbyte *dev_key = NULL;
+    if (devKeyArray != NULL) {
+       dev_key = (jbyte*)(env)->GetByteArrayElements(devKeyArray, NULL);
+    } else {
+        return NULL;
+    }
+
+    SECItem wrappedKeyItem = { siBuffer, NULL , 0};
+    SECItem noParams = { siBuffer, NULL, 0 };
+    SECStatus wrapStatus = SECFailure;
+
+
+    char *keyNameChars=NULL;
+    char *tokenNameChars=NULL;
+    PK11SlotInfo *slot = NULL;
+    PK11SlotInfo *internal = PK11_GetInternalKeySlot();
+
+    PK11SymKey *symkey = NULL;
+    PK11SymKey *transportKey = NULL;
+    PK11SymKey *masterKey = NULL;
+
+    PK11SymKey *devSymKey = NULL;
+    PK11SymKey *symkey16 = NULL;
+    PK11SymKey *devKey = NULL;
+
+
+    BYTE devData[KEYLENGTH];
+    char keyname[KEYNAMELENGTH];
+    
+    const char *devKeyName = NULL;
+
+    const char *macName = "mac";
+    const char *encName = "enc";
+    const char *kekName = "kek";
+
+    keyType kType = mac;
+
+    /* Derive vars */
+
+    CK_ULONG bitPosition = 0;
+    SECItem paramsItem = { siBuffer, NULL, 0 };
+
+    /* Java object return vars */
+
+    jbyteArray handleBA=NULL;
+    jbyte *handleBytes=NULL;
+
+    jbyte *    cuidValue = NULL;
+
+    jbyte *sc = NULL;
+    int sc_len = 0;
+
+    int dc_len = 0;
+    jbyte *dc = NULL;
+
+    jbyte *    keyVersion = NULL;
+    int keyVersion_len = 0;
+
+    Buffer devBuff( ( BYTE *) dev_key , KEYLENGTH );
+
+    char *keySetStringChars = NULL;
+    if( keySet != NULL ) {
+       keySetStringChars = (char *) (env)->GetStringUTFChars( keySet, NULL);
+    }
+
+    char *keySetString =  keySetStringChars;
+
+    if ( keySetString == NULL ) {
+        keySetString = (char *) DEFKEYSET_NAME;
+    }
+
+    char *sharedSecretKeyNameChars =  NULL;
+
+    if( sharedSecretKeyName != NULL ) {
+        sharedSecretKeyNameChars = (char *) (env)->GetStringUTFChars( sharedSecretKeyName, NULL);
+    }
+
+    char *sharedSecretKeyNameString = sharedSecretKeyNameChars;
+
+    if ( sharedSecretKeyNameString == NULL ) {
+        sharedSecretKeyNameString = (char *) TRANSPORT_KEY_NAME;
+    }
+
+    GetSharedSecretKeyName(sharedSecretKeyNameString);
+
+    if( sequenceCounter != NULL) {
+        sc = (jbyte*)(env)->GetByteArrayElements( sequenceCounter, NULL);
+        sc_len =  (env)->GetArrayLength(sequenceCounter);
+    } 
+
+    if( sc == NULL || sc_len != 2) {
+        goto done;
+    } 
+
+    if( derivationConstant != NULL) {
+        dc = (jbyte*)(env)->GetByteArrayElements( derivationConstant, NULL);
+        dc_len = (env)->GetArrayLength( derivationConstant);
+    }
+ 
+    if( dc == NULL || dc_len != 2) {
+        goto done;
+    }
+ 
+    if( keyInfo != NULL) { 
+      keyVersion = (jbyte*)(env)->GetByteArrayElements( keyInfo, NULL);
+
+      if( keyVersion) {
+          keyVersion_len =  (env)->GetArrayLength(keyInfo);
+      }
+    }
+
+    if( !keyVersion || (keyVersion_len < 2) ){
+        goto done;
+    }
+
+    if ( CUID != NULL ) {
+        cuidValue =  (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
+    }
+
+    if( cuidValue == NULL) {
+        goto done;
+    }
+
+    if(tokenName)
+    {
+        tokenNameChars = (char *)(env)->GetStringUTFChars(tokenName, NULL);
+        slot = ReturnSlot(tokenNameChars);
+        (env)->ReleaseStringUTFChars(tokenName, (const char *)tokenNameChars);
+    }
+
+    if(keyName)
+    {
+        keyNameChars = (char *)(env)->GetStringUTFChars(keyName, NULL);
+        strncpy(keyname,keyNameChars,KEYNAMELENGTH);
+        (env)->ReleaseStringUTFChars(keyName, (const char *)keyNameChars);
+    }else
+        GetKeyName(keyVersion,keyname);
+
+    //Get  key type from derivation constant
+    switch((unsigned char) dc[1]) {
+       case 0x1 :
+           kType = mac;
+           devKeyName = macName;
+       break;
+
+       case 0x82:
+           kType = enc;
+           devKeyName = encName;
+       break;
+
+       case 0x81:
+           kType = kek;
+           devKeyName = kekName;
+       break;
+
+       default:
+          kType = mac;
+          devKeyName = macName;
+      break;
+    }
+
+    GetDiversificationData(cuidValue,devData,kType);
+
+    PR_fprintf(PR_STDOUT,"In SessionKey.ComputeSessionKeySCP02! keyName %s keyVersion[0] %d keyVersion[1] %d \n",keyname,(int) keyVersion[0],(int) keyVersion[1]);
+
+    if ( (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 ) ||
+        (keyVersion[0] == -1 && keyVersion[1] == 0x1))
+     
+    {
+        /* default manufacturers key */
+
+        devSymKey = ReturnDeveloperSymKey(slot, (char *) devKeyName , keySetString, devBuff);
+
+        if( devSymKey == NULL ) {
+            goto done;
+        }
+
+        PR_fprintf(PR_STDOUT,"SessionKey.ComputeSessionKeySCP02! sc[0] : %d sc[1] : %d \n", sc[0], sc[1]);
+        symkey = DeriveKeySCP02(                       //Util::DeriveKey(
+            devSymKey, Buffer((BYTE*)sc, sc_len), Buffer((BYTE*)dc, dc_len));
+
+        if(symkey == NULL) 
+        {
+            goto done;
+        }
+
+        //In the enc key case create the auth as well, we may need it later.
+
+        if(kType == enc) {
+
+            PK11SymKey *authKey = NULL;
+
+            authKey = ReturnDeveloperSymKey(slot, (char *) "auth" , keySetString, devBuff);
+     
+            if(authKey == NULL)
+            {
+               goto done;
+            }
+
+            PK11_FreeSymKey(authKey);
+            authKey = NULL; 
+
+        }
+
+    }else
+    {
+        PR_fprintf(PR_STDOUT,"SessionKey.ComputeSessionKeySCP02! Attempting with master key. \n");
+        masterKey = ReturnSymKey( slot,keyname);
+        if(masterKey == NULL)
+        {
+            goto done;
+        }
+
+        devKey =ComputeCardKeyOnToken(masterKey,devData,2);
+        if(devKey == NULL)
+        {
+            goto done;
+        }
+         
+        symkey = DeriveKeySCP02(devKey, Buffer((BYTE*)sc, sc_len), Buffer((BYTE*)dc, dc_len));
+
+        if(symkey == NULL)
+        {
+            goto done;
+        }
+    }
+    //Now wrap the key for the trip back to TPS with shared secret transport key
+
+    symkey16 = NULL;
+     transportKey = ReturnSymKey( internal, GetSharedSecretKeyName(NULL));
+    if ( transportKey == NULL ) {
+        PR_fprintf(PR_STDERR, "Can't find shared secret transport key! \n");
+        goto done;
+    }
+
+    handleBA = (env)->NewByteArray( KEYLENGTH);
+    handleBytes = (env)->GetByteArrayElements(handleBA, NULL);
+
+    paramsItem.data = (CK_BYTE *) &bitPosition;
+    paramsItem.len = sizeof bitPosition;
+
+    symkey16 = PK11_Derive(symkey, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem, CKA_ENCRYPT,
+                                                            CKA_DERIVE, 16);
+    if ( !symkey16 ) {
+        PR_fprintf(PR_STDERR,"Can't derive 16 byte key from 24 byte symkey! \n");
+        goto done;
+    }
+
+    wrappedKeyItem.data = (unsigned char *) handleBytes;
+    wrappedKeyItem.len  =  KEYLENGTH;
+    wrapStatus = PK11_WrapSymKey(CKM_DES3_ECB,&noParams, transportKey, symkey16, &wrappedKeyItem);
+
+    if(wrapStatus == SECFailure )
+    {
+        PR_fprintf(PR_STDERR, "Can't wrap session key! Error: %d \n", PR_GetError());
+    }
+
+done:
+
+    if( slot) {
+        PK11_FreeSlot(slot);
+        slot = NULL;
+    }
+
+    if( internal ) {
+        PK11_FreeSlot(internal);
+        internal = NULL;
+    }
+
+    if ( symkey ) {
+        PK11_FreeSymKey( symkey);
+        symkey = NULL;
+    }
+
+    if ( transportKey )  {
+        PK11_FreeSymKey( transportKey );
+        transportKey = NULL;
+    }
+
+    if ( symkey16 ) {
+        PK11_FreeSymKey( symkey16 );
+        symkey16 = NULL;
+    }
+
+    if( masterKey ) {
+        PK11_FreeSymKey( masterKey);
+        masterKey = NULL;
+    }
+           
+    if( devKey ) {
+        PK11_FreeSymKey( devKey);
+        devKey = NULL;
+    }
+
+    if( devSymKey ) {
+        PK11_FreeSymKey( devSymKey );
+        devSymKey = NULL;
+    }
+
+    if( keySetStringChars ) {
+        (env)->ReleaseStringUTFChars(keySet, (const char *)keySetStringChars);
+        keySetStringChars = NULL;
+    }
+
+    if( sharedSecretKeyNameChars ) {
+        (env)->ReleaseStringUTFChars(sharedSecretKeyName, (const char *)sharedSecretKeyNameChars);
+        sharedSecretKeyNameChars = NULL;
+    }
+
+    if ( handleBytes != NULL) {
+        (env)->ReleaseByteArrayElements( handleBA, handleBytes, 0);
+    }
+
+    if ( sc != NULL) {
+        (env)->ReleaseByteArrayElements(sequenceCounter, sc, JNI_ABORT);
+    }
+
+    if ( dc != NULL) {
+        (env)->ReleaseByteArrayElements(derivationConstant, dc, JNI_ABORT);
+    }
+
+    if( keyVersion != NULL) {
+        (env)->ReleaseByteArrayElements(keyInfo, keyVersion, JNI_ABORT);
+    }
+
+    if ( cuidValue != NULL) {
+        (env)->ReleaseByteArrayElements(CUID, cuidValue, JNI_ABORT);
+    }
+
+    if( dev_key != NULL) {
+        (env)->ReleaseByteArrayElements(devKeyArray, dev_key, JNI_ABORT);
+    }
+
+    if (wrapStatus != SECFailure ){
+        return handleBA;
+    }else{
+        return NULL;
+    }
+
+}
+
+
+
 //=================================================================================
 #ifdef __cplusplus
 extern "C"
@@ -595,7 +1053,7 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         return NULL;
     }
 
-    char input[KEYLENGTH];
+    unsigned char input[KEYLENGTH] = {0};
     int i = 0;
 
     SECItem wrappedKeyItem = { siBuffer, NULL , 0};
@@ -762,7 +1220,7 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     }else
     GetKeyName(keyVersion,keyname);
 
-    PR_fprintf(PR_STDOUT,"In SessionKey.ComputeSessionKey! \n");
+    PR_fprintf(PR_STDOUT,"In SessionKey.ComputeSessionKey! keyName %s keyVersion[0] %d keyVersion[1] %d \n",keyname,(int) keyVersion[0],(int) keyVersion[1]);
 
     if ( (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 && strcmp( keyname, "#01#01") == 0) ||
         (keyVersion[0] == -1 && strstr(keyname, "#FF")))
@@ -781,12 +1239,12 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
 
     }else
     {
+        PR_fprintf(PR_STDOUT,"In SessionKey.ComputeSessionKey! Upgraded keyset mode. \n");
         masterKey = ReturnSymKey( slot,keyname);
         if(masterKey == NULL)
         {
             goto done;
         }
-
 
         // ---------------------------------
         // AC KDF SPEC CHANGE: Determine which KDF to use.
@@ -847,16 +1305,11 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             GetDiversificationData(kddValue,macData,mac);//keytype is mac
 
             // AC: Derives the mac key for the token.
-            macKey =ComputeCardKeyOnToken(masterKey,macData);
+            macKey =ComputeCardKeyOnToken(masterKey,macData,1);
 
         } // endif use original KDF
         // ---------------------------------
 
-
-        if(macKey == NULL)
-        {
-            goto done;
-        }
 
         // AC: This computes the GP session key using the card-specific MAC key we previously derived.
         symkey = DeriveKey(macKey, Buffer((BYTE*)hc, hc_len), Buffer((BYTE*)cc, cc_len));
@@ -1030,7 +1483,7 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         return NULL;
     }
 
-    char input[KEYLENGTH];
+    unsigned char input[KEYLENGTH] = {0};
     int i = 0;
 
     SECItem wrappedKeyItem = { siBuffer, NULL , 0};
@@ -1205,7 +1658,6 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             goto done;
         }
 
-
         // ---------------------------------
         // AC KDF SPEC CHANGE: Determine which KDF to use.
         //
@@ -1265,11 +1717,10 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             GetDiversificationData(kddValue,encData,enc);
 
             // AC: Derives the enc key for the token.
-            encKey =ComputeCardKeyOnToken(masterKey,encData);
+            encKey =ComputeCardKeyOnToken(masterKey,encData,1);
 
         } // endif use original KDF
         // ---------------------------------
-
 
         if(encKey == NULL) {
             goto done;
@@ -1446,7 +1897,7 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
         keySetString = (char *) DEFKEYSET_NAME;
     }
 
-    char input[KEYLENGTH];
+    unsigned char input[KEYLENGTH] = {0};
     int i;
     jobject keyObj = NULL;
 
@@ -1575,7 +2026,6 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
             goto done;
         }
 
-
         // ---------------------------------
         // AC KDF SPEC CHANGE: Determine which KDF to use.
         //
@@ -1635,11 +2085,10 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
             GetDiversificationData(kddValue,kekData,kek);//keytype is kek
 
             // AC: Derives the mac key for the token.
-            kekKey =ComputeCardKeyOnToken(masterKey,kekData);
+            kekKey =ComputeCardKeyOnToken(masterKey,kekData,1);
 
         } // endif use original KDF
         // ---------------------------------
-
 
     }
 
@@ -2049,7 +2498,6 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             goto done;
         }
 
-
         // ---------------------------------
         // AC KDF SPEC CHANGE: Determine which KDF to use.
         //
@@ -2109,11 +2557,10 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             GetDiversificationData(kddValue,authData,enc);
 
             // AC: Derives the mac key for the token.
-            authKey = ComputeCardKeyOnToken(masterKey,authData);
+            authKey = ComputeCardKeyOnToken(masterKey,authData,1);
 
         } // endif use original KDF
         // ---------------------------------
-
 
         if (authKey == NULL)
         {
@@ -2297,14 +2744,24 @@ Java_com_netscape_symkey_SessionKey_ECBencrypt
         goto finish;
     }
 
+    PR_fprintf(PR_STDOUT,"In SessionKey: ECBencrypt! 16 byte key derived....  \n");
+
     //Wrap the new 16 bit key with the input symkey.
 
     wrappedKeyItem.data = (unsigned char *) handleBytes;
     wrappedKeyItem.len  = dlen;
+
+    PR_fprintf(PR_STDOUT,"In SessionKey: ECBencrypt! About to wrap des key with sym key.\n");
     wrapStatus = PK11_WrapSymKey(CKM_DES3_ECB,&noParams, symkey, newdeskey, &wrappedKeyItem);
 
     if( wrapStatus == SECSuccess) {
        PR_fprintf(PR_STDERR, "ECBencrypt wrapStatus %d wrappedKeySize %d \n", wrapStatus, wrappedKeyItem.len); 
+
+       PR_fprintf(PR_STDOUT," ECBencrypt wrapped data: \n");
+         Buffer wrappedDataBuf(wrappedKeyItem.data,wrappedKeyItem.len);
+         wrappedDataBuf.dump();
+
+
     } else {
        PR_fprintf(PR_STDERR, "ECBecrypt wrap failed! Error %d \n", PR_GetError());
     }
@@ -2321,6 +2778,105 @@ finish:
     }
 
     return handleBA;
+}
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+/*
+ * Class:     com_netscape_cms_servlet_tks_DeriveDESKeyFrom3DesKey
+ * Method:    DeriveDESKeyFrom3DesKey 
+ * Signature: ([B[B[B[B)[B
+ */
+    JNIEXPORT jobject JNICALL
+        Java_com_netscape_symkey_SessionKey_DeriveDESKeyFrom3DesKey
+        (JNIEnv*, jclass,jstring ,jobject,jlong);
+#ifdef __cplusplus
+}
+#endif
+extern "C" JNIEXPORT jobject JNICALL 
+Java_com_netscape_symkey_SessionKey_DeriveDESKeyFrom3DesKey
+(JNIEnv* env, jclass this2, jstring tokenName, jobject des3Key,jlong alg)
+{
+    PK11SymKey * des3 = NULL;
+    PK11SymKey * des  = NULL;
+    PK11SymKey * desFinal = NULL;
+    PRStatus  r = PR_FAILURE;
+    CK_ULONG bitPosition = 0;
+    SECItem paramsItem = { siBuffer, NULL, 0 };
+    jobject keyObj = NULL;
+    char *tokenNameChars = NULL;
+    PK11SlotInfo *slot = NULL;
+
+    if( des3Key == NULL) {
+        goto loser;
+    }
+
+    if(alg != CKM_DES_CBC && alg != CKM_DES_ECB) {
+        PR_fprintf(PR_STDOUT,"SessionKey.DeriveDESKeyFrom3DesKey invalid alg!.. \n");
+        goto loser;
+    }
+
+    if (tokenName)
+    {
+        tokenNameChars = (char *)(env)->GetStringUTFChars(tokenName, NULL);
+        if ( tokenNameChars && !strcmp(tokenNameChars, "internal")) {
+            slot = PK11_GetInternalSlot();
+        } else {
+            slot = ReturnSlot(tokenNameChars);
+        }
+
+        (env)->ReleaseStringUTFChars(tokenName, (const char *)tokenNameChars);
+    } else {
+        slot = PK11_GetInternalKeySlot();
+    }
+
+    if(slot == NULL) {
+        goto loser;
+    }
+
+    r = JSS_PK11_getSymKeyPtr(env, des3Key, &des3);
+
+    if (r != PR_SUCCESS) {
+        PR_fprintf(PR_STDOUT,"SessionKey: DeriveDESKeyFrom3DesKey Unable to get input session 3des sym key! \n");
+        goto loser;
+    }
+
+    /* Now create a DES key with the first 8 bytes of the input 3des key */
+
+    // Extract first eight bytes from generated key into another key.
+     bitPosition = 0;
+     paramsItem.data = (CK_BYTE *) &bitPosition;
+     paramsItem.len = sizeof bitPosition;
+
+
+     des = PK11_Derive(des3, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem,  alg , CKA_DERIVE, 8);
+     if (des  == NULL ) {
+         goto loser;
+     }
+
+     //Make sure we move this to the orig token, in case it got moved by NSS
+     //during the derive phase.
+
+     desFinal =  PK11_MoveSymKey ( slot, CKA_ENCRYPT, 0, PR_FALSE, des);
+
+
+         /* wrap the sesssion in java object. */
+     keyObj = JSS_PK11_wrapSymKey(env, &desFinal, NULL);
+
+loser:
+
+    if ( slot != NULL ) {
+       PK11_FreeSlot( slot);
+       slot = NULL;
+    }
+
+    if ( des != NULL) {
+        PK11_FreeSymKey(des);
+        des = NULL;
+    }
+    return keyObj;
 }
 
 #ifdef __cplusplus
@@ -2396,6 +2952,7 @@ Java_com_netscape_symkey_SessionKey_UnwrapSessionKeyWithSharedSecret
     wrappedItem.data = (unsigned char *) sessionKeyBytes;
     wrappedItem.len =  sessionKeyLen;
 
+
     sessionKey = PK11_UnwrapSymKey(sharedSecret,
                           CKM_DES3_ECB,SecParam, &wrappedItem,
                           CKM_DES3_ECB,
@@ -2437,6 +2994,12 @@ loser:
         sessionKey = NULL; 
     }
 
+    if (SecParam) {
+        SECITEM_FreeItem(SecParam, PR_TRUE);
+        SecParam = NULL;
+    }
+
+
     // Don't free finalKey ptr because wrapping routine takes that out of our hands.
 
     return keyObj;
@@ -2467,7 +3030,6 @@ Java_com_netscape_symkey_SessionKey_GetSymKeyByName
     char *tokenNameChars = NULL;
     char *keyNameChars = NULL;
     PK11SlotInfo *slot = NULL;
-    CK_OBJECT_HANDLE keyhandle = 0;
 
     PR_fprintf(PR_STDOUT,"In SessionKey GetSymKeyByName!\n");
 

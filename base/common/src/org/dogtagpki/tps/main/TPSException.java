@@ -26,8 +26,8 @@ public class TPSException extends EBaseException {
     private static final long serialVersionUID = -678878301521643436L;
     private TPSStatus status;
 
-    public TPSException(String msg) {
-        super(msg);
+    public TPSException(String e) {
+        super(e);
         status = TPSStatus.STATUS_ERROR_CONTACT_ADMIN;
     }
 

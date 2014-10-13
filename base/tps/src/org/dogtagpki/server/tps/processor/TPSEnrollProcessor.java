@@ -301,12 +301,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSEnrollProcessor.enroll: Finished updating applet if needed.");
 
         //Check and upgrade keys if called for
-
         SecureChannel channel = checkAndUpgradeSymKeys();
         channel.externalAuthenticate();
 
         //Reset the token's pin, create one if we don't have one already
-
         checkAndHandlePinReset(channel);
         tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
         String tksConnId = getTKSConnectorID();
@@ -2361,6 +2359,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         TPSBuffer keyCheck = channel.getKeyCheck();
 
+        if (keyCheck == null) {
+            keyCheck = new TPSBuffer();
+        }
+
         CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 : keyCheck: " + keyCheck.toHexString());
 
         // String ivParams = ssKeyGenResponse.getIVParam();
@@ -2381,7 +2383,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             CMS.debug("TPSEnrollProcessor.iportPrivateKeyPKC8: null kekWrappedDesKey!");
 
         byte alg = (byte) 0x80;
-        if (kekWrappedDesKey == null || kekWrappedDesKey.size() > 0) {
+        if (kekWrappedDesKey != null && kekWrappedDesKey.size() > 0) {
             alg = (byte) 0x81;
         }
 
@@ -2392,9 +2394,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
         data.add((byte) kekWrappedDesKey.size());
         data.add(kekWrappedDesKey);
         data.add((byte) keyCheck.size());
-        data.add(keyCheck);
+        if (keyCheck.size() > 0) {
+            data.add(keyCheck);
+        }
         data.add((byte) ivParamsBuff.size());
         data.add(ivParamsBuff);
+        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: key data outgoing: " + data.toHexString());
+
 
         int pe1 = (cEnrollInfo.getKeyUser() << 4) + cEnrollInfo.getPrivateKeyNumber();
         int pe2 = (cEnrollInfo.getKeyUsage() << 4) + cEnrollInfo.getPublicKeyNumber();

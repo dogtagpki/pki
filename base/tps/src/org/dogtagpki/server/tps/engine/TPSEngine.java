@@ -106,11 +106,13 @@ public class TPSEngine {
     public static final String CFG_APPLET_DIRECTORY = "update.applet.directory";
     public static final String CFG_APPLET_EXTENSION = "general.applet_ext";
 
-    public static final String CFG_CHANNEL_BLOCK_SIZE = "channel.blockSize";
+    public static final String CFG_CHANNEL_BLOCK_SIZE = "channel.blocksize";
     public static final String CFG_CHANNEL_INSTANCE_SIZE = "channel.instanceSize";
     public static final String CFG_CHANNEL_DEFKEY_VERSION = "channel.defKeyVersion";
     public static final String CFG_CHANNEL_APPLET_MEMORY_SIZE = "channel.appletMemorySize";
     public static final String CFG_CHANNEL_DEFKEY_INDEX = "channel.defKeyIndex";
+    public static final String CFG_CHANNEL_DEF_PLATFORM = "channel.defPlatform";
+    public static final String CFG_CHANNEL_DEF_SECURE_PROTO = "channel.defSecureProtocol";
     public static final String CFG_ISSUER_INFO_ENABLE = "issuerinfo.enable";
     public static final String CFG_ISSUER_INFO_VALUE = "issuerinfo.value";
     public static final String CFG_UPDATE_APPLET_ENCRYPTION = "update.applet.encryption";
@@ -119,6 +121,7 @@ public class TPSEngine {
 
     /* default values */
     public static final String CFG_DEF_CARDMGR_INSTANCE_AID = "A0000000030000";
+    public static final String CFG_DEF_CARDMGR_211_INSTANCE_AID = "A000000003000000";
     public static final String CFG_DEF_NETKEY_INSTANCE_AID = "627601FF000000";
     public static final String CFG_DEF_NETKEY_FILE_AID = "627601FF0000";
     public static final String CFG_DEF_NETKEY_OLD_INSTANCE_AID = "A00000000101";
@@ -202,6 +205,45 @@ public class TPSEngine {
         int rc = -1;
 
         return rc;
+    }
+
+    public TKSComputeSessionKeyResponse computeSessionKeySCP02(
+            TPSBuffer cuid,
+            TPSBuffer keyInfo,
+            TPSBuffer sequenceCounter,
+            TPSBuffer derivationConstant,
+            String connId,
+            String tokenType)
+            throws TPSException {
+
+        if (cuid == null || keyInfo == null || sequenceCounter == null || derivationConstant == null
+                || tokenType == null) {
+            throw new TPSException("TPSEngine.computeSessionKeySCP02: Invalid input data!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        CMS.debug("TPSEngine.computeSessionKeySCP02");
+
+        TKSRemoteRequestHandler tks = null;
+
+        TKSComputeSessionKeyResponse resp = null;
+        try {
+            tks = new TKSRemoteRequestHandler(connId);
+            resp = tks.computeSessionKeySCP02(cuid, keyInfo, sequenceCounter, derivationConstant, tokenType);
+        } catch (EBaseException e) {
+            throw new TPSException("TPSEngine.computeSessionKeySCP02: Error computing session key!" + e,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        int status = resp.getStatus();
+        if (status != 0) {
+            CMS.debug("TPSEngine.computeSessionKeySCP02: Non zero status result: " + status);
+            throw new TPSException("TPSEngine.computeSessionKeySCP02: invalid returned status: " + status);
+
+        }
+
+        return resp;
+
     }
 
     public TKSComputeSessionKeyResponse computeSessionKey(TPSBuffer cuid,
@@ -330,7 +372,7 @@ public class TPSEngine {
 
     }
 
-    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, TPSBuffer cuid, String connId)
+    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer wrappedDekSessionKey, String connId)
             throws TPSException {
         CMS.debug("TPSEngine.createKeySetData. entering...");
 
@@ -345,7 +387,7 @@ public class TPSEngine {
 
         try {
             tks = new TKSRemoteRequestHandler(connId);
-            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid);
+            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, protocol,wrappedDekSessionKey);
         } catch (EBaseException e) {
 
             throw new TPSException("TPSEngine.createKeySetData, failure to get key set data from TKS",
@@ -541,27 +583,27 @@ public class TPSEngine {
 
     }
 
-  //Check to see if special operations transition is allowed
+    //Check to see if special operations transition is allowed
 
     public boolean isOperationTransitionAllowed(TokenStatus oldState, TokenStatus newState) throws TPSException {
         boolean allowed = true;
 
-        if(transitionList == null) {
+        if (transitionList == null) {
 
             IConfigStore configStore = CMS.getConfigStore();
 
-            String transConfig  = CFG_OPERATIONS_TRANSITIONS;
+            String transConfig = CFG_OPERATIONS_TRANSITIONS;
 
             CMS.debug("TPSEngine.isOperationTransistionAllowed: getting config: " + transConfig);
             try {
-                transitionList = configStore.getString(transConfig,null);
+                transitionList = configStore.getString(transConfig, null);
             } catch (EBaseException e) {
                 throw new TPSException(
                         "TPSProcessor.isOperationTransitionAllowed: Internal error getting config value for operations transition list!",
                         TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
 
-            if(transitionList == null) {
+            if (transitionList == null) {
                 throw new TPSException(
                         "TPSProcessor.isOperationTransitionAllowed: Can't find non null config value for operations transition list!",
                         TPSStatus.STATUS_ERROR_MISCONFIGURATION);
@@ -569,21 +611,21 @@ public class TPSEngine {
 
             CMS.debug("TPSEngine.isOperationTransistionAllowed: transitionList is: " + transitionList);
 
-
         }
 
         String transition = oldState.toInt() + ":" + newState.toInt();
 
         CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition);
 
-        if(transitionList.indexOf(transition) == -1) {
+        if (transitionList.indexOf(transition) == -1) {
             CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition);
             allowed = false;
         }
 
-        CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition + " allowed: " + allowed);
+        CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition + " allowed: "
+                + allowed);
 
-        return  allowed;
+        return allowed;
 
     }
 

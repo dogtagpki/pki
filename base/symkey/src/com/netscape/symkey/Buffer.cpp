@@ -171,10 +171,10 @@ Buffer::dump() const
     unsigned int i;
 
     for( i=0; i < len; ++i ) {
-        printf("%02x ", buf[i]);
-        if( i % 16 == 15 )  printf("\n");
+        PR_fprintf(PR_STDOUT,"%02x ", buf[i]);
+        if( i % 16 == 15 )  PR_fprintf(PR_STDOUT,"\n");
     }
-    printf("\n");
+    PR_fprintf(PR_STDOUT,"\n");
 }
 
 static const char hextbl[] = {

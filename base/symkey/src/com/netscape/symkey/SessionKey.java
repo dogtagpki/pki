@@ -74,6 +74,19 @@ public class SessionKey {
     // external calls from RA
     public static native byte[] ComputeKeyCheck(PK11SymKey desKey); /* byte data[] ); */
 
+   //SCP02/GP211 methods
+
+    public static native byte[] ComputeSessionKeySCP02(String tokenName,
+            String keyName,
+            byte[] keyInfo,
+            byte[] CUID,
+            byte[] devKeyArray,
+            byte[] sequenceCounter,
+            byte[] derivationConstant,
+            String useSoftToken,
+            String keySet,
+            String sharedSecretKeyName);
+
     public static native byte[] ComputeSessionKey(String tokenName,
             String keyName,
             byte[] card_challenge,
@@ -173,7 +186,7 @@ public class SessionKey {
             byte[] CUIDValue,
             byte[] KDD,                           // AC: KDF SPEC CHANGE
             byte[] kekKeyArray,
-            String useSoftToken, String keySet);
+            String useSoftToken, String keySet,byte protocol);
 
     // internal calls from config TKS keys tab
     public static native String GenMasterKey(String token,
@@ -197,4 +210,6 @@ public class SessionKey {
     // with functionality only available now in NSS. This is all to preserve exact functional parity with the current TKS.
     public static native PK11SymKey UnwrapSessionKeyWithSharedSecret(String tokenName, PK11SymKey sharedSecret,
             byte[] sessionKeyArray);
+
+    public static native PK11SymKey DeriveDESKeyFrom3DesKey(String tokenName, PK11SymKey key3Des,long alg);
 }
