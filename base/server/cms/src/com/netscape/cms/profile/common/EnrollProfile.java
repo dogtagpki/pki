@@ -88,6 +88,7 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
@@ -220,8 +221,19 @@ public abstract class EnrollProfile extends BasicProfile
                     new CertificateVersion(CertificateVersion.V3));
             info.set(X509CertInfo.SERIAL_NUMBER,
                     new CertificateSerialNumber(new BigInteger("0")));
-            info.set(X509CertInfo.ISSUER,
-                    new CertificateIssuerName(issuerName));
+            ICertificateAuthority authority =
+                    (ICertificateAuthority) getAuthority();
+            if (authority.getIssuerObj() != null) {
+                // this ensures the isserDN has the same encoding as the
+                // subjectDN of the CA signing cert
+                CMS.debug("EnrollProfile: setDefaultCertInfo: setting issuerDN using exact CA signing cert subjectDN encoding");
+                info.set(X509CertInfo.ISSUER,
+                        authority.getIssuerObj());
+            } else {
+                CMS.debug("EnrollProfile: setDefaultCertInfo: authority.getIssuerObj() is null, creating new CertificateIssuerName");
+                info.set(X509CertInfo.ISSUER,
+                        new CertificateIssuerName(issuerName));
+            }
             info.set(X509CertInfo.KEY,
                     new CertificateX509Key(X509Key.parse(new DerValue(dummykey))));
             info.set(X509CertInfo.SUBJECT,

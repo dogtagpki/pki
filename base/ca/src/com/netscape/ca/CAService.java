@@ -821,8 +821,17 @@ public class CAService implements ICAService, IService {
         }
 
         try {
-            certi.set(X509CertInfo.ISSUER,
-                    new CertificateIssuerName(mCA.getX500Name()));
+            if (mCA.getIssuerObj() != null) {
+                // this ensures the isserDN has the same encoding as the
+                // subjectDN of the CA signing cert
+                CMS.debug("CAService: issueX509Cert: setting issuerDN using exact CA signing cert subjectDN encoding");
+                certi.set(X509CertInfo.ISSUER,
+                        mCA.getIssuerObj());
+            } else {
+                CMS.debug("CAService: issueX509Cert: mCA.getIssuerObj() is null, creating new CertificateIssuerName");
+                certi.set(X509CertInfo.ISSUER,
+                        new CertificateIssuerName(mCA.getX500Name()));
+            }
         } catch (CertificateException e) {
             mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SET_ISSUER", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid));

@@ -23,6 +23,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.CertificateVersion;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CRLImpl;
@@ -510,4 +512,7 @@ public interface ICertificateAuthority extends ISubsystem {
      * @return processed times for OCSP requests
      */
     public long getOCSPTotalData();
+
+    public CertificateIssuerName getIssuerObj();
+    public CertificateSubjectName getSubjectObj();
 }
