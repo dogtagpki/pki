@@ -43,6 +43,8 @@ import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.CertificateVersion;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CRLImpl;
@@ -143,6 +145,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     protected SigningUnit mOCSPSigningUnit;
     protected SigningUnit mCRLSigningUnit;
 
+    protected CertificateIssuerName mIssuerObj = null;
+    protected CertificateSubjectName mSubjectObj = null;
     protected X500Name mName = null;
     protected X500Name mCRLName = null;
     protected X500Name mOCSPName = null;
@@ -888,6 +892,14 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         return mName;
     }
 
+    public CertificateIssuerName getIssuerObj() {
+       return mIssuerObj;
+    }
+
+    public CertificateSubjectName getSubjectObj() {
+       return mSubjectObj;
+    }
+
     public X500Name getCRLX500Name() {
         return mCRLName;
     }
@@ -1199,6 +1211,21 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             IConfigStore caSigningCfg =
                     mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
+            String caSigningCertStr = caSigningCfg.getString("cert", "");
+            if (caSigningCertStr.equals("")) {
+                CMS.debug("CertificateAuthority:initSigUnit: ca.signing.cert not found");
+            } else { //ca cert found
+                CMS.debug("CertificateAuthority:initSigUnit: ca cert found");
+                mCaCert = new X509CertImpl(CMS.AtoB(caSigningCertStr));
+                // this ensures the isserDN and subjectDN have the same encoding
+                // as that of the CA signing cert
+                CMS.debug("CertificateAuthority: initSigUnit 1- setting mIssuerObj and mSubjectObj");
+                mSubjectObj = mCaCert.getSubjectObj();
+                // this mIssuerObj is the "issuerDN" obj for the certs this CA
+                // issues, NOT necessarily the isserDN obj of the CA signing cert
+                mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
+            }
+
             mSigningUnit.init(this, caSigningCfg);
             CMS.debug("CA signing unit inited");
 
@@ -1295,11 +1322,21 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             }
             mOCSPCertChain = new CertificateChain(ocspImplchain);
             CMS.debug("in init - got OCSP chain from JSS.");
-            // init issuer name - take name from the cert.
 
             mCaX509Cert = mSigningUnit.getCert();
             mCaCert = new X509CertImpl(mCaX509Cert.getEncoded());
             getCASigningAlgorithms();
+            mSubjectObj = mCaCert.getSubjectObj();
+            if (mSubjectObj != null) {
+                // this ensures the isserDN and subjectDN have the same encoding
+                // as that of the CA signing cert
+                CMS.debug("CertificateAuthority: initSigUnit - setting mIssuerObj and mSubjectObj");
+                // this mIssuerObj is the "issuerDN" obj for the certs this CA
+                // issues, NOT necessarily the isserDN obj of the CA signing cert
+                // unless the CA is self-signed
+                mIssuerObj =
+                        new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
+            }
             mName = (X500Name) mCaCert.getSubjectDN();
 
             mCRLX509Cert = mCRLSigningUnit.getCert();

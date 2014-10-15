@@ -1055,14 +1055,28 @@ public class CryptoUtil {
             CertificateException,
             InvalidKeyException,
             NoSuchAlgorithmException {
+            CertificateIssuerName issuernameObj =
+                    new CertificateIssuerName(new X500Name(issuername));
+            return createX509CertInfo(x509key, serialno, issuernameObj, subjname, notBefore, notAfter, alg);
+    }
+
+    public static X509CertInfo createX509CertInfo(X509Key x509key,
+            BigInteger serialno, CertificateIssuerName issuernameObj, String subjname,
+            Date notBefore, Date notAfter, String alg)
+            throws IOException,
+            CertificateException,
+            InvalidKeyException,
+            NoSuchAlgorithmException {
         X509CertInfo info = new X509CertInfo();
 
         info.set(X509CertInfo.VERSION, new
                 CertificateVersion(CertificateVersion.V3));
         info.set(X509CertInfo.SERIAL_NUMBER, new
                 CertificateSerialNumber(serialno));
-        info.set(X509CertInfo.ISSUER, new
-                CertificateIssuerName(new X500Name(issuername)));
+        if (issuernameObj != null) {
+            info.set(X509CertInfo.ISSUER,
+                    issuernameObj);
+        }
         info.set(X509CertInfo.SUBJECT, new
                 CertificateSubjectName(new X500Name(subjname)));
         info.set(X509CertInfo.VALIDITY, new

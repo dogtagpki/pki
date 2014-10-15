@@ -873,6 +873,10 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         issuer = (CertificateIssuerName) val;
     }
 
+    public CertificateIssuerName getIssuerObj() {
+        return issuer;
+    }
+
     /**
      * Set the validity interval of the certificate.
      *
@@ -899,6 +903,10 @@ public class X509CertInfo implements CertAttrSet, Serializable {
                     "Subject class type invalid.");
         }
         subject = (CertificateSubjectName) val;
+    }
+
+    public CertificateSubjectName getSubjectObj() {
+        return subject;
     }
 
     /**

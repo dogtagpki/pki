@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
@@ -390,6 +391,7 @@ public class CertUtil {
             cr = ca.getCertificateRepository();
             BigInteger serialNo = cr.getNextSerialNumber();
             if (type.equals("selfsign")) {
+                CMS.debug("Creating local certificate... selfsign cert");
                 CMS.debug("Creating local certificate... issuerdn=" + dn);
                 CMS.debug("Creating local certificate... dn=" + dn);
                 info = CryptoUtil.createX509CertInfo(x509key, serialNo, dn, dn, date, date, keyAlgorithm);
@@ -397,8 +399,18 @@ public class CertUtil {
                 String issuerdn = config.getString("preop.cert.signing.dn", "");
                 CMS.debug("Creating local certificate... issuerdn=" + issuerdn);
                 CMS.debug("Creating local certificate... dn=" + dn);
+                if (ca.getIssuerObj() != null) {
+                    // this ensures the isserDN has the same encoding as the
+                    // subjectDN of the CA signing cert
+                    CMS.debug("Creating local certificate...  setting issuerDN using exact CA signing cert subjectDN encoding");
+                    CertificateIssuerName issuerdnObj =
+                        ca.getIssuerObj();
 
-                info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdn, dn, date, date, keyAlgorithm);
+                    info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdnObj, dn, date, date, keyAlgorithm);
+                } else {
+                    CMS.debug("Creating local certificate... ca.getIssuerObj() is null, creating new CertificateIssuerName");
+                    info = CryptoUtil.createX509CertInfo(x509key, serialNo, issuerdn, dn, date, date, keyAlgorithm);
+                }
             }
             CMS.debug("Cert Template: " + info.toString());
 

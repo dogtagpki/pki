@@ -725,6 +725,10 @@ public class X509CertImpl extends X509Certificate
         }
     }
 
+    public CertificateSubjectName getSubjectObj() {
+        return info.getSubjectObj();
+    }
+
     /**
      * Gets the issuer distinguished name from the certificate.
      *
@@ -741,6 +745,10 @@ public class X509CertImpl extends X509Certificate
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public CertificateIssuerName getIssuerObj() {
+        return info.getIssuerObj();
     }
 
     /**
