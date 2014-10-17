@@ -108,7 +108,7 @@ run_pki-user-cli-user-add-ca_tests(){
     rlPhaseEnd
 
      ##### Tests to add CA users using a user of admin group with a valid cert####
-    rlPhaseStartTest "pki_user_cli_user_add-CA-001: Add a user to CA using ${prefix}_adminV"
+    rlPhaseStartTest "pki_user_cli_user_add-CA-001: Add a user to CA using CA_adminV"
 	user1=ca_agent2
 	user1fullname="Test ca_agent"
         rlLog "Executing: pki -d $CERTDB_DIR \

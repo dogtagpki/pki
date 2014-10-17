@@ -45,26 +45,50 @@
 ########################################################################
 
 run_pki-ca-user-cli-ca-user-del_tests(){
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
+	prefix=$subsystemId
+	if [ "$TOPO9" = "TRUE" ] ; then
+        	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+	        prefix=$subsystemId
+        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	elif [ "$MYROLE" = "MASTER" ] ; then
+        	if [[ $subsystemId == SUBCA* ]]; then
+                	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+	                prefix=$subsystemId
+        	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	        else
+        	        ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                	prefix=ROOTCA
+	                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        	fi
+	else
+        	ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+	        prefix=$MYROLE
+        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+	fi
+	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 
-    rlPhaseStartSetup "pki_user_cli_user_del-CA-ca-startup: Create temporary directory"
+    rlPhaseStartSetup "pki_ca_user_cli_ca_user_del-ca-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-ca-configtest-001: pki user-del --help configuration test"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-ca-configtest-001: pki user-del --help configuration test"
         rlRun "pki user-del --help > $TmpDir/user_del.out 2>&1" 0 "pki user-del --help"
         rlAssertGrep "usage: user-del <User ID>" "$TmpDir/user_del.out"
         rlAssertGrep "\--help   Show help options" "$TmpDir/user_del.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-ca-configtest-002: pki user-del configuration test"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-ca-configtest-002: pki user-del configuration test"
         rlRun "pki user-del > $TmpDir/user_del_2.out 2>&1" 255 "pki user-del"
         rlAssertGrep "usage: user-del <User ID>" "$TmpDir/user_del_2.out"
         rlAssertGrep " --help   Show help options" "$TmpDir/user_del_2.out"
 	rlAssertNotGrep "ResteasyIOException: IOException" "$TmpDir/user_del_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-003: Delete valid users" 
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-003: Delete valid users" 
 	user1=ca_agent2
 	user1fullname="Test ca_agent"
 	user2=abcdefghijklmnopqrstuvwxyx12345678
@@ -78,8 +102,10 @@ run_pki-ca-user-cli-ca-user-del_tests(){
 	i=1
         while [ $i -lt 25 ] ; do
                rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+			  -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-add --fullName=test_user u$i"
                 let i=$i+1
         done
@@ -87,18 +113,16 @@ run_pki-ca-user-cli-ca-user-del_tests(){
 	#===Deleting users created using CA_adminV cert===#
 	i=1
 	while [ $i -lt 25 ] ; do
-	       rlLog "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
-                          -c $CERTDB_DIR_PASSWORD \
-                           user-del  u$i"
                rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+ 			  -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del  u$i > $TmpDir/pki-user-del-ca-user1-00$i.out" \
                            0 \
                            "Deleted user  u$i"
 		rlAssertGrep "Deleted user \"u$i\"" "$TmpDir/pki-user-del-ca-user1-00$i.out"
-	   	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD	user-show u$i"
+	   	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD	 -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT)  user-show u$i"
 		errmsg="UserNotFoundException: User u$i not found"
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user should not exist"
@@ -109,8 +133,10 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         while [ $i -lt 8 ] ; do
 	       eval usr=\$user$i
                rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+			  -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-add --fullName=test_user $usr"
                 let i=$i+1
         done
@@ -119,18 +145,16 @@ run_pki-ca-user-cli-ca-user-del_tests(){
 	j=1
         while [ $j -lt 8 ] ; do
 	       eval usr=\$user$j
-	       rlLog "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
-                          -c $CERTDB_DIR_PASSWORD \
-                           user-del $usr "
                rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+			  -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del $usr > $TmpDir/pki-user-del-ca-user2-00$j.out" \
 			   0 \
 			   "Deleted user  $usr"
 		rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user2-00$j.out"
-	   	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD	user-show $usr"
+	   	command="pki -d $CERTDB_DIR -n  ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT)  user-show $usr"
 		errmsg="UserNotFoundException: User $usr not found"
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user should not exist"
@@ -138,48 +162,58 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         done
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-004: Case sensitive userid"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-004: Case sensitive userid"
 	rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-add --fullName=test_user user_abc"
 	rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del  USER_ABC > $TmpDir/pki-user-del-ca-user-002_1.out" \
                            0 \
                            "Deleted user USER_ABC userid is not case sensitive"
         rlAssertGrep "Deleted user \"USER_ABC\"" "$TmpDir/pki-user-del-ca-user-002_1.out"
-	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD	user-show user_abc"
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD	-h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show user_abc"
 	errmsg="UserNotFoundException: User user_abc not found"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user user_abc should not exist"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-005: Delete user when required option user id is missing"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-005: Delete user when required option user id is missing"
 	rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del  > $TmpDir/pki-user-del-ca-user-003_1.out 2>&1" \
                            255 \
                            "Cannot delete a user without userid"
         rlAssertGrep "usage: user-del <User ID>" "$TmpDir/pki-user-del-ca-user-003_1.out"
     rlPhaseEnd
   
-    rlPhaseStartTest "pki_user_cli_user_del-CA-006: Maximum length of user id"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-006: Maximum length of user id"
 	user2=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+	 	   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test \"$user2\" > $TmpDir/pki-user-add-ca-001_1.out" \
                     0 \
                     "Added user using CA_adminV with maximum user id length"
 	rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
-                          -c $CERTDB_DIR_PASSWORD \
-                           user-del \"$user2\" > $TmpDir/pki-user-del-ca-user-006.out" \
-                           0 \
-                           "Deleting user with maximum user id length using CA_adminV"
+                   -n ${prefix}_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+	 	   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-del \"$user2\" > $TmpDir/pki-user-del-ca-user-006.out" \
+                    0 \
+                    "Deleting user with maximum user id length using CA_adminV"
 	actual_userid_string=`cat $TmpDir/pki-user-del-ca-user-006.out | grep 'Deleted user' | xargs echo`
         expected_userid_string="Deleted user $user2"  
 	if [[ $actual_userid_string = $expected_userid_string ]] ; then
@@ -187,23 +221,27 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         else
                 rlFail "Deleted user \"$user2\" not found"
         fi
-	command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-show \"$user2\""
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show \"$user2\""
         errmsg="UserNotFoundException: User \"$user2\" not found"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user with max length should not exist"
     rlPhaseEnd 
     
-    rlPhaseStartTest "pki_user_cli_user_del-CA-007: userid with maximum length and symbols"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-007: userid with maximum length and symbols"
 	userid=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test '$userid' > $TmpDir/pki-user-add-ca-001_8.out" \
                     0 \
                     "Added user using CA_adminV with maximum userid length and character symbols in it"
 	rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del '$userid' > $TmpDir/pki-user-del-ca-user-007.out" \
                            0 \
                            "Deleting user with maximum user id length and character symbols using CA_adminV"	
@@ -215,8 +253,10 @@ run_pki-ca-user-cli-ca-user-del_tests(){
                 rlFail "Deleted user $userid not found"
         fi
 	rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
+			  -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-show '$userid'  > $TmpDir/pki-user-del-ca-user-007_2.out 2>&1" \
                            255 \
                            "Verify expected error message - deleted user with max length and character symbols should not exist"
@@ -229,7 +269,7 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         fi
      rlPhaseEnd
     
-     rlPhaseStartTest "pki_user_cli_user_del-CA-008: delete user that has all attributes and a certificate"
+     rlPhaseStartTest "pki_ca_user_cli_ca_user_del-008: delete user that has all attributes and a certificate"
 	user1="testuser1"
 	user1fullname="Test ca_agent"
 	email="ca_agent2@myemail.com"
@@ -239,8 +279,10 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         type="Administrators"	
 	pem_file="$TmpDir/testuser1.pem"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-add --fullName=\"$user1fullname\"  \
 		    --email $email \
@@ -258,25 +300,29 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         local valid_serialNumber
         local temp_out="$TmpDir/usercert-show.out"
         rlRun "create_cert_request $TEMP_NSS_DB Password pkcs10 rsa 2048 \"$user1\" \"$user1fullname\" \
-                \"$user1@example.org\" \"Engineering\" \"Example.Inc\" "US" "--" "ret_reqstatus" "ret_requestid"" 0 "Generating  pkcs10 Certificate Request"
-        rlLog "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
+                \"$user1@example.org\" \"Engineering\" \"Example.Inc\" "US" "--" "ret_reqstatus" "ret_requestid" $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT)" 0 "Generating  pkcs10 Certificate Request"
+        rlLog "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"${prefix}_agentV\" -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-cert-request-review $ret_requestid \
                 --action approve 1"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
-                --action approve 1> $TmpDir/pki-approve-out" 0 "Approve Certificate requeset"
+        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"${prefix}_agentV\" -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-cert-request-review $ret_requestid \
+                --action approve 1> $TmpDir/pki-approve-out" 0 "Approve Certificate request"
         rlAssertGrep "Approved certificate request $ret_requestid" "$TmpDir/pki-approve-out"
-        rlLog "pki cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
-        rlRun "pki cert-request-show $ret_requestid > $TmpDir/usercert-show1.out"
+        rlLog "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-request-show $ret_requestid > $TmpDir/usercert-show1.out"
         valid_serialNumber=`cat $TmpDir/usercert-show1.out | grep 'Certificate ID' | sed 's/ //g' | cut -d: -f2`
         rlLog "valid_serialNumber=$valid_serialNumber"
-        rlRun "pki cert-show $valid_serialNumber --output $pem_file" 0 "command pki cert-show $valid_serialNumber --output"
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $valid_serialNumber --output $pem_file" 0 "command pki cert-show $valid_serialNumber --output"
 	rlLog "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-cert-add $user1 --input $pem_file" 
         rlRun "pki -d $CERTDB_DIR/ \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-cert-add $user1 --input $pem_file  > $TmpDir/pki_user_cert_add_CA_useraddcert_008.out" \
                     0 \
@@ -284,66 +330,74 @@ run_pki-ca-user-cli-ca-user-del_tests(){
 	#Add user to Administrator's group
 	gid="Administrators"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-membership-add $user1 \"$gid\" > $TmpDir/pki-user-membership-add-groupadd-ca-008.out" \
                     0 \
                     "Adding user $user1 to group \"$gid\""	
 	#Delete user
 	rlRun "pki -d $CERTDB_DIR \
-                          -n CA_adminV \
-                          -c $CERTDB_DIR_PASSWORD \
-                           user-del  $user1 > $TmpDir/pki-user-del-ca-user-008.out" \
-                           0 \
-                           "Deleting user $user1 with all attributes and a certificate"
+                   -n ${prefix}_adminV \
+                   -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-del  $user1 > $TmpDir/pki-user-del-ca-user-008.out" \
+                    0 \
+                    "Deleting user $user1 with all attributes and a certificate"
         rlAssertGrep "Deleted user \"$user1\"" "$TmpDir/pki-user-del-ca-user-008.out"
-        command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-show $user1"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show $user1"
         errmsg="UserNotFoundException: User $user1 not found"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user $user1 should not exist"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-009: Delete user from CA with -t option"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-009: Delete user from CA with -t option"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=\"u22fullname\"  u22 > $TmpDir/pki-user-add-ca-009.out" \
                     0 \
                     "Add user u22 to CA"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -t ca \
                     user-del u22 > $TmpDir/pki-user-del-ca-user-009.out" \
                     0 \
                     "Deleting user u22 using -t ca option" 
 	rlAssertGrep "Deleted user \"u22\"" "$TmpDir/pki-user-del-ca-user-009.out"
-        command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-show u22"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD  -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u22"
         errmsg="UserNotFoundException: User u22 not found"
 	errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user u22 should not exist"	
     rlPhaseEnd 
      
-    rlPhaseStartTest "pki_user_cli_user_del-CA-010: Should not be able to delete user using a revoked cert CA_adminR"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-010: Should not be able to delete user using a revoked cert CA_adminR"
 	#Add a user
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=\"u23fullname\"  u23 > $TmpDir/pki-user-add-ca-010.out" \
                     0 \
                     "Add user u23 to CA"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_adminR \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del u23"
-	command="pki -d $CERTDB_DIR -n CA_adminR -c $CERTDB_DIR_PASSWORD user-del u23"
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
 	errmsg="PKIException: Unauthorized"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a admin having a revoked cert"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-001.out" \
 		    0 \
 		    "Show user u23"
@@ -352,19 +406,17 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-001.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-011: Should not be able to delete user using a agent with revoked cert CA_agentR"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_agentR \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del u23"
-	command="pki -d $CERTDB_DIR -n CA_agentR -c $CERTDB_DIR_PASSWORD user-del u23"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-011: Should not be able to delete user using a agent with revoked cert CA_agentR"
+	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
 	errmsg="PKIException: Unauthorized"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a agent having a revoked cert"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-002.out" \
                     0 \
                     "Show user u23"
@@ -373,19 +425,17 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-012: Should not be able to delete user using a valid agent CA_agentV user"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_agentV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del u23"
-	command="pki -d $CERTDB_DIR -n CA_agentV  -c $CERTDB_DIR_PASSWORD user-del u23"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-012: Should not be able to delete user using a valid agent CA_agentV user"
+	command="pki -d $CERTDB_DIR -n ${prefix}_agentV  -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a valid agent cert"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-003.out" \
                     0 \
                     "Show user u23"
@@ -394,15 +444,11 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-003.out"
     rlPhaseEnd
     
-    rlPhaseStartTest "pki_user_cli_user_del-CA-013: Should not be able to delete user using a admin user with expired cert CA_adminE"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-013: Should not be able to delete user using a admin user with expired cert CA_adminE"
 	#Set datetime 2 days ahead
         rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
 	rlRun "date"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_adminE \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del u23"
-	command="pki -d $CERTDB_DIR -n CA_adminE -c $CERTDB_DIR_PASSWORD user-del u23"
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminE -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
 	errmsg="PKIException: Unauthorized" 
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using an expired admin cert"
@@ -411,8 +457,10 @@ run_pki-ca-user-cli-ca-user-del_tests(){
 	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-004.out" \
                     0 \
                     "Show user u23"
@@ -421,14 +469,10 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-004.out"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-014: Should not be able to delete a user using CA_agentE cert"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-014: Should not be able to delete a user using CA_agentE cert"
 	rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
         rlRun "date"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_agentE \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del u23"
-	command="pki -d $CERTDB_DIR -n CA_agentE -c $CERTDB_DIR_PASSWORD user-del u23"
+	command="pki -d $CERTDB_DIR -n ${prefix}_agentE -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
 	errmsg="ClientResponseFailure: Error status 401 Unauthorized returned"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a agent cert"
@@ -437,8 +481,10 @@ run_pki-ca-user-cli-ca-user-del_tests(){
 	rlRun "date --set='-2 days'" 0 "Set System back to the present day"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-005.out" \
                     0 \
                     "Show user u23"
@@ -447,19 +493,17 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-005.out"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-015: Should not be able to delete user using a CA_auditV"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_auditV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del u23"
-	command="pki -d $CERTDB_DIR -n CA_auditV -c $CERTDB_DIR_PASSWORD user-del u23"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-015: Should not be able to delete user using a CA_auditV"
+	command="pki -d $CERTDB_DIR -n ${prefix}_auditV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a audit cert"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-006.out" \
                     0 \
                     "Show user u23"
@@ -468,19 +512,17 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-006.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-016: Should not be able to delete user using a CA_operatorV"
-        rlLog "Executing: pki -d $CERTDB_DIR \
-                   -n CA_operatorV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del u23"
-	command="pki -d $CERTDB_DIR -n CA_operatorV -c $CERTDB_DIR_PASSWORD user-del u23"
-	errmsg="ForbiddenException: Authorization failed on resource: certServer.ca.users, operation: execute"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-016: Should not be able to delete user using a CA_operatorV"
+	command="pki -d $CERTDB_DIR -n ${prefix}_operatorV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
+	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a operator cert"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-007.out" \
                     0 \
                     "Show user u23"
@@ -489,19 +531,23 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-007.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-017: Should not be able to delete user using a cert created from a untrusted CA CA_adminUTCA"
-        rlLog "Executing: pki -d /tmp/untrusted_cert_db \
-                   -n CA_adminUTCA \
-                   -c Password \
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-017: Should not be able to delete user using a cert created from a untrusted CA CA_adminUTCA"
+        rlLog "Executing: pki -d $UNTRUSTED_CERT_DB_LOCATION \
+                   -n role_user_UTCA \
+                   -c $UNTRUSTED_CERT_DB_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-del u23"
-	command="pki -d /tmp/untrusted_cert_db -n CA_adminUTCA -c Password user-del u23"
+	command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23"
 	errmsg="PKIException: Unauthorized"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete user u23 using a untrusted cert"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-008.out" \
                     0 \
                     "Show user u23"
@@ -510,7 +556,7 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         rlAssertGrep "Full name: u23fullname" "$TmpDir/pki-user-show-ca-008.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-018: Should not be able to delete user using a user cert"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-018: Should not be able to delete user using a user cert"
         local TEMP_NSS_DB="$TmpDir/nssdb"
         local ret_reqstatus
         local ret_requestid
@@ -518,25 +564,27 @@ run_pki-ca-user-cli-ca-user-del_tests(){
         local temp_out="$TmpDir/usercert-show.out"
         #Create a user cert
         rlRun "create_cert_request $TEMP_NSS_DB Password pkcs10 rsa 2048 \"pki User1\" \"pkiUser1\" \
-                \"pkiuser1@example.org\" \"Engineering\" \"Example.Inc\" "US" "--" "ret_reqstatus" "ret_requestid"" 0 "Generating  pkcs10 Certificate Request"
-        rlLog "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
+                \"pkiuser1@example.org\" \"Engineering\" \"Example.Inc\" "US" "--" "ret_reqstatus" "ret_requestid" $SUBSYSTEM_HOST $(eval echo \$${subsystemId}_UNSECURE_PORT)" 0 "Generating  pkcs10 Certificate Request"
+        rlLog "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"${prefix}_agentV\" -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-cert-request-review $ret_requestid \
                 --action approve 1"
-        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"CA_agentV\" ca-cert-request-review $ret_requestid \
-                --action approve 1> $TmpDir/pki-approve-out" 0 "Approve Certificate requeset"
+        rlRun "pki -d $CERTDB_DIR -c $CERTDB_DIR_PASSWORD -n \"${prefix}_agentV\" -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-cert-request-review $ret_requestid \
+                --action approve 1> $TmpDir/pki-approve-out" 0 "Approve Certificate request"
         rlAssertGrep "Approved certificate request $ret_requestid" "$TmpDir/pki-approve-out"
-        rlLog "pki cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
-        rlRun "pki cert-request-show $ret_requestid > $TmpDir/usercert-show1.out"
+        rlLog "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-request-show $ret_requestid | grep \"Certificate ID\" | sed 's/ //g' | cut -d: -f2)"
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-request-show $ret_requestid > $TmpDir/usercert-show1.out"
         valid_serialNumber=`cat $TmpDir/usercert-show1.out | grep 'Certificate ID' | sed 's/ //g' | cut -d: -f2`
         rlLog "valid_serialNumber=$valid_serialNumber"
         #Import user certs to $TEMP_NSS_DB
-        rlRun "pki cert-show $valid_serialNumber --encoded > $temp_out" 0 "command pki cert-show $valid_serialNumber --encoded"
+        rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) cert-show $valid_serialNumber --encoded > $temp_out" 0 "command pki cert-show $valid_serialNumber --encoded"
         rlRun "certutil -d $TEMP_NSS_DB -A -n pkiUser1 -i $temp_out  -t \"u,u,u\""
         local expfile="$TmpDir/expfile_pkiuser1.out"
         rlLog "Executing: pki -d $TEMP_NSS_DB \
                    -n pkiUser1 \
                    -c Password \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-del u23"
-        echo "spawn -noecho pki -d $TEMP_NSS_DB -n pkiUser1 -c Password user-del u23" > $expfile
+        echo "spawn -noecho pki -d $TEMP_NSS_DB -n pkiUser1 -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-del u23" > $expfile
         echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$CA_DOMAIN Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain'
 Import CA certificate (Y/n)? \"" >> $expfile
         echo "send -- \"Y\r\"" >> $expfile
@@ -550,8 +598,10 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-del-ca-pkiUser1-002.out"
 	#Make sure user is not deleted
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-show u23 > $TmpDir/pki-user-show-ca-009.out" \
                     0 \
                     "Show user u23"
@@ -561,82 +611,68 @@ Import CA certificate (Y/n)? \"" >> $expfile
 
 	#Cleanup:delete user u23
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-del u23 > $TmpDir/pki-user-del-ca-018.out 2>&1"	
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-019: delete user id with i18n characters"
-	rlLog "user-add userid ÖrjanÄke with i18n characters"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-019: delete user name with i18n characters"
+	rlLog "user-add user name ÖrjanÄke with i18n characters"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test 'ÖrjanÄke' > $TmpDir/pki-user-add-ca-001_19.out 2>&1" \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-add --fullName='ÖrjanÄke' u19 > $TmpDir/pki-user-add-ca-001_19.out 2>&1" \
                     0 \
-                    "Adding uid ÖrjanÄke with i18n characters"
-        rlAssertGrep "Added user \"ÖrjanÄke\"" "$TmpDir/pki-user-add-ca-001_19.out"
-        rlAssertGrep "User ID: ÖrjanÄke" "$TmpDir/pki-user-add-ca-001_19.out"
-	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show 'ÖrjanÄke' > $TmpDir/pki-user-add-ca-001_19_2.out" \
-                    0 \
-                    "Show user 'ÖrjanÄke'"
-	rlAssertGrep "User \"ÖrjanÄke\"" "$TmpDir/pki-user-add-ca-001_19_2.out"
-        rlAssertGrep "User ID: ÖrjanÄke" "$TmpDir/pki-user-add-ca-001_19_2.out"
-	rlLog "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del 'ÖrjanÄke'"
+                    "Adding user name ÖrjanÄke with i18n characters"
+        rlAssertGrep "Added user \"u19\"" "$TmpDir/pki-user-add-ca-001_19.out"
+        rlAssertGrep "User ID: u19" "$TmpDir/pki-user-add-ca-001_19.out"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-del 'ÖrjanÄke' > $TmpDir/pki-user-del-ca-001_19_3.out 2>&1" \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-del u19 > $TmpDir/pki-user-del-ca-001_19_3.out 2>&1" \
                     0 \
-                    "Delete uid ÖrjanÄke with i18n characters"
-	rlAssertGrep "Deleted user \"ÖrjanÄke\""  "$TmpDir/pki-user-del-ca-001_19_3.out"
-        command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-show 'ÖrjanÄke'"
-        errmsg="UserNotFoundException: User 'ÖrjanÄke' not found"
+                    "Delete user name ÖrjanÄke with i18n characters"
+	rlAssertGrep "Deleted user \"u19\""  "$TmpDir/pki-user-del-ca-001_19_3.out"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u19"
+        errmsg="UserNotFoundException: User u19 not found"
 	errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user 'ÖrjanÄke' should not exist"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user u19 should not exist"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA-020: delete userid with i18n characters"
-        rlLog "user-add userid ÉricTêko with i18n characters"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del-020: delete user name with i18n characters"
+        rlLog "user-add user name ÉricTêko with i18n characters"
         rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-add --fullName=test 'ÉricTêko' > $TmpDir/pki-user-add-ca-001_20.out 2>&1" \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-add --fullName='ÉricTêko' u20 > $TmpDir/pki-user-add-ca-001_20.out 2>&1" \
                     0 \
-                    "Adding user id ÉricTêko with i18n characters"
-        rlAssertGrep "Added user \"ÉricTêko\"" "$TmpDir/pki-user-add-ca-001_20.out"
-        rlAssertGrep "User ID: ÉricTêko" "$TmpDir/pki-user-add-ca-001_20.out"
-        rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-show 'ÉricTêko' > $TmpDir/pki-user-add-ca-001_20_2.out" \
-                    0 \
-                    "Show user 'ÉricTêko'"
-        rlAssertGrep "User \"ÉricTêko\"" "$TmpDir/pki-user-add-ca-001_20_2.out"
-        rlAssertGrep "User ID: ÉricTêko" "$TmpDir/pki-user-add-ca-001_20_2.out"
-	rlLog "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
-                   -c $CERTDB_DIR_PASSWORD \
-                    user-del 'ÉricTêko'"
+                    "Adding user name ÉricTêko with i18n characters"
+        rlAssertGrep "Added user \"u20\"" "$TmpDir/pki-user-add-ca-001_20.out"
+        rlAssertGrep "User ID: u20" "$TmpDir/pki-user-add-ca-001_20.out"
 	rlRun "pki -d $CERTDB_DIR \
-                   -n CA_adminV \
+                   -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
-                    user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-001_20_3.out 2>&1" \
+		   -h $SUBSYSTEM_HOST \
+                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-del u20 > $TmpDir/pki-user-del-ca-001_20_3.out 2>&1" \
                     0 \
-                    "Delete uid ÉricTêko with i18n characters"
-	rlAssertGrep "Deleted user \"ÉricTêko\""  "$TmpDir/pki-user-del-ca-001_20_3.out"
-        command="pki -d $CERTDB_DIR -n CA_adminV -c $CERTDB_DIR_PASSWORD user-show 'ÉricTêko'"
-        errmsg="UserNotFoundException: User 'ÉricTêko' not found"
+                    "Delete user name ÉricTêko with i18n characters"
+	rlAssertGrep "Deleted user \"u20\""  "$TmpDir/pki-user-del-ca-001_20_3.out"
+        command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-show u20"
+        errmsg="UserNotFoundException: User u20 not found"
 	errorcode=255
-        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user 'ÉricTêko' should not exist"
+        rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - deleted user u20 should not exist"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_del-CA_cleanup-004: Deleting the temp directory"
+    rlPhaseStartTest "pki_ca_user_cli_ca_user_del_cleanup: Deleting the temp directory"
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
