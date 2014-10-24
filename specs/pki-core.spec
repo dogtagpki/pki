@@ -4,8 +4,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
-Version:          10.2.0
-Release:          3%{?dist}
+Version:          10.2.1
+Release:          0.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -851,6 +851,11 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Fri Oct 24 2014 Dogtag Team <pki-devel@redhat.com> 10.2.1-0.1
+- Updated version number to 10.2.1-0.1.
+- Added CLIs to simplify generating user certificates
+- Added enhancements to KRA Python API
+
 * Wed Oct 15 2014 Abhishek Koneru <akoneru@redhat.com>
 - Added a man page for pki ca-profile commands.
 

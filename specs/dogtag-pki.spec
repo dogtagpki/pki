@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          10.2.0
-Release:          3%{?dist}
+Version:          10.2.1
+Release:          0.1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -13,11 +13,11 @@ BuildArch:        noarch
 ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %endif
 
-%define dogtag_pki_theme_version   10.2.0
+%define dogtag_pki_theme_version   %{version}
 %define esc_version                1.1.0
 %define jss_version                4.2.6-31
-%define pki_core_version           10.2.0
-%define pki_console_version        10.2.0
+%define pki_core_version           %{version}
+%define pki_console_version        %{version}
 %define tomcatjss_version          7.1.0
 
 Requires:         apache-commons-codec
@@ -106,6 +106,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Oct 24 2014 Dogtag Team <pki-devel@redhat.com> 10.2.1-0.1
+- Updated version number to 10.2.1-0.1.
+
 * Tue Sep  9 2014 Matthew Harmsen <mharmsen@redhat.com> 10.2.0-3
 - PKI TRAC Ticket #1136 - Remove ipa-pki-theme component
 - Remove 'ca-ui', 'kra-ui', 'ocsp-ui', 'ra-ui', 'tks-ui', and 'tps-ui'
