@@ -28,7 +28,7 @@
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson-annotations.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-core-asl.jar"/>

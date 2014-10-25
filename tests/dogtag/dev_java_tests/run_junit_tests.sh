@@ -26,7 +26,7 @@ run_dev_junit_tests() {
     export nss_db_dir nss_db_password admin_cert_nickname host CA_CLIENT_PKCS12_PASSWORD RUNNING_WITH_BEAKER
 
     ### Add all the pki packages and other dependent pki packages to the class path
-    CLASSPATH=/usr/share/java/junit4.jar
+    CLASSPATH=/usr/share/java/junit.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/pki/*
     CLASSPATH=$CLASSPATH:/usr/lib64/jss/jss4.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/httpcomponents/httpclient.jar
