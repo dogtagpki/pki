@@ -33,6 +33,7 @@ BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
+BuildRequires:    python-sphinx
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
@@ -688,6 +689,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %files -n pki-base
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
+%doc base/common/html/
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
 %{_datadir}/pki/etc/
@@ -706,6 +708,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
 %{_mandir}/man8/pki-upgrade.8.gz
+%{_mandir}/man1/pki-python-client.1.gz
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -855,15 +858,14 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 - Updated version number to 10.2.1-0.1.
 - Added CLIs to simplify generating user certificates
 - Added enhancements to KRA Python API
-
-* Wed Oct 15 2014 Abhishek Koneru <akoneru@redhat.com>
-- Added a man page for pki ca-profile commands.
+- Added python api docs
 
 * Wed Oct 1 2014 Ade Lee <alee@redhat.com> 10.2.0-3
 - Disable pylint dependency for RHEL builds
 - Added jakarta-commons-httpclient requirements
 - Added tomcat version for RHEL build
 - Added resteasy-base-client for RHEL build
+- Added a man page for pki ca-profile commands. (akoneru)
 
 * Wed Sep 24 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-2
 - PKI TRAC Ticket #1130 - Add RHEL/CentOS conditionals to spec
