@@ -622,7 +622,7 @@ class PKIUpgrader(object):
             except pki.PKIException:
                 raise
 
-            except Exception as e:
+            except Exception as e: # pylint: disable-msg=W0703
 
                 print
 
@@ -689,7 +689,7 @@ class PKIUpgrader(object):
             except pki.PKIException:
                 raise
 
-            except Exception as e:
+            except Exception as e: # pylint: disable-msg=W0703
 
                 print
 
