@@ -183,7 +183,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'dogtag.tex', u'Dogtag Certificate Server Python Client Documentation',
+  ('index', 'dogtag.tex', u'Dogtag Python Client API',
    u'Author', 'manual'),
 ]
 
@@ -213,7 +213,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pki-python-client', u'Dogtag Python Client Documentation',
+    ('index', 'pki-python-client', u'Dogtag Python Client API',
      [u'Dogtag PKI Project Team'], 1)
 ]
 
@@ -227,7 +227,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Dogtag', u'Dogtag Certificate Server Python Client Documentation',
+  ('index', 'Dogtag', u'Dogtag Python Client API',
    u'Author', 'Dogtag PKI Team', 'Dogtag is an enterprise software system designed to manage enterprise Public Key Infrastructure (PKI) deployments.',
    'Miscellaneous'),
 ]

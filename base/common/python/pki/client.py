@@ -23,9 +23,29 @@ import requests
 
 
 class PKIConnection:
+    """
+    Class to encapsulate the connection between the client and a Dogtag
+    subsystem.
+    """
 
     def __init__(self, protocol='http', hostname='localhost', port='8080',
                  subsystem='ca', accept='application/json'):
+        """
+        Set the parameters for a python-requests based connection to a
+        Dogtag subsystem.
+        :param protocol: http or https
+        :type protocol: str
+        :param hostname: hostname of server
+        :type hostname: str
+        :param port: port of server
+        :type port: str
+        :param subsystem: ca, kra, ocsp, tks or tps
+        :type subsystem: str
+        :param accept: value of accept header.  Supported values are usually
+           'application/json' or 'application/xml'
+        :type accept: str
+        :return: PKIConnection object.
+        """
 
         self.protocol = protocol
         self.hostname = hostname
@@ -41,10 +61,30 @@ class PKIConnection:
             self.session.headers.update({'Accept': accept})
 
     def authenticate(self, username=None, password=None):
+        """
+        Set the parameters used for authentication if username/password is to
+        be used.  Both username and password must not be None.
+        Note that this method only sets the parameters.  Actual authentication
+        occurs when the connection is attempted,
+
+        :param username: username to authenticate connection
+        :param password: password to authenticate connection
+        :return: None
+        """
         if username is not None and password is not None:
             self.session.auth = (username, password)
 
     def set_authentication_cert(self, pem_cert_path):
+        """
+        Set the path to the PEM file containing the certificate and private key
+        for the client certificate to be used for authentication to the server,
+        when client certificate authentication is required.
+
+        :param pem_cert_path: path to the PEM file
+        :type pem_cert_path: str
+        :return: None
+        :raises: Exception if path is empty or None.
+        """
         if pem_cert_path is None:
             raise Exception("No path for the certificate specified.")
         if len(str(pem_cert_path)) == 0:
@@ -52,6 +92,21 @@ class PKIConnection:
         self.session.cert = pem_cert_path
 
     def get(self, path, headers=None, params=None, payload=None):
+        """
+        Uses python-requests to issue a GET request to the server.
+
+        :param path: path URI for the GET request
+        :type path: str
+        :param headers: headers for the GET request
+        :type headers: dict
+        :param params: Query parameters for the GET request
+        :type params: dict or bytes
+        :param payload: data to be sent in the body of the request
+        :type payload: dict, bytes, file-like object
+        :returns: request.response -- response from the server
+        :raises: Exception from python-requests in case the GET was not
+            successful, or returns an error code.
+        """
         r = self.session.get(
             self.serverURI + path,
             verify=False,
@@ -62,6 +117,21 @@ class PKIConnection:
         return r
 
     def post(self, path, payload, headers=None, params=None):
+        """
+        Uses python-requests to issue a POST request to the server.
+
+        :param path: path URI for the POST request
+        :type path: str
+        :param payload: data to be sent in the body of the request
+        :type payload: dict, bytes, file-like object
+        :param headers: headers for the POST request
+        :type headers: dict
+        :param params: Query parameters for the POST request
+        :type params: dict or bytes
+        :returns: request.response -- response from the server
+        :raises: Exception from python-requests in case the POST was not
+            successful, or returns an error code.
+        """
         r = self.session.post(
             self.serverURI + path,
             verify=False,
@@ -72,16 +142,45 @@ class PKIConnection:
         return r
 
     def put(self, path, payload, headers=None):
+        """
+        Uses python-requests to issue a PUT request to the server.
+
+        :param path: path URI for the PUT request
+        :type path: str
+        :param payload: data to be sent in the body of the request
+        :type payload: dict, bytes, file-like object
+        :param headers: headers for the PUT request
+        :type headers: dict
+        :returns: request.response -- response from the server
+        :raises: Exception from python-requests in case the PUT was not
+            successful, or returns an error code.
+        """
         r = self.session.put(self.serverURI + path, payload, headers=headers)
         r.raise_for_status()
         return r
 
     def delete(self, path, headers=None):
+        """
+        Uses python-requests to issue a DEL request to the server.
+
+        :param path: path URI for the DEL request
+        :type path: str
+        :param headers: headers for the DEL request
+        :type headers: dict
+        :returns: request.response -- response from the server
+        :raises: Exception from python-requests in case the DEL was not
+            successful, or returns an error code.
+        """
         r = self.session.delete(self.serverURI + path, headers=headers)
         r.raise_for_status()
         return r
 
+
 def main():
+    """
+    Test code for the PKIConnection class.
+    :return: None
+    """
     conn = PKIConnection()
     headers = {'Content-type': 'application/json',
                'Accept': 'application/json'}

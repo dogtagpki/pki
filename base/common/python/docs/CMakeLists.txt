@@ -20,6 +20,12 @@ set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../../../../base/common/html
 # MAN output directory
 set(SPHINX_MAN_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../../../../base/common/man/man1")
 
+# HTML log file
+set(SPHINX_HTML_LOG_FILE "${CMAKE_CURRENT_BINARY_DIR}/../../../../../../../pki-common-sphinx-http.log")
+
+# MAN log file
+set(SPHINX_MAN_LOG_FILE "${CMAKE_CURRENT_BINARY_DIR}/../../../../../../../pki-common-sphinx-man.log")
+
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
     "${BINARY_BUILD_DIR}/conf.py"
@@ -30,6 +36,7 @@ add_custom_target(dogtag_python_client_docs ALL
         -b html
         -c "${BINARY_BUILD_DIR}"
         -d "${SPHINX_CACHE_DIR}"
+        -w "${SPHINX_HTML_LOG_FILE}"
         -a
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${SPHINX_HTML_DIR}"
@@ -40,6 +47,7 @@ add_custom_target(dogtag_python_client_man_docs ALL
         -b man
         -c "${BINARY_BUILD_DIR}"
         -d "${SPHINX_CACHE_DIR}"
+        -w "${SPHINX_MAN_LOG_FILE}"
         -a
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${SPHINX_MAN_DIR}"

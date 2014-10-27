@@ -1,5 +1,5 @@
-Welcome to Dogtag's Python Client documentation!
-================================================
+Dogtag Python Client API
+========================
 
 Dogtag is an enterprise software system designed to manage
 enterprise Public Key Infrastructure (PKI) deployments.

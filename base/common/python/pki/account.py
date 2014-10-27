@@ -22,14 +22,44 @@ import pki
 
 
 class AccountClient:
+    """
+    Class used to associate an authentication session variable with a
+    connection.
+
+    To use this class:
+       * set the authentication credentials with the connection,
+       * create an AccountClient and then call login().
+       * further operations in this session will use the same authentication
+         credentials without re-authentication.
+       * call logout() to invalidate the session.
+    """
 
     def __init__(self, connection):
+        """
+        Creates an AccountClient for the connection.
+
+        :param connection: connection to be associated with the AccountClient
+        :type connection: pki.PKIConnection
+        :returns: AccountClient
+        """
         self.connection = connection
 
     @pki.handle_exceptions()
     def login(self):
+        """
+        Login to account REST interface.  If login is successful,
+        an authentication session variable is associated with the connection.
+
+        :returns: None
+        """
         self.connection.get('/rest/account/login')
 
     @pki.handle_exceptions()
     def logout(self):
+        """
+        Logs out of the session.  Authentication session variables are
+        invalidated for the connection
+
+        :returns: None
+        """
         self.connection.get('/rest/account/logout')

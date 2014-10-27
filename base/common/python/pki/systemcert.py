@@ -43,7 +43,11 @@ class SystemCertClient(object):
 
     @pki.handle_exceptions()
     def get_transport_cert(self):
-        """ Return transport certificate """
+        """
+        Return transport certificate.
+
+        :return: pki.cert.CertData -- transport certificate data
+        """
         url = self.cert_url + '/transport'
         response = self.connection.get(url, self.headers)
         cert_data = CertData.from_json(response.json())

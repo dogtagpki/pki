@@ -40,7 +40,24 @@ CERT_FOOTER = "-----END CERTIFICATE-----"
 def read_text(message,
               options=None, default=None, delimiter=':',
               allow_empty=True, case_sensitive=True):
-    """ get an input from the user. """
+    """
+    Get an input from the user. This is used, for example, in
+    pkispawn and pkidestroy to obtain user input.
+
+    :param message: prompt to display to the user
+    :type message: str
+    :param options: list of possible inputs by the user.
+    :type options: list
+    :param default: default value of parameter being prompted.
+    :type default: str
+    :param delimiter: delimiter to be used at the end of the prompt.
+    :type delimiter: str
+    :param allow_empty: Allow input to be empty.
+    :type allow_empty: boolean -- True/False
+    :param case_sensitive: Allow input to be case sensitive.
+    :type case_sensitive: boolean -- True/False
+    :returns: str -- value obtained from user input.
+    """
     if default:
         message = message + ' [' + default + ']'
     message = message + delimiter + ' '
@@ -74,7 +91,11 @@ def read_text(message,
 
 
 def implementation_version():
-    """ Return implementation version """
+    """
+    Return implementation version.
+
+    :returns: str --implementation version
+    """
     with open(PACKAGE_VERSION, 'r') as input_file:
         for line in input_file:
             line = line.strip('\n')
@@ -137,12 +158,26 @@ class ResourceMessage(object):
         self.ClassName = class_name
 
     def add_attribute(self, name, value):
-        """ Add an attribute to the list. """
+        """
+        Add an attribute to the list.
+
+        :param name: name of attribute to add
+        :type name: str
+        :param value: value to add
+        :type value: str
+        :returns: None
+        """
         attr = Attribute(name, value)
         self.Attributes.Attribute.append(attr)
 
     def get_attribute_value(self, name):
-        """ Get the value of a given attribute """
+        """
+        Get the value of a given attribute.
+
+        :param name: name of attribute to retrieve
+        :type name: str
+        :returns: str -- value of parameter
+        """
         for attr in self.Attributes.Attribute:
             if attr.name == name:
                 return attr.value
@@ -164,7 +199,12 @@ class PKIException(Exception, ResourceMessage):
 
     @classmethod
     def from_json(cls, json_value):
-        """ Construct exception from JSON """
+        """
+        Construct PKIException from JSON.
+        :param json_value: JSON representation of the exception.
+        :type json_value: str
+        :return: pki.PKIException
+        """
         ret = cls(json_value['Message'], json_value['Code'],
                   json_value['ClassName'])
         for attr in json_value['Attributes']['Attribute']:
@@ -220,7 +260,9 @@ class RequestNotFoundException(ResourceNotFoundException):
 class UserNotFoundException(ResourceNotFoundException):
     """ User Not Found Exception: return code = 404 """
 
-
+"""
+Mapping from Java Server exception classes to python exception classes
+"""
 EXCEPTION_MAPPINGS = {
     "com.netscape.certsrv.base.BadRequestException": BadRequestException,
     "com.netscape.certsrv.base.ConflictingOperationException":
@@ -267,7 +309,13 @@ def handle_exceptions():
 
 
 class PropertyFile(object):
-    """ Class to manage property files """
+    """
+    Class to manage property files  The contents of the property file
+    are maintained internally as a list of properties.
+
+    Properties are strings of the format <name> <delimiter> <value> where
+    '=' is the default delimiter.
+    """
 
     def __init__(self, filename, delimiter='='):
         """ Constructor """
@@ -277,7 +325,12 @@ class PropertyFile(object):
         self.lines = []
 
     def read(self):
-        """ Read from property file """
+        """
+        Read from property file into the list of properties
+        maintained by this object.
+
+        :return: None
+        """
         self.lines = []
 
         if not os.path.exists(self.filename):
@@ -290,27 +343,58 @@ class PropertyFile(object):
                 self.lines.append(line)
 
     def write(self):
-        """ Write to property file """
+        """
+        Write the list of properties maintained by this object
+        to the property file.
+
+        :return: None
+        """
         # write all lines in the original order
         with open(self.filename, 'w') as f_out:
             for line in self.lines:
                 f_out.write(line + '\n')
 
     def show(self):
-        """ Show contents of property file."""
+        """
+        Print the contents of the list of properties maintained by this object
+        to STDOUT.
+
+        :return: None
+        """
         for line in self.lines:
             print line
 
     def insert_line(self, index, line):
-        """ Insert line in property file """
+        """
+        Insert property into the list of properties maintained by this object
+        at the specified location (index).
+
+        :param index: point at which to insert value.
+        :type index: int
+        :param line: value to be inserted.
+        :type line; str
+        :return: None
+        """
         self.lines.insert(index, line)
 
     def remove_line(self, index):
-        """ Remove line from property file """
+        """
+        Remove property at specified index from the properties list.
+
+        :param index: location of property to be removed.
+        :type index: int
+        :return: None
+        """
         self.lines.pop(index)
 
     def index(self, name):
-        """ Find the index (position) of a property in a property file """
+        """
+        Find the index (position) of a property in a property file.
+
+        :param name: name of property
+        :type name: str
+        :return: int -- index of property.
+        """
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
@@ -328,7 +412,13 @@ class PropertyFile(object):
         return -1
 
     def get(self, name):
-        """ Get value for specified property """
+        """
+        Get the value of the specified property.
+
+        :param name: name of property to be fetched.
+        :type name: str
+        :return: str -- value of property
+        """
         result = None
 
         for line in self.lines:
@@ -349,7 +439,17 @@ class PropertyFile(object):
         return result
 
     def set(self, name, value, index=None):
-        """ Set value for specified property """
+        """
+        Set value of specified property.
+
+        :param name: name of property to set.
+        :type name: str
+        :param value: value to set
+        :type value: str
+        :param index: (optional) position of property
+        :type index: int
+        :return: None
+        """
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
@@ -372,7 +472,13 @@ class PropertyFile(object):
             self.insert_line(index, name + self.delimiter + value)
 
     def remove(self, name):
-        """ Remove property from property file """
+        """
+        Remove property from list of properties maintained by this object.
+
+        :param name: name of property to be removed.
+        :type name: str
+        :returns: None
+        """
         for i, line in enumerate(self.lines):
 
             # parse <key> <delimiter> <value>
@@ -403,6 +509,13 @@ class Link(object):
 
     @classmethod
     def from_json(cls, attr_list):
+        """
+        Generate Link from JSON
+
+        :param attr_list: JSON representation of Link
+        :type attr_list: str
+        :return: pki.Link
+        """
         if attr_list is None:
             return None
 
