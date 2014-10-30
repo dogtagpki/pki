@@ -928,7 +928,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public KeyPair getECCKeyPair(KeyCertData properties) throws EBaseException {
         String token = Constants.PR_INTERNAL_TOKEN_NAME;
-        String keyCurve = "nistp512";
+        String keyCurve = "nistp521";
         String certType = null;
         KeyPair pair = null;
 
@@ -954,7 +954,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             token = Constants.PR_INTERNAL_TOKEN_NAME;
 
         if ((keyCurve == null) || (keyCurve.equals("")))
-            keyCurve = "nistp512";
+            keyCurve = "nistp521";
 
         String ectype = getECType(certType);
 

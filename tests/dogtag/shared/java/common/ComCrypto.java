@@ -105,7 +105,7 @@ public class ComCrypto {
      * @param tokenname 
      * @param certdbpassword 
      * @param certnickname 
-     * @param keysize (1024/2048/4096) (nistp256, nistp512)
+     * @param keysize (1024/2048/4096) (nistp256, nistp521)
      * @param keytype (RSA/DSA/EC)
      */
 
