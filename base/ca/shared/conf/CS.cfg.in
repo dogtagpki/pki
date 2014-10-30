@@ -604,7 +604,7 @@ ca.crl.MasterCRL.extension.AuthorityInformationAccess.numberOfAccessDescriptions
 ca.crl.MasterCRL.extension.AuthorityInformationAccess.type=CRLExtension
 ca.crl.MasterCRL.extension.AuthorityKeyIdentifier.class=com.netscape.cms.crl.CMSAuthorityKeyIdentifierExtension
 ca.crl.MasterCRL.extension.AuthorityKeyIdentifier.critical=false
-ca.crl.MasterCRL.extension.AuthorityKeyIdentifier.enable=false
+ca.crl.MasterCRL.extension.AuthorityKeyIdentifier.enable=true
 ca.crl.MasterCRL.extension.AuthorityKeyIdentifier.type=CRLExtension
 ca.crl.MasterCRL.extension.CRLNumber.class=com.netscape.cms.crl.CMSCRLNumberExtension
 ca.crl.MasterCRL.extension.CRLNumber.critical=false
