@@ -39,11 +39,7 @@
 . /opt/rhqa_pki/env.sh
 
 ########################################################################
-#pki-user-cli-role-user-create-tests should be first executed prior to pki-user-cli-user-add-ca.sh
-########################################################################
-
-########################################################################
-# Test Suite Globals
+#create_role_users.sh should be first executed prior to pki-user-cli-user-add-ca.sh
 ########################################################################
 run_pki-user-cli-user-add-ca_tests(){
 	subsystemId=$1
@@ -1332,7 +1328,7 @@ run_pki-user-cli-user-add-ca_tests(){
  		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test_user u39"
         echo "spawn -noecho pki -d $TEMP_NSS_DB -n pkiUser1 -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-add --fullName=test_user u39" > $expfile
-        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$(eval echo \$${prefix}_DOMAIN) Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$(eval echo \$${prefix}_DOMAIN) Security Domain'
+        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on '$(eval echo \$${subsystemId}_SSL_SERVER_CERT_SUBJECT_NAME)' indicates a non-trusted CA cert '$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME)'
 Import CA certificate (Y/n)? \"" >> $expfile
         echo "send -- \"Y\r\"" >> $expfile
         echo "expect \"CA server URI \[http://$HOSTNAME:8080/ca\]: \"" >> $expfile

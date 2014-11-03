@@ -40,45 +40,44 @@
 . /opt/rhqa_pki/env.sh
 
 ########################################################################
-# Test Suite Globals
+#create_role_users.sh should be first executed prior to pki-user-cli-user-find.sh
 ########################################################################
 
 run_pki-user-cli-user-find-ca_tests(){
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
 
-if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-        prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-                prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-        else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        fi
-else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-        prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-fi
+	if [ "$TOPO9" = "TRUE" ] ; then
+        	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+	        prefix=$subsystemId
+        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	elif [ "$MYROLE" = "MASTER" ] ; then
+        	if [[ $subsystemId == SUBCA* ]]; then
+                	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+	                prefix=$subsystemId
+        	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	        else
+        	        ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                	prefix=ROOTCA
+	                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        	fi
+	else
+        	ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+	        prefix=$MYROLE
+        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+	fi
 
-SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
-untrusted_cert_db_location=$UNTRUSTED_CERT_DB_LOCATION
-untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
-user1=ca_agent2
-user1fullname="Test ca_agent"
-user2=abcdefghijklmnopqrstuvwxyx12345678
-user3=abc#
-user4=abc$
-user5=abc@
-user6=abc?
-user7=0
+	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+	untrusted_cert_nickname=role_user_UTCA
+	user1=ca_agent2
+	user1fullname="Test ca_agent"
+	user2=abcdefghijklmnopqrstuvwxyx12345678
+	user3=abc#
+	user4=abc$
+	user5=abc@
+	user6=abc?
+	user7=0
 
     rlPhaseStartSetup "pki_user_cli_user_find-ca-startup-addusers: Create temporary directory and add users"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -88,8 +87,8 @@ user7=0
                rlRun "pki -d $CERTDB_DIR \
                           -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			  -h $SUBSYSTEM_HOST \
+ 			  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-add --fullName=test_user u$i"
                 let i=$i+1
         done
@@ -99,8 +98,8 @@ user7=0
                rlRun "pki -d $CERTDB_DIR \
                           -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		  	  -h $SUBSYSTEM_HOST \
+ 			  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-add  --fullName=test_user $usr"
                 let j=$j+1
         done
@@ -122,38 +121,38 @@ user7=0
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-003: Find 5 users, --size=5"
 	rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --size=5  > $TmpDir/pki-user-find-ca-001.out 2>&1" \
-                         0 \
-                        "Found 5 users"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=5  > $TmpDir/pki-user-find-ca-001.out 2>&1" \
+                    0 \
+                    "Found 5 users"
 	rlAssertGrep "Number of entries returned 5" "$TmpDir/pki-user-find-ca-001.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-004: Find non user, --size=0"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --size=0  > $TmpDir/pki-user-find-ca-002.out 2>&1" \
-                         0 \
-                        "Found no users"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=0  > $TmpDir/pki-user-find-ca-002.out 2>&1" \
+                    0 \
+                    "Found no users"
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-user-find-ca-002.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-005: Find all users, large value as input"
         large_num=1000000
 	rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --size=$large_num  > $TmpDir/pki-user-find-ca-003.out 2>&1" \
-                         0 \ 
-                        "Find all users, large value as input"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=$large_num  > $TmpDir/pki-user-find-ca-003.out 2>&1" \
+                    0 \ 
+                    "Find all users, large value as input"
 	result=`cat $TmpDir/pki-user-find-ca-003.out | grep "Number of entries returned"`
         number=`echo $result | cut -d " " -f 5`
         if [ $number -gt 25 ] ; then
@@ -167,19 +166,19 @@ user7=0
     rlPhaseStartTest "pki_user_cli_user_find-ca-006: Find all users, --size with maximum possible value as input"
         maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 9 | head -n 1`
 	rlLog "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --size=$maximum_check"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=$maximum_check"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --size=$maximum_check  > $TmpDir/pki-user-find-ca-003_2.out 2>&1" \
-                         0 \
-                        "Find all users, maximum possible value as input"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=$maximum_check  > $TmpDir/pki-user-find-ca-003_2.out 2>&1" \
+                    0 \
+                    "Find all users, maximum possible value as input"
 	result=`cat $TmpDir/pki-user-find-ca-003_2.out | grep "Number of entries returned"`
 	number=`echo $result | cut -d " " -f 5`	
 	if [ $number -gt 25 ] ; then
@@ -193,92 +192,79 @@ user7=0
     rlPhaseStartTest "pki_user_cli_user_find-ca-007: Find all users, --size more than maximum possible value"
         maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
         rlLog "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                        -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                         user-find --size=$maximum_check"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=$maximum_check"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                        -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                         user-find --size=$maximum_check  > $TmpDir/pki-user-find-ca-003_3.out 2>&1" \
-                         255 \
-                        "More than maximum possible value as input"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=$maximum_check  > $TmpDir/pki-user-find-ca-003_3.out 2>&1" \
+                    255 \
+                    "More than maximum possible value as input"
         rlAssertGrep "NumberFormatException: For input string: \"$maximum_check\"" "$TmpDir/pki-user-find-ca-003_3.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-008: Find users, check for negative input --size=-1"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                        -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                         user-find --size=-1  > $TmpDir/pki-user-find-ca-004.out 2>&1" \
-                         0 \
-                        "No users returned as the size entered is negative value"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=-1  > $TmpDir/pki-user-find-ca-004.out 2>&1" \
+                    0 \
+                   "No users returned as the size entered is negative value"
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-user-find-ca-004.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-009: Find users for size input as noninteger, --size=abc"
         size_noninteger="abc"
-	rlLog "Executing: pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                        -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                         user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1"
 	rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                        -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                         user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1" \
-                         255 \
-                        "No users returned"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=$size_noninteger  > $TmpDir/pki-user-find-ca-005.out 2>&1" \
+                    255 \
+                   "No users returned"
         rlAssertGrep "NumberFormatException: For input string: \"$size_noninteger\"" "$TmpDir/pki-user-find-ca-005.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-010: Find users, check for no input --size="
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                        -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                         user-find --size=  > $TmpDir/pki-user-find-ca-006.out 2>&1" \
-                         255 \
-                        "No users returned, as --size= "
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --size=  > $TmpDir/pki-user-find-ca-006.out 2>&1" \
+                    255 \
+                    "No users returned, as --size= "
         rlAssertGrep "NumberFormatException: For input string: \"""\"" "$TmpDir/pki-user-find-ca-006.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-011: Find users, --start=10"
 	#Find the 10th user
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find  > $TmpDir/pki-user-find-ca-007_1.out 2>&1" \
-                         0 \
-                        "Get all users in CA"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find  > $TmpDir/pki-user-find-ca-007_1.out 2>&1" \
+                    0 \
+                    "Get all users in CA"
 	user_entry_10=`cat $TmpDir/pki-user-find-ca-007_1.out | grep "User ID" | head -11 | tail -1`
 	rlLog "10th entry=$user_entry_10"
-
-	rlLog "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=10"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=10  > $TmpDir/pki-user-find-ca-007.out 2>&1" \
-                         0 \
-                        "Displays users from the 10th user and the next to the maximum 20 users, if available "
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=10  > $TmpDir/pki-user-find-ca-007.out 2>&1" \
+                    0 \
+                    "Displays users from the 10th user and the next to the maximum 20 users, if available "
 	#First user in the response should be the 10th user $user_entry_10
 	user_entry_1=`cat $TmpDir/pki-user-find-ca-007.out | grep "User ID" | head -1`
 	rlLog "1th entry=$user_entry_1"
@@ -292,123 +278,123 @@ user7=0
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-012: Find users, --start=10000, large possible input"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=10000  > $TmpDir/pki-user-find-ca-008.out 2>&1" \
-                         0 \
-                        "Find users, --start=10000, large possible input"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=10000  > $TmpDir/pki-user-find-ca-008.out 2>&1" \
+                    0 \
+                    "Find users, --start=10000, large possible input"
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-user-find-ca-008.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-013: Find users, --start with maximum possible input"
 	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 9 | head -n 1`
 	rlLog "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=$maximum_check"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=$maximum_check"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=$maximum_check  > $TmpDir/pki-user-find-ca-008_2.out 2>&1" \
-                         0 \
-                        "Find users, --start with maximum possible input"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=$maximum_check  > $TmpDir/pki-user-find-ca-008_2.out 2>&1" \
+                    0 \
+                    "Find users, --start with maximum possible input"
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-user-find-ca-008_2.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-014: Find users, --start with more than maximum possible input"
         maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
         rlLog "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=$maximum_check"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=$maximum_check"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=$maximum_check  > $TmpDir/pki-user-find-ca-008_3.out 2>&1" \
-                         255 \
-                        "Find users, --start with more than maximum possible input"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=$maximum_check  > $TmpDir/pki-user-find-ca-008_3.out 2>&1" \
+                    255 \
+                   "Find users, --start with more than maximum possible input"
         rlAssertGrep "NumberFormatException: For input string: \"$maximum_check\"" "$TmpDir/pki-user-find-ca-008_3.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-015: Find users, --start=0"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=0  > $TmpDir/pki-user-find-ca-009.out 2>&1" \
-                         0 \
-                        "Displays from the zeroth user, maximum possible are 20 users in a page"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=0  > $TmpDir/pki-user-find-ca-009.out 2>&1" \
+                    0 \
+                   "Displays from the zeroth user, maximum possible are 20 users in a page"
         rlAssertGrep "Number of entries returned 20" "$TmpDir/pki-user-find-ca-009.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-016: Find users, --start=-1"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=-1  > $TmpDir/pki-user-find-ca-0010.out 2>&1" \
-                         0 \
-                        "Maximum possible 20 users are returned, starting from the zeroth user"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=-1  > $TmpDir/pki-user-find-ca-0010.out 2>&1" \
+                    0 \
+                    "Maximum possible 20 users are returned, starting from the zeroth user"
         rlAssertGrep "Number of entries returned 19" "$TmpDir/pki-user-find-ca-0010.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-017: Find users for size input as noninteger, --start=abc"
         size_noninteger="abc"
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=$size_noninteger  > $TmpDir/pki-user-find-ca-0011.out 2>&1" \
-                         255 \
-                        "Incorrect input to find user"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=$size_noninteger  > $TmpDir/pki-user-find-ca-0011.out 2>&1" \
+                    255 \
+                    "Incorrect input to find user"
         rlAssertGrep "NumberFormatException: For input string: \"$size_noninteger\"" "$TmpDir/pki-user-find-ca-0011.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-018: Find users, check for no input --start= "
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=  > $TmpDir/pki-user-find-ca-0012.out 2>&1" \
-                         255 \
-                        "No users returned, as --start= "
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=  > $TmpDir/pki-user-find-ca-0012.out 2>&1" \
+                    255 \
+                    "No users returned, as --start= "
         rlAssertGrep "NumberFormatException: For input string: \"""\"" "$TmpDir/pki-user-find-ca-0012.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-019: Find users, --size=12 --start=12"
         #Find 12 users starting from 12th user
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find  > $TmpDir/pki-user-find-ca-00_13_1.out 2>&1" \
-                         0 \
-                        "Get all users in CA"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find  > $TmpDir/pki-user-find-ca-00_13_1.out 2>&1" \
+                    0 \
+                    "Get all users in CA"
         user_entry_12=`cat $TmpDir/pki-user-find-ca-00_13_1.out | grep "User ID" | head -13 | tail -1`
 
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=12 --size=12  > $TmpDir/pki-user-find-ca-0013.out 2>&1" \
-                         0 \
-                        "Displays users from the 12th user and the next to the maximum 12 users"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=12 --size=12  > $TmpDir/pki-user-find-ca-0013.out 2>&1" \
+                    0 \
+                    "Displays users from the 12th user and the next to the maximum 12 users"
         #First user in the response should be the 12th user $user_entry_12
         user_entry_1=`cat  $TmpDir/pki-user-find-ca-0013.out | grep "User ID" | head -1`
         if [ "$user_entry_1" = "$user_entry_12" ]; then
@@ -422,23 +408,23 @@ user7=0
     rlPhaseStartTest "pki_user_cli_user_find-ca-020: Find users, --size=0 --start=12"
         #Find 12 users starting from 12th user
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find  > $TmpDir/pki-user-find-ca-00_14_1.out 2>&1" \
-                         0 \
-                        "Get all users in CA"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find  > $TmpDir/pki-user-find-ca-00_14_1.out 2>&1" \
+                    0 \
+                    "Get all users in CA"
         user_entry_12=`cat $TmpDir/pki-user-find-ca-00_14_1.out | grep "User ID" | head -13 | tail -1`
 
         rlRun "pki -d $CERTDB_DIR \
-                        -n \"${prefix}_adminV\" \
-                                -c $CERTDB_DIR_PASSWORD \
+                   -n \"${prefix}_adminV\" \
+                   -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                user-find --start=12 --size=0  > $TmpDir/pki-user-find-ca-0014.out 2>&1" \
-                         0 \
-                        "Displays users from the 12th user and 0 users"
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-find --start=12 --size=0  > $TmpDir/pki-user-find-ca-0014.out 2>&1" \
+                    0 \
+                    "Displays users from the 12th user and 0 users"
         rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-user-find-ca-0014.out"
     rlPhaseEnd
 
@@ -447,13 +433,13 @@ user7=0
                    -n ${prefix}_adminR \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminR \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-revoke-adminR-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using a revoked admin cert"
@@ -465,13 +451,13 @@ user7=0
                    -n ${prefix}_agentR \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_agentR \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-revoke-agentR-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using a agent having revoked cert"
@@ -483,13 +469,13 @@ user7=0
                    -n ${prefix}_agentV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_agentV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentV-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using a agent cert"
@@ -501,13 +487,13 @@ user7=0
                    -n ${prefix}_agentR \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_agentR \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentR-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using a revoked agent cert"
@@ -522,13 +508,13 @@ user7=0
                    -n ${prefix}_adminE \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminE \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-adminE-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using an expired admin cert"
@@ -546,13 +532,13 @@ user7=0
                    -n ${prefix}_agentE \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_agentE \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-agentE-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using an expired agent cert"
@@ -567,13 +553,13 @@ user7=0
                    -n ${prefix}_auditV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_auditV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-auditV-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using a audit cert"
@@ -585,13 +571,13 @@ user7=0
                    -n ${prefix}_operatorV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_operatorV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-operatorV-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using a operator cert"
@@ -599,17 +585,11 @@ user7=0
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_find-ca-029: Should not be able to find user using a cert created from a untrusted CA role_user_UTCA"
-        rlLog "Executing: pki -d $untrusted_cert_db_location \
-                   -n role_user_UTCA \
-                   -c $untrusted_cert_db_password \
+        rlRun "pki -d $UNTRUSTED_CERT_DB_LOCATION \
+                   -n $untrusted_cert_nickname \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                    user-find --start=1 --size=5"
-        rlRun "pki -d $untrusted_cert_db_location \
-                   -n role_user_UTCA \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                   -c $untrusted_cert_db_password \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                   -c $UNTRUSTED_CERT_DB_PASSWORD \
                     user-find --start=1 --size=5 > $TmpDir/pki-user-find-ca-role_user_UTCA-002.out 2>&1" \
                     255 \
                     "Should not be able to find users using a untrusted cert"
@@ -641,11 +621,11 @@ user7=0
         rlLog "Executing: pki -d $TEMP_NSS_DB \
                    -n pkiUser1 \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                    -c Password \
                     user-find --start=1 --size=5"
         echo "spawn -noecho pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -d $TEMP_NSS_DB -n pkiUser1 -c Password user-find --start=1 --size=5" > $expfile
-	echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$(eval echo \$${prefix}_DOMAIN) Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$(eval echo \$${prefix}_DOMAIN) Security Domain'
+	echo "expect \"WARNING: UNTRUSTED ISSUER encountered on '$(eval echo \$${subsystemId}_SSL_SERVER_CERT_SUBJECT_NAME)' indicates a non-trusted CA cert '$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME)'
 Import CA certificate (Y/n)? \"" >> $expfile
         echo "send -- \"Y\r\"" >> $expfile
         echo "expect \"CA server URI \[http://$HOSTNAME:8080/ca\]: \"" >> $expfile
@@ -657,51 +637,51 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-user-find-ca-pkiUser1-002.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-031: find users when user id has i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-031: find users when user fullname has i18n characters"
 	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
-        rlLog "user-add userid ÖrjanÄke with i18n characters"
+        rlLog "user-add user fullname ÖrjanÄke with i18n characters"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                    user-add --fullName='Örjan Äke' 'ÖrjanÄke' > $TmpDir/pki-user-find-ca-001_31.out 2>&1" \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-add --fullName='Örjan Äke' u25 > $TmpDir/pki-user-find-ca-001_31.out 2>&1" \
                     0 \
-                    "Adding uid ÖrjanÄke with i18n characters"
+                    "Adding fullname ÖrjanÄke with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --size=$maximum_check "
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --size=$maximum_check > $TmpDir/pki-user-show-ca-001_31_2.out" \
                     0 \
                     "Find user with max size"
-        rlAssertGrep "User ID: ÖrjanÄke" "$TmpDir/pki-user-show-ca-001_31_2.out"
+        rlAssertGrep "User ID: u25" "$TmpDir/pki-user-show-ca-001_31_2.out"
         rlAssertGrep "Full name: Örjan Äke" "$TmpDir/pki-user-show-ca-001_31_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_find-ca-032: find users when userid has i18n characters"
+    rlPhaseStartTest "pki_user_cli_user_find-ca-032: find users when user fullname has i18n characters"
 	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
-        rlLog "user-add userid ÉricTêko with i18n characters"
+        rlLog "user-add user fullname ÉricTêko with i18n characters"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                    user-add --fullName='Éric Têko' 'ÉricTêko' > $TmpDir/pki-user-show-ca-001_32.out 2>&1" \
+		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                    user-add --fullName='Éric Têko' u26 > $TmpDir/pki-user-show-ca-001_32.out 2>&1" \
                     0 \
-                    "Adding user id ÉricTêko with i18n characters"
+                    "Adding user fullname ÉricTêko with i18n characters"
         rlLog "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-find --size=$maximum_check"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
@@ -711,19 +691,19 @@ Import CA certificate (Y/n)? \"" >> $expfile
                     user-find --size=$maximum_check > $TmpDir/pki-user-show-ca-001_32_2.out" \
                     0 \
                     "Find user with max size"
-        rlAssertGrep "User ID: ÉricTêko" "$TmpDir/pki-user-show-ca-001_32_2.out"
+        rlAssertGrep "User ID: u26" "$TmpDir/pki-user-show-ca-001_32_2.out"
         rlAssertGrep "Full name: Éric Têko" "$TmpDir/pki-user-show-ca-001_32_2.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_cleanup-021: Deleting users"
         #===Deleting users created using ${prefix}_adminV cert===#
         i=1
-        while [ $i -lt 25 ] ; do
+        while [ $i -lt 27 ] ; do
                rlRun "pki -d $CERTDB_DIR \
                           -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+	 		  -h $SUBSYSTEM_HOST \
+ 			  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            user-del  u$i > $TmpDir/pki-user-del-ca-user-00$i.out" \
                            0 \
                            "Deleted user  u$i"
@@ -734,41 +714,21 @@ Import CA certificate (Y/n)? \"" >> $expfile
         j=1
         while [ $j -lt 8 ] ; do
                usr=$(eval echo \$user${j})
-               rlRun "pki -d $CERTDB_DIR \
-                          -n ${prefix}_adminV \
-                          -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
+               rlRun "pki  -d $CERTDB_DIR \
+                           -n ${prefix}_adminV \
+                           -c $CERTDB_DIR_PASSWORD \
+	 		   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                           user-del  $usr > $TmpDir/pki-user-del-ca-user-symbol-00$j.out" \
-                           0 \
-                           "Deleted user $usr"
+                            user-del  $usr > $TmpDir/pki-user-del-ca-user-symbol-00$j.out" \
+                            0 \
+                            "Deleted user $usr"
                 rlAssertGrep "Deleted user \"$usr\"" "$TmpDir/pki-user-del-ca-user-symbol-00$j.out"
                 let j=$j+1
         done
 
-	#===Deleting i18n users created using ${prefix}_adminV cert===#
-        rlRun "pki -d $CERTDB_DIR \
-                -n ${prefix}_adminV \
-                -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                user-del 'ÖrjanÄke' > $TmpDir/pki-user-del-ca-user-i18n_1.out" \
-                0 \
-                "Deleted user ÖrjanÄke"
-        rlAssertGrep "Deleted user \"ÖrjanÄke\"" "$TmpDir/pki-user-del-ca-user-i18n_1.out"
-
-        rlRun "pki -d $CERTDB_DIR \
-                -n ${prefix}_adminV \
-                -c $CERTDB_DIR_PASSWORD \
- 		   -h $SUBSYSTEM_HOST \
- 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-user-i18n_2.out" \
-                0 \
-                "Deleted user ÉricTêko"
-        rlAssertGrep "Deleted user \"ÉricTêko\"" "$TmpDir/pki-user-del-ca-user-i18n_2.out"
-
 	#Delete temporary directory
 	rlRun "popd"
-	#rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+	rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 }
+

@@ -40,7 +40,7 @@
 . /opt/rhqa_pki/env.sh
 
 ########################################################################
-#pki-user-cli-role-user-create-tests should be first executed prior to pki-ca-user-cli-ca-user-add.sh
+# create_role_users.sh should be first executed prior to pki-ca-user-cli-ca-user-add.sh
 ########################################################################
 
 run_pki-ca-user-cli-ca-user-add_tests(){
@@ -70,8 +70,6 @@ run_pki-ca-user-cli-ca-user-add_tests(){
 
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	untrusted_cert_nickname=role_user_UTCA
-	untrusted_cert_db_location=$UNTRUSTED_CERT_DB_LOCATION
-	untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 
      rlPhaseStartSetup "pki_ca_user_cli_ca_user_add-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -1310,11 +1308,11 @@ run_pki-ca-user-cli-ca-user-add_tests(){
                    -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     ca-user-add --fullName=test_user u39"
         echo "spawn -noecho pki -d $TEMP_NSS_DB -n pkiUser1 -c Password -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-user-add --fullName=test_user u39" > $expfile
-        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on 'CN=$HOSTNAME,O=$CA_DOMAIN Security Domain' indicates a non-trusted CA cert 'CN=CA Signing Certificate,O=$CA_DOMAIN Security Domain'
+        echo "expect \"WARNING: UNTRUSTED ISSUER encountered on '$(eval echo \$${subsystemId}_SSL_SERVER_CERT_SUBJECT_NAME)' indicates a non-trusted CA cert '$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME)'
 Import CA certificate (Y/n)? \"" >> $expfile
         echo "send -- \"Y\r\"" >> $expfile
-        echo "expect \"CA server URI \[http://$HOSTNAME:$CA_UNSECURE_PORT/ca\]: \"" >> $expfile
-        echo "send -- \"\r\"" >> $expfile
+        echo "expect \"CA server URI \[http://$HOSTNAME:8080/ca\]: \"" >> $expfile
+        echo "send -- \"http://$HOSTNAME:$(eval echo \$${prefix}_UNSECURE_PORT)/ca\r\"" >> $expfile
         echo "expect eof" >> $expfile
 	echo "catch wait result" >> $expfile
         echo "exit [lindex \$result 3]" >> $expfile
@@ -1431,7 +1429,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
                 -c $CERTDB_DIR_PASSWORD \
                 -h $SUBSYSTEM_HOST \
                 -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                ca-user-del $pki_user > $TmpDir/pki-user-del-user-ca-2_1.out" \
+                 ca-user-del $pki_user > $TmpDir/pki-user-del-user-ca-2_1.out" \
                 0 \
                 "Deleted user $pki_user"
         rlAssertGrep "Deleted user \"$pki_user\"" "$TmpDir/pki-user-del-user-ca-2_1.out"

@@ -39,39 +39,37 @@
 . /opt/rhqa_pki/pki-cert-cli-lib.sh
 . /opt/rhqa_pki/env.sh
 ######################################################################################
-#pki-user-cli-user-ca.sh should be first executed prior to pki-user-cli-user-membership-find-ca.sh
+#create_role_users.sh should be first executed prior to pki-user-cli-user-membership-find-ca.sh
 ######################################################################################
 
-########################################################################
-# Test Suite Globals
-########################################################################
-
 run_pki-user-cli-user-membership-find-ca_tests(){
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
+	prefix=$subsystemId
 
-if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-        prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-                prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-        else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        fi
-else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-        prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-fi
+	if [ "$TOPO9" = "TRUE" ] ; then
+        	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+	        prefix=$subsystemId
+        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	elif [ "$MYROLE" = "MASTER" ] ; then
+        	if [[ $subsystemId == SUBCA* ]]; then
+                	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+	                prefix=$subsystemId
+        	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	        else
+        	        ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+                	prefix=ROOTCA
+	                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+        	fi
+	else
+        	ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
+	        prefix=$MYROLE
+        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+	fi
 
-SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+	untrusted_cert_nickname=role_user_UTCA
 
 	#Local variables
 	#Available groups ca-group-find
@@ -96,7 +94,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-002: pki user-membership-find --help configuration test"
-                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-find --help > $TmpDir/pki_user_membership_find_cfg.out 2>&1" \
+                rlRun "pki user-membership-find --help > $TmpDir/pki_user_membership_find_cfg.out 2>&1" \
                         0 \
                        "pki user-membership-find --help"
                 rlAssertGrep "usage: user-membership-find <User ID> \[FILTER\] \[OPTIONS...\]" "$TmpDir/pki_user_membership_find_cfg.out"
@@ -106,7 +104,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-003: pki user-membership-find configuration test"
-                rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership-find > $TmpDir/pki_user_membership_find_2_cfg.out 2>&1" \
+                rlRun "pki user-membership-find > $TmpDir/pki_user_membership_find_2_cfg.out 2>&1" \
                        255 \
                        "pki user-membership-find"
                 rlAssertGrep "Error: Incorrect number of arguments specified." "$TmpDir/pki_user_membership_find_2_cfg.out"
@@ -122,14 +120,14 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                        rlLog "pki -d $CERTDB_DIR \
                                   -n ${prefix}_adminV \
                                   -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				  -h $SUBSYSTEM_HOST \
+ 				  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                    user-add --fullName=\"fullNameu$i\" u$i "
                        rlRun "pki -d $CERTDB_DIR \
                                   -n ${prefix}_adminV \
                                   -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				  -h $SUBSYSTEM_HOST \
+ 				  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                    user-add --fullName=\"fullNameu$i\" u$i > $TmpDir/pki-user-membership-find-user-find-ca-00$i.out" \
                                    0 \
                                    "Adding user u$i"
@@ -140,8 +138,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                         rlRun "pki -d $CERTDB_DIR \
                                    -n ${prefix}_adminV \
                                    -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				   -h $SUBSYSTEM_HOST \
+ 				   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                     user-show u$i > $TmpDir/pki-user-membership-find-user-show-ca-00$i.out" \
                                     0 \
                                     "Show pki CA_adminV user"
@@ -153,14 +151,14 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                         rlLog "pki -d $CERTDB_DIR \
                                    -n ${prefix}_adminV \
                                    -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				   -h $SUBSYSTEM_HOST \
+ 				   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                     user-membership-add u$i \"$gid\""
                         rlRun "pki -d $CERTDB_DIR \
-                                    -n ${prefix}_adminV \
-                                    -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                                   -n ${prefix}_adminV \
+                                   -c $CERTDB_DIR_PASSWORD \
+ 				   -h $SUBSYSTEM_HOST \
+ 				   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                      user-membership-add u$i \"$gid\" > $TmpDir/pki-user-membership-find-groupadd-ca-00$i.out" \
                                      0 \
                                      "Adding user u$i to group \"$gid\""
@@ -170,8 +168,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                         rlRun "pki -d $CERTDB_DIR \
                                    -n ${prefix}_adminV \
                                    -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				   -h $SUBSYSTEM_HOST \
+ 				   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                     user-membership-find u$i > $TmpDir/pki-user-membership-find-groupadd-find-ca-00$i.out" \
                                     0 \
                                     "Find user-membership with group \"$gid\""
@@ -187,8 +185,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-add --fullName=\"fullName_userall\" userall > $TmpDir/pki-user-membership-find-user-find-ca-userall-001.out" \
                             0 \
                             "Adding user userall"
@@ -199,8 +197,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-show userall > $TmpDir/pki-user-membership-find-user-show-ca-userall-001.out" \
                             0 \
                             "Show pki CA_adminV user"
@@ -214,14 +212,14 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                         rlLog "pki -d $CERTDB_DIR \
                                    -n ${prefix}_adminV \
                                    -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				   -h $SUBSYSTEM_HOST \
+ 				   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                     user-membership-add userall \"$gid\""
                         rlRun "pki -d $CERTDB_DIR \
                                    -n ${prefix}_adminV \
                                    -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				   -h $SUBSYSTEM_HOST \
+ 				   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                     user-membership-add userall \"$gid\" > $TmpDir/pki-user-membership-find-groupadd-ca-userall-00$i.out" \
                                     0 \
                                     "Adding user userall to group \"$gid\""
@@ -231,8 +229,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                         rlRun "pki -d $CERTDB_DIR \
                                    -n ${prefix}_adminV \
                                    -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				   -h $SUBSYSTEM_HOST \
+ 				   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                     user-membership-find userall > $TmpDir/pki-user-membership-find-groupadd-find-ca-userall-00$i.out" \
                                     0 \
                                     "Find user-membership to group \"$gid\""
@@ -248,8 +246,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --start=5 > $TmpDir/pki-user-membership-find-groupadd-find-ca-start-001.out" \
                             0 \
                             "Checking user added to group"
@@ -270,8 +268,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --start=0 > $TmpDir/pki-user-membership-find-groupadd-find-ca-start-002.out" \
                             0 \
                             "Checking user-mambership to group "
@@ -288,8 +286,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --start=-1 > $TmpDir/pki-user-membership-find-groupadd-find-ca-start-003.out" \
                             0 \
                             "Checking user-membership to group"
@@ -306,8 +304,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --start=15 > $TmpDir/pki-user-membership-find-groupadd-find-ca-start-004.out" \
                             0 \
                             "Checking user-membership to group"
@@ -326,8 +324,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --size=0 > $TmpDir/pki-user-membership-find-groupadd-find-ca-size-006.out" 0 \
                             "user_membership-find with size parameter as 0"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-006.out"
@@ -338,8 +336,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --size=1 > $TmpDir/pki-user-membership-find-groupadd-find-ca-size-007.out" 0 \
                             "user_membership-find with size parameter as 1"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-007.out"
@@ -351,8 +349,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --size=2 > $TmpDir/pki-user-membership-find-groupadd-find-ca-size-008.out" 0 \
                             "user_membership-find with size parameter as 2"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-008.out"
@@ -365,8 +363,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --size=15 > $TmpDir/pki-user-membership-find-groupadd-find-ca-size-009.out" 0 \
                             "user_membership-find with size parameter as 15"
 		rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-009.out"
@@ -382,8 +380,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --size=100 > $TmpDir/pki-user-membership-find-groupadd-find-ca-size-0010.out"  0 \
                             "user_membership-find with size parameter as 100"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-0010.out"
@@ -399,8 +397,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --size=-1 > $TmpDir/pki-user-membership-find-groupadd-find-ca-size-0011.out"  0 \
                             "user_membership-find with size parameter as -1"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-0011.out"
@@ -418,15 +416,15 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlLog "Executing: pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-membership-find userall --size=5"
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                            -t ca \
                             user-membership-find userall --size=5 > $TmpDir/pki-user-membership-find-ca-018.out" \
 		            0 \
@@ -445,14 +443,14 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlLog "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --start=6 --size=5"
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --start=6 --size=5 > $TmpDir/pki-user-membership-find-ca-019.out" \
                             0 \
                             "Find user-membership with page start and page size option"
@@ -471,14 +469,14 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlLog "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --size=$maximum_check"
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --size=$maximum_check > $TmpDir/pki-user-membership-find-ca-020.out 2>&1" \
                             255 \
                             "Find user-membership with --size more than maximum possible value"
@@ -490,14 +488,14 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
         rlLog "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --start=$maximum_check"
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-membership-find userall --start=$maximum_check > $TmpDir/pki-user-membership-find-ca-021.out 2>&1" \
                             255 \
                             "Find user-membership with --start more than maximum possible value"
@@ -568,16 +566,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a valid operator CA_operatorV user cert"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-029: Should not be able to user-membership-find using role_user_UTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST -c Password user-membership-find userall --start=0 --size=5"
-                rlLog "Executing $command"
-                errmsg="PKIException: Unauthorized"
-                errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find user-membership using a untrusted role_user_UTCA user cert"
-        rlPhaseEnd
-
-	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-030: Should not be able to user-membership-find using role_user_UTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST user-membership-find userall --start=0 --size=5"
+	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-029: Should not be able to user-membership-find using CA_adminUTCA cert"
+                command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n $untrusted_cert_nickname -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -h $SUBSYSTEM_HOST -c $UNTRUSTED_CERT_DB_PASSWORD user-membership-find userall --start=0 --size=5"
                 rlLog "Executing $command"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
@@ -585,28 +575,28 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-031:Find user-membership for user id with i18n characters"
-		rlLog "user-add userid ÉricTêko with i18n characters"
+	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-030:Find user-membership for user fullname with i18n characters"
+		rlLog "user-add user fullname Éric Têko with i18n characters"
                 rlLog "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            user-add --fullName='Éric Têko' 'ÉricTêko'"
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            user-add --fullName='Éric Têko' u15"
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            user-add --fullName='Éric Têko' 'ÉricTêko'" \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            user-add --fullName='Éric Têko' u15" \
                             0 \
                             "Adding uid ÉricTêko with i18n characters"	
 		rlLog "Create a group dadministʁasjɔ̃ with i18n characters"
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             group-add 'dadministʁasjɔ̃' --description \"Admininstartors in French\" 2>&1 > $TmpDir/pki-user-membership-add-groupadd-ca-031_1.out" \
                             0 \
                             "Adding group dadministʁasjɔ̃ with i18n characters"
@@ -616,15 +606,15 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlLog "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            user-membership-add 'ÉricTêko' \"dadministʁasjɔ̃\""
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            user-membership-add u15 \"dadministʁasjɔ̃\""
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            user-membership-add 'ÉricTêko' \"dadministʁasjɔ̃\" > $TmpDir/pki-user-membership-find-groupadd-ca-031_2.out" \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            user-membership-add u15 \"dadministʁasjɔ̃\" > $TmpDir/pki-user-membership-find-groupadd-ca-031_2.out" \
                             0 \
                             "Adding user ÉricTêko to group \"dadministʁasjɔ̃\""
                 rlAssertGrep "Added membership in \"dadministʁasjɔ̃\"" "$TmpDir/pki-user-membership-find-groupadd-ca-031_2.out"
@@ -633,39 +623,39 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            user-membership-find 'ÉricTêko' > $TmpDir/pki-user-membership-find-groupadd-find-ca-031_3.out" \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            user-membership-find u15 > $TmpDir/pki-user-membership-find-groupadd-find-ca-031_3.out" \
                             0 \
                             "Find user-membership with group \"dadministʁasjɔ̃\""
-                rlAssertGrep "1 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-031_3.out"
+                rlAssertGrep "1 entrieus matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-031_3.out"
                 rlAssertGrep "Group: dadministʁasjɔ̃" "$TmpDir/pki-user-membership-find-groupadd-find-ca-031_3.out"	
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-032: Find user-membership for user id with i18n characters"
-		rlLog "user-add userid ÖrjanÄke with i18n characters"
+	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-031: Find user-membership for user fullname with i18n characters"
+		rlLog "user-add user fullname ÖrjanÄke with i18n characters"
         	rlRun "pki -d $CERTDB_DIR \
                 	   -n ${prefix}_adminV \
 	                   -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-        	            user-add --fullName=test 'ÖrjanÄke' > $TmpDir/pki-user-add-ca-032.out 2>&1" \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+        	            user-add --fullName='ÖrjanÄke' u16 > $TmpDir/pki-user-add-ca-032.out 2>&1" \
                 	    0 \
-	                    "Adding uid ÖrjanÄke with i18n characters"
-        	rlAssertGrep "Added user \"ÖrjanÄke\"" "$TmpDir/pki-user-add-ca-032.out"
-	        rlAssertGrep "User ID: ÖrjanÄke" "$TmpDir/pki-user-add-ca-032.out"
+	                    "Adding user fullname ÖrjanÄke with i18n characters"
+        	rlAssertGrep "Added user \"u16\"" "$TmpDir/pki-user-add-ca-032.out"
+	        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-add-ca-032.out"
 		rlLog "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            user-membership-add 'ÖrjanÄke' \"dadministʁasjɔ̃\""
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            user-membership-add u16 \"dadministʁasjɔ̃\""
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            user-membership-add 'ÖrjanÄke' \"dadministʁasjɔ̃\" > $TmpDir/pki-user-membership-find-groupadd-ca-032_2.out" \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            user-membership-add u16 \"dadministʁasjɔ̃\" > $TmpDir/pki-user-membership-find-groupadd-ca-032_2.out" \
                             0 \
                             "Adding user ÖrjanÄke to group \"dadministʁasjɔ̃\""
                 rlAssertGrep "Added membership in \"dadministʁasjɔ̃\"" "$TmpDir/pki-user-membership-find-groupadd-ca-032_2.out"
@@ -674,27 +664,27 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            user-membership-find 'ÖrjanÄke' > $TmpDir/pki-user-membership-find-groupadd-find-ca-032_3.out" \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            user-membership-find u16 > $TmpDir/pki-user-membership-find-groupadd-find-ca-032_3.out" \
                             0 \
                             "Find user-membership with group \"dadministʁasjɔ̃\""
                 rlAssertGrep "1 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-032_3.out"
                 rlAssertGrep "Group: dadministʁasjɔ̃" "$TmpDir/pki-user-membership-find-groupadd-find-ca-032_3.out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-033: Find user-membership when uid is not associated with a group"
+	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-032: Find user-membership when uid is not associated with a group"
 		rlLog "pki -d $CERTDB_DIR \
                                   -n ${prefix}_adminV \
                                   -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				  -h $SUBSYSTEM_HOST \
+ 				  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                    user-add --fullName=\"fullNameuser123\" user123 "
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-add --fullName=\"fullNameuser123\" user123 > $TmpDir/pki-user-membership-find-user-find-ca-033.out" \
                             0 \
                             "Adding user user123"
@@ -711,12 +701,12 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		
                 #===Deleting users created using CA_adminV cert===#
                 i=1
-                while [ $i -lt 15 ] ; do
+                while [ $i -lt 17 ] ; do
                        rlRun "pki -d $CERTDB_DIR \
                                   -n ${prefix}_adminV \
                                   -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 				  -h $SUBSYSTEM_HOST \
+ 				  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                                    user-del  u$i > $TmpDir/pki-user-del-ca-user-membership-find-user-del-ca-00$i.out" \
                                    0 \
                                    "Deleted user u$i"
@@ -726,8 +716,8 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-del  userall > $TmpDir/pki-user-del-ca-user-membership-find-user-del-ca-userall.out" \
                             0 \
                             "Deleted user userall"
@@ -736,40 +726,19 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			   -h $SUBSYSTEM_HOST \
+ 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                             user-del  user123 > $TmpDir/pki-user-del-ca-user-membership-find-user-del-ca-user123.out" \
                             0 \
                             "Deleted user user123"
                 rlAssertGrep "Deleted user \"user123\"" "$TmpDir/pki-user-del-ca-user-membership-find-user-del-ca-user123.out"	
 
-		#===Deleting i18n users created using CA_adminV cert===#
-	        rlRun "pki -d $CERTDB_DIR \
-        	        -n ${prefix}_adminV \
-                	-c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-	                user-del 'ÖrjanÄke' > $TmpDir/pki-user-del-ca-user-i18n_1.out" \
-        	        0 \
-                	"Deleting user ÖrjanÄke"
-	        rlAssertGrep "Deleted user \"ÖrjanÄke\"" "$TmpDir/pki-user-del-ca-user-i18n_1.out"
-
-        	rlRun "pki -d $CERTDB_DIR \
-                	-n ${prefix}_adminV \
-	                -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-        	        user-del 'ÉricTêko' > $TmpDir/pki-user-del-ca-user-i18n_2.out" \
-                	0 \
-	                "Deleting user ÉricTêko"
-        	rlAssertGrep "Deleted user \"ÉricTêko\"" "$TmpDir/pki-user-del-ca-user-i18n_2.out"
-
 	        #===Deleting i18n group created using CA_adminV cert===#
         	rlRun "pki -d $CERTDB_DIR \
                 	-n ${prefix}_adminV \
 	                -c $CERTDB_DIR_PASSWORD \
- 		-h $SUBSYSTEM_HOST \
- 		-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+ 			-h $SUBSYSTEM_HOST \
+ 			-p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
         	        group-del 'dadministʁasjɔ̃' > $TmpDir/pki-user-del-ca-group-i18n_1.out" \
                 	0 \
 	                "Deleting group dadministʁasjɔ̃"
