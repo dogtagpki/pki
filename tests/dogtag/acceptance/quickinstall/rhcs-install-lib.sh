@@ -130,8 +130,8 @@ rhcs_install_RootCA() {
 		echo "pki_admin_subject_dn=$ROOTCA_ADMIN_CERT_SUBJECT_NAME" >> $INSTANCECFG
 		echo "pki_admin_nickname=$ROOTCA_ADMIN_CERT_NICKNAME" >> $INSTANCECFG
 		echo "pki_import_admin_cert=$ROOTCA_ADMIN_IMPORT_CERT" >> $INSTANCECFG
-		echo "pki_client_dir=$ROOTCA_CLIENT_DIR" >> $INSTANCECFG
-		echo "pki_client_admin_cert_p12=$ROOTCA_CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12" >> $INSTANCECFG
+		echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
+		echo "pki_client_admin_cert_p12=$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12" >> $INSTANCECFG
 		echo "pki_backup_keys=$ROOTCA_BACKUP" >> $INSTANCECFG
 		echo "pki_backup_password=$ROOTCA_BACKUP_PASSWORD" >> $INSTANCECFG
 		echo "pki_client_database_dir=$ROOTCA_CERTDB_DIR" >> $INSTANCECFG
@@ -270,8 +270,8 @@ rhcs_install_kra() {
                 echo "pki_admin_subject_dn=$(eval echo \$KRA${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$KRA${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
                 echo "pki_import_admin_cert=$IMPORT_ADMIN_CERT_NONCA" >> $INSTANCECFG
-                echo "pki_client_dir=$(eval echo \$${CA}_CLIENT_DIR)" >> $INSTANCECFG
-                echo "pki_client_admin_cert_p12=$(eval echo \$${CA}_CLIENT_DIR)/$(eval echo \$KRA${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
+                echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
+                echo "pki_client_admin_cert_p12=$CLIENT_DIR/$(eval echo \$KRA${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
 		echo "pki_issuing_ca_hostname=$master_hostname" >> $INSTANCECFG
 		echo "pki_issuing_ca_https_port=$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
 		echo "pki_issuing_ca_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
@@ -401,8 +401,8 @@ rhcs_install_ocsp() {
                 echo "pki_admin_subject_dn=$(eval echo \$OCSP${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$OCSP${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
                 echo "pki_import_admin_cert=$IMPORT_ADMIN_CERT_NONCA" >> $INSTANCECFG
-                echo "pki_client_dir=$(eval echo \$${CA}_CLIENT_DIR)" >> $INSTANCECFG
-                echo "pki_client_admin_cert_p12=$(eval echo \$${CA}_CLIENT_DIR)/$(eval echo \$OCSP${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
+                echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
+                echo "pki_client_admin_cert_p12=$CLIENT_DIR/$(eval echo \$OCSP${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
                 echo "pki_issuing_ca_hostname=$master_hostname" >> $INSTANCECFG
                 echo "pki_issuing_ca_https_port=$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_issuing_ca_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
@@ -523,8 +523,8 @@ rhcs_install_tks() {
                 echo "pki_admin_subject_dn=$(eval echo \$TKS${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$TKS${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
                 echo "pki_import_admin_cert=$IMPORT_ADMIN_CERT_NONCA" >> $INSTANCECFG
-                echo "pki_client_dir=$(eval echo \$${CA}_CLIENT_DIR)" >> $INSTANCECFG
-                echo "pki_client_admin_cert_p12=$(eval echo \$${CA}_CLIENT_DIR)/$(eval echo \$TKS${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
+                echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
+                echo "pki_client_admin_cert_p12=$CLIENT_DIR/$(eval echo \$TKS${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
                 echo "pki_issuing_ca_hostname=$master_hostname" >> $INSTANCECFG
                 echo "pki_issuing_ca_https_port=$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_issuing_ca_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
@@ -631,7 +631,7 @@ rhcs_install_cloneCA()
 		echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
 		echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
 		echo "pki_clone_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
-		echo "pki_client_dir=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)" >> $INSTANCECFG
+		echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
 
 		echo "[CA]" >> $INSTANCECFG
 
@@ -652,7 +652,7 @@ rhcs_install_cloneCA()
                 echo "pki_ssl_server_nickname=$(eval echo \$CLONE_CA${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
                 echo "pki_ssl_server_subject_dn=$(eval echo \$CLONE_CA${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
 		echo "pki_import_admin_cert=$(eval echo \$CLONE_CA${number}_ADMIN_IMPORT_CERT)" >> $INSTANCECFG
-                echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$(eval echo \$CLONE_CA${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
+                echo "pki_client_admin_cert_p12=$CLIENT_DIR/$(eval echo \$CLONE_CA${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
 		echo "pki_security_domain_hostname=$master_hostname" >> $INSTANCECFG
 		echo "pki_security_domain_https_port=$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
 		echo "pki_security_domain_user=$(eval echo \$${CA}_ADMIN_USER)" >> $INSTANCECFG
@@ -727,7 +727,7 @@ rhcs_install_SubCA(){
                 echo "pki_client_pkcs12_password=$(eval echo \$SUBCA${number}_CLIENT_PKCS12_PASSWORD)" >> $INSTANCECFG
                 echo "pki_admin_password=$(eval echo \$SUBCA${number}_ADMIN_PASSWORD)" >> $INSTANCECFG
      		echo "pki_ds_password=$(eval echo \$SUBCA${number}_LDAP_ROOTDNPWD)" >> $INSTANCECFG   
-                echo "pki_client_dir=$(eval echo \$SUBCA${number}_CLIENT_DIR)" >> $INSTANCECFG
+                echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
 		echo "pki_security_domain_hostname=$master_hostname" >> $INSTANCECFG
                 echo "pki_security_domain_https_port=$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_security_domain_user=$(eval echo \$${CA}_ADMIN_USER)" >> $INSTANCECFG
@@ -746,7 +746,7 @@ rhcs_install_SubCA(){
                 echo "pki_admin_subject_dn=$(eval echo \$SUBCA${number}_ADMIN_SUBJECT_DN)" >> $INSTANCECFG
                 echo "pki_admin_nickname=$(eval echo \$SUBCA${number}_ADMIN_CERT_NICKNAME)" >> $INSTANCECFG
                 echo "pki_import_admin_cert=$(eval echo \$SUBCA${number}_ADMIN_IMPORT_CERT)" >> $INSTANCECFG
-                echo "pki_client_admin_cert_p12=$(eval echo \$SUBCA${number}_CLIENT_DIR)/$(eval echo \$SUBCA${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
+                echo "pki_client_admin_cert_p12=$CLIENT_DIR/$(eval echo \$SUBCA${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
                 echo "pki_subsystem_key_type=$(eval echo \$SUBCA${number}_SUBSYSTEM_KEY_TYPE)" >> $INSTANCECFG
                 echo "pki_subsystem_key_size=$(eval echo \$SUBCA${number}_SUBYSTEM_KEY_SIZE)" >> $INSTANCECFG
                 echo "pki_subsystem_key_algorithm=$(eval echo \$SUBCA${number}_SUBSYSTEM_KEY_ALGORITHM)" >> $INSTANCECFG
@@ -879,7 +879,7 @@ rhcs_install_cloneKRA(){
                 echo "pki_clone_replication_clone_port=$(eval echo \$CLONE_KRA${number}_LDAP_PORT)" >> $INSTANCECFG
                 echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
                 echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
-                echo "pki_client_dir=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)" >> $INSTANCECFG
+                echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
 
                 echo "[KRA]" >> $INSTANCECFG
 
@@ -904,7 +904,7 @@ rhcs_install_cloneKRA(){
                 echo "pki_ssl_server_nickname=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
                 echo "pki_ssl_server_subject_dn=$(eval echo \$CLONE_KRA${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
                 echo "pki_import_admin_cert=$CLONE_ADMIN_IMPORT_CERT" >> $INSTANCECFG
- 		echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$(eval echo \$${MASTER_KRA}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
+ 		echo "pki_client_admin_cert_p12=$CLIENT_DIR/$(eval echo \$${MASTER_KRA}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
                 echo "pki_security_domain_name=$DOMAIN" >> $INSTANCECFG
                 echo "pki_ds_hostname=$(hostname)" >> $INSTANCECFG
                 echo "pki_ds_ldap_port=$(eval echo \$CLONE_KRA${number}_LDAP_PORT)" >> $INSTANCECFG
@@ -981,7 +981,7 @@ rhcs_install_cloneOCSP(){
                 echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
                 echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
                 echo "pki_clone_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
-                echo "pki_client_dir=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)" >> $INSTANCECFG
+                echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
 		echo "pki_issuing_ca=https://$(hostname):$(eval echo \$CLONE_CA${number}_SECURE_PORT)" >> $INSTANCECFG
 
                 echo "[OCSP]" >> $INSTANCECFG
@@ -1004,7 +1004,7 @@ rhcs_install_cloneOCSP(){
                 echo "pki_ssl_server_subject_dn=$(eval echo \$CLONE_OCSP${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
                 echo "pki_import_admin_cert=$CLONE_ADMIN_IMPORT_CERT" >> $INSTANCECFG
                 echo "pki_admin_password=$(eval echo \$CLONE_OCSP${number}_ADMIN_PASSWORD)" >> $INSTANCECFG
-		echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$(eval echo \$CLONE_OCSP${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
+		echo "pki_client_admin_cert_p12=$CLIENT_DIR/$(eval echo \$CLONE_OCSP${number}_ADMIN_CERT_NICKNAME).p12" >> $INSTANCECFG
                 echo "pki_security_domain_hostname=$master_hostname" >> $INSTANCECFG
                 echo "pki_security_domain_https_port=$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_security_domain_user=$(eval echo \$${CA}_ADMIN_USER)" >> $INSTANCECFG
@@ -1088,7 +1088,7 @@ rhcs_install_cloneTKS(){
                 echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
                 echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
                 echo "pki_clone_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
-                echo "pki_client_dir=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)" >> $INSTANCECFG
+                echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
                 echo "pki_ds_password=$(eval echo \$CLONE${number}_LDAP_ROOTDNPWD)" >> $INSTANCECFG
 		echo "pki_admin_password=$(eval echo \$CLONE_TKS${number}_ADMIN_PASSWORD)" >> $INSTANCECFG
                 echo "pki_security_domain_hostname=$master_hostname" >> $INSTANCECFG
@@ -1115,7 +1115,7 @@ rhcs_install_cloneTKS(){
                 echo "pki_ssl_server_nickname=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_NICKNAME)" >> $INSTANCECFG
                 echo "pki_ssl_server_subject_dn=$(eval echo \$CLONE_TKS${number}_SSL_SERVER_CERT_SUBJECT_NAME)" >> $INSTANCECFG
  		echo "pki_import_admin_cert=$CLONE_ADMIN_IMPORT_CERT" >> $INSTANCECFG
-                echo "pki_client_admin_cert_p12=$(eval echo \$CLONE_CA${number}_CLIENT_DIR)/$TKS1_ADMIN_CERT_NICKNAME.p12" >> $INSTANCECFG
+                echo "pki_client_admin_cert_p12=$CLIENT_DIR/$TKS1_ADMIN_CERT_NICKNAME.p12" >> $INSTANCECFG
                 echo "pki_ds_hostname=$(hostname)" >> $INSTANCECFG
                 echo "pki_ds_ldap_port=$(eval echo \$CLONE_TKS${number}_LDAP_PORT)" >> $INSTANCECFG
                 echo "pki_ds_bind_dn=$(eval echo \$CLONE${number}_LDAP_ROOTDN)" >> $INSTANCECFG

@@ -110,6 +110,8 @@ run_rhcs_install_set_vars()
  
     	rlLog "===================== env|sort =========================="
     	env|sort 
+    	rlLog "===================== env.sh   =========================="
+    	##cat /opt/rhqa_pki/env.sh
     	rlLog "==============================================="
     rlPhaseEnd
 }
@@ -154,7 +156,7 @@ run_rhcs_install_quickinstall()
         run_install_subsystem_cloneTKS $CLONE_number $BEAKERMASTER $CA
 	run_install_subsystem_subca $SUBCA_number $BEAKERMASTER $CA
 	run_rhcs_add_to_env "ROOTCA_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12"
-	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 
     rlPhaseEnd 
 }
@@ -244,7 +246,7 @@ run_rhcs_install_topo_1()
 		local number=1
 		run_rhcs_install_packages
                 run_install_subsystem_subca $number $BEAKERMASTER $CA
-            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
 
@@ -295,7 +297,7 @@ run_rhcs_install_topo_2()
 		run_install_subsystem_subca $number $BEAKERMASTER $CA
 		run_install_subsystem_kra $number $BEAKERSUBCA1 $KRA_CA
 		run_install_subsystem_ocsp $number $BEAKERSUBCA1 $OCSP_CA
-            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
 }
@@ -341,7 +343,7 @@ run_rhcs_install_topo_3()
 		run_install_subsystem_subca $number $BEAKERMASTER $CA 
 		run_install_subsystem_kra $number $BEAKERSUBCA1 $KRA_CA
 		run_install_subsystem_ocsp $number $BEAKERSUBCA1 $OCSP_CA
-          	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+          	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
     rlPhaseStartTest "run_rhcs_install_topo_3 - Install SUBCA2 on Host 3"
@@ -351,7 +353,7 @@ run_rhcs_install_topo_3()
 		rlRun "rhts-sync-block -s 'Master Instances Installed' -m $BEAKERMASTER"
 		run_rhcs_install_packages
 		run_install_subsystem_subca $number $BEAKERMASTER $CA
-          	run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$SUBCA2_CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
+          	run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
 }
@@ -396,7 +398,7 @@ run_rhcs_install_topo_4()
 		run_install_subsystem_kra $number $BEAKERSUBCA1 $KRA_CA
 		run_install_subsystem_ocsp $number $BEAKERSUBCA1 $OCSP_CA
 		rlRun "rhts-sync-set -s 'SUBCA1 Instances Installed' -m $BEAKERSUBCA1"
-           	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+           	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
 
     rlPhaseEnd
@@ -407,7 +409,7 @@ run_rhcs_install_topo_4()
                 local number=2
                 run_rhcs_install_packages 
                 run_install_subsystem_subca $number $BEAKERMASTER $CA
-            	run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$SUBCA2_CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
+            	run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
 }
@@ -452,7 +454,7 @@ run_rhcs_install_topo_5()
                 run_install_subsystem_subca $number $BEAKERMASTER $CA
                 run_install_subsystem_kra $number $BEAKERSUBCA1 $KRA_CA
                 run_install_subsystem_ocsp $number $BEAKERSUBCA1 $OCSP_CA
-            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
 
@@ -467,7 +469,7 @@ run_rhcs_install_topo_5()
                run_install_subsystem_subca $number $BEAKERMASTER $CA
                run_install_subsystem_kra $number $BEAKERSUBCA2 $KRA_CA
                run_install_subsystem_ocsp $number $BEAKERSUBCA2 $OCSP_CA
-               run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$SUBCA2_CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
+               run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
 }
@@ -523,7 +525,7 @@ run_rhcs_install_topo_6()
                 run_install_subsystem_ocsp $number $BEAKERSUBCA1 $OCSP_CA
 		rlLog "rhts-sync-set -s 'SUBCA1 instances installed'"
 		rlRun "rhts-sync-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
-            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
 
@@ -536,7 +538,7 @@ run_rhcs_install_topo_6()
                 run_rhcs_install_packages
 	        run_install_subsystem_subca $number $BEAKERSUBCA1 $CA
 		run_install_subsystem_kra $number $BEAKERSUBCA2 $KRA_CA
-            	run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$SUBCA2_CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
+            	run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
         fi
     rlPhaseEnd
 
@@ -587,7 +589,7 @@ run_rhcs_install_topo_7()
             	KEYPID=$(ps -ef|grep "py[t]hon.*8901"|awk '{print $2}')
                 rlLog "rhts-sync-set -s 'SUBCA1 instances installed'"
                 rlRun "rhts-sync-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
-            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
     rlPhaseStartTest "run_rhcs_install_topo_7 - install CLONE1 on Host3"
@@ -682,7 +684,7 @@ run_rhcs_install_topo_8()
                 KEYPID=$(ps -ef|grep "py[t]hon.*8901"|awk '{print $2}')
                 rlLog "rhts-sync-set -s 'SUBCA1 instances installed'"
                 rlRun "rhts-sync-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
-            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+            	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
     rlPhaseStartTest "run_rhcs_install_topo_8 - install Host3 in Default Topology"
@@ -750,7 +752,7 @@ run_rhcs_install_topo_9()
         run_install_subsystem_cloneTKS $CLONE_number $BEAKERMASTER $CA
         run_install_subsystem_subca $SUBCA_number $BEAKERMASTER $CA
         run_rhcs_add_to_env "ROOTCA_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12"
-        run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+        run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
     rlPhaseEnd
 }
 
