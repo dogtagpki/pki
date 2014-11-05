@@ -110,8 +110,6 @@ run_rhcs_install_set_vars()
  
     	rlLog "===================== env|sort =========================="
     	env|sort 
-    	rlLog "===================== env.sh   =========================="
-    	cat /opt/rhqa_pki/env.sh
     	rlLog "==============================================="
     rlPhaseEnd
 }
@@ -382,13 +380,13 @@ run_rhcs_install_topo_4()
 	if [ "$(hostname)" = "$BEAKERMASTER" ]; then
 		run_rhcs_install_packages 
 		run_install_subsystem_RootCA 
-		rlRun "rhts-syncs-set -s 'Master Instances Installed' -m $BEAKERMASTER"
+		rlRun "rhts-sync-set -s 'Master Instances Installed' -m $BEAKERMASTER"
            	run_rhcs_add_to_env "ROOTCA_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
     rlPhaseStartTest "run_rhcs_install_topo_4 - Install SUBCA1 on Host 2"
-	if [ "$(hostname)" = $BEAKERSUBCA1" ]; then
-		rlRun "rhts-syncs-block -s 'Master Instances Installed' $BEAKERMASTER"
+	if [ "$(hostname)" = "$BEAKERSUBCA1" ]; then
+		rlRun "rhts-sync-block -s 'Master Instances Installed' $BEAKERMASTER"
 		local CA=ROOTCA
 		local number=1
 		local KRA_CA=SUBCA1
@@ -403,8 +401,8 @@ run_rhcs_install_topo_4()
 
     rlPhaseEnd
     rlPhaseStartTest "run_rhcs_install_topo_4 - Install SUBCA2 on Host 3"
-	if [ "$(hostname)" = $BEAKERSUBCA2" ]; then
-        	rlRun "rhts-syncs-block -s 'SUBCA1 Instances Installed' $BEAKERSUBCA1"
+	if [ "$(hostname)" = "$BEAKERSUBCA2" ]; then
+        	rlRun "rhts-sync-block -s 'Master Instances Installed' $BEAKERMASTER"
                 local CA=ROOTCA
                 local number=2
                 run_rhcs_install_packages 
@@ -439,13 +437,13 @@ run_rhcs_install_topo_5()
 		run_rhcs_install_packages
                 run_install_subsystem_RootCA
 		run_install_subsystem_ocsp $number $BEAKERMASTER $CA
-                rlRun "rhts-syncs-set -s 'Master Instances Installed' -m $BEAKERMASTER"
+                rlRun "rhts-sync-set -s 'Master Instances Installed' -m $BEAKERMASTER"
             	run_rhcs_add_to_env "ROOTCA_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
     rlPhaseStartTest "run_rhcs_install_topo_5 - Install Subca1 on host 2"
-	if [ "$(hostname)" = $BEAKERSUBCA1" ]; then
-        	rlRun "rhts-syncs-block -s 'Master Instances Installed' $BEAKERMASTER"
+	if [ "$(hostname)" = "$BEAKERSUBCA1" ]; then
+        	rlRun "rhts-sync-block -s 'Master Instances Installed' $BEAKERMASTER"
                 local CA=ROOTCA
                 local number=1
                 local KRA_CA=SUBCA1
@@ -459,16 +457,16 @@ run_rhcs_install_topo_5()
     rlPhaseEnd
 
     rlPhaseStartTest "run_rhcs_install_topo_5 - Install Subca2 on host 3"
-	if [ "$(hostname)" = $BEAKERSUBCA2" ]; then
-               rlRun "rhts-syncs-block -s 'Master Instances Installed' $BEAKERMASTER"
+	if [ "$(hostname)" = "$BEAKERSUBCA2" ]; then
+               rlRun "rhts-sync-block -s 'Master Instances Installed' $BEAKERMASTER"
                local CA=ROOTCA
                local number=2
                local KRA_CA=SUBCA2
                local OCSP_CA=SUBCA2
                run_rhcs_install_packages
                run_install_subsystem_subca $number $BEAKERMASTER $CA
-               run_install_subsystem_KRA $number $BEAKERSUBCA2 $KRA_CA
-               run_install_subsystem_OCSP $number $BEAKERSUBCA2 $OCSP_CA
+               run_install_subsystem_kra $number $BEAKERSUBCA2 $KRA_CA
+               run_install_subsystem_ocsp $number $BEAKERSUBCA2 $OCSP_CA
                run_rhcs_add_to_env "SUBCA2_ADMIN_CERT_LOCATION" "$SUBCA2_CLIENT_DIR/$SUBCA2_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
@@ -523,8 +521,8 @@ run_rhcs_install_topo_6()
                 run_install_subsystem_subca $number $BEAKERMASTER $CA
                 run_install_subsystem_kra $number $BEAKERSUBCA1 $KRA_CA
                 run_install_subsystem_ocsp $number $BEAKERSUBCA1 $OCSP_CA
-		rlLog "rhts-syncs-set -s 'SUBCA1 instances installed'"
-		rlRun "rhts-syncs-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
+		rlLog "rhts-sync-set -s 'SUBCA1 instances installed'"
+		rlRun "rhts-sync-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
             	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
@@ -587,8 +585,8 @@ run_rhcs_install_topo_7()
             	fi
          	python -m $WEBMOD 8901 > /var/log/python_web_server.log 2>&1 &
             	KEYPID=$(ps -ef|grep "py[t]hon.*8901"|awk '{print $2}')
-                rlLog "rhts-syncs-set -s 'SUBCA1 instances installed'"
-                rlRun "rhts-syncs-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
+                rlLog "rhts-sync-set -s 'SUBCA1 instances installed'"
+                rlRun "rhts-sync-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
             	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
@@ -602,7 +600,7 @@ run_rhcs_install_topo_7()
                         chmod 755 $CLIENT_PKCS12_DIR
                 fi
                 pushd $CLIENT_PKCS12_DIR
-                wget -q http://$BEAKERMASTER:8901/ca_backup_keys.p12
+                wget -q http://$BEAKERSUBCA1:8901/ca_backup_keys.p12
 		rlRun "chmod 644 ca_backup_keys.p12"
                 rlRun "chcon 'system_u:object_r:pki_tomcat_cert_t:s0' ca_backup_keys.p12"
                 run_rhcs_install_packages
@@ -682,8 +680,8 @@ run_rhcs_install_topo_8()
                 fi
                 python -m $WEBMOD 8901 > /var/log/python_web_server.log 2>&1 &
                 KEYPID=$(ps -ef|grep "py[t]hon.*8901"|awk '{print $2}')
-                rlLog "rhts-syncs-set -s 'SUBCA1 instances installed'"
-                rlRun "rhts-syncs-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
+                rlLog "rhts-sync-set -s 'SUBCA1 instances installed'"
+                rlRun "rhts-sync-set -s 'SUBCA1 instances installed' -m $BEAKERSUBCA1"
             	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$SUBCA1_CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 	fi
     rlPhaseEnd
@@ -699,7 +697,9 @@ run_rhcs_install_topo_8()
                         chmod 755 $CLIENT_PKCS12_DIR
                 fi
                 pushd $CLIENT_PKCS12_DIR
-                wget -q http://$BEAKERMASTER:8901/ca_backup_keys.p12
+                wget -q http://$BEAKERSUBCA1:8901/ca_backup_keys.p12
+                wget -q http://$BEAKERSUBCA1:8901/ocsp_backup_keys.p12
+                wget -q http://$BEAKERSUBCA1:8901/kra_backup_keys.p12
                 rlRun "chmod 644 ca_backup_keys.p12 kra_backup_keys.p12 ocsp_backup_keys.p12"
                 rlRun "chcon 'system_u:object_r:pki_tomcat_cert_t:s0' ca_backup_keys.p12 kra_backup_keys.p12 ocsp_backup_keys.p12"
                 run_rhcs_install_packages
@@ -722,6 +722,7 @@ run_rhcs_install_topo_8()
     rlPhaseEnd
 		
 }
+
 
 
 

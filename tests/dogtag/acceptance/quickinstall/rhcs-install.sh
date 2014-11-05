@@ -129,6 +129,7 @@ run_install_subsystem_RootCA()
                         else
                                rlLog "ERROR: $item package is NOT installed"
                                rc=1
+			       break
                         fi
                 done
 		if [ $rc -eq 0 ] ; then
@@ -158,7 +159,7 @@ run_install_subsystem_kra() {
 			rc=1
 		fi
 
-		if [ $rc -eq 0 ] && [ "$CA_INSTALLED" = "TRUE" ]; then
+		if [ $rc -eq 0 ] ; then
 			rhcs_install_kra $number $master_hostname $CA
 		fi
 	rlPhaseEnd
@@ -180,7 +181,7 @@ run_install_subsystem_ocsp() {
 			rc=1
 		fi
 
-		if [ $rc -eq 0 ] && [ "$CA_INSTALLED" = "TRUE" ]; then
+		if [ $rc -eq 0 ] ; then
 			rhcs_install_ocsp $number $master_hostname $CA
 		fi
 	rlPhaseEnd
