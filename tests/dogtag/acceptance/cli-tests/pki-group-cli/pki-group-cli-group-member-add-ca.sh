@@ -497,7 +497,7 @@ local cert_info="$TmpDir/cert_info"
                             user-cert-add testuser1 --input $TmpDir/pki_ca_group_member_add_encoded_0019pkcs10.pem  > $TmpDir/useraddcert_019_2.out" \
                             0 \
                             "Cert is added to the user testuser1"
-                command="pki -d $TEMP_NSS_DB -n testuser1 -c $TEMP_NSS_DB_PASSWD ca-user-add --fullName=test_user u39"
+                command="pki -d $TEMP_NSS_DB -n testuser1 -c $TEMP_NSS_DB_PASSWD -h $CA_HOST -p $CA_PORT ca-user-add --fullName=test_user u39"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "ca-user-add operation should fail when authenticating using a user cert"

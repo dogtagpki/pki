@@ -57,6 +57,11 @@
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-add-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-show-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-delete-ca.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-mod-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-find-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-add-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-show-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-delete-kra.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
@@ -139,6 +144,12 @@
 . ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-recover-kra.sh
 . ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-retrieve-kra.sh
 . ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-request-review-kra.sh
+. ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-mod.sh
+. ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert.sh
+. ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-add.sh
+. ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-find.sh
+. ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-show.sh
+. ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-delete.sh
 . ./acceptance/bugzilla/tomcatjss-bugs.sh
 . ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh
 . ./acceptance/bugzilla/pki-core-bugs/CSbackup-bug.sh
@@ -337,6 +348,54 @@ rlJournalStart
                   run_pki-user-cli-user-cert-delete-ca_tests  $subsystemId $subsystemType $MYROLE
         fi
 
+	######## PKI USER KRA TESTS ############
+        PKI_USER_KRA_UPPERCASE=$(echo $PKI_USER_KRA | tr [a-z] [A-Z])
+        if [ "$PKI_USER_KRA_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  run_pki-user-cli-user-mod-kra_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-user-cli-user-cert-add-kra_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-user-cli-user-cert-find-kra_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-user-cli-user-cert-show-kra_tests $subsystemId $subsystemType $MYROLE
+                  run_pki-user-cli-user-cert-delete-kra_tests $subsystemId $subsystemType $MYROLE
+        fi
+	
+        USER_MOD_KRA_UPPERCASE=$(echo $USER_MOD_KRA | tr [a-z] [A-Z])
+        if [ "$USER_MOD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-mod-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  run_pki-user-cli-user-mod-kra_tests $subsystemId $subsystemType $MYROLE
+        fi
+	USER_CERT_ADD_KRA_UPPERCASE=$(echo $USER_CERT_ADD_KRA | tr [a-z] [A-Z])
+        if [ "$USER_CERT_ADD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-add-kra tests 
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  run_pki-user-cli-user-cert-add-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        USER_CERT_FIND_KRA_UPPERCASE=$(echo $USER_CERT_FIND_KRA | tr [a-z] [A-Z])
+        if [ "$USER_CERT_FIND_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-find-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  run_pki-user-cli-user-cert-find-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        USER_CERT_SHOW_KRA_UPPERCASE=$(echo $USER_CERT_SHOW_KRA | tr [a-z] [A-Z])
+        if [ "$USER_CERT_SHOW_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-show-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  run_pki-user-cli-user-cert-show-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        USER_CERT_DEL_KRA_UPPERCASE=$(echo $USER_CERT_DEL_KRA | tr [a-z] [A-Z])
+        if [ "$USER_CERT_DEL_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-del-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  run_pki-user-cli-user-cert-delete-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
 	######## PKI CA_USER TESTS ############
 	PKI_CA_USER_UPPERCASE=$(echo $PKI_CA_USER | tr [a-z] [A-Z])
         if [ "$PKI_CA_USER_UPPERCASE" = "TRUE" ] ; then
@@ -696,6 +755,83 @@ rlJournalStart
                   run_pki-group-cli-group-member-show-ca_tests  $subsystemId $subsystemType $MYROLE
         fi
 
+	######## PKI GROUP KRA TESTS ############
+        PKI_GROUP_KRA_TEST_UPPERCASE=$(echo $PKI_GROUP_KRA_TEST | tr [a-z] [A-Z])
+        if [ "$PKI_GROUP_KRA_TEST_UPPERCASE" = "TRUE" ] ; then
+                #Execute pki group tests for kra
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-group-cli-group-add-kra_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-group-cli-group-show-kra_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-group-cli-group-find-kra_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-group-cli-group-mod-kra_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-group-cli-group-del-kra_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-group-cli-group-member-add-kra_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-group-cli-group-member-find-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        GROUP_ADD_KRA_UPPERCASE=$(echo $GROUP_ADD_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_ADD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-add-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-add-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+	GROUP_SHOW_KRA_UPPERCASE=$(echo $GROUP_SHOW_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_SHOW_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-show-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-show-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        GROUP_FIND_KRA_UPPERCASE=$(echo $GROUP_FIND_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_FIND_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-find-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-find-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        GROUP_MOD_KRA_UPPERCASE=$(echo $GROUP_MOD_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_MOD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-mod-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-mod-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        GROUP_DEL_KRA_UPPERCASE=$(echo $GROUP_DEL_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_DEL_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-del-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-del-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+	GROUP_MEMBER_ADD_KRA_UPPERCASE=$(echo $GROUP_MEMBER_ADD_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_MEMBER_ADD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-member-add-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-member-add-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        GROUP_MEMBER_FIND_KRA_UPPERCASE=$(echo $GROUP_MEMBER_FIND_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_MEMBER_FIND_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-member-find-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-member-find-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        GROUP_MEMBER_DEL_KRA_UPPERCASE=$(echo $GROUP_MEMBER_DEL_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_MEMBER_DEL_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-member-del-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-member-del-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        GROUP_MEMBER_SHOW_KRA_UPPERCASE=$(echo $GROUP_MEMBER_SHOW_KRA | tr [a-z] [A-Z])
+        if [ "$GROUP_MEMBER_SHOW_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki group-member-show-kra tests
+                  subsystemId=$KRA_INST
+                subsystemType=kra
+                  run_pki-group-cli-group-member-show-kra_tests  $subsystemId $subsystemType $MYROLE
+        fi
 	######## PKI CA GROUP TESTS ############
         PKI_CA_GROUP_TEST_UPPERCASE=$(echo $PKI_CA_GROUP_TEST | tr [a-z] [A-Z])
         if [ "$PKI_CA_GROUP_TEST_UPPERCASE" = "TRUE" ] ; then
@@ -1032,6 +1168,88 @@ rlJournalStart
                 subsystemType=kra
                 run_pki-kra-user-cli-kra-user-cert-delete_tests  $subsystemId $subsystemType $MYROLE
         fi
+
+	######## PKI KRA GROUP TESTS ############
+        PKI_KRA_GROUP_TEST_UPPERCASE=$(echo $PKI_KRA_GROUP_TEST | tr [a-z] [A-Z])
+        if [ "$PKI_KRA_GROUP_TEST_UPPERCASE" = "TRUE" ] ; then
+                #Execute pki kra-group tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-add_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-kra-group-cli-kra-group-mod_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-kra-group-cli-kra-group-find_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-kra-group-cli-kra-group-show_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-kra-group-cli-kra-group-del_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-kra-group-cli-kra-group-member-add_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-kra-group-cli-kra-group-member-show_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-kra-group-cli-kra-group-member-find_tests  $subsystemId $subsystemType $MYROLE
+                run_pki-kra-group-cli-kra-group-member-del_tests  $subsystemId $subsystemType $MYROLE
+        fi
+
+        KRA_GROUP_ADD_UPPERCASE=$(echo $KRA_GROUP_ADD | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-add tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-add_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        KRA_GROUP_MOD_UPPERCASE=$(echo $KRA_GROUP_MOD | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_MOD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-mod tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-mod_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        KRA_GROUP_FIND_UPPERCASE=$(echo $KRA_GROUP_FIND | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-find tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-find_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        KRA_GROUP_SHOW_UPPERCASE=$(echo $KRA_GROUP_SHOW | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-show tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-show_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        KRA_GROUP_DEL_UPPERCASE=$(echo $KRA_GROUP_DEL | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_DEL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-del tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-del_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        KRA_GROUP_MEMBER_ADD_UPPERCASE=$(echo $KRA_GROUP_MEMBER_ADD | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_MEMBER_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-member-add tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-member-add_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        KRA_GROUP_MEMBER_SHOW_UPPERCASE=$(echo $KRA_GROUP_MEMBER_SHOW | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_MEMBER_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-member-show tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-member-show_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        KRA_GROUP_MEMBER_FIND_UPPERCASE=$(echo $KRA_GROUP_MEMBER_FIND | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_MEMBER_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-member-find tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-member-find_tests  $subsystemId $subsystemType $MYROLE
+        fi
+        KRA_GROUP_MEMBER_DEL_UPPERCASE=$(echo $KRA_GROUP_MEMBER_DEL | tr [a-z] [A-Z])
+        if [ "$KRA_GROUP_MEMBER_DEL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki kra-group-member-del tests
+                subsystemId=$KRA_INST
+                subsystemType=kra
+                run_pki-kra-group-cli-kra-group-member-del_tests  $subsystemId $subsystemType $MYROLE
+        fi
+
 	######## PKI USER TESTS ############
 	USER_CLEANUP_CA_UPPERCASE=$(echo $USER_CLEANUP_CA | tr [a-z] [A-Z])
         #Clean up role users (admin agent etc) created in CA

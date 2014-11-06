@@ -313,8 +313,14 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 
 		rlLog "$(cat $TmpDir/pki_user_cert_show_CA_usershowcert_008.out | grep Subject | awk -F":" '{print $2}')"
         	rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usershowcert_008.out -noout -serial 1> $TmpDir/temp_out-openssl_008" 0 "Run openssl to verify PEM output"
-		rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_008"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_008| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $decimal_valid_serialNumber_pkcs10 ] ; then
 
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -340,7 +346,14 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 
 	        rlLog "$(cat $TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out | grep Subject | awk -F":" '{print $2}')"
         	rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usershowcert_008crmf.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf_008" 0 "Run openssl to verify PEM output"
-        	rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf_008"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_crmf_008| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $decimal_valid_serialNumber_crmf ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
         	rlPhaseEnd
 	
 	  ##### Show certs asigned to a user - --encoded option - no User ID #####
@@ -392,7 +405,14 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_0011.out"
         	rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_0011.out"
 		rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usercertshow_output_0011.out -noout -serial 1> $TmpDir/temp_out-openssl_0011" 0 "Run openssl to verify PEM output"
-        rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_0011"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_0011| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $decimal_valid_serialNumber_pkcs10 ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 	rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
                 rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_pkcs10;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011.out"
@@ -419,7 +439,14 @@ local TEMP_NSS_DB_PASSWD="redhat123"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf_0011.out"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf_0011.out"
                 rlRun "openssl x509 -in $TmpDir/pki_user_cert_show_CA_usercertshow_output_crmf_0011.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf_0011" 0 "Run openssl to verify PEM output"
-        rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf_0011"
+	openssl_out_serial=$(cat $TmpDir/temp_out-openssl_crmf_0011| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $decimal_valid_serialNumber_crmf ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
         rlAssertGrep "Certificate \"2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US\"" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
                 rlAssertGrep "Cert ID: 2;$decimal_valid_serialNumber_crmf;$(eval echo \$${subsystemId}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example,C=US" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_user_cert_show_CA_usershowcert_0011crmf.out"
@@ -642,8 +669,14 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/user_cert_show_output0019"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/user_cert_show_output0019"
                 rlRun "openssl x509 -in $TmpDir/user_cert_show_output0019 -noout -serial 1> $TmpDir/temp_out-openssl_0019" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10_new" "$TmpDir/temp_out-openssl_0019"
-		
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_0019| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $decimal_valid_serialNumber_pkcs10_new ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 		rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -686,7 +719,14 @@ local TEMP_NSS_DB_PASSWD="redhat123"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/user_cert_show_output0019crmf"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/user_cert_show_output0019crmf"
                 rlRun "openssl x509 -in $TmpDir/user_cert_show_output0019crmf -noout -serial 1> $TmpDir/temp_out-openssl_crmf_0019" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF_new" "$TmpDir/temp_out-openssl_crmf_0019"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_crmf_0019| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $decimal_valid_serialNumber_crmf_new ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 		rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -890,8 +930,14 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/user_cert_show_output0030"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/user_cert_show_output0030"
                 rlRun "openssl x509 -in $TmpDir/user_cert_show_output0030 -noout -serial 1> $TmpDir/temp_out-openssl_0030" 0 "Run openssl to verify PEM output"
-	        rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_0030"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_0030| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $decimal_valid_serialNumber_pkcs10 ] ; then
 
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -919,8 +965,14 @@ local TEMP_NSS_DB_PASSWD="redhat123"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/user_cert_show_output0030crmf"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/user_cert_show_output0030crmf"
                 rlRun "openssl x509 -in $TmpDir/user_cert_show_output0030crmf -noout -serial 1> $TmpDir/temp_out-openssl_crmf_0030" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf_0030"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_crmf_0030| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $decimal_valid_serialNumber_crmf ] ; then
 
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
         rlPhaseEnd
 
         ##### Show certs asigned to a user - as a user not associated with any role##### 

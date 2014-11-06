@@ -323,7 +323,14 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
 		
 		rlLog "$(cat $TmpDir/pki_ca_user_cert_show_usershowcert_008pkcs10.out | grep Subject | awk -F":" '{print $2}')"
                 rlRun "openssl x509 -in $TmpDir/pki_ca_user_cert_show_usershowcert_008pkcs10.out -noout -serial 1> $TmpDir/temp_out-openssl_pkcs10" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_pkcs10"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_pkcs10| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $valid_decimal_pkcs10_serialNumber ] ; then
+
+                        rlPass "Serial number matches"
+		else
+			rlFail "Serial number does not match"
+                fi
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
@@ -349,7 +356,14 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
 
                 rlLog "$(cat $TmpDir/pki_ca_user_cert_show_usershowcert_008crmf.out | grep Subject | awk -F":" '{print $2}')"
                 rlRun "openssl x509 -in $TmpDir/pki_ca_user_cert_show_usershowcert_008crmf.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_crmf| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $valid_decimal_crmf_serialNumber ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 	rlPhaseEnd
 
 	##### Show certs asigned to a user with --encoded option - no User ID #####
@@ -398,7 +412,14 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_ca_user_cert_show_usercertshow_pkcs10_output.out"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_ca_user_cert_show_usercertshow_pkcs10_output.out"
 		rlRun "openssl x509 -in $TmpDir/pki_ca_user_cert_show_usercertshow_pkcs10_output.out -noout -serial 1> $TmpDir/temp_out-openssl_pkcs10" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_pkcs10"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_pkcs10| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $valid_decimal_pkcs10_serialNumber ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
                 rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_ca_user_cert_show_usershowcert_0011pkcs10.out"
                 rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_ca_user_cert_show_usershowcert_0011pkcs10.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_ca_user_cert_show_usershowcert_0011pkcs10.out"
@@ -423,7 +444,14 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_ca_user_cert_show_usercertshow_crmf_output.out"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_ca_user_cert_show_usercertshow_crmf_output.out"
                 rlRun "openssl x509 -in $TmpDir/pki_ca_user_cert_show_usercertshow_crmf_output.out -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_crmf| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $valid_decimal_crmf_serialNumber ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
                 rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_ca_user_cert_show_usershowcert_0011crmf.out"
                 rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_ca_user_cert_show_usershowcert_0011crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_ca_user_cert_show_usershowcert_0011crmf.out"
@@ -618,7 +646,7 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
                            -c $CERTDB_DIR_PASSWORD \
                            -h $CA_HOST \
                            -p $CA_PORT \
-                            ca-user-cert-add $newuserid --serial $valid_decimal_crmf_serialNumber_new"
+                            ca-user-cert-add $newuserid --serial $valid_decimal_crmf_serialNumber_new > /tmp/newtest1 2>&1"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
@@ -650,7 +678,14 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/ca_user_cert_show_pkcs10_output0019"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/ca_user_cert_show_pkcs10_output0019"
                 rlRun "openssl x509 -in $TmpDir/ca_user_cert_show_pkcs10_output0019 -noout -serial 1> $TmpDir/temp_out-openssl_pkcs10" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10_new" "$TmpDir/temp_out-openssl_pkcs10"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_pkcs10| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $valid_decimal_pkcs10_serialNumber_new ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
@@ -682,7 +717,14 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/ca_user_cert_show_crmf_output0019"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/ca_user_cert_show_crmf_output0019"
                 rlRun "openssl x509 -in $TmpDir/ca_user_cert_show_crmf_output0019 -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF_new" "$TmpDir/temp_out-openssl_crmf"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_crmf| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $valid_decimal_crmf_serialNumber_new ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 
 		 rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
@@ -844,7 +886,14 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/ca_user_cert_show_pkcs10_output0028"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/ca_user_cert_show_pkcs10_output0028"
                 rlRun "openssl x509 -in $TmpDir/ca_user_cert_show_pkcs10_output0028 -noout -serial 1> $TmpDir/temp_out-openssl_pkcs10" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_PKCS10" "$TmpDir/temp_out-openssl_pkcs10"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_pkcs10| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $valid_decimal_pkcs10_serialNumber ] ; then
+
+                        rlPass "Serial number matches"
+		else
+                        rlFail "Serial number does not match"
+                fi
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
@@ -871,7 +920,14 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/ca_user_cert_show_crmf_output0028"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/ca_user_cert_show_crmf_output0028"
                 rlRun "openssl x509 -in $TmpDir/ca_user_cert_show_crmf_output0028 -noout -serial 1> $TmpDir/temp_out-openssl_crmf" 0 "Run openssl to verify PEM output"
-                rlAssertGrep "serial=$CONV_UPP_VAL_CRMF" "$TmpDir/temp_out-openssl_crmf"
+		openssl_out_serial=$(cat $TmpDir/temp_out-openssl_crmf| grep serial | cut -d= -f2)
+                dec_openssl_out_serial=$(echo "ibase=16;$openssl_out_serial"|bc)
+                if [ $dec_openssl_out_serial = $valid_decimal_crmf_serialNumber ] ; then
+
+                        rlPass "Serial number matches"
+		else
+			rlFail "Serial number does not match"
+                fi
 	rlPhaseEnd
 
 	##### Show certs asigned to a user - as a user not associated with any role##### 

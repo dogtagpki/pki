@@ -99,6 +99,12 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-show-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-delete-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-tests-setup/cleanup-role-users.sh
+	#user KRA
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-mod-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-find-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-add-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-show-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-delete-kra.sh
 	#CA user
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-add.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-show.sh
@@ -113,6 +119,13 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-cert-find.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-cert-show.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-cert-delete.sh
+	#KRA user
+	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-delete.sh
 	#cert CA
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh

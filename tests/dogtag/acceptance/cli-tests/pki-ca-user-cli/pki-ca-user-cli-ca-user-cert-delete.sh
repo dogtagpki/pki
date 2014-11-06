@@ -542,6 +542,8 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
                 errmsg="Error:"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki ca-user-cert-del should fail if the required options are switched positions"
+		rlLog "FAIL: https://fedorahosted.org/pki/ticket/969"
+
 	rlPhaseEnd
 
 	### Tests to delete certs assigned to CA users - i18n characters ####

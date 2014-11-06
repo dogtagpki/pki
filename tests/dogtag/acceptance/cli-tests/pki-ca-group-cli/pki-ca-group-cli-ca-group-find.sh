@@ -276,7 +276,7 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_group_cli_ca_group_find-014: Find groups, --start with more than maximum possible input"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
+        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 12 | head -n 1`
 	command="pki -d $CERTDB_DIR  -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-find --start=$maximum_check"
 	errmsg="NumberFormatException: For input string: \"$maximum_check\""
 	errorcode=255
