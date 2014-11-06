@@ -75,12 +75,7 @@ rhds_install()
 	####################################################
 	# turn off firewall
 	####################################################
-	echo $FLAVOR | grep "Fedora"
-	if [ $? -eq 0 ] ; then
-		rlRun "systemctl stop firewalld"
-	else
-		rlRun "service iptables stop"
-	fi
+	rlRun "systemctl stop firewalld"
 
 	####################################################
 	# check for installed RHDS packages
