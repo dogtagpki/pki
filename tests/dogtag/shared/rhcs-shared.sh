@@ -131,14 +131,9 @@ submit_instance_logs(){
 # start RHCS instance
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 rhcs_start_instance(){
-	INSTANCE_ID=$1
-	echo $FLAVOR | grep "Fedora"
-        if [ $? -eq 0 ] ; then
-		rlLog "Executing: systemctl start pki-tomcatd@pki-tomcat.service"
-		systemctl start pki-tomcatd@pki-tomcat.service
-	else
-		service $INSTANCE_ID start
-	fi
+        TOMCAT_ID=$1
+	rlLog "Executing: systemctl start pki-tomcatd@$TOMCAT_ID.service"
+	systemctl start pki-tomcatd@$TOMCAT_ID.service
 	sleep 60
 }
 
@@ -150,14 +145,9 @@ rhcs_start_instance(){
 # stop RHCS instance
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 rhcs_stop_instance(){
-        INSTANCE_ID=$1
-	echo $FLAVOR | grep "Fedora"
-        if [ $? -eq 0 ] ; then
-		rlLog "Executing: systemctl stop pki-tomcatd@pki-tomcat.service"
-		systemctl stop pki-tomcatd@pki-tomcat.service
-	else
-		service $INSTANCE_ID stop
-	fi
+        TOMCAT_ID=$1
+	rlLog "Executing: systemctl stop pki-tomcatd@$TOMCAT_ID.service"
+	systemctl stop pki-tomcatd@$TOMCAT_ID.service
         sleep 60
 }
 

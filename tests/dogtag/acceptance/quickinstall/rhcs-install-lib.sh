@@ -11,7 +11,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   Authors: Asha Akkiangady <aakkiang@redhat.com>
-#	    Saili Pandit <saipandi@redhat.com>
+#  	     Saili Pandit <saipandi@redhat.com>
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   Copyright (c) 2013 Red Hat, Inc. All rights reserved.
@@ -629,7 +629,6 @@ rhcs_install_cloneCA()
 		echo "pki_clone_replication_clone_port=$(eval echo \$CLONE_CA${number}_LDAP_PORT)" >> $INSTANCECFG
 		echo "pki_clone_repicate_schema=$REPLICATE_SCHEMA" >> $INSTANCECFG
 		echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
-		echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
 		echo "pki_clone_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
 		echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
 
@@ -878,7 +877,6 @@ rhcs_install_cloneKRA(){
                 echo "pki_clone_replication_master_port=$(eval echo \$${MASTER_KRA}_LDAP_PORT)" >> $INSTANCECFG
                 echo "pki_clone_replication_clone_port=$(eval echo \$CLONE_KRA${number}_LDAP_PORT)" >> $INSTANCECFG
                 echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
-                echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
                 echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
 
                 echo "[KRA]" >> $INSTANCECFG
@@ -979,7 +977,6 @@ rhcs_install_cloneOCSP(){
                 echo "pki_clone_replication_clone_port=$(eval echo \$CLONE_OCSP${number}_LDAP_PORT)" >> $INSTANCECFG
                 echo "pki_clone_repicate_schema=$REPLICATE_SCHEMA" >> $INSTANCECFG
                 echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
-                echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
                 echo "pki_clone_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
 		echo "pki_issuing_ca=https://$(hostname):$(eval echo \$CLONE_CA${number}_SECURE_PORT)" >> $INSTANCECFG
@@ -1086,7 +1083,6 @@ rhcs_install_cloneTKS(){
                 echo "pki_clone_replication_clone_port=$(eval echo \$CLONE_TKS${number}_LDAP_PORT)" >> $INSTANCECFG
                 echo "pki_clone_repicate_schema=$REPLICATE_SCHEMA" >> $INSTANCECFG
                 echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
-                echo "pki_client_database_password=$(eval echo \$CLONE${number}_CERTDB_DIR_PASSWORD)" >> $INSTANCECFG
                 echo "pki_clone_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
                 echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
                 echo "pki_ds_password=$(eval echo \$CLONE${number}_LDAP_ROOTDNPWD)" >> $INSTANCECFG
