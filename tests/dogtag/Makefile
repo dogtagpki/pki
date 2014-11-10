@@ -36,6 +36,7 @@ FILES=$(METADATA) runtest.sh topologies.sh Makefile PURPOSE shared acceptance de
 run: $(FILES) build
 	mkdir -p /opt/rhqa_pki
 	mkdir -p /opt/rhqa_pki/jars
+	mkdir -p /opt/rhqa_pki/PkiLib
 	cp -n ./shared/env.sh /opt/rhqa_pki/.
 	rm -f /opt/rhqa_pki/rhcs-shared.sh
 	cp ./shared/rhcs-shared.sh /opt/rhqa_pki/.
@@ -68,6 +69,18 @@ run: $(FILES) build
 	cp  ./codecoverage/known_hosts_archivehost /opt/rhqa_pki/known_hosts_archivehost
 	rm -f /opt/rhqa_pki/saving_codecoverage_results.sh
 	cp  ./codecoverage/saving_codecoverage_results.sh /opt/rhqa_pki/saving_codecoverage_results.sh
+	#Python
+	rm -f /opt/rhqa_pki/PkiLib/pkicommonlib.py
+	cp ./shared/PkiLib/pkicommonlib.py /opt/rhqa_pki/PkiLib/pkicommonlib.py
+	rm -f /opt/rhqa_pki/PkiLib/pkiprofilelib.py
+	cp ./shared/PkiLib/pkiprofilelib.py /opt/rhqa_pki/PkiLib/pkiprofilelib.py
+	rm -f /opt/rhqa_pki/PkiLib/pkiprofilecli.py
+	cp ./shared/PkiLib/pkiprofilecli.py /opt/rhqa_pki/PkiLib/pkiprofilecli.py
+	rm -f /opt/rhqa_pki/PkiLib/pkiconstraintslib.py
+	cp ./shared/PkiLib/pkiconstraintslib.py /opt/rhqa_pki/PkiLib/pkiconstraintslib.py
+	rm -f /opt/rhqa_pki/PkiLib/__init__.py
+	cp ./shared/PkiLib/__init__.py /opt/rhqa_pki/PkiLib/__init__.py
+	#Runtest
 	./runtest.sh
 
 build: $(BUILT_FILES)
