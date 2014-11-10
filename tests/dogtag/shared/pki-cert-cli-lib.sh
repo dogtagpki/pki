@@ -79,7 +79,7 @@ local request_id="${14}"
 local cert_subject="${17}"
 local host="${15}"
 local port="${16}"
-local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+local rand=$RANDOM
 local prefix="${18}"
 
 #### First we create  NSS Database
@@ -265,7 +265,7 @@ create_new_cert_request()
 	local archive="$(echo ${12}|cut -d: -f2)"
 	local cert_request_file="$(echo ${13}|cut -d: -f2)"
 	local cert_subject_file="$(echo ${14}|cut -d: -f2)"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local state="North Carolina"
 	local location="Raleigh"
 
@@ -411,7 +411,7 @@ submit_new_request(){
 	local organization=$(cat $subj_request_file | grep ^"Org" | cut -d: -f2)
 	local country=$(cat $subj_request_file | grep ^"Country" | cut -d: -f2)
 	local cert_request_dn=$(cat $subj_request_file | grep ^"Request_DN" | cut -d: -f2)
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 
         if [ "$target_host" == "" ]; then
                 target_host="$(hostname)"
@@ -434,7 +434,7 @@ submit_new_request(){
 		rlFail "FAIL :: We have some problem getting $profile xml"
 		return 1
 	fi 
-	if [[ "$profilename" =~ "caUserCert" ]]  || [[ "$profilename" =~  "caUserSMIMEcapCert" ]] || [ "$profilename" =~  "caDualCert" ]];then
+	if [[ "$profilename" =~ "caUserCert" ]]  || [[ "$profilename" =~  "caUserSMIMEcapCert" ]] || [[ "$profilename" =~  "caDualCert" ]];then
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $cert_request_file)\" $xml_profile_file"
 	rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v \"$uid\" $xml_profile_file"
@@ -591,7 +591,7 @@ generate_new_cert()
 	local cert_db_nick="$(echo ${19}|cut -d: -f2)"
 	local target_cert_info="$(echo ${20}|cut -d: -f2)"
 	local certout="$tmp_nss_db/cert_out"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	rlRun "create_new_cert_request \
         dir:$tmp_nss_db \
         pass:$tmp_nss_db_pwd \
@@ -664,6 +664,28 @@ generate_new_cert()
 	local STRIP_HEX=$(echo $valid_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL=${STRIP_HEX^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
+        rlLog "Get the cert in a output file"
+        rlRun "pki -h $target_host -p $target_port cert-show $valid_serialNumber --encoded --output $tmp_nss_db/$cn-out.pem 1> $tmp_nss_db/pki-cert-show.out"
+        rlAssertGrep "Certificate \"$valid_serialNumber\"" "$tmp_nss_db/pki-cert-show.out"
+        rlRun "pki -h $target_host -p $target_port cert-show 0x1 --encoded --output  $tmp_nss_db/ca_cert.pem 1> $tmp_nss_db/ca-cert-show.out"
+        rlAssertGrep "Certificate \"0x1\"" "$tmp_nss_db/ca-cert-show.out"
+        rlLog "Add the $cn cert to $tmp_nss_db NSS DB"
+        rlRun "pki -d $tmp_nss_db \
+                -h $target_host \
+                -p $target_port \
+                -c $tmp_nss_db_pwd \
+                -n \"$subject_cn\" client-cert-import \
+                --cert $tmp_nss_db/$cn-out.pem 1> $tmp_nss_db/pki-client-cert.out"
+        rlAssertGrep "Imported certificate \"$subject_cn\"" "$tmp_nss_db/pki-client-cert.out"
+        rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
+        rlRun "pki -d $tmp_nss_db \
+                -h $target_host \
+                -p $target_port \
+                -c $tmp_nss_db_pwd \
+                -n \"casigningcert\" client-cert-import \
+                --ca-cert $tmp_nss_db/ca_cert.pem 1> $tmp_nss_db/pki-ca-cert.out"
+        rlAssertGrep "Imported certificate \"casigningcert\"" "$tmp_nss_db/pki-ca-cert.out"
+
         echo cert_serialNumber-$valid_serialNumber > $cert_info
         echo cert_start_date-$cert_start_date >> $cert_info
         echo cert_end_date-$cert_end_date >> $cert_info
@@ -869,7 +891,7 @@ run_req_action_cert()
         local cert_db_nick="$(echo ${19}|cut -d: -f2)"
         local target_cert_info="$(echo ${20}|cut -d: -f2)"
         local certout="$tmp_nss_db/cert_out"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
 
         rlRun "create_new_cert_request \
         dir:$tmp_nss_db \
