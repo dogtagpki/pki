@@ -150,6 +150,14 @@
 . ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-find.sh
 . ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-show.sh
 . ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-delete.sh
+. ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli.sh
+. ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-show.sh
+. ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-enable.sh
+. ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-disable.sh
+. ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-del.sh
+. ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-find.sh
+. ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-add.sh
+. ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 . ./acceptance/bugzilla/tomcatjss-bugs.sh
 . ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh
 . ./acceptance/bugzilla/pki-core-bugs/CSbackup-bug.sh
@@ -1249,7 +1257,68 @@ rlJournalStart
                 subsystemType=kra
                 run_pki-kra-group-cli-kra-group-member-del_tests  $subsystemId $subsystemType $MYROLE
         fi
-
+	 ##CA Profile Tests
+        CA_PROFILE_CONFIG_UPPERCASE=$(echo $CA_PROFILE_CONFIG | tr [a-z] [A-Z])
+        if [ "$CA_PROFILE_CONFIG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-profile config tests
+                run_pki-ca-profile_tests
+        fi
+        CA_PROFILE_SHOW_UPPERCASE=$(echo $CA_PROFILE_SHOW | tr [a-z] [A-Z])
+        if [ "$CA_PROFILE_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-profile-show tests
+                subsystemType=ca
+                run_pki-ca-profile-show_tests $subsystemType $MYROLE
+        fi
+        CA_PROFILE_ENABLE_UPPERCASE=$(echo $CA_PROFILE_ENABLE | tr [a-z] [A-Z])
+        if [ "$CA_PROFILE_ENABLE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-profile-enable tests
+                subsystemType=ca
+                run_pki-ca-profile-enable_tests $subsystemType $MYROLE
+        fi
+        CA_PROFILE_DISABLE_UPPERCASE=$(echo $CA_PROFILE_DISABLE | tr [a-z] [A-Z])
+        if [ "$CA_PROFILE_DISABLE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-profile-disable tests
+                subsystemType=ca
+                run_pki-ca-profile-disable_tests $subsystemType $MYROLE
+        fi
+        CA_PROFILE_DEL_UPPERCASE=$(echo $CA_PROFILE_DEL | tr [a-z] [A-Z])
+        if [ "$CA_PROFILE_DEL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-profile-del tests
+                subsystemType=ca
+                run_pki-ca-profile-del_tests $subsystemType $MYROLE
+        fi
+        CA_PROFILE_FIND_UPPERCASE=$(echo $CA_PROFILE_FIND | tr [a-z] [A-Z])
+        if [ "$CA_PROFILE_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-profile-find tests
+                subsystemType=ca
+                run_pki-ca-profile-find_tests $subsystemType $MYROLE
+        fi
+        CA_PROFILE_ADD_UPPERCASE=$(echo $CA_PROFILE_ADD | tr [a-z] [A-Z])
+        if [ "$CA_PROFILE_ADD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-profile-add tests
+                subsystemType=ca
+                run_pki-ca-profile-add_tests $subsystemType $MYROLE
+        fi
+        CA_PROFILE_MOD_UPPERCASE=$(echo $CA_PROFILE_MOD | tr [a-z] [A-Z])
+        if [ "$CA_PROFILE_MOD_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-profile-mod tests
+                subsystemType=ca
+                run_pki-ca-profile-mod_tests $subsystemType $MYROLE
+        fi
+	############## CA PROFILE CLI TESTS #############
+	CA_PROFILE_TEST_UPPERCASE=$(echo $CA_PROFILE_TEST | tr [a-z] [A-Z])
+	if [ "$CA_PROFILE_TEST_UPPERCASE" = "TRUE" ]; then
+		#execute CA PROFILE CLI tests
+		subsystemType=ca
+		run_pki-ca-profile_tests
+		run_pki-ca-profile-show_tests $subsystemType $MYROLE
+		run_pki-ca-profile-enable_tests $subsystemType $MYROLE
+		run_pki-ca-profile-disable_tests $subsystemType $MYROLE
+		run_pki-ca-profile-del_tests $subsystemType $MYROLE
+		run_pki-ca-profile-find_tests $subsystemType $MYROLE
+		run_pki-ca-profile-add_tests $subsystemType $MYROLE
+		run_pki-ca-profile-mod_tests $subsystemType $MYROLE
+	fi	
 	######## PKI USER TESTS ############
 	USER_CLEANUP_CA_UPPERCASE=$(echo $USER_CLEANUP_CA | tr [a-z] [A-Z])
         #Clean up role users (admin agent etc) created in CA

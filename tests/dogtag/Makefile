@@ -214,6 +214,15 @@ build: $(BUILT_FILES)
 	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-recover-kra.sh
 	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-retrieve-kra.sh
 	chmod a+X ./acceptance/cli-tests/pki-kra-key-cli/pki-kra-key-cli-request-review-kra.sh
+	#ca-profile
+	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-enable.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-disable.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs.sh
 	chmod a+x ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh
