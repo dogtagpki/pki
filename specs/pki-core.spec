@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.2
-Release:          2%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -978,6 +978,10 @@ fi
 
 
 %changelog
+* Tue Nov 18 2014 Endi S. Dewata <edewata@redhat.com> 10.1.2-4
+- Bugzilla Bug #1151147 - issuerDN encoding correction
+- Bumped release number to match RHEL
+
 * Fri Sep 19 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.2-2
 - Bugzilla Bug #1108303 - Rebase pki-core to 10.1 (RHEL)
 - Bugzilla Bug #1117073 - pki-core ppc64le is missing from ExcludeArch line
