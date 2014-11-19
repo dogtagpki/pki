@@ -55,27 +55,6 @@ public class HttpClient {
     private boolean _secure = false;
 
     public static final int ARGC = 1;
-    static final int cipherSuites[] = {
-            SSLSocket.SSL3_RSA_WITH_RC4_128_MD5,
-            SSLSocket.SSL3_RSA_WITH_3DES_EDE_CBC_SHA,
-            SSLSocket.SSL3_RSA_WITH_DES_CBC_SHA,
-            SSLSocket.SSL3_RSA_EXPORT_WITH_RC4_40_MD5,
-            SSLSocket.SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,
-            SSLSocket.SSL3_RSA_WITH_NULL_MD5,
-            SSLSocket.TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA,
-            SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
-            SSLSocket.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
-            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-            SSLSocket.TLS_RSA_WITH_AES_128_CBC_SHA,
-            SSLSocket.TLS_RSA_WITH_AES_256_CBC_SHA,
-            SSLSocket.TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,
-            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-            SSLSocket.TLS_DHE_DSS_WITH_AES_128_CBC_SHA,
-            SSLSocket.TLS_DHE_DSS_WITH_AES_256_CBC_SHA,
-            SSLSocket.TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
-            SSLSocket.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
-            0
-    };
 
     public HttpClient(String host, int port, String secure)
             throws Exception {
@@ -148,27 +127,27 @@ public class HttpClient {
 
                 int i;
 
-                for (i = SSLSocket.SSL2_RC4_128_WITH_MD5; i <= SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5; ++i) {
-                    try {
-                        SSLSocket.setCipherPreferenceDefault(i, false);
-                    } catch (SocketException e) {
-                    }
-                }
-                //skip SSL_EN_IDEA_128_EDE3_CBC_WITH_MD5
-                for (i = SSLSocket.SSL2_DES_64_CBC_WITH_MD5; i <= SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5; ++i) {
-                    try {
-                        SSLSocket.setCipherPreferenceDefault(i, false);
-                    } catch (SocketException e) {
-                    }
-                }
-                for (i = 0; cipherSuites[i] != 0; ++i) {
-                    try {
-                        SSLSocket.setCipherPreferenceDefault(cipherSuites[i], true);
-                    } catch (SocketException e) {
-                    }
-                }
                 SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
+                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange stream_range =
+                    new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
+                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0,
+                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
+
+                SSLSocket.setSSLVersionRangeDefault(
+                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.STREAM,
+                    stream_range);
+
+                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange datagram_range =
+                    new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
+                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_1,
+                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
+
+                SSLSocket.setSSLVersionRangeDefault(
+                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
+                    datagram_range);
                 sslSocket = new SSLSocket(_host, _port);
+                // setSSLVersionRange needs to be exposed in jss
+                // sslSocket.setSSLVersionRange(org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0, org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
                 sslSocket.addHandshakeCompletedListener(listener);
 
                 CryptoToken tt = cm.getThreadToken();

@@ -51,12 +51,11 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
         SSLSocket s = null;
 
         try {
-            SSLSocket.enableSSL2Default(false);
+            /*
+             * let inherit TLS range and cipher settings
+             */
             s = new SSLSocket(host, port);
             s.setUseClientMode(true);
-            s.enableSSL2(false);
-            //TODO Do we really want to set the default each time?
-            SSLSocket.enableSSL2Default(false);
             s.enableV2CompatibleHello(false);
 
             SSLHandshakeCompletedListener listener = null;
