@@ -47,54 +47,6 @@ public class JssSSLSocketFactory implements ISocketFactory {
         mClientAuthCertNickname = certNickname;
     }
 
-    // XXX remove these static SSL cipher suite initializations later on.
-    static final int cipherSuites[] = {
-            SSLSocket.SSL3_RSA_WITH_RC4_128_MD5,
-            SSLSocket.SSL3_RSA_WITH_3DES_EDE_CBC_SHA,
-            SSLSocket.SSL3_RSA_WITH_DES_CBC_SHA,
-            SSLSocket.SSL3_RSA_EXPORT_WITH_RC4_40_MD5,
-            SSLSocket.SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,
-            SSLSocket.SSL3_RSA_WITH_NULL_MD5,
-            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-            SSLSocket.TLS_RSA_WITH_AES_128_CBC_SHA,
-            SSLSocket.TLS_RSA_WITH_AES_256_CBC_SHA,
-            SSLSocket.TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,
-            SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-            //SSLSocket.TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
-            //SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-            //SSLSocket.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
-            SSLSocket.TLS_DHE_DSS_WITH_AES_128_CBC_SHA,
-            SSLSocket.TLS_DHE_DSS_WITH_AES_256_CBC_SHA,
-            SSLSocket.TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
-            SSLSocket.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
-            0
-        };
-
-    static {
-        int i;
-
-        for (i = SSLSocket.SSL2_RC4_128_WITH_MD5; i <= SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5; ++i) {
-            try {
-                SSLSocket.setCipherPreferenceDefault(i, false);
-            } catch (SocketException e) {
-            }
-        }
-
-        //skip SSL_EN_IDEA_128_EDE3_CBC_WITH_MD5
-        for (i = SSLSocket.SSL2_DES_64_CBC_WITH_MD5; i <= SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5; ++i) {
-            try {
-                SSLSocket.setCipherPreferenceDefault(i, false);
-            } catch (SocketException e) {
-            }
-        }
-        for (i = 0; cipherSuites[i] != 0; ++i) {
-            try {
-                SSLSocket.setCipherPreferenceDefault(cipherSuites[i], true);
-            } catch (SocketException e) {
-            }
-        }
-    }
-
     public Socket makeSocket(String host, int port)
             throws IOException, UnknownHostException {
         return makeSocket(host, port, null, null);
@@ -106,20 +58,12 @@ public class JssSSLSocketFactory implements ISocketFactory {
             throws IOException, UnknownHostException {
 
         try {
+            /*
+             * let inherit tls range and cipher settings
+             */
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
                     clientCertCallback);
-            for (int i = 0; cipherSuites[i] != 0; ++i) {
-                try {
-                    SSLSocket.setCipherPreferenceDefault(cipherSuites[i], true);
-                } catch (SocketException e) {
-                }
-            }
-
             s.setUseClientMode(true);
-            s.enableSSL2(false);
-            //TODO  Do we rally want to set the default each time?
-            SSLSocket.enableSSL2Default(false);
-            s.enableV2CompatibleHello(false);
 
             SSLHandshakeCompletedListener listener = null;
 

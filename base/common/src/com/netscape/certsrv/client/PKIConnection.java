@@ -472,6 +472,23 @@ public class PKIConnection {
                 localAddr = localAddress.getAddress();
             }
 
+            org.mozilla.jss.ssl.SSLSocket.SSLVersionRange stream_range =
+                new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
+                    org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0,
+                    org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
+
+            SSLSocket.setSSLVersionRangeDefault(
+                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.STREAM,
+                    stream_range);
+
+            org.mozilla.jss.ssl.SSLSocket.SSLVersionRange datagram_range =
+                new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
+                    org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_1,
+                    org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
+
+            SSLSocket.setSSLVersionRangeDefault(
+                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
+                    datagram_range);
             SSLSocket socket;
             if (sock == null) {
                 socket = new SSLSocket(InetAddress.getByName(hostName),
@@ -484,6 +501,8 @@ public class PKIConnection {
             } else {
                 socket = new SSLSocket(sock, hostName, new ServerCertApprovalCB(), null);
             }
+// setSSLVersionRange needs to be exposed in jss
+//            socket.setSSLVersionRange(org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0, org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
 
             String certNickname = config.getCertNickname();
             if (certNickname != null) {
