@@ -200,6 +200,7 @@ rlJournalStart
 	TOPO6_UPPERCASE=$(echo $TOPO6 | tr [a-z] [A-Z])
 	TOPO7_UPPERCASE=$(echo $TOPO7 | tr [a-z] [A-Z])
 	TOPO8_UPPERCASE=$(echo $TOPO8 | tr [a-z] [A-Z])
+	TOPO9_UPPERCASE=$(echo $TOPO9 | tr [a-z] [A-Z])
 
 	get_topo_stack $MYROLE /tmp/topo_file
 	CA_INST=$(cat /tmp/topo_file | grep MY_CA | cut -d= -f2)
@@ -249,6 +250,9 @@ rlJournalStart
         elif [ "$TOPO8_UPPERCASE" = "TRUE" ] ; then
                 run_rhcs_install_set_vars
                 run_rhcs_install_topo_8
+	elif [ "$TOPO9_UPPERCASE" = "TRUE" ] ; then
+                run_rhcs_install_set_vars
+                run_rhcs_install_topo_9
         fi
 	
 	######## PKI USER CA TESTS ############

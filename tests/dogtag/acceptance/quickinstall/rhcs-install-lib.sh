@@ -589,7 +589,8 @@ rhcs_install_prep_disableFirewall()
 
 rhcs_install_cloneCA()
 {
-     rlPhaseStartTest  "rhcs_install_clone_ca - Install RHCS CLONE CA Server"
+     rlPhaseStartTest  "rhcs_install_clone_ca - Install RHCS CLONE CA Server BZ1165864"
+	rlLog "Failing due to: https://bugzilla.redhat.com/show_bug.cgi?id=1165864"
         local INSTANCECFG="/tmp/cloneca_instance.inf"
         local INSTANCE_CREATE_OUT="/tmp/cloneca_instance_create.out"
         rlLog "$FUNCNAME"
@@ -631,7 +632,6 @@ rhcs_install_cloneCA()
 		echo "pki_clone_replication_security=$REPLICATION_SEC" >> $INSTANCECFG
 		echo "pki_clone_uri=https://$master_hostname:$(eval echo \$${CA}_SECURE_PORT)" >> $INSTANCECFG
 		echo "pki_client_dir=$CLIENT_DIR" >> $INSTANCECFG
-
 		echo "[CA]" >> $INSTANCECFG
 
   		echo "pki_admin_name=$(eval echo \$CLONE_CA${number}_ADMIN_USER)" >> $INSTANCECFG
@@ -836,7 +836,8 @@ rhcs_install_SubCA(){
 
 rhcs_install_cloneKRA(){
 
-     rlPhaseStartTest  "rhcs_install_clonekra_only - Install RHCS CLONE KRA Server"
+     rlPhaseStartTest  "rhcs_install_clonekra_only - Install RHCS CLONE KRA Server BZ1165864"
+	rlLog "Failing due to: https://bugzilla.redhat.com/show_bug.cgi?id=1165864"
         local INSTANCECFG="/tmp/clonekra_instance.inf"
         local INSTANCE_CREATE_OUT="/tmp/clonekra_instance_create.out"
         rlLog "$FUNCNAME"
@@ -1044,7 +1045,8 @@ rhcs_install_cloneOCSP(){
 
 rhcs_install_cloneTKS(){
 
-     rlPhaseStartTest  "rhcs_install_clonetks_only - Install RHCS CLONE TKS Server"
+     rlPhaseStartTest  "rhcs_install_clonetks_only - Install RHCS CLONE TKS Server BZ1165864"
+	rlLog "Failing due to: https://bugzilla.redhat.com/show_bug.cgi?id=1165864"
         local INSTANCECFG="/tmp/clonetks_instance.inf"
         local INSTANCE_CREATE_OUT="/tmp/clonetks_instance_create.out"
         rlLog "$FUNCNAME"
@@ -1140,3 +1142,4 @@ rhcs_install_cloneTKS(){
                 rlAssertGrep "$exp_message5_1" "$INSTANCE_CREATE_OUT"
      rlPhaseEnd
 }
+

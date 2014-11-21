@@ -69,23 +69,33 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 
 eval ${subsystemId}_adminV_user=${subsystemId}_adminV
 eval ${subsystemId}_adminV_fullName=${subsystemId}_Admin_ValidCert
+eval ${subsystemId}_adminV_password=${subsystemId}_adminV_password
 eval ${subsystemId}_adminR_user=${subsystemId}_adminR
 eval ${subsystemId}_adminR_fullName=${subsystemId}_Admin_RevokedCert
+eval ${subsystemId}_adminR_password=${subsystemId}_adminR_password
 eval ${subsystemId}_adminE_user=${subsystemId}_adminE
 eval ${subsystemId}_adminE_fullName=${subsystemId}_admin_ExpiredCert
+eval ${subsystemId}_adminE_password=${subsystemId}_adminE_password
 eval ${subsystemId}_adminUTCA_user=${subsystemId}_adminUTCA
 eval ${subsystemId}_adminUTCA_fullName=${subsystemId}_Admin_CertIssuedByUntrustedCA
+eval ${subsystemId}_adminUTCA_password=${subsystemId}_adminUTCA_password
 eval ${subsystemId}_agentV_user=${subsystemId}_agentV
 eval ${subsystemId}_agentV_fullName=${subsystemId}_Agent_ValidCert
+eval ${subsystemId}_agentV_password=${subsystemId}_agentV_password
 eval ${subsystemId}_agentR_user=${subsystemId}_agentR
 eval ${subsystemId}_agentR_fullName=${subsystemId}_Agent_RevokedCert
+eval ${subsystemId}_agentR_password=${subsystemId}_agentR_password
 eval ${subsystemId}_agentE_user=${subsystemId}_agentE
 eval ${subsystemId}_agentE_fullName=${subsystemId}_agent_ExpiredCert
+eval ${subsystemId}_agentE_password=${subsystemId}_agentE_password
 eval ${subsystemId}_agentUTCA_user=${subsystemId}_agentUTCA
 eval ${subsystemId}_agentUTCA_fullName=${subsystemId}_Agent_CertIssuedByUntrustedCA
+eval ${subsystemId}_agentUTCA_password=${subsystemId}_agentUTCA_password
 eval ${subsystemId}_auditV_user=${subsystemId}_auditV
 eval ${subsystemId}_auditV_fullName=${subsystemId}_Audit_ValidCert
+eval ${subsystemId}_auditV_password=${subsystemId}_auditV_password
 eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
+eval ${subsystemId}_operatorV_password=${subsystemId}_operatorV_password
 eval ${subsystemId}_operatorV_fullName=${subsystemId}_Operator_ValidCert
 
 export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_adminE_user ${subsystemId}_adminUTCA_user ${subsystemId}_agentV_user ${subsystemId}_agentR_user ${subsystemId}_agentE_user ${subsystemId}_agentUT${subsystemId}_user ${subsystemId}_auditV_user ${subsystemId}_operatorV_user
@@ -98,8 +108,8 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
         rlRun "pushd $TmpDir"
 
 	rlRun "mkdir -p $CERTDB_DIR"
-        rlLog "importP12File $ADMIN_CERT_LOCATION $CLIENT_PKCS12_PASSWORD $CERTDB_DIR $CERTDB_DIR_PASSWORD $admin_cert_nickname"
-        rlRun "importP12File $ADMIN_CERT_LOCATION $CLIENT_PKCS12_PASSWORD $CERTDB_DIR $CERTDB_DIR_PASSWORD $admin_cert_nickname" 0 "Import Admin certificate to $CERTDB_DIR"
+        rlLog "importP12FileNew $ADMIN_CERT_LOCATION $CLIENT_PKCS12_PASSWORD $CERTDB_DIR $CERTDB_DIR_PASSWORD $admin_cert_nickname"
+        rlRun "importP12FileNew $ADMIN_CERT_LOCATION $CLIENT_PKCS12_PASSWORD $CERTDB_DIR $CERTDB_DIR_PASSWORD $admin_cert_nickname" 0 "Import Admin certificate to $CERTDB_DIR"
         rlRun "install_and_trust_CA_cert $ROOTCA_SERVER_ROOT $CERTDB_DIR"
         rlLog "Cert Database for untrusted cert's : $UNTRUSTED_CERT_DB_LOCATION"
 
@@ -109,12 +119,12 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
     rlPhaseEnd
 
     rlPhaseStartSetup "Creating user and add user to the group"
-	 user=($(eval echo \$${subsystemId}_adminV_user) $(eval echo \$${subsystemId}_adminV_fullName) $(eval echo \$${subsystemId}_adminR_user) $(eval echo \$${subsystemId}_adminR_fullName) $(eval echo \$${subsystemId}_adminE_user) $(eval echo \$${subsystemId}_adminE_fullName) $(eval echo \$${subsystemId}_adminUTCA_user) $(eval echo \$${subsystemId}_adminUTCA_fullName) $(eval echo \$${subsystemId}_agentV_user) $(eval echo \$${subsystemId}_agentV_fullName) $(eval echo \$${subsystemId}_agentR_user) $(eval echo \$${subsystemId}_agentR_fullName) $(eval echo \$${subsystemId}_agentE_user) $(eval echo \$${subsystemId}_agentE_fullName) $(eval echo \$${subsystemId}_agentUTCA_user) $(eval echo \$${subsystemId}_agentUTCA_fullName) $(eval echo \$${subsystemId}_auditV_user) $(eval echo \$${subsystemId}_auditV_fullName) $(eval echo \$${subsystemId}_operatorV_user) $(eval echo \$${subsystemId}_operatorV_fullName))
+	 user=($(eval echo \$${subsystemId}_adminV_user) $(eval echo \$${subsystemId}_adminV_fullName) $(eval echo \$${subsystemId}_adminV_password) $(eval echo \$${subsystemId}_adminR_user) $(eval echo \$${subsystemId}_adminR_fullName) $(eval echo \$${subsystemId}_adminR_password) $(eval echo \$${subsystemId}_adminE_user) $(eval echo \$${subsystemId}_adminE_fullName) $(eval echo \$${subsystemId}_adminE_password) $(eval echo \$${subsystemId}_adminUTCA_user) $(eval echo \$${subsystemId}_adminUTCA_fullName) $(eval echo \$${subsystemId}_adminUTCA_password) $(eval echo \$${subsystemId}_agentV_user) $(eval echo \$${subsystemId}_agentV_fullName) $(eval echo \$${subsystemId}_agentV_password)  $(eval echo \$${subsystemId}_agentR_user) $(eval echo \$${subsystemId}_agentR_fullName) $(eval echo \$${subsystemId}_agentR_password) $(eval echo \$${subsystemId}_agentE_user) $(eval echo \$${subsystemId}_agentE_fullName) $(eval echo \$${subsystemId}_agentE_password) $(eval echo \$${subsystemId}_agentUTCA_user) $(eval echo \$${subsystemId}_agentUTCA_fullName) $(eval echo \$${subsystemId}_agentUTCA_password) $(eval echo \$${subsystemId}_auditV_user) $(eval echo \$${subsystemId}_auditV_fullName) $(eval echo \$${subsystemId}_auditV_password) $(eval echo \$${subsystemId}_operatorV_user) $(eval echo \$${subsystemId}_operatorV_fullName) $(eval echo \$${subsystemId}_operatorV_password))
 	i=0
 	while [ $i -lt ${#user[@]} ] ; do
 	       userid=${user[$i]}
 	       userfullName=${user[$i+1]}
-
+	       userpasswd=${user[$i+2]}
 	      #Create $userid  user
 	       rlLog "Executing: pki -d $CERTDB_DIR \
 			  -n \"$admin_cert_nickname\" \
@@ -122,14 +132,14 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			  -h $SUBSYSTEM_HOST \
 			  -t $SUBSYSTEM_TYPE \
 			  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-			   user-add --fullName=\"$userfullName\" $userid"
+			   user-add --fullName=\"$userfullName\" $userid" --password $userpasswd
 	       rlRun "pki -d $CERTDB_DIR \
 			  -n \"$admin_cert_nickname\" \
 			  -c $CERTDB_DIR_PASSWORD \
 			  -h $SUBSYSTEM_HOST \
 			  -t $SUBSYSTEM_TYPE \
 			  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-			   user-add --fullName=\"$userfullName\" $userid" \
+			   user-add --fullName=\"$userfullName\" $userid" --password $userpasswd \
 			   0 \
 			   "Add user $userid to CA"
 	       #=====Adding user to respective  group. Administrator, Certificate Manager Agent, Auditor=====#
@@ -140,7 +150,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			   -h $SUBSYSTEM_HOST \
 			   -t $SUBSYSTEM_TYPE \
 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-			    group-member-add Administrators $userid > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
+			    group-member-add Administrators $userid --password $userpasswd > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
 			    0 \
 			    "Add user $userid to Administrators group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
@@ -164,7 +174,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
                                    -h $SUBSYSTEM_HOST \
                                    -t $SUBSYSTEM_TYPE \
                                    -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                                    group-member-add \"$agent_group_name\" $userid > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
+                                    group-member-add \"$agent_group_name\" $userid --password $userpasswd > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
                                     0 \
                                     "Add user $userid to $agent_group_name"
                             rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
@@ -177,7 +187,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			   -h $SUBSYSTEM_HOST \
 			   -t $SUBSYSTEM_TYPE \
 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-			    group-member-add Auditors $userid > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
+			    group-member-add Auditors $userid --password $userpasswd > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
 			    0 \
 			    "Add user $userid to Auditors group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
@@ -190,7 +200,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			   -h $SUBSYSTEM_HOST \
 			   -t $SUBSYSTEM_TYPE \
 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-			    group-member-add \"Trusted Managers\"  $userid > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
+			    group-member-add \"Trusted Managers\"  $userid --password $userpasswd > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
 			    0 \
 			    "Add user $userid to Trusted Managers  group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
@@ -290,7 +300,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 				           -h $SUBSYSTEM_HOST \
                         		   -t $SUBSYSTEM_TYPE \
 		                           -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-					   user-cert-add $userid --input $CERTDB_DIR/validcert_001$i.pem  > $CERTDB_DIR/useraddcert_001$i.out" \
+					   user-cert-add $userid --input $CERTDB_DIR/validcert_001$i.pem  --password $userpasswd > $CERTDB_DIR/useraddcert_001$i.out" \
 					    0 \
 					    "Cert is added to the user $userid"
 
@@ -372,7 +382,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
  					   -h $SUBSYSTEM_HOST \
 				 	   -t $SUBSYSTEM_TYPE \
                                            -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-					    user-cert-add $userid --input $CERTDB_DIR/validcert_001$i.pem  > $CERTDB_DIR/useraddcert__001$i.out" \
+					    user-cert-add $userid --input $CERTDB_DIR/validcert_001$i.pem  --password $userpasswd > $CERTDB_DIR/useraddcert__001$i.out" \
 					    0 \
 					    "Cert is added to the user $userid"
 				rlLog "Modifying profile back to the defaults"
@@ -399,7 +409,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
                    -h $SUBSYSTEM_HOST \
                    -t ca \
                    -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                   user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem"
+                   user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem --password $userpasswd"
 
 		rlRun "pki -d $CERTDB_DIR/ \
                    -n \"$admin_cert_nickname\" \
@@ -407,7 +417,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
                    -h $SUBSYSTEM_HOST \
 		   -t $SUBSYSTEM_TYPE \
                    -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-		   user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem  > $CERTDB_DIR/useraddcert__001$i.out" \
+		   user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem  --password $userpasswd > $CERTDB_DIR/useraddcert__001$i.out" \
                     0 \
                     "Cert is added to the user $userid"
 	elif [ $userid == $(eval echo \$${subsystemId}_agentUTCA_user) ]; then
@@ -418,7 +428,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
  		   -h $SUBSYSTEM_HOST \
 		   -t $SUBSYSTEM_TYPE \
                    -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                    user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem  > $CERTDB_DIR/useraddcert__001$i.out" \
+                    user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem  --password $userpasswd > $CERTDB_DIR/useraddcert__001$i.out" \
                     0 \
                     "Cert is added to the user $userid"
 	#Revoke certificate of user ${subsystemId}_adminR and ${subsystemId}_agentR
@@ -444,7 +454,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "$CERTDB_DIR/revokecert__001$i.out"
 			rlAssertGrep "Status: REVOKED" "$CERTDB_DIR/revokecert__001$i.out"
 	fi
-              let i=$i+2
+              let i=$i+3
 	done
    rlPhaseEnd
 }
