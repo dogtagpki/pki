@@ -686,28 +686,34 @@ class KeyClient(object):
 
         nonce_iv = self.crypto.generate_nonce_iv()
         session_key = self.crypto.generate_session_key()
-        trans_wrapped_session_key = \
-            self.crypto.asymmetric_wrap(session_key, self.transport_cert)
-        wrapped_private_data = self.crypto.symmetric_wrap(private_data,
-                                                          session_key,
-                                                          nonce_iv=nonce_iv)
 
-        algorithm_oid = self.DES_EDE3_CBC_OID
-        symkey_params = base64.encodestring(nonce_iv)
+        wrapped_session_key = self.crypto.asymmetric_wrap(session_key, self.transport_cert)
 
-        return self.archive_encrypted_data(client_key_id, data_type,
-                                           wrapped_private_data,
-                                           trans_wrapped_session_key,
-                                           algorithm_oid,
-                                           symkey_params,
-                                           key_algorithm=key_algorithm,
-                                           key_size=key_size)
+        encrypted_data = self.crypto.symmetric_wrap(
+            private_data,
+            session_key,
+            nonce_iv=nonce_iv)
+
+        return self.archive_encrypted_data(
+            client_key_id,
+            data_type,
+            encrypted_data,
+            wrapped_session_key,
+            algorithm_oid=None,
+            nonce_iv=nonce_iv,
+            key_algorithm=key_algorithm,
+            key_size=key_size)
 
     @pki.handle_exceptions()
-    def archive_encrypted_data(self, client_key_id, data_type,
-                               encrypted_data, trans_wrapped_session_key,
-                               algorithm_oid, symkey_params,
-                               key_algorithm=None, key_size=None):
+    def archive_encrypted_data(self,
+            client_key_id,
+            data_type,
+            encrypted_data,
+            wrapped_session_key,
+            algorithm_oid=None,
+            nonce_iv=None,
+            key_algorithm=None,
+            key_size=None):
         """
         Archive a secret (symmetric key or passphrase) on the DRM.
 
@@ -715,12 +721,12 @@ class KeyClient(object):
         data_type, key_algorithm and key_size.
 
         The following parameters are also required:
-            - wrapped_private_data - which is the secret wrapped by a
+            - encrypted_data - which is the data encrypted by a
               session key (168 bit 3DES symmetric key)
-            - trans_wrapped_session_key - the above session key wrapped by
+            - wrapped_session_key - the above session key wrapped by
               the DRM transport certificate public key.
             - the algorithm_oid string for the symmetric key wrap
-            - the symkey_params for the symmetric key wrap
+            - the nonce_iv for the symmetric key wrap
 
         This function is useful if the caller wants to do their own wrapping
         of the secret, or if the secret was generated on a separate client
@@ -739,13 +745,22 @@ class KeyClient(object):
                     "For symmetric keys, key algorithm and key size "
                     "must be specified")
 
-        if (encrypted_data is None) or (trans_wrapped_session_key is None) or \
-                (algorithm_oid is None) or (symkey_params is None):
-            raise TypeError(
-                "All data and wrapping parameters must be specified")
+        if not encrypted_data:
+            raise TypeError('Missing encrypted data')
 
-        twsk = base64.encodestring(trans_wrapped_session_key)
+        if not wrapped_session_key:
+            raise TypeError('Missing wrapped session key')
+
+        if not algorithm_oid:
+            algorithm_oid = KeyClient.DES_EDE3_CBC_OID
+
+        if not nonce_iv:
+            raise TypeError('Missing nonce IV')
+
         data = base64.encodestring(encrypted_data)
+        twsk = base64.encodestring(wrapped_session_key)
+        symkey_params = base64.encodestring(nonce_iv)
+
         request = KeyArchivalRequest(client_key_id=client_key_id,
                                      data_type=data_type,
                                      wrapped_private_data=data,
