@@ -144,9 +144,22 @@ public class CertEnrollmentRequest {
         return newInput;
     }
 
+    // TODO: deprecate this method in 10.3
     public ProfileInput getInput(String name) {
+        return getInputByName(name);
+    }
+
+    public ProfileInput getInputByName(String name) {
         for (ProfileInput input : inputs) {
             if (input.getName().equals(name))
+                return input;
+        }
+        return null;
+    }
+
+    public ProfileInput getInputByID(String id) {
+        for (ProfileInput input : inputs) {
+            if (input.getId().equals(id))
                 return input;
         }
         return null;
@@ -167,9 +180,22 @@ public class CertEnrollmentRequest {
         }
     }
 
+    // TODO: deprecate this method in 10.3
     public ProfileOutput getOutput(String name) {
+        return getOutputByName(name);
+    }
+
+    public ProfileOutput getOutputByName(String name) {
         for (ProfileOutput output : outputs) {
             if (output.getName().equals(name))
+                return output;
+        }
+        return null;
+    }
+
+    public ProfileOutput getOutputByID(String id) {
+        for (ProfileOutput output : outputs) {
+            if (output.getId().equals(id))
                 return output;
         }
         return null;
