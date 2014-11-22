@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.1
-Release:          0.1%{?dist}
+Release:          0.2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -63,9 +63,9 @@ BuildRequires:    policycoreutils-python
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.2.6-28
+BuildRequires:    jss >= 4.2.6-35
 BuildRequires:    systemd-units
-BuildRequires:    tomcatjss >= 7.1.0
+BuildRequires:    tomcatjss >= 7.1.1
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -854,6 +854,10 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.1-0.2
+- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
+- up the release number to 0.2
+
 * Fri Oct 24 2014 Dogtag Team <pki-devel@redhat.com> 10.2.1-0.1
 - Updated version number to 10.2.1-0.1.
 - Added CLIs to simplify generating user certificates

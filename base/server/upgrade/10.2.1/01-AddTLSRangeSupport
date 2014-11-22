@@ -1,0 +1,102 @@
+#!/usr/bin/python
+# Authors:
+#     Christina Fu <cfu@redhat.com>
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2014 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+from lxml import etree
+
+import pki.server.upgrade
+
+
+class AddTLSRangeSupport(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+
+        self.message = 'Add TLS Range Support'
+
+        self.parser = etree.XMLParser(remove_blank_text=True)
+
+
+    def upgrade_instance(self, instance):
+
+        server_xml = os.path.join(instance.conf_dir, 'server.xml') 
+        #Backup the file before modify
+        self.backup(server_xml)
+        #Parse the server.xml into an XML object
+        document = etree.parse(server_xml, self.parser)
+        #perform the upgrade in memory
+        self.add_tls_range(document)
+        #Once all changes are made, write the XML back into the same server.xml
+        #This way we're preserving any other customization that has been done
+        # to the server.xml
+        with open(server_xml, 'w') as f:
+            f.write(etree.tostring(document, pretty_print=True)) 
+
+    def add_tls_range(self, document):
+
+        # Find existing Connector
+        server = document.getroot()
+        connectors = server.findall('.//Connector')
+
+        for connector in connectors:
+ 
+            secure = connector.get('secure')
+            if secure == 'true':
+                # Update Connector's attributes
+                connector.set('strictCiphers', 'true')
+                connector.set('sslVersionRangeStream', 'tls1_0:tls1_2')
+                connector.set('sslVersionRangeDatagram', 'tls1_1:tls1_2')
+                connector.set('sslRangeCiphers',
+                    '-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,' \
+                    '-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,' \
+                    '+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA,' \
+                    '+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,' \
+                    '+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,' \
+                    '-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,' \
+                    '+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,' \
+                    '+TLS_RSA_WITH_3DES_EDE_CBC_SHA,' \
+                    '+TLS_RSA_WITH_AES_128_CBC_SHA,' \
+                    '+TLS_RSA_WITH_AES_256_CBC_SHA,' \
+                    '+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,' \
+                    '+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,' \
+                    '-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,' \
+                    '-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,' \
+                    '-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,' \
+                    '+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,' \
+                    '+TLS_DHE_DSS_WITH_AES_128_CBC_SHA,' \
+                    '+TLS_DHE_DSS_WITH_AES_256_CBC_SHA,' \
+                    '+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,' \
+                    '+TLS_DHE_RSA_WITH_AES_128_CBC_SHA,' \
+                    '+TLS_DHE_RSA_WITH_AES_256_CBC_SHA,' \
+                    '+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,' \
+                    '+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,' \
+                    '+TLS_RSA_WITH_AES_128_CBC_SHA256,' \
+                    '+TLS_RSA_WITH_AES_256_CBC_SHA256,' \
+                    '+TLS_RSA_WITH_AES_128_GCM_SHA256,' \
+                    '+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,' \
+                    '+TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,' \
+                    '+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,' \
+                    '+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,' \
+                    '+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,' \
+                    '+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,' \
+                    '+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,' \
+                    '+TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256')
+
