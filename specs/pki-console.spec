@@ -29,7 +29,7 @@ Requires:         ldapjdk
 Requires:         pki-base >= 10.0.0
 Requires:         pki-console-theme >= 9.0.0
 Requires:         jpackage-utils >= 1.7.5-10
-Requires:         jss >= 4.2.6-24
+Requires:         jss >= 4.2.6-35
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 

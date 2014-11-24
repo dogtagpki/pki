@@ -179,7 +179,7 @@ Group:            System Environment/Libraries
 Requires:         java-headless >= 1:1.7.0
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-28
+Requires:         jss >= 4.2.6-35
 
 Provides:         symkey = %{version}-%{release}
 
@@ -217,7 +217,7 @@ Requires:         java-headless >= 1:1.7.0
 Requires:         javassist
 Requires:         jackson-jaxrs-json-provider
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-28
+Requires:         jss >= 4.2.6-35
 Requires:         ldapjdk
 Requires:         python-ldap
 Requires:         python-lxml
@@ -314,7 +314,7 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
-Requires:         tomcatjss >= 7.1.0
+Requires:         tomcatjss >= 7.1.1
 
 %description -n   pki-server
 The PKI Server Framework is required by the following four PKI subsystems:
