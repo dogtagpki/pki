@@ -472,9 +472,15 @@ importP12FileNew()
         local nss_db_password=$4                                                                                                                                                              
         local cert_nickname=$5                                                                                                                                                                
         rlLog "cert_p12file = $cert_p12file"                                                                                                                                                  
-        rlLog "nss_db_dir = $nssdb_dir"                                                                                                                                                       
-        rlRun "pki -d $nssdb_dir -c $nss_db_password client-init" 0                                                                                                                           
-        rlRun "pk12util -i $cert_p12file -d $nssdb_dir -K $nss_db_password -W $p12file_password"                                                                                              
+        rlLog "nss_db_dir = $nssdb_dir"
+	rlLog "Verify $nssdb_dir is already NSS Database"
+	if [ -d "$nssdb_dir" ]; then
+		rlLog "$nssdb_dir is already a existing database we don't create a new one"
+	else
+		rlLog "$nssdb_dir doesn't exist"
+		rlRun "pki -d $nssdb_dir -c $nss_db_password client-init" 0 "Initialiaize $nssdb_dir with password $nss_db_password"
+	fi
+        rlRun "pk12util -i $cert_p12file -d $nssdb_dir -K $nss_db_password -W $p12file_password"
         if [ $? = 0 ]; then                                                                                                                                                                   
                         rlPass "pk12util command executed successfully"                                                                                                                       
                         rlRun "certutil -L -d $nssdb_dir | grep $cert_nickname" 0 "Verify certificate is installed"                                                                           
