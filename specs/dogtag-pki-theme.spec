@@ -1,6 +1,6 @@
 Name:             dogtag-pki-theme
 Version:          10.2.0
-Release:          2%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -163,6 +163,10 @@ cd build
 
 
 %changelog
+* Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.0-4
+- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
+- up the release number to 4
+
 * Tue Sep  9 2014 Matthew Harmsen <mharmsen@redhat.com> 10.2.0-2
 - PKI TRAC Ticket #1136 - Remove ipa-pki-theme component
 - Remove 'ca-ui', 'kra-ui', 'ocsp-ui', 'ra-ui', 'tks-ui', and 'tps-ui'

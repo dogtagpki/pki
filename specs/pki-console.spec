@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.2.0
-Release:          1%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -20,7 +20,7 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
-BuildRequires:    jss >= 4.2.6-24
+BuildRequires:    jss >= 4.2.6-35
 BuildRequires:    pki-base >= 10.0.0
 
 Requires:         idm-console-framework
@@ -29,7 +29,7 @@ Requires:         ldapjdk
 Requires:         pki-base >= 10.0.0
 Requires:         pki-console-theme >= 9.0.0
 Requires:         jpackage-utils >= 1.7.5-10
-Requires:         jss >= 4.2.6-24
+Requires:         jss >= 4.2.6-35
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
@@ -88,6 +88,10 @@ cd build
 
 
 %changelog
+* Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.0-4
+- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
+- up the release number to 4
+
 * Wed Sep  3 2014 Dogtag Team <pki-devel@redhat.com> 10.2.0-1
 - Update release number for release build
 

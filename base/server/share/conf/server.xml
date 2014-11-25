@@ -142,6 +142,9 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
               'ssl2Ciphers'
               'ssl3Ciphers'
               'tlsCiphers'
+              'sslVersionRangeStream'
+              'sslVersionRangeDatagram'
+              'sslRangeCiphers'
               'serverCertNickFile'
               'passwordFile'
               'passwordClass'
@@ -184,12 +187,15 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
            ocspMinCacheEntryDuration="60"
            ocspMaxCacheEntryDuration="120"
            ocspTimeout="10"
-           strictCiphers="false"
+           strictCiphers="true"
            clientAuth="[PKI_AGENT_CLIENTAUTH]"
            sslOptions="[TOMCAT_SSL_OPTIONS]"
            ssl2Ciphers="[TOMCAT_SSL2_CIPHERS]"
            ssl3Ciphers="[TOMCAT_SSL3_CIPHERS]"
            tlsCiphers="[TOMCAT_TLS_CIPHERS]"
+           sslVersionRangeStream="[TOMCAT_SSL_VERSION_RANGE_STREAM]"
+           sslVersionRangeDatagram="[TOMCAT_SSL_VERSION_RANGE_DATAGRAM]"
+           sslRangeCiphers="[TOMCAT_SSL_RANGE_CIPHERS]"
            serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
            passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
            passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
