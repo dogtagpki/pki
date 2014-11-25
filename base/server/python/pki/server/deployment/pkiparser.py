@@ -899,6 +899,45 @@ class PKIConfigParser:
                     "/var/run/pki/tomcat/" + self.pki_master_dict['pki_instance_name'] + ".pid"
                 self.pki_master_dict['TOMCAT_SERVER_PORT_SLOT'] = \
                     self.pki_master_dict['pki_tomcat_server_port']
+                self.pki_master_dict['TOMCAT_SSL_VERSION_RANGE_STREAM_SLOT'] = \
+                    "tls1_0:tls1_2"
+                self.pki_master_dict['TOMCAT_SSL_VERSION_RANGE_DATAGRAM_SLOT'] = \
+                    "tls1_1:tls1_2"
+                self.pki_master_dict['TOMCAT_SSL_RANGE_CIPHERS_SLOT'] = \
+                    "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
+                    "-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA," + \
+                    "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA," + \
+                    "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
+                    "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
+                    "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
+                    "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
+                    "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
+                    "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
+                    "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
+                    "+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
+                    "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
+                    "+TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
+                    "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
+                    "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA," + \
+                    "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256," + \
+                    "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256," + \
+                    "+TLS_RSA_WITH_AES_128_CBC_SHA256," + \
+                    "+TLS_RSA_WITH_AES_256_CBC_SHA256," + \
+                    "+TLS_RSA_WITH_AES_128_GCM_SHA256," + \
+                    "+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256," + \
+                    "+TLS_DHE_DSS_WITH_AES_128_GCM_SHA256," + \
+                    "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256," + \
+                    "+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256," + \
+                    "+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256," + \
+                    "+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256," + \
+                    "+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256," + \
+                    "+TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256"
                 self.pki_master_dict['TOMCAT_SSL2_CIPHERS_SLOT'] = \
                     "-SSL2_RC4_128_WITH_MD5," + \
                     "-SSL2_RC4_128_EXPORT40_WITH_MD5," + \
