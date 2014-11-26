@@ -808,7 +808,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             validCloneUri = ConfigurationUtils.isValidCloneURI(domainXML, masterHost, masterPort);
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException("Error in determining whether clone URI is valid");
         }
 
@@ -824,30 +824,32 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 ConfigurationUtils.importCertChain(masterHost, masterAdminPort, "/ca/admin/ca/getCertChain",
                         "clone");
             } catch (Exception e) {
-                e.printStackTrace();
+                CMS.debug(e);
                 throw new PKIException("Failed to import certificate chain from master" + e);
             }
         }
 
         try {
+            CMS.debug("SystemConfigService.getCloningData(): get config entries");
             ConfigurationUtils.getConfigEntriesFromMaster();
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException("Failed to obtain configuration entries from the master for cloning " + e);
         }
 
-        // restore certs from P12 file
         if (token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
+            CMS.debug("SystemConfigService.getCloningData(): restore certs from P12 file");
             String p12File = data.getP12File();
             String p12Pass = data.getP12Password();
             try {
                 ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
             } catch (Exception e) {
-                e.printStackTrace();
+                CMS.debug(e);
                 throw new PKIException("Failed to restore certificates from p12 file" + e);
             }
         }
 
+        CMS.debug("SystemConfigService.getCloningData(): verify certs");
         boolean cloneReady = ConfigurationUtils.isCertdbCloned();
         if (!cloneReady) {
             CMS.debug("clone does not have all the certificates.");

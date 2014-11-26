@@ -45,6 +45,8 @@ import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -857,8 +859,8 @@ public class ConfigurationUtils {
             InvalidAlgorithmParameterException, IllegalStateException, TokenException, IllegalBlockSizeException,
             BadPaddingException, NotInitializedException, NicknameConflictException, UserCertConflictException,
             NoSuchItemOnTokenException, InvalidBERException, IOException {
-        byte b[] = new byte[1000000];
 
+        byte b[] = new byte[1000000];
         FileInputStream fis = new FileInputStream(p12File);
         while (fis.available() > 0)
             fis.read(b);
@@ -867,70 +869,116 @@ public class ConfigurationUtils {
         ByteArrayInputStream bis = new ByteArrayInputStream(b);
         StringBuffer reason = new StringBuffer();
         Password password = new Password(p12Pass.toCharArray());
-        PFX pfx = null;
-        boolean verifypfx = false;
 
-        pfx = (PFX) (new PFX.Template()).decode(bis);
-        verifypfx = pfx.verifyAuthSafes(password, reason);
+        PFX pfx = (PFX) (new PFX.Template()).decode(bis);
+        boolean verifypfx = pfx.verifyAuthSafes(password, reason);
 
         if (verifypfx) {
+
             AuthenticatedSafes safes = pfx.getAuthSafes();
             Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
             Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
+
+            CMS.debug("PKCS #12:");
+
             for (int i = 0; i < safes.getSize(); i++) {
+
+                CMS.debug("- Safe #" + i + ":");
                 SEQUENCE scontent = safes.getSafeContentsAt(null, i);
+
                 for (int j = 0; j < scontent.size(); j++) {
+
                     SafeBag bag = (SafeBag) scontent.elementAt(j);
                     OBJECT_IDENTIFIER oid = bag.getBagType();
+
                     if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
+
+                        CMS.debug("  - Bag #" + j + ": key");
                         EncryptedPrivateKeyInfo privkeyinfo =
                                 (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
                         PrivateKeyInfo pkeyinfo = privkeyinfo.decrypt(password, new PasswordConverter());
-                        Vector<Object> pkeyinfo_v = new Vector<Object>();
-                        pkeyinfo_v.addElement(pkeyinfo);
+
                         SET bagAttrs = bag.getBagAttributes();
+                        String subjectDN = null;
+
                         for (int k = 0; k < bagAttrs.size(); k++) {
+
                             Attribute attrs = (Attribute) bagAttrs.elementAt(k);
                             OBJECT_IDENTIFIER aoid = attrs.getType();
+
                             if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
                                 SET val = attrs.getValues();
                                 ANY ss = (ANY) val.elementAt(0);
+
                                 ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
                                 BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
-                                String s = sss.toString();
-                                pkeyinfo_v.addElement(s);
+                                subjectDN = sss.toString();
+                                CMS.debug("    Subject DN: " + subjectDN);
+                                break;
                             }
                         }
+
+                        // pkeyinfo_v stores private key (PrivateKeyInfo) and subject DN (String)
+                        Vector<Object> pkeyinfo_v = new Vector<Object>();
+                        pkeyinfo_v.addElement(pkeyinfo);
+                        if (subjectDN != null) pkeyinfo_v.addElement(subjectDN);
+
                         pkeyinfo_collection.addElement(pkeyinfo_v);
+
                     } else if (oid.equals(SafeBag.CERT_BAG)) {
+
+                        CMS.debug("  - Bag #" + j + ": certificate");
                         CertBag cbag = (CertBag) bag.getInterpretedBagContent();
                         OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
                         byte[] x509cert = str.toByteArray();
-                        Vector<Object> cert_v = new Vector<Object>();
-                        cert_v.addElement(x509cert);
+
                         SET bagAttrs = bag.getBagAttributes();
+                        String nickname = null;
 
                         if (bagAttrs != null) {
+
                             for (int k = 0; k < bagAttrs.size(); k++) {
+
                                 Attribute attrs = (Attribute) bagAttrs.elementAt(k);
                                 OBJECT_IDENTIFIER aoid = attrs.getType();
+
                                 if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
                                     SET val = attrs.getValues();
                                     ANY ss = (ANY) val.elementAt(0);
+
                                     ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
                                     BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
-                                    String s = sss.toString();
-                                    cert_v.addElement(s);
+                                    nickname = sss.toString();
+                                    CMS.debug("    Nickname: " + nickname);
+                                    break;
                                 }
                             }
                         }
+
+                        X509CertImpl certImpl = new X509CertImpl(x509cert);
+                        CMS.debug("    Serial number: " + certImpl.getSerialNumber());
+
+                        try {
+                            certImpl.checkValidity();
+                            CMS.debug("    Status: valid");
+
+                        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+                            CMS.debug("    Status: " + e);
+                            continue;
+                        }
+
+                        // cert_v stores certificate (byte[]) and nickname (String)
+                        Vector<Object> cert_v = new Vector<Object>();
+                        cert_v.addElement(x509cert);
+                        if (nickname != null) cert_v.addElement(nickname);
 
                         cert_collection.addElement(cert_v);
                     }
                 }
             }
 
-            importkeycert(pkeyinfo_collection, cert_collection);
+            importKeyCert(pkeyinfo_collection, cert_collection);
+
         } else {
             throw new IOException("P12 File is incorrect");
         }
@@ -956,15 +1004,17 @@ public class ConfigurationUtils {
                         !tokenname.equals("internal"))
                     nickname = tokenname + ":" + nickname;
 
-                CMS.debug("isCertdbCloned: " + nickname);
+                CMS.debug("ConfigurationUtils.isCertdbCloned(): checking system certificate " + nickname);
 
                 // TODO : remove this when we eliminate the extraneous nicknames
                 // needed for self tests
                 cs.putString(cstype + ".cert." + tag + ".nickname", nickname);
 
                 X509Certificate cert = cm.findCertByNickname(nickname);
-                if (cert == null)
+                if (cert == null) {
+                    CMS.debug("Missing system certificate: " + nickname);
                     return false;
+                }
             }
         } catch (Exception e) {
             return false;
@@ -973,44 +1023,62 @@ public class ConfigurationUtils {
         return true;
     }
 
-    public static void importkeycert(Vector<Vector<Object>> pkeyinfo_collection,
-            Vector<Vector<Object>> cert_collection) throws IOException, CertificateException, TokenException,
+    public static void importKeyCert(
+            Vector<Vector<Object>> pkeyinfo_collection,
+            Vector<Vector<Object>> cert_collection
+        ) throws IOException, CertificateException, TokenException,
             NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalStateException,
             IllegalBlockSizeException, BadPaddingException, NotInitializedException, NicknameConflictException,
             UserCertConflictException, NoSuchItemOnTokenException, EPropertyNotFound, EBaseException {
-        CryptoManager cm = CryptoManager.getInstance();
 
-        // delete all existing certificates first
+        CMS.debug("ConfigurationUtils.importKeyCert()");
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        CryptoStore store = token.getCryptoStore();
+
         deleteExistingCerts();
 
         ArrayList<String> masterList = getMasterCertKeyList();
 
+        CMS.debug("Importing new keys:");
         for (int i = 0; i < pkeyinfo_collection.size(); i++) {
             Vector<Object> pkeyinfo_v = pkeyinfo_collection.elementAt(i);
             PrivateKeyInfo pkeyinfo = (PrivateKeyInfo) pkeyinfo_v.elementAt(0);
             String nickname = (String) pkeyinfo_v.elementAt(1);
+            CMS.debug("- Key: " + nickname);
 
-            if (! importRequired(masterList,nickname)) {
-                CMS.debug("Ignoring key " + nickname);
+            if (!importRequired(masterList, nickname)) {
+                CMS.debug("  Key not in master list, ignore key");
                 continue;
             }
 
-            byte[] x509cert = getX509Cert(nickname, cert_collection);
-            X509Certificate cert = cm.importCACertPackage(x509cert);
+            // encode private key
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             pkeyinfo.encode(bos);
             byte[] pkey = bos.toByteArray();
 
-            PublicKey publickey = cert.getPublicKey();
-            CryptoToken token = cm.getInternalKeyStorageToken();
-            CryptoStore store = token.getCryptoStore();
+            CMS.debug("  Find cert with subject DN " + nickname);
+            // TODO: use better mechanism to find the cert
+            byte[] x509cert = getX509Cert(nickname, cert_collection);
+            if (x509cert == null) {
+                CMS.debug("  Certificate is missing/removed, ignore key");
+                continue;
+            }
 
+            X509Certificate cert = cm.importCACertPackage(x509cert);
+            CMS.debug("  Imported cert " + cert.getSerialNumber());
+
+            // get public key
+            PublicKey publicKey = cert.getPublicKey();
+
+            // delete the cert again
             try {
                 store.deleteCert(cert);
             } catch (NoSuchItemOnTokenException e) {
                 // this is OK
             }
 
+            // encrypt private key
             KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
             SymmetricKey sk = kg.generate();
             byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
@@ -1019,53 +1087,63 @@ public class ConfigurationUtils {
             c.initEncrypt(sk, param);
             byte[] encpkey = c.doFinal(pkey);
 
+            // unwrap private key to load into database
             KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
             wrapper.initUnwrap(sk, param);
-            wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publickey), publickey);
-
+            wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publicKey), publicKey);
         }
 
+        CMS.debug("Importing new certificates:");
         for (int i = 0; i < cert_collection.size(); i++) {
 
             Vector<Object> cert_v = cert_collection.elementAt(i);
             byte[] cert = (byte[]) cert_v.elementAt(0);
+
             if (cert_v.size() > 1) {
                 String name = (String) cert_v.elementAt(1);
+                CMS.debug("- Certificate: " + name);
+
                 if (! masterList.contains(name)) {
-                    CMS.debug("Not importing " + name);
-                    // only import the master's system certs
+                    CMS.debug("  Certificate not in master list, ignore certificate");
                     continue;
                 }
+
                 // we need to delete the trusted CA certificate if it is
                 // the same as the ca signing certificate
-                if (isCASigningCert(name)) {
+                boolean isCASigningCert = isCASigningCert(name);
+                CMS.debug("  CA signing cert: " + isCASigningCert);
+
+                if (isCASigningCert) {
                     X509Certificate certchain = getX509CertFromToken(cert);
                     if (certchain != null) {
-                        CryptoToken token = cm.getInternalKeyStorageToken();
-                        CryptoStore store = token.getCryptoStore();
                         if (store instanceof PK11Store) {
                             try {
+                                CMS.debug("  Deleting trusted CA cert");
                                 PK11Store pk11store = (PK11Store) store;
                                 pk11store.deleteCertOnly(certchain);
-                            } catch (Exception ee) {
-                                CMS.debug("importKeyCert: Exception=" + ee.toString());
+                            } catch (Exception e) {
+                                CMS.debug(e);
                             }
                         }
                     }
                 }
 
                 X509Certificate xcert = cm.importUserCACertPackage(cert, name);
-                if (isCASigningCert(name)) {
+                CMS.debug("  Imported cert " + xcert.getSerialNumber());
+                InternalCertificate icert = (InternalCertificate) xcert;
+
+                if (isCASigningCert) {
                     // we need to change the trust attribute to CT
-                    InternalCertificate icert = (InternalCertificate) xcert;
                     icert.setSSLTrust(InternalCertificate.TRUSTED_CA
                             | InternalCertificate.TRUSTED_CLIENT_CA
                             | InternalCertificate.VALID_CA);
+
                 } else if (isAuditSigningCert(name)) {
-                    InternalCertificate icert = (InternalCertificate) xcert;
                     icert.setObjectSigningTrust(InternalCertificate.USER
-                            | InternalCertificate.VALID_PEER | InternalCertificate.TRUSTED_PEER);
+                            | InternalCertificate.VALID_PEER
+                            | InternalCertificate.TRUSTED_PEER);
                 }
+
             } else {
                 cm.importCACertPackage(cert);
             }
@@ -1139,33 +1217,46 @@ public class ConfigurationUtils {
     }
 
     public static void deleteExistingCerts() {
+
+        CMS.debug("Deleting existing certificates:");
+
         IConfigStore cs = CMS.getConfigStore();
+
         try {
+            CryptoManager cm = CryptoManager.getInstance();
+            CryptoToken ct = cm.getInternalKeyStorageToken();
+            CryptoStore store = ct.getCryptoStore();
+
             String list = cs.getString("preop.cert.list", "");
             StringTokenizer st = new StringTokenizer(list, ",");
+
             while (st.hasMoreTokens()) {
                 String s = st.nextToken();
+
                 if (s.equals("sslserver"))
                     continue;
+
                 String name = "preop.master." + s + ".nickname";
                 String nickname = cs.getString(name, "");
-                CryptoManager cm = CryptoManager.getInstance();
-                X509Certificate xcert = null;
+                CMS.debug("- Certificate " + nickname);
+
+                X509Certificate xcert;
                 try {
                     xcert = cm.findCertByNickname(nickname);
                 } catch (Exception ee) {
-                    CMS.debug("deleteExistingCerts: Exception=" + ee.toString());
+                    CMS.debug("  Certificate nickname " + nickname + " not found");
+                    continue;
                 }
-                CryptoToken ct = cm.getInternalKeyStorageToken();
-                CryptoStore store = ct.getCryptoStore();
+
                 try {
                     store.deleteCert(xcert);
                 } catch (Exception ee) {
-                    CMS.debug("deleteExistingCerts: Exception=" + ee.toString());
+                    CMS.debug("  Certificate object " + nickname + " not found");
                 }
             }
+
         } catch (Exception e) {
-            CMS.debug("deleteExistingCerts: Exception=" + e.toString());
+            CMS.debug(e);
         }
     }
 
