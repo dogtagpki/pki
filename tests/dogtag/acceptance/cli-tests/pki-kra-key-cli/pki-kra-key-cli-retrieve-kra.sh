@@ -75,9 +75,9 @@ run_pki-kra-key-retrieve-kra_tests()
         local key_recover_output=$TmpDir/key-recover.out
         local key_ret_output=$TmpDir/key-retrieve.out
 	local key_store=$TmpDir/key-store.out
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-        local tmp_passphrase=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
-        local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+        local rand=$RANDOM
+        local tmp_passphrase=$(openssl rand -base64 10 |  perl -p -e 's/\n//')
+        local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 
 
         # Config test of pki key-recover
@@ -97,7 +97,7 @@ run_pki-kra-key-retrieve-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartSetup "Generate a approved symmetric key and archive it"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo_1=AES
         local action=approve
@@ -124,7 +124,7 @@ run_pki-kra-key-retrieve-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartSetup "Generate asymmetric keys and archive"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo_2=RSA
         local action=approve
@@ -151,7 +151,7 @@ run_pki-kra-key-retrieve-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartSetup "Archive Passphrase in KRA"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase_1=Secret123
         local action=approve

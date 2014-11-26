@@ -74,9 +74,9 @@ run_pki-kra-key-generate-kra_tests()
         local expout="$TmpDir/exp_out"
 	local cert_info="$TmpDir/cert_info"
 	local key_generate_output=$TmpDir/key-generate.out
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local cert_request_submit="$TEMP_NSS_DB/pki-cert-request-submit.out"
-	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+	local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	local profile=caUserCert
 
 	# Config test of pki key-generate
@@ -131,7 +131,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 	
         rlPhaseStartTest "pki_kra_key_generate-002: Generate symmetric keys with AES algo of size 192 with --usages unwrap"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=192
@@ -159,7 +159,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-003: Generate symmetric keys with AES algo of size 256 with --usages sign"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=256
@@ -187,7 +187,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-004: Generate symmetric keys with AES algo of size 128 with --usages verify"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -216,7 +216,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-005: Generate symmetric keys with AES algo of size 128 with --usages encrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -244,7 +244,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-006: Generate symmetric keys with AES algo of size 128 with --usages decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -272,7 +272,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-007: Generate symmetric keys with AES algo of size 128 with --usages wrap,unwrap,sign,encrypt,decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -301,7 +301,7 @@ run_pki-kra-key-generate-kra_tests()
 
 
 	rlPhaseStartTest "pki_kra_key_generate-008: Generate symmetric keys with AES algo of size 128 with --usages <no-data-passed>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -317,7 +317,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-009: Generate symmetric keys with AES algo of size 128 with --usages <junk data>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -333,7 +333,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0010: Generating symmetric keys with AES algo and invalid key size should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=1283323
@@ -349,7 +349,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0011: Generating symmetric keys with AES algo and negative key size should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=-128
@@ -366,7 +366,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0012: Generating symmetric keys with AES algo with no key size provided should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=
@@ -382,7 +382,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0013: Generating symmetric keys with AES algo with --usages wrap,unwrap,sign,encrypt,decrypt,junk-data should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -398,7 +398,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_generate-0014: Generating symmetric keys should fail when no client id is provided"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=
         local algo=AES
         local key_size=128
@@ -414,7 +414,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0015: Generate symmetric keys with AES algo with existing ClientID should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -440,7 +440,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0016: Generate symmetric keys with DES algo with --usages wrap"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=wrap
@@ -467,7 +467,7 @@ run_pki-kra-key-generate-kra_tests()
 
 
         rlPhaseStartTest "pki_kra_key_generate-0017: Generate symmetric keys with DES algo with --usages unwrap"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=unwrap
@@ -493,7 +493,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0018: Generate symmetric keys with DES algo with --usages sign"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=sign
@@ -519,7 +519,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0019: Generate symmetric keys with DES algo with --usages verify"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=verify
@@ -546,7 +546,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0020: Generate symmetric keys with DES algo --usages encrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=encrypt
@@ -572,7 +572,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0021: Generate symmetric keys with DES algo with --usages decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=decrypt
@@ -598,7 +598,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0022: Generate symmetric keys with DES algo with --usages wrap,unwrap,sign,encrypt,decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -624,7 +624,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0023: Generate symmetric keys with DES algo with --usages <no-data-passed>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=
@@ -638,7 +638,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0024: Generate symmetric keys with DES algo with --usages <junk data>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=$tmp_junk_data
@@ -652,7 +652,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0025: Generating symmetric keys with DES algo with --usages wrap,unwrap,sign,encrypt,decrypt,junk-data should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=wrap,unwrap,sign,encrypt,decrypt,$tmp_junk_data
@@ -666,7 +666,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0026: Generating symmetric keys with DES algo should fail when no client id is provided"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=
         local algo=DES
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -680,7 +680,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0027: Generate symmetric keys with DES algo with existing ClientID should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -703,7 +703,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0028: Generate symmetric keys with DES3 algo with --usages wrap"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=wrap
@@ -730,7 +730,7 @@ run_pki-kra-key-generate-kra_tests()
 
 
         rlPhaseStartTest "pki_kra_key_generate-0029: Generate symmetric keys with DES3 algo with --usages unwrap"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=unwrap
@@ -756,7 +756,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0030: Generate symmetric keys with DES3 algo with --usages sign"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=unwrap
@@ -782,7 +782,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0031: Generate symmetric keys with DES3 algo with --usages verify"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=verify
@@ -809,7 +809,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0032: Generate symmetric keys with DES3 algo --usages encrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=encrypt
@@ -835,7 +835,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0033: Generate symmetric keys with DES3 algo with --usages decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=decrypt
@@ -861,7 +861,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0034: Generate symmetric keys with DES3 algo with --usages wrap,unwrap,sign,encrypt,decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -887,7 +887,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0035: Generate symmetric keys with DES3 algo with --usages <no-data-passed>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=
@@ -901,7 +901,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0036: Generate symmetric keys with DES3 algo with --usages <junk data>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=$tmp_junk_data
@@ -915,7 +915,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0037: Generating symmetric keys with DES3 algo with --usages wrap,unwrap,sign,encrypt,decrypt,junk-data should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=wrap,unwrap,sign,encrypt,decrypt,$tmp_junk_data
@@ -929,7 +929,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0038: Generating symmetric keys with DES3 algo should fail when no client id is provided"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=
         local algo=DES3
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -943,7 +943,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0039: Generate symmetric keys with DES3 algo with existing ClientID should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DES3
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -966,7 +966,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_generate-0040: Generate symmetric keys with RC2 algo of size 128 with --usages wrap"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local client_id=temp$rand
 	local algo=RC2
 	local key_size=128
@@ -994,7 +994,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 	
         rlPhaseStartTest "pki_kra_key_generate-0041: Generate symmetric keys with RC2 algo of size 192 with --usages unwrap"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=192
@@ -1022,7 +1022,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0042: Generate symmetric keys with RC2 algo of size 256 with --usages sign"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=256
@@ -1050,7 +1050,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0043: Generate symmetric keys with RC2 algo of size 128 with --usages verify"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1079,7 +1079,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0044: Generate symmetric keys with RC2 algo of size 128 with --usages encrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1107,7 +1107,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0045: Generate symmetric keys with RC2 algo of size 128 with --usages decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1135,7 +1135,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0046: Generate symmetric keys with RC2 algo of size 128 with --usages wrap,unwrap,sign,encrypt,decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1164,7 +1164,7 @@ run_pki-kra-key-generate-kra_tests()
 
 
 	rlPhaseStartTest "pki_kra_key_generate-0047: Generate symmetric keys with RC2 algo of size 128 with --usages <no-data-passed>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1180,7 +1180,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0048: Generate symmetric keys with RC2 algo of size 128 with --usages <junk data>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1196,7 +1196,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0049: Generating symmetric keys with RC2 algo and invalid key size should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=1283323
@@ -1212,7 +1212,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0050: Generating symmetric keys with RC2 algo using negative key size should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=-128
@@ -1229,7 +1229,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0051: Generating symmetric keys with RC2 algo with no key size provided should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=
@@ -1245,7 +1245,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0052: Generating symmetric keys with RC2 algo with --usages wrap,unwrap,sign,encrypt,decrypt,junk-data should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1261,7 +1261,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_generate-0053: Generating symmetric keys using RC2 should fail when no client id is provided"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=
         local algo=RC2
         local key_size=128
@@ -1277,7 +1277,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0054: Generate symmetric keys with RC2 algo with existing ClientID should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1303,7 +1303,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0055: Generate symmetric keys with RC2 algo with existing ClientID but with different key size should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=128
@@ -1330,7 +1330,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_generate-0056: Generate symmetric keys with RC4 algo of size 128 with --usages wrap"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local client_id=temp$rand
 	local algo=RC4
 	local key_size=128
@@ -1358,7 +1358,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 	
         rlPhaseStartTest "pki_kra_key_generate-0057: Generate symmetric keys with RC4 algo of size 192 with --usages unwrap"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=192
@@ -1386,7 +1386,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0058: Generate symmetric keys with RC4 algo of size 256 with --usages sign"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=256
@@ -1414,7 +1414,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0059: Generate symmetric keys with RC4 algo of size 128 with --usages verify"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1443,7 +1443,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0060: Generate symmetric keys with RC4 algo of size 128 with --usages encrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1471,7 +1471,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0061: Generate symmetric keys with RC4 algo of size 128 with --usages decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1499,7 +1499,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0062: Generate symmetric keys with RC4 algo of size 128 with --usages wrap,unwrap,sign,encrypt,decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1528,7 +1528,7 @@ run_pki-kra-key-generate-kra_tests()
 
 
 	rlPhaseStartTest "pki_kra_key_generate-0063: Generate symmetric keys with RC4 algo of size 128 with --usages <no-data-passed>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1544,7 +1544,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0064: Generate symmetric keys with RC4 algo of size 128 with --usages <junk data>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1560,7 +1560,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0065: Generating symmetric keys with RC4 algo and invalid key size should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC2
         local key_size=1283abced
@@ -1576,7 +1576,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0066: Generating symmetric keys with RC4 algo and negative key size should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=-128
@@ -1593,7 +1593,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0067: Generating symmetric keys with RC4 algo with no key size provided should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=
@@ -1609,7 +1609,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0068: Generating symmetric keys with RC4 algo with --usages wrap,unwrap,sign,encrypt,decrypt,junk-data should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1625,7 +1625,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_generate-0069: Generating symmetric keys using RC4 should fail when no client id is provided"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=
         local algo=RC4
         local key_size=128
@@ -1641,7 +1641,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0070: Generate symmetric keys with RC4 algo with existing ClientID should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1667,7 +1667,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0071: Generate symmetric keys with RC4 algo with existing ClientID but with different key size should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=128
@@ -1694,7 +1694,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0072: Generate symmetric keys with RC4 algo with existing ClientID should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RC4
         local key_size=256
@@ -1721,7 +1721,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0073: Generate symmetric keys with DESede algo with --usages wrap"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=wrap
@@ -1748,7 +1748,7 @@ run_pki-kra-key-generate-kra_tests()
 
 
         rlPhaseStartTest "pki_kra_key_generate-0074: Generate symmetric keys with DESede algo with --usages unwrap"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=unwrap
@@ -1774,7 +1774,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0075: Generate symmetric keys with DESede algo with --usages sign"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=unwrap
@@ -1800,7 +1800,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0076: Generate symmetric keys with DESede algo with --usages verify"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=verify
@@ -1827,7 +1827,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0077: Generate symmetric keys with DESede algo --usages encrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=encrypt
@@ -1853,7 +1853,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0078: Generate symmetric keys with DESede algo with --usages decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=decrypt
@@ -1879,7 +1879,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0079: Generate symmetric keys with DESede algo with --usages wrap,unwrap,sign,encrypt,decrypt"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -1905,7 +1905,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0080: Generate symmetric keys with DESede algo with --usages <no-data-passed>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=
@@ -1919,7 +1919,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0081: Generate symmetric keys with DESede algo with --usages <junk data>"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=$tmp_junk_data
@@ -1933,7 +1933,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0082: Generating symmetric keys with DESede algo with --usages wrap,unwrap,sign,encrypt,decrypt,junk-data should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=wrap,unwrap,sign,encrypt,decrypt,$tmp_junk_data
@@ -1947,7 +1947,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0083: Generating symmetric keys with DESede algo should fail when no client id is provided"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=
         local algo=DESede
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -1961,7 +1961,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0084: Generate symmetric keys with DESede algo with existing ClientID should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DESede
         local usages=wrap,unwrap,sign,encrypt,decrypt
@@ -1984,7 +1984,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0084: Generating symmetric keys using valid admin cert should fail"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2003,7 +2003,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0085: Generating symmetric keys using revoked Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2023,7 +2023,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0086: Generating symmetric keys using admin(not a member of Agents Group) cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2052,7 +2052,7 @@ run_pki-kra-key-generate-kra_tests()
         rlRun "chronyc -a -m 'offline' 'settime $end_date + 1 day' 'makestep' 'manual reset' 1> $TmpDir/chrony.out"
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
         rlLog "Date after modifying using chrony: $(date)"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2085,7 +2085,7 @@ run_pki-kra-key-generate-kra_tests()
         rlRun "chronyc -a -m 'offline' 'settime $end_date + 1 day' 'makestep' 'manual reset' 1> $TmpDir/chrony.out"
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
         rlLog "Date after modifying using chrony: $(date)"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2108,7 +2108,7 @@ run_pki-kra-key-generate-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0089: Generating symmetric key using valid audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2127,7 +2127,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 	
         rlPhaseStartTest "pki_kra_key_generate-0090: Generate symmetric key using valid operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2209,7 +2209,7 @@ run_pki-kra-key-generate-kra_tests()
                 -c $CERTDB_DIR_PASSWORD -h $tmp_kra_host -p $target_unsecure_port \
                 -t kra user-cert-add $pki_user \
                 --input $TEMP_NSS_DB/$pki_user-out.pem 1> $TEMP_NSS_DB/pki_user_cert_add.out" 0 "Cert is added to the user $pki_user"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2228,7 +2228,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0092: Generate symmetric key using host URI parameter(https)"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2248,7 +2248,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0093:Generate symmetric key using valid user should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2266,7 +2266,7 @@ run_pki-kra-key-generate-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_generate-0093: Generating symmetric key using in-valid user should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128

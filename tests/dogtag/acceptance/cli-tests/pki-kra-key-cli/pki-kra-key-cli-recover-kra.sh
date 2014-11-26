@@ -74,9 +74,9 @@ run_pki-kra-key-recover-kra_tests()
         local key_generate_output=$TmpDir/key-generate.out
         local key_archive_output=$TmpDir/key-archive.out
         local key_recover_output=$TmpDir/key-recover.out
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-	local tmp_passphrase=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
-        local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+        local rand=$RANDOM
+	local tmp_passphrase=$(openssl rand -base64 10 |  perl -p -e 's/\n//')
+        local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 
 	# Config test of pki key-recover
 	rlPhaseStartTest "pki_key_cli-configtest: pki key-recover --help configuration test"
@@ -89,7 +89,7 @@ run_pki-kra-key-recover-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartSetup "Generate Approved Symmetric key"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -120,7 +120,7 @@ run_pki-kra-key-recover-kra_tests()
 	rlPhaseEnd
 	
 	rlPhaseStartSetup "Generate Approve Asymmetric Keys"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local action=approve
@@ -151,7 +151,7 @@ run_pki-kra-key-recover-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartSetup "Archive Passphrase in KRA"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local action=approve
@@ -235,7 +235,7 @@ run_pki-kra-key-recover-kra_tests()
 
 
         rlPhaseStartSetup: "Generate symmetric key"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve

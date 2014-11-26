@@ -77,9 +77,9 @@ run_pki-kra-key-mod-kra_tests()
 	local key_show_output=$TmpDir/key-show.out
 	local key_mod_output=$TmpDir/key-mod.out
 	local key_archive_output=$TmpDir/key-archive.out
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local cert_request_submit="$TEMP_NSS_DB/pki-cert-request-submit.out"
-        local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+        local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
         local profile=caUserCert
 
         # Config test of pki kra-key-mod
@@ -92,7 +92,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-001: Modifying the status of valid key of type SymmetricKey  from active to Inactive should be successful"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -126,7 +126,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 	
 	rlPhaseStartTest "pki_kra_key_mod-002: Modifying the status of Valid key of type SymmetricKey from Inactive to Active should be successful"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -170,7 +170,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-003: Modifying the status of Rejected key of type Symmetric Key to active should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=reject
@@ -201,7 +201,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-004: Modifying the status of Rejected key of type Symmetric Key to inactive should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=reject
@@ -232,7 +232,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-005: Modifying the status of canceled key of type Symmetric Key to active should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=cancel
@@ -263,7 +263,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-006: Modifying the status of canceled key of type Symmetric Key to inactive should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=cancel
@@ -294,7 +294,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-007: Modifying the status of valid key from Active state to Unknown State(not inactive) should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -324,7 +324,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-008: Modifying the status of valid key from Existing state to it's same existing should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -358,7 +358,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-009: Modifying the status of valid key of type securityDataEnrollment  from active to Inactive should be successful"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
 	local passphrase=Secret123
 	local action=approve
@@ -391,7 +391,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-0010: Modifying the status of Valid key of type securityDataEnrollment from Inactive to Active should be successful"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local action=approve
@@ -436,7 +436,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 	
 	rlPhaseStartTest "pki_kra_key_mod-0011: Modifying the status of Rejected key of type securityDataEnrollment key to active should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local action=reject
@@ -461,7 +461,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0012: Modifying the status of Rejected key of type securityDataEnrollment key to in-active should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local action=reject
@@ -486,7 +486,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0013: Modifying the status of Canceled key of type securityDataEnrollment key to active should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local action=cancel
@@ -511,7 +511,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0014: Modifying the status of Canceled key of type securityDataEnrollment key to in-active should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local action=cancel
@@ -536,7 +536,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd	
 
         rlPhaseStartTest "pki_kra_key_mod-0015: Modifying the status of valid key of type securityDataEnrollment from active to Invalid State should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local action=approve
@@ -567,7 +567,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-0016: Modifying the status of valid key of type securityDataEnrollment from Existing state to it's same state should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local action=approve
@@ -600,7 +600,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-0017: Modifying the status of Key using Admin Cert(not a member of agent group) should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -630,7 +630,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-0018: Modifying the status of Key from Active to Inactive using Revoked Admin Cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -661,7 +661,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0019: Modifying the status of Key from Active to Inactive using Revoked Agent Cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -745,7 +745,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-0019: Modifying the status of Key using audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -775,7 +775,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0020: Modifying the status of Key using operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -805,7 +805,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_mod-0023: Modifying the status of Key by connecting to KRA using https URI using valid agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve 
@@ -839,7 +839,7 @@ run_pki-kra-key-mod-kra_tests()
 
 
 	rlPhaseStartTest "pki_kra_key_mod-0024: Modifying the status of key using Normal user(Not a member of any group) cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local pki_user="idm1_user_$rand"
         local pki_user_fullName="Idm1 User $rand"
         local pki_pwd="Secret123"
@@ -937,7 +937,7 @@ run_pki-kra-key-mod-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0027: Modifying the status of valid key of type asymmetric from active to Inactive should be successful"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local action=approve
@@ -971,7 +971,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0028: Modifying the status of Valid key of type asymmetric from Inactive to Active should be successful"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local action=approve
@@ -1015,7 +1015,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0029: Modifying the status of Rejected key of type asymmetric to active should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local action=reject
@@ -1046,7 +1046,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0030: Modifying the status of Rejected key of type asymmetric to inactive should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local action=reject
@@ -1077,7 +1077,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0031: Modifying the status of canceled key of type asymmetric to active should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local action=cancel
@@ -1108,7 +1108,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0032: Modifying the status of Canceled key of type asymmetric to inactive should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local action=cancel
@@ -1139,7 +1139,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0033: Modifying the status of valid Asymmetric key from Active state to Unknown State(not inactive) should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local action=approve
@@ -1169,7 +1169,7 @@ run_pki-kra-key-mod-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_mod-0034: Modifying the status of valid Asymmetric key from Existing state to it's same existing should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local action=approve

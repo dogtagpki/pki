@@ -67,9 +67,9 @@ run_pki-kra-key-kra_tests()
 	
 	rlPhaseStartTest "pki_kra_key001: pki kra-key with junk characters should return invalid module"
 	local temp_out1="$TmpDir/pki_kra_key001"
-	local rand=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9*?$@#!%^&*()' | fold -w 40 | head -n 1)
+	local junk=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	rlLog "Executing pki cert \"$junk\" characters"
-	rlRun "pki kra-key \"$rand\" 2> $temp_out1" 1,255 "Command pki cert with junk characters"
+	rlRun "pki kra-key \"$junk\" 2> $temp_out1" 1,255 "Command pki cert with junk characters"
 	rlAssertGrep "Error: Invalid module" "$temp_out1"
 	rlPhaseEnd
 	

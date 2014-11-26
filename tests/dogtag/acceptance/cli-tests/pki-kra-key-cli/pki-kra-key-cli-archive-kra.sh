@@ -84,8 +84,8 @@ run_pki-kra-key-archive-kra_tests()
 	local key_request_review_output=$TmpDir/key-request-review.out
 	local key_retrieve_output=$TmpDir/key-retrieve.out
         local cert_request_submit="$TEMP_NSS_DB/pki-cert-request-submit.out"
-        local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
-	local tmp_passphrase=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
+        local tmp_junk_data=$(openssl rand -base64 200 |  perl -p -e 's/\n//')
+	local tmp_passphrase=$(openssl rand -base64 10 |  perl -p -e 's/\n//')
         local profile=caUserCert
 
 
@@ -103,7 +103,7 @@ run_pki-kra-key-archive-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_archive-001: Create a passphrase archival request and verify by approving the request"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local client_id=temp$rand
 	local passphrase=$tmp_passphrase
 	local base64_passphrase=$(echo -n $passphrase | base64)
@@ -142,9 +142,9 @@ run_pki-kra-key-archive-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_archive-002: Create a passphrase archival request with passphrase containing special characters"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-	local tmp_passphrase=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
-	local spl_characters=$(cat /dev/urandom | tr -dc '*?%^()+@!#{\}/-' | fold -w 10 | head -n 1)
+	local rand=$RANDOM
+	local tmp_passphrase=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
+	local spl_characters="*?%^()-"
 	local client_id=temp$rand
         local passphrase=$tmp_passphrase-$spl_characters
         local base64_passphrase=$(echo -n "$passphrase" | base64)
@@ -183,8 +183,8 @@ run_pki-kra-key-archive-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_archive-003: Create a passphrase of 100 characters and verify by archiving the passphrase"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-        local tmp_passphrase=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 100 | head -n 1)
+        local rand=$RANDOM
+        local tmp_passphrase=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -226,7 +226,7 @@ run_pki-kra-key-archive-kra_tests()
 
 	rlPhaseStartTest "pki_kra_key_archive-004: Create a archival request of passphrase containing i18n characters"
 	for i in "${i18n_array[@]}"; do
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local passphrase=$i
         local client_id=temp$rand
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -266,7 +266,7 @@ run_pki-kra-key-archive-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_archive-005: Verify when no data is passed to --clientKeyId key-archive should fail with command help"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=''
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -288,7 +288,7 @@ run_pki-kra-key-archive-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_archive-006: Verify when no data is passed to --passphrase key-archive should fail with command help"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=''
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -310,7 +310,7 @@ run_pki-kra-key-archive-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_archive-007: creating passphrase archival request using Admin cert(not a member of agents group) should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -325,7 +325,7 @@ run_pki-kra-key-archive-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_archive-008: creating passphrase archival request using Revoked Agent cert(not a member of agents group) should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -340,7 +340,7 @@ run_pki-kra-key-archive-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_archive-009: creating passphrase archival request using Revoked Admin cert(not a member of agents group) should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -405,7 +405,7 @@ run_pki-kra-key-archive-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_archive-0012: creating passphrase archival request using valid Audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -420,7 +420,7 @@ run_pki-kra-key-archive-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_archive-0013: creating passphrase archival request using valid operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -501,7 +501,7 @@ run_pki-kra-key-archive-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_key_archive-0014: creating passphrase archival request using User (not a member of any group) Cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
@@ -516,7 +516,7 @@ run_pki-kra-key-archive-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_kra_key_archive-0014: creating passphrase archival request using host URI parameter(https)"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local base64_passphrase=$(echo -n $passphrase | base64)
