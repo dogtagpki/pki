@@ -81,7 +81,7 @@ run_pki-ca-cert-request-profile-show-ca_tests()
 	local tmp_ca_host=$(eval echo \$${cs_Role})
         local target_host=$tmp_ca_host
 	local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	
 	rlPhaseStartTest "pki_cert_cli-configtest: pki ca-cert-request-profile-show --help configuration test"
 	rlRun "pki -h $target_host -p $target_port ca-cert-request-profile-show --help 1> $cert_request_profile_show_info" 0 "pki -h $target_host -p $target_port ca-cert-request-profile-show --help"

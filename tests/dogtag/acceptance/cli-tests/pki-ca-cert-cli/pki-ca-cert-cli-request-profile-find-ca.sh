@@ -72,7 +72,7 @@ run_pki-ca-cert-request-profile-find-ca_tests()
         local exp="$TmpDir/expfile.out"
         local expout="$TmpDir/exp_out"
         local certout="$TmpDir/cert_out"
-	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+	local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
         local i18n_user1="Örjan_Äke_$rand"
         local i18n_user2="Éric_Têko_$rand"
         local i18n_user3="éénentwintig_dvidešimt_$rand"
@@ -82,7 +82,7 @@ run_pki-ca-cert-request-profile-find-ca_tests()
         local tmp_ca_host=$(eval echo \$${cs_Role})
 	local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
         local target_host=$tmp_ca_host
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         
 	
 	rlPhaseStartTest "pki_cert_cli-configtest: pki ca-cert-request-profile-find --help configuration test"

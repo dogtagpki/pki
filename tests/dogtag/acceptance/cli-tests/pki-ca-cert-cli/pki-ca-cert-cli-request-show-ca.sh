@@ -64,8 +64,8 @@ run_pki-ca-cert-request-show-ca_tests()
         local TEMP_NSS_DB="$TmpDir/nssdb"
         local ret_reqstatus
         local ret_requestid
-	local invalid_requestid=$(cat /dev/urandom | tr -dc '0-9' | fold -w 10 | head -n 1)
-	local junk_requestid=$(cat /dev/urandom | tr -dc 'a-bA-Z0-9' | fold -w 40 | head -n 1)
+	local invalid_requestid=$RANDOM
+	local junk_requestid=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	local temp_cert_out="$TmpDir/cert-request.out"
 	local hex_invalid_upp_reqid=$(echo "obase=16;$invalid_requestid"|bc)
 	local hex_invalid_requestid=0x"${hex_invalid_upp_reqid,,}"
@@ -79,7 +79,7 @@ run_pki-ca-cert-request-show-ca_tests()
         local target_https_port=$(eval echo \$${CA_INST}_SECURE_PORT)
         local tmp_ca_host=$(eval echo \$${cs_Role})
         local target_host=$(eval echo \$${cs_Role})
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local profile=caUserCert
 
 

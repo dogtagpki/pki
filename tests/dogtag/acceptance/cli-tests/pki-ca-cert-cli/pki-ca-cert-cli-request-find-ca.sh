@@ -71,9 +71,9 @@ run_pki-ca-cert-request-find-ca_tests()
 	local target_https_port=$(eval echo \$${CA_INST}_SECURE_PORT)
         local tmp_ca_host=$(eval echo \$${cs_Role})
         local target_host=$(eval echo \$${cs_Role})
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local cert_request_submit="$TEMP_NSS_DB/pki-cert-request-submit.out"
-	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+	local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	local profile=caUserCert
 
 	# Config test of pki ca-cert-request-find
@@ -767,7 +767,7 @@ run_pki-ca-cert-request-find-ca_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_cert_request_find-0020:  Issue pki ca-cert-request-find with --start <Maximum integer value>"
-        local tmp_large_number1=$(cat /dev/urandom | tr -dc '0-9' | fold -w 200 | head -n 1)
+        local tmp_large_number1="1234567890987654321123456789987654321123456789012327809893343437654321"
         rlLog "Executing pki ca-cert-request-find --start $tmp_large_number1"
         rlRun "pki -d $CERTDB_DIR \
 		-h $target_host \
@@ -830,7 +830,7 @@ run_pki-ca-cert-request-find-ca_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_cert_request_find-0024:  Issue pki ca-cert-request-find with --maxResults <maximum Integer value>"
-	local tmp_large_number1=$(cat /dev/urandom | tr -dc '0-9' | fold -w 50 | head -n 1)
+	local tmp_large_number1="12345678901234567890098765432113467908248614908601"
         rlLog "Executing pki ca-cert-request-find with --maxResults <no-value>"
         rlRun "pki -d $CERTDB_DIR \
 		-h $target_host \

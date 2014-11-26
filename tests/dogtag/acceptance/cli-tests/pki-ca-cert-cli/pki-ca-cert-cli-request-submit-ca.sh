@@ -58,7 +58,7 @@ run_pki-ca-cert-request-submit_tests()
 	#local variables
 	get_topo_stack $cs_Role $TmpDir/topo_file
 	local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
-        local invalid_serialNumber=$(cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1)
+        local invalid_serialNumber=$RANDOM
         local invalid_hex_serialNumber=0x$(echo "ibase=16;$invalid_serialNumber"|bc)
         local CA_agentV_user=$CA_INST\_agentV
         local CA_auditV_user=$CA_INST\_auditV
@@ -73,7 +73,7 @@ run_pki-ca-cert-request-submit_tests()
         local crmf_reqstatus
         local crmf_requestid
         local decimal_valid_serialNumber
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local cert_req_info="$TmpDir/cert_req_info.out"
         local target_host=$(eval echo \$${cs_Role})
         local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
@@ -358,7 +358,7 @@ run_pki-ca-cert-request-submit_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_cert_request_submit-009: Submit a request using invalid xml file"
-	local invalid_data=$(cat /dev/urandom | tr -dc '0-9a-zA-Z' | fold -w 9000 | head -n 1)
+	local invalid_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	rlRun "echo $invalid_data > $TmpDir/$rand-cert-profile.xml"
 	rlRun "pki -h $target_host -p $target_port ca-cert-request-submit $TmpDir/$rand-cert-profile.xml 2> $TmpDir/pki-ca-cert-request-submit.out" 255
 	rlAssertGrep "Error: null" "$TmpDir/pki-ca-cert-request-submit.out"

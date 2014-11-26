@@ -64,7 +64,7 @@ run_pki-ca-cert-show-ca_tests()
         local CA_adminR_user=$CA_INST\_adminR
         local CA_adminE_user=$CA_INST\_adminE
         local CA_agentE_user=$CA_INST\_agentE
-        local invalid_serialNumber=$(cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1)
+        local invalid_serialNumber=$RANDOM
         local invalid_hex_serialNumber=0x$(echo "ibase=16;$invalid_serialNumber"|bc)
         local pkcs10_reqstatus
         local pkcs10_requestid
@@ -84,7 +84,7 @@ run_pki-ca-cert-show-ca_tests()
         local i18n_user4="kakskümmend_üks"
         local i18n_user5_fullname="двадцять один тридцять"
         local i18n_user5="двадцять_один_тридцять"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local junk="axb124?$5@@_%^$#$@\!(_)043112321412321"
         local cert_req_info="$TmpDir/cert_req_info.out"
         local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)

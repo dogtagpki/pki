@@ -71,10 +71,10 @@ run_pki-ca-cert-request-review-ca_tests()
 	local target_https_port=$(eval echo \$${CA_INST}_SECURE_PORT)
         local tmp_ca_host=$(eval echo \$${cs_Role})
         local target_host=$tmp_ca_host
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
 	local i18n_array=("Örjan Äke:Örjan_Äke" "Éric Têko:Éric_Têko" "éénentwintig dvidešimt:éénentwintig_dvidešimt" "kakskümmend üks:kakskümmend_üks" "двадцять один тридцять:двадцять_один_тридцять")
 	local cert_request_submit="$TEMP_NSS_DB/pki-cert-request-submit.out"
-	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+	local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
         local exp="$TmpDir/expfile.out"
         local expout="$TmpDir/exp_out"
 	local admin_cert_nickname="caadmincert"

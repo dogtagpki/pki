@@ -63,8 +63,8 @@ run_pki-ca-cert-release-hold-ca_tests()
  	local TEMP_NSS_DB="$TmpDir/nssdb"
 	local TEMP_NSS_DB_PWD="redhat123"
 	local exp="$TmpDir/expfile.out"
-        local invalid_Number=$(cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1)
-	local junk=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9?@\!~#*()*^*_' | fold -w 32 | head -n 1)
+        local invalid_Number=$RANDOM
+	local junk=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	local temp_cert_out="$TmpDir/cert-request.out"
         local temp_out="$TmpDir/cert-request-show.out"
 	local expout="$TmpDir/exp_out"

@@ -65,9 +65,9 @@ run_pki-ca-cert-ca_tests()
 	
 	rlPhaseStartTest "pki_ca_cert001: pki ca-cert with junk characters should return invalid module"
 	local temp_out1="$TmpDir/pki_cert001"
-	local rand=`cat /dev/urandom | tr -dc 'a-zA-Z0-9*?$@#!%^&*()' | fold -w 40 | head -n 1`
+	local junk=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	rlLog "Executing pki ca-cert \"$junk\" characters"
-	rlRun "pki ca-cert \"$rand\" 2> $temp_out1" 1,255 "Command pki cert with junk characters"
+	rlRun "pki ca-cert \"$junk\" 2> $temp_out1" 1,255 "Command pki cert with junk characters"
 	rlAssertGrep "Error: Invalid module" "$temp_out1"
 	rlPhaseEnd
 	

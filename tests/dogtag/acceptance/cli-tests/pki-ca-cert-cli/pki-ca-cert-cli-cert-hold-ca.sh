@@ -64,17 +64,16 @@ run_pki-ca-cert-hold-ca_tests()
         local TEMP_NSS_DB="$TmpDir/nssdb"
 	local TEMP_NSS_DB_PWD="redhat123"
 	local exp="$TmpDir/expfile.out"
-        local invalid_Number=$(cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1)
-	local junk=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9?@\!~#*()*^*_' | fold -w 32 | head -n 1)
+        local invalid_Number=$RANDOM
+	local junk=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	local expout="$TmpDir/exp_out"
 	local certout="$TmpDir/cert_out"
 	local cert_info="$TmpDir/cert_info"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local target_https_port=$(eval echo \$${CA_INST}_SECURE_PORT)
 	local tmp_ca_host=$(eval echo \$${cs_Role})
 	local target_host=$tmp_ca_host
 	local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 
 	# pki  ca-cert-hold config test
 	rlPhaseStartTest "pki_cert_hold-configtest: pki cert-release-hold --help configuration test"
