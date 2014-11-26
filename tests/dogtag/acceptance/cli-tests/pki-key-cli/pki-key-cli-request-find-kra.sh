@@ -75,9 +75,9 @@ run_pki-key-request-find-kra_tests()
 	local key_request_find_output=$TmpDir/key-request-find.out
 	local key_generate_output=$TmpDir/key-generate.out
 	local key_archive_output=$TmpDir/key-archive.out
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local cert_request_submit="$TEMP_NSS_DB/pki-cert-request-submit.out"
-	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+	local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 
 	# Config test of pki key-request-find
 	rlPhaseStartTest "pki_key_cli-configtest: pki key-request-find --help configuration test"
@@ -94,7 +94,7 @@ run_pki-key-request-find-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_key_request_find-001: Search key requests with Valid clientId using Agent Cert"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local client_id=temp$rand
 	local algo=AES
 	local action=NULL
@@ -160,7 +160,7 @@ run_pki-key-request-find-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_key_request_find-005: Search key requests with --maxResults 5 and verify 5 results are returned"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
 	local maxResults=5
         local algo=AES
@@ -301,7 +301,7 @@ run_pki-key-request-find-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_request_find-0015: Search key requests with key status complete using Agent Cert"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=NULL
@@ -421,7 +421,7 @@ run_pki-key-request-find-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_request_find-0022: Generate more than 100 key requests and verify --pageSize 105 returns 105 key results"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local size=105
         local algo=AES
@@ -578,7 +578,7 @@ run_pki-key-request-find-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_request_find-0032: Searching key requests using normal user cert(without any privileges) should fail"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local pki_user="idm1_user_$rand"
         local pki_user_fullName="Idm1 User $rand"
         local pki_pwd="Secret123"
@@ -688,7 +688,7 @@ run_pki-key-request-find-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_key_request_find-0036: Searching key request of type symkeyGenRequest using agent cert"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local req_type=symkeyGenRequest
 	local client_id=temp$rand
         local algo=AES
@@ -712,7 +712,7 @@ run_pki-key-request-find-kra_tests()
 	rlPhaseEnd
 
       	rlPhaseStartTest "pki_key_request_find-0037: Searching key request of type securityDataEnrollment using agent cert"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
 	local client_id=temp$rand
 	local passphrase=Secret123
 	local req_type=securityDataEnrollment

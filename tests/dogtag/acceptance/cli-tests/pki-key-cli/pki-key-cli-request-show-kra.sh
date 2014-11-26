@@ -78,8 +78,8 @@ run_pki-key-request-show-kra_tests()
         local key_archive_output=$TmpDir/key-archive.out
         local key_request_show_output=$TmpDir/key-request-show.out
         local tmp_request_review_out=$TmpDir/key-request-review.out
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-        local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+        local rand=$RANDOM
+        local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 
 	# Config test of pki key-request-show 
 	rlPhaseStartTest "pki_key_request_show_cli-configtest: pki key-request-show --help configuration test"
@@ -89,7 +89,7 @@ run_pki-key-request-show-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_key_request_show-001: pki key-request-show < valid Request ID(hexadecimal) > should show key details"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=NULL
@@ -112,7 +112,7 @@ run_pki-key-request-show-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_key_request_show-002: pki key-request-show < valid Request ID(decimal) > should show key details"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=NULL
@@ -163,7 +163,7 @@ run_pki-key-request-show-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_request_show-005: Archive a passphrase and issue pki key-request-show against the Request ID to verify the output is correct"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=Secret123
         local req_type=securityDataEnrollment
@@ -190,7 +190,7 @@ run_pki-key-request-show-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_request_show-006: Executing pki key-request-show <Request ID> using valid admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=NULL
@@ -293,7 +293,7 @@ run_pki-key-request-show-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_request_show-0012: Executing pki key-request-show <Request ID> using normal user cert(without any privileges) should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local pki_user="idm1_user_$rand"
         local pki_user_fullName="Idm1 User $rand"
         local pki_pwd="Secret123"

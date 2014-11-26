@@ -74,9 +74,9 @@ run_pki-key-find-kra_tests()
 	local cert_info="$TmpDir/cert_info"
 	local key_find_output=$TmpDir/key-find.out
 	local key_generate_output=$TmpDir/key-generate.out
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local cert_request_submit="$TEMP_NSS_DB/pki-cert-request-submit.out"
-	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+	local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	local profile=caUserCert
 
 	# Config test of pki key-find
@@ -93,7 +93,7 @@ run_pki-key-find-kra_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_key_find-001: Search keys with Valid clientId using Agent Cert"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
 	local client_id=temp$rand
 	local algo=AES
 	local action=approve
@@ -159,7 +159,7 @@ run_pki-key-find-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_key_find-005: Search keys with --maxResults 5 and verify 5 results are returned"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
 	local maxResults=5
         local algo=AES
@@ -297,7 +297,7 @@ run_pki-key-find-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_find-0015: Search keys with key status active using Agent Cert"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -326,7 +326,7 @@ run_pki-key-find-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_key_find-0016: Search keys with key status inactive using Agent Cert"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -455,7 +455,7 @@ run_pki-key-find-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_find-0023: Generate more than 100 keys and verify --size 105 returns 105 key results"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local size=105
         local algo=AES
@@ -589,7 +589,7 @@ run_pki-key-find-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_key_find-0031: Searching keys using normal user cert(without any privileges) should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local pki_user="idm1_user_$rand"
         local pki_user_fullName="Idm1 User $rand"
         local pki_pwd="Secret123"

@@ -44,7 +44,7 @@ run_pki-key-template-show-kra_tests()
 	rlPhaseEnd
 	local keytemplates=("retrieveKey" "generatekey" "archiveKey")
 	local temp_out1="$TmpDir/pki_key_template_show_001"
-	local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+	local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 
 	rlPhaseStartTest "pki key-template-show --help Test: Show all the options of pki key-template-show"
 	local temp_out="$TmpDir/pki_key-template-show"

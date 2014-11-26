@@ -75,9 +75,9 @@ run_pki-key-request-review-kra_tests()
         local key_archive_output=$TmpDir/key-archive.out
         local key_recover_output=$TmpDir/key-recover.out
         local key_request_review_output=$TmpDir/key-request-review.out
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
-        local tmp_passphrase=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)
-        local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+        local rand=$RANDOM
+        local tmp_passphrase=$(openssl rand -base64 10 |  perl -p -e 's/\n//')
+        local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 
 
         # Config test of pki key-request-review
@@ -90,7 +90,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_request_review-001: Approving symmetric key archival request as valid agent cert should succeed"
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -123,7 +123,7 @@ run_pki-key-request-review-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-002: Rejecting symmetric key archival request as valid agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -156,7 +156,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-003: Canceling symmetric key archival requestas as valid agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -189,7 +189,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_request_review-004: Specifying invalid action to symmetric key archival request should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -224,7 +224,7 @@ run_pki-key-request-review-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-005: Approving assymmetric key archival request as valid agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -257,7 +257,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-006: Rejecting asymmetric key archival request by agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -290,7 +290,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-007: Canceling asymmetric key archival request by agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -323,7 +323,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-008: Passing invalid action to asymetric key archival request should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local key_size=512
@@ -358,7 +358,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_request_review-009: Approving passphrase archival request by agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
 	local request_action=approve
@@ -388,7 +388,7 @@ run_pki-key-request-review-kra_tests()
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0010: Rejecting passphrase archival request by agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=reject
@@ -418,7 +418,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0011: Canceling passphrase archival request by agent cert should succeed"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=cancel
@@ -448,7 +448,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0012: Pass invalid action to passphrase archival request should fail" 
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=invalid_request
@@ -481,7 +481,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0013: Approving symmetric key archival request by admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -513,7 +513,7 @@ run_pki-key-request-review-kra_tests()
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0014: Approving symmetric key archival request by Revoked Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -546,7 +546,7 @@ run_pki-key-request-review-kra_tests()
 
 exit 1;
         rlPhaseStartTest "pki_request_review-0015: Approving symmetric key archival request by Revoked Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -578,7 +578,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0016: Approving symmetric key archival request by Expired Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -624,7 +624,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0017: Approving symmetric key archival request by Expired Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -670,7 +670,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0018: Approving symmetric key archival request by Audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -702,7 +702,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0019: Approving symmetric key archival request by operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -800,7 +800,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0020: Approving symmetric key archival request by Normal user cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -877,7 +877,7 @@ exit 1;
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0023: Approving asymmetric key archival request by admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local key_size=512
@@ -909,7 +909,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0024: Approving asymmetric key archival request by Revoked agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -941,7 +941,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0025: Approving asymmetric key archival request by Revoked admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -973,7 +973,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0026: Approving asymmetric key archival request by Expired agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1019,7 +1019,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0027: Approving asymmetric key archival request by Expired admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1065,7 +1065,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0028: Approving asymmetric key archival request by audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1097,7 +1097,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0029: Approving asymmetric key archival request by operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1129,7 +1129,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0030: Approving asymmetric key archival request by Normal User cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1225,7 +1225,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0034: Approving passphrase archival request admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=approve
@@ -1255,7 +1255,7 @@ exit 1;
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_request_review-0035: Approving passphrase archival request by Revoked Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=approve
@@ -1285,7 +1285,7 @@ exit 1;
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0036: Approving passphrase archival request by Revoked Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=approve
@@ -1453,7 +1453,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0046: Rejecting symmetric key archival request by admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -1485,7 +1485,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0047: Rejecting symmetric archival request by Revoked Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -1517,7 +1517,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0048: Rejecting symmetric key archival request by Revoked Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -1549,7 +1549,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0049: Rejecting symmetric key archival request by Expired Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -1595,7 +1595,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0050: Rejecting symmetric key archival request by Expired Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -1641,7 +1641,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0051: Rejecting symmetric key archival request by Audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -1673,7 +1673,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0052: Rejecting symmetric key archival request by operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -1705,7 +1705,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0053: Rejecting symmetric key archival request by Normal user cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -1780,7 +1780,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0056: Rejecting asymmetric key archival request by admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local key_size=512
@@ -1812,7 +1812,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0057: Rejecting asymmetric key archival request by Revoked agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1844,7 +1844,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0058: Rejecting asymmetric key archival request by Revoked admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1876,7 +1876,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0059: Rejecting asymmetric key archival request by Expired agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1922,7 +1922,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0060: Rejecting asymmetric key archival request by Expired admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -1968,7 +1968,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0061: Rejecting asymmetric key archival request by audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2000,7 +2000,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0062: Rejecting asymmetric key archival request by operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2032,7 +2032,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0063: Rejecting asymmetric key archival request by Normal User cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2131,7 +2131,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0067: Rejecting passphrase archival request admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=reject
@@ -2161,7 +2161,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0068: Rejecting passphrase archival request by Revoked Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=reject
@@ -2191,7 +2191,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0069: Rejecting passphrase archival request by Revoked Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=reject
@@ -2399,7 +2399,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0078: Canceling symmetric key archival request by admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2431,7 +2431,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0079: Canceling symmetric archival request by Revoked Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2463,7 +2463,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0080: Canceling symmetric key archival request by Revoked Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2495,7 +2495,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0081: Canceling symmetric key archival request by Expired Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2541,7 +2541,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0082: Canceling symmetric key archival request by Expired Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2587,7 +2587,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0083: Canceling symmetric key archival request by Audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2619,7 +2619,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0084: Canceling symmetric key archival request by operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2651,7 +2651,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0085: Canceling symmetric key archival request by Normal user cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local key_size=128
@@ -2728,7 +2728,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0088: Canceling asymmetric key archival request by admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local key_size=512
@@ -2760,7 +2760,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0089: Canceling asymmetric key archival request by Revoked agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2792,7 +2792,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0090: Canceling asymmetric key archival request by Revoked admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2824,7 +2824,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0091: Canceling asymmetric key archival request by Expired agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2870,7 +2870,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0092: Canceling asymmetric key archival request by Expired admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2916,7 +2916,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0093: Canceling asymmetric key archival request by audit cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2948,7 +2948,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0094: Canceling asymmetric key archival request by operator cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -2980,7 +2980,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0095: Canceling asymmetric key archival request by Normal User cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local key_size=2048
@@ -3079,7 +3079,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0099: Canceling passphrase archival request admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=cancel
@@ -3109,7 +3109,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0101: Canceling passphrase archival request by Revoked Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=cancel
@@ -3139,7 +3139,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0102: Canceling passphrase archival request by Revoked Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local passphrase=$tmp_passphrase
         local request_action=cancel
@@ -3350,7 +3350,7 @@ exit 1;
 
 
         rlPhaseStartSetup "Generate Approved Symmetric key"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -3397,7 +3397,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartSetup "Generate Approved Asymmetric key"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=RSA
         local action=approve
@@ -3440,7 +3440,7 @@ exit 1;
 	rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0113: Approving Recovery request by Revoked Agent cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=DSA
         local action=approve
@@ -3480,7 +3480,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartTest "pki_request_review-0114: Approving Recovery request by Revoked Admin cert should fail"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
@@ -3520,7 +3520,7 @@ exit 1;
         rlPhaseEnd
 
         rlPhaseStartSetup "Generate Approved Symmetric key"
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local client_id=temp$rand
         local algo=AES
         local action=approve
