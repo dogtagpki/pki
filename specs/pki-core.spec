@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.2
-Release:          2%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -51,11 +51,18 @@ BuildRequires:    policycoreutils-python
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.2.6-28
+BuildRequires:    jss >= 4.2.6-35
 BuildRequires:    systemd-units
-BuildRequires:    tomcatjss >= 7.1.0
+BuildRequires:    tomcatjss >= 7.1.1
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
+%if 0%{?rhel}
+# NOTE:  In the future, as a part of its path, this URL will contain a release
+#        directory which consists of the fixed number of the upstream release
+#        upon which this tarball was originally based.
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{name}-%{version}%{?prerel}.tar.gz
+%else
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
+%endif
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
@@ -154,7 +161,7 @@ Group:            System Environment/Libraries
 Requires:         java >= 1:1.7.0
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-28
+Requires:         jss >= 4.2.6-35
 
 Provides:         symkey = %{version}-%{release}
 
@@ -192,7 +199,7 @@ Requires:         java >= 1:1.7.0
 Requires:         javassist
 Requires:         jettison
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-28
+Requires:         jss >= 4.2.6-35
 Requires:         ldapjdk
 Requires:         python-ldap
 Requires:         python-lxml
@@ -284,7 +291,7 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
-Requires:         tomcatjss >= 7.1.0
+Requires:         tomcatjss >= 7.1.1
 
 %description -n   pki-server
 The PKI Server Framework is required by the following four PKI subsystems:
@@ -978,6 +985,16 @@ fi
 
 
 %changelog
+* Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.1.2-5
+- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade (cfu)
+- PKI Trac Ticket #1211 - New release overwrites old source tarball (mharmsen)
+- updated various version dependencies (cfu)
+- up the release number to 5 (cfu)
+
+* Tue Nov 18 2014 Endi S. Dewata <edewata@redhat.com> 10.1.2-4
+- Bugzilla Bug #1151147 - issuerDN encoding correction
+- Bumped release number to match RHEL
+
 * Fri Sep 19 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.2-2
 - Bugzilla Bug #1108303 - Rebase pki-core to 10.1 (RHEL)
 - Bugzilla Bug #1117073 - pki-core ppc64le is missing from ExcludeArch line

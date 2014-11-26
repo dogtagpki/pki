@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          10.1.1
-Release:          1%{?dist}
+Version:          10.1.2
+Release:          5%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -9,17 +9,17 @@ Group:            System Environment/Daemons
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:        noarch
 
-%define dogtag_pki_theme_version   10.1.0
+%define dogtag_pki_theme_version   10.1.1
 %define esc_version                1.1.0
-%define jss_version                4.2.6-28
-%define pki_core_version           10.1.0
-%define pki_kra_version            10.1.0
-%define pki_ocsp_version           10.1.0
-%define pki_ra_version             10.1.0
-%define pki_tks_version            10.1.0
-%define pki_tps_version            10.1.0
-%define pki_console_version        10.1.0
-%define tomcatjss_version          7.1.0
+%define jss_version                4.2.6-35
+%define pki_core_version           10.1.2
+%define pki_kra_version            10.1.2
+%define pki_ocsp_version           10.1.2
+%define pki_ra_version             10.1.1
+%define pki_tks_version            10.1.2
+%define pki_tps_version            10.1.1
+%define pki_console_version        10.1.2
+%define tomcatjss_version          7.1.1
 
 Requires:         apache-commons-codec
 
@@ -125,6 +125,11 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.1.2-5
+- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
+- updated various version dependencies
+- up the version release number to 10.1.2-5
+
 * Fri Mar 21 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.1-1
 - PKI TRAC Ticket #840 - pkispawn requires policycoreutils-python (mharmsen)
 - Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python (mharmsen)
