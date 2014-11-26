@@ -70,7 +70,7 @@ run_pki-cert-find-ca_tests()
         local CA_adminR_user=$CA_INST\_adminR
         local CA_adminE_user=$CA_INST\_adminE
         local CA_agentE_user=$CA_INST\_agentE
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local i18n_user1_fullname="Örjan Äke $rand"
         local i18n_user1="Örjan_Äke_$rand"
         local i18n_user2_fullname="Éric Têko $rand"
@@ -81,7 +81,7 @@ run_pki-cert-find-ca_tests()
         local i18n_user4="kakskümmend_üks_$rand"
         local i18n_user5_fullname="двадцять один тридцять $rand"
         local i18n_user5="двадцять_один_тридцять_$rand"
-        local tmp_junk_data=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 200 | head -n 1)
+        local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
         local admin_cert_nickname="PKI Administrator for $CA_DOMAIN"
         local target_host=$(eval echo \$${cs_Role})
         local target_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
@@ -419,7 +419,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartSetup "Create a new profile based on caServerCert with Netscape Extension nsCertSSLServer"
         local tmp_profile=caServerCert
-	local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$RANDOM
         local tmp_new_sslserver_profile=caServerCert$rand
         rlLog "Get $tmp_profile xml file"
         rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_sslserver_profile-Temp1.xml"
@@ -526,7 +526,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartSetup "Create a new profile based on caServerCert with Netscape Extension nsCertSSLServer and nsCertSSLClient"
         local tmp_profile=caServerCert
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local tmp_new_server_client_profile=caServerCert$rand
         rlLog "Get $tmp_profile xml file"
         rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port  -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_server_client_profile-Temp1.xml"
@@ -571,7 +571,7 @@ run_pki-cert-find-ca_tests()
 
 	rlPhaseStartSetup "Create a new profile based on caOtherCert with Netscape Extension nsCertEmailCA"
         local tmp_profile=caOtherCert
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local tmp_new_emailca_profile=caOtherCert$rand
         rlLog "Get $tmp_profile xml file"
         rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_emailca_profile-Temp1.xml"
@@ -678,7 +678,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartSetup "Create a new profile based on caOtherCert with Netscape Extension nsCertSSLCA"
         local tmp_profile=caOtherCert
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local tmp_new_sslca_profile=caOtherCert$rand
         rlLog "Get $tmp_profile xml file"
         rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_sslca_profile-Temp1.xml"
@@ -785,7 +785,7 @@ run_pki-cert-find-ca_tests()
 
         rlPhaseStartSetup "Create a new profile based on caOtherCert with Netscape Extension nsCertEmailCA and nsCertSSLCA"
         local tmp_profile=caOtherCert
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+        local rand=$RANDOM
         local tmp_new_email_ssl_ca_profile=caOtherCert$rand
         rlLog "Get $tmp_profile xml file"
         rlRun "pki -d $CERTDB_DIR -h $target_host -p $target_port -n $CA_adminV_user -c $CERTDB_DIR_PASSWORD ca-profile-show $tmp_profile --output $TmpDir/$tmp_new_email_ssl_ca_profile-Temp1.xml"
@@ -3139,7 +3139,7 @@ run_pki-cert-find-ca_tests()
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_cert_find-0129: verify if search results are returned if a very large number is passed to --size"
-	local tmp_search_size=$(cat /dev/urandom | tr -dc '0-9' | fold -w 20 | head -n 1)
+	local tmp_search_size="12345678998765432112345678"
         rlLog "Executing pki cert-find --size $tmp_search_size"
         rlRun "pki -h $target_host -p $target_port cert-find --size $tmp_search_size > $cert_find_info 2>&1" 1,255
 	rlAssertGrep "NumberFormatException: For input string: \"$tmp_search_size\"" "$cert_find_info"

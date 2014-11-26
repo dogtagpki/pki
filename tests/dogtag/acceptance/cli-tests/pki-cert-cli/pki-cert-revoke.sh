@@ -60,11 +60,11 @@ run_pki-cert-revoke-ca_tests()
         local CA_adminR_user=$CA_INST\_adminR
         local CA_adminE_user=$CA_INST\_adminE
         local CA_agentE_user=$CA_INST\_agentE
-	local invalid_serialNumber=$(cat /dev/urandom | tr -dc '1-9' | fold -w 10 | head -n 1)
+	local invalid_serialNumber=$RANDOM
         local invalid_hex_serialNumber=0x$(echo "ibase=16;$invalid_serialNumber"|bc)
         local pkcs10_reqstatus
         local pkcs10_requestid
-        local rand=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
+	local rand=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
         local sub_ca_ldap_port=1800
         local sub_ca_http_port=14080
         local sub_ca_https_port=14443
