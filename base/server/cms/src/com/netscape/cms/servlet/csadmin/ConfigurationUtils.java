@@ -873,33 +873,71 @@ public class ConfigurationUtils {
         PFX pfx = (PFX) (new PFX.Template()).decode(bis);
         boolean verifypfx = pfx.verifyAuthSafes(password, reason);
 
-        if (verifypfx) {
+        if (!verifypfx) {
+            throw new IOException("PKCS #12 password is incorrect");
+        }
 
-            AuthenticatedSafes safes = pfx.getAuthSafes();
-            Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
-            Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
+        AuthenticatedSafes safes = pfx.getAuthSafes();
+        Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
+        Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
 
-            CMS.debug("PKCS #12:");
+        CMS.debug("PKCS #12:");
 
-            for (int i = 0; i < safes.getSize(); i++) {
+        for (int i = 0; i < safes.getSize(); i++) {
 
-                CMS.debug("- Safe #" + i + ":");
-                SEQUENCE scontent = safes.getSafeContentsAt(null, i);
+            CMS.debug("- Safe #" + i + ":");
+            SEQUENCE scontent = safes.getSafeContentsAt(null, i);
 
-                for (int j = 0; j < scontent.size(); j++) {
+            for (int j = 0; j < scontent.size(); j++) {
 
-                    SafeBag bag = (SafeBag) scontent.elementAt(j);
-                    OBJECT_IDENTIFIER oid = bag.getBagType();
+                SafeBag bag = (SafeBag) scontent.elementAt(j);
+                OBJECT_IDENTIFIER oid = bag.getBagType();
 
-                    if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
+                if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
 
-                        CMS.debug("  - Bag #" + j + ": key");
-                        EncryptedPrivateKeyInfo privkeyinfo =
-                                (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
-                        PrivateKeyInfo pkeyinfo = privkeyinfo.decrypt(password, new PasswordConverter());
+                    CMS.debug("  - Bag #" + j + ": key");
+                    EncryptedPrivateKeyInfo privkeyinfo =
+                            (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
+                    PrivateKeyInfo pkeyinfo = privkeyinfo.decrypt(password, new PasswordConverter());
 
-                        SET bagAttrs = bag.getBagAttributes();
-                        String subjectDN = null;
+                    SET bagAttrs = bag.getBagAttributes();
+                    String subjectDN = null;
+
+                    for (int k = 0; k < bagAttrs.size(); k++) {
+
+                        Attribute attrs = (Attribute) bagAttrs.elementAt(k);
+                        OBJECT_IDENTIFIER aoid = attrs.getType();
+
+                        if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
+                            SET val = attrs.getValues();
+                            ANY ss = (ANY) val.elementAt(0);
+
+                            ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
+                            BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
+                            subjectDN = sss.toString();
+                            CMS.debug("    Subject DN: " + subjectDN);
+                            break;
+                        }
+                    }
+
+                    // pkeyinfo_v stores private key (PrivateKeyInfo) and subject DN (String)
+                    Vector<Object> pkeyinfo_v = new Vector<Object>();
+                    pkeyinfo_v.addElement(pkeyinfo);
+                    if (subjectDN != null) pkeyinfo_v.addElement(subjectDN);
+
+                    pkeyinfo_collection.addElement(pkeyinfo_v);
+
+                } else if (oid.equals(SafeBag.CERT_BAG)) {
+
+                    CMS.debug("  - Bag #" + j + ": certificate");
+                    CertBag cbag = (CertBag) bag.getInterpretedBagContent();
+                    OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
+                    byte[] x509cert = str.toByteArray();
+
+                    SET bagAttrs = bag.getBagAttributes();
+                    String nickname = null;
+
+                    if (bagAttrs != null) {
 
                         for (int k = 0; k < bagAttrs.size(); k++) {
 
@@ -911,78 +949,37 @@ public class ConfigurationUtils {
                                 ANY ss = (ANY) val.elementAt(0);
 
                                 ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                                BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
-                                subjectDN = sss.toString();
-                                CMS.debug("    Subject DN: " + subjectDN);
+                                BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
+                                nickname = sss.toString();
+                                CMS.debug("    Nickname: " + nickname);
                                 break;
                             }
                         }
-
-                        // pkeyinfo_v stores private key (PrivateKeyInfo) and subject DN (String)
-                        Vector<Object> pkeyinfo_v = new Vector<Object>();
-                        pkeyinfo_v.addElement(pkeyinfo);
-                        if (subjectDN != null) pkeyinfo_v.addElement(subjectDN);
-
-                        pkeyinfo_collection.addElement(pkeyinfo_v);
-
-                    } else if (oid.equals(SafeBag.CERT_BAG)) {
-
-                        CMS.debug("  - Bag #" + j + ": certificate");
-                        CertBag cbag = (CertBag) bag.getInterpretedBagContent();
-                        OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
-                        byte[] x509cert = str.toByteArray();
-
-                        SET bagAttrs = bag.getBagAttributes();
-                        String nickname = null;
-
-                        if (bagAttrs != null) {
-
-                            for (int k = 0; k < bagAttrs.size(); k++) {
-
-                                Attribute attrs = (Attribute) bagAttrs.elementAt(k);
-                                OBJECT_IDENTIFIER aoid = attrs.getType();
-
-                                if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
-                                    SET val = attrs.getValues();
-                                    ANY ss = (ANY) val.elementAt(0);
-
-                                    ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                                    BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
-                                    nickname = sss.toString();
-                                    CMS.debug("    Nickname: " + nickname);
-                                    break;
-                                }
-                            }
-                        }
-
-                        X509CertImpl certImpl = new X509CertImpl(x509cert);
-                        CMS.debug("    Serial number: " + certImpl.getSerialNumber());
-
-                        try {
-                            certImpl.checkValidity();
-                            CMS.debug("    Status: valid");
-
-                        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
-                            CMS.debug("    Status: " + e);
-                            continue;
-                        }
-
-                        // cert_v stores certificate (byte[]) and nickname (String)
-                        Vector<Object> cert_v = new Vector<Object>();
-                        cert_v.addElement(x509cert);
-                        if (nickname != null) cert_v.addElement(nickname);
-
-                        cert_collection.addElement(cert_v);
                     }
+
+                    X509CertImpl certImpl = new X509CertImpl(x509cert);
+                    CMS.debug("    Serial number: " + certImpl.getSerialNumber());
+
+                    try {
+                        certImpl.checkValidity();
+                        CMS.debug("    Status: valid");
+
+                    } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+                        CMS.debug("    Status: " + e);
+                        continue;
+                    }
+
+                    // cert_v stores certificate (byte[]) and nickname (String)
+                    Vector<Object> cert_v = new Vector<Object>();
+                    cert_v.addElement(x509cert);
+                    if (nickname != null) cert_v.addElement(nickname);
+
+                    cert_collection.addElement(cert_v);
                 }
             }
-
-            importKeyCert(pkeyinfo_collection, cert_collection);
-
-        } else {
-            throw new IOException("P12 File is incorrect");
         }
 
+        importKeyCert(pkeyinfo_collection, cert_collection);
     }
 
     public static boolean isCertdbCloned() {
@@ -1190,7 +1187,6 @@ public class ConfigurationUtils {
     }
 
     public static org.mozilla.jss.crypto.PrivateKey.Type getPrivateKeyType(PublicKey pubkey) {
-        CMS.debug("Key Algorithm '" + pubkey.getAlgorithm() + "'");
         if (pubkey.getAlgorithm().equals("EC")) {
             return org.mozilla.jss.crypto.PrivateKey.Type.EC;
         }
@@ -1216,47 +1212,41 @@ public class ConfigurationUtils {
         return false;
     }
 
-    public static void deleteExistingCerts() {
+    public static void deleteExistingCerts() throws NotInitializedException, EBaseException, TokenException {
 
         CMS.debug("Deleting existing certificates:");
 
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken ct = cm.getInternalKeyStorageToken();
+        CryptoStore store = ct.getCryptoStore();
+
         IConfigStore cs = CMS.getConfigStore();
+        String list = cs.getString("preop.cert.list", "");
+        StringTokenizer st = new StringTokenizer(list, ",");
 
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            CryptoToken ct = cm.getInternalKeyStorageToken();
-            CryptoStore store = ct.getCryptoStore();
+        while (st.hasMoreTokens()) {
+            String s = st.nextToken();
 
-            String list = cs.getString("preop.cert.list", "");
-            StringTokenizer st = new StringTokenizer(list, ",");
+            if (s.equals("sslserver"))
+                continue;
 
-            while (st.hasMoreTokens()) {
-                String s = st.nextToken();
+            String name = "preop.master." + s + ".nickname";
+            String nickname = cs.getString(name, "");
+            CMS.debug("- Certificate " + nickname);
 
-                if (s.equals("sslserver"))
-                    continue;
-
-                String name = "preop.master." + s + ".nickname";
-                String nickname = cs.getString(name, "");
-                CMS.debug("- Certificate " + nickname);
-
-                X509Certificate xcert;
-                try {
-                    xcert = cm.findCertByNickname(nickname);
-                } catch (Exception ee) {
-                    CMS.debug("  Certificate nickname " + nickname + " not found");
-                    continue;
-                }
-
-                try {
-                    store.deleteCert(xcert);
-                } catch (Exception ee) {
-                    CMS.debug("  Certificate object " + nickname + " not found");
-                }
+            X509Certificate cert;
+            try {
+                cert = cm.findCertByNickname(nickname);
+            } catch (ObjectNotFoundException ee) {
+                CMS.debug("  Certificate nickname " + nickname + " not found");
+                continue;
             }
 
-        } catch (Exception e) {
-            CMS.debug(e);
+            try {
+                store.deleteCert(cert);
+            } catch (NoSuchItemOnTokenException ee) {
+                CMS.debug("  Certificate object " + nickname + " not found");
+            }
         }
     }
 
