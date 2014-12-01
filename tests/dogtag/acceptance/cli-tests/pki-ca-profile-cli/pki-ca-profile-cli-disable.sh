@@ -74,7 +74,7 @@ run_pki-ca-profile-disable_tests()
         local rand=$RANDOM
         local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 
-        rlPhaseStartTest "pki ca-profile-disable config_test: pki ca-profile-disable --help configuration test"
+        rlPhaseStartTest "pki_ca-profile-disable-config_test: pki ca-profile-disable --help configuration test"
         rlRun "pki ca-profile-disable --help > $ca_profile_out" 0 "pki ca-profile-disable --help"
         rlAssertGrep "usage: ca-profile-disable <Profile ID> \[OPTIONS...\]" "$ca_profile_out"
         rlAssertGrep "    --help   Show help options" "$ca_profile_out"

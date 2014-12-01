@@ -74,12 +74,11 @@ run_pki-ca-profile-del_tests()
         local rand=$RANDOM
         local tmp_junk_data=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 
-        rlPhaseStartTest "pki ca-profile-del config_test: pki ca-profile-del --help configuration test"
+        rlPhaseStartTest "pki_ca-profile-del: pki ca-profile-del help configuration test"
         rlRun "pki ca-profile-del --help > $ca_profile_out" 0 "pki ca-profile-del --help"
         rlAssertGrep "usage: ca-profile-del <Profile ID> \[OPTIONS...\]" "$ca_profile_out"
         rlAssertGrep "    --help   Show help options" "$ca_profile_out"
         rlPhaseEnd
-
 
         rlPhaseStartTest "pki_ca_profile_del-001:Create a user profile and delete the profile"
         profile="caUserTestProfile$RANDOM"

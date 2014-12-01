@@ -46,7 +46,7 @@ run_pki-ca-profile_tests()
 	rlRun "pushd $TmpDir"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_ca-profile --help Test: Show all the options of pki ca-profile"
+	rlPhaseStartTest "pki-ca profile config test: Show all the options of pki ca-profile"
 	local temp_out="$TmpDir/pki-ca-profile-help"
 	rlLog "Executing pki ca-profile --help"
 	rlRun "pki ca-profile --help 1> $temp_out" 0 "pki ca-profile --help"
@@ -60,7 +60,7 @@ run_pki-ca-profile_tests()
     	rlAssertGrep " ca-profile-disable      Disable profiles" "$temp_out"
     	rlPhaseEnd
 	
-	rlPhaseStartTest "pki_ca-profile-001: pki ca-profile with junk characters should return invalid module"
+	rlPhaseStartTest "pki-ca-profile-001: pki ca-profile with junk characters should return invalid module"
 	local temp_out1="$TmpDir/pki_ca-profile001"
     	local junk=$(openssl rand -base64 50 |  perl -p -e 's/\n//')
 	rlLog "Executing pki ca-profile \"$junk\" characters"

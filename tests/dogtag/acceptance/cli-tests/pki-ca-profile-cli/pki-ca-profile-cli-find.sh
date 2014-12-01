@@ -74,10 +74,10 @@ run_pki-ca-profile-find_tests()
         local rand=$RANDOM
 
 
-    	rlPhaseStartTest "pki_ca-profile-find --help Test: Show all the options of pki ca-profile-find"
-	    local temp_out="$TmpDir/pki-ca-profile-help"
+    	rlPhaseStartTest "pki_ca-profile-find-config-Test: Show all the options of pki ca-profile-find"
+	local temp_out="$TmpDir/pki-ca-profile-help"
     	rlLog "Executing pki ca-profile-find --help"
-	    rlRun "pki ca-profile-find --help 1> $ca_profile_out" 0 "pki ca-profile-find --help"
+	rlRun "pki ca-profile-find --help 1> $ca_profile_out" 0 "pki ca-profile-find --help"
         rlAssertGrep "usage: ca-profile-find \[OPTIONS...\]" "$ca_profile_out"
         rlAssertGrep "    --help            Show help options" "$ca_profile_out"
         rlAssertGrep "    --size <size>     Page size" "$ca_profile_out"
