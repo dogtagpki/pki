@@ -1094,7 +1094,7 @@ verify_symlinks()
         jni_jar_dir="/usr/share/java"
         tomcat_dir="/usr/share/tomcat7"
     else
-        jni_jar_dir=`source /usr/share/pki/etc/pki.conf && echo $JNI_JAR_DIR`
+        jni_jar_dir=`source /usr/share/pki/etc/pki.conf && source /etc/pki/pki.conf && echo $JNI_JAR_DIR`
         tomcat_dir="/usr/share/tomcat"
     fi
 
