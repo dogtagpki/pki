@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.1.2
-Release:          5%{?dist}
+Release:          7%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -985,6 +985,11 @@ fi
 
 
 %changelog
+* Mon Dec  1 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.2-7
+- Bugzilla Bug #1165351 - Errata TPS test fails due to dependent packages not
+  found
+- Bumped release number to match RHEL
+
 * Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.1.2-5
 - Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade (cfu)
 - PKI Trac Ticket #1211 - New release overwrites old source tarball (mharmsen)
