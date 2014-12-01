@@ -632,6 +632,7 @@ generate_new_cert()
                  return 1;
          }
          fi
+	local subject_cn=$(cat $tmp_nss_db/$rand-request-dn.txt | grep "CN" | cut -d":" -f2)
 	rlAssertGrep "Request Status: pending" "$tmp_nss_db/$rand-request-result.txt"
 	rlAssertGrep "Operation Result: success" "$tmp_nss_db/$rand-request-result.txt"
 	local cert_requestid=$(cat $tmp_nss_db/$rand-request-result.txt | grep "REQUEST_ID_RETURNED" | cut -d":" -f2)
