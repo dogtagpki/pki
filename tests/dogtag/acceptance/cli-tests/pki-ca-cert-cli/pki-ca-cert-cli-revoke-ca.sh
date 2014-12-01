@@ -84,27 +84,27 @@ run_pki-ca-cert-revoke-ca_tests()
         local target_host=$(eval echo \$${cs_Role})
       
 	# Setup SubCA for pki ca-cert-revoke tests
-	rlPhaseStartSetup "Setup a Subordinate CA for pki ca-cert-revoke"
-        local install_info=$TmpDir/install_info
-        rlLog "Setting up a Subordinate CA instance $subca_instance_name"
-        rlRun "rhcs_install_subca-BZ-501088 $subca_instance_name \
-                $sub_ca_ldap_port \
-                $sub_ca_http_port \
-                $sub_ca_https_port \
-                $sub_ca_ajp_port \
-                $sub_ca_tomcat_port \
-                $TmpDir $TmpDir/nssdb $install_info \
-		$CA_INST \
-		$target_host \
-		$target_port \
-		$target_https_port"
-        rlLog "Add CA Cert to $TEMP_NSS_DB"
-        rlRun "install_and_trust_CA_cert $SUBCA_SERVER_ROOT \"$TEMP_NSS_DB\""
-        local subca_serialNumber=$(pki -h $target_host -p $target_port cert-find  --name "SubCA-$subca_instance_name" --matchExactly | grep "Serial Number" | awk -F": " '{print $2}')
-        local STRIP_HEX_PKCS10=$(echo $subca_serialNumber | cut -dx -f2)
-        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
-        local subca_decimal_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
-        rlPhaseEnd
+#	rlPhaseStartSetup "Setup a Subordinate CA for pki ca-cert-revoke"
+#        local install_info=$TmpDir/install_info
+#        rlLog "Setting up a Subordinate CA instance $subca_instance_name"
+#        rlRun "rhcs_install_subca-BZ-501088 $subca_instance_name \
+#                $sub_ca_ldap_port \
+#                $sub_ca_http_port \
+#               $sub_ca_https_port \
+#                $sub_ca_ajp_port \
+#                $sub_ca_tomcat_port \
+#                $TmpDir $TmpDir/nssdb $install_info \
+#		$CA_INST \
+#		$target_host \
+#		$target_port \
+#		$target_https_port"
+#        rlLog "Add CA Cert to $TEMP_NSS_DB"
+#        rlRun "install_and_trust_CA_cert $SUBCA_SERVER_ROOT \"$TEMP_NSS_DB\""
+#        local subca_serialNumber=$(pki -h $target_host -p $target_port cert-find  --name "SubCA-$subca_instance_name" --matchExactly | grep "Serial Number" | awk -F": " '{print $2}')
+#        local STRIP_HEX_PKCS10=$(echo $subca_serialNumber | cut -dx -f2)
+#        local CONV_UPP_VAL_PKCS10=${STRIP_HEX_PKCS10^^}
+#        local subca_decimal_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL_PKCS10"|bc)
+#        rlPhaseEnd
 
 	# pki cert cli config test
 	rlPhaseStartTest "pki_cert_cli-configtest: pki ca-cert-revoke --help configuration test"
@@ -126,29 +126,29 @@ run_pki-ca-cert-revoke-ca_tests()
 	rlLog "FAIL :: https://engineering.redhat.com/trac/pki-tests/ticket/490"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_ca_cert_revoke_001: Revoke a cert using Agent with same serial as Subordinate CA(BZ-501088)"
-        local i=1
-        local upperlimit
-        let upperlimit=$subca_decimal_serialNumber-3
-        while [ $i -ne $upperlimit ] ; do
-        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD  myreq_type:pkcs10 \
-		algo:rsa key_size:1024 subject_cn:\"Foo User$i\" subject_uid:FooUser$i subject_email:FooUser$i@example.org \
-		subject_ou: subject_o: subject_c: archive:false req_profile: target_host:$target_host protocol: port:$sub_ca_http_port \
-		cert_db_dir:$TEMP_NSS_DB cert_db_pwd:$TEMP_NSS_DB_PWD certdb_nick:\"$admin_cert_nickname\" cert_info:$cert_info"
-        let i=$i+1
-        done
-        local revoked_cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
-        rlLog "Certificate that would be revoked is $revoked_cert_serialNumber"
-        rlRun "pki -d $TEMP_NSS_DB \
-                -p $sub_ca_http_port \
-                -h $target_host \
-                -c $TEMP_NSS_DB_PWD \
-                -n \"$admin_cert_nickname\" \
-                cert-revoke $revoked_cert_serialNumber --force --reason Certificate_Hold 1> $expout"
-        rlAssertGrep "Placed certificate \"$revoked_cert_serialNumber\" on-hold" "$expout"
-        rlAssertGrep "Serial Number: $revoked_cert_serialNumber" "$expout"
-        rlAssertGrep "Status: REVOKED" "$expout"
-        rlPhaseEnd
+#        rlPhaseStartTest "pki_ca_cert_revoke_001: Revoke a cert using Agent with same serial as Subordinate CA(BZ-501088)"
+#        local i=1
+#        local upperlimit
+#        let upperlimit=$subca_decimal_serialNumber-3
+#        while [ $i -ne $upperlimit ] ; do
+#        rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PWD  myreq_type:pkcs10 \
+#		algo:rsa key_size:1024 subject_cn:\"Foo User$i\" subject_uid:FooUser$i subject_email:FooUser$i@example.org \
+#		subject_ou: subject_o: subject_c: archive:false req_profile: target_host:$target_host protocol: port:$sub_ca_http_port \
+#		cert_db_dir:$TEMP_NSS_DB cert_db_pwd:$TEMP_NSS_DB_PWD certdb_nick:\"$admin_cert_nickname\" cert_info:$cert_info"
+#        let i=$i+1
+#        done
+#        local revoked_cert_serialNumber=$(cat $cert_info| grep cert_serialNumber | cut -d- -f2)
+#        rlLog "Certificate that would be revoked is $revoked_cert_serialNumber"
+#        rlRun "pki -d $TEMP_NSS_DB \
+#                -p $sub_ca_http_port \
+#                -h $target_host \
+#                -c $TEMP_NSS_DB_PWD \
+#                -n \"$admin_cert_nickname\" \
+#                cert-revoke $revoked_cert_serialNumber --force --reason Certificate_Hold 1> $expout"
+#        rlAssertGrep "Placed certificate \"$revoked_cert_serialNumber\" on-hold" "$expout"
+#        rlAssertGrep "Serial Number: $revoked_cert_serialNumber" "$expout"
+#        rlAssertGrep "Status: REVOKED" "$expout"
+#        rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_cert_revoke_002: pki ca-cert-revoke <serialNumber>"
 	rlLog "Generating temporary certificate"
@@ -821,13 +821,13 @@ run_pki-ca-cert-revoke-ca_tests()
 	rlLog "Date after running chrony: $(date)"
         rlPhaseEnd
 	
-	rlPhaseStartCleanup "Destroy SubCA & DS instance"
-	rlRun "pkidestroy -s CA -i $subca_instance_name > $TmpDir/$subca_instance_name-ca-clean.out"
-	rlAssertGrep "Uninstalling CA from /var/lib/pki/$subca_instance_name" "$TmpDir/$subca_instance_name-ca-clean.out"
-	rlAssertGrep "Uninstallation complete" "$TmpDir/$subca_instance_name-ca-clean.out"
-	rlRun "remove-ds.pl -i slapd-$subca_instance_name > $TmpDir/subca_instance_name-ds-clean.out"
-	rlAssertGrep "Instance slapd-$subca_instance_name removed" "$TmpDir/subca_instance_name-ds-clean.out"
-	rlPhaseEnd
+#	rlPhaseStartCleanup "Destroy SubCA & DS instance"
+#	rlRun "pkidestroy -s CA -i $subca_instance_name > $TmpDir/$subca_instance_name-ca-clean.out"
+#	rlAssertGrep "Uninstalling CA from /var/lib/pki/$subca_instance_name" "$TmpDir/$subca_instance_name-ca-clean.out"
+#	rlAssertGrep "Uninstallation complete" "$TmpDir/$subca_instance_name-ca-clean.out"
+#	rlRun "remove-ds.pl -i slapd-$subca_instance_name > $TmpDir/subca_instance_name-ds-clean.out"
+#	rlAssertGrep "Instance slapd-$subca_instance_name removed" "$TmpDir/subca_instance_name-ds-clean.out"
+#	rlPhaseEnd
 	
 	rlPhaseStartCleanup "pki ca-cert-revoke cleanup: Delete temp dir"
 	rlRun "popd"

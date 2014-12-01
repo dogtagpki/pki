@@ -512,7 +512,7 @@ run_pki-ca-cert-release-hold-ca_tests()
 
 	rlPhaseStartTest "pki_ca_cert_release_hold_0021: Hold and release a agent cert and verify released agent cert is usable"
 	rlLog "Get the serial number of Agent Cert"
-	local agent_cert_sno=$(certutil -L -d $CERTDB_DIR -n "CA_agentV" | grep "Serial Number:" | tr -d '()' | awk -F " " '{print $4}')
+	local agent_cert_sno=$(certutil -L -d $CERTDB_DIR -n "$CA_agentV_user" | grep "Serial Number:" | tr -d '()' | awk -F " " '{print $4}')
 	rlRun "pki -d $CERTDB_DIR \
                 -c $CERTDB_DIR_PASSWORD \
                 -n \"caadmincert\" \
@@ -581,7 +581,7 @@ run_pki-ca-cert-release-hold-ca_tests()
                 --force --reason Certificate_Hold 1> $certout" 0 "Put certificate on hold"
         rlAssertGrep "Status: REVOKED" "$certout"
         local cur_date=$(date)
-        local end_date=$(certutil -L -d $CERTDB_DIR -n CA_adminE | grep "Not After" | awk -F ": " '{print $2}')
+        local end_date=$(certutil -L -d $CERTDB_DIR -n $CA_adminE_user | grep "Not After" | awk -F ": " '{print $2}')
         rlLog "Date & Time before Modifying system date: $cur_date"
         rlRun "chronyc -a 'manual on' 1> $TmpDir/chrony.out" 0 "Set chrony to manual mode"
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
@@ -617,7 +617,7 @@ run_pki-ca-cert-release-hold-ca_tests()
                 --force --reason Certificate_Hold 1> $certout" 0 "Put Certificate on Hold"
         rlAssertGrep "Status: REVOKED" "$certout"
         local cur_date=$(date) # Save current date
-        local end_date=$(certutil -L -d $CERTDB_DIR -n CA_agentE | grep "Not After" | awk -F ": " '{print $2}')
+        local end_date=$(certutil -L -d $CERTDB_DIR -n $CA_agentE_user | grep "Not After" | awk -F ": " '{print $2}')
         rlLog "Date & Time before Modifying system date: $cur_date"
         rlRun "chronyc -a 'manual on' 1> $TmpDir/chrony.out" 0 "Set chrony to manual mode"
         rlAssertGrep "200 OK" "$TmpDir/chrony.out"
