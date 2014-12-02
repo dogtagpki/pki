@@ -107,15 +107,36 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     public String getConfig(String name) {
-        try {
-            if (mConfig == null)
-                return null;
-            if (mConfig.getSubStore("params") != null) {
-                return mConfig.getSubStore("params").getString(name);
-            }
-        } catch (EBaseException e) {
+        return getConfig(name, "");
+    }
+
+    /**
+     * Get constraint parameter in profile configuration.
+     *
+     * @param name parameter name
+     * @param defval default value if parameter does not exist
+     * @return parameter value if exists, defval if does not exist, or null if error occured
+     */
+    public String getConfig(String name, String defval) {
+
+        if (mConfig == null) {
+            CMS.debug("Error: Missing profile configuration");
+            return null;
         }
-        return "";
+
+        IConfigStore params = mConfig.getSubStore("params");
+        if (params == null) {
+            CMS.debug("Error: Missing constraint parameters");
+            return null;
+        }
+
+        try {
+            return params.getString(name, defval);
+
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            return null;
+        }
     }
 
     public void init(IProfile profile, IConfigStore config)

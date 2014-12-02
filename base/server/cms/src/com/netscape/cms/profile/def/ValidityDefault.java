@@ -20,6 +20,7 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -44,6 +45,7 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class ValidityDefault extends EnrollDefault {
     public static final String CONFIG_RANGE = "range";
+    public static final String CONFIG_RANGE_UNIT = "rangeUnit";
     public static final String CONFIG_START_TIME = "startTime";
 
     public static final String VAL_NOT_BEFORE = "notBefore";
@@ -51,11 +53,10 @@ public class ValidityDefault extends EnrollDefault {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-    private long mDefault = 86400000; // 1 days
-
     public ValidityDefault() {
         super();
         addConfigName(CONFIG_RANGE);
+        addConfigName(CONFIG_RANGE_UNIT);
         addConfigName(CONFIG_START_TIME);
         addValueName(VAL_NOT_BEFORE);
         addValueName(VAL_NOT_AFTER);
@@ -93,6 +94,12 @@ public class ValidityDefault extends EnrollDefault {
                     "7305",
                     CMS.getUserMessage(locale,
                             "CMS_PROFILE_VALIDITY_RANGE"));
+        } else if (name.equals(CONFIG_RANGE_UNIT)) {
+            return new Descriptor(IDescriptor.STRING,
+                    null,
+                    "day",
+                    CMS.getUserMessage(locale,
+                            "CMS_PROFILE_VALIDITY_RANGE_UNIT"));
         } else if (name.equals(CONFIG_START_TIME)) {
             return new Descriptor(IDescriptor.STRING,
                     null,
@@ -216,13 +223,37 @@ public class ValidityDefault extends EnrollDefault {
                 getConfig(CONFIG_RANGE));
     }
 
+    public int convertRangeUnit(String unit) throws Exception {
+
+        if (unit.equals("year")) {
+            return Calendar.YEAR;
+
+        } else if (unit.equals("month")) {
+            return Calendar.MONTH;
+
+        } else if (unit.equals("day")) {
+            return Calendar.DAY_OF_YEAR;
+
+        } else if (unit.equals("hour")) {
+            return Calendar.HOUR_OF_DAY;
+
+        } else if (unit.equals("minute")) {
+            return Calendar.MINUTE;
+
+        } else {
+            throw new Exception("Invalid range unit: " + unit);
+        }
+    }
+
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
+
         // always + 60 seconds
         String startTimeStr = getConfig(CONFIG_START_TIME);
+        CMS.debug("ValidityDefault: start time: " + startTimeStr);
         try {
             startTimeStr = mapPattern(request, startTimeStr);
         } catch (IOException e) {
@@ -233,21 +264,43 @@ public class ValidityDefault extends EnrollDefault {
             startTimeStr = "60";
         }
         int startTime = Integer.parseInt(startTimeStr);
-        Date notBefore = new Date(CMS.getCurrentDate().getTime() + (1000 * startTime));
-        long notAfterVal = 0;
 
+        Date notBefore = new Date(CMS.getCurrentDate().getTime() + (1000 * startTime));
+        CMS.debug("ValidityDefault: not before: " + notBefore);
+
+        String rangeStr = getConfig(CONFIG_RANGE, "7305");
+        CMS.debug("ValidityDefault: range: " + rangeStr);
+
+        int range;
         try {
-            String rangeStr = getConfig(CONFIG_RANGE);
             rangeStr = mapPattern(request, rangeStr);
-            notAfterVal = notBefore.getTime() +
-                    (mDefault * Integer.parseInt(rangeStr));
-        } catch (Exception e) {
-            // configured value is not correct
-            CMS.debug("ValidityDefault: populate " + e.toString());
+            range = Integer.parseInt(rangeStr);
+        } catch (IOException e) {
+            CMS.debug(e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE));
         }
-        Date notAfter = new Date(notAfterVal);
+
+        String rangeUnitStr = getConfig(CONFIG_RANGE_UNIT, "day");
+        CMS.debug("ValidityDefault: range unit: " + rangeUnitStr);
+
+        int rangeUnit;
+        try {
+            rangeUnit = convertRangeUnit(rangeUnitStr);
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new EProfileException(CMS.getUserMessage(
+                        getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE_UNIT));
+        }
+
+        // calculate the end of validity range
+        Calendar date = Calendar.getInstance();
+        date.setTime(notBefore);
+        date.add(rangeUnit, range);
+
+        Date notAfter = date.getTime();
+        CMS.debug("ValidityDefault: not after: " + notAfter);
+
         CertificateValidity validity =
                 new CertificateValidity(notBefore, notAfter);
 

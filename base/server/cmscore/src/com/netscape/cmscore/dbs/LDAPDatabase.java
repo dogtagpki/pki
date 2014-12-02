@@ -55,6 +55,9 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     }
 
     public void register(Class<E> recordType) throws EBaseException {
+
+        CMS.debug("registering " + recordType.getName());
+
         IDBRegistry dbRegistry = dbSubsystem.getRegistry();
 
         // register object classes

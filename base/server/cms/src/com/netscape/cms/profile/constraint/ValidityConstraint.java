@@ -18,6 +18,7 @@
 package com.netscape.cms.profile.constraint;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -50,6 +51,7 @@ import com.netscape.cms.profile.def.ValidityDefault;
 public class ValidityConstraint extends EnrollConstraint {
 
     public static final String CONFIG_RANGE = "range";
+    public static final String CONFIG_RANGE_UNIT = "rangeUnit";
     public static final String CONFIG_NOT_BEFORE_GRACE_PERIOD = "notBeforeGracePeriod";
     public static final String CONFIG_CHECK_NOT_BEFORE = "notBeforeCheck";
     public static final String CONFIG_CHECK_NOT_AFTER = "notAfterCheck";
@@ -58,6 +60,7 @@ public class ValidityConstraint extends EnrollConstraint {
     public ValidityConstraint() {
         super();
         addConfigName(CONFIG_RANGE);
+        addConfigName(CONFIG_RANGE_UNIT);
         addConfigName(CONFIG_NOT_BEFORE_GRACE_PERIOD);
         addConfigName(CONFIG_CHECK_NOT_BEFORE);
         addConfigName(CONFIG_CHECK_NOT_AFTER);
@@ -86,6 +89,9 @@ public class ValidityConstraint extends EnrollConstraint {
         if (name.equals(CONFIG_RANGE)) {
             return new Descriptor(IDescriptor.INTEGER, null, "365",
                     CMS.getUserMessage(locale, "CMS_PROFILE_VALIDITY_RANGE"));
+        } else if (name.equals(CONFIG_RANGE_UNIT)) {
+            return new Descriptor(IDescriptor.STRING, null, "day",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_VALIDITY_RANGE_UNIT"));
         } else if (name.equals(CONFIG_NOT_BEFORE_GRACE_PERIOD)) {
             return new Descriptor(IDescriptor.INTEGER, null, "0",
                     CMS.getUserMessage(locale, "CMS_PROFILE_VALIDITY_NOT_BEFORE_GRACE_PERIOD"));
@@ -99,33 +105,57 @@ public class ValidityConstraint extends EnrollConstraint {
         return null;
     }
 
+    public int convertRangeUnit(String unit) throws Exception {
+
+        if (unit.equals("year")) {
+            return Calendar.YEAR;
+
+        } else if (unit.equals("month")) {
+            return Calendar.MONTH;
+
+        } else if (unit.equals("day")) {
+            return Calendar.DAY_OF_YEAR;
+
+        } else if (unit.equals("hour")) {
+            return Calendar.HOUR_OF_DAY;
+
+        } else if (unit.equals("minute")) {
+            return Calendar.MINUTE;
+
+        } else {
+            throw new Exception("Invalid range unit: " + unit);
+        }
+    }
+
     /**
      * Validates the request. The request is not modified
      * during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        CertificateValidity v = null;
 
+        CertificateValidity v;
         try {
             v = (CertificateValidity) info.get(X509CertInfo.VALIDITY);
         } catch (Exception e) {
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_VALIDITY_NOT_FOUND"));
         }
-        Date notBefore = null;
 
+        Date notBefore;
         try {
             notBefore = (Date) v.get(CertificateValidity.NOT_BEFORE);
+            CMS.debug("ValidityConstraint: not before: " + notBefore);
         } catch (IOException e) {
             CMS.debug("ValidityConstraint: not before not found");
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_VALIDITY_NOT_FOUND"));
         }
-        Date notAfter = null;
 
+        Date notAfter;
         try {
             notAfter = (Date) v.get(CertificateValidity.NOT_AFTER);
+            CMS.debug("ValidityConstraint: not after: " + notAfter);
         } catch (IOException e) {
             CMS.debug("ValidityConstraint: not after not found");
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
@@ -138,18 +168,34 @@ public class ValidityConstraint extends EnrollConstraint {
                         "CMS_PROFILE_NOT_AFTER_BEFORE_NOT_BEFORE"));
         }
 
-        long millisDiff = notAfter.getTime() - notBefore.getTime();
-        CMS.debug("ValidityConstraint: millisDiff="
-                + millisDiff + " notAfter=" + notAfter.getTime() + " notBefore=" + notBefore.getTime());
-        long long_days = (millisDiff / 1000) / 86400;
-        CMS.debug("ValidityConstraint: long_days: " + long_days);
-        int days = (int) long_days;
-        CMS.debug("ValidityConstraint: days: " + days);
+        String rangeStr = getConfig(CONFIG_RANGE, "365");
+        CMS.debug("ValidityConstraint: range: " + rangeStr);
+        int range = Integer.parseInt(rangeStr);
 
-        if (days > Integer.parseInt(getConfig(CONFIG_RANGE))) {
+        String rangeUnitStr = getConfig(CONFIG_RANGE_UNIT, "day");
+        CMS.debug("ValidityConstraint: range unit: " + rangeUnitStr);
+
+        int rangeUnit;
+        try {
+            rangeUnit = convertRangeUnit(rangeUnitStr);
+        } catch (Exception e) {
+            throw new ERejectException(CMS.getUserMessage(getLocale(request),
+                    "CMS_PROFILE_VALIDITY_INVALID_RANGE_UNIT",
+                    rangeUnitStr));
+        }
+
+        // calculate the end of validity range
+        Calendar date = Calendar.getInstance();
+        date.setTime(notBefore);
+        date.add(rangeUnit, range);
+
+        Date limit = date.getTime();
+        CMS.debug("ValidityConstraint: limit: " + limit);
+
+        if (notAfter.after(limit)) {
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_VALIDITY_OUT_OF_RANGE",
-                        Integer.toString(days)));
+                        notAfter.toString(), limit.toString()));
         }
 
         // 613828

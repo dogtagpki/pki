@@ -487,8 +487,9 @@ public class CertService extends PKIService implements CertResource {
                 infos.addLink(new Link("next", uri));
             }
 
-        } catch (Exception e1) {
-            throw new PKIException("Error searching certs in CertService.searchCerts!", e1);
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException("Unable to search certificates: " + e, e);
         }
 
         return createOKResponse(infos);

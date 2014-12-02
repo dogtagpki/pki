@@ -831,6 +831,7 @@ public class CertUtils {
      * returns true if it verifies; false if any not
      */
     public static boolean verifySystemCertByNickname(String nickname, String certusage) {
+        CMS.debug("CertUtils: verifySystemCertByNickname(" + nickname + "," + certusage + ")");
         boolean r = true;
         CertificateUsage cu = null;
         cu = getCertificateUsage(certusage);
@@ -850,9 +851,9 @@ public class CertUtils {
             if (cu.getUsage() != CryptoManager.CertificateUsage.CheckAllUsages.getUsage()) {
                 if (cm.isCertValid(nickname, true, cu)) {
                     r = true;
-                    CMS.debug("CertUtils: verifySystemCertByNickname() passed:" + nickname);
+                    CMS.debug("CertUtils: verifySystemCertByNickname() passed: " + nickname);
                 } else {
-                    CMS.debug("CertUtils: verifySystemCertByNickname() failed:" + nickname);
+                    CMS.debug("CertUtils: verifySystemCertByNickname() failed: " + nickname);
                     r = false;
                 }
             } else {
@@ -864,7 +865,7 @@ public class CertUtils {
                     CMS.debug("CertUtils: verifySystemCertByNickname() failed: cert is good for nothing:" + nickname);
                 } else {
                     r = true;
-                    CMS.debug("CertUtils: verifySystemCertByNickname() passed:" + nickname);
+                    CMS.debug("CertUtils: verifySystemCertByNickname() passed: " + nickname);
 
                     if ((ccu & CryptoManager.CertificateUsage.SSLServer.getUsage()) != 0)
                         CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServer");
@@ -905,6 +906,9 @@ public class CertUtils {
      * returns true if it verifies; false if any not
      */
     public static boolean verifySystemCertByTag(String tag) {
+
+        CMS.debug("CertUtils: verifySystemCertByTag(" + tag + ")");
+
         String auditMessage = null;
         IConfigStore config = CMS.getConfigStore();
         boolean r = true;

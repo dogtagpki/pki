@@ -132,7 +132,7 @@ public abstract class Repository implements IRepository {
     protected BigInteger getSerialNumber() throws EBaseException {
         IDBSSession s = mDB.createSession();
 
-        CMS.debug("Repository: getSerialNumber.");
+        CMS.debug("Repository: getSerialNumber()");
         RepositoryRecord rec = null;
 
         try {
@@ -327,7 +327,7 @@ public abstract class Repository implements IRepository {
     }
 
     protected void initCacheIfNeeded() throws EBaseException {
-        if (mLastSerialNo == null) 
+        if (mLastSerialNo == null)
             initCache();
     }
 
@@ -401,15 +401,15 @@ public abstract class Repository implements IRepository {
         BigInteger retSerial = new BigInteger(mLastSerialNo.toString());
 
         CMS.debug("Repository: getNextSerialNumber: returning retSerial " + retSerial);
-        return retSerial; 
+        return retSerial;
     }
 
     /**
      * Checks to see if range needs to be switched.
-     *      
+     *
      * @exception EBaseException thrown when next range is not allocated
      */
-    protected void checkRange() throws EBaseException 
+    protected void checkRange() throws EBaseException
     {
         // check if we have reached the end of the range
         // if so, move to next range

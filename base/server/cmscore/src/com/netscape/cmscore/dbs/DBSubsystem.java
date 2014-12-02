@@ -640,6 +640,7 @@ public class DBSubsystem implements IDBSubsystem {
 
             tmpConfig.putString(PROP_BASEDN, mBaseDN);
         } catch (EBaseException e) {
+            CMS.debug(e);
             if (CMS.isPreOpMode())
                 return;
             throw e;
@@ -648,15 +649,18 @@ public class DBSubsystem implements IDBSubsystem {
         try {
             mLdapConnFactory.init(tmpConfig);
         } catch (ELdapServerDownException e) {
+            CMS.debug(e);
             if (CMS.isPreOpMode())
                 return;
             throw new EDBNotAvailException(
                     CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
-        } catch (ELdapException ex) {
+        } catch (ELdapException e) {
+            CMS.debug(e);
             if (CMS.isPreOpMode())
                 return;
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_ERROR", ex.toString()));
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_ERROR", e.toString()));
         } catch (EBaseException e) {
+            CMS.debug(e);
             if (CMS.isPreOpMode())
                 return;
             throw e;
@@ -767,8 +771,9 @@ public class DBSubsystem implements IDBSubsystem {
             reg.registerAttribute(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS, new
                     ObjectStreamMapper(CRLDBSchema.LDAP_ATTR_EXPIRED_CERTS));
 
-            if (!reg.isObjectClassRegistered(
-                    RepositoryRecord.class.getName())) {
+            boolean registered = reg.isObjectClassRegistered(RepositoryRecord.class.getName());
+            CMS.debug("registered: " + registered);
+            if (!registered) {
                 String repRecordOC[] = new String[2];
 
                 repRecordOC[0] = RepositorySchema.LDAP_OC_TOP;
@@ -776,6 +781,7 @@ public class DBSubsystem implements IDBSubsystem {
                 reg.registerObjectClass(
                         RepositoryRecord.class.getName(), repRecordOC);
             }
+
             if (!reg.isAttributeRegistered(IRepositoryRecord.ATTR_SERIALNO)) {
                 reg.registerAttribute(IRepositoryRecord.ATTR_SERIALNO,
                         new BigIntegerMapper(RepositorySchema.LDAP_ATTR_SERIALNO));
@@ -790,6 +796,7 @@ public class DBSubsystem implements IDBSubsystem {
             }
 
         } catch (EBaseException e) {
+            CMS.debug(e);
             if (CMS.isPreOpMode())
                 return;
             throw e;

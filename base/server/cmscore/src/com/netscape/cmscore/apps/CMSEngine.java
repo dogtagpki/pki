@@ -1420,6 +1420,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public boolean verifySystemCertByNickname(String nickname, String certificateUsage) {
+        CMS.debug("CMSEngine: verifySystemCertByNickname(" + nickname + ", " + certificateUsage + ")");
         return CertUtils.verifySystemCertByNickname(nickname, certificateUsage);
     }
 

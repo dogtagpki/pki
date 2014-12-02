@@ -88,18 +88,36 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
     }
 
     public String getConfig(String name) {
-        try {
-            if (mConfig == null)
-                return null;
-            if (mConfig.getSubStore("params") != null) {
-                String val = mConfig.getSubStore("params").getString(name);
+        return getConfig(name, "");
+    }
 
-                return val;
-            }
-        } catch (EBaseException e) {
-            CMS.debug(e.toString());
+    /**
+     * Get constraint parameter in profile configuration.
+     *
+     * @param name parameter name
+     * @param defval default value if parameter does not exist
+     * @return parameter value if exists, defval if does not exist, or null if error occured
+     */
+    public String getConfig(String name, String defval) {
+
+        if (mConfig == null) {
+            CMS.debug("Error: Missing profile configuration");
+            return null;
         }
-        return "";
+
+        IConfigStore params = mConfig.getSubStore("params");
+        if (params == null) {
+            CMS.debug("Error: Missing constraint parameters");
+            return null;
+        }
+
+        try {
+            return params.getString(name, defval);
+
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            return null;
+        }
     }
 
     public void init(IProfile profile, IConfigStore config)

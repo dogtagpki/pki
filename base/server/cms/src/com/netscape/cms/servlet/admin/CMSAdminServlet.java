@@ -1898,6 +1898,8 @@ public final class CMSAdminServlet extends AdminServlet {
                     certpath = value;
             }
 
+            CMS.debug("CMSAdminServlet: installCert(" + nickname + ")");
+
             try {
                 if (pkcs == null || pkcs.equals("")) {
                     if (certpath == null || certpath.equals("")) {
@@ -2191,7 +2193,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             boolean verified = CMS.verifySystemCertByNickname(nickname, null);
             if (verified == true) {
-                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() succeeded:" + nickname);
+                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() succeeded: " + nickname);
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
                         auditSubjectID,
@@ -2200,7 +2202,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
             } else {
-                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() failed:" + nickname);
+                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() failed: " + nickname);
                 auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
                                 auditSubjectID,
