@@ -69,6 +69,9 @@ extern "C"
 #include "Buffer.h"
 #include "SymKey.h"
 
+// AC: KDF SPEC CHANGE: Include headers for NIST SP800-108 KDF functions.
+#include "NistSP800_108KDF.h"
+
 typedef unsigned char BYTE;
 
 typedef struct
@@ -152,15 +155,17 @@ PK11SymKey * ReturnSymKey( PK11SlotInfo *slot, char *keyname)
     firstSymKey = PK11_ListFixedKeysInSlot( slot , NULL, ( void *) &pwdata );
     /* scan through the symmetric key list for a key matching our nickname */
     sk = firstSymKey;
-    while( sk != NULL )
+    // AC: Stop iteration if we've found the key
+    while(( sk != NULL ) && (foundSymKey == NULL))
     {
         /* get the nickname of this symkey */
         name = PK11_GetSymKeyNickname( sk );
 
         /* if the name matches, make a 'copy' of it */
-        if ( name != NULL && !strcmp( keyname, name ))
+        // AC BUGFIX: Don't leak key name string memory if name isn't equal to keyname
+        if ( name != NULL )
         {
-            if (foundSymKey == NULL)
+            if ((foundSymKey == NULL) && (strcmp( keyname, name ) == 0))
             {
                 foundSymKey = PK11_ReferenceSymKey(sk);
             }
@@ -659,6 +664,8 @@ PRStatus EncryptData(const Buffer &kek_key,PK11SymKey *cardKey, Buffer &input, B
 #ifdef DES2_WORKAROUND
     unsigned char masterKeyData[DES3_LENGTH];
 #else
+// AC: Prevent broken code from compiling.
+#error "This code will not work unless DES2_WORKAROUND is defined!!!  (memcpy below writes beyond array bounds)"
     unsigned char masterKeyData[KEYLENGTH];
 #endif
     unsigned char result[EIGHT_BYTES];
@@ -987,20 +994,22 @@ void GetDiversificationData(jbyte *cuidValue,BYTE *KDC,keyType keytype)
 
 }
 
-static int getMasterKeyVersion(char *newMasterKeyNameChars)
-{
-    if( newMasterKeyNameChars == NULL || 
-        strlen( newMasterKeyNameChars) < 3) {
-        return 0;
-    }
-
-    char masterKeyVersionNumber[3];
-    masterKeyVersionNumber[0]=newMasterKeyNameChars[1];
-    masterKeyVersionNumber[1]=newMasterKeyNameChars[2];
-    masterKeyVersionNumber[2]=0;
-    int newMasterKeyVesion = atoi(masterKeyVersionNumber);
-    return newMasterKeyVesion;
-}
+// AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!
+// (atoi doesn't do the same thing as specialDecode does; since we're decoding on the Java side, this function is unnecessary)
+//static int getMasterKeyVersion(char *newMasterKeyNameChars)
+//{
+//    if( newMasterKeyNameChars == NULL ||
+//        strlen( newMasterKeyNameChars) < 3) {
+//        return 0;
+//    }
+//
+//    char masterKeyVersionNumber[3];
+//    masterKeyVersionNumber[0]=newMasterKeyNameChars[1];
+//    masterKeyVersionNumber[1]=newMasterKeyNameChars[2];
+//    masterKeyVersionNumber[2]=0;
+//    int newMasterKeyVesion = atoi(masterKeyVersionNumber);
+//    return newMasterKeyVesion;
+//}
 
 char *GetSharedSecretKeyName(char *newKeyName) {
     if ( newKeyName && strlen( newKeyName ) > 0 ) {
@@ -1030,10 +1039,16 @@ void getFullName(char * fullMasterKeyName, char * masterKeyNameChars )
  * Method:    DiversifyKey
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)[B
  */
+// AC: KDF SPEC CHANGE: function signature change - added jstring oldKeyInfo, jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
+// AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!  This means the parameters must be jbyteArray's
+//     -- Changed parameter "jstring keyInfo" to "jbyteArray newKeyInfo"
 extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_DiversifyKey
-(JNIEnv *, jclass, jstring, jstring, jstring, jstring, jstring, jbyteArray, jbyteArray, jstring, jstring);
+(JNIEnv *, jclass, jstring, jstring, jstring, jstring, jbyteArray, jbyteArray, jbyte, jboolean, jbyteArray, jbyteArray, jbyteArray, jstring, jstring);
 
-extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_DiversifyKey( JNIEnv * env, jclass this2, jstring tokenName,jstring newTokenName, jstring oldMasterKeyName, jstring newMasterKeyName, jstring keyInfo, jbyteArray CUIDValue, jbyteArray kekKeyArray, jstring useSoftToken_s, jstring keySet)
+// AC: KDF SPEC CHANGE: function signature change - added jstring oldKeyInfo, jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
+// AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!  This means the parameters must be jbyteArray's
+//     -- Changed parameter "jstring keyInfo" to "jbyteArray newKeyInfo"
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_DiversifyKey( JNIEnv * env, jclass this2, jstring tokenName,jstring newTokenName, jstring oldMasterKeyName, jstring newMasterKeyName, jbyteArray oldKeyInfo, jbyteArray newKeyInfo, jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, jbyteArray CUIDValue, jbyteArray KDD, jbyteArray kekKeyArray, jstring useSoftToken_s, jstring keySet)
 {
     PK11SymKey *encKey = NULL;
     PK11SymKey *macKey = NULL;
@@ -1047,7 +1062,13 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
     char fullMasterKeyName[KEYNAMELENGTH];
     char fullNewMasterKeyName[KEYNAMELENGTH];
     PRBool specified_key_is_present = PR_TRUE;
-    PK11SymKey *old_kek_sym_key = NULL;
+
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF being used for old key version, we build all 3 old keys despite only using one of them (Kek) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    // KDF output keys
+    PK11SymKey* old_mac_sym_key = NULL;
+    PK11SymKey* old_enc_sym_key = NULL;
+    PK11SymKey* old_kek_sym_key = NULL;
 
     char *keySetStringChars =  NULL;
     if ( keySet != NULL ) {
@@ -1062,7 +1083,19 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
 
     jbyteArray handleBA=NULL;
     jbyte *handleBytes=NULL;
-    int newMasterKeyVesion = 1;
+
+
+    // AC: BUGFIX for key versions higher than 09
+    // No longer need this variable (it's misspelled anyway) and it's the wrong type.
+    // int newMasterKeyVesion = 1;
+
+    // AC: BUGFIX for key versions higher than 09
+    // New variables used for JNI retrieval.
+    jbyte* oldKeyInfo_jbyteptr = NULL;
+    jbyte* newKeyInfo_jbyteptr = NULL;
+    jsize oldKeyInfo_jbyteptr_len = -1;
+    jsize newKeyInfo_jbyteptr_len = -1;
+
 
     /* find slot */
     char *tokenNameChars = NULL;
@@ -1075,7 +1108,19 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
     char * newTokenNameChars = NULL;
     char *keyInfoChars = NULL;
 
-    jbyte * cuidValue =  NULL;
+    // AC: KDF SPEC CHANGE:  Need to retrieve old key info from JNI.
+    char* oldKeyInfoChars = NULL;
+
+    // AC: KDF SPEC CHANGE:  Convert new setting value to BYTE (unsigned).
+    BYTE nistSP800_108KdfOnKeyVersion_byte = static_cast<BYTE>(nistSP800_108KdfOnKeyVersion);
+
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    jbyte* cuidValue = NULL;
+    jsize cuidValue_len = -1;
+    jbyte* kddValue = NULL;
+    jsize kddValue_len = -1;
+
     jbyte * old_kek_key = NULL;
 
     PK11SymKey * masterKey = NULL;
@@ -1085,13 +1130,37 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
     BYTE KDCmac[KEYLENGTH];
     BYTE KDCkek[KEYLENGTH];
 
-    if( CUIDValue != NULL) {
-        cuidValue = (jbyte*)(env)->GetByteArrayElements( CUIDValue, NULL);
-    }
+    // AC: BUGFIX for key versions higher than 09:  New code to retrieve oldKeyInfo and newKeyInfo byte arrays from JNI.
+    BYTE oldKeyVersion;
+    BYTE newKeyVersion;
 
+    // AC: BUGFIX: Don't return a java array with uninitialized or zero'd data.
+    bool error_computing_result = true;
+
+
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    if ( CUIDValue != NULL ) {
+        cuidValue =  (jbyte*)(env)->GetByteArrayElements( CUIDValue, NULL);
+        cuidValue_len = env->GetArrayLength(CUIDValue);
+    }
     if( cuidValue == NULL) {
        goto done;
     }
+    if ( cuidValue_len <= 0){  // check that CUID is at least 1 byte in length
+        goto done;
+    }
+    if ( KDD != NULL ){
+        kddValue = env->GetByteArrayElements(KDD, NULL);
+        kddValue_len = env->GetArrayLength(KDD);
+    }
+    if ( kddValue == NULL ){
+        goto done;
+    }
+    if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
+        goto done;
+    }
+
 
     if( kekKeyArray != NULL) {
         old_kek_key = (jbyte*)(env)->GetByteArrayElements(kekKeyArray, NULL);
@@ -1103,9 +1172,12 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
 
     PR_fprintf(PR_STDOUT,"In SessionKey.DiversifyKey! \n");
 
-    GetDiversificationData(cuidValue,KDCenc,enc);
-    GetDiversificationData(cuidValue,KDCmac,mac);
-    GetDiversificationData(cuidValue,KDCkek,kek);
+    // AC: KDF SPEC CHANGE:
+    // Changed from "cuidValue" to "kddValue".
+    //   This change is necessary due to the semantics change in the parameters passed between TPS and TKS.
+    GetDiversificationData(kddValue,KDCenc,enc);
+    GetDiversificationData(kddValue,KDCmac,mac);
+    GetDiversificationData(kddValue,KDCkek,kek);
 
     if(tokenName)
     {
@@ -1142,20 +1214,56 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
         (env)->ReleaseStringUTFChars(newMasterKeyName, (const char *)newMasterKeyNameChars);
     }
 
-    /* packing return */
-    if( keyInfo != NULL) {
-         keyInfoChars = (char *)(env)->GetStringUTFChars(keyInfo, NULL);
+
+
+    // AC: BUGFIX for key versions higher than 09:  Since "jstring keyInfo" is now passed in as "jbyteArray newKeyInfo", we no longer need this code.
+    //
+    ///* packing return */
+    //if( keyInfo != NULL) {
+    //     keyInfoChars = (char *)(env)->GetStringUTFChars(keyInfo, NULL);
+    //}
+    //
+    //newMasterKeyVesion = getMasterKeyVersion(keyInfoChars);
+    //
+    //if(keyInfoChars)
+    //{
+    //    (env)->ReleaseStringUTFChars(keyInfo, (const char *)keyInfoChars);
+    //}
+    //
+    ///* NEW MASTER KEY VERSION */
+    //newMasterKeyBuffer = Buffer((unsigned int) 1,  (BYTE)newMasterKeyVesion);
+
+
+
+    // AC: BUGFIX for key versions higher than 09:  New code to retrieve oldKeyInfo and newKeyInfo byte arrays from JNI.
+    if (oldKeyInfo != NULL){
+        oldKeyInfo_jbyteptr =  env->GetByteArrayElements(oldKeyInfo, NULL);
+        oldKeyInfo_jbyteptr_len = env->GetArrayLength(oldKeyInfo);
     }
-
-    newMasterKeyVesion = getMasterKeyVersion(keyInfoChars);
-
-    if(keyInfoChars)
-    {
-        (env)->ReleaseStringUTFChars(keyInfo, (const char *)keyInfoChars);
+    if(oldKeyInfo_jbyteptr == NULL){
+        goto done;
     }
+    if (oldKeyInfo_jbyteptr_len != 2){
+        goto done;
+    }
+    if (newKeyInfo != NULL){
+        newKeyInfo_jbyteptr =  env->GetByteArrayElements(newKeyInfo, NULL);
+        newKeyInfo_jbyteptr_len = env->GetArrayLength(newKeyInfo);
+    }
+    if(newKeyInfo_jbyteptr == NULL){
+        goto done;
+    }
+    if (newKeyInfo_jbyteptr_len != 2){
+        goto done;
+    }
+    // now get the key versions from the byte arrays we got from JNI
+    oldKeyVersion = oldKeyInfo_jbyteptr[0];
+    newKeyVersion = newKeyInfo_jbyteptr[0];
+    // for compatibility with old code: wrap newKeyVersion inside Buffer object
+    newMasterKeyBuffer = Buffer((unsigned int) 1,  newKeyVersion);
 
-    /* NEW MASTER KEY VERSION */
-    newMasterKeyBuffer = Buffer((unsigned int) 1,  (BYTE)newMasterKeyVesion);
+
+
     if(oldMasterKeyName)
     {
         oldMasterKeyNameChars = (char *)(env)->GetStringUTFChars(oldMasterKeyName, NULL);
@@ -1169,24 +1277,108 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
     if(strcmp( oldMasterKeyNameChars, "#01#01") == 0 || strcmp( oldMasterKeyNameChars, "#FF#01") == 0)
     {
         old_kek_key_buff    =   Buffer((BYTE*)old_kek_key, KEYLENGTH);
-    }else if(strcmp( oldMasterKeyNameChars, "#00#00") == 0)
-    {
-        /* print Debug message - do not create real keysetdata */
-        old_kek_key_buff    =       Buffer((BYTE*)"#00#00", 6);
-        output              =       Buffer((BYTE*)old_kek_key, KEYLENGTH);
+
+
+    // AC: BUGFIX: Remove garbage code.
+    //             I believe that this code is a no-op as long as the system is working correctly
+    //             (with the developer keyset data populated in the config file & copied to HSM).
+    //
+    //             Notes:
+    //               "old_kek_key_buff" appears to only be used if unable to read/load the developer keys into HSM.
+    //               "old_kek_key_buff" is populated with incorrect data (not appropriate key-length)
+    //               "output" is overwritten when "CreateKeySetDataWithSymKeys" is called
+    //
+    //             As a result, only when there is some failure (i.e. we execute a "goto" and skip assignment
+    //               to "output") do we return a keyset data that is 16 bytes in length (the default KEK).
+    //               This is unlikely to work and even if it does, is a horrible idea as the caller has no way
+    //               of knowing that we've now essentially inserted a "backdoor" on the token.  So, instead of
+    //               this, we treat #00#00 just like any other "normal" case.
+    //
+    //}else if(strcmp( oldMasterKeyNameChars, "#00#00") == 0)
+    //{
+    //    /* print Debug message - do not create real keysetdata */
+    //    old_kek_key_buff    =       Buffer((BYTE*)"#00#00", 6);
+    //    output              =       Buffer((BYTE*)old_kek_key, KEYLENGTH);
+
+
     }
     else
     {
         oldMasterKey =     ReturnSymKey(slot,fullMasterKeyName);
-        old_kek_sym_key = ComputeCardKeyOnToken(oldMasterKey,KDCkek);
-        if (oldMasterKey) {
-            PK11_FreeSymKey( oldMasterKey );
-            oldMasterKey = NULL;
+
+
+        // AC: BUGFIX: Check for nonexistent master key instead of (potentially) crashing.
+        if (oldMasterKey == NULL){
+            goto done;
         }
+
+
+        // ---------------------------------
+        // AC KDF SPEC CHANGE: Determine which KDF to use.
+        //
+        // if old key version meets setting value, use NIST SP800-108 KDF for deriving old keys
+        if (NistSP800_108KDF::useNistSP800_108KDF(nistSP800_108KdfOnKeyVersion_byte, oldKeyVersion) == true){
+
+            PR_fprintf(PR_STDOUT,"DiversifyKey old key NistSP800_108KDF code: Using NIST SP800-108 KDF for old keyset.\n");
+
+            // react to "UseCUIDAsKDD" setting value
+            jbyte* context_jbyte = NULL;
+            jsize context_len_jsize = 0;
+            if (nistSP800_108KdfUseCuidAsKdd == JNI_TRUE){
+                context_jbyte = cuidValue;
+                context_len_jsize = cuidValue_len;
+            }else{
+                context_jbyte = kddValue;
+                context_len_jsize = kddValue_len;
+            }
+
+            // Converting this way is safe since jbyte is guaranteed to be 8 bits
+            // Of course, this assumes that "char" is 8 bits (not guaranteed, but typical),
+            //            but it looks like this assumption is also made in GetDiversificationData
+            const BYTE* const context = reinterpret_cast<const BYTE*>(context_jbyte);
+
+            // Convert jsize to size_t
+            const size_t context_len = static_cast<size_t>(context_len_jsize);
+            if (context_len > 0x000000FF){  // sanity check (CUID should never be larger than 255 bytes)
+                PR_fprintf(PR_STDERR, "DiversifyKey old key NistSP800_108KDF code: Error; context_len larger than 255 bytes.\n");
+                goto done;
+            }
+
+            // call NIST SP800-108 KDF routine
+            try{
+                NistSP800_108KDF::ComputeCardKeys(oldMasterKey, context, context_len, &old_enc_sym_key, &old_mac_sym_key, &old_kek_sym_key);
+            }catch(std::runtime_error& ex){
+                PR_fprintf(PR_STDERR, "DiversifyKey old key NistSP800_108KDF code: Exception invoking NistSP800_108KDF::ComputeCardKeys: ");
+                PR_fprintf(PR_STDERR, "%s\n", ex.what() == NULL ? "null" : ex.what());
+                goto done;
+            }catch(...){
+                PR_fprintf(PR_STDERR, "DiversifyKey old key NistSP800_108KDF code: Unknown exception invoking NistSP800_108KDF::ComputeCardKeys.\n");
+                goto done;
+            }
+
+        // if not a key version where we use the NIST SP800-108 KDF, use the original KDF
+        }else{
+
+            PR_fprintf(PR_STDOUT,"DiversifyKey old key NistSP800_108KDF code: Using original KDF for old keyset.\n");
+
+            // AC: Derives the kek key for the token.
+            old_kek_sym_key = ComputeCardKeyOnToken(oldMasterKey,KDCkek);
+
+        } // endif use original KDF
+        // ---------------------------------
+
+
+        // AC KDF SPEC CHANGE: Moved this code down so we don't skip it during "goto done".
+        //if (oldMasterKey) {
+        //    PK11_FreeSymKey( oldMasterKey );
+        //    oldMasterKey = NULL;
+        //}
     }
-    if(oldMasterKeyNameChars) {
-        (env)->ReleaseStringUTFChars(oldMasterKeyName, (const char *)oldMasterKeyNameChars);
-    }
+
+    // AC KDF SPEC CHANGE: Moved this code down so we don't skip it during "goto done".
+    //if(oldMasterKeyNameChars) {
+    //    (env)->ReleaseStringUTFChars(oldMasterKeyName, (const char *)oldMasterKeyNameChars);
+    //}
 
     /* special case #01#01 */
     if (fullNewMasterKeyName != NULL && strcmp(fullNewMasterKeyName, "#01#01") == 0)
@@ -1213,10 +1405,65 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
 
     } else {
         PR_fprintf(PR_STDOUT,"DiversifyKey: Compute card key on token case ! \n");
-        /* compute card key */
-        encKey = ComputeCardKeyOnSoftToken(masterKey, KDCenc);
-        macKey = ComputeCardKeyOnSoftToken(masterKey, KDCmac);
-        kekKey = ComputeCardKeyOnSoftToken(masterKey, KDCkek);
+
+
+        // ---------------------------------
+        // AC KDF SPEC CHANGE: Determine which KDF to use.
+        //
+        // if old key version meets setting value, use NIST SP800-108 KDF for deriving new keys
+        if (NistSP800_108KDF::useNistSP800_108KDF(nistSP800_108KdfOnKeyVersion_byte, newKeyVersion) == true){
+
+            PR_fprintf(PR_STDOUT,"DiversifyKey new key NistSP800_108KDF code: Using NIST SP800-108 KDF for new keyset.\n");
+
+            // react to "UseCUIDAsKDD" setting value
+            jbyte* context_jbyte = NULL;
+            jsize context_len_jsize = 0;
+            if (nistSP800_108KdfUseCuidAsKdd == JNI_TRUE){
+                context_jbyte = cuidValue;
+                context_len_jsize = cuidValue_len;
+            }else{
+                context_jbyte = kddValue;
+                context_len_jsize = kddValue_len;
+            }
+
+            // Converting this way is safe since jbyte is guaranteed to be 8 bits
+            // Of course, this assumes that "char" is 8 bits (not guaranteed, but typical),
+            //            but it looks like this assumption is also made in GetDiversificationData
+            const BYTE* const context = reinterpret_cast<const BYTE*>(context_jbyte);
+
+            // Convert jsize to size_t
+            const size_t context_len = static_cast<size_t>(context_len_jsize);
+            if (context_len > 0x000000FF){  // sanity check (CUID should never be larger than 255 bytes)
+                PR_fprintf(PR_STDERR, "DiversifyKey new key NistSP800_108KDF code: Error; context_len larger than 255 bytes.\n");
+                goto done;
+            }
+
+            // call NIST SP800-108 KDF routine
+            try{
+                NistSP800_108KDF::ComputeCardKeys(masterKey, context, context_len, &encKey, &macKey, &kekKey);
+            }catch(std::runtime_error& ex){
+                PR_fprintf(PR_STDERR, "DiversifyKey new key NistSP800_108KDF code: Exception invoking NistSP800_108KDF::ComputeCardKeys: ");
+                PR_fprintf(PR_STDERR, "%s\n", ex.what() == NULL ? "null" : ex.what());
+                goto done;
+            }catch(...){
+                PR_fprintf(PR_STDERR, "DiversifyKey new key NistSP800_108KDF code: Unknown exception invoking NistSP800_108KDF::ComputeCardKeys.\n");
+                goto done;
+            }
+
+        // if not a key version where we use the NIST SP800-108 KDF, use the original KDF
+        }else{
+
+            PR_fprintf(PR_STDOUT,"DiversifyKey new key NistSP800_108KDF code: Using original KDF for new keyset.\n");
+
+            // AC: Derives the kek key for the token.
+            /* compute card key */
+            encKey = ComputeCardKeyOnSoftToken(masterKey, KDCenc);
+            macKey = ComputeCardKeyOnSoftToken(masterKey, KDCmac);
+            kekKey = ComputeCardKeyOnSoftToken(masterKey, KDCkek);
+
+        } // endif use original KDF
+        // ---------------------------------
+
 
         /* Fixes Bugscape Bug #55855: TKS crashes if specified key
          * is not present -- for each portion of the key, check if
@@ -1257,6 +1504,17 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
     }
 
 done:
+
+    // AC: BUGFIX for key versions higher than 09:  Release oldKeyInfo and newKeyInfo JNI byte arrays.
+    if ( oldKeyInfo_jbyteptr != NULL){
+        env->ReleaseByteArrayElements(oldKeyInfo, oldKeyInfo_jbyteptr, JNI_ABORT);
+        oldKeyInfo_jbyteptr = NULL;
+    }
+    if ( newKeyInfo_jbyteptr != NULL){
+        env->ReleaseByteArrayElements(newKeyInfo, newKeyInfo_jbyteptr, JNI_ABORT);
+        newKeyInfo_jbyteptr = NULL;
+    }
+
     if (masterKey != NULL) {
         PK11_FreeSymKey( masterKey);
         masterKey = NULL;
@@ -1277,6 +1535,32 @@ done:
         kekKey = NULL;
     }
 
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF being used for old key version, we build all 3 old keys despite only using one of them (Kek) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    // AC: BUGFIX: Note that there was previously no PK11_FreeSymKey(old_kek_sym_key) call.  This most likely resulted in a memory / keyhandle leak.
+    if( old_mac_sym_key ) {
+        PK11_FreeSymKey(old_mac_sym_key);
+        old_mac_sym_key = NULL;
+    }
+    if ( old_enc_sym_key ) {
+        PK11_FreeSymKey(old_enc_sym_key);
+        old_enc_sym_key = NULL;
+    }
+    if ( old_kek_sym_key ) {
+        PK11_FreeSymKey(old_kek_sym_key);
+        old_kek_sym_key = NULL;
+    }
+
+    // AC KDF SPEC CHANGE: Moved this code down so we don't skip it during "goto done".
+    if (oldMasterKey) {
+        PK11_FreeSymKey( oldMasterKey );
+        oldMasterKey = NULL;
+    }
+    if(oldMasterKeyNameChars) {
+        (env)->ReleaseStringUTFChars(oldMasterKeyName, (const char *)oldMasterKeyNameChars);
+        oldMasterKeyNameChars = NULL;
+    }
+
     if( keySetStringChars ) {
         (env)->ReleaseStringUTFChars(keySet, (const char *)keySetStringChars);
         keySetStringChars = NULL;
@@ -1286,10 +1570,21 @@ done:
     {
         if(output.size()>0)
             handleBA = (env)->NewByteArray( output.size());
-        else
-            handleBA = (env)->NewByteArray(1);
-        handleBytes = (env)->GetByteArrayElements(handleBA, NULL);
-        memcpy(handleBytes, (BYTE*)output,output.size());
+
+        // AC: Bugfix: Return NULL if no output is present.
+        //else
+        //    handleBA = (env)->NewByteArray(1);
+
+        // AC: Bugfix: Don't crash if we couldn't allocate array.
+        if (handleBA != NULL){
+            handleBytes = (env)->GetByteArrayElements(handleBA, NULL);
+
+            // AC: BUGFIX: Don't return a java array with uninitialized or zero'd data.
+            if (handleBytes != NULL){
+                memcpy(handleBytes, (BYTE*)output,output.size());
+                error_computing_result = false;
+            }
+        }
 
         if( handleBytes != NULL) {
             (env)->ReleaseByteArrayElements( handleBA, handleBytes, 0);
@@ -1298,6 +1593,12 @@ done:
 
     if( cuidValue != NULL) {
         (env)->ReleaseByteArrayElements(CUIDValue, cuidValue, JNI_ABORT);
+    }
+
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    if ( kddValue != NULL){
+        env->ReleaseByteArrayElements(KDD, kddValue, JNI_ABORT);
+        kddValue = NULL;
     }
 
     if( kekKeyArray != NULL) {
@@ -1319,7 +1620,12 @@ done:
         internal = NULL;
     }
 
-    return handleBA;
+    // AC: BUGFIX: Don't return a java array with uninitialized or zero'd data.
+    if (error_computing_result == false){
+        return handleBA;
+    }else{
+        return NULL;
+    }
 }
 
 PK11SymKey *CreateUnWrappedSymKeyOnToken( PK11SlotInfo *slot, PK11SymKey * unWrappingKey, BYTE *keyToBeUnWrapped, int sizeOfKeyToBeUnWrapped, PRBool isPerm)

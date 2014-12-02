@@ -273,6 +273,8 @@ public class ConfigurationUtils {
             HttpResponse httpresponse = httpclient.send(httprequest);
 
             c = httpresponse.getContent();
+            //cfu
+            
         } catch (ConnectException e) {
             CMS.debug("getHttpResponse: " + e.toString());
             throw new IOException("The server you tried to contact is not running.");
@@ -4023,6 +4025,7 @@ public class ConfigurationUtils {
             CMS.debug("registerUser: response is empty or null.");
             throw new IOException("The server " + targetURI + "is not available");
         } else {
+            CMS.debug("registerUser: response: " + response);
             ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
             XMLObject parser = new XMLObject(bis);
 
