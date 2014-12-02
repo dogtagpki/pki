@@ -79,7 +79,10 @@ public class SessionKey {
             byte[] card_challenge,
             byte[] host_challenge,
             byte[] keyInfo,
+            byte nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE
+            boolean nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE
             byte[] CUID,
+            byte[] KDD,                           // AC: KDF SPEC CHANGE
             byte[] macKeyArray,
             String useSoftToken,
             String keySet,
@@ -90,11 +93,15 @@ public class SessionKey {
             byte[] card_challenge,
             byte[] host_challenge,
             byte[] keyInfo,
+            byte nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE
+            boolean nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE
             byte[] CUID,
+            byte[] KDD,                           // AC: KDF SPEC CHANGE
             byte[] encKeyArray,
             String useSoftToken,
             String keySet);
 
+    /* AC: KDF SPEC CHANGE; unused method with no JNI implementation
     public static native PK11SymKey ComputeKekSessionKey(String tokenName,
             String keyName,
             byte[] card_challenge,
@@ -104,13 +111,17 @@ public class SessionKey {
             byte[] kekKeyArray,
             String useSoftToken,
             String keySet);
+    */
 
     public static native PK11SymKey ComputeKekKey(String tokenName,
             String keyName,
             byte[] card_challenge,
             byte[] host_challenge,
             byte[] keyInfo,
+            byte nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE
+            boolean nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE
             byte[] CUID,
+            byte[] KDD,                           // AC: KDF SPEC CHANGE
             byte[] kekKeyArray,
             String useSoftToken, String keySet);
 
@@ -130,7 +141,10 @@ public class SessionKey {
             byte[] card_challenge,
             byte[] host_challenge,
             byte[] keyInfo,
+            byte nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE
+            boolean nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE
             byte[] CUID,
+            byte[] KDD,                           // AC: KDF SPEC CHANGE
             int type,
             byte[] authKeyArray,
             String useSoftToken, String keySet);
@@ -139,7 +153,10 @@ public class SessionKey {
             String keyName,
             byte[] in,
             byte[] keyInfo,
+            byte nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE
+            boolean nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE
             byte[] CUID,
+            byte[] KDD,                           // AC: KDF SPEC CHANGE
             byte[] kekKeyArray,
             String useSoftToken, String keySet);
 
@@ -147,8 +164,14 @@ public class SessionKey {
             String newTokenName,
             String oldMasterKeyName,
             String newMasterKeyName,
-            String keyInfo,
+            byte[] oldKeyInfo,          // AC: KDF SPEC CHANGE
+          // AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!  This means the parameters must be jbyteArray's
+          //     -- Changed parameter "jstring keyInfo" to "jbyteArray newKeyInfo"
+            byte[] newKeyInfo,          
+            byte nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE
+            boolean nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE
             byte[] CUIDValue,
+            byte[] KDD,                           // AC: KDF SPEC CHANGE
             byte[] kekKeyArray,
             String useSoftToken, String keySet);
 

@@ -51,6 +51,10 @@ extern "C"
 #include "Buffer.h"
 #include "SymKey.h"
 
+// AC: KDF SPEC CHANGE: Include headers for NIST SP800-108 KDF functions.
+#include "NistSP800_108KDF.h"
+
+
 #define STEAL_JSS
 #ifdef STEAL_JSS
 // stealing code from JSS to handle DRM support
@@ -573,13 +577,15 @@ extern "C"
  * Method:    ComputeSessionKey
  * Signature: ([B[B[B[B)[B
  */
+// AC: KDF SPEC CHANGE: function signature change - added jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
     JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeSessionKey
-        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jstring, jstring, jstring);
+        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyte, jboolean, jbyteArray, jbyteArray, jbyteArray, jstring, jstring, jstring);
 #ifdef __cplusplus
 }
 #endif
 #define KEYLENGTH 16
-extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeSessionKey(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray card_challenge, jbyteArray host_challenge, jbyteArray keyInfo, jbyteArray CUID, jbyteArray macKeyArray, jstring useSoftToken_s, jstring keySet, jstring sharedSecretKeyName)
+// AC: KDF SPEC CHANGE: function signature change - added jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeSessionKey(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray card_challenge, jbyteArray host_challenge, jbyteArray keyInfo, jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, jbyteArray CUID, jbyteArray KDD, jbyteArray macKeyArray, jstring useSoftToken_s, jstring keySet, jstring sharedSecretKeyName)
 {
     /* hardcore permanent mac key */
     jbyte *mac_key = NULL;
@@ -608,8 +614,13 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
 
     PK11SymKey *macSymKey = NULL;
     PK11SymKey *symkey16 = NULL;
-    PK11SymKey *macKey = NULL;
 
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF, we build all 3 keys despite only using one of them (Mac) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    // KDF output keys
+    PK11SymKey* macKey = NULL;
+    PK11SymKey* encKey = NULL;
+    PK11SymKey* kekKey = NULL;
 
     BYTE macData[KEYLENGTH];
     char keyname[KEYNAMELENGTH];
@@ -625,7 +636,12 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     jbyteArray handleBA=NULL;
     jbyte *handleBytes=NULL;
 
-    jbyte *    cuidValue = NULL;
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    jbyte* cuidValue = NULL;
+    jsize cuidValue_len = -1;
+    jbyte* kddValue = NULL;
+    jsize kddValue_len = -1;
 
     jbyte *cc = NULL;
     int cc_len = 0;
@@ -693,13 +709,30 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         goto done;
     }
 
+
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
     if ( CUID != NULL ) {
         cuidValue =  (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
+        cuidValue_len = env->GetArrayLength(CUID);
     }
-
     if( cuidValue == NULL) {
         goto done;
     }
+    if ( cuidValue_len <= 0){  // check that CUID is at least 1 byte in length
+        goto done;
+    }
+    if ( KDD != NULL ){
+        kddValue = env->GetByteArrayElements(KDD, NULL);
+        kddValue_len = env->GetArrayLength(KDD);
+    }
+    if ( kddValue == NULL ){
+        goto done;
+    }
+    if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
+        goto done;
+    }
+
 
     /* copy card and host challenge into input buffer */
     for (i = 0; i < 8; i++)
@@ -711,7 +744,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         input[8+i] = hc[i];
     }
 
-    GetDiversificationData(cuidValue,macData,mac);//keytype is mac
+    // AC: KDF SPEC CHANGE: Moved this call down. (We don't necessarily need it anymore depending on the KDF we're going to use.)
+    //GetDiversificationData(cuidValue,macData,mac);//keytype is mac
 
     if(tokenName)
     {
@@ -753,21 +787,90 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             goto done;
         }
 
-        macKey =ComputeCardKeyOnToken(masterKey,macData);
+
+        // ---------------------------------
+        // AC KDF SPEC CHANGE: Determine which KDF to use.
+        //
+        // Convert to unsigned types
+        BYTE nistSP800_108KdfOnKeyVersion_byte = static_cast<BYTE>(nistSP800_108KdfOnKeyVersion);
+        BYTE requestedKeyVersion_byte = static_cast<BYTE>(keyVersion[0]);
+        // if requested key version meets setting value, use NIST SP800-108 KDF
+        if (NistSP800_108KDF::useNistSP800_108KDF(nistSP800_108KdfOnKeyVersion_byte, requestedKeyVersion_byte) == true){
+
+            PR_fprintf(PR_STDOUT,"ComputeSessionKey NistSP800_108KDF code: Using NIST SP800-108 KDF.\n");
+
+            // react to "UseCUIDAsKDD" setting value
+            jbyte* context_jbyte = NULL;
+            jsize context_len_jsize = 0;
+            if (nistSP800_108KdfUseCuidAsKdd == JNI_TRUE){
+                context_jbyte = cuidValue;
+                context_len_jsize = cuidValue_len;
+            }else{
+                context_jbyte = kddValue;
+                context_len_jsize = kddValue_len;
+            }
+
+            // Converting this way is safe since jbyte is guaranteed to be 8 bits
+            // Of course, this assumes that "char" is 8 bits (not guaranteed, but typical),
+            //            but it looks like this assumption is also made in GetDiversificationData
+            const BYTE* const context = reinterpret_cast<const BYTE*>(context_jbyte);
+
+            // Convert jsize to size_t
+            const size_t context_len = static_cast<size_t>(context_len_jsize);
+            if (context_len > 0x000000FF){  // sanity check (CUID should never be larger than 255 bytes)
+                PR_fprintf(PR_STDERR, "ComputeSessionKey NistSP800_108KDF code: Error; context_len larger than 255 bytes.\n");
+                goto done;
+            }
+
+            // call NIST SP800-108 KDF routine
+            try{
+                NistSP800_108KDF::ComputeCardKeys(masterKey, context, context_len, &encKey, &macKey, &kekKey);
+            }catch(std::runtime_error& ex){
+                PR_fprintf(PR_STDERR, "ComputeSessionKey NistSP800_108KDF code: Exception invoking NistSP800_108KDF::ComputeCardKeys: ");
+                PR_fprintf(PR_STDERR, "%s\n", ex.what() == NULL ? "null" : ex.what());
+                goto done;
+            }catch(...){
+                PR_fprintf(PR_STDERR, "ComputeSessionKey NistSP800_108KDF code: Unknown exception invoking NistSP800_108KDF::ComputeCardKeys.\n");
+                goto done;
+            }
+
+        // if not a key version where we use the NIST SP800-108 KDF, use the original KDF
+        }else{
+
+            PR_fprintf(PR_STDOUT,"ComputeSessionKey NistSP800_108KDF code: Using original KDF.\n");
+
+            // AC: KDF SPEC CHANGE: Moved this call down from the original location.
+            //                      (We don't always need to call it anymore; it depends on the KDF we're going to use.)
+            //
+            // Note the change from "cuidValue" to "kddValue".
+            //   This change is necessary due to the semantics change in the parameters passed between TPS and TKS.
+            GetDiversificationData(kddValue,macData,mac);//keytype is mac
+
+            // AC: Derives the mac key for the token.
+            macKey =ComputeCardKeyOnToken(masterKey,macData);
+
+        } // endif use original KDF
+        // ---------------------------------
+
+
         if(macKey == NULL)
         {
             goto done;
         }
-         
+
+        // AC: This computes the GP session key using the card-specific MAC key we previously derived.
         symkey = DeriveKey(macKey, Buffer((BYTE*)hc, hc_len), Buffer((BYTE*)cc, cc_len));
 
-        if(symkey == NULL)
-        {
-            goto done;
-        }
     }
-    //Now wrap the key for the trip back to TPS with shared secret transport key
 
+    // AC: Moved this check out of the else block so we catch NULL keys in the developer key case
+    //     (The call already exists outside the "else" block for ComputeEncSessionKey and ComputeKekKey.)
+    if(symkey == NULL)
+    {
+        goto done;
+    }
+
+    //Now wrap the key for the trip back to TPS with shared secret transport key
     symkey16 = NULL;
      transportKey = ReturnSymKey( internal, GetSharedSecretKeyName(NULL));
     if ( transportKey == NULL ) {
@@ -829,9 +932,19 @@ done:
         masterKey = NULL;
     }
            
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF, we build all 3 keys despite only using one of them (Mac) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
     if( macKey ) {
         PK11_FreeSymKey( macKey);
         macKey = NULL;
+    }
+    if ( encKey ) {
+        PK11_FreeSymKey(encKey);
+        encKey = NULL;
+    }
+    if ( kekKey ) {
+        PK11_FreeSymKey(kekKey);
+        kekKey = NULL;
     }
 
     if( macSymKey ) {
@@ -849,7 +962,9 @@ done:
         sharedSecretKeyNameChars = NULL;
     }
 
-    if ( handleBA != NULL) {
+    // AC BUGFIX:  Check the value of handleBytes (not handleBA) before freeing handleBytes!
+    //if ( handleBA != NULL) {
+    if ( handleBytes != NULL) {
         (env)->ReleaseByteArrayElements( handleBA, handleBytes, 0);
     }
 
@@ -869,11 +984,22 @@ done:
         (env)->ReleaseByteArrayElements(CUID, cuidValue, JNI_ABORT);
     }
 
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    if ( kddValue != NULL){
+        env->ReleaseByteArrayElements(KDD, kddValue, JNI_ABORT);
+        kddValue = NULL;
+    }
+
     if( mac_key != NULL) {
         (env)->ReleaseByteArrayElements(macKeyArray, mac_key, JNI_ABORT);
     }
 
-    return handleBA;
+    // AC: BUGFIX: Don't return a java array with uninitialized or zero'd data.
+    if (wrapStatus != SECFailure ){
+        return handleBA;
+    }else{
+        return NULL;
+    }
 }
 
 
@@ -886,13 +1012,15 @@ extern "C"
  * Method:    ComputeEncSessionKey
  * Signature: ([B[B[B[B)[B
  */
+// AC: KDF SPEC CHANGE: function signature change - added jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
     JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeEncSessionKey
-        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jstring, jstring);
+        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyte, jboolean, jbyteArray, jbyteArray, jbyteArray, jstring, jstring);
 #ifdef __cplusplus
 }
 #endif
 #define KEYLENGTH 16
-extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeEncSessionKey(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray card_challenge, jbyteArray host_challenge, jbyteArray keyInfo, jbyteArray CUID, jbyteArray encKeyArray, jstring useSoftToken_s, jstring keySet)
+// AC: KDF SPEC CHANGE: function signature change - added jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeEncSessionKey(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray card_challenge, jbyteArray host_challenge, jbyteArray keyInfo, jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, jbyteArray CUID, jbyteArray KDD, jbyteArray encKeyArray, jstring useSoftToken_s, jstring keySet)
 {
     /* hardcoded permanent enc key */
     jbyte *enc_key = NULL;
@@ -919,8 +1047,14 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     PK11SymKey *masterKey  = NULL;
 
     PK11SymKey *encSymKey  = NULL;
-    PK11SymKey *encKey     = NULL;
     PK11SymKey *symkey16   = NULL;
+
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF, we build all 3 keys despite only using one of them (Enc) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    // KDF output keys
+    PK11SymKey* macKey = NULL;
+    PK11SymKey* encKey = NULL;
+    PK11SymKey* kekKey = NULL;
 
     BYTE encData[KEYLENGTH];
     char keyname[KEYNAMELENGTH];
@@ -934,7 +1068,12 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     jbyteArray handleBA=NULL;
     jbyte *handleBytes=NULL;
 
-    jbyte *    cuidValue = NULL;
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    jbyte* cuidValue = NULL;
+    jsize cuidValue_len = -1;
+    jbyte* kddValue = NULL;
+    jsize kddValue_len = -1;
 
     jbyte *cc = NULL;
     int cc_len = 0;
@@ -989,13 +1128,30 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         goto done;
     }
 
-    if( CUID != NULL) {
-        cuidValue = (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
-    }
 
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    if ( CUID != NULL ) {
+        cuidValue =  (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
+        cuidValue_len = env->GetArrayLength(CUID);
+    }
     if( cuidValue == NULL) {
         goto done;
     }
+    if ( cuidValue_len <= 0){  // check that CUID is at least 1 byte in length
+        goto done;
+    }
+    if ( KDD != NULL ){
+        kddValue = env->GetByteArrayElements(KDD, NULL);
+        kddValue_len = env->GetArrayLength(KDD);
+    }
+    if ( kddValue == NULL ){
+        goto done;
+    }
+    if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
+        goto done;
+    }
+
 
     /* copy card and host challenge into input buffer */
     for (i = 0; i < 8; i++)
@@ -1007,7 +1163,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         input[8+i] = hc[i];
     }
 
-    GetDiversificationData(cuidValue,encData,enc);
+    // AC: KDF SPEC CHANGE: Moved this call down. (We don't necessarily need it anymore depending on the KDF we're going to use.)
+    //GetDiversificationData(cuidValue,encData,enc);
 
     if(tokenName)
     {
@@ -1044,17 +1201,81 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     {
         masterKey = ReturnSymKey( slot,keyname);
 
-        /* We need to use internal so that the key
-         * can be exported  by using PK11_GetKeyData()
-         */
         if(masterKey == NULL) {
             goto done;
         }
 
-        encKey =ComputeCardKeyOnToken(masterKey,encData);
+
+        // ---------------------------------
+        // AC KDF SPEC CHANGE: Determine which KDF to use.
+        //
+        // Convert to unsigned types
+        BYTE nistSP800_108KdfOnKeyVersion_byte = static_cast<BYTE>(nistSP800_108KdfOnKeyVersion);
+        BYTE requestedKeyVersion_byte = static_cast<BYTE>(keyVersion[0]);
+        // if requested key version meets setting value, use NIST SP800-108 KDF
+        if (NistSP800_108KDF::useNistSP800_108KDF(nistSP800_108KdfOnKeyVersion_byte, requestedKeyVersion_byte) == true){
+
+            PR_fprintf(PR_STDOUT,"ComputeEncSessionKey NistSP800_108KDF code: Using NIST SP800-108 KDF.\n");
+
+            // react to "UseCUIDAsKDD" setting value
+            jbyte* context_jbyte = NULL;
+            jsize context_len_jsize = 0;
+            if (nistSP800_108KdfUseCuidAsKdd == JNI_TRUE){
+                context_jbyte = cuidValue;
+                context_len_jsize = cuidValue_len;
+            }else{
+                context_jbyte = kddValue;
+                context_len_jsize = kddValue_len;
+            }
+
+            // Converting this way is safe since jbyte is guaranteed to be 8 bits
+            // Of course, this assumes that "char" is 8 bits (not guaranteed, but typical),
+            //            but it looks like this assumption is also made in GetDiversificationData
+            const BYTE* const context = reinterpret_cast<const BYTE*>(context_jbyte);
+
+            // Convert jsize to size_t
+            const size_t context_len = static_cast<size_t>(context_len_jsize);
+            if (context_len > 0x000000FF){  // sanity check (CUID should never be larger than 255 bytes)
+                PR_fprintf(PR_STDERR, "ComputeEncSessionKey NistSP800_108KDF code: Error; context_len larger than 255 bytes.\n");
+                goto done;
+            }
+
+            // call NIST SP800-108 KDF routine
+            try{
+                NistSP800_108KDF::ComputeCardKeys(masterKey, context, context_len, &encKey, &macKey, &kekKey);
+            }catch(std::runtime_error& ex){
+                PR_fprintf(PR_STDERR, "ComputeEncSessionKey NistSP800_108KDF code: Exception invoking NistSP800_108KDF::ComputeCardKeys: ");
+                PR_fprintf(PR_STDERR, "%s\n", ex.what() == NULL ? "null" : ex.what());
+                goto done;
+            }catch(...){
+                PR_fprintf(PR_STDERR, "ComputeEncSessionKey NistSP800_108KDF code: Unknown exception invoking NistSP800_108KDF::ComputeCardKeys.\n");
+                goto done;
+            }
+
+        // if not a key version where we use the NIST SP800-108 KDF, use the original KDF
+        }else{
+
+            PR_fprintf(PR_STDOUT,"ComputeEncSessionKey NistSP800_108KDF code: Using original KDF.\n");
+
+            // AC: KDF SPEC CHANGE: Moved this call down from the original location.
+            //                      (We don't always need to call it anymore; it depends on the KDF we're going to use.)
+            //
+            // Note the change from "cuidValue" to "kddValue".
+            //   This change is necessary due to the semantics change in the parameters passed between TPS and TKS.
+            GetDiversificationData(kddValue,encData,enc);
+
+            // AC: Derives the enc key for the token.
+            encKey =ComputeCardKeyOnToken(masterKey,encData);
+
+        } // endif use original KDF
+        // ---------------------------------
+
+
         if(encKey == NULL) {
             goto done;
         }
+
+        // AC: This computes the GP session key using the card-specific ENC key we previously derived.
         symkey = DeriveKey(encKey, Buffer((BYTE*)hc, hc_len), Buffer((BYTE*)cc, cc_len));
     }
 
@@ -1127,9 +1348,19 @@ done:
         encSymKey = NULL;
     }
    
-    if( encKey) {
-       PK11_FreeSymKey( encKey);
-       encKey = NULL;
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF, we build all 3 keys despite only using one of them (Enc) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    if( macKey ) {
+        PK11_FreeSymKey(macKey);
+        macKey = NULL;
+    }
+    if ( encKey) {
+        PK11_FreeSymKey( encKey);
+        encKey = NULL;
+    }
+    if ( kekKey ) {
+        PK11_FreeSymKey(kekKey);
+        kekKey = NULL;
     }
 
     if( keySetStringChars ) {
@@ -1156,11 +1387,22 @@ done:
         (env)->ReleaseByteArrayElements(CUID, cuidValue, JNI_ABORT);
     }
 
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    if ( kddValue != NULL){
+        env->ReleaseByteArrayElements(KDD, kddValue, JNI_ABORT);
+        kddValue = NULL;
+    }
+
     if( enc_key != NULL) {
         (env)->ReleaseByteArrayElements(encKeyArray, enc_key, JNI_ABORT);
     }
 
-    return handleBA;
+    // AC: BUGFIX: Don't return a java array with uninitialized or zero'd data.
+    if (wrapStatus != SECFailure ){
+        return handleBA;
+    }else{
+        return NULL;
+    }
 }
 
 #ifdef __cplusplus
@@ -1172,14 +1414,16 @@ extern "C"
  * Method:    ComputeKekKey
  * Signature: ([B[B[B[B)[B
  */
+// AC: KDF SPEC CHANGE: function signature change - added jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
     JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_ComputeKekKey
-        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jstring, jstring);
+        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyte, jboolean, jbyteArray, jbyteArray, jbyteArray, jstring, jstring);
 #ifdef __cplusplus
 }
 #endif
 #define KEYLENGTH 16
 
-extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_ComputeKekKey(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray card_challenge, jbyteArray host_challenge, jbyteArray keyInfo, jbyteArray CUID, jbyteArray kekKeyArray, jstring useSoftToken_s, jstring keySet)
+// AC: KDF SPEC CHANGE: function signature change - added jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
+extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_ComputeKekKey(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray card_challenge, jbyteArray host_challenge, jbyteArray keyInfo, jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, jbyteArray CUID, jbyteArray KDD, jbyteArray kekKeyArray, jstring useSoftToken_s, jstring keySet)
 {
     /* hardcoded permanent kek key */
     jbyte *kek_key = NULL;
@@ -1210,13 +1454,25 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
     jbyte *hc = NULL;
     jbyte *    keyVersion = NULL;
     int keyVersion_len = 0;
-    jbyte *    cuidValue = NULL;
+
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    jbyte* cuidValue = NULL;
+    jsize cuidValue_len = -1;
+    jbyte* kddValue = NULL;
+    jsize kddValue_len = -1;
 
     char *keyNameChars=NULL;
     char *tokenNameChars = NULL;
     PK11SlotInfo *slot = NULL;
 
-    PK11SymKey *kekKey = NULL;
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF, we build all 3 keys despite only using one of them (KEK) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    // KDF output keys
+    PK11SymKey* macKey = NULL;
+    PK11SymKey* encKey = NULL;
+    PK11SymKey* kekKey = NULL;
+
     PK11SymKey *masterKey = NULL;
 
     BYTE kekData[KEYLENGTH];
@@ -1249,13 +1505,30 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
         goto done;
     }
 
-    if( CUID != NULL) {
-        cuidValue = (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
-    }
 
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    if ( CUID != NULL ) {
+        cuidValue =  (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
+        cuidValue_len = env->GetArrayLength(CUID);
+    }
     if( cuidValue == NULL) {
         goto done;
     }
+    if ( cuidValue_len <= 0){  // check that CUID is at least 1 byte in length
+        goto done;
+    }
+    if ( KDD != NULL ){
+        kddValue = env->GetByteArrayElements(KDD, NULL);
+        kddValue_len = env->GetArrayLength(KDD);
+    }
+    if ( kddValue == NULL ){
+        goto done;
+    }
+    if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
+        goto done;
+    }
+
 
     /* copy card and host challenge into input buffer */
     for (i = 0; i < 8; i++)
@@ -1267,7 +1540,8 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
         input[8+i] = hc[i];
     }
 
-    GetDiversificationData(cuidValue,kekData,kek);//keytype is kek
+    // AC: KDF SPEC CHANGE: Moved this call down. (We don't necessarily need it anymore depending on the KDF we're going to use.)
+    //GetDiversificationData(cuidValue,kekData,kek);//keytype is kek
 
     if (tokenName)
     {
@@ -1301,7 +1575,71 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
             goto done;
         }
 
-        kekKey =ComputeCardKeyOnToken(masterKey,kekData);
+
+        // ---------------------------------
+        // AC KDF SPEC CHANGE: Determine which KDF to use.
+        //
+        // Convert to unsigned types
+        BYTE nistSP800_108KdfOnKeyVersion_byte = static_cast<BYTE>(nistSP800_108KdfOnKeyVersion);
+        BYTE requestedKeyVersion_byte = static_cast<BYTE>(keyVersion[0]);
+        // if requested key version meets setting value, use NIST SP800-108 KDF
+        if (NistSP800_108KDF::useNistSP800_108KDF(nistSP800_108KdfOnKeyVersion_byte, requestedKeyVersion_byte) == true){
+
+            PR_fprintf(PR_STDOUT,"ComputeKekKey NistSP800_108KDF code: Using NIST SP800-108 KDF.\n");
+
+            // react to "UseCUIDAsKDD" setting value
+            jbyte* context_jbyte = NULL;
+            jsize context_len_jsize = 0;
+            if (nistSP800_108KdfUseCuidAsKdd == JNI_TRUE){
+                context_jbyte = cuidValue;
+                context_len_jsize = cuidValue_len;
+            }else{
+                context_jbyte = kddValue;
+                context_len_jsize = kddValue_len;
+            }
+
+            // Converting this way is safe since jbyte is guaranteed to be 8 bits
+            // Of course, this assumes that "char" is 8 bits (not guaranteed, but typical),
+            //            but it looks like this assumption is also made in GetDiversificationData
+            const BYTE* const context = reinterpret_cast<const BYTE*>(context_jbyte);
+
+            // Convert jsize to size_t
+            const size_t context_len = static_cast<size_t>(context_len_jsize);
+            if (context_len > 0x000000FF){  // sanity check (CUID should never be larger than 255 bytes)
+                PR_fprintf(PR_STDERR, "ComputeKekKey NistSP800_108KDF code: Error; context_len larger than 255 bytes.\n");
+                goto done;
+            }
+
+            // call NIST SP800-108 KDF routine
+            try{
+                NistSP800_108KDF::ComputeCardKeys(masterKey, context, context_len, &encKey, &macKey, &kekKey);
+            }catch(std::runtime_error& ex){
+                PR_fprintf(PR_STDERR, "ComputeKekKey NistSP800_108KDF code: Exception invoking NistSP800_108KDF::ComputeCardKeys: ");
+                PR_fprintf(PR_STDERR, "%s\n", ex.what() == NULL ? "null" : ex.what());
+                goto done;
+            }catch(...){
+                PR_fprintf(PR_STDERR, "ComputeKekKey NistSP800_108KDF code: Unknown exception invoking NistSP800_108KDF::ComputeCardKeys.\n");
+                goto done;
+            }
+
+        // if not a key version where we use the NIST SP800-108 KDF, use the original KDF
+        }else{
+
+            PR_fprintf(PR_STDOUT,"ComputeKekKey NistSP800_108KDF code: Using original KDF.\n");
+
+            // AC: KDF SPEC CHANGE: Moved this call down from the original location.
+            //                      (We don't always need to call it anymore; it depends on the KDF we're going to use.)
+            //
+            // Note the change from "cuidValue" to "kddValue".
+            //   This change is necessary due to the semantics change in the parameters passed between TPS and TKS.
+            GetDiversificationData(kddValue,kekData,kek);//keytype is kek
+
+            // AC: Derives the mac key for the token.
+            kekKey =ComputeCardKeyOnToken(masterKey,kekData);
+
+        } // endif use original KDF
+        // ---------------------------------
+
 
     }
 
@@ -1323,6 +1661,16 @@ done:
         masterKey = NULL;
     }
 
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF, we build all 3 keys despite only using one of them (Kek) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    if( macKey ) {
+        PK11_FreeSymKey(macKey);
+        macKey = NULL;
+    }
+    if ( encKey ) {
+        PK11_FreeSymKey(encKey);
+        encKey = NULL;
+    }
     if(kekKey) {
         PK11_FreeSymKey( kekKey);
         kekKey = NULL;
@@ -1347,6 +1695,12 @@ done:
 
     if (cuidValue != NULL ) {
         (env)->ReleaseByteArrayElements(CUID, cuidValue, JNI_ABORT);
+    }
+
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    if ( kddValue != NULL){
+        env->ReleaseByteArrayElements(KDD, kddValue, JNI_ABORT);
+        kddValue = NULL;
     }
 
     return keyObj;
@@ -1498,13 +1852,15 @@ extern "C"
  * Method:    ComputeCryptogram
  * Signature: ([B[B[B[B)[B
  */
+// AC: KDF SPEC CHANGE: function signature change - added jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
     JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeCryptogram
-        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyteArray, int, jbyteArray, jstring, jstring);
+        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyte, jboolean, jbyteArray, jbyteArray, int, jbyteArray, jstring, jstring);
 #ifdef __cplusplus
 }
 #endif
 #define KEYLENGTH 16
-extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeCryptogram(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray card_challenge, jbyteArray host_challenge, jbyteArray keyInfo, jbyteArray CUID, int type, jbyteArray authKeyArray, jstring useSoftToken_s, jstring keySet)
+// AC: KDF SPEC CHANGE: function signature change - added jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, and jbyteArray KDD
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeCryptogram(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray card_challenge, jbyteArray host_challenge, jbyteArray keyInfo, jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, jbyteArray CUID, jbyteArray KDD, int type, jbyteArray authKeyArray, jstring useSoftToken_s, jstring keySet)
 {
 /* hardcore permanent mac key */
     jbyte *auth_key = NULL;
@@ -1542,7 +1898,13 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     int hc_len = 0;
     jbyte *    keyVersion = NULL;
     int keyVersion_len = 0;
-    jbyte *    cuidValue = NULL;
+
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    jbyte* cuidValue = NULL;
+    jsize cuidValue_len = -1;
+    jbyte* kddValue = NULL;
+    jsize kddValue_len = -1;
 
     char *tokenNameChars = NULL;
     char *keyNameChars=NULL;
@@ -1551,12 +1913,21 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     jbyte * session_key = NULL;
     PK11SymKey *symkey     = NULL;
     PK11SymKey *masterKey  = NULL;
-    PK11SymKey *authKey    = NULL;
     PK11SymKey *authSymKey = NULL;
+
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF, we build all 3 keys despite only using one of them (Enc/Auth) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    // KDF output keys
+    PK11SymKey* macKey = NULL;
+    PK11SymKey* authKey = NULL;
+    PK11SymKey* kekKey = NULL;
 
     BYTE authData[KEYLENGTH];
     char keyname[KEYNAMELENGTH];
     Buffer input_x = Buffer(KEYLENGTH);
+
+    // AC: BUGFIX: Don't return a java array with uninitialized or zero'd data.
+    bool error_computing_result = true;
 
     if( card_challenge != NULL ) {
         cc = (jbyte*)(env)->GetByteArrayElements( card_challenge, NULL);
@@ -1587,13 +1958,30 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         goto done;
     }
 
-    if( CUID != NULL) {
-        cuidValue = (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
-    }
 
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    //                       Also added "len" variable for CUID (for sanity check).
+    if ( CUID != NULL ) {
+        cuidValue =  (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
+        cuidValue_len = env->GetArrayLength(CUID);
+    }
     if( cuidValue == NULL) {
         goto done;
     }
+    if ( cuidValue_len <= 0){  // check that CUID is at least 1 byte in length
+        goto done;
+    }
+    if ( KDD != NULL ){
+        kddValue = env->GetByteArrayElements(KDD, NULL);
+        kddValue_len = env->GetArrayLength(KDD);
+    }
+    if ( kddValue == NULL ){
+        goto done;
+    }
+    if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
+        goto done;
+    }
+
 
     if (type == 0)                                // compute host cryptogram
     {
@@ -1621,7 +2009,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
 
     input_x.replace(0, (BYTE*) input, KEYLENGTH); 
 
-    GetDiversificationData(cuidValue,authData,enc);
+    // AC: KDF SPEC CHANGE: Moved this call down. (We don't necessarily need it anymore depending on the KDF we're going to use.)
+    //GetDiversificationData(cuidValue,authData,enc);
 
     if (tokenName)
     {
@@ -1660,12 +2049,78 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             goto done;
         }
 
-        authKey = ComputeCardKeyOnToken(masterKey,authData);
+
+        // ---------------------------------
+        // AC KDF SPEC CHANGE: Determine which KDF to use.
+        //
+        // Convert to unsigned types
+        BYTE nistSP800_108KdfOnKeyVersion_byte = static_cast<BYTE>(nistSP800_108KdfOnKeyVersion);
+        BYTE requestedKeyVersion_byte = static_cast<BYTE>(keyVersion[0]);
+        // if requested key version meets setting value, use NIST SP800-108 KDF
+        if (NistSP800_108KDF::useNistSP800_108KDF(nistSP800_108KdfOnKeyVersion_byte, requestedKeyVersion_byte) == true){
+
+            PR_fprintf(PR_STDOUT,"ComputeCryptogram NistSP800_108KDF code: Using NIST SP800-108 KDF.\n");
+
+            // react to "UseCUIDAsKDD" setting value
+            jbyte* context_jbyte = NULL;
+            jsize context_len_jsize = 0;
+            if (nistSP800_108KdfUseCuidAsKdd == JNI_TRUE){
+                context_jbyte = cuidValue;
+                context_len_jsize = cuidValue_len;
+            }else{
+                context_jbyte = kddValue;
+                context_len_jsize = kddValue_len;
+            }
+
+            // Converting this way is safe since jbyte is guaranteed to be 8 bits
+            // Of course, this assumes that "char" is 8 bits (not guaranteed, but typical),
+            //            but it looks like this assumption is also made in GetDiversificationData
+            const BYTE* const context = reinterpret_cast<const BYTE*>(context_jbyte);
+
+            // Convert jsize to size_t
+            const size_t context_len = static_cast<size_t>(context_len_jsize);
+            if (context_len > 0x000000FF){  // sanity check (CUID should never be larger than 255 bytes)
+                PR_fprintf(PR_STDERR, "ComputeCryptogram NistSP800_108KDF code: Error; context_len larger than 255 bytes.\n");
+                goto done;
+            }
+
+            // call NIST SP800-108 KDF routine
+            try{
+                NistSP800_108KDF::ComputeCardKeys(masterKey, context, context_len, &authKey, &macKey, &kekKey);
+            }catch(std::runtime_error& ex){
+                PR_fprintf(PR_STDERR, "ComputeCryptogram NistSP800_108KDF code: Exception invoking NistSP800_108KDF::ComputeCardKeys: ");
+                PR_fprintf(PR_STDERR, "%s\n", ex.what() == NULL ? "null" : ex.what());
+                goto done;
+            }catch(...){
+                PR_fprintf(PR_STDERR, "ComputeCryptogram NistSP800_108KDF code: Unknown exception invoking NistSP800_108KDF::ComputeCardKeys.\n");
+                goto done;
+            }
+
+        // if not a key version where we use the NIST SP800-108 KDF, use the original KDF
+        }else{
+
+            PR_fprintf(PR_STDOUT,"ComputeCryptogram NistSP800_108KDF code: Using original KDF.\n");
+
+            // AC: KDF SPEC CHANGE: Moved this call down from the original location.
+            //                      (We don't always need to call it anymore; it depends on the KDF we're going to use.)
+            //
+            // Note the change from "cuidValue" to "kddValue".
+            //   This change is necessary due to the semantics change in the parameters passed between TPS and TKS.
+            GetDiversificationData(kddValue,authData,enc);
+
+            // AC: Derives the mac key for the token.
+            authKey = ComputeCardKeyOnToken(masterKey,authData);
+
+        } // endif use original KDF
+        // ---------------------------------
+
+
         if (authKey == NULL)
         {
             goto done;
         }
 
+        // AC: This computes the GP session key using the card-specific ENC key we previously derived.
         symkey = DeriveKey(authKey,
             Buffer((BYTE*)hc, hc_len), Buffer((BYTE*)cc, cc_len));
 
@@ -1678,6 +2133,10 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     handleBytes = (env)->GetByteArrayElements(handleBA, NULL);
     if( handleBytes ) {
         memcpy(handleBytes, session_key, EIGHT_BYTES);
+
+        // AC: BUGFIX: Don't return a java array with uninitialized or zero'd data.
+        // Set flag that we've successfully copied.
+        error_computing_result = false;
     }
 
 done:
@@ -1697,9 +2156,19 @@ done:
         authSymKey = NULL;
     }
  
+    // AC: KDF SPEC CHANGE:  For the NIST SP800-108 KDF, we build all 3 keys despite only using one of them (Enc/Auth) in this function.
+    //                       We do this because our NIST SP800-108 KDF outputs the data for all three keys simultaneously.
+    if( macKey ) {
+        PK11_FreeSymKey(macKey);
+        macKey = NULL;
+    }
     if( authKey) {
         PK11_FreeSymKey( authKey);
         authKey = NULL;
+    }
+    if ( kekKey ) {
+        PK11_FreeSymKey(kekKey);
+        kekKey = NULL;
     }
 
     if( masterKey) {
@@ -1732,7 +2201,18 @@ done:
         (env)->ReleaseByteArrayElements(CUID, cuidValue, JNI_ABORT);
     }
 
-    return handleBA;
+    // AC: KDF SPEC CHANGE:  Need to retrieve KDD as well as CUID from JNI.
+    if ( kddValue != NULL){
+        env->ReleaseByteArrayElements(KDD, kddValue, JNI_ABORT);
+        kddValue = NULL;
+    }
+
+    // AC: BUGFIX: Don't return a java array with uninitialized or zero'd data.
+    if (error_computing_result == false){
+        return handleBA;
+    }else{
+        return NULL;
+    }
 }
 
 

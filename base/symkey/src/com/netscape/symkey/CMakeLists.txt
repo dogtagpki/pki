@@ -25,6 +25,7 @@ set(SYMKEY_LINK_LIBRARIES
 
 set(symkey_library_HDRS
     SessionKey.h
+    NistSP800_108KDF.h
 )
 
 set(symkey_library_SRCS
@@ -32,6 +33,7 @@ set(symkey_library_SRCS
     EncryptData.cpp
     SessionKey.cpp
     SymKey.cpp
+    NistSP800_108KDF.cpp
 )
 
 include_directories(${SYMKEY_PRIVATE_INCLUDE_DIRS})
