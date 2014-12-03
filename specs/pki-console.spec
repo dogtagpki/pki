@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.2.0
-Release:          4%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -31,7 +31,14 @@ Requires:         pki-console-theme >= 9.0.0
 Requires:         jpackage-utils >= 1.7.5-10
 Requires:         jss >= 4.2.6-35
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
+%if 0%{?rhel}
+# NOTE:  In the future, as a part of its path, this URL will contain a release
+#        directory which consists of the fixed number of the upstream release
+#        upon which this tarball was originally based.
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{name}-%{version}%{?prerel}.tar.gz
+%else
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
+%endif
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
@@ -88,6 +95,9 @@ cd build
 
 
 %changelog
+* Tue Dec  2 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-5
+- PKI Trac Ticket #1211 - New release overwrites old source tarball
+
 * Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.0-4
 - Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
 - up the release number to 4

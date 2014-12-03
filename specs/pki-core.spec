@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.0
-Release:          4%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -79,7 +79,14 @@ BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
+%if 0%{?rhel}
+# NOTE:  In the future, as a part of its path, this URL will contain a release
+#        directory which consists of the fixed number of the upstream release
+#        upon which this tarball was originally based.
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{name}-%{version}%{?prerel}.tar.gz
+%else
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
+%endif
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
@@ -850,6 +857,12 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Tue Dec  2 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-5
+- Bugzilla Bug #1165351 - Errata TPS test fails due to dependent packages not
+  found (mharmsen)
+- PKI Trac Ticket #1211 - New release overwrites old source tarball (mharmsen)
+- Bugzilla Bug #1151147 - issuerDN encoding correction (cfu)
+
 * Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.0-4
 - Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
 - up the release number to 4
