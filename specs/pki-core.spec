@@ -80,7 +80,14 @@ BuildRequires:    svrcore-devel
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
+%if 0%{?rhel}
+# NOTE:  In the future, as a part of its path, this URL will contain a release
+#        directory which consists of the fixed number of the upstream release
+#        upon which this tarball was originally based.
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{name}-%{version}%{?prerel}.tar.gz
+%else
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
+%endif
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
@@ -855,7 +862,8 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
 %changelog
 * Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.1-0.2
-- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
+- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade (cfu)
+- PKI Trac Ticket #1211 - New release overwrites old source tarball (mharmsen)
 - up the release number to 0.2
 
 * Fri Oct 24 2014 Dogtag Team <pki-devel@redhat.com> 10.2.1-0.1
