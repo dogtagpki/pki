@@ -15,9 +15,10 @@ ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 
 %define dogtag_pki_theme_version   %{version}
 %define esc_version                1.1.0
+# NOTE:  The following package versions are TLS compliant:
 %define jss_version                4.2.6-35
-%define pki_core_version           %{version}
-%define pki_console_version        %{version}
+%define pki_core_version           %{version}-0.2
+%define pki_console_version        %{version}-0.2
 %define tomcatjss_version          7.1.1
 
 Requires:         apache-commons-codec
@@ -107,7 +108,8 @@ rm -rf %{buildroot}
 
 %changelog
 * Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.1-0.2
-- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
+- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade (cfu)
+- Make dependencies comply with TLS changes (mharmsen)
 - up the release number to 0.2
 
 * Fri Oct 24 2014 Dogtag Team <pki-devel@redhat.com> 10.2.1-0.1
