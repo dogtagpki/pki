@@ -224,9 +224,17 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-add.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 	# bug verifications
-	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs.sh
+	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
+	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
 	chmod a+x ./acceptance/bugzilla/pki-core-bugs/giant-debug-log.sh
 	chmod a+x ./acceptance/bugzilla/pki-core-bugs/CSbackup-bug.sh
+	chmod a+x ./acceptance/bugzilla/bug_setup.sh
+	chmod a+x ./acceptance/bugzilla/bug_uninstall.sh
+	chmod a+x ./acceptance/bugzilla/jss-bugs/bug-1133718.sh
+	chmod a+x ./acceptance/bugzilla/jss-bugs/bug-1040640.sh
+	chmod a+x ./acceptance/bugzilla/pki-core-bugs/bug-790924.sh
+	# legacy
+	chmod a+x ./acceptance/legacy/ca_tests/acls/ca-admin-acl.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)
