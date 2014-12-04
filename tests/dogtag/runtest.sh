@@ -185,7 +185,6 @@
 . ./acceptance/bugzilla/jss-bugs/bug-1133718.sh
 . ./acceptance/bugzilla/jss-bugs/bug-1040640.sh
 . ./acceptance/bugzilla/pki-core-bugs/bug-790924.sh
-. ./acceptance/legacy/ca_tests/acls/ca-admin-acl.sh
 
 # Make sure TESTORDER is initialized or multihost may have issues
 TESTORDER=1
