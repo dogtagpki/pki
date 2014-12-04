@@ -21,13 +21,13 @@ BuildRequires:    nss-devel
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
 BuildRequires:    jss >= 4.2.6-35
-BuildRequires:    pki-base >= 10.0.0
+BuildRequires:    pki-base >= 10.2.0-5
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.7.0
 Requires:         ldapjdk
-Requires:         pki-base >= 10.0.0
-Requires:         pki-console-theme >= 9.0.0
+Requires:         pki-base >= 10.2.0-5
+Requires:         pki-console-theme >= 10.2.0
 Requires:         jpackage-utils >= 1.7.5-10
 Requires:         jss >= 4.2.6-35
 
@@ -97,6 +97,7 @@ cd build
 %changelog
 * Tue Dec  2 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-5
 - PKI Trac Ticket #1211 - New release overwrites old source tarball
+- Make dependencies comply with TLS changes
 
 * Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.0-4
 - Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade
