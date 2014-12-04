@@ -49,23 +49,15 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 CA_HOST=$(eval echo \$${MYROLE})
@@ -150,7 +142,9 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_find-ca-006: Find all groups, --size with maximum possible value as input"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 9 | head -n 1`
+	randhex=$(openssl rand -hex 3 |  perl -p -e 's/\n//')
+        randhex_covup=${randhex^^}
+        maximum_check=$(echo "ibase=16;$randhex_covup"|bc)	
 	rlLog "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -176,7 +170,9 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_find-ca-007: Find all groups, --size more than maximum possible value"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
+	randhex=$(openssl rand -hex 12 |  perl -p -e 's/\n//')
+        randhex_covup=${randhex^^}
+        maximum_check=$(echo "ibase=16;$randhex_covup"|bc)
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-find --size=$maximum_check"
 	errmsg="NumberFormatException: For input string: $maximum_check"
 	errorcode=255
@@ -257,7 +253,9 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_find-ca-013: Find groups, --start with maximum possible input"
-	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 9 | head -n 1`
+	randhex=$(openssl rand -hex 3 |  perl -p -e 's/\n//')
+        randhex_covup=${randhex^^}
+        maximum_check=$(echo "ibase=16;$randhex_covup"|bc)
 	rlLog "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -276,7 +274,9 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_find-ca-014: Find groups, --start with more than maximum possible input"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 12 | head -n 1`
+	randhex=$(openssl rand -hex 12 |  perl -p -e 's/\n//')
+        randhex_covup=${randhex^^}
+        maximum_check=$(echo "ibase=16;$randhex_covup"|bc)
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-find --start=$maximum_check"
 	errmsg="NumberFormatException: For input string: \"$maximum_check\""
 	errorcode=255
@@ -431,7 +431,7 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_find-ca-028: Should not be able to find groups using a cert created from a untrusted CA role_user_UTCA"
-	command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT group-find --start=1 --size=5"
+	command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT group-find --start=1 --size=5"
 	errmsg="PKIException: Unauthorized"
 	errocode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to find groups using CA_adminUTCA"
@@ -466,7 +466,6 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_find-ca-030: find groups when group id has i18n characters"
-	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -480,13 +479,13 @@ local cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-find --size=$maximum_check "
+                    group-find --size=1000"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-find --size=$maximum_check > $TmpDir/pki-group-show-ca-001_31_2.out" \
+                    group-find --size=1000 > $TmpDir/pki-group-show-ca-001_31_2.out" \
                     0 \
                     "Find group with max size"
         rlAssertGrep "Group ID: ÖrjanÄke" "$TmpDir/pki-group-show-ca-001_31_2.out"
@@ -494,7 +493,6 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_find-ca-031: find group when group id has i18n characters"
-	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -508,13 +506,13 @@ local cert_info="$TmpDir/cert_info"
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-find --size=$maximum_check"
+                    group-find --size=1000"
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
                     -h $CA_HOST \
                     -p $CA_PORT \
-                    group-find --size=$maximum_check > $TmpDir/pki-group-show-ca-001_32_2.out" \
+                    group-find --size=1000 > $TmpDir/pki-group-show-ca-001_32_2.out" \
                     0 \
                     "Find group with max size"
         rlAssertGrep "Group ID: ÉricTêko" "$TmpDir/pki-group-show-ca-001_32_2.out"

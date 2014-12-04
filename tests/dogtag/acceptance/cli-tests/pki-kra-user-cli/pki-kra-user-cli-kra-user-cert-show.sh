@@ -53,30 +53,12 @@ run_pki-kra-user-cli-kra-user-cert-show_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
-
-if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-        prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-                prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-        else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        fi
-else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-        prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-fi
-
-CA_HOST=$(eval echo \$${MYROLE})
-CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
-
+caId=$4
+caHost=$5
+KRA_HOST=$(eval echo \$${MYROLE})
+KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
+CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
+CA_HOST=$(eval echo \$${caHost})
 	##### Create temporary directory to save output files #####
     rlPhaseStartSetup "pki_kra_user_cli_kra_user_cert-show-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -102,7 +84,8 @@ eval ${subsystemId}_agentR_user=${subsystemId}_agentR
 eval ${subsystemId}_agentE_user=${subsystemId}_agentE
 eval ${subsystemId}_auditV_user=${subsystemId}_auditV
 eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
-ROOTCA_agent_user="ROOTCA_agentV"
+ROOTCA_agent_user=${caId}_agentV
+ca_signing_cert_subj_name=$(eval echo \$${caId}_SIGNING_CERT_SUBJECT_NAME)
 ##### pki_kra_user_cli_kra_user_cert_show-configtest ####
      rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-configtest-001: pki kra-user-cert-show configuration test"
         rlRun "pki kra-user-cert-show --help > $TmpDir/pki_kra_user_cert_show_cfg.out 2>&1" \
@@ -124,8 +107,8 @@ ROOTCA_agent_user="ROOTCA_agentV"
         	rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$user2fullname\" $user2"
 
 		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -155,61 +138,61 @@ ROOTCA_agent_user="ROOTCA_agentV"
                 rlRun "pki -d $CERTDB_DIR/ \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_show_validcert_002pkcs10.pem  > $TmpDir/pki_kra_user_cert_show_useraddcert_002.out" \
                             0 \
                             "Cert is added to the user $user2"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\""
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\""
 		rlRun "pki -d $CERTDB_DIR/ \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" > $TmpDir/pki_kra_user_cert_show_usershowcert_002.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" > $TmpDir/pki_kra_user_cert_show_usershowcert_002.out" \
 			0 \
 			"Show cert assigned to $user2"
 
-		rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
-        	rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
+		rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
+        	rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
         	rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
         	rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
-        	rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
+        	rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
         	rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_002.out"
 
 		rlRun "pki -d $CERTDB_DIR/ \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_show_validcert_002crmf.pem  > $TmpDir/pki_kra_user_cert_show_useraddcert_002crmf.out" \
                             0 \
                             "Cert is added to the user $user2"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\""
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\""
                 rlRun "pki -d $CERTDB_DIR/ \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" > $TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" > $TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out" \
                         0 \
                         "Show cert assigned to $user2"
 
-                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
                 rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_002crmf.out"
 
 	rlPhaseEnd
@@ -217,12 +200,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-003: pki kra-user-cert-show should fail if an invalid Cert ID is provided"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '3;$valid_decimal_pkcs10_serialNumber;CN=ROOTCA Signing Cert,O=redhat Domain;UID=user2,E=user2@example.org,CN=user2fullname,OU=Eng,O=Example,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '3;$valid_decimal_pkcs10_serialNumber;CN=ROOTCA Signing Cert,O=redhat Domain;UID=user2,E=user2@example.org,CN=user2fullname,OU=Eng,O=Example,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user2"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should throw an error when an invalid Cert ID is provided"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '3;$valid_decimal_crmf_serialNumber;CN=ROOTCA Signing Cert,O=redhat Domain;UID=user2,E=user2@example.org,CN=user2fullname,OU=Eng,O=Example,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '3;$valid_decimal_crmf_serialNumber;CN=ROOTCA Signing Cert,O=redhat Domain;UID=user2,E=user2@example.org,CN=user2fullname,OU=Eng,O=Example,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user2"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should throw an error when an invalid Cert ID is provided"
@@ -233,12 +216,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-004: pki kra-user-cert-show should fail if a non-existing User ID is provided"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show testuser4 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show testuser4 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="UserNotFoundException: User testuser4 not found"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should throw an error when a non-existing User ID is provided"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show testuser4 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show testuser4 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="UserNotFoundException: User testuser4 not found"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should throw an error when a non existing User ID is provided"
@@ -251,16 +234,16 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$user1fullname\" $user1"
 
-		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user1 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user1 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user1"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should throw an error when there is a User ID and Cert ID mismatch"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user1 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user1 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user1"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should throw an error when there is a User ID and Cert ID mismatch"
@@ -269,7 +252,7 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - no User ID #####
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-006-tier1: pki kra-user-cert-show should fail if User ID is not provided"
-		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should throw an error when User ID is not provided"
@@ -282,18 +265,18 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"New User1\" u16"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show u16"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show u16"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should throw an error when Cert ID is not provided"
                 rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del u16"
                 rlLog "FAIL: https://fedorahosted.org/pki/ticket/967"
 	rlPhaseEnd
@@ -304,22 +287,22 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded > $TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded > $TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out" \
                         0 \
                         "Show cert assigned to $user2 with --encoded option"
-		rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
+		rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
                 rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out"
 		
 		rlLog "$(cat $TmpDir/pki_kra_user_cert_show_usershowcert_008pkcs10.out | grep Subject | awk -F":" '{print $2}')"
@@ -335,23 +318,23 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded > $TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded > $TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out" \
                         0 \
                         "Show cert assigned to $user2 with --encoded option"
 
-		rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
+		rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
                 rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out"
 
                 rlLog "$(cat $TmpDir/pki_kra_user_cert_show_usershowcert_008crmf.out | grep Subject | awk -F":" '{print $2}')"
@@ -369,12 +352,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user with --encoded option - no User ID #####
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-009: pki kra-user-cert-show with --encoded option should fail if User ID is not provided"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --encoded"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --encoded"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --encoded option should throw an error when User ID is not provided for pkcs10 cert"
 
-		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --encoded"
+		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --encoded"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --encoded option should throw an error when User ID is not provided for crmf cert"
@@ -385,7 +368,7 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user with --encoded option - no Cert ID ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0010: pki kra-user-cert-show with --encoded option should fail if Cert ID is not provided"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 --encoded"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 --encoded"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --encoded option should throw an error when Cert ID is not provided"
@@ -398,15 +381,15 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --output $TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --output $TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --output $TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out > $TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --output $TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out > $TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out" \
                         0 \
                         "Show cert assigned to $user2 with --output option"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
@@ -420,25 +403,25 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		else
                         rlFail "Serial number does not match"
                 fi
-                rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
                 rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011pkcs10.out"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --output $TmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --output $TmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --output $TmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out > $TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --output $TmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out > $TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out" \
                         0 \
                         "Show cert assigned to $user2 with --output option"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out"
@@ -452,11 +435,11 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		else
                         rlFail "Serial number does not match"
                 fi
-                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
                 rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0011crmf.out"
 
 	rlPhaseEnd
@@ -464,12 +447,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user with --output option - no User ID #####
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0012: pki kra-user-cert-show with --output option should fail if User ID is not provided"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output $TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output $TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --output option should throw an error when User ID is not provided for pkcs10 cert"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output $TmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output $TmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --output option should throw an error when User ID is not provided for crmf cert"
@@ -480,7 +463,7 @@ ROOTCA_agent_user="ROOTCA_agentV"
         ##### Show certs asigned to a user with --output option - no Cert ID ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0013: pki kra-user-cert-show with --output option should fail if Cert ID is not provided"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 --output $TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 --output $TmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --output option should throw an error when Cert ID is not provided"
@@ -490,12 +473,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user with --output option - Directory does not exist #####
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0014: pki kra-user-cert-show with --output option should fail if directory does not exist"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output /tmp/tmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output /tmp/tmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out"
                 errmsg="FileNotFoundException: /tmp/tmpDir/pki_kra_user_cert_show_usercertshow_pkcs10_output.out (No such file or directory)"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --output option should throw an error when directory does not exist"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output /tmp/tmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output /tmp/tmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out"
                 errmsg="FileNotFoundException: /tmp/tmpDir/pki_kra_user_cert_show_usercertshow_crmf_output.out (No such file or directory)"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --output option should throw an error when directory does not exist"
@@ -505,12 +488,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user with --output option - Missing argument for --output option #####
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0015: pki kra-user-cert-show with --output option should fail if argument for --option is missing"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output"
                 errmsg="Error: Missing argument for option: output"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --output option should throw an error when argument for --option is missing"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --output"
                 errmsg="Error: Missing argument for option: output"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --output option should throw an error when argument for --option is missing"
@@ -523,22 +506,22 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --pretty"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --pretty"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --pretty > $TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --pretty > $TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out" \
                         0 \
                         "Show cert assigned to $user2 with --pretty option"
-                rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
                 rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
 		rlAssertGrep "Signature Algorithm" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
                 rlAssertGrep "Validity" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016pkcs10.out"
@@ -549,22 +532,22 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --pretty"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --pretty"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --pretty > $TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --pretty > $TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out" \
                         0 \
                         "Show cert assigned to $user2 with --pretty option"
-                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
                 rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
                 rlAssertGrep "Signature Algorithm" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
                 rlAssertGrep "Validity" "$TmpDir/pki_kra_user_cert_show_usershowcert_0016crmf.out"
@@ -576,12 +559,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user with --pretty option - no User ID #####
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0017: pki kra-user-cert-show with --pretty option should fail if User ID is not provided"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --pretty"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --pretty"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --pretty option should throw an error when User ID is not provided for pkcs10 cert"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --pretty"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' --pretty"
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --pretty option should throw an error when User ID is not provided for crmf cert"
@@ -592,7 +575,7 @@ ROOTCA_agent_user="ROOTCA_agentV"
         ##### Show certs asigned to a user with --pretty option - no Cert ID ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0018: pki kra-user-cert-show with --pretty option should fail if Cert ID is not provided"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 --pretty" 
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 --pretty" 
                 errmsg="Error: Incorrect number of arguments specified."
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show with --pretty option should throw an error when Cert ID is not provided"
@@ -607,8 +590,8 @@ ROOTCA_agent_user="ROOTCA_agentV"
                 rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$newuserfullname\" $newuserid"
 		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
                 algo:rsa key_size:2048 subject_cn:\"$newuserfullname\" subject_uid:$newuserid subject_email:$newuserid@example.org \
@@ -637,36 +620,36 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $newuserid --serial $valid_decimal_pkcs10_serialNumber_new"
 
 		rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $newuserid --serial $valid_decimal_crmf_serialNumber_new"
 
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $newuserid \"2;$valid_decimal_pkcs10_serialNumber_new;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --pretty --output $TmpDir/kra_user_cert_show_pkcs10_output0019"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $newuserid \"2;$valid_decimal_pkcs10_serialNumber_new;$ca_signing_cert_subj_name;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --pretty --output $TmpDir/kra_user_cert_show_pkcs10_output0019"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $newuserid \"2;$valid_decimal_pkcs10_serialNumber_new;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --pretty --output $TmpDir/kra_user_cert_show_pkcs10_output0019 > $TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $newuserid \"2;$valid_decimal_pkcs10_serialNumber_new;$ca_signing_cert_subj_name;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --pretty --output $TmpDir/kra_user_cert_show_pkcs10_output0019 > $TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out" \
                         0 \
                         "Show cert assigned to $user2 with --pretty --encoded and --output options"
-                rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber_new;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber_new;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber_new;$ca_signing_cert_subj_name;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber_new;$ca_signing_cert_subj_name;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
                 rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber_new" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
                 rlAssertGrep "Subject: UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
                 rlAssertGrep "Signature Algorithm" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
                 rlAssertGrep "Validity" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019pkcs10.out"
@@ -689,22 +672,22 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $newuserid \"2;$valid_decimal_crmf_serialNumber_new;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --pretty --output $TmpDir/kra_user_cert_show_crmf_output0019"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $newuserid \"2;$valid_decimal_crmf_serialNumber_new;$ca_signing_cert_subj_name;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --pretty --output $TmpDir/kra_user_cert_show_crmf_output0019"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $newuserid \"2;$valid_decimal_crmf_serialNumber_new;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --pretty --output $TmpDir/kra_user_cert_show_crmf_output0019 > $TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $newuserid \"2;$valid_decimal_crmf_serialNumber_new;$ca_signing_cert_subj_name;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --pretty --output $TmpDir/kra_user_cert_show_crmf_output0019 > $TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out" \
                         0 \
                         "Show cert assigned to $user2 with --pretty --encoded and --output options"
-                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber_new;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber_new;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber_new;$ca_signing_cert_subj_name;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber_new;$ca_signing_cert_subj_name;UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
                 rlAssertGrep "Serial Number: $valid_crmf_serialNumber_new" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
                 rlAssertGrep "Subject: UID=$newuserid,E=$newuserid@example.org,CN=$newuserfullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
                 rlAssertGrep "Signature Algorithm" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
                 rlAssertGrep "Validity" "$TmpDir/pki_kra_user_cert_show_usershowcert_0019crmf.out"
@@ -727,20 +710,20 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		 rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $newuserid"
 	rlPhaseEnd
 
 	 ##### Show certs asigned to a user - as KRA_agentV ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0020: Show certs assigned to a user - as KRA_agentV should fail"
-		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with a valid agent cert"
 
-		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with a valid agent cert"
@@ -749,12 +732,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - as KRA_auditorV ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0021: Show certs assigned to a user - as KRA_auditorV should fail"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with a valid auditor cert"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with a valid auditor cert"
@@ -766,12 +749,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with an expired admin cert"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with an expired admin cert"
@@ -786,12 +769,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with an expired agent cert"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with an expired agent cert"
@@ -803,12 +786,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - as KRA_adminR ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0024: Show certs assigned to a user - as KRA_adminR should fail"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with a revoked admin cert"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with a revoked admin cert"
@@ -819,12 +802,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - as KRA_agentR ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0025: Show certs assigned to a user - as KRA_agentR should fail"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with a revoked agent cert"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with a revoked agent cert"
@@ -835,12 +818,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - as role_user_UTCA ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0026: Show certs assigned to a user - as role_user_UTCA should fail"
-                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show shouls fail when authenticating with an untrusted cert"
 
-                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show shouls fail when authenticating with an untrusted cert"
@@ -849,12 +832,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - as KRA operator user ##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0027: Show certs assigned to a user - as KRA operator user should fail"
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with an operator user"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with an operator user"
@@ -866,22 +849,22 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --output $TmpDir/kra_user_cert_show_pkcs10_output0028"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --output $TmpDir/kra_user_cert_show_pkcs10_output0028"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --output $TmpDir/kra_user_cert_show_pkcs10_output0028 > $TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --output $TmpDir/kra_user_cert_show_pkcs10_output0028 > $TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out" \
                         0 \
                         "Show cert assigned to $user2 with --encoded and --output options"
-                rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
                 rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028pkcs10.out"
@@ -899,22 +882,22 @@ ROOTCA_agent_user="ROOTCA_agentV"
 		rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --output $TmpDir/kra_user_cert_show_crmf_output0028"
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --output $TmpDir/kra_user_cert_show_crmf_output0028"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --output $TmpDir/kra_user_cert_show_crmf_output0028 > $TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user2 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\" --encoded --output $TmpDir/kra_user_cert_show_crmf_output0028 > $TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out" \
                         0 \
                         "Show cert assigned to $user2 with --encoded and --output options"
-                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
                 rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
                 rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
                 rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
                 rlAssertGrep "\-----END CERTIFICATE-----" "$TmpDir/pki_kra_user_cert_show_usershowcert_0028crmf.out"
@@ -934,12 +917,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - as a user not associated with any role##### 
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0029: Show certs assigned to a user - as a user not associated with any role, should fail"
-		command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+		command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show shouls fail when authenticating with an user not associated with any role"
 
-                command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $user1 -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show shouls fail when authenticating with an user not associated with any role"
@@ -948,7 +931,7 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - switch position of the required options#####
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0030: Show certs assigned to a user - switch position of the required options"
-		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' $user2"
+		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show '2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US' $user2"
                 errmsg="User Not Found"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when required options are switched positions"
@@ -958,12 +941,12 @@ ROOTCA_agent_user="ROOTCA_agentV"
 	##### Show certs asigned to a user - incomplete Cert ID #####
 
         rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-show-0031: pki user-cert-show should fail if an incomplete Cert ID is provided"
-		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_pkcs10_serialNumber;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user2"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when an incomplete Cert ID is provided"
 
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-show $user2 '2;$valid_decimal_crmf_serialNumber;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US'"
                 errmsg="ResourceNotFoundException: No certificates found for $user2"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when an incomplete Cert ID is provided"
@@ -999,59 +982,59 @@ ROOTCA_agent_user="ROOTCA_agentV"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user1 --input $TmpDir/pki_kra_user_cert_show_validcert_0032pkcs10.pem  > $TmpDir/pki_kra_user_cert_show_useraddcert_0032.out" \
                             0 \
                             "Cert is added to the user $user1"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user1 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\""
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user1 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\""
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user1 \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\" > $TmpDir/pki_kra_user_cert_show_usershowcert_0032.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user1 \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\" > $TmpDir/pki_kra_user_cert_show_usershowcert_0032.out" \
                         0 \
                         "Show cert assigned to $user1"
-		rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
+		rlAssertGrep "Certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
                 rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
                 rlAssertGrep "Subject: UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_0032.out"
 		
 		rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user1 --input $TmpDir/pki_kra_user_cert_show_validcert_0032crmf.pem  > $TmpDir/pki_kra_user_cert_show_useraddcert_crmf_0032.out" \
                             0 \
                             "Cert is added to the user $user1"
                 rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user1 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\""
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user1 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\""
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
-                            kra-user-cert-show $user1 \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\" > $TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out" \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
+                            kra-user-cert-show $user1 \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\" > $TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out" \
                         0 \
                         "Show cert assigned to $user1"
-                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
+                rlAssertGrep "Certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
                 rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
                 rlAssertGrep "Subject: UID=Örjan Äke,E=$user1@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_show_usershowcert_crmf_0032.out"
 
 	rlPhaseEnd
@@ -1065,8 +1048,8 @@ rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
                rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-del  $usr > $TmpDir/pki-user-del-kra-user-symbol-00$j.out" \
                            0 \
                            "Deleted user $usr"
@@ -1075,7 +1058,7 @@ rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
         done
 
         #Delete temporary directory
-        #rlRun "popd"
-        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 }

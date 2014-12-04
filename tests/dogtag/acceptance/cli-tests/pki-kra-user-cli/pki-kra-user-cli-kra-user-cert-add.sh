@@ -53,30 +53,13 @@ run_pki-kra-user-cli-user-cert-add_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
+caId=$4
+caHost=$5
 
-if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-        prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-                prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-        else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        fi
-else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-        prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-fi
-
-CA_HOST=$(eval echo \$${MYROLE})
-CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
-
+KRA_HOST=$(eval echo \$${MYROLE})
+KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
+CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
+CA_HOST=$(eval echo \$${caHost})
 	##### Create a temporary directory to save output files  and initializing host/port variables #####
    rlPhaseStartSetup "pki_user_cli_user_cert-add-kra-startup: Create temporary directory and initializing host/port variables"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -100,8 +83,9 @@ eval ${subsystemId}_agentR_user=${subsystemId}_agentR
 eval ${subsystemId}_agentE_user=${subsystemId}_agentE
 eval ${subsystemId}_auditV_user=${subsystemId}_auditV
 eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
-ca_admin_cert_nickname=$ROOTCA_ADMIN_CERT_NICKNAME
-ROOTCA_agent_user="ROOTCA_agentV"
+ca_admin_cert_nickname=$(eval echo \$${caId}_ADMIN_CERT_NICKNAME)
+ca_signing_cert_subj_name=$(eval echo \$${caId}_SIGNING_CERT_SUBJECT_NAME)
+ROOTCA_agent_user=${caId}_agentV
 ##### pki_user_cli_user_cert_add_kra-configtest ####
      rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-configtest-001: pki kra-user-cert-add configuration test"
         rlRun "pki kra-user-cert-add --help > $TmpDir/pki_kra_user_cert_add_cfg.out 2>&1" \
@@ -122,8 +106,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-002-tier1: Add one cert to 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-			   -h $CA_HOST \
-                   	   -p $CA_PORT \
+			   -h $KRA_HOST \
+                   	   -p $KRA_PORT \
                             kra-user-add --fullName=\"$user2fullname\" $user2"
 	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$user2fullname\" subject_uid:$user2 subject_email:$user2@example.org \
@@ -138,22 +122,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-002-tier1: Add one cert to 
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-			   -h $CA_HOST \
-                   	   -p $CA_PORT \
+			   -h $KRA_HOST \
+                   	   -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_002pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-			   -h $CA_HOST \
-                   	   -p $CA_PORT \
+			   -h $KRA_HOST \
+                   	   -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_002pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $user2"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
         rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_002pkcs10.out"
 	
 	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -169,29 +153,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-002-tier1: Add one cert to 
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_002crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_002crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $user2"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
         rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_002crmf.out"
 
 	rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-			   -h $CA_HOST \
-                   	   -p $CA_PORT \
+			   -h $KRA_HOST \
+                   	   -p $KRA_PORT \
                             kra-user-del $user2"
 	rlPhaseEnd
 
@@ -202,8 +186,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-002-tier1: Add one cert to 
         rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-add --fullName=\"$user1fullname\" $user1"
         while [ $i -lt 4 ] ; do
 		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -219,22 +203,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-002-tier1: Add one cert to 
         	rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user1 --input $TmpDir/pki_kra_user_cert_add_validcert_003pkcs10$i.pem"
         	rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user1 --input $TmpDir/pki_kra_user_cert_add_validcert_003pkcs10$i.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out" \
                             0 \
                             "PKCS10 Cert is added to the user $user1"
-        	rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
-        	rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
+        	rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
+        	rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
         	rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
         	rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
-        	rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
+        	rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
         	rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_003pkcs10$i.out"
 		
 		rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -250,22 +234,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-002-tier1: Add one cert to 
                 rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user1 --input $TmpDir/pki_kra_user_cert_add_validcert_003crmf$i.pem"
                 rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user1 --input $TmpDir/pki_kra_user_cert_add_validcert_003crmf$i.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out 2>&1" \
                             0 \
                             "CRMF Cert is added to the user $user1"
-               rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
-                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
+               rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
+                rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
                 rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
                 rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
-                rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
+                rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
                 rlAssertGrep "Subject: UID=$user1$(($i+1)),E=$user1$(($i+1))@example.org,CN=$user1fullname$(($i+1)),OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_003crmf$i.out"
 	
         	let i=$i+1
@@ -278,8 +262,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-004: Adding expired cert to
         rlRun "pki -d $CERTDB_DIR \
 		    -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
-                    -h $CA_HOST \
-                    -p $CA_PORT \
+                    -h $KRA_HOST \
+                    -p $KRA_PORT \
 		    kra-user-add --fullName=\"$user2fullname\" $user2"
 	local validityperiod="1 day"
         rlLog "Generate cert with validity period of $validityperiod"
@@ -325,7 +309,7 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-004: Adding expired cert to
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_004crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_004crmf.out > $TmpDir/pki_kra_user_cert_add_expiredcert_004crmf.pem"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_expiredcert_004crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_expiredcert_004crmf.pem"
         errmsg="BadRequestException: Certificate expired"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding an expired cert to a user should fail"
@@ -352,28 +336,28 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-005: Add revoked cert to a 
 	rlRun "pki -d $CERTDB_DIR/ \
                            -n \"$ca_admin_cert_nickname\" \
                            -c $CERTDB_DIR_PASSWORD \
-			   -h $CA_HOST \
-                           -p $CA_PORT \
+			   -h $KRA_HOST \
+                           -p $KRA_PORT \
                             cert-revoke $valid_pkcs10_serialNumber --force > $TmpDir/pki_kra_user_cert_add_revokecert_005pkcs10.out"
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_005pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_005pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $user2"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
         rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_005pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -389,28 +373,28 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-005: Add revoked cert to a 
 	rlRun "pki -d $CERTDB_DIR/ \
                            -n \"$ca_admin_cert_nickname\" \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             cert-revoke $valid_crmf_serialNumber --force > $TmpDir/pki_kra_user_cert_add_revokecert_005pkcs10.out"
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-			   -p $CA_PORT \
+                           -h $KRA_HOST \
+			   -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_user_cert_add-CA_validcert_005crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_005crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $user2"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
         rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_005crmf.out"
 
 rlPhaseEnd
@@ -437,12 +421,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-006-tier1: Add one cert to 
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_006crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_006crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_006crmf.pem"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add --input $TmpDir/pki_kra_user_cert_add_validcert_006pkcs10.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add --input $TmpDir/pki_kra_user_cert_add_validcert_006pkcs10.pem"
         errmsg="Error: No User ID specified."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - USER ID missing"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add --input $TmpDir/pki_kra_user_cert_add_validcert_006crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add --input $TmpDir/pki_kra_user_cert_add_validcert_006crmf.pem"
         errmsg="Error: No User ID specified."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - USER ID missing"
@@ -454,25 +438,25 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-007-tier1: Add one cert to 
         rlRun "pki -d $CERTDB_DIR \
 		   -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"New User1\" u1"
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $user2"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $user2"
         errmsg="Error: Missing input file or serial number."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Input parameter missing"
         rlRun "pki -d $CERTDB_DIR \
 		    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-del u1"
 rlPhaseEnd
 
 ##### Add one cert to a user - argument for --input parameter missing #####
 
 rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-008: Add one cert to a user should fail when argument for the --input param is missing"
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $user2 --input"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $user2 --input"
         errmsg="Error: Missing argument for option: input"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Argument for input parameter is missing"
@@ -500,13 +484,13 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-009: Add one cert to a user
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_009crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_009crmf.pem"
 
         rlRun "sed -i -e 's/-----BEGIN CERTIFICATE-----/BEGIN CERTIFICATE-----/g' $TmpDir/pki_kra_user_cert_add_validcert_009pkcs10.pem"
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_009pkcs10.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_009pkcs10.pem"
         errmsg="PKIException: Certificate exception"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Invalid Certificate cannot be added to a user"
 
         rlRun "sed -i -e 's/-----BEGIN CERTIFICATE-----/BEGIN CERTIFICATE-----/g' $TmpDir/pki_kra_user_cert_add_validcert_009crmf.pem"
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_009crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_009crmf.pem"
         errmsg="PKIException: Certificate exception"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Invalid Certificate cannot be added to a user"
@@ -514,7 +498,7 @@ rlPhaseEnd
 
         ##### Add one cert to a user - Input file does not exist #####
 rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0010: Add one cert to a user should fail when Input file does not exist "
-                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $user2 --input $TmpDir/tempfile.pem"
+                command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $user2 --input $TmpDir/tempfile.pem"
                 errmsg="FileNotFoundException: File '$TmpDir/tempfile.pem' does not exist"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Input file does not exist"
@@ -536,22 +520,22 @@ rlPhaseStartTest "pki_kra__user_cli_kra_user_cert-add-0011: Add one cert to a us
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_0011pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_0011pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $user2"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
         rlAssertGrep "Subject: UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -567,22 +551,22 @@ rlPhaseStartTest "pki_kra__user_cli_kra_user_cert-add-0011: Add one cert to a us
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
 			   -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_0011crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $user2 --input $TmpDir/pki_kra_user_cert_add_validcert_0011crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $user2"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
         rlAssertGrep "Subject: UID=Örjan Äke,E=$user2@example.org,CN=Örjan Äke,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0011crmf.out"
 rlPhaseEnd
 
@@ -593,8 +577,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0012: Add cert to a user of
 	rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$userFullname\" --type=Auditors $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$userFullname\" subject_uid:$userid subject_email:$userid@example.org \
@@ -609,22 +593,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0012: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0012pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0012pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -640,29 +624,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0012: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-			   -p $CA_PORT \
+                           -h $KRA_HOST \
+			   -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0012crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0012crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0012crmf.out"
 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-del $userid"
         rlPhaseEnd
 
@@ -673,8 +657,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0013: Add cert to a user of
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$userFullname\" --type=\"Certificate Manager Agents\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$userFullname\" subject_uid:$userid subject_email:$userid@example.org \
@@ -689,22 +673,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0013: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0013pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0013pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -720,29 +704,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0013: Add cert to a user of
 	rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0013crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0013crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0013crmf.out"
 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
         rlPhaseEnd
 
@@ -753,8 +737,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0014: Add cert to a user of
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$userFullname\" --type=\"Registration Manager Agents\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$userFullname\" subject_uid:$userid subject_email:$userid@example.org \
@@ -769,22 +753,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0014: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0014pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0014pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -800,29 +784,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0014: Add cert to a user of
 	rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0014crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0014crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0014crmf.out"
 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-del $userid"
         rlPhaseEnd
 
@@ -833,8 +817,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0015: Add cert to a user of
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$userFullname\" --type=\"Subsystem Group\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$userFullname\" subject_uid:$userid subject_email:$userid@example.org \
@@ -849,22 +833,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0015: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0015pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0015pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -880,29 +864,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0015: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
 			-n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0015crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0015crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out 2>&1" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0015crmf.out"
 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
         rlPhaseEnd
 
@@ -913,8 +897,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0016: Add cert to a user of
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$userFullname\" --type=\"Security Domain Administrators\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$userFullname\" subject_uid:$userid subject_email:$userid@example.org \
@@ -929,22 +913,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0016: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0016pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0016pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -960,29 +944,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0016: Add cert to a user of
 	rlLog "Executing pki -d $CERTDB_DIR/ \
                         -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0016crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0016crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0016crmf.out"
 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
         rlPhaseEnd
 
@@ -993,8 +977,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0017: Add cert to a user of
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$userFullname\" --type=\"ClonedSubsystems\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$userFullname\" subject_uid:$userid subject_email:$userid@example.org \
@@ -1009,22 +993,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0017: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0017pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0017pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -1040,29 +1024,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0017: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
 			-n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0017crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0017crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0017crmf.out"
 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
         rlPhaseEnd
 
@@ -1073,8 +1057,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0018: Add cert to a user of
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$userFullname\" --type=\"Trusted Managers\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$userFullname\" subject_uid:$userid subject_email:$userid@example.org \
@@ -1089,22 +1073,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0018: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             _kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0018pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0018pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -1120,29 +1104,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0018: Add cert to a user of
         rlLog "Executing pki -d $CERTDB_DIR/ \
 			 -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0018crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0018crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$userFullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0018crmf.out"
 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
         rlPhaseEnd
 
@@ -1154,29 +1138,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0019: Add an Admin user \"a
         rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"Admin User\" --password=Secret123 admin_user"
 
         rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-group-member-add Administrators admin_user > $TmpDir/pki-kra-user-add-group0019.out"
 
         rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"Admin User1\" --password=Secret123 admin_user1"
 
         rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-group-member-add Administrators admin_user1 > $TmpDir/pki-kra-user-add-group00191.out"
 
 	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1204,36 +1188,36 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0019: Add an Admin user \"a
 	rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add admin_user --input $TmpDir/pki_kra_user_cert_add_validcert_0019pkcs10.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add admin_user --input $TmpDir/pki_kra_user_cert_add_validcert_0019pkcs10.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user admin_user"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=admin_user,E=admin_user@example.org,CN=Admin User,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=admin_user,E=admin_user@example.org,CN=Admin User,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=admin_user,E=admin_user@example.org,CN=Admin User,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=admin_user,E=admin_user@example.org,CN=Admin User,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
         rlAssertGrep "Subject: UID=admin_user,E=admin_user@example.org,CN=Admin User,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019pkcs10.out"
 	rlRun "certutil -d $TEMP_NSS_DB -A -n \"admin-user-pkcs10\" -i $TmpDir/pki_kra_user_cert_add_validcert_0019pkcs10.pem  -t "u,u,u""
 
 	rlLog "pki -d $TEMP_NSS_DB/ \
                            -n admin-user-pkcs10 \
                            -c $TEMP_NSS_DB_PASSWD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"New Test User1\" new_test_user1"
         rlRun "pki -d $TEMP_NSS_DB/ \
                            -n admin-user-pkcs10 \
                            -c $TEMP_NSS_DB_PASSWD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"New Test User1\" new_test_user1 > $TmpDir/pki_kra_user_cert_add_useradd_0019.out 2>&1" \
                             0 \
                             "Adding a new user as admin_user"
@@ -1244,36 +1228,36 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0019: Add an Admin user \"a
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add admin_user1 --input $TmpDir/pki_kra_user_cert_add_validcert_0019crmf.pem"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add admin_user1 --input $TmpDir/pki_kra_user_cert_add_validcert_0019crmf.pem  > $TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out" \
                             0 \
                             "CRMF Cert is added to the user admin_user"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=admin_user1,E=admin_user1@example.org,CN=Admin User1,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=admin_user1,E=admin_user1@example.org,CN=Admin User1,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=admin_user1,E=admin_user1@example.org,CN=Admin User1,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=admin_user1,E=admin_user1@example.org,CN=Admin User1,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
         rlAssertGrep "Subject: UID=admin_user1,E=admin_user1@example.org,CN=Admin User1,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0019crmf.out"
         rlRun "certutil -d $TEMP_NSS_DB -A -n \"admin-user1-crmf\" -i $TmpDir/pki_kra_user_cert_add_validcert_0019crmf.pem  -t "u,u,u""
 
         rlLog "pki -d $TEMP_NSS_DB/ \
                            -n admin-user1-crmf \
                            -c $TEMP_NSS_DB_PASSWD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"New Test User2\" new_test_user2"
         rlRun "pki -d $TEMP_NSS_DB/ \
                            -n admin-user1-crmf \
                            -c $TEMP_NSS_DB_PASSWD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
 			   kra-user-add --fullName=\"New Test User2\" new_test_user2 > $TmpDir/pki_kra_user_cert_add_useradd_0019crmf.out 2>&1" \
                             0 \
                             "Adding a new user as admin_user"
@@ -1284,42 +1268,42 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0019: Add an Admin user \"a
 	rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-group-member-del Administrators admin_user"
 
         rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-group-member-del Administrators admin_user1"
 
         rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del admin_user"
 
         rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del admin_user1"
 	rlRun "pki -d $CERTDB_DIR \
                             -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del new_test_user1"
 
         rlRun "pki -d $CERTDB_DIR \
                             -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-del new_test_user2"
 rlPhaseEnd
 
@@ -1331,8 +1315,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-CA-0020: Adding a cert as a
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1357,12 +1341,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-CA-0020: Adding a cert as a
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_0021crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_0021crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_0021crmf.pem"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0021pkcs10.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0021pkcs10.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as valid KRA agent user"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0021crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0021crmf.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as a valid KRA agent user"
@@ -1377,8 +1361,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0021: Adding a cert as vali
         rlRun "pki -d $CERTDB_DIR \
 		   -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 	
 	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1403,12 +1387,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0021: Adding a cert as vali
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_0022crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_0022crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_0022crmf.pem"
 
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0022pkcs10.pem"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0022pkcs10.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as a KRA auditor user"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0022crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0022crmf.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as "
@@ -1422,8 +1406,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0022: Adding a cert as CA_a
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1452,12 +1436,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0022: Adding a cert as CA_a
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
         rlRun "date"
 	
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0023pkcs10.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0023pkcs10.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user authenticating using an expired admin cert"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0023crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0023crmf.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as an expired admin cert"
@@ -1474,8 +1458,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0023: Adding a cert as an a
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                   kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1500,12 +1484,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0023: Adding a cert as an a
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_0024crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_0024crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_0024crmf.pem"
 
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0024pkcs10.pem"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0024pkcs10.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as admin user with revoked cert"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0024crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0024crmf.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as admin user with revoked cert"
@@ -1521,8 +1505,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0024: Adding a cert as an a
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1547,12 +1531,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0024: Adding a cert as an a
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_0025crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_0025crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_0025crmf.pem"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0025pkcs10.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0025pkcs10.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as an agent user with revoked cert"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0025crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0025crmf.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as an agent user with revoked cert"
@@ -1568,8 +1552,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0025: Adding a cert as agen
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1598,12 +1582,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0025: Adding a cert as agen
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
         rlRun "date"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0026pkcs10.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0026pkcs10.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as an agent user with expired cert"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0026crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0026crmf.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as an agent user with expired cert"
@@ -1620,8 +1604,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0026: Adding a cert as role
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1646,12 +1630,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0026: Adding a cert as role
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_0027crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_0027crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_0027crmf.pem"
 
-        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0027pkcs10.pem"
+        command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0027pkcs10.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as KRA_adminUTCA"
 
-        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0027crmf.pem"
+        command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0027crmf.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as KRA_adminUTCA"
@@ -1667,8 +1651,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0027: Adding a cert as KRA_
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1693,12 +1677,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0027: Adding a cert as KRA_
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_0028crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_0028crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_0028crmf.pem"
 
-        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0028pkcs10.pem"
+        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0028pkcs10.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as KRA_agentUTCA"
 
-        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0028crmf.pem"
+        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0028crmf.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user KRA_agentUTCA"
@@ -1714,8 +1698,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0028: Adding a cert as KRA_
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1740,12 +1724,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0028: Adding a cert as KRA_
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_0029crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_0029crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_0029crmf.pem"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0029pkcs10.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0029pkcs10.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as KRA_operatorV"
 
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0029crmf.pem"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0029crmf.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as KRA_operatorV"
@@ -1760,8 +1744,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0029: Adding a cert as user
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    kra-user-add --fullName=\"$userFullname\" $userid"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
@@ -1786,12 +1770,12 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0029: Adding a cert as user
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_kra_user_cert_add_encoded_0030crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_kra_user_cert_add_encoded_0030crmf.out > $TmpDir/pki_kra_user_cert_add_validcert_0030crmf.pem"
 
-	command="pki -d $CERTDB_DIR -n $userid -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0030pkcs10.pem"
+	command="pki -d $CERTDB_DIR -n $userid -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0030pkcs10.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message -  Adding cert to $userid as a user not associated with any group"
 
-        command="pki -d $CERTDB_DIR -n $userid -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0030crmf.pem"
+        command="pki -d $CERTDB_DIR -n $userid -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --input $TmpDir/pki_kra_user_cert_add_validcert_0030crmf.pem"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message -  Adding cert to $userid as a user not associated with any group"
@@ -1814,22 +1798,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0030: Add one cert to a use
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add --input $TmpDir/pki_kra_user_cert_add_validcert_0031pkcs10.pem $user2"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add --input $TmpDir/pki_kra_user_cert_add_validcert_0031pkcs10.pem $user2 > $TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $user2"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
         rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -1845,22 +1829,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0030: Add one cert to a use
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-			   -h $CA_HOST \
-                           -p $CA_PORT \
+			   -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add --input $TmpDir/pki_kra_user_cert_add_validcert_0031crmf.pem $user2"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add --input $TmpDir/pki_kra_user_cert_add_validcert_0031crmf.pem $user2 > $TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $user2"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
+       rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
         rlAssertGrep "Subject: UID=$user2,E=$user2@example.org,CN=$user2fullname,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0031crmf.out"
 
 rlPhaseEnd
@@ -1872,8 +1856,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0031: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$username\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$username\" subject_uid:$userid subject_email:$userid@example.org \
@@ -1885,22 +1869,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0031: Add one cert to a use
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_pkcs10_serialNumber"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_pkcs10_serialNumber  > $TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -1913,28 +1897,28 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0031: Add one cert to a use
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_crmf_serialNumber"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_crmf_serialNumber > $TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0032crmf.out"
        rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
         rlPhaseEnd
 
@@ -1946,8 +1930,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0032: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$username\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$username\" subject_uid:$userid subject_email:$userid@example.org \
@@ -1959,22 +1943,22 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0032: Add one cert to a use
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_decimal_pkcs10_serialNumber"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_decimal_pkcs10_serialNumber  > $TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out" \
                             0 \
                             "PKCS10 Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_pkcs10_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
         rlAssertGrep "Serial Number: $valid_pkcs10_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033pkcs10.out"
 
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:crmf \
@@ -1987,29 +1971,29 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0032: Add one cert to a use
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_decimal_crmf_serialNumber"
         rlRun "pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_decimal_crmf_serialNumber > $TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out" \
                             0 \
                             "CRMF Cert is added to the user $userid"
-        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
-        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME);UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
+        rlAssertGrep "Added certificate \"2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US\"" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
+        rlAssertGrep "Cert ID: 2;$valid_decimal_crmf_serialNumber;$ca_signing_cert_subj_name;UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
         rlAssertGrep "Version: 2" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
         rlAssertGrep "Serial Number: $valid_crmf_serialNumber" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
-        rlAssertGrep "Issuer: $(eval echo \$${prefix}_SIGNING_CERT_SUBJECT_NAME)" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
+        rlAssertGrep "Issuer: $ca_signing_cert_subj_name" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
         rlAssertGrep "Subject: UID=$userid,E=$userid@example.org,CN=$username,OU=Engineering,O=Example.Inc,C=US" "$TmpDir/pki_kra_user_cert_add_useraddcert_0033crmf.out"
 
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
         rlPhaseEnd
 
@@ -2021,8 +2005,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0033: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$username\" $userid"
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn:\"$username\" subject_uid:$userid subject_email:$userid@example.org \
@@ -2036,10 +2020,10 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0033: Add one cert to a use
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_decimal_pkcs10_serialNumber --input=$TmpDir/pki_kra_user_cert_add_validcert_0034pkcs10.pem"
-        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --serial=$valid_decimal_pkcs10_serialNumber --input=$TmpDir/pki_kra_user_cert_add_validcert_0034pkcs10.pem"
+        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --serial=$valid_decimal_pkcs10_serialNumber --input=$TmpDir/pki_kra_user_cert_add_validcert_0034pkcs10.pem"
         errmsg="Error: Conflicting options: --input and --serial."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message -  Adding cert to $userid with both --serial and --input options"
@@ -2057,10 +2041,10 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0033: Add one cert to a use
         rlLog "Executing pki -d $CERTDB_DIR/ \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-cert-add $userid --serial=$valid_decimal_crmf_serialNumber --input=$TmpDir/pki_kra_user_cert_add_validcert_0034crmf.pem"
-        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --serial=$valid_decimal_crmf_serialNumber --input=$TmpDir/pki_kra_user_cert_add_validcert_0034crmf.pem"
+        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --serial=$valid_decimal_crmf_serialNumber --input=$TmpDir/pki_kra_user_cert_add_validcert_0034crmf.pem"
         errmsg="Error: Conflicting options: --input and --serial."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message -  Adding cert to $userid with both --serial and --input options"
@@ -2068,8 +2052,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0033: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
         rlPhaseEnd
 
@@ -2082,10 +2066,10 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0034: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$username\" $userid"
-        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --serial=-100"
+        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --serial=-100"
         errmsg="CertNotFoundException: Certificate ID $dectohex not found"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message -  Adding cert to $userid with negative serial number"
@@ -2093,8 +2077,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0034: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
 rlPhaseEnd
 
@@ -2106,10 +2090,10 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0035: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$username\" $userid"
-        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --serial"
+        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --serial"
         errmsg="Error: Missing argument for option: serial"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message -  Adding cert to $userid with no argument for --serial option"
@@ -2117,8 +2101,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0035: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-del $userid"
 rlPhaseEnd
 
@@ -2130,10 +2114,10 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0036: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                             kra-user-add --fullName=\"$username\" $userid"
-        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT kra-user-cert-add $userid --serial='abc'"
+        command="pki -d $CERTDB_DIR/ -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-cert-add $userid --serial='abc'"
         errmsg="NumberFormatException: For input string: \"abc\""
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message -  Adding cert to $userid with characters passed as argument to --serial "
@@ -2141,8 +2125,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0036: Add one cert to a use
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-del $userid"
 rlPhaseEnd
 #rlPhaseStartTest "pki_ca_user_cli_user_cert-add-0038: client cert authentication using cross certification"
@@ -2269,8 +2253,8 @@ rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
                rlRun "pki -d $CERTDB_DIR \
 			  -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-del  $usr > $TmpDir/pki-user-del-kra-user-symbol-00$j.out" \
                            0 \
                            "Deleted user $usr"
@@ -2283,8 +2267,8 @@ rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
                rlRun "pki -d $CERTDB_DIR \
 			  -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
-                           -h $CA_HOST \
-                           -p $CA_PORT \
+                           -h $KRA_HOST \
+                           -p $KRA_PORT \
                            kra-user-del  $usr > $TmpDir/pki-user-del-kra-new-user-00$j.out" \
                            0 \
                            "Deleted user $usr"

@@ -54,23 +54,15 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 CA_HOST=$(eval echo \$${MYROLE})
@@ -211,8 +203,8 @@ rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-004:--email with characters and nu
 	#### Modify a user's email with maximum length and symbols ####
 
 	rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-005:--email with maximum length and symbols "
-        randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
-
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+        randsym=$(echo $randsym_b64 | tr -d /)
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
@@ -393,7 +385,8 @@ rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-009:--email as number 0 "
 	#### Modify a user's state with maximum length and symbols ####
 
 rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-011:--state with maximum length and symbols "
-	randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+        randsym=$(echo $randsym_b64 | tr -d /)
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
@@ -574,7 +567,8 @@ rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-015:--state as number 0 "
 	#### Modify a user's phone with maximum length and symbols ####
 	
 rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-017:--phone with maximum length and symbols "
-	randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+        randsym=$(echo $randsym_b64 | tr -d /)
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
@@ -590,7 +584,9 @@ rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-017:--phone with maximum length an
 	#### Modify a user's phone with maximum length and numbers only ####
 
 rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-018:--phone with maximum length and numbers only "
-        randsym=`cat /dev/urandom | tr -dc '0-9' | fold -w 1024 | head -n 1`
+	randhex=$(openssl rand -hex 1024 |  perl -p -e 's/\n//')
+        randhex_covup=${randhex^^}
+        randsym=$(echo "ibase=16;$randhex_covup" | BC_LINE_LENGTH=0 bc)
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
@@ -619,7 +615,7 @@ rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-018:--phone with maximum length an
                    -c $CERTDB_DIR_PASSWORD \
                    -h $CA_HOST \
                    -p $CA_PORT \
-                    ca-user-add --fullName=test usr2"
+                    ca-user-add --fullName=test usr2 > /tmp/useraddres 2>&1"
 	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-user-mod --phone=\"#\" usr2"
 	errmsg="PKIException: LDAP error (21): error result"
         errorcode=255
@@ -823,7 +819,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-025: Modify user with --password "
 
 ##### Tests to modify users using role_user_UTCA  user's certificate will be issued by an untrusted CA users#####
     rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-034: Should not be able to modify user using a cert created from a untrusted CA role_user_UTCA"
-	command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password  -h $CA_HOST -p $CA_PORT ca-user-mod --fullName='$user1fullname' $user1"
+	command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD  -h $CA_HOST -p $CA_PORT ca-user-mod --fullName='$user1fullname' $user1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 as role_user_UTCA"
@@ -1049,19 +1045,18 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                 rlAssertGrep "Deleted user \"u$i\"" "$TmpDir/pki-user-del-ca-user-00$i.out"
                 let i=$i+1
         done
-
-	i=1
-        while [ $i -lt 5 ] ; do
+	j=1
+        while [ $j -lt 5 ] ; do
                rlRun "pki -d $CERTDB_DIR \
-                          -n $(eval echo \$${subsystemId}_adminV_user) \
+                          -n ${prefix}_adminV \
                           -c $CERTDB_DIR_PASSWORD \
-                          -h $CA_HOST \
-                          -p $CA_PORT \
-                           user-del  usr$i > $TmpDir/pki-usr-del-ca-usr-00$i.out" \
+                   -h $SUBSYSTEM_HOST \
+                           -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                           user-del  usr$j > $TmpDir/pki-user-del-ca-usr-00$j.out" \
                            0 \
-                           "Deleted user  usr$i"
-                rlAssertGrep "Deleted user \"usr$i\"" "$TmpDir/pki-usr-del-ca-usr-00$i.out"
-                let i=$i+1
+                           "Deleted user usr$j"
+                rlAssertGrep "Deleted user \"usr$j\"" "$TmpDir/pki-user-del-ca-usr-00$j.out"
+                let j=$j+1
         done
         
         j=1

@@ -68,23 +68,15 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 CA_HOST=$(eval echo \$${MYROLE})
@@ -131,7 +123,7 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_show-CA-002: maximum length of group id"
-	group2=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	group2=$(openssl rand -hex 2048 |  perl -p -e 's/\n//')
 	rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -271,7 +263,7 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_show-CA-008: --description with maximum length"
-	desc=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	desc=$(openssl rand -hex 2048 |  perl -p -e 's/\n//')
 	rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -300,7 +292,8 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_show-CA-009: --description with maximum length and symbols"
-	desc=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
+	desc_b64=$(openssl rand -base64 2048 |  perl -p -e 's/\n//')
+        desc=$(echo $desc_b64 | sed 's/\///g')
 	rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -523,7 +516,7 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_show-CA-024: Should not be able to show group using a cert created from a untrusted CA role_user_UTCA"
-	command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT group-show g7"
+	command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT group-show g7"
 	errmsg="PKIException: Unauthorized"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group g7 using CA_adminUTCA"
@@ -559,7 +552,7 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_show-CA-027: group id length exceeds maximum limit defined in the schema"
-        group_length_exceed_max=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10000 | head -n 1`
+	group_length_exceed_max=$(openssl rand -hex 10000 |  perl -p -e 's/\n//')
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT group-show  '$group_length_exceed_max'"
 	errmsg="ClientResponseFailure: ldap can't save, exceeds max length"
 	errorcode=255

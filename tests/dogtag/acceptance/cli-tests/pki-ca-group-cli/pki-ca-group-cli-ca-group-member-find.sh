@@ -73,23 +73,15 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 CA_HOST=$(eval echo \$${MYROLE})
@@ -482,7 +474,9 @@ local cert_info="$TmpDir/cert_info"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_group_cli_ca_group_member-find-020: Find group members with --size more than maximum possible value"
-        	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
+		randhex=$(openssl rand -hex 12 |  perl -p -e 's/\n//')
+                randhex_covup=${randhex^^}
+                maximum_check=$(echo "ibase=16;$randhex_covup"|bc)
 		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-find group1 --size=$maximum_check"
 		errmsg="NumberFormatException: For input string: \"$maximum_check\""
 		errorcode=255
@@ -490,7 +484,9 @@ local cert_info="$TmpDir/cert_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_group_cli_ca_group_member-find-021: Find  group members with --start more than maximum possible value"
-	        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
+		randhex=$(openssl rand -hex 12 |  perl -p -e 's/\n//')
+                randhex_covup=${randhex^^}
+                maximum_check=$(echo "ibase=16;$randhex_covup"|bc)
 		command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-find group1 --start=$maximum_check"
                 errmsg="NumberFormatException: For input string: \"$maximum_check\""
                 errorcode=255
@@ -555,7 +551,7 @@ local cert_info="$TmpDir/cert_info"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_group_cli_ca_group_member-find-029: Should not be able to ca-group-member-find using role_user_UTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT ca-group-member-find group1 --start=0 --size=5"
+                command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-find group1 --start=0 --size=5"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find ca-group-member using a untrusted CA_adminUTCA user cert"

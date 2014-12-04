@@ -68,23 +68,15 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 CA_HOST=$(eval echo \$${MYROLE})
@@ -351,14 +343,14 @@ local cert_info="$TmpDir/cert_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_group_cli_ca_group_member-del-015: Should not be able to ca-group-member-del using role_user_UTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT ca-group-member-del 'Administrators' user2"
+                command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-del 'Administrators' user2"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to ca-group-member-del using CA_adminUTCA cert"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_group_cli_ca_group_member-del-016: Should not be able to ca-group-member-del using role_user_UTCA cert"
-                command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT ca-group-member-del \"Administrators\" user2"
+                command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-member-del \"Administrators\" user2"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to ca-group-member-del using role_user_UTCA cert"
@@ -560,7 +552,7 @@ local cert_info="$TmpDir/cert_info"
 
 		#Create a user cert
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
-        algo:rsa key_size:2048 subject_cn:\"Test User1\" subject_uid:testuser1 subject_email:testuser1@example.org \
+        algo:rsa key_size:2048 subject_cn:\"testuser1\" subject_uid:testuser1 subject_email:testuser1@example.org \
         organizationalunit:Engineering organization:Example.Inc country:US archive:false req_profile:caUserCert \
         target_host:$CA_HOST protocol: port:$CA_PORT cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
         certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"

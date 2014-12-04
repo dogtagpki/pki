@@ -71,23 +71,15 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 CA_HOST=$(eval echo \$${MYROLE})
@@ -435,14 +427,14 @@ local cert_info="$TmpDir/cert_info"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_group_cli_group_member-add-CA-017: Should not be able to group-member-add using role_user_UTCA cert"
-		command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT group-member-add \"Administrators\" testuser1"
+		command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT group-member-add \"Administrators\" testuser1"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to group-member-add using CA_adminUTCA cert"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_group_cli_group_member-add-CA-018: Should not be able to group-member-add using role_user_UTCA cert"
-		command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT group-member-add \"Administrators\" testuser1"
+		command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT group-member-add \"Administrators\" testuser1"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to group-member-add using CA_agentUTCA cert"
@@ -479,7 +471,7 @@ local cert_info="$TmpDir/cert_info"
 		
 		#Create a user cert
         rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD request_type:pkcs10 \
-        algo:rsa key_size:2048 subject_cn:\"Test User1\" subject_uid:testuser1 subject_email:testuser1@example.org \
+        algo:rsa key_size:2048 subject_cn:\"testuser1\" subject_uid:testuser1 subject_email:testuser1@example.org \
         organizationalunit:Engineering organization:Example.Inc country:US archive:false req_profile:caUserCert \
         target_host:$CA_HOST protocol: port:$CA_PORT cert_db_dir:$CERTDB_DIR cert_db_pwd:$CERTDB_DIR_PASSWORD \
         certdb_nick:\"${prefix}_agentV\" cert_info:$cert_info"
@@ -488,7 +480,7 @@ local cert_info="$TmpDir/cert_info"
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_pkcs10_serialNumber --encoded > $TmpDir/pki_ca_group_member_add_encoded_0019pkcs10.out" 0 "Executing pki cert-show $valid_pkcs10_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_ca_group_member_add_encoded_0019pkcs10.out > $TmpDir/pki_ca_group_member_add_encoded_0019pkcs10.pem"
         rlRun "certutil -d $TEMP_NSS_DB -A -n \"casigningcert\" -i $CERTDB_DIR/ca_cert.pem -t \"CT,CT,CT\""
-        rlRun "certutil -d $TEMP_NSS_DB -A -n testuser1 -i $TmpDir/pki_ca_group_member_add_encoded_0019pkcs10.pem -t "u,u,u""
+        rlRun "certutil -d $TEMP_NSS_DB -A -n \"testuser1\" -i $TmpDir/pki_ca_group_member_add_encoded_0019pkcs10.pem -t \"u,u,u\""
         rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -559,7 +551,7 @@ local cert_info="$TmpDir/cert_info"
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_pkcs10_serialNumber --encoded > $TmpDir/pki_ca_group_member_add_encoded_0020pkcs10.out" 0 "Executing pki cert-show $valid_pkcs10_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_ca_group_member_add_encoded_0020pkcs10.out > $TmpDir/pki_ca_group_member_add_encoded_0020pkcs10.pem"
         rlRun "certutil -d $TEMP_NSS_DB -A -n \"casigningcert\" -i $CERTDB_DIR/ca_cert.pem -t \"CT,CT,CT\""
-        rlRun "certutil -d $TEMP_NSS_DB -A -n testuser2 -i $TmpDir/pki_ca_group_member_add_encoded_0020pkcs10.pem -t "u,u,u""
+        rlRun "certutil -d $TEMP_NSS_DB -A -n \"testuser2\" -i $TmpDir/pki_ca_group_member_add_encoded_0020pkcs10.pem -t \"u,u,u\""
         rlRun "pki -d $CERTDB_DIR/ \
                            -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \

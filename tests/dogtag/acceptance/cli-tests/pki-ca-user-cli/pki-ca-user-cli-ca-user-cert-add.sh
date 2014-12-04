@@ -55,28 +55,19 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 CA_HOST=$(eval echo \$${MYROLE})
 CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
-
 	##### Create a temporary directory to save output files  and initializing host/port variables #####
    rlPhaseStartSetup "pki_user_cli_user_cert-add-ca-startup: Create temporary directory and initializing host/port variables"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -1792,12 +1783,12 @@ rlPhaseStartTest "pki_ca_user_cli_user_cert-add-0027: Adding a cert as CA_adminU
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_user_cert_add-CA_encoded_0027crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_add-CA_encoded_0027crmf.out > $TmpDir/pki_user_cert_add-CA_validcert_0027crmf.pem"
 
-        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT ca-user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027pkcs10.pem"
+        command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT ca-user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027pkcs10.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_adminUTCA"
 
-        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT ca-user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027crmf.pem"
+        command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT ca-user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0027crmf.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_adminUTCA"
@@ -1839,12 +1830,12 @@ rlPhaseStartTest "pki_ca_user_cli_user_cert-add-0028: Adding a cert as CA_agentU
         rlRun "pki -h $CA_HOST -p $CA_PORT cert-show $valid_crmf_serialNumber --encoded > $TmpDir/pki_user_cert_add-CA_encoded_0028crmf.out" 0 "Executing pki cert-show $valid_crmf_serialNumber"
         rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $TmpDir/pki_user_cert_add-CA_encoded_0028crmf.out > $TmpDir/pki_user_cert_add-CA_validcert_0028crmf.pem"
 
-        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT ca-user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028pkcs10.pem"
+        command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT ca-user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028pkcs10.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_agentUTCA"
 
-        command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT ca-user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028crmf.pem"
+        command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT ca-user-cert-add $userid --input $TmpDir/pki_user_cert_add-CA_validcert_0028crmf.pem"
         errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as CA_agentUTCA"

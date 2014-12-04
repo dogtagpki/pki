@@ -54,23 +54,15 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
@@ -197,8 +189,8 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-004:--email with characters and numbe
     rlPhaseEnd
 
 	rlPhaseStartTest "pki_user_cli_user_mod-CA-005:--email with maximum length and symbols "
-        randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
-
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+        randsym=$(echo $randsym_b64 | tr -d /)
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -367,7 +359,8 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-009:--email as number 0 "
     rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_mod-CA-011:--state with maximum length and symbols "
-	randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+	randsym=$(echo $randsym_b64 | tr -d /)
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -534,7 +527,8 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-015:--state as number 0 "
     rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_mod-CA-017:--phone with maximum length and symbols "
-	randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+        randsym=$(echo $randsym_b64 | tr -d /)
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -548,7 +542,9 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-017:--phone with maximum length and s
     rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_mod-CA-018:--phone with maximum length and numbers only "
-        randsym=`cat /dev/urandom | tr -dc '0-9' | fold -w 1024 | head -n 1`
+	randhex=$(openssl rand -hex 1024 |  perl -p -e 's/\n//')
+        randhex_covup=${randhex^^}
+        randsym=$(echo "ibase=16;$randhex_covup" | BC_LINE_LENGTH=0 bc)
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -887,10 +883,11 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
         rlAssertGrep "Phone: $phone" "$TmpDir/pki-user-mod-ca-039_1.out"
         rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-039_1.out"
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --phone=\"\" u16"
-	errmsg="BadRequestException: Invalid DN syntax."
-	errorcode=255
-	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modifying User --phone is empty"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/833"
+	rlRun "$command > $TmpDir/pki-user-mod-ca-039_2.out" 0 "Modify user with phone is empty"
+	rlAssertGrep "Modified user \"u16\"" "$TmpDir/pki-user-mod-ca-039_2.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-039_2.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-039_2.out"
+        rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-039_2.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_mod-CA-040: Modify a user in CA using ROOTCA_adminV - state is empty"
@@ -905,10 +902,10 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-036:  Modify a user -- User ID does n
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-040_1.out"
         rlAssertGrep "State: $state" "$TmpDir/pki-user-mod-ca-040_1.out"
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --state=\"\" u16"
-	errmsg="BadRequestException: Invalid DN syntax."
-	errorcode=255
-	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modify User --state is empty"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/833"
+	rlRun "$command > $TmpDir/pki-user-mod-ca-040_2.out" 0 "Modify user with empty state"
+	rlAssertGrep "Modified user \"u16\"" "$TmpDir/pki-user-mod-ca-040_2.out"
+        rlAssertGrep "User ID: u16" "$TmpDir/pki-user-mod-ca-040_2.out"
+        rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-user-mod-ca-040_2.out"
     rlPhaseEnd
 
 ##### Tests to modify CA users with the same value ####
@@ -1029,7 +1026,19 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
                 rlAssertGrep "Deleted user \"u$i\"" "$TmpDir/pki-user-del-ca-user-00$i.out"
                 let i=$i+1
         done
-        
+        j=1
+        while [ $j -lt 5 ] ; do
+               rlRun "pki -d $CERTDB_DIR \
+                          -n ${prefix}_adminV \
+                          -c $CERTDB_DIR_PASSWORD \
+                   -h $SUBSYSTEM_HOST \
+                           -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                           user-del  usr$j > $TmpDir/pki-user-del-ca-usr-00$j.out" \
+                           0 \
+                           "Deleted user usr$j"
+                rlAssertGrep "Deleted user \"usr$j\"" "$TmpDir/pki-user-del-ca-usr-00$j.out"
+                let j=$j+1
+        done
         j=1
         while [ $j -lt 2 ] ; do
                eval usr=\$user$j

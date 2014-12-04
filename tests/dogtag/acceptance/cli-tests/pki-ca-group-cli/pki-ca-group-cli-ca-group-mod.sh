@@ -53,26 +53,6 @@ subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
-if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-        prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-                prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-        else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        fi
-else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-        prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-fi
-
 CA_HOST=$(eval echo \$${MYROLE})
 CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 
@@ -166,8 +146,8 @@ rlPhaseStartTest "pki_ca_group_cli_ca_group_mod-003:--description with character
     rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_group_cli_ca_group_mod-004:--description with maximum length and symbols "
-        randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
-
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+        randsym=$(echo $randsym_b64 | sed 's/\///g')
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -330,7 +310,7 @@ rlPhaseStartTest "pki_ca_group_cli_ca_group_mod-003:--description with character
 
 ##### Tests to modify groups using CA_adminUTCA and CA_agentUTCA  user's certificate will be issued by an untrusted CA users#####
     rlPhaseStartTest "pki_ca_group_cli_ca_group_mod-015: Should not be able to modify groups using a cert created from a untrusted CA CA_adminUTCA"
-	command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password  -h $CA_HOST -p $CA_PORT ca-group-mod --description='$group1desc' $group1"
+	command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT ca-group-mod --description='$group1desc' $group1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify group $group1 as adminUTCA"

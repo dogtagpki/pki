@@ -52,30 +52,11 @@ run_pki-user-cli-user-mod-kra_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
+caId=$4
 
-if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-        prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-                prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-        else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        fi
-else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-        prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-fi
-
-CA_HOST=$(eval echo \$${MYROLE})
-CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
-
+KRA_HOST=$(eval echo \$${MYROLE})
+KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
+CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
     #####Create temporary dir to save the output files #####
     rlPhaseStartSetup "pki_user_cli_user_mod_kra-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
@@ -116,22 +97,22 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-		   -h $CA_HOST \
-		   -p $CA_PORT \
+		   -h $KRA_HOST \
+		   -p $KRA_PORT \
 		   -t kra \
                     user-add --fullName=\"$user1fullname\" $user1"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --fullName=\"$user1_mod_fullname\" $user1"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --fullName=\"$user1_mod_fullname\" $user1 > $TmpDir/pki-kra-user-mod-002.out" \
 		    0 \
@@ -147,15 +128,15 @@ eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
          rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email $user1_mod_email --phone $user1_mod_phone --state $user1_mod_state --password $user1_mod_passwd $user1"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email $user1_mod_email --phone $user1_mod_phone --state $user1_mod_state --password $user1_mod_passwd $user1 > $TmpDir/pki-kra-user-mod-003.out" \
                     0 \
@@ -177,22 +158,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-004:--email with characters and numb
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u1"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email abcdefghijklmnopqrstuvwxyx12345678 u1"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=abcdefghijklmnopqrstuvwxyx12345678 u1 > $TmpDir/pki-kra-user-mod-004.out" \
                     0 \
@@ -206,27 +187,27 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-004:--email with characters and numb
 	#### Modify a user's email with maximum length and symbols ####
 
 	rlPhaseStartTest "pki_user_cli_user_mod_kra-005:--email with maximum length and symbols "
-        randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
-
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+        randsym=$(echo $randsym_b64 | tr -d /)
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u2"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=\"$randsym\" u2"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=\"$randsym\" u2 > $TmpDir/pki-kra-user-mod-005.out" \
                     0 \
@@ -249,22 +230,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-004:--email with characters and numb
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u3"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email # u3"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=#  u3 > $TmpDir/pki-kra-user-mod-006.out" \
                     0 \
@@ -281,22 +262,22 @@ rlPhaseStartTest "pki_user_cli_user_mod-007:--email with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u4"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email * u4"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=*  u4 > $TmpDir/pki-kra-user-mod-007.out" \
                     0 \
@@ -313,22 +294,22 @@ rlPhaseStartTest "pki_user_cli_user_mod-007:--email with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u5"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email $ u5"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=$  u5 > $TmpDir/pki-kra-user-mod-008.out" \
                     0 \
@@ -345,22 +326,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-009:--email as number 0 "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u6"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email 0 u6"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=0  u6 > $TmpDir/pki-kra-user-mod-009.out " \
                     0 \
@@ -377,22 +358,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-009:--email as number 0 "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u7"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state abcdefghijklmnopqrstuvwxyx12345678 u7"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state=abcdefghijklmnopqrstuvwxyx12345678 u7 > $TmpDir/pki-kra-user-mod-010.out" \
                     0 \
@@ -406,26 +387,27 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-009:--email as number 0 "
 	#### Modify a user's state with maximum length and symbols ####
 
 rlPhaseStartTest "pki_user_cli_user_mod-011:--state with maximum length and symbols "
-	randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
+	randsym_b64=$(openssl rand -base64 1024 |  perl -p -e 's/\n//')
+	randsym=$(echo $randsym_b64 | tr -d /)
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u8"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state=\"$randsym\" u8"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state=\"$randsym\" u8 > $TmpDir/pki-kra-user-mod-011.out" \
                     0 \
@@ -448,22 +430,22 @@ rlPhaseStartTest "pki_user_cli_user_mod-011:--state with maximum length and symb
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u9"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state # u9"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state=#  u9 > $TmpDir/pki-kra-user-mod-012.out" \
                     0 \
@@ -480,22 +462,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-013:--state with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u10"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                    user-mod --state * u10"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state=*  u10 > $TmpDir/pki-kra-user-mod-013.out" \
                     0 \
@@ -512,22 +494,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-013:--state with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u11"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state $ u11"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state=$  u11 > $TmpDir/pki-kra-user-mod-014.out" \
                     0 \
@@ -544,22 +526,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-015:--state as number 0 "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u12"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state 0 u12"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --state=0  u12 > $TmpDir/pki-kra-user-mod-015.out " \
                     0 \
@@ -576,22 +558,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-015:--state as number 0 "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u13"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --phone abcdefghijklmnopqrstuvwxyx12345678 u13"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --phone=abcdefghijklmnopqrstuvwxyx12345678 u13 > $TmpDir/pki-kra-user-mod-016.out" \
                     0 \
@@ -605,15 +587,16 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-015:--state as number 0 "
 	#### Modify a user's phone with maximum length and symbols ####
 	
 rlPhaseStartTest "pki_user_cli_user_mod_kra-017:--phone with maximum length and symbols "
-	randsym=`cat /dev/urandom | tr -dc 'a-zA-Z0-9@#%^&_+=~*-' | fold -w 1024 | head -n 1`
+	randsym_b64=$(openssl rand -base64 2048 |  perl -p -e 's/\n//')
+        randsym=$(echo $randsym_b64 | tr -d /)
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test usr1"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT -t kra user-mod --phone='$randsym' usr1"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra user-mod --phone='$randsym' usr1"
 	errmsg="PKIException: LDAP error (21): error result"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user using an admin user with maximum length --phone with character symbols in it"
@@ -622,19 +605,21 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-017:--phone with maximum length and 
 	#### Modify a user's phone with maximum length and numbers only ####
 
 rlPhaseStartTest "pki_user_cli_user_mod_kra-018:--phone with maximum length and numbers only "
-        randsym=`cat /dev/urandom | tr -dc '0-9' | fold -w 1024 | head -n 1`
+	randhex=$(openssl rand -hex 1024)
+        randhex_covup=${randhex^^}
+        randsym=$(echo "ibase=16;$randhex_covup" | BC_LINE_LENGTH=0 bc)
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --phone=\"$randsym\" usr1"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --phone=\"$randsym\"  usr1 > $TmpDir/pki-kra-user-mod-018.out"\
                     0 \
@@ -651,11 +636,11 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-018:--phone with maximum length and 
 	 rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test usr2"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT -t kra user-mod --phone=\"#\" usr2"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra user-mod --phone=\"#\" usr2"
 	errmsg="PKIException: LDAP error (21): error result"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user using admin user --phone with character symbols in it"
@@ -667,11 +652,11 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-020:--phone with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test usr3"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --phone=\"*\" usr3"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --phone=\"*\" usr3"
 	errmsg="PKIException: LDAP error (21): error result"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user using admin user --phone with character symbols in it"
@@ -683,11 +668,11 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-020:--phone with * character "
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test usr4"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --phone $ usr4"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --phone $ usr4"
 	errmsg="PKIException: LDAP error (21): error result"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user using admin user --phone with character symbols in it"
@@ -699,22 +684,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-022:--phone as negative number -1230
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u14"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                   user-mod --phone -1230 u14"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --phone=-1230  u14 > $TmpDir/pki-kra-user-mod-022.out " \
                     0 \
@@ -729,7 +714,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-022:--phone as negative number -1230
 	#### Modify a user - missing required option user id ####
 
     rlPhaseStartTest "pki_user_cli_user_mod_kra-023-tier1:  Modify a user -- missing required option user id"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname'"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname'"
 	errmsg="Error: No User ID specified."
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modify user -- missing required option user id"
@@ -745,15 +730,15 @@ rlPhaseStartTest "pki_user_cli_user_mod-kra-024-tier1:  Modify a user -- all opt
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test u15"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --fullName=\"$user1fullname\"  \
                     --email $email \
@@ -765,8 +750,8 @@ rlPhaseStartTest "pki_user_cli_user_mod-kra-024-tier1:  Modify a user -- all opt
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --fullName=\"$user1fullname\"  \
                     --email $email \
@@ -775,7 +760,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-kra-024-tier1:  Modify a user -- all opt
                     --state $state \
                      u15 >  $TmpDir/pki-kra-user-mod-025.out" \
                     0 \
-                    "Modify user u15 to CA -- all options provided"
+                    "Modify user u15 to KRA -- all options provided"
         rlAssertGrep "Modified user \"u15\"" "$TmpDir/pki-kra-user-mod-025.out"
         rlAssertGrep "User ID: u15" "$TmpDir/pki-kra-user-mod-025.out"
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-kra-user-mod-025.out"
@@ -788,7 +773,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-kra-024-tier1:  Modify a user -- all opt
 
 rlPhaseStartTest "pki_user_cli_user_mod_kra-025: Modify user with --password "
         userpw="pass"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT -t kra user-mod $user1 --fullName='$user1fullname' --password=$userpw"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra user-mod $user1 --fullName='$user1fullname' --password=$userpw"
         errmsg="PKIException: The password must be at least 8 characters"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modify a user --must be at least 8 characters --password"
@@ -796,7 +781,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-025: Modify user with --password "
 
 ##### Tests to modify users using revoked cert#####
     rlPhaseStartTest "pki_user_cli_user_mod_kra-026: Should not be able to modify user using a revoked cert"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1_mod_fullname' $user1"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1_mod_fullname' $user1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using a user having revoked cert"
@@ -806,14 +791,14 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-025: Modify user with --password "
 
 ##### Tests to modify users using an agent user#####
     rlPhaseStartTest "pki_user_cli_user_mod_kra-028: Should not be able to modify user using a valid agent user"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
 	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using a agent cert"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_mod_kra-029: Should not be able to modify user using an agent user with a revoked cert"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using a agent cert"
@@ -826,7 +811,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-025: Modify user with --password "
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
 	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using an expired admin cert"
@@ -838,7 +823,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-025: Modify user with --password "
         rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
                                 rlRun "date"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
 	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using an expired agent cert"
@@ -848,7 +833,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-025: Modify user with --password "
 
  ##### Tests to modify users using audit users#####
     rlPhaseStartTest "pki_user_cli_user_mod_kra-032: Should not be able to modify user using an auditor user"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
 	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 using an audit cert"
@@ -856,7 +841,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-025: Modify user with --password "
 
         ##### Tests to modify users using operator user###
     rlPhaseStartTest "pki_user_cli_user_mod_kra-033: Should not be able to modify user using an operator user"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
 	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 as KRA_operatorV"
@@ -864,14 +849,14 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-025: Modify user with --password "
 
 ##### Tests to modify users using role_user_UTCA  user's certificate will be issued by an untrusted KRA users#####
     rlPhaseStartTest "pki_user_cli_user_mod_kra-034: Should not be able to modify user using a cert created from a untrusted KRA role_user_UTCA"
-	command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
+	command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname' $user1"
 	errmsg="PKIException: Unauthorized"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user $user1 as role_user_UTCA"
     rlPhaseEnd
 
 rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does not exist"
-        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName='$user1fullname'  u17"
+        command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName='$user1fullname'  u17"
         errmsg="ResourceNotFoundException: No such object."
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modifying a non existing user"
@@ -883,8 +868,8 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=\"$user1fullname\"  \
                     --email $email \
@@ -892,7 +877,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
                     --phone $phone \
                     --state $state \
                      u16"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --fullName=\"\" u16"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --fullName=\"\" u16"
 	errmsg="BadRequestException: Invalid DN syntax."
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modifying User --fullname is empty"
@@ -905,8 +890,8 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-show u16 > $TmpDir/pki-kra-user-mod-038_1.out" 
 	rlAssertGrep "User \"u16\"" "$TmpDir/pki-kra-user-mod-038_1.out"
@@ -918,15 +903,15 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=\"\" u16"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=\"\" u16 > $TmpDir/pki-kra-user-mod-038_2.out" \
                     0 \
@@ -944,8 +929,8 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-show u16 > $TmpDir/pki-kra-user-mod-039_1.out"
 	rlAssertGrep "User \"u16\"" "$TmpDir/pki-kra-user-mod-039_1.out"
@@ -953,7 +938,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-kra-user-mod-039_1.out"
         rlAssertGrep "Phone: $phone" "$TmpDir/pki-kra-user-mod-039_1.out"
         rlAssertGrep "State: $state" "$TmpDir/pki-kra-user-mod-039_1.out"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --phone=\"\" u16"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --phone=\"\" u16"
 	rlRun "$command" 0 "Successfully updated phone to empty value"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/836"
     rlPhaseEnd
@@ -964,15 +949,15 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                    user-show u16 > $TmpDir/pki-kra-user-mod-040_1.out"
 	rlAssertGrep "User \"u16\"" "$TmpDir/pki-kra-user-mod-040_1.out"
         rlAssertGrep "User ID: u16" "$TmpDir/pki-kra-user-mod-040_1.out"
         rlAssertGrep "Full name: $user1fullname" "$TmpDir/pki-kra-user-mod-040_1.out"
         rlAssertGrep "State: $state" "$TmpDir/pki-kra-user-mod-040_1.out"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --state=\"\" u16"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --state=\"\" u16"
 	rlRun "$command" 0 "Successfully updated phone to empty value"
 	rlLog "FAIL: https://fedorahosted.org/pki/ticket/836"
     rlPhaseEnd
@@ -984,8 +969,8 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-show $user1 > $TmpDir/pki-kra-user-mod-041_1.out"
 	rlAssertGrep "User \"$user1\"" "$TmpDir/pki-kra-user-mod-041_1.out"
@@ -994,15 +979,15 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --fullName=\"$user1_mod_fullname\" $user1"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --fullName=\"$user1_mod_fullname\" $user1 > $TmpDir/pki-kra-user-mod-041_2.out" \
                     0 \
@@ -1018,8 +1003,8 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-show u16 > $TmpDir/pki-kra-user-mod-042_1.out"
         rlAssertGrep "User \"u16\"" "$TmpDir/pki-kra-user-mod-042_1.out"
@@ -1029,15 +1014,15 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-035:  Modify a user -- User ID does 
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=\"$email\" u16"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --email=\"$email\" u16 > $TmpDir/pki-kra-user-mod-042_2.out" \
                     0 \
@@ -1054,22 +1039,22 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-042: Modify a user's fullname having
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=\"$i18nuserfullname\" $i18nuser"
         rlLog "Executing: pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --fullName=\"$i18nuser_mod_fullname\" $i18nuser"
         rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
-                   -h $CA_HOST \
-                   -p $CA_PORT \
+                   -h $KRA_HOST \
+                   -p $KRA_PORT \
                    -t kra \
                     user-mod --fullName=\"$i18nuser_mod_fullname\" $i18nuser > $TmpDir/pki-kra-user-mod-043.out" \
                    0 \
@@ -1082,7 +1067,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-042: Modify a user's fullname having
 ##### Tests to modify KRA users having i18n chars in email ####
 
 rlPhaseStartTest "pki_user_cli_user_mod_kra-043: Modify a user's email having i18n chars in KRA using an admin user"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $CA_HOST -p $CA_PORT -t kra user-mod --email=$i18nuser_mod_email $i18nuser"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT -t kra user-mod --email=$i18nuser_mod_email $i18nuser"
 	errmsg="PKIException: LDAP error (21): error result"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Modified $i18nuser email should fail"
@@ -1097,8 +1082,8 @@ rlPhaseStartTest "pki_user_cli_user_kra_cleanup: Deleting role users"
                rlRun "pki -d $CERTDB_DIR \
                           -n $(eval echo \$${subsystemId}_adminV_user) \
                           -c $CERTDB_DIR_PASSWORD \
-			  -h $CA_HOST \
-                   	  -p $CA_PORT \
+			  -h $KRA_HOST \
+                   	  -p $KRA_PORT \
                    -t kra \
                            user-del  u$i > $TmpDir/pki-user-del-kra-user-00$i.out" \
                            0 \
@@ -1112,8 +1097,8 @@ rlPhaseStartTest "pki_user_cli_user_kra_cleanup: Deleting role users"
                rlRun "pki -d $CERTDB_DIR \
                           -n $(eval echo \$${subsystemId}_adminV_user) \
                           -c $CERTDB_DIR_PASSWORD \
-                          -h $CA_HOST \
-                          -p $CA_PORT \
+                          -h $KRA_HOST \
+                          -p $KRA_PORT \
                    -t kra \
                            user-del  usr$i > $TmpDir/pki-usr-del-kra-usr-00$i.out" \
                            0 \
@@ -1128,8 +1113,8 @@ rlPhaseStartTest "pki_user_cli_user_kra_cleanup: Deleting role users"
                rlRun "pki -d $CERTDB_DIR \
                           -n $(eval echo \$${subsystemId}_adminV_user) \
                           -c $CERTDB_DIR_PASSWORD \
-			  -h $CA_HOST \
-                   	  -p $CA_PORT \
+			  -h $KRA_HOST \
+                   	  -p $KRA_PORT \
                    -t kra \
                            user-del  $usr > $TmpDir/pki-user-del-kra-user-symbol-00$j.out" \
                            0 \
@@ -1140,8 +1125,8 @@ rlPhaseStartTest "pki_user_cli_user_kra_cleanup: Deleting role users"
 	rlRun "pki -d $CERTDB_DIR \
                           -n $(eval echo \$${subsystemId}_adminV_user) \
                           -c $CERTDB_DIR_PASSWORD \
-			  -h $CA_HOST \
-                   	  -p $CA_PORT \
+			  -h $KRA_HOST \
+                   	  -p $KRA_PORT \
                    -t kra \
                            user-del $i18nuser > $TmpDir/pki-user-del-kra-i18nuser-001.out" \
                            0 \

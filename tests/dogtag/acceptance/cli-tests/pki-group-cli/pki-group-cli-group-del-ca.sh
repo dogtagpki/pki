@@ -55,23 +55,15 @@ SUBSYSTEM_TYPE=$2
 MYROLE=$3
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 fi
 
 CA_HOST=$(eval echo \$${MYROLE})
@@ -213,8 +205,8 @@ local cert_info="$TmpDir/cert_info"
         rlAssertGrep "usage: group-del <Group ID>" "$TmpDir/pki-group-del-ca-group-003_1.out"
     rlPhaseEnd
   
-    rlPhaseStartTest "pki_group_cli_group_del-CA-006: Maximum length of group id"
-	group2=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+    rlPhseStartTest "pki_group_cli_group_del-CA-006: Maximum length of group id"
+	group2=$(openssl rand -hex 2048 |  perl -p -e 's/\n//')
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -245,7 +237,8 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd 
     
     rlPhaseStartTest "pki_group_cli_group_del-CA-007: groupid with maximum length and symbols"
-	groupid=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
+	rand_groupid=$(openssl rand -base64 2048 |  perl -p -e 's/\n//')
+        groupid=$(echo $rand_groupid | sed 's/\///g')
         rlRun "pki -d $CERTDB_DIR \
 		   -n ${prefix}_adminV \
                     -c $CERTDB_DIR_PASSWORD \
@@ -465,7 +458,7 @@ local cert_info="$TmpDir/cert_info"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_group_cli_group_del-CA-016: Should not be able to delete group using a cert created from a untrusted CA CA_adminUTCA"
-	command="pki -d /tmp/untrusted_cert_db -n role_user_UTCA -c Password -h $CA_HOST -p $CA_PORT group-del g2"
+	command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $CA_HOST -p $CA_PORT group-del g2"
 	errmsg="PKIException: Unauthorized"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete group g2 using a untrusted cert"
