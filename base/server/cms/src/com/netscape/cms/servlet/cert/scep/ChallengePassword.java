@@ -88,7 +88,7 @@ public class ChallengePassword implements CertAttrSet {
 
     private void construct(DerValue derVal) throws IOException {
         try {
-            cpw = derVal.getPrintableString();
+            cpw = derVal.getDirectoryString();
         } catch (NullPointerException e) {
             cpw = "";
         }

@@ -130,6 +130,13 @@ public class DerValue {
     /** Tag value indicating an ASN.1 "UTF8String" value. (since 1998) */
     public final static byte tag_UTF8String = 0x0C;
 
+    public final static byte[] tags_DirectoryString =
+        { tag_T61String
+        , tag_PrintableString
+        , tag_UniversalString
+        , tag_UTF8String
+        , tag_BMPString };
+
     // CONSTRUCTED seq/set
 
     /**
@@ -517,6 +524,21 @@ public class DerValue {
         if (tag != tag_PrintableString)
             throw new IOException(
                     "DerValue.getPrintableString, not a string " + tag);
+
+        return getASN1CharString();
+    }
+
+    public String getDirectoryString() throws IOException {
+        boolean tagValid = false;
+        for (int i = 0; i < tags_DirectoryString.length; i++) {
+            if (tag == tags_DirectoryString[i]) {
+                tagValid = true;
+                break;
+            }
+        }
+        if (!tagValid)
+            throw new IOException(
+                "DerValue.getDirectoryString: invalid tag: " + tag);
 
         return getASN1CharString();
     }

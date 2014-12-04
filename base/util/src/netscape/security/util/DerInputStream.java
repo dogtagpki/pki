@@ -369,6 +369,10 @@ public class DerInputStream {
         return (new DerValue(buffer)).getUniversalString();
     }
 
+    public String getDirectoryString() throws IOException {
+        return (new DerValue(buffer)).getDirectoryString();
+    }
+
     /**
      * Get a UTC encoded time value from the input stream.
      */
