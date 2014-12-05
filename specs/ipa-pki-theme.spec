@@ -1,5 +1,5 @@
 Name:             ipa-pki-theme
-Version:          10.1.1
+Version:          10.1.2
 Release:          1%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -12,7 +12,14 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
+%if 0%{?rhel}
+# NOTE:  In the future, as a part of its path, this URL will contain a release
+#        directory which consists of the fixed number of the upstream release
+#        upon which this tarball was originally based.
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{name}-%{version}%{?prerel}.tar.gz
+%else
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
+%endif
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -115,6 +122,10 @@ cd build
 
 
 %changelog
+* Thu Dec  4 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.2-1
+- PKI Trac Ticket #1211 - New release overwrites old source tarball
+- Updated version number to 10.1.2
+
 * Fri Mar 21 2014 Matthew Harmsen <mharmsen@redhat.com> 10.1.1-1
 - PKI TRAC Ticket #840 - pkispawn requires policycoreutils-python (mharmsen)
 - Bugzilla Bug #1057959 - pkispawn requires policycoreutils-python (mharmsen)
