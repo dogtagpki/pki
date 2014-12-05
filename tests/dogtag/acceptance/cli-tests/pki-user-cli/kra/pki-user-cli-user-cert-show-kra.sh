@@ -54,11 +54,10 @@ subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
 caId=$4
-caHost=$5
+CA_HOST=$5
 KRA_HOST=$(eval echo \$${MYROLE})
 KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
-CA_HOST=$(eval echo \$${caHost})
 ca_signing_cert_subj_name=$(eval echo \$${caId}_SIGNING_CERT_SUBJECT_NAME)
 	##### Create temporary directory to save output files #####
     rlPhaseStartSetup "pki_user_cli_user_cert-show-kra-startup: Create temporary directory"

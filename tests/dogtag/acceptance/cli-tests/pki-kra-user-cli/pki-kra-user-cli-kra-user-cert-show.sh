@@ -54,11 +54,10 @@ subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
 caId=$4
-caHost=$5
+CA_HOST=$5
 KRA_HOST=$(eval echo \$${MYROLE})
 KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
-CA_HOST=$(eval echo \$${caHost})
 	##### Create temporary directory to save output files #####
     rlPhaseStartSetup "pki_kra_user_cli_kra_user_cert-show-startup: Create temporary directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
