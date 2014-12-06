@@ -162,7 +162,8 @@ run_pki-ca-user-cli-ca-user-find_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_find-006: Find all users, --size with maximum possible value as input"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 9 | head -n 1`
+	maximum_check=$(echo $RANDOM$RANDOM$RANDOM$RANDOM)
+        maximum_check=${maximum_check:1:9}
 	rlLog "pki -d $CERTDB_DIR \
                    -n \"${prefix}_adminV\" \
                    -c $CERTDB_DIR_PASSWORD \
@@ -188,7 +189,8 @@ run_pki-ca-user-cli-ca-user-find_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_find-007: Find all users, --size more than maximum possible value"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
+	maximum_check=$(echo $RANDOM$RANDOM$RANDOM$RANDOM)
+        maximum_check=${maximum_check:1:12}
         rlLog "pki -d $CERTDB_DIR \
                    -n \"${prefix}_adminV\" \
                    -c $CERTDB_DIR_PASSWORD \
@@ -287,7 +289,8 @@ run_pki-ca-user-cli-ca-user-find_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_find-013: Find users, --start with maximum possible input"
-	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 9 | head -n 1`
+	maximum_check=$(echo $RANDOM$RANDOM$RANDOM$RANDOM)
+        maximum_check=${maximum_check:1:9}
 	rlLog "pki -d $CERTDB_DIR \
                    -n \"${prefix}_adminV\" \
                    -c $CERTDB_DIR_PASSWORD \
@@ -306,7 +309,8 @@ run_pki-ca-user-cli-ca-user-find_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_find-014: Find users, --start with more than maximum possible input"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
+	maximum_check=$(echo $RANDOM$RANDOM$RANDOM$RANDOM)
+        maximum_check=${maximum_check:1:12}	
         rlLog "pki -d $CERTDB_DIR \
                    -n \"${prefix}_adminV\" \
                    -c $CERTDB_DIR_PASSWORD \
@@ -636,8 +640,8 @@ Import CA certificate (Y/n)? \"" >> $expfile
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_find-031: find users when user fullname has i18n characters"
-	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
-        rlLog "ca-user-add user fullnamr ÖrjanÄke with i18n characters"
+	maximum_check=$(echo $RANDOM$RANDOM$RANDOM$RANDOM)
+        maximum_check=${maximum_check:1:5}
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -665,7 +669,8 @@ Import CA certificate (Y/n)? \"" >> $expfile
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_find-032: find users when user fullname has i18n characters"
-	maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1`
+	maximum_check=$(echo $RANDOM$RANDOM$RANDOM$RANDOM)
+        maximum_check=${maximum_check:1:5}
         rlLog "ca-user-add userid ÉricTêko with i18n characters"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \

@@ -126,7 +126,7 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-002: maximum length of user id"
-	user2=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	user2=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2047 | tr -d '\n')
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -266,7 +266,7 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-008: --email with maximum length"
-	email=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	email=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2047 | tr -d '\n')
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -296,7 +296,9 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-009: --email with maximum length and symbols"
-	email=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
+	specialcharacters="!?@~#*^_+$"
+	email=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2037 | tr -d '\n')
+        email=$email$specialcharacters
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -418,7 +420,7 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-014: --state with maximum length"
-	state=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	state=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2047 | tr -d '\n')
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -448,7 +450,9 @@ run_pki-user-cli-user-show-ca_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-015: --state with maximum length and symbols"
-	state=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
+	specialcharacters="!?@~#*^_+$"
+	state=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2037 | tr -d '\n')
+        state=$state$specialcharacters
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -571,7 +575,14 @@ run_pki-user-cli-user-show-ca_tests(){
 
 	#https://www.redhat.com/archives/pki-users/2010-February/msg00015.html
     rlPhaseStartTest "pki_user_cli_user_show-CA-020: --phone with maximum length"
-	phone=`cat /dev/urandom | tr -dc '0-9' | fold -w 2048 | head -n 1`
+	phone=`echo $RANDOM`
+	stringlength=0
+	while [[ $stringlength -lt  2049 ]] ; do
+		phone="$phone$RANDOM"
+		stringlength=`echo $phone | wc -m`
+	done
+	phone=`echo $phone | cut -c1-2047`
+	rlLog "phone=$phone"
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1006,7 +1017,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-043: user id length exceeds maximum limit defined in the schema"
-        user_length_exceed_max=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10000 | head -n 1`
+	user_length_exceed_max=$(openssl rand -base64 10000 | strings | tr -d '\n')
         rlLog "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \

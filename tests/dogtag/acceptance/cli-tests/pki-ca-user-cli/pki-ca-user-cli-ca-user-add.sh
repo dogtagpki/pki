@@ -121,7 +121,7 @@ run_pki-ca-user-cli-ca-user-add_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_add-002: Maximum length of user id"
-	user2=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	user2=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2047 | tr -d '\n')
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -216,7 +216,7 @@ run_pki-ca-user-cli-ca-user-add_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_add-008:--email with maximum length"
-	email=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	email=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2047 | tr -d '\n')
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -238,7 +238,9 @@ run_pki-ca-user-cli-ca-user-add_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_add-009:--email with maximum length and symbols"
-	email=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
+	specialcharacters="!?@~#*^_+$"
+	email=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2037 | tr -d '\n')
+        email=$email$specialcharacters	
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -320,7 +322,7 @@ run_pki-ca-user-cli-ca-user-add_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_add-014:--state with maximum length"
-	state=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	state=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2047 | tr -d '\n')
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -342,7 +344,9 @@ run_pki-ca-user-cli-ca-user-add_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_add-015:--state with maximum length and symbols"
-	state=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
+	specialcharacters="!?@~#*^_+$"
+	state=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2037 | tr -d '\n')
+        state=$state$specialcharacters
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -424,7 +428,14 @@ run_pki-ca-user-cli-ca-user-add_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_add-020:--phone with maximum length"
-	phone=`cat /dev/urandom | tr -dc '0-9' | fold -w 2048 | head -n 1`
+	phone=`$RANDOM`
+        stringlength=0
+        while [[ $stringlength -lt  2049 ]] ; do
+                phone="$phone$RANDOM"
+                stringlength=`echo $phone | wc -m`
+        done
+        phone=`echo $phone | cut -c1-2047`
+        rlLog "phone=$phone"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -440,7 +451,9 @@ run_pki-ca-user-cli-ca-user-add_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_add-021:--phone with maximum length and symbols"
-	phone=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
+	specialcharacters="!?@~#*^_+$"
+	phone=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2037 | tr -d '\n')
+        phone=$state$specialcharacters
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -954,7 +967,7 @@ run_pki-ca-user-cli-ca-user-add_tests(){
     rlPhaseEnd
 
     rlPhaseStartTest "pki_ca_user_cli_ca_user_add-050: user id length exceeds maximum limit defined in the schema"
-	user_length_exceed_max=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10000 | head -n 1`
+	user_length_exceed_max=$(openssl rand -base64 80000 | strings | grep -io [[:alnum:]] | head -n 10000 | tr -d '\n')
 	rlLog "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -1439,3 +1452,4 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 }
+

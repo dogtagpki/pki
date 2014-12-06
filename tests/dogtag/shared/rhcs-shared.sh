@@ -279,10 +279,10 @@ install_and_trust_KRA_cert(){
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 disable_ca_nonce(){
-	local ca_server_root=$1
-	local rc=0
-	rlLog "Configuring ca.enableNonces=false ..."
-        ca_config_file="$ca_server_root/conf/CS.cfg"
+        local ca_tomcat_name=$1
+        local rc=0
+        rlLog "Configuring ca.enableNonces=false ..."
+        ca_config_file="/var/lib/pki/$ca_tomcat_name/ca/conf/CS.cfg"
         temp_file="$ca_config_file.temp"
         search_string="ca.enableNonces=true"
         replace_string="ca.enableNonces=false"
@@ -291,11 +291,11 @@ disable_ca_nonce(){
         chown pkiuser:pkiuser $ca_config_file
         cat $ca_config_file | grep $replace_string
         if [ $? -eq 0 ] ; then
-		rhcs_stop_instance
-                rhcs_start_instance
+                rhcs_stop_instance $ca_tomcat_name
+                rhcs_start_instance $ca_tomcat_name
         else
-		lLog "$ca_config_file did not get configured with $replace_string"
-		rc=1
+                lLog "$ca_config_file did not get configured with $replace_string"
+                rc=1
         fi
         return $rc
 }
@@ -308,10 +308,10 @@ disable_ca_nonce(){
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 enable_ca_nonce(){
-        local ca_server_root=$1
-	local rc=0
+        local ca_tomcat_name=$1
+        local rc=0
         rlLog "Configuring ca.enableNonces=true ..."
-        ca_config_file="$ca_server_root/conf/CS.cfg"
+        ca_config_file="/var/lib/pki/$ca_tomcat_name/ca/conf/CS.cfg"
         temp_file="$ca_config_file.temp"
         search_string="ca.enableNonces=false"
         replace_string="ca.enableNonces=true"
@@ -320,13 +320,13 @@ enable_ca_nonce(){
         chown pkiuser:pkiuser $ca_config_file
         cat $ca_config_file | grep $replace_string
         if [ $? -eq 0 ] ; then
-		rhcs_stop_instance
-                rhcs_start_instance
+                rhcs_stop_instance $ca_tomcat_name
+                rhcs_start_instance $ca_tomcat_name
         else
-		rlLog "$ca_config_file did not get configured with $replace_string"
-		rc=1
+                rlLog "$ca_config_file did not get configured with $replace_string"
+                rc=1
         fi
-	return $rc
+        return $rc
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #

@@ -465,7 +465,8 @@ run_pki-ca-user-cli-ca-user-membership-find_tests(){
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_user_cli_ca_user_membership-find-020: Find user-membership with --size more than maximum possible value"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
+	maximum_check=$(echo $RANDOM$RANDOM$RANDOM$RANDOM)
+        maximum_check=${maximum_check:1:12}
 	rlLog "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -484,7 +485,8 @@ run_pki-ca-user-cli-ca-user-membership-find_tests(){
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_user_cli_ca_user_membership-find-021: Find user-membership with --start more than maximum possible value"
-        maximum_check=`cat /dev/urandom | tr -dc '0-9' | fold -w 11 | head -n 1`
+	maximum_check=$(echo $RANDOM$RANDOM$RANDOM$RANDOM)
+        maximum_check=${maximum_check:1:12}
         rlLog "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \

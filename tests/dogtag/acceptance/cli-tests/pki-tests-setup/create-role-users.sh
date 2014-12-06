@@ -132,7 +132,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			  -h $SUBSYSTEM_HOST \
 			  -t $SUBSYSTEM_TYPE \
 			  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-			   user-add --fullName=\"$userfullName\" $userid" --password $userpasswd
+			   user-add --fullName=\"$userfullName\" --password $userpasswd $userid"
 	       rlRun "pki -d $CERTDB_DIR \
 			  -n \"$admin_cert_nickname\" \
 			  -c $CERTDB_DIR_PASSWORD \

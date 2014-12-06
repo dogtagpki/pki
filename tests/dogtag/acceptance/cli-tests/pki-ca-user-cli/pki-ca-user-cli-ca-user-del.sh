@@ -196,7 +196,7 @@ run_pki-ca-user-cli-ca-user-del_tests(){
     rlPhaseEnd
   
     rlPhaseStartTest "pki_ca_user_cli_ca_user_del-006: Maximum length of user id"
-	user2=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 2048 | head -n 1`
+	user2=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2047 | tr -d '\n')
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -227,7 +227,9 @@ run_pki-ca-user-cli-ca-user-del_tests(){
     rlPhaseEnd 
     
     rlPhaseStartTest "pki_ca_user_cli_ca_user_del-007: userid with maximum length and symbols"
-	userid=`cat /dev/urandom | tr -dc 'a-zA-Z0-9!?@~#*^_+$' | fold -w 2048 | head -n 1`
+	specialcharacters="!?@~#*^_+$"
+	userid=$(openssl rand -base64 30000 | strings | grep -io [[:alnum:]] | head -n 2037 | tr -d '\n')
+        userid=$userid$specialcharacters
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -676,4 +678,3 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
 }
-

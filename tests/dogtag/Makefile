@@ -243,6 +243,9 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-find.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-add.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
+	# Legacy tests
+	chmod a+x ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
+
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
