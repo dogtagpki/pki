@@ -15,10 +15,10 @@ BuildRequires:    java-devel >= 1:1.7.0
 BuildRequires:    jpackage-utils >= 1.7.5-10
 
 %if 0%{?rhel}
-# NOTE:  In the future, as a part of its path, this URL will contain a release
-#        directory which consists of the fixed number of the upstream release
-#        upon which this tarball was originally based.
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{name}-%{version}%{?prerel}.tar.gz
+# NOTE:  As a part of its path, this URL contains a fixed number representing
+#        the number of the upstream release upon which this tarball was
+#        originally based.
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/5/rhel/%{name}-%{version}%{?prerel}.tar.gz
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
