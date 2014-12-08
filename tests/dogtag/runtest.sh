@@ -177,6 +177,7 @@
 . ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-add.sh
 . ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 . ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
+. ./acceptance/legacy/ca-tests/profiles/ca-profile.sh
 . ./acceptance/bugzilla/bug_setup.sh
 . ./acceptance/bugzilla/bug_uninstall.sh
 . ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
@@ -1415,6 +1416,11 @@ rlJournalStart
                   rlLog "Subsystem ID CA=$CA_INST, MY_ROLE=$MYROLE"
                   run_pki-legacy-ca-usergroup_tests $subsystemId $subsystemType $MYROLE
         fi
+	PKI_LEGACY_CA_PROFILE_UPPERCASE=$(echo $PKI_LEGACY_CA_PROFILE | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_PROFILE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_admin-ca-log_tests $subsystemType $MYROLE
+	fi
         rlPhaseEnd
 
 	######## DEV UNIT TESTS ############
