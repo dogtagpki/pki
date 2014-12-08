@@ -665,27 +665,27 @@ generate_new_cert()
 	local STRIP_HEX=$(echo $valid_serialNumber | cut -dx -f2)
         local CONV_UPP_VAL=${STRIP_HEX^^}
         local decimal_valid_serialNumber=$(echo "ibase=16;$CONV_UPP_VAL"|bc)
-        rlLog "Get the cert in a output file"
-        rlRun "pki -h $target_host -p $target_port cert-show $valid_serialNumber --encoded --output $tmp_nss_db/$cn-out.pem 1> $tmp_nss_db/pki-cert-show.out"
-        rlAssertGrep "Certificate \"$valid_serialNumber\"" "$tmp_nss_db/pki-cert-show.out"
-        rlRun "pki -h $target_host -p $target_port cert-show 0x1 --encoded --output  $tmp_nss_db/ca_cert.pem 1> $tmp_nss_db/ca-cert-show.out"
-        rlAssertGrep "Certificate \"0x1\"" "$tmp_nss_db/ca-cert-show.out"
-        rlLog "Add the $cn cert to $tmp_nss_db NSS DB"
-        rlRun "pki -d $tmp_nss_db \
-                -h $target_host \
-                -p $target_port \
-                -c $tmp_nss_db_pwd \
-                -n \"$subject_cn\" client-cert-import \
-                --cert $tmp_nss_db/$cn-out.pem 1> $tmp_nss_db/pki-client-cert.out"
-        rlAssertGrep "Imported certificate \"$subject_cn\"" "$tmp_nss_db/pki-client-cert.out"
-        rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
-        rlRun "pki -d $tmp_nss_db \
-                -h $target_host \
-                -p $target_port \
-                -c $tmp_nss_db_pwd \
-                -n \"casigningcert\" client-cert-import \
-                --ca-cert $tmp_nss_db/ca_cert.pem 1> $tmp_nss_db/pki-ca-cert.out"
-        rlAssertGrep "Imported certificate \"casigningcert\"" "$tmp_nss_db/pki-ca-cert.out"
+#        rlLog "Get the cert in a output file"
+#        rlRun "pki -h $target_host -p $target_port cert-show $valid_serialNumber --encoded --output $tmp_nss_db/$cn-out.pem 1> $tmp_nss_db/pki-cert-show.out"
+#        rlAssertGrep "Certificate \"$valid_serialNumber\"" "$tmp_nss_db/pki-cert-show.out"
+#        rlRun "pki -h $target_host -p $target_port cert-show 0x1 --encoded --output  $tmp_nss_db/ca_cert.pem 1> $tmp_nss_db/ca-cert-show.out"
+#        rlAssertGrep "Certificate \"0x1\"" "$tmp_nss_db/ca-cert-show.out"
+#        rlLog "Add the $cn cert to $tmp_nss_db NSS DB"
+#        rlRun "pki -d $tmp_nss_db \
+#                -h $target_host \
+#                -p $target_port \
+#                -c $tmp_nss_db_pwd \
+#                -n \"$subject_cn\" client-cert-import \
+#                --cert $tmp_nss_db/$cn-out.pem 1> $tmp_nss_db/pki-client-cert.out"
+#        rlAssertGrep "Imported certificate \"$subject_cn\"" "$tmp_nss_db/pki-client-cert.out"
+#        rlLog "Get CA cert imported to $TEMP_NSS_DB NSS DB"
+#        rlRun "pki -d $tmp_nss_db \
+#                -h $target_host \
+#                -p $target_port \
+#                -c $tmp_nss_db_pwd \
+#                -n \"casigningcert\" client-cert-import \
+#                --ca-cert $tmp_nss_db/ca_cert.pem 1> $tmp_nss_db/pki-ca-cert.out"
+#        rlAssertGrep "Imported certificate \"casigningcert\"" "$tmp_nss_db/pki-ca-cert.out"
 
         echo cert_serialNumber-$valid_serialNumber > $cert_info
         echo cert_start_date-$cert_start_date >> $cert_info
