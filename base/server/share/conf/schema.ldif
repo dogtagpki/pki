@@ -476,14 +476,179 @@ objectClasses: ( pkiSecurityGroup-oid NAME 'pkiSecurityGroup' DESC 'CMS defined 
 dn: cn=schema
 changetype: modify
 add: objectClasses
-objectClasses: ( pkiSubsystem-oid NAME 'pkiSubsystem' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ Host $ SecurePort $ SubsystemName $ Clone ) MAY ( DomainManager $ SecureAgentPort $ SecureAdminPort $SecureEEClientAuthPort $ UnSecurePort ) X-ORIGIN 'user defined' ) 
+objectClasses: ( pkiSubsystem-oid NAME 'pkiSubsystem' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ Host $ SecurePort $ SubsystemName $ Clone ) MAY ( DomainManager $ SecureAgentPort $ SecureAdminPort $SecureEEClientAuthPort $ UnSecurePort ) X-ORIGIN 'user defined' )
 
 dn: cn=schema
 changetype: modify
 add: objectClasses
-objectClasses: ( pkiRange-oid NAME 'pkiRange' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ beginRange $ endRange $ Host $ SecurePort ) X-ORIGIN 'user defined' ) 
+objectClasses: ( pkiRange-oid NAME 'pkiRange' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ beginRange $ endRange $ Host $ SecurePort ) X-ORIGIN 'user defined' )
 
 dn: cn=schema
 changetype: modify
 add: objectClasses
-objectClasses: ( securityDomainSessionEntry-oid NAME 'securityDomainSessionEntry' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ host $ uid $ cmsUserGroup $ dateOfCreate ) X-ORIGIN 'user defined' ) 
+objectClasses: ( securityDomainSessionEntry-oid NAME 'securityDomainSessionEntry' DESC 'CMS defined class' SUP top STRUCTURAL MUST ( cn $ host $ uid $ cmsUserGroup $ dateOfCreate ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfCreate-oid NAME 'dateOfCreate' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( dateOfModify-oid NAME 'dateOfModify' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( modified-oid NAME 'modified' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenUserID-oid NAME 'tokenUserID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenStatus-oid NAME 'tokenStatus' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenAppletID-oid NAME 'tokenAppletID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( keyInfo-oid NAME 'keyInfo' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( numberOfResets-oid NAME 'numberOfResets' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( numberOfEnrollments-oid NAME 'numberOfEnrollments' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( numberOfRenewals-oid NAME 'numberOfRenewals' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( numberOfRecoveries-oid NAME 'numberOfRecoveries' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( allowPinReset-oid NAME 'allowPinReset' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( extensions-oid NAME 'extensions' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenOp-oid NAME 'tokenOp' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenID-oid NAME 'tokenID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenMsg-oid NAME 'tokenMsg' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenResult-oid NAME 'tokenResult' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenIP-oid NAME 'tokenIP' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenPolicy-oid NAME 'tokenPolicy' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenIssuer-oid NAME 'tokenIssuer' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenSubject-oid NAME 'tokenSubject' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenSerial-oid NAME 'tokenSerial' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenOrigin-oid NAME 'tokenOrigin' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenType-oid NAME 'tokenType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenKeyType-oid NAME 'tokenKeyType' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenReason-oid NAME 'tokenReason' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenNotBefore-oid NAME 'tokenNotBefore' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( tokenNotAfter-oid NAME 'tokenNotAfter' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: attributeTypes
+attributeTypes: ( profileID-oid NAME 'profileID' DESC 'CMS defined attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( tokenRecord-oid NAME 'tokenRecord' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ modified $ tokenReason $ tokenUserID $ tokenStatus $ tokenAppletID $ keyInfo $ tokenPolicy $ extensions $ numberOfResets $ numberOfEnrollments $ numberOfRenewals $ numberOfRecoveries $ userCertificate $ tokenType ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( tokenActivity-oid NAME 'tokenActivity' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ tokenOp $ tokenIP $ tokenResult $ tokenID $ tokenUserID $ tokenMsg $ extensions $ tokenType ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( tokenCert-oid NAME 'tokenCert' DESC 'CMS defined class' SUP top STRUCTURAL MUST cn MAY ( dateOfCreate $ dateOfModify $ userCertificate $ tokenUserID $ tokenID $ tokenIssuer $ tokenOrigin $ tokenSubject $ tokenSerial $ tokenStatus $ tokenType $ tokenKeyType $ tokenNotBefore $ tokenNotAfter $ extensions ) X-ORIGIN 'user defined' )
+
+dn: cn=schema
+changetype: modify
+add: objectClasses
+objectClasses: ( tpsProfileID-oid NAME 'tpsProfileID' DESC 'CMS defined class' SUP top AUXILIARY MAY ( profileID ) X-ORIGIN 'user-defined' )

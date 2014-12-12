@@ -1329,8 +1329,10 @@ class Directory:
              file_perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
              symlink_perms=config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
              dir_acls=None, file_acls=None, symlink_acls=None,
-             recursive_flag=True, overwrite_flag=False, critical_failure=True):
+             recursive_flag=True, overwrite_flag=False, critical_failure=True,
+             ignore_cb=None):
         try:
+
             if not os.path.exists(old_name) or not os.path.isdir(old_name):
                 config.pki_log.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, old_name,
@@ -1357,7 +1359,7 @@ class Directory:
                     # implementation's unchecked call to 'os.makedirs(dst)'.
                     # Consequently, a 'patched' local copy of this routine has
                     # been included in this file with the appropriate fix.
-                    pki_copytree(old_name, new_name)
+                    pki_copytree(old_name, new_name, ignore=ignore_cb)
                 else:
                     # cp -p <old_name> <new_name>
                     config.pki_log.info(log.PKIHELPER_CP_P_2,

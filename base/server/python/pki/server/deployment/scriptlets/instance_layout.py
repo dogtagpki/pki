@@ -1,6 +1,6 @@
 #!/usr/bin/python -t
 # Authors:
-#     Matthew Harmsen <mharmsen@redhat.com>
+# Matthew Harmsen <mharmsen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 
 # System Imports
 import os
-
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -51,9 +50,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.directory.create(deployer.mdict['pki_instance_log_path'])
 
             # establish Tomcat instance configuration
+            # don't copy over the common ldif files to etc instance path
             deployer.directory.copy(
                 deployer.mdict['pki_source_server_path'],
-                deployer.mdict['pki_instance_configuration_path'])
+                deployer.mdict['pki_instance_configuration_path'],
+                ignore_cb=file_ignore_callback_src_server)
 
             # establish Tomcat instance base
             deployer.directory.create(deployer.mdict['pki_tomcat_common_path'])
@@ -85,7 +86,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # If desired and available,
             # copy selected server theme
             # to <instance>/webapps/pki
-            if config.str2bool(deployer.mdict['pki_theme_enable']) and\
+            if config.str2bool(deployer.mdict['pki_theme_enable']) and \
                     os.path.exists(deployer.mdict['pki_theme_server_dir']):
                 deployer.directory.copy(
                     deployer.mdict['pki_theme_server_dir'],
@@ -311,3 +312,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_instance_type_registry_path'])
 
         return self.rv
+
+
+# Callback only when the /usr/share/pki/server/conf directory
+# Is getting copied to the etc tree.
+# Don't copy the shared ldif files:
+# schema.ldif, manager.ldif, database.ldif
+def file_ignore_callback_src_server(src, names):
+    config.pki_log.info(log.FILE_EXCLUDE_CALLBACK_2, src, names,
+                        extra=config.PKI_INDENTATION_LEVEL_1)
+
+    excludes = {'schema.ldif', 'database.ldif', 'manager.ldif'}
+    return excludes
