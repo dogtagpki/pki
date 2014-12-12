@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.1
-Release:          0.2%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -229,6 +229,7 @@ Requires:         ldapjdk
 Requires:         python-ldap
 Requires:         python-lxml
 Requires:         python-requests >= 1.1.0-3
+
 %if  0%{?rhel}
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
@@ -240,8 +241,20 @@ Requires:    resteasy-base-jaxrs >= 3.0.6-1
 Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
 Requires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
+%if  0%{?fedora} >= 22
+# Starting from Fedora 22, resteasy packages were split into
+# subpackages.
+Requires:    resteasy-atom-provider >= 3.0.6-7
+Requires:    resteasy-client >= 3.0.6-7
+Requires:    resteasy-jaxb-provider >= 3.0.6-7
+Requires:    resteasy-core >= 3.0.6-7
+Requires:    resteasy-jaxrs-api >= 3.0.6-7
+Requires:    resteasy-jackson-provider >= 3.0.6-7
+%else
 Requires:         resteasy >= 3.0.6-2
 %endif
+%endif
+
 Requires:         xalan-j2
 Requires:         xerces-j2
 Requires:         xml-commons-apis
@@ -861,8 +874,12 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Fri Dec 12 2014 Ade Lee <alee@redhat.com> 10.2.1-0.3
+- Change resteasy dependencies for F22+
+
 * Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.1-0.2
-- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade (cfu)
+- Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by
+  default and upgrade (cfu)
 - PKI Trac Ticket #1211 - New release overwrites old source tarball (mharmsen)
 - up the release number to 0.2
 
