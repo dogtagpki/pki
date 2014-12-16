@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.1
-Release:          0.3%{?dist}
+Release:          0.4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -312,15 +312,18 @@ Obsoletes:        pki-silent < %{version}-%{release}
 Requires:         java-headless >= 1:1.7.0
 Requires:         net-tools
 Requires:         perl(File::Slurp)
-Requires:         perl(XML::LibXML)
-Requires:         perl-Crypt-SSLeay
 Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 Requires:         policycoreutils-python
 
-Requires:         selinux-policy-base >= 3.11.1-43
+%if  0%{?fedora} >= 21
+Requires:         selinux-policy-targeted >= 3.13.1-9
+%else
+# 0%{?rhel} || 0%{?fedora} < 21
+Requires:         selinux-policy-targeted >= 3.12.1-153
+%endif
 Obsoletes:        pki-selinux
 
 %if 0%{?rhel}
@@ -504,12 +507,10 @@ Requires(postun): systemd-units
 # additional runtime requirements needed to run native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
 Requires:         mod_nss
-Requires:         mod_perl
 Requires:         mod_revocator
 Requires:         nss >= 3.14.3
 Requires:         nss-tools >= 3.14.3
 Requires:         openldap-clients
-Requires:         perl-Mozilla-LDAP
 Requires:         pki-symkey = %{version}-%{release}
 
 %description -n   pki-tps
@@ -874,6 +875,12 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Tue Dec 16 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.1-0.4
+- PKI TRAC Ticket #1187 - mod_perl should be removed from requirements for 10.2
+- PKI TRAC Ticket #1205 - Outdated selinux-policy dependency.
+- Removed perl(XML::LibXML), perl-Crypt-SSLeay, and perl-Mozilla-LDAP runtime
+  dependencies
+
 * Fri Dec 12 2014 Ade Lee <alee@redhat.com> 10.2.1-0.3
 - Change resteasy dependencies for F22+
 
