@@ -25,7 +25,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.util.Utils;
 
 /**
- * A class represents a user-origreq uid mapping acls evaluator.
+ * A class represents a user-origreq user mapping acls evaluator.
  * This is primarily used for renewal. During renewal, the orig_req
  * uid is placed in the SessionContext of the renewal session context
  * to be evaluated by this evaluator
@@ -87,7 +87,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
      * @param type must be "at_userreq"
      * @param op must be "="
      * @param value the request param name
-     * @return true if AuthToken uid is same as value, false otherwise
+     * @return true if AuthToken userid is same as value, false otherwise
      */
     public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
         CMS.debug("UserOrigReqAccessEvaluator: evaluate() begins");
@@ -97,16 +97,16 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
             if ((s.equals(ANYBODY) || s.equals(EVERYBODY)) && op.equals("="))
                 return true;
 
-            // should define "uid" at a common place
-            String uid = null;
+            // should define "userid" at a common place
+            String userid = null;
 
-            uid = authToken.getInString("uid");
+            userid = authToken.getInString("userid");
 
-            if (uid == null) {
-                CMS.debug("UserOrigReqAccessEvaluator: evaluate() uid in authtoken null");
+            if (userid == null) {
+                CMS.debug("UserOrigReqAccessEvaluator: evaluate() userid in authtoken null");
                 return false;
             } else
-                CMS.debug("UserOrigReqAccessEvaluator: evaluate() uid in authtoken =" + uid);
+                CMS.debug("UserOrigReqAccessEvaluator: evaluate() userid in authtoken =" + userid);
 
             // find value of param in request
             SessionContext mSC = SessionContext.getContext();
@@ -120,9 +120,9 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
             }
             CMS.debug("UserOrigReqAccessEvaluator: evaluate() orig_id =" + orig_id);
             if (op.equals("="))
-                return uid.equalsIgnoreCase(orig_id);
+                return userid.equalsIgnoreCase(orig_id);
             else if (op.equals("!="))
-                return !(uid.equalsIgnoreCase(orig_id));
+                return !(userid.equalsIgnoreCase(orig_id));
         }
 
         return false;
