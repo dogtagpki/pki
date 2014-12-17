@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.2.0
-Release:          5%{?dist}
+Release:          6%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -17,12 +17,17 @@ ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %define esc_version                1.1.0
 # NOTE:  The following package versions are TLS compliant:
 %define jss_version                4.2.6-35
-%define pki_core_version           10.2.0-5
+%define pki_core_version           10.2.0-6
 %define pki_console_version        10.2.0-5
 %define tomcatjss_version          7.1.1
 
 Requires:         apache-commons-codec
-Requires:         selinux-policy-base >= 3.11.1-43
+%if  0%{?fedora} >= 21
+Requires:         selinux-policy-targeted >= 3.13.1-9
+%else
+# 0%{?rhel} || 0%{?fedora} < 21
+Requires:         selinux-policy-targeted >= 3.12.1-153
+%endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL top-level Dogtag PKI support packages
@@ -107,6 +112,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Tue Dec 16 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.0-6
+- PKI TRAC Ticket #1205 - Outdated selinux-policy dependency.
+
 * Wed Dec  3 2014 Matthew Harmsen <mharmsen@redhat.com> 10.2.0-5
 - Make dependencies comply with TLS changes
 
