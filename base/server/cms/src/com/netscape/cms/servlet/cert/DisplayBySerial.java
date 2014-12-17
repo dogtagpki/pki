@@ -323,6 +323,7 @@ public class DisplayBySerial extends CMSServlet {
                         if (certType != null && certType.equals(IRequest.CLIENT_CERT)) {
                             noCertImport = false;
                         }
+                        header.addStringValue("reqId", rid);
                     }
                 }
                 header.addBooleanValue("noCertImport", noCertImport);
