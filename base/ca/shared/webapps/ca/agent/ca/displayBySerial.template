@@ -157,6 +157,19 @@ if (result.header.revocationReason != null) {
 <table border="0" cellspacing="2" cellpadding="2" width="100%">
 <tr align="left" bgcolor="#e5e5e5"><td align="left">
 <font face="PrimaSans BT, Verdana, sans-serif" size="-1">
+Certificate request info</font></td></tr></table>
+<p>
+<font size=-1 face="PrimaSans BT, Verdana, sans-serif">
+Request ID: 
+<SCRIPT type="text/javascript">
+document.write('<a href="profileReview?requestId=' + result.header.reqId + '">' + result.header.reqId + '</a>');
+</SCRIPT>
+</p>
+
+<p>
+<table border="0" cellspacing="2" cellpadding="2" width="100%">
+<tr align="left" bgcolor="#e5e5e5"><td align="left">
+<font face="PrimaSans BT, Verdana, sans-serif" size="-1">
 Installing this certificate in a server</font></td></tr></table>
 
 <p>
