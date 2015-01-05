@@ -310,7 +310,7 @@ ROOTCA_agent_user=${caId}_agentV
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to kra-group-member-del using admin user with expired cert KRA_adminE"
-		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 	rlPhaseEnd
 
@@ -321,7 +321,7 @@ ROOTCA_agent_user=${caId}_agentV
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to kra-group-member-del using KRA_agentE cert"
-		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 	rlPhaseEnd
 
@@ -351,7 +351,6 @@ ROOTCA_agent_user=${caId}_agentV
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to kra-group-member-del using role_user_UTCA cert"
-		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_group_cli_kra_group_member-del-017: Delete kra-group-member for user id with i18n characters"

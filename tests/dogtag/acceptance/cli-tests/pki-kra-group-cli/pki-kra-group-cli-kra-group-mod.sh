@@ -125,7 +125,6 @@ local TEMP_NSS_DB_PASSWD="redhat123"
         rlAssertGrep "Modified group \"$group1\"" "$TmpDir/pki-kra-group-mod-002.out"
         rlAssertGrep "Group ID: $group1" "$TmpDir/pki-kra-group-mod-002.out"
         rlAssertGrep "Description: $group1_mod_description" "$TmpDir/pki-kra-group-mod-002.out"
-	rlLog "PKI TICKET: https://fedorahosted.org/pki/ticket/818"
     rlPhaseEnd
 
 
@@ -153,7 +152,6 @@ rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-003:--description with charact
         rlAssertGrep "Modified group \"g1\"" "$TmpDir/pki-kra-group-mod-004.out"
         rlAssertGrep "Group ID: g1" "$TmpDir/pki-kra-group-mod-004.out"
         rlAssertGrep "Description: abcdefghijklmnopqrstuvwxyx12345678" "$TmpDir/pki-kra-group-mod-004.out"
-	rlLog "PKI TICKET: https://fedorahosted.org/pki/ticket/818"
     rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-004:--description with maximum length and symbols "
@@ -189,7 +187,6 @@ rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-003:--description with charact
         else
                 rlFail "$expected_group_string not found"
         fi
-	rlLog "PKI TICKET: https://fedorahosted.org/pki/ticket/818"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-005:--description with $ character "
@@ -216,7 +213,6 @@ rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-003:--description with charact
         rlAssertGrep "Modified group \"g3\"" "$TmpDir/pki-kra-group-mod-008.out"
         rlAssertGrep "Group ID: g3" "$TmpDir/pki-kra-group-mod-008.out"
         rlAssertGrep "Description: \\$" "$TmpDir/pki-kra-group-mod-008.out"
-	rlLog "PKI TICKET: https://fedorahosted.org/pki/ticket/818"
     rlPhaseEnd
 
 
@@ -247,7 +243,6 @@ rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-003:--description with charact
         rlAssertGrep "Modified group \"g4\"" "$TmpDir/pki-kra-group-mod-007.out"
         rlAssertGrep "Group ID: g4" "$TmpDir/pki-kra-group-mod-007.out"
         rlAssertGrep "Description: $group1desc" "$TmpDir/pki-kra-group-mod-007.out"
-	rlLog "PKI TICKET: https://fedorahosted.org/pki/ticket/818"
     rlPhaseEnd
     rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-007:  Modify a group -- missing required option group id"
 	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-group-mod --description='$group1desc'"
@@ -384,7 +379,6 @@ rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-016:  Modify a group -- Group 
 	rlAssertGrep "Modified group \"$group1\"" "$TmpDir/pki-kra-group-mod-041_2.out"
         rlAssertGrep "Group ID: $group1" "$TmpDir/pki-kra-group-mod-041_2.out"
         rlAssertGrep "Description: $group1_mod_description" "$TmpDir/pki-kra-group-mod-041_2.out"
-	rlLog "PKI TICKET: https://fedorahosted.org/pki/ticket/818"
     rlPhaseEnd
 
 ##### Tests to modify KRA groups having i18n chars in the description ####
@@ -413,7 +407,6 @@ rlPhaseStartTest "pki_kra_group_cli_kra_group_mod-019: Modify a groups's descrip
         rlAssertGrep "Modified group \"$i18ngroup\"" "$TmpDir/pki-kra-group-mod-043.out"
         rlAssertGrep "Group ID: $i18ngroup" "$TmpDir/pki-kra-group-mod-043.out"
         rlAssertGrep "Description: $i18ngroup_mod_description" "$TmpDir/pki-kra-group-mod-043.out"
-	rlLog "PKI TICKET: https://fedorahosted.org/pki/ticket/818"
     rlPhaseEnd
 
 ##### Tests to modify system generated KRA groups ####

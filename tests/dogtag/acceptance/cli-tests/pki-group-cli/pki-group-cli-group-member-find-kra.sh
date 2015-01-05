@@ -56,7 +56,7 @@ run_pki-group-cli-group-member-find-kra_tests(){
         groupid7="Security Domain Administrators"
         groupid8="Enterprise KRA Administrators"
 
-	rlPhaseStartTest "pki_group_cli_group_member-find_kra-001: Create temporary directory"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-001: Create temporary directory"
                 rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
                 rlRun "pushd $TmpDir"
         rlPhaseEnd
@@ -83,7 +83,7 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 local cert_info="$TmpDir/cert_info"
 
  
-        rlPhaseStartTest "pki_group_cli_group_member-find_kra-001: Find kra-group-member when user is added to different groups"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-002: Find kra-group-member when user is added to different groups"
                 i=1
                 while [ $i -lt 9 ] ; do
                        rlLog "pki -d $CERTDB_DIR \
@@ -141,7 +141,7 @@ local cert_info="$TmpDir/cert_info"
                 done
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-002: Find kra-group-member when the same user is added to many groups"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-003: Find kra-group-member when the same user is added to many groups"
                 rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -192,7 +192,7 @@ local cert_info="$TmpDir/cert_info"
                 done
         rlPhaseEnd
 	
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-003: Find kra-group-member when many users are added to one group"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-004: Find kra-group-member when many users are added to one group"
 		i=1
 		rlRun "pki -d $CERTDB_DIR \
 				    -n $(eval echo \$${subsystemId}_adminV_user) \
@@ -260,7 +260,7 @@ local cert_info="$TmpDir/cert_info"
                 done
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-004: Find group-member of a user from the 6th position (start=5)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-005: Find group-member of a user from the 6th position (start=5)"
 		rlRun "pki -d $CERTDB_DIR \
 			    -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -283,7 +283,7 @@ local cert_info="$TmpDir/cert_info"
                 rlAssertGrep "Number of entries returned 9" "$TmpDir/pki-kra-group-member-find-groupadd-find-start-001.out"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-005: Find all group members of a group (start=0)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-006: Find all group members of a group (start=0)"
                 rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -303,7 +303,7 @@ local cert_info="$TmpDir/cert_info"
                 rlAssertGrep "Number of entries returned 14" "$TmpDir/pki-kra-group-member-find-groupadd-find-start-002.out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-006: Find group members when page start is negative (start=-1)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-007: Find group members when page start is negative (start=-1)"
 		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=-1"
 		errmsg="--start option should have argument greater than 0"
 		errorcode=255
@@ -312,7 +312,7 @@ local cert_info="$TmpDir/cert_info"
 		rlLog "FAIL: https://fedorahosted.org/pki/ticket/929"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-007: Find group members when page start greater than available number of groups (start=15)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-008: Find group members when page start greater than available number of groups (start=15)"
 		rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -326,14 +326,14 @@ local cert_info="$TmpDir/cert_info"
                 rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-kra-group-member-find-groupadd-find-start-004.out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-008: Should not be able to find group members when page start is non integer"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-009: Should not be able to find group members when page start is non integer"
 		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=a"
 		errmsg="NumberFormatException: For input string: \"a\""
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group members when page start is non integer"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-009: Find group member when page size is 0 (size=0)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-010: Find group member when page size is 0 (size=0)"
 		rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -346,7 +346,7 @@ local cert_info="$TmpDir/cert_info"
 		rlAssertGrep "Number of entries returned 0" "$TmpDir/pki-kra-group-member-find-groupadd-find-size-006.out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-010: Find group members when page size is 1 (size=1)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-011: Find group members when page size is 1 (size=1)"
 		rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -360,7 +360,7 @@ local cert_info="$TmpDir/cert_info"
                 rlAssertGrep "Number of entries returned 1" "$TmpDir/pki-kra-group-member-find-groupadd-find-size-007.out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-011: Find group members when page size is 15 (size=15)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-012: Find group members when page size is 15 (size=15)"
                 rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -379,7 +379,7 @@ local cert_info="$TmpDir/cert_info"
                 rlAssertGrep "Number of entries returned 14" "$TmpDir/pki-kra-group-member-find-groupadd-find-size-009.out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-012: Find group members when page size greater than available number of groups (size=100)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-013: Find group members when page size greater than available number of groups (size=100)"
 		rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -398,7 +398,7 @@ local cert_info="$TmpDir/cert_info"
                 rlAssertGrep "Number of entries returned 14" "$TmpDir/pki-kra-group-member-find-groupadd-find-size-0010.out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-013: Find group-member when page size is negative (size=-1)"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-014: Find group-member when page size is negative (size=-1)"
 		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --size=-1"
 		errmsg="--size option should have argument greater than 0"
 		errorcode=255
@@ -406,14 +406,14 @@ local cert_info="$TmpDir/cert_info"
 		rlLog "FAIL: https://fedorahosted.org/pki/ticket/861"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_group_cli_group_member-find-kra-014: Should not be able to find group members when page size is non integer"
+        rlPhaseStartTest "pki_group_cli_group_member-find-kra-015: Should not be able to find group members when page size is non integer"
 		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --size=a"
 		errmsg="NumberFormatException: For input string: \"a\""
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "String cannot be used as input to size parameter "
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-015: Find group members with -t option"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-016: Find group members with -t option"
 		rlLog "Executing: pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -440,7 +440,7 @@ local cert_info="$TmpDir/cert_info"
         	rlAssertGrep "Number of entries returned 5" "$TmpDir/pki-kra-group-member-find-018.out"
 	rlPhaseEnd		
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-016: Find group members with page start and page size option"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-017: Find group members with page start and page size option"
 		rlLog "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -467,7 +467,7 @@ local cert_info="$TmpDir/cert_info"
                 rlAssertGrep "Number of entries returned 5" "$TmpDir/pki-kra-group-member-find-019.out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-017: Find group members with --size more than maximum possible value"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-018: Find group members with --size more than maximum possible value"
 		randhex=$(openssl rand -hex 12 |  perl -p -e 's/\n//')
         	randhex_covup=${randhex^^}
 	        maximum_check=$(echo "ibase=16;$randhex_covup"|bc)
@@ -477,7 +477,7 @@ local cert_info="$TmpDir/cert_info"
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "An exception should be thrown if size has a value greater than the maximum possible"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-018: Find  group members with --start more than maximum possible value"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-019: Find  group members with --start more than maximum possible value"
 		randhex=$(openssl rand -hex 12 |  perl -p -e 's/\n//')
         	randhex_covup=${randhex^^}
 	        maximum_check=$(echo "ibase=16;$randhex_covup"|bc)
@@ -487,7 +487,7 @@ local cert_info="$TmpDir/cert_info"
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "An exception should be thrown if start has a value greater than the maximum possible"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-019: Should not be able to group-member-find using a revoked cert KRA_adminR"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-020: Should not be able to group-member-find using a revoked cert KRA_adminR"
                 command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
 		errmsg="PKIException: Unauthorized"
 		errorcode=255
@@ -496,7 +496,7 @@ local cert_info="$TmpDir/cert_info"
 	        rlLog "PKI Ticket: https://fedorahosted.org/pki/ticket/1182"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-020: Should not be able to group-member-find using an agent with revoked cert KRA_agentR"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-021: Should not be able to group-member-find using an agent with revoked cert KRA_agentR"
 		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentR_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
 		errmsg="PKIException: Unauthorized"
                 errorcode=255
@@ -505,14 +505,14 @@ local cert_info="$TmpDir/cert_info"
 	        rlLog "PKI Ticket: https://fedorahosted.org/pki/ticket/1182"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-021: Should not be able to group-member-find using a valid agent KRA_agentV user"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-022: Should not be able to group-member-find using a valid agent KRA_agentV user"
 		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group members using a valid agent KRA_agentV user cert"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-022: Should not be able to group-member-find using admin user with expired cert KRA_adminE"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-023: Should not be able to group-member-find using admin user with expired cert KRA_adminE"
 		rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
        		rlRun "date"
 		command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
@@ -523,7 +523,7 @@ local cert_info="$TmpDir/cert_info"
 		rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-023: Should not be able to group-member-find using KRA_agentE cert"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-024: Should not be able to group-member-find using KRA_agentE cert"
 		rlRun "date --set='+2 days'" 0 "Set System date 2 days ahead"
                 rlRun "date"
                 command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_agentE_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
@@ -534,28 +534,28 @@ local cert_info="$TmpDir/cert_info"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-024: Should not be able to group-member-find using KRA_auditV cert"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-025: Should not be able to group-member-find using KRA_auditV cert"
                 command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_auditV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a valid auditor KRA_auditV user cert"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-025: Should not be able to group-member-find using KRA_operatorV cert"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-026: Should not be able to group-member-find using KRA_operatorV cert"
                 command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_operatorV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-members using a valid operator KRA_operatorV user cert"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-026: Should not be able to group-member-find using role_user_UTCA cert"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-027: Should not be able to group-member-find using role_user_UTCA cert"
                 command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a untrusted CA_adminUTCA user cert"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-027: Should not be able to group-member-find using role_user_UTCA cert"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-028: Should not be able to group-member-find using role_user_UTCA cert"
                 command="pki -d $UNTRUSTED_CERT_DB_LOCATION -n role_user_UTCA -c $UNTRUSTED_CERT_DB_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra group-member-find group1 --start=0 --size=5"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
@@ -563,7 +563,7 @@ local cert_info="$TmpDir/cert_info"
 		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-028:Find group-member for group id with i18n characters"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-029:Find group-member for group id with i18n characters"
                 rlLog "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \
                     -c $CERTDB_DIR_PASSWORD \
@@ -625,7 +625,7 @@ local cert_info="$TmpDir/cert_info"
                 rlAssertGrep "User: u9" "$TmpDir/pki-kra-group-member-find-groupadd-find-031_3.out"	
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_group_cli_group_member-find-kra-029: Find group-member - paging"
+	rlPhaseStartTest "pki_group_cli_group_member-find-kra-030: Find group-member - paging"
                 i=1
                 rlRun "pki -d $CERTDB_DIR \
 			   -n $(eval echo \$${subsystemId}_adminV_user) \

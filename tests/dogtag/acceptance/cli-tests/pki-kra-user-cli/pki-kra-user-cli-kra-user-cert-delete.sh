@@ -92,7 +92,6 @@ ROOTCA_agent_user=${caId}_agentV
                 "User cert delete configuration"
         rlAssertGrep "usage: kra-user-cert-del <User ID> <Cert ID>" "$TmpDir/pki_kra_user_cert_del_cfg.out"
 	rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/pki_kra_user_cert_del_cfg.out"
-	rlLog "FAIL:https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
 
 	##### Tests to delete certs assigned to KRA users ####
@@ -372,7 +371,6 @@ ROOTCA_agent_user=${caId}_agentV
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-del should fail if authenticating using a valid auditor cert"
 
-		rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 	rlPhaseEnd
 
 	##### Delete certs asigned to a user - as KRA_adminE ##### 
@@ -395,7 +393,7 @@ ROOTCA_agent_user=${caId}_agentV
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-del should fail if authenticating using an expired admin cert"
 		rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 
-                rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+                rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
 	rlPhaseEnd
 
 	 ##### Delete certs asigned to a user - as KRA_agentE ##### 
@@ -418,7 +416,7 @@ ROOTCA_agent_user=${caId}_agentV
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-del should fail if authenticating using an expired agent cert"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 
-                rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+                rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
         rlPhaseEnd
 
 	 ##### Delete certs asigned to a user - as KRA_adminR ##### 

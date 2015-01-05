@@ -363,7 +363,7 @@ ROOTCA_agent_user=${caId}_agentV
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to kra-group-member-add using admin user with expired cert CA_adminE"
-		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
         rlPhaseEnd
 
@@ -374,7 +374,7 @@ ROOTCA_agent_user=${caId}_agentV
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to kra-group-member-add using KRA_agentE cert"
-		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
         rlPhaseEnd
 
@@ -404,7 +404,6 @@ ROOTCA_agent_user=${caId}_agentV
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to kra-group-member-add using KRA_agentUTCA cert"
-		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
 	rlPhaseEnd
 
 	#Usability tests
@@ -460,7 +459,7 @@ ROOTCA_agent_user=${caId}_agentV
 		errorcode=255
 		rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "kra-user-add operation should fail when authenticating using a user cert"
 
-		rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+		rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
 
 		#Add testuser1 to Administrators group
 		rlRun "pki -d $CERTDB_DIR \

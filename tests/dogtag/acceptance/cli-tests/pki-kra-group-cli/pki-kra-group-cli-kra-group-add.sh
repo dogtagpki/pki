@@ -347,7 +347,7 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Add Group -- using an expired admin cert KRA_adminE"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
@@ -359,7 +359,7 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 	errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Add Group -- using an expired agent cert KRA_agentE"
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
     rlPhaseEnd
 
@@ -369,7 +369,6 @@ local TEMP_NSS_DB_PASSWD="redhat123"
 	errmsg="ForbiddenException: Authorization Error"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Add Group -- using a valid auditor cert KRA_auditorV"
-	rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
     rlPhaseEnd
 
 	##### Tests to add groups using operator user###

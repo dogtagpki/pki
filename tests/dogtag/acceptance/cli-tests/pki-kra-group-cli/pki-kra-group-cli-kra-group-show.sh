@@ -553,7 +553,7 @@ local cert_info="$TmpDir/cert_info"
                     kra-group-show g7 >  $TmpDir/pki-kra-group-show-pkiUser1-0025.out 2>&1" 255 "Should not be able to find groups using a user cert"
 
         rlAssertGrep "PKIException: Unauthorized" "$TmpDir/pki-kra-group-show-pkiUser1-0025.out"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_kra_group_cli_kra_group_show-026: group id length exceeds maximum limit defined in the schema"

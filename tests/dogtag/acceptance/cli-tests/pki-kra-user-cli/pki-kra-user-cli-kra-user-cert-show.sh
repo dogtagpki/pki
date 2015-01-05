@@ -95,7 +95,6 @@ ca_signing_cert_subj_name=$(eval echo \$${caId}_SIGNING_CERT_SUBJECT_NAME)
         rlAssertGrep "--output <file>   Output file" "$TmpDir/pki_kra_user_cert_show_cfg.out"
 	rlAssertGrep "--pretty          Pretty print" "$TmpDir/pki_kra_user_cert_show_cfg.out"
 	rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/pki_kra_user_cert_show_cfg.out"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
 
 	##### Tests to find certs assigned to KRA users ####
@@ -758,7 +757,7 @@ ca_signing_cert_subj_name=$(eval echo \$${caId}_SIGNING_CERT_SUBJECT_NAME)
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with an expired admin cert"
 
-		rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+		rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
         rlPhaseEnd
 
@@ -778,7 +777,7 @@ ca_signing_cert_subj_name=$(eval echo \$${caId}_SIGNING_CERT_SUBJECT_NAME)
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - pki kra-user-cert-show should fail when authenticating with an expired agent cert"
 
-                rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+                rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
         rlPhaseEnd
 

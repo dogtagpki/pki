@@ -43,7 +43,7 @@
 ########################################################################
 run_bug-1133718-verification(){
  
-     rlPhaseStartTest "Bug 1133718 - Key strength validation is not performed for RC4 algorithm"
+     rlPhaseStartTest "Bug_1133718: Key strength validation is not performed for RC4 algorithm"
 	BUGCA_DOMAIN=`hostname -d`
 	rlLog "https://bugzilla.redhat.com/show_bug.cgi?id=1133718"
 	rlLog "pki -d $BUGCA_CERTDB_DIR -c $BUGCA_CERTDB_DIR_PASSWORD -n \"PKI Administrator for $BUGCA_DOMAIN\" -h $MASTER -p $BUGCA_HTTP_PORT key-generate test --key-algorithm RC4 --key-size -1"

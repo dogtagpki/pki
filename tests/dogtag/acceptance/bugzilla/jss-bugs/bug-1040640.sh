@@ -43,7 +43,7 @@
 ########################################################################
 run_bug-1040640-verification(){
  
-     rlPhaseStartTest "Bug 1040640 -  Incorrect OIDs for SHA2 algorithms"
+     rlPhaseStartTest "Bug_1040640: Incorrect OIDs for SHA2 algorithms"
 	BUGCA_DOMAIN=`hostname -d`
 	pkcs10_cert_req_old="$BUGCA_CERTDB_DIR/certReq.p10"
 	pkcs10_cert_req_out_old="$BUGCA_CERTDB_DIR/certReq.p10.cmc"

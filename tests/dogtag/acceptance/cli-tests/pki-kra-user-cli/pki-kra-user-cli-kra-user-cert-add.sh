@@ -94,7 +94,6 @@ ROOTCA_agent_user=${caId}_agentV
         rlAssertGrep "--input <file>             Input file" "$TmpDir/pki_kra_user_cert_add_cfg.out"
 	rlAssertGrep "--serial <serial number>   Serial number of certificate in CA" "$TmpDir/pki_kra_user_cert_add_cfg.out"
 	rlAssertGrep "--help                     Show help options" "$TmpDir/pki_kra_user_cert_add_cfg.out"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
 
 	##### Tests to add certs to KRA users ####
@@ -1445,7 +1444,7 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0022: Adding a cert as CA_a
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as an expired admin cert"
 
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
 
@@ -1591,7 +1590,7 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0025: Adding a cert as agen
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as an agent user with expired cert"
 
-        rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+        rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 rlPhaseEnd
 
@@ -1639,7 +1638,6 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0026: Adding a cert as role
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user as KRA_adminUTCA"
 	
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
 ##### Adding a cert as KRA_agentUTCA #####
@@ -1686,7 +1684,6 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0027: Adding a cert as KRA_
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding cert to a user KRA_agentUTCA"
 
-        rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
 rlPhaseEnd
 
 ##### Adding a cert as an KRA_operatorV #####
@@ -1779,7 +1776,7 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-0029: Adding a cert as user
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message -  Adding cert to $userid as a user not associated with any group"
 
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
 rlPhaseEnd
 
 ##### Add one cert to a user - switching position of options #####

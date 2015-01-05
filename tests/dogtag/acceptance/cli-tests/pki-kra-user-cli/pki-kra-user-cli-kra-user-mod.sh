@@ -896,7 +896,6 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_mod-034: Modify a user -- User ID do
         rlAssertGrep "State: $state" "$TmpDir/pki-kra-user-mod-039_1.out"
 	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT kra-user-mod --phone=\"\" u16"
 	rlRun "$command" 0 "Successfully updated phone to empty value"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/836"
     rlPhaseEnd
 
 	#### Modify a user - state option is empty ####
@@ -914,7 +913,6 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_mod-034: Modify a user -- User ID do
         rlAssertGrep "State: $state" "$TmpDir/pki-kra-user-mod-040_1.out"
 	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD  -h $KRA_HOST -p $KRA_PORT kra-user-mod --state=\"\" u16"
 	rlRun "$command" 0 "Successfully updated phone to empty value"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/836"
     rlPhaseEnd
 
 

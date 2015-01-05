@@ -404,7 +404,7 @@ local cert_info="$TmpDir/cert_info"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to find groups using a expired admin cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_kra_group_cli_kra_group_find-025: Should not be able to find groups using KRA_agentE cert"
@@ -416,7 +416,7 @@ local cert_info="$TmpDir/cert_info"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to find groups using a expired agent cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
     rlPhaseEnd
 
      rlPhaseStartTest "pki_kra_group_cli_kra_group_find-026: Should not be able to find groups using a KRA_auditV"

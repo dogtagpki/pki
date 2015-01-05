@@ -517,7 +517,7 @@ local cert_info="$TmpDir/cert_info"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find kra-group-member using a expired admin CA_adminE user cert"
-		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
 		rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
 	rlPhaseEnd
 
@@ -528,7 +528,7 @@ local cert_info="$TmpDir/cert_info"
                 errmsg="ForbiddenException: Authorization Error"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a expired agent KRA_agentE user cert"
-                rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+                rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
         rlPhaseEnd
 
@@ -558,7 +558,6 @@ local cert_info="$TmpDir/cert_info"
                 errmsg="PKIException: Unauthorized"
                 errorcode=255
                 rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Should not be able to find group-member using a untrusted KRA_agentUTCA user cert"
-		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
         rlPhaseEnd
 
 	rlPhaseStartTest "pki_kra_group_cli_kra_group_member-find-031:Find group-member for group id with i18n characters"

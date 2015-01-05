@@ -96,7 +96,6 @@ ca_signing_cert_subj_name=$(eval echo \$${caId}_SIGNING_CERT_SUBJECT_NAME)
         rlAssertGrep "--size <size>     Page size" "$TmpDir/pki_kra_user_cert_find_cfg.out"
         rlAssertGrep "--start <start>   Page start" "$TmpDir/pki_kra_user_cert_find_cfg.out"
 	rlAssertNotGrep "Error: Unrecognized option: --help" "$TmpDir/pki_kra_user_cert_find_cfg.out"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/843"
     rlPhaseEnd
 
      ##### Find certs assigned to a CA user - with userid argument - this user has only a single page of certs ####
@@ -554,7 +553,7 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-find-0013: Find the certs of a 
         errmsg="The value for size shold be greater than or equal to 0"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - the value for --start should not be less than 0"
-        rlLog "FAIL: https://fedorahosted.org/pki/ticket/861"
+        rlLog "FAIL: https://fedorahosted.org/pki/ticket/929"
 rlPhaseEnd
 
 ##### Find certs assigned to a KRA user - with --start=50 ####
@@ -956,7 +955,7 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-find-025: Find the certs of a u
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - kra-user-cert-find should fail when authenticated as an admin user with an expired cert"
 	rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
 rlPhaseEnd
 
 #### Find certs assigned to a KRA user - authenticating as an admin user with revoked cert  ###
@@ -992,7 +991,7 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-find-028: Find the certs of a u
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - kra-user-cert-find should fail when authenticated as an agent user with an expired cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
 rlPhaseEnd
 
 #### Find certs assigned to a KRA user - authenticating as a user whose KRA cert has not been trusted ###
@@ -1020,7 +1019,7 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-find-031: Find the certs of a u
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - kra-user-cert-find should fail when authenticated as a user not assigned to any role"
-	rlLog "FAIL: https://fedorahosted.org/pki/ticket/962"
+	rlLog "FAIL: https://fedorahosted.org/pki/ticket/934"
 rlPhaseEnd
 
 #### Find certs assigned to a KRA user - userid is missing ###

@@ -388,7 +388,7 @@ ROOTCA_agent_user=${caId}_agentV
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete group g3 using an expired admin cert"
 	#Set datetime back on original
         rlRun "date --set='-2 days'" 0 "Set System back to the present day"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/934"
 	#Make sure group is not deleted
 	rlRun "pki -d $CERTDB_DIR \
 		   -n $(eval echo \$${subsystemId}_adminV_user) \
@@ -411,7 +411,7 @@ ROOTCA_agent_user=${caId}_agentV
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to delete group g3 using a agent cert"
 
-        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/962"
+        rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/934"
 	rlRun "date --set='-2 days'" 0 "Set System back to the present day"
 	#Make sure group is not deleted
 	rlRun "pki -d $CERTDB_DIR \

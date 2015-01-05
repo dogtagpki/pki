@@ -230,7 +230,7 @@ ROOTCA_agent_user=${caId}_agentV
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members using an expired admin cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/934"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_kra_group_cli_kra_group_member_show-012: Should not be able to show group members using KRA_agentE cert"
@@ -242,7 +242,7 @@ ROOTCA_agent_user=${caId}_agentV
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Should not be able to show group members g7 using a agent cert"
         rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
-	rlLog "PKI TICKET :: https://engineering.redhat.com/trac/pki-tests/ticket/962"
+	rlLog "PKI TICKET :: https://fedorahosted.org/pki/ticket/934"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_kra_group_cli_kra_group_member_show-013: Should not be able to show group members using a KRA_auditV"
