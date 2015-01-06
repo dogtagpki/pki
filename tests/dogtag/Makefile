@@ -246,7 +246,6 @@ build: $(BUILT_FILES)
 	# Legacy tests
 	chmod a+x ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
 	chmod a+x ./acceptance/legacy/ca-tests/profiles/ca-profile.sh
-
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
@@ -257,6 +256,11 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/bugzilla/jss-bugs/bug-1133718.sh
 	chmod a+x ./acceptance/bugzilla/jss-bugs/bug-1040640.sh
 	chmod a+x ./acceptance/bugzilla/pki-core-bugs/bug-790924.sh
+	#installer tests
+	chmod a+x ./acceptance/install-tests/ca-installer.sh
+	chmod a+x ./acceptance/install-tests/kra-installer.sh
+	chmod a+x ./acceptance/install-tests/ocsp-installer.sh
+	chmod a+x ./acceptance/install-tests/tks-installer.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)

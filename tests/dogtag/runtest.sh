@@ -178,6 +178,10 @@
 . ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 . ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
 . ./acceptance/legacy/ca-tests/profiles/ca-profile.sh
+. ./acceptance/install-tests/ca-installer.sh
+. ./acceptance/install-tests/kra-installer.sh
+. ./acceptance/install-tests/ocsp-installer.sh
+. ./acceptance/install-tests/tks-installer.sh
 . ./acceptance/bugzilla/bug_setup.sh
 . ./acceptance/bugzilla/bug_uninstall.sh
 . ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
@@ -1408,6 +1412,15 @@ rlJournalStart
         rlPhaseEnd
 
 	######## LEGACY TESTS ############
+	PKI_CA_LEGACY_TESTS_UPPERCASE=$(echo $PKI_CA_LEGACY_TESTS | tr [a-z] [A-Z])
+        if [ "$PKI_CA_LEGACY_TESTS_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki legacy-ca tests
+                  subsystemId=$CA_INST
+                  subsystemType=ca
+                  run_pki-legacy-ca-usergroup_tests $subsystemId $subsystemType $MYROLE
+                  run_admin-ca-log_tests $subsystemType $MYROLE
+        fi
+
         PKI_LEGACY_CA_USERGROUP_UPPERCASE=$(echo $PKI_LEGACY_CA_USERGROUP | tr [a-z] [A-Z])
         if [ "$PKI_LEGACY_CA_USERGROUP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki ca-usergroup-tests  tests
@@ -1416,6 +1429,7 @@ rlJournalStart
                   rlLog "Subsystem ID CA=$CA_INST, MY_ROLE=$MYROLE"
                   run_pki-legacy-ca-usergroup_tests $subsystemId $subsystemType $MYROLE
         fi
+
 	PKI_LEGACY_CA_PROFILE_UPPERCASE=$(echo $PKI_LEGACY_CA_PROFILE | tr [a-z] [A-Z])
 	if [ "$PKI_LEGACY_CA_PROFILE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		subsystemType=ca
@@ -1423,6 +1437,58 @@ rlJournalStart
 	fi
         rlPhaseEnd
 
+	######## INSTALL TESTS ############
+        PKI_INSTALL_TESTS_UPPERCASE=$(echo $PKI_INSTALL_TESTS | tr [a-z] [A-Z])
+        if [ "$PKI_INSTALL_TESTS_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki install tests
+                  subsystemId=$CA_INST
+                  subsystemType=ca
+                # Execute pki KRA install tests
+                  run_rhcs_ca_installer_tests $subsystemId $subsystemType $MYROLE
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  run_rhcs_kra_installer_tests $subsystemId $subsystemType $MYROLE
+                # Execute pki OCSP install tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  run_rhcs_ocsp_installer_tests $subsystemId $subsystemType $MYROLE
+                # Execute pki TKS install tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  run_rhcs_tks_installer_tests $subsystemId $subsystemType $MYROLE
+        fi
+
+        PKI_CA_INSTALL_UPPERCASE=$(echo $PKI_CA_INSTALL | tr [a-z] [A-Z])
+        if [ "$PKI_CA_INSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki CA install tests
+                  subsystemId=$CA_INST
+                  subsystemType=ca
+                  run_rhcs_ca_installer_tests $subsystemId $subsystemType $MYROLE
+        fi
+
+        PKI_KRA_INSTALL_UPPERCASE=$(echo $PKI_KRA_INSTALL | tr [a-z] [A-Z])
+        if [ "$PKI_KRA_INSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki KRA install tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  run_rhcs_kra_installer_tests $subsystemId $subsystemType $MYROLE
+        fi
+
+	PKI_OCSP_INSTALL_UPPERCASE=$(echo $PKI_OCSP_INSTALL | tr [a-z] [A-Z])
+        if [ "$PKI_OCSP_INSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki OCSP install tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  run_rhcs_ocsp_installer_tests $subsystemId $subsystemType $MYROLE
+        fi
+
+	PKI_TKS_INSTALL_UPPERCASE=$(echo $PKI_TKS_INSTALL | tr [a-z] [A-Z])
+        if [ "$PKI_TKS_INSTALL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki TKS install tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  run_rhcs_tks_installer_tests $subsystemId $subsystemType $MYROLE
+        fi
 	######## DEV UNIT TESTS ############
 	DEV_JAVA_TESTS_UPPERCASE=$(echo $DEV_JAVA_TESTS | tr [a-z] [A-Z])
         if [ "$DEV_JAVA_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
