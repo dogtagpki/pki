@@ -1469,7 +1469,7 @@ backup_instance_configuration_files()
             echo "WARNING:  The '${pki_instance_configuration_file}' is empty!"
             echo "          ${PKI} backups will be discontinued until this"
             echo "          issue has been resolved!"
-            $((backup_errors++))
+            ((backup_errors++))
             continue
         fi
 
@@ -1483,7 +1483,7 @@ backup_instance_configuration_files()
             echo "WARNING:  Since the file '${saved_backup_file}' exists, a"
             echo "          previous backup attempt has failed!  ${PKI} backups"
             echo "          will be discontinued until this issue has been resolved!"
-            $((backup_errors++))
+            ((backup_errors++))
             continue
         fi
 
@@ -1530,7 +1530,7 @@ backup_instance_configuration_files()
             echo "          which suggests that the previous backup file has"
             echo "          been removed!  ${PKI} backups will be discontinued"
             echo "          until this issue has been resolved!"
-            $((backup_errors++))
+            ((backup_errors++))
             continue
         fi
 
@@ -1561,7 +1561,7 @@ backup_instance_configuration_files()
             if [ ! -s ${archived_file} ] ; then
                 # Issue a warning that the archived backup failed
                 echo "WARNING:  Failed to archive '${pki_instance_configuration_file}' to '${archived_file}'!"
-                $((backup_errors++))
+                ((backup_errors++))
                 continue
             fi
 
@@ -1576,7 +1576,7 @@ backup_instance_configuration_files()
         if [ ! -s ${backup_file} ] ; then
             # Issue a warning that the backup failed
             echo "WARNING:  Failed to backup '${pki_instance_configuration_file}' to '${backup_file}'!"
-            $((backup_errors++))
+            ((backup_errors++))
             continue
         else
             # Report that 'CS.cfg' has been successfully backed up
