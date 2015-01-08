@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.2.1
-Release:          0.2%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -95,6 +95,9 @@ cd build
 
 
 %changelog
+* Thu Jan  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.1-1
+- Update release number for release build
+
 * Mon Nov 24 2014 Christina Fu <cfu@redhat.com> 10.2.1-0.2
 - Ticket 1198 Bugzilla 1158410 add TLS range support to server.xml by default and upgrade (cfu)
 - PKI Trac Ticket #1211 - New release overwrites old source tarball (mharmsen)

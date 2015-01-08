@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.1
-Release:          0.4%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -875,6 +875,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Thu Jan  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.1-1
+- Update release number for release build
+
 * Tue Dec 16 2014 Matthew Harmsen <mharmsen@redhat.com> - 10.2.1-0.4
 - PKI TRAC Ticket #1187 - mod_perl should be removed from requirements for 10.2
 - PKI TRAC Ticket #1205 - Outdated selinux-policy dependency.
