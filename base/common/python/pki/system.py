@@ -55,17 +55,27 @@ class SecurityDomainHost(object):
         :type json_value: str
         :returns: SecurityDomainHost
         """
+
         host = cls()
+
+        try:
+            # 10.2.x
+            host.id = json_value['id']
+
+        except KeyError:
+            # 10.1.x
+            host.id = json_value['@id']
+
         host.admin_port = json_value['SecureAdminPort']
         host.agent_port = json_value['SecureAgentPort']
         host.clone = json_value['Clone']
         host.domain_manager = json_value['DomainManager']
         host.ee_client_auth_port = json_value['SecureEEClientAuthPort']
         host.hostname = json_value['Hostname']
-        host.id = json_value['id']
         host.secure_port = json_value['SecurePort']
         host.subsystem_name = json_value['SubsystemName']
         host.unsecure_port = json_value['Port']
+
         return host
 
 
@@ -89,11 +99,26 @@ class SecurityDomainSubsystem(object):
         :type json_value: str
         :returns: SecurityDomainSubsystem
         """
-        ret = cls()
-        ret.name = json_value['id']
-        for host in json_value['Host']:
-            ret.hosts[host['id']] = SecurityDomainHost.from_json(host)
-        return ret
+
+        subsystem = cls()
+
+        try:
+            # 10.2.x
+            subsystem.name = json_value['id']
+
+        except KeyError:
+            # 10.1.x
+            subsystem.name = json_value['@id']
+
+        hosts = json_value['Host']
+        if type(hosts) is dict:
+            hosts = [ hosts ]
+
+        for h in hosts:
+            host = SecurityDomainHost.from_json(h)
+            subsystem.hosts[host.id] = host
+
+        return subsystem
 
 
 class SecurityDomainInfo(object):
@@ -115,12 +140,28 @@ class SecurityDomainInfo(object):
         :type json_value: str
         :returns: SecurityDomainInfo
         """
-        ret = cls()
-        ret.name = json_value['id']
-        for slist in json_value['Subsystem']:
-            subsystem = SecurityDomainSubsystem.from_json(slist)
-            ret.systems[slist['id']] = subsystem
-        return ret
+
+        security_domain = cls()
+
+        try:
+            # 10.2.x
+            security_domain.name = json_value['id']
+            subsystems = json_value['Subsystem']
+
+        except KeyError:
+            # 10.1.x
+            domain_info = json_value['DomainInfo']
+            security_domain.name = domain_info['@id']
+
+            subsystems = domain_info['Subsystem']
+            if type(subsystems) is dict:
+                subsystems = [ subsystems ]
+
+        for s in subsystems:
+            subsystem = SecurityDomainSubsystem.from_json(s)
+            security_domain.systems[subsystem.name] = subsystem
+
+        return security_domain
 
 
 class SecurityDomainClient(object):
