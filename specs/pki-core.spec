@@ -65,7 +65,11 @@ BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-35
 BuildRequires:    systemd-units
+%if 0%{?rhel}
+BuildRequires:    tomcatjss >= 7.1.0-5
+%else
 BuildRequires:    tomcatjss >= 7.1.1
+%endif
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -337,7 +341,11 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
+%if 0%{?rhel}
+Requires:         tomcatjss >= 7.1.0-5
+%else
 Requires:         tomcatjss >= 7.1.1
+%endif
 
 %description -n   pki-server
 The PKI Server Framework is required by the following four PKI subsystems:

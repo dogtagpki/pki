@@ -21,12 +21,12 @@ BuildRequires:    nss-devel
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
 BuildRequires:    jss >= 4.2.6-35
-BuildRequires:    pki-base >= %{version}-0.2
+BuildRequires:    pki-base >= %{version}
 
 Requires:         idm-console-framework
 Requires:         java >= 1:1.7.0
 Requires:         ldapjdk
-Requires:         pki-base >= %{version}-0.2
+Requires:         pki-base >= %{version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 Requires:         jss >= 4.2.6-35

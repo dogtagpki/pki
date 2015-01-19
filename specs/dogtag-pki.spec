@@ -17,9 +17,13 @@ ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %define esc_version                1.1.0
 # NOTE:  The following package versions are TLS compliant:
 %define jss_version                4.2.6-35
-%define pki_core_version           %{version}-0.4
-%define pki_console_version        %{version}-0.2
+%define pki_core_version           %{version}
+%define pki_console_version        %{version}
+%if 0%{?rhel}
+%define tomcatjss_version          7.1.0-5
+%else
 %define tomcatjss_version          7.1.1
+%endif
 
 Requires:         apache-commons-codec
 %if  0%{?fedora} >= 21
