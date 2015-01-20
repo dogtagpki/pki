@@ -103,8 +103,9 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
         try {
             mSHADigest = MessageDigest.getInstance("SHA1");
+
         } catch (NoSuchAlgorithmException e) {
-            throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()));
+            throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()), e);
         }
 
         log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", name));

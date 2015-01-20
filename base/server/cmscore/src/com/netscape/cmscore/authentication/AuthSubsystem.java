@@ -219,21 +219,26 @@ public class AuthSubsystem implements IAuthSubsystem {
                     isEnable = true;
 
                     log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_ADD_AUTH_INSTANCE", insName));
+
                 } catch (ClassNotFoundException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
+
                 } catch (IllegalAccessException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
+
                 } catch (InstantiationException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
+
                 } catch (EBaseException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString()));
                     // Skip the authenticaiton instance if
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
+
                 } catch (Throwable e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString()));
                     // Skip the authenticaiton instance if
@@ -330,15 +335,18 @@ public class AuthSubsystem implements IAuthSubsystem {
             authMgrInst = (IAuthManager)
                     Class.forName(className).newInstance();
             return (authMgrInst.getConfigParams());
+
         } catch (InstantiationException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()));
-            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+
+            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
         } catch (ClassNotFoundException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()));
-            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
+
         } catch (IllegalAccessException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()));
-            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
         }
     }
 

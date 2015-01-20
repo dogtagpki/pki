@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
@@ -1586,21 +1584,19 @@ public final class CMS {
             CMS.startup();
 
         } catch (EBaseException e) { // catch everything here purposely
-            CMS.debug("CMS:Caught EBaseException");
             CMS.debug(e);
 
             // Raidzilla Bug #57592:  Always print error message to stdout.
-            System.out.println(e.toString());
+            System.out.println(e);
 
             shutdown();
             throw e;
-        } catch (Exception e) { // catch everything here purposely
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(bos);
 
-            e.printStackTrace(ps);
+        } catch (Exception e) { // catch everything here purposely
+            CMS.debug(e);
             System.out.println(Constants.SERVER_SHUTDOWN_MESSAGE);
-            throw new EBaseException(bos.toString());
+
+            throw new EBaseException(e);
             // cms.shutdown();
         }
     }

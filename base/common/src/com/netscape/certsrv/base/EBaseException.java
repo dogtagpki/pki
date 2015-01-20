@@ -63,25 +63,24 @@ public class EBaseException extends Exception {
     }
 
     /**
-     * Constructs an instance of the exception given the resource key and
-     * a exception parameter.
+     * Constructs an instance of this exception given the resource key and
+     * the cause exception.
      *
-     * <PRE>
-     * 		try {
-     *  		...
-     * 		} catch (IOExeption e) {
-     * 		 	throw new EBaseException(BaseResources.INTERNAL_ERROR_1, e);
-     *      }
-     * </PRE>
-     * <P>
+     * <pre>
+     *     try {
+     *         ...
+     *     } catch (IOExeption e) {
+     *         throw new EBaseException(BaseResources.INTERNAL_ERROR_1, e);
+     *     }
+     * </pre>
      *
      * @param msgFormat The resource key
-     * @param param The parameter as an exception
+     * @param cause The cause exception
      */
-    public EBaseException(String msgFormat, Exception param) {
-        super(msgFormat);
+    public EBaseException(String msgFormat, Exception cause) {
+        super(msgFormat, cause);
         mParams = new Exception[1];
-        mParams[0] = param;
+        mParams[0] = cause;
     }
 
     /**
@@ -95,6 +94,39 @@ public class EBaseException extends Exception {
     public EBaseException(String msgFormat, Object params[]) {
         super(msgFormat);
         mParams = params;
+    }
+
+    /**
+     * Constructs an instance of this exception given the resource key,
+     * an array of parameters, and the cause exception.
+     * <P>
+     *
+     * @param msgFormat The resource key
+     * @param params Array of params
+     * @param cause The cause exception
+     */
+    public EBaseException(String msgFormat, Object params[], Exception cause) {
+        super(msgFormat, cause);
+        mParams = params;
+    }
+
+    /**
+     * Constructs an instance of this exception given the cause exception.
+     *
+     * <pre>
+     *     try {
+     *         ...
+     *     } catch (IOExeption e) {
+     *         throw new EBaseException(e);
+     *     }
+     * </pre>
+     *
+     * @param cause The cause exception
+     */
+    public EBaseException(Exception cause) {
+        super(cause.getMessage() == null ? cause.getClass().getName() : cause.getMessage(), cause);
+        mParams = new Exception[1];
+        mParams[0] = cause;
     }
 
     /**
