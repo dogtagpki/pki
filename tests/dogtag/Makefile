@@ -246,6 +246,12 @@ build: $(BUILT_FILES)
 	# Legacy tests
 	chmod a+x ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
 	chmod a+x ./acceptance/legacy/ca-tests/profiles/ca-profile.sh
+	chmod a+x ./acceptance/legacy/ca_tests/acls/ca-admin-acl.sh
+	chmod a+x ./acceptance/legacy/ca_tests/internaldb/ca-admin-internaldb.sh
+	chmod a+x ./acceptance/legacy/ca_tests/authplugin/ca-admin-authplugins.sh
+	chmod a+x ./acceptance/legacy/ca-tests/crlissuingpoints/ca-admin-crlissuingpoints.sh
+	chmod a+x ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
+	chmod a+x ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh

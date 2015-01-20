@@ -178,6 +178,12 @@
 . ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 . ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
 . ./acceptance/legacy/ca-tests/profiles/ca-profile.sh
+. ./acceptance/legacy/ca_tests/internaldb/ca-admin-internaldb.sh
+. ./acceptance/legacy/ca_tests/acls/ca-admin-acl.sh
+. ./acceptance/legacy/ca_tests/authplugin/ca-admin-authplugins.sh
+. ./acceptance/legacy/ca-tests/crlissuingpoints/ca-admin-crlissuingpoints.sh
+. ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
+. ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
 . ./acceptance/install-tests/ca-installer.sh
 . ./acceptance/install-tests/kra-installer.sh
 . ./acceptance/install-tests/ocsp-installer.sh
@@ -1419,6 +1425,12 @@ rlJournalStart
                   subsystemType=ca
                   run_pki-legacy-ca-usergroup_tests $subsystemId $subsystemType $MYROLE
                   run_admin-ca-log_tests $subsystemType $MYROLE
+		  run_admin-ca-acl_tests $subsystemType $MYROLE
+		  run_admin-ca-intdb_tests $subsystemType $MYROLE
+		  run_admin-ca-authplugin_tests $subsystemType $MYROLE
+		  run_admin-ca-crlissuingpoints_tests $subsystemType $MYROLE
+		  run_agent-ca-crls_tests $subsystemType $MYROLE
+		  run_admin-ca-publishing_tests $subsystemType $MYROLE
         fi
 
         PKI_LEGACY_CA_USERGROUP_UPPERCASE=$(echo $PKI_LEGACY_CA_USERGROUP | tr [a-z] [A-Z])
@@ -1435,6 +1447,40 @@ rlJournalStart
 		subsystemType=ca
 		run_admin-ca-log_tests $subsystemType $MYROLE
 	fi
+	PKI_LEGACY_CA_ACLS_UPPERCASE=$(echo $PKI_LEGACY_CA_ACLS | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_CA_ACLS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                run_admin-ca-acl_tests $subsystemType $MYROLE
+        fi
+        PKI_LEGACY_CA_INTERNALDB_UPPERCASE=$(echo $PKI_LEGACY_CA_INTERNALDB | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_CA_INTERNALDB_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                run_admin-ca-intdb_tests $subsystemType $MYROLE
+        fi
+        PKI_LEGACY_CA_AUTHPLUGIN_UPPERCASE=$(echo $PKI_LEGACY_CA_AUTHPLUGIN | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_CA_AUTHPLUGIN_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                run_admin-ca-authplugin_tests $subsystemType $MYROLE
+        fi
+	PKI_LEGACY_CA_CRLISSUINGPOINT_UPPERCASE=$(echo $PKI_LEGACY_CA_CRLISSUINGPOINT | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_CA_CRLISSUINGPOINT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                run_admin-ca-crlissuingpoints_tests $subsystemType $MYROLE
+        fi
+        rlPhaseEnd
+
+        PKI_LEGACY_CA_AGENT_CRL_UPPERCASE=$(echo $PKI_LEGACY_CA_AGENT_CRL | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_CA_AGENT_CRL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                run_agent-ca-crls_tests $subsystemType $MYROLE
+        fi
+        rlPhaseEnd
+
+        PKI_LEGACY_CA_ADMIN_PUBLISHING_UPPERCASE=$(echo $PKI_LEGACY_CA_ADMIN_PUBLISHING | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_CA_ADMIN_PUBLISHING_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                run_admin-ca-publishing_tests $subsystemType $MYROLE
+        fi
         rlPhaseEnd
 
 	######## INSTALL TESTS ############
