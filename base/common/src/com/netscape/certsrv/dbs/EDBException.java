@@ -51,17 +51,6 @@ public class EDBException extends EBaseException {
      * <P>
      *
      * @param msgFormat message format
-     * @param param parameter
-     */
-    public EDBException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a database exception.
-     * <P>
-     *
-     * @param msgFormat message format
      * @param e exception as parameter
      */
     public EDBException(String msgFormat, Exception e) {

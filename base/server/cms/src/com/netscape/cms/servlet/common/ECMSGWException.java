@@ -48,14 +48,6 @@ public class ECMSGWException extends EBaseException {
      * Constructs a CMSGW exception.
      * <P>
      */
-    public ECMSGWException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a CMSGW exception.
-     * <P>
-     */
     public ECMSGWException(String msgFormat, Exception e) {
         super(msgFormat, e);
     }

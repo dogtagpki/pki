@@ -54,17 +54,6 @@ public class EKRAException extends EBaseException {
      * <P>
      *
      * @param msgFormat constant from KRAResources.
-     * @param param additional parameters to the message.
-     */
-    public EKRAException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a KRA exception.
-     * <P>
-     *
-     * @param msgFormat constant from KRAResources.
      * @param e embedded exception.
      */
     public EKRAException(String msgFormat, Exception e) {

@@ -47,17 +47,6 @@ public class EListenersException extends EBaseException {
     }
 
     /**
-     * Constructs a listeners exception.
-     * <P>
-     *
-     * @param msgFormat exception details in message string format.
-     * @param param message string parameter.
-     */
-    public EListenersException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
      * Constructs a Listeners exception.
      * <P>
      *

@@ -48,14 +48,6 @@ public class EJobsException extends EBaseException {
      * Constructs a Identity exception.
      * <P>
      */
-    public EJobsException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a Identity exception.
-     * <P>
-     */
     public EJobsException(String msgFormat, Exception e) {
         super(msgFormat, e);
     }

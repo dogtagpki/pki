@@ -16,9 +16,4 @@ public class BadRequestDataException extends EBaseException {
     public BadRequestDataException(String msgFormat, Object[] params) {
         super(msgFormat, params);
     }
-
-    public BadRequestDataException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
 }

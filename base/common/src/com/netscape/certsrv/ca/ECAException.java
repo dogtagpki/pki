@@ -51,17 +51,6 @@ public class ECAException extends EBaseException {
      * <P>
      *
      * @param msgFormat constant from CAResources.
-     * @param param additional parameters to the message.
-     */
-    public ECAException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a CA exception.
-     * <P>
-     *
-     * @param msgFormat constant from CAResources.
      * @param e embedded exception.
      */
     public ECAException(String msgFormat, Exception e) {

@@ -40,10 +40,6 @@ public class EExtensionsException extends EBaseException {
         super(msgFormat);
     }
 
-    public EExtensionsException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
     public EExtensionsException(String msgFormat, Exception e) {
         super(msgFormat, e);
     }

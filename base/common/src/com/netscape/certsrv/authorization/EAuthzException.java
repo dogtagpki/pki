@@ -47,17 +47,6 @@ public class EAuthzException extends EBaseException {
     }
 
     /**
-     * Constructs a authz exception with a parameter.
-     * <p>
-     *
-     * @param msgFormat exception details in message string format
-     * @param param message string parameter
-     */
-    public EAuthzException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
      * Constructs a authz exception with a exception parameter.
      * <P>
      *

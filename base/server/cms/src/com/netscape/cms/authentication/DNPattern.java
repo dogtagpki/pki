@@ -163,7 +163,7 @@ public class DNPattern {
             try {
                 lastChar = in.read();
             } catch (IOException e) {
-                throw new EAuthException("CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString());
+                throw new EAuthException("CMS_AUTHENTICATION_INTERNAL_ERROR", e);
             }
         } while (lastChar == ',');
 

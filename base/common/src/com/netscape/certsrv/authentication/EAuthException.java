@@ -47,17 +47,6 @@ public class EAuthException extends EBaseException {
     }
 
     /**
-     * Constructs an authentication exception with a parameter.
-     * <p>
-     *
-     * @param msgFormat exception details in message string format
-     * @param param message string parameter
-     */
-    public EAuthException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
      * Constructs a auth exception with a exception parameter.
      * <P>
      *

@@ -48,14 +48,6 @@ public class ENotificationException extends EBaseException {
      * Constructs a Identity exception.
      * <P>
      */
-    public ENotificationException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a Identity exception.
-     * <P>
-     */
     public ENotificationException(String msgFormat, Exception e) {
         super(msgFormat, e);
     }

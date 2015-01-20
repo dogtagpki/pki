@@ -52,17 +52,6 @@ public class EPasswordCheckException extends EBaseException {
      * <P>
      *
      * @param msgFormat exception details in message string format
-     * @param param message string parameter
-     */
-    public EPasswordCheckException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a password checker exception.
-     * <P>
-     *
-     * @param msgFormat exception details in message string format
      * @param exception system exception
      */
     public EPasswordCheckException(String msgFormat, Exception exception) {

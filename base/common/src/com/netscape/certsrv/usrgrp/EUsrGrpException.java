@@ -49,17 +49,6 @@ public class EUsrGrpException extends EBaseException {
     /**
      * Constructs a Identity exception.
      *
-     * @param msgFormat exception details in message string format
-     * @param param message string parameter
-     *            <P>
-     */
-    public EUsrGrpException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a Identity exception.
-     *
      * @param e system exception
      *            <P>
      */

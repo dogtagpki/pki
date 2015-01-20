@@ -48,14 +48,6 @@ public class EOCSPException extends EBaseException {
      * Constructs a OCSP exception.
      * <P>
      */
-    public EOCSPException(String msgFormat, String param) {
-        super(msgFormat, param);
-    }
-
-    /**
-     * Constructs a OCSP exception.
-     * <P>
-     */
     public EOCSPException(String msgFormat, Exception e) {
         super(msgFormat, e);
     }

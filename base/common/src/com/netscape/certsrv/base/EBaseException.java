@@ -63,24 +63,6 @@ public class EBaseException extends Exception {
     }
 
     /**
-     * Constructs an instance of this exception with the given resource key
-     * and a parameter as a string.
-     *
-     * <PRE>
-     * new EBaseException(BaseResource.NO_CONFIG_FILE, fileName);
-     * </PRE>
-     * <P>
-     *
-     * @param msgFormat exception details in message string format
-     * @param param message string parameter
-     */
-    public EBaseException(String msgFormat, String param) {
-        super(msgFormat);
-        mParams = new String[1];
-        mParams[0] = param;
-    }
-
-    /**
      * Constructs an instance of the exception given the resource key and
      * a exception parameter.
      *
