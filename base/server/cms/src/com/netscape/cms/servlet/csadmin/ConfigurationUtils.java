@@ -276,13 +276,15 @@ public class ConfigurationUtils {
 
             c = httpresponse.getContent();
             //cfu
-            
+
         } catch (ConnectException e) {
             CMS.debug("getHttpResponse: " + e.toString());
-            throw new IOException("The server you tried to contact is not running.");
+            throw new IOException("The server you tried to contact is not running.", e);
+
         } catch (Exception e) {
             CMS.debug("getHttpResponse: " + e.toString());
-            throw new IOException(e.toString());
+            throw new IOException(e.toString(), e);
+
         } finally {
             if (httpclient.connected()) {
                 httpclient.disconnect();
@@ -366,6 +368,7 @@ public class ConfigurationUtils {
         SecurityDomainClient sdClient = new SecurityDomainClient(client, "ca");
 
         try {
+            CMS.debug("Getting install token");
             accountClient.login();
             InstallToken token = sdClient.getInstallToken(sdhost, csType);
             accountClient.logout();
@@ -375,6 +378,7 @@ public class ConfigurationUtils {
 
             if (e.getResponse().getResponseStatus() == Response.Status.NOT_FOUND) {
                 // try the old servlet
+                CMS.debug("Getting old cookie");
                 String tokenString = getOldCookie(sdhost, sdport, user, passwd);
                 CMS.debug("Token: " + tokenString);
                 return tokenString;
@@ -702,7 +706,7 @@ public class ConfigurationUtils {
             c = getHttpResponse(hostname, eePort, https, serverPath, content, null, null);
             if (c == null || c.equals("")) {
                 CMS.debug("updateNumberRange: content is null.");
-                throw new IOException("The server you want to contact is not available");
+                throw new IOException("The server you want to contact is not available", e);
             }
             CMS.debug("content from ee interface =" + c);
             parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
@@ -1015,7 +1019,9 @@ public class ConfigurationUtils {
                     return false;
                 }
             }
+
         } catch (Exception e) {
+            CMS.debug(e);
             return false;
         }
 
@@ -1289,7 +1295,7 @@ public class ConfigurationUtils {
         try {
             if (conn != null) conn.disconnect();
         } catch (LDAPException e) {
-            e.printStackTrace();
+            CMS.debug(e);
             CMS.debug("releaseConnection: " + e);
         }
     }
@@ -1484,7 +1490,7 @@ public class ConfigurationUtils {
 
         } catch (LDAPException e) {
             CMS.debug("populateDB: " + e);
-            throw new EBaseException("Failed to check database mapping: " + e);
+            throw new EBaseException("Failed to check database mapping: " + e, e);
         }
     }
 
@@ -1506,7 +1512,7 @@ public class ConfigurationUtils {
                 CMS.debug("getDatabaseEntry: Database " + database + " does not exist.");
             } else {
                 CMS.debug("getDatabaseEntry: " + e);
-                throw new EBaseException("Failed to determine if database exists: " + e);
+                throw new EBaseException("Failed to determine if database exists: " + e, e);
             }
         }
         return databaseEntry;
@@ -1530,7 +1536,7 @@ public class ConfigurationUtils {
                 CMS.debug("getMappingDNEntry: Mapping for subtree " + baseDN + " does not exist.");
             } else {
                 CMS.debug("getMappingDNEntry: " + e);
-                throw new EBaseException("Failed to determine if mapping entry exists: " + e);
+                throw new EBaseException("Failed to determine if mapping entry exists: " + e, e);
             }
         }
         return mappingEntry;
@@ -1553,7 +1559,7 @@ public class ConfigurationUtils {
                 CMS.debug("getBaseDNEntry: Subtree " + baseDN + " does not exist.");
             } else {
                 CMS.debug("getBaseDNEntry: " + e);
-                throw new EBaseException("Failed to determine if base DN exists: " + e);
+                throw new EBaseException("Failed to determine if base DN exists: " + e, e);
             }
         }
         return baseEntry;
@@ -1573,10 +1579,10 @@ public class ConfigurationUtils {
             CMS.debug("checkParentExists: Parent entry " + parentDN + " exists.");
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                throw new EBaseException("Parent entry " + parentDN + "does not exist");
+                throw new EBaseException("Parent entry " + parentDN + "does not exist", e);
             } else {
                 CMS.debug("checkParentExists: " + e);
-                throw new EBaseException("Failed to determine if base DN exists: " + e);
+                throw new EBaseException("Failed to determine if base DN exists: " + e, e);
             }
         }
     }
@@ -1859,7 +1865,7 @@ public class ConfigurationUtils {
             CMS.debug("setupEeplication: Failed to set up connection to master:" + e.toString());
             e.printStackTrace();
             releaseConnection(masterConn);
-            throw new IOException("Failed to set up replication: No connection to master");
+            throw new IOException("Failed to set up replication: No connection to master", e);
         }
 
         // get connection to replica
@@ -1875,7 +1881,7 @@ public class ConfigurationUtils {
             e.printStackTrace();
             releaseConnection(masterConn);
             releaseConnection(replicaConn);
-            throw new IOException("Failed to set up replication: No connection to replica");
+            throw new IOException("Failed to set up replication: No connection to replica", e);
         }
 
         try {
@@ -1944,7 +1950,7 @@ public class ConfigurationUtils {
         } catch (Exception e) {
             e.printStackTrace();
             CMS.debug("setupReplication: " + e.toString());
-            throw new IOException("Failed to setup the replication for cloning.");
+            throw new IOException("Failed to setup the replication for cloning.", e);
         } finally {
             releaseConnection(masterConn);
             releaseConnection(replicaConn);
@@ -2954,7 +2960,7 @@ public class ConfigurationUtils {
                         CryptoUtil.importUserCertificate(impl, nickname, false);
                     CMS.debug("handleCerts(): cert imported for certTag '" + certTag + "'");
                 } catch (Exception ee) {
-                    ee.printStackTrace();
+                    CMS.debug(ee);
                     CMS.debug("handleCerts(): import certificate for certTag=" + certTag + " Exception: " + ee.toString());
                 }
             }
@@ -3239,8 +3245,10 @@ public class ConfigurationUtils {
             try {
                 fout = new FileOutputStream(fname);
                 fout.write(output);
+
             } catch (Exception e) {
-                throw new IOException("Failed to store keys in backup file" + e);
+                throw new IOException("Failed to store keys in backup file " + e, e);
+
             } finally {
                 if (fout != null) {
                     fout.close();
