@@ -178,9 +178,9 @@
 . ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 . ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
 . ./acceptance/legacy/ca-tests/profiles/ca-profile.sh
-. ./acceptance/legacy/ca_tests/internaldb/ca-admin-internaldb.sh
-. ./acceptance/legacy/ca_tests/acls/ca-admin-acl.sh
-. ./acceptance/legacy/ca_tests/authplugin/ca-admin-authplugins.sh
+. ./acceptance/legacy/ca-tests/internaldb/ca-admin-internaldb.sh
+. ./acceptance/legacy/ca-tests/acls/ca-admin-acl.sh
+. ./acceptance/legacy/ca-tests/authplugin/ca-admin-authplugins.sh
 . ./acceptance/legacy/ca-tests/crlissuingpoints/ca-admin-crlissuingpoints.sh
 . ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
 . ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
