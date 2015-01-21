@@ -249,7 +249,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/ca-tests/acls/ca-admin-acl.sh
 	chmod a+x ./acceptance/legacy/ca-tests/internaldb/ca-admin-internaldb.sh
 	chmod a+x ./acceptance/legacy/ca-tests/authplugin/ca-admin-authplugins.sh
-	chmod a+x ./acceptance/legacy/ca-tests/crlissuingpoints/ca-admin-crlissuingpoints.sh
+	chmod a+x ./acceptance/legacy/ca-tests/crlissuingpoint/ca-admin-crlissuingpoints.sh
 	chmod a+x ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
 	chmod a+x ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
 	# bug verifications

@@ -181,7 +181,7 @@
 . ./acceptance/legacy/ca-tests/internaldb/ca-admin-internaldb.sh
 . ./acceptance/legacy/ca-tests/acls/ca-admin-acl.sh
 . ./acceptance/legacy/ca-tests/authplugin/ca-admin-authplugins.sh
-. ./acceptance/legacy/ca-tests/crlissuingpoints/ca-admin-crlissuingpoints.sh
+. ./acceptance/legacy/ca-tests/crlissuingpoint/ca-admin-crlissuingpoints.sh
 . ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
 . ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
 . ./acceptance/install-tests/ca-installer.sh
