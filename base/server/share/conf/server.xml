@@ -253,7 +253,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
       -->
       <Host name="localhost"
             appBase="[PKI_INSTANCE_PATH]/webapps"
-            unpackWARs="true" autoDeploy="false"
+            unpackWARs="true" autoDeploy="true"
             xmlValidation="false" xmlNamespaceAware="false">
 
         <!--

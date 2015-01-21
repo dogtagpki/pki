@@ -19,7 +19,13 @@ PYLINT_REPORT_PATH="`cd $HOME_DIR/../.. ; pwd`/pylint-report"
 
 cd $PYTHON_PACKAGE_DIR
 
-rv=`pylint --rcfile=$PYLINT_RC_FILE_PATH pki/ $HOME_DIR/usr/sbin/pkispawn $HOME_DIR/usr/sbin/pkidestroy $HOME_DIR/usr/sbin/pki-upgrade $HOME_DIR/usr/sbin/pki-server-upgrade >> $PYLINT_REPORT_PATH`
+FILES="pki/"
+FILES="$FILES $HOME_DIR/usr/sbin/pkispawn"
+FILES="$FILES $HOME_DIR/usr/sbin/pkidestroy"
+FILES="$FILES $HOME_DIR/usr/sbin/pki-upgrade"
+FILES="$FILES $HOME_DIR/usr/sbin/pki-server"
+FILES="$FILES $HOME_DIR/usr/sbin/pki-server-upgrade"
+rv=`pylint --rcfile=$PYLINT_RC_FILE_PATH $FILES >> $PYLINT_REPORT_PATH`
 
 status=$?
 

@@ -1,0 +1,84 @@
+#!/usr/bin/python
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+# All rights reserved.
+#
+
+import getopt
+import sys
+
+import pki.cli
+import pki.server.cli.instance
+import pki.server.cli.subsystem
+
+class PKIServerCLI(pki.cli.CLI):
+
+    def __init__(self):
+
+        super(PKIServerCLI, self).__init__('pki-server', 'PKI server command-line interface')
+
+        self.add_module(pki.server.cli.instance.InstanceCLI())
+        self.add_module(pki.server.cli.subsystem.SubsystemCLI())
+
+    def get_full_module_name(self, module_name):
+        return module_name
+
+    def print_help(self):
+
+        print 'Usage: pki-server [OPTIONS]'
+        print
+        print '  -v, --verbose                Run in verbose mode.'
+        print '      --help                   Show help message.'
+        print
+
+        super(PKIServerCLI, self).print_help()
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.getopt(argv[1:], 'v', [
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print 'ERROR: ' + str(e)
+            self.print_help()
+            sys.exit(1)
+
+        for o, _ in opts:
+            if o in ('-v', '--verbose'):
+                self.verbose = True
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print 'ERROR: unknown option ' + o
+                self.print_help()
+                sys.exit(1)
+
+        if self.verbose:
+            print 'Command: %s' % ' '.join(args)
+
+        super(PKIServerCLI, self).execute(args)
+
+
+if __name__ == '__main__':
+    cli = PKIServerCLI()
+    cli.init()
+    cli.execute(sys.argv)

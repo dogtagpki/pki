@@ -791,6 +791,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %{_sysconfdir}/pki/default.cfg
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
+%{_sbindir}/pki-server
 %{_sbindir}/pki-server-upgrade
 #%{_bindir}/pki-setup-proxy
 %{python_sitelib}/pki/server/
