@@ -627,6 +627,11 @@ get_topo_stack()
 	        echo "MY_KRA=KRA3" >> $TOPO_FILE
         	echo "MY_OCSP=OCSP3" >> $TOPO_FILE
 	        echo "MY_TKS=TKS1" >> $TOPO_FILE
+		echo "MY_SUBCA=SUBCA1" >> $TOPO_FILE
+		echo "MY_CLONE_CA=CLONE_CA1" >> $TOPO_FILE
+		echo "MY_CLONE_KRA=CLONE_KRA1" >> $TOPO_FILE
+		echo "MY_CLONE_OCSP=CLONE_OCSP1" >> $TOPO_FILE
+		echo "MY_CLONE_TKS=CLONE_TKS1" >> $TOPO_FILE
 	elif [ $MY_ROLE == "SUBCA1" ]; then
         	echo "MY_CA=SUBCA1" > $TOPO_FILE
 	        echo "MY_KRA=KRA1" >> $TOPO_FILE

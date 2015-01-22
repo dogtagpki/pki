@@ -184,6 +184,7 @@
 . ./acceptance/legacy/ca-tests/crlissuingpoint/ca-admin-crlissuingpoints.sh
 . ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
 . ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
+. ./acceptance/legacy/ca-tests/ocsp/ca-ee-ocsp.sh
 . ./acceptance/install-tests/ca-installer.sh
 . ./acceptance/install-tests/kra-installer.sh
 . ./acceptance/install-tests/ocsp-installer.sh
@@ -1467,19 +1468,21 @@ rlJournalStart
                 subsystemType=ca
                 run_admin-ca-crlissuingpoints_tests $subsystemType $MYROLE
         fi
-        rlPhaseEnd
 
         PKI_LEGACY_CA_AGENT_CRL_UPPERCASE=$(echo $PKI_LEGACY_CA_AGENT_CRL | tr [a-z] [A-Z])
         if [ "$PKI_LEGACY_CA_AGENT_CRL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
                 subsystemType=ca
                 run_agent-ca-crls_tests $subsystemType $MYROLE
         fi
-        rlPhaseEnd
-
         PKI_LEGACY_CA_ADMIN_PUBLISHING_UPPERCASE=$(echo $PKI_LEGACY_CA_ADMIN_PUBLISHING | tr [a-z] [A-Z])
         if [ "$PKI_LEGACY_CA_ADMIN_PUBLISHING_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
                 subsystemType=ca
                 run_admin-ca-publishing_tests $subsystemType $MYROLE
+        fi
+	PKI_LEGACY_CA_ADMIN_EE_OCSP_UPPERCASE=$(echo $PKI_LEGACY_CA_ADMIN_EE_OCSP | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_CA_ADMIN_EE_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                run_ca-ee-ocsp_tests $subsystemType $MYROLE
         fi
         rlPhaseEnd
 
