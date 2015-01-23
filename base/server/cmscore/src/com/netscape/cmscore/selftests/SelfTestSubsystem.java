@@ -885,6 +885,25 @@ public class SelfTestSubsystem
                             // shutdown the system gracefully
                             CMS.shutdown();
 
+                            IConfigStore cs = CMS.getConfigStore();
+                            String instanceID = cs.get("instanceId");
+                            String subsystemID = cs.get("cs.type").toLowerCase();
+
+                            System.out.println("SelfTestSubsystem: Disabling \"" + subsystemID + "\" subsystem due to selftest failure.");
+
+                            try {
+                                ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceID, subsystemID);
+                                Process process = pb.inheritIO().start();
+                                int rc = process.waitFor();
+
+                                if (rc != 0) {
+                                    System.out.println("SelfTestSubsystem: Unable to disable \"" + subsystemID + "\". RC: " + rc);
+                                }
+
+                            } catch (Exception e2) {
+                                e.printStackTrace();
+                            }
+
                             return;
                         }
                     }
