@@ -51,10 +51,13 @@ public class ClientConfig {
     URI serverURI;
 
     String certDatabase;
+    String tokenName;
     String certNickname;
     String certPassword;
+
     String username;
     String password;
+
     String messageFormat;
 
     public ClientConfig() {
@@ -62,11 +65,15 @@ public class ClientConfig {
 
     public ClientConfig(ClientConfig config) {
         serverURI = config.serverURI;
+
         certDatabase = config.certDatabase;
+        tokenName = config.tokenName;
         certNickname = config.certNickname;
         certPassword = config.certPassword;
+
         username = config.username;
         password = config.password;
+
         messageFormat = config.messageFormat;
     }
 
@@ -99,6 +106,15 @@ public class ClientConfig {
 
     public void setCertDatabase(String certDatabase) {
         this.certDatabase = certDatabase;
+    }
+
+    @XmlElement(name="Token")
+    public String getTokenName() {
+        return tokenName;
+    }
+
+    public void setTokenName(String tokenName) {
+        this.tokenName = tokenName;
     }
 
     @XmlElement(name="CertNickname")
@@ -156,6 +172,7 @@ public class ClientConfig {
         result = prime * result + ((messageFormat == null) ? 0 : messageFormat.hashCode());
         result = prime * result + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((serverURI == null) ? 0 : serverURI.hashCode());
+        result = prime * result + ((tokenName == null) ? 0 : tokenName.hashCode());
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         return result;
     }
@@ -198,6 +215,11 @@ public class ClientConfig {
             if (other.serverURI != null)
                 return false;
         } else if (!serverURI.equals(other.serverURI))
+            return false;
+        if (tokenName == null) {
+            if (other.tokenName != null)
+                return false;
+        } else if (!tokenName.equals(other.tokenName))
             return false;
         if (username == null) {
             if (other.username != null)

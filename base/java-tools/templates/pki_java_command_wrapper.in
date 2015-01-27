@@ -132,6 +132,7 @@ fi
 JNI_JAR_DIR=`source /usr/share/pki/etc/pki.conf && source /etc/pki/pki.conf && echo $JNI_JAR_DIR`
 CP=${JNI_JAR_DIR}/jss4.jar
 CP=/usr/share/java/commons-codec.jar:${CP}
+CP=/usr/share/java/commons-io.jar:${CP}
 CP=/usr/share/java/ldapjdk.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/pki-nsutil.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}

@@ -168,6 +168,10 @@ public class MainCLI extends CLI {
         option.setArgName("passwordfile");
         options.addOption(option);
 
+        option = new Option(null, "token", true, "Security token name");
+        option.setArgName("token");
+        options.addOption(option);
+
         option = new Option(null, "output", true, "Folder to store HTTP messages");
         option.setArgName("folder");
         options.addOption(option);
@@ -286,6 +290,8 @@ public class MainCLI extends CLI {
         String certNickname = cmd.getOptionValue("n");
         String certPassword = cmd.getOptionValue("c");
         String certPasswordFile = cmd.getOptionValue("C");
+        String tokenName = cmd.getOptionValue("token");
+
         String username = cmd.getOptionValue("u");
         String password = cmd.getOptionValue("w");
         String passwordFile = cmd.getOptionValue("W");
@@ -322,6 +328,9 @@ public class MainCLI extends CLI {
         // store security database path
         if (certDatabase != null)
             config.setCertDatabase(new File(certDatabase).getAbsolutePath());
+
+        // store token name
+        config.setTokenName(tokenName);
 
         // store certificate nickname
         config.setCertNickname(certNickname);
@@ -420,14 +429,25 @@ public class MainCLI extends CLI {
 
         // Main program should initialize client security database
         if (certDatabase.exists()) {
+            if (verbose) System.out.println("Initializing client security database");
             CryptoManager.initialize(certDatabase.getAbsolutePath());
         }
 
-        // If password is specified, use password to access client security database
+        // If password is specified, use password to access security token
         if (config.getCertPassword() != null) {
+            if (verbose) System.out.println("Logging into security token");
             try {
                 CryptoManager manager = CryptoManager.getInstance();
-                CryptoToken token = manager.getInternalKeyStorageToken();
+
+                CryptoToken token;
+                String tokenName = config.getTokenName();
+                if (tokenName == null) {
+                    token = manager.getInternalKeyStorageToken();
+                } else {
+                    token = manager.getTokenByName(tokenName);
+                }
+                manager.setThreadToken(token);
+
                 Password password = new Password(config.getCertPassword().toCharArray());
                 token.login(password);
 

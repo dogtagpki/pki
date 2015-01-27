@@ -19,21 +19,22 @@ package com.netscape.cmstools;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.KeyPair;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 
 import netscape.security.x509.X500Name;
 
+import org.apache.commons.io.FileUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
@@ -46,7 +47,6 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.TeletexString;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.asn1.UniversalString;
-import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
@@ -74,6 +74,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
 import com.netscape.cmsutil.util.Utils;
 
@@ -82,16 +83,16 @@ import com.netscape.cmsutil.util.Utils;
  * Format (CRMF) request with proof of possesion (POP).
  *
  * <pre>
- * IMPORTANT:  The file "transport.txt" needs to be created to contain the
- *             transport certificate in its base64 encoded format.  This
- *             file should consist of one line containing a single certificate
- *             in base64 encoded format with the header and footer removed.
+ * IMPORTANT:  The transport certificate file needs to be created to contain the
+ *             transport certificate in its base64 encoded format.
  * </pre>
  * <p>
  *
  * @version $Revision$, $Date$
  */
 public class CRMFPopClient {
+
+    public boolean verbose;
 
     private static void usage() {
 
@@ -103,652 +104,681 @@ public class CRMFPopClient {
         System.out.println("    -e <1 for extractable; 0 for non-extractable; -1 token dependent; default is -1>\n");
         System.out.println("    Also optional for ECC key generation:\n");
         System.out.println("    -x <true for SSL cert that does ECDH ECDSA; false otherwise; default false>\n");
+        System.out.println("    --transport-cert <transport cert file; default transport.txt>\n");
         System.out.println(" note: '-x true' can only be used with POP_NONE");
         System.out.println("   available ECC curve names (if provided by the crypto module): nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2\n");
 
         System.out.println("\n");
-        System.out.println("IMPORTANT:  The file \"transport.txt\" needs to be created to contain the");
-        System.out.println("            transport certificate in its base64 encoded format.  This");
-        System.out.println("            file should consist of one line containing a single certificate");
-        System.out.println("            in base64 encoded format with the header and footer removed.\n");
+        System.out.println("IMPORTANT:  The transport certificate file needs to be created to contain the");
+        System.out.println("            transport certificate in its base64 encoded format.");
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
 
-//        int argsLen =  getRealArgsLength(args);
+        CRMFPopClient client = new CRMFPopClient();
 
-        System.out.println("\n\nCRMF Proof Of Possession Utility....");
-        System.out.println("");
-
-        if (args.length < 4)
-        {
-             usage();
-             System.exit(1);
-        }
-
-        String DB_DIR = "./";
-        String TOKEN_PWD = null;
-        String TOKEN_NAME = null;
+        String databaseDir = ".";
+        String tokenPassword = null;
+        String tokenName = null;
 
         // "rsa" or "ec"
-        String alg = "rsa";
+        String algorithm = "rsa";
 
         /* default RSA key size */
-        int RSA_keylen = 2048;
-        /* default ECC key curve name */
-        String ECC_curve = "nistp256";
-        boolean enable_encoding = false; /* enable encoding attribute values if true */
-        boolean ec_temporary = true; /* session if true; token if false */
-        int ec_sensitive = -1; /* -1, 0, or 1 */
-        int ec_extractable = -1; /* -1, 0, or 1 */
-        boolean ec_ssl_ecdh = false;
+        int keySize = 2048;
 
-        String USER_NAME = null;
-        String REQUESTOR_NAME = null;
-        String PROFILE_NAME = null;
+        /* default ECC key curve name */
+        String curve = "nistp256";
+
+        boolean encodingEnabled = false; /* enable encoding attribute values if true */
+        boolean temporary = true; /* session if true; token if false */
+        int sensitive = -1; /* -1, 0, or 1 */
+        int extractable = -1; /* -1, 0, or 1 */
+        boolean sslECDH = false;
+
+        String username = null;
+        String requestor = null;
+        String profileName = null;
 
         // format: "host:port"
-        String HOST_PORT = null;
-        String SUBJ_DN = null;
-        int doServerHit = 0;
+        String hostPort = null;
+        String subjectDN = null;
+        boolean submitRequest = false;
 
         // POP_NONE, POP_SUCCESS, or POP_FAIL
-        String POP_OPTION = "POP_SUCCESS";
-        int dont_do_pop = 0;
+        String popOption = "POP_SUCCESS";
+        boolean withPop = true;
 
-        String REQ_OUT_FILE = null;
+        String output = null;
+        String transportCertFilename = "transport.txt";
 
         for (int i=0; i<args.length; i+=2) {
             String name = args[i];
 
-            if (name.equals("-p")) {
-                TOKEN_PWD = args[i+1];
+            if (name.equals("-v")) {
+                client.verbose = Boolean.parseBoolean(args[i+1]);
+
+            } else if (name.equals("-p")) {
+                tokenPassword = args[i+1];
+
             } else if (name.equals("-d")) {
-                DB_DIR = args[i+1];
+                databaseDir = args[i+1];
+
             } else if (name.equals("-h")) {
-                TOKEN_NAME = args[i+1];
+                tokenName = args[i+1];
+
             } else if (name.equals("-a")) {
-                alg = args[i+1];
-                if (!alg.equals("rsa") && !alg.equals("ec")) {
-                    System.out.println("CRMFPopClient: ERROR: invalid algorithm: " + alg);
+                algorithm = args[i+1];
+                if (!algorithm.equals("rsa") && !algorithm.equals("ec")) {
+                    System.out.println("ERROR: invalid algorithm: " + algorithm);
                     System.exit(1);
                 }
+
             } else if (name.equals("-x")) {
                 String temp = args[i+1];
                 if (temp.equals("true"))
-                    ec_ssl_ecdh = true;
+                    sslECDH = true;
                 else
-                    ec_ssl_ecdh = false;
+                    sslECDH = false;
+
             } else if (name.equals("-t")) {
                 String temp = args[i+1];
                 if (temp.equals("true"))
-                    ec_temporary = true;
+                    temporary = true;
                 else
-                    ec_temporary = false;
+                    temporary = false;
             } else if (name.equals("-k")) {
                 String temp = args[i+1];
                 if (temp.equals("true"))
-                    enable_encoding = true;
+                    encodingEnabled = true;
                 else
-                    enable_encoding = false;
+                    encodingEnabled = false;
+
             } else if (name.equals("-s")) {
                 String ec_sensitive_s = args[i+1];
-                ec_sensitive = Integer.parseInt(ec_sensitive_s);
-                if ((ec_sensitive != 0) &&
-                    (ec_sensitive != 1) &&
-                    (ec_sensitive != -1)) {
-                      System.out.println("PKCS10Client: Illegal input parameters for -s.");
+                sensitive = Integer.parseInt(ec_sensitive_s);
+                if ((sensitive != 0) &&
+                    (sensitive != 1) &&
+                    (sensitive != -1)) {
+                      System.out.println("ERROR: Illegal input parameters for -s.");
                       usage();
                       System.exit(1);
                     }
+
             } else if (name.equals("-e")) {
                 String ec_extractable_s = args[i+1];
-                ec_extractable = Integer.parseInt(ec_extractable_s);
-                if ((ec_extractable != 0) &&
-                    (ec_extractable != 1) &&
-                    (ec_extractable != -1)) {
-                      System.out.println("PKCS10Client: Illegal input parameters for -e.");
+                extractable = Integer.parseInt(ec_extractable_s);
+                if ((extractable != 0) &&
+                    (extractable != 1) &&
+                    (extractable != -1)) {
+                      System.out.println("ERROR: Illegal input parameters for -e.");
                       usage();
                       System.exit(1);
                     }
+
             } else if (name.equals("-l")) {
-                RSA_keylen = Integer.parseInt(args[i+1]);
+                keySize = Integer.parseInt(args[i+1]);
+
             } else if (name.equals("-c")) {
-                ECC_curve = args[i+1];
+                curve = args[i+1];
+
             } else if (name.equals("-m")) {
-                HOST_PORT = args[i+1];
-                doServerHit = 1;
+                hostPort = args[i+1];
+                submitRequest = true;
+
             } else if (name.equals("-f")) {
-                PROFILE_NAME = args[i+1];
+                profileName = args[i+1];
+
             } else if (name.equals("-u")) {
-                USER_NAME = args[i+1];
+                username = args[i+1];
+
             } else if (name.equals("-r")) {
-                REQUESTOR_NAME = args[i+1];
+                requestor = args[i+1];
+
             } else if (name.equals("-n")) {
-                SUBJ_DN = args[i+1];
+                subjectDN = args[i+1];
+
             } else if (name.equals("-q")) {
-                POP_OPTION = args[i+1];
-                if (!POP_OPTION.equals("POP_SUCCESS") &&
-                    !POP_OPTION.equals("POP_FAIL") &&
-                    !POP_OPTION.equals("POP_NONE")) {
-                    System.out.println("CRMFPopClient: ERROR: invalid POP option: "+ POP_OPTION);
+                popOption = args[i+1];
+                if (!popOption.equals("POP_SUCCESS") &&
+                    !popOption.equals("POP_FAIL") &&
+                    !popOption.equals("POP_NONE")) {
+                    System.out.println("ERROR: invalid POP option: "+ popOption);
                     System.exit(1);
                 }
-                if (POP_OPTION.equals("POP_NONE"))
-                    dont_do_pop = 1;
+                if (popOption.equals("POP_NONE"))
+                    withPop = false;
+
             } else if (name.equals("-o")) {
-                REQ_OUT_FILE = args[i+1];
+                output = args[i+1];
+
+            } else if (name.equals("--transport-cert")) {
+                transportCertFilename = args[i+1];
+
             } else {
                 System.out.println("Unrecognized argument(" + i + "): "
                     + name);
                 usage();
                 System.exit(1);
             }
-        } //for
-
-        URL url = null;
-        URLConnection conn = null;
-        InputStream is = null;
-        BufferedReader reader = null;
-        KeyPair pair = null;
-
-        boolean foundTransport = false;
-        String transportCert = null;
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader("./transport.txt"));
-            transportCert = br.readLine();
-            foundTransport = true;
-        } catch (Exception e) {
-            System.out.println("CRMFPopClient: ERROR: cannot find ./transport.txt, so no key archival");
-
-            System.exit(1);
-        } finally {
-             if (br != null) {
-                 try {
-                     br.close();
-                 } catch (IOException e) {
-                     e.printStackTrace();
-                 }
-             }
         }
 
-        try {
-            CryptoManager.initialize( DB_DIR );
-        } catch (AlreadyInitializedException ae) {
-            // it is ok if it is already initialized
-            System.out.println("CRMFPopClient: already initialized, continue");
-        } catch (Exception e) {
-            System.out.println("CRMFPopClient: INITIALIZATION ERROR: " + e.toString());
-            System.exit(1);
+        if (tokenPassword == null) {
+           System.out.println("missing password");
+           usage();
+           System.exit(1);
         }
 
-        try {
-            CryptoManager manager = CryptoManager.getInstance();
-            String token_pwd = TOKEN_PWD;
-            if (token_pwd == null) {
-               System.out.println("missing password");
-               usage();
-               System.exit(1);
-            }
-            CryptoToken token = null;
-            if (TOKEN_NAME == null) {
-                token = manager.getInternalKeyStorageToken();
-                TOKEN_NAME = token.getName();
+        if (profileName == null) {
+            if (algorithm.equals("rsa")) {
+                profileName = "caEncUserCert";
+
+            } else if (algorithm.equals("ec")) {
+                profileName = "caEncECUserCert";
+
             } else {
-                token = manager.getTokenByName(TOKEN_NAME);
+                throw new Exception("Unknown algorithm: " + algorithm);
             }
-            System.out.println("CRMFPopClient: getting token: "+TOKEN_NAME);
+        }
+
+        try {
+            if (client.verbose) System.out.println("Initializing security database");
+            CryptoManager.initialize(databaseDir);
+
+            CryptoManager manager = CryptoManager.getInstance();
+
+            CryptoToken token;
+            if (tokenName == null) {
+                token = manager.getInternalKeyStorageToken();
+                tokenName = token.getName();
+            } else {
+                token = manager.getTokenByName(tokenName);
+            }
             manager.setThreadToken(token);
-            Password password = new Password(token_pwd.toCharArray());
+
+            Password password = new Password(tokenPassword.toCharArray());
             try {
                 token.login(password);
             } catch (Exception e) {
-                System.out.println("CRMFPopClient: login Exception: " + e.toString());
-                System.exit(1);
+                throw new Exception("Unable to login: " + e, e);
             }
 
-            System.out.println("."); //"done with cryptomanager");
+            if (client.verbose) System.out.println("Loading transport certificate");
+            String encoded = FileUtils.readFileToString(new File(transportCertFilename));
+            encoded = Cert.normalizeCertStrAndReq(encoded);
+            encoded = Cert.stripBrackets(encoded);
+            byte[] transportCertData = Utils.base64decode(encoded);
 
-            String profileName = PROFILE_NAME;
-            if (profileName == null) {
-                if (alg.equals("rsa"))
-                    profileName = "caEncUserCert";
-                else if (alg.equals("ec"))
-                    profileName = "caEncECUserCert";
-                else {
-                    System.out.println("CRMFPopClient: unsupported algorithm: " + alg);
-                    usage();
-                    System.exit(1);
-                }
+            X509Certificate transportCert = manager.importCACertPackage(transportCertData);
+
+            if (client.verbose) System.out.println("Parsing subject DN");
+            Name subject = client.createName(subjectDN, encodingEnabled);
+
+            if (subject == null) {
+                subject = new Name();
+                subject.addCommonName("Me");
+                subject.addCountryName("US");
+                subject.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),  new PrintableString("MyUid")));
             }
 
-            if (alg.equals("rsa")) {
-                KeyPairGenerator kg = token.getKeyPairGenerator(
-                KeyPairAlgorithm.RSA);
-                kg.initialize(RSA_keylen);
+            if (client.verbose) System.out.println("Generating key pair");
+            KeyPair keyPair;
+            if (algorithm.equals("rsa")) {
+                keyPair = client.generateRSAKeyPair(token, keySize);
 
-                pair = kg.genKeyPair();
-            } else if (alg.equals("ec")) {
-                /*
-                 * used with SSL server cert that does ECDH ECDSA
-                 *  ** can only be used with POP_NONE **
-                 */
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask_ECDH[] = {
-                    org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
-                    org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
-                };
+            } else if (algorithm.equals("ec")) {
+                keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
 
-                /* used for other certs including SSL server cert that does ECDHE ECDSA */
-                org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask[] = {
-                    org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
-                };
-
-                pair = CryptoUtil.generateECCKeyPair(TOKEN_NAME, ECC_curve,
-                    null,
-                    (ec_ssl_ecdh==true) ? usages_mask_ECDH: usages_mask,
-                       ec_temporary /*temporary*/,
-                       ec_sensitive /*sensitive*/, ec_extractable /*extractable*/);
+            } else {
+                throw new Exception("Unknown algorithm: " + algorithm);
             }
 
-            System.out.println("CRMFPopClient: key pair generated."); //key pair generated");
+            if (client.verbose) System.out.println("Creating certificate request");
+            CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject);
 
-            // wrap private key
-            byte transport[] = Utils.base64decode(transportCert);
+            ProofOfPossession pop = null;
 
-            X509Certificate tcert = manager.importCACertPackage(transport);
+            if (withPop) {
 
-            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+                if (client.verbose) System.out.println("Creating signer");
+                Signature signer = client.createSigner(token, algorithm, keyPair);
 
-            KeyGenerator kg1 = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-            SymmetricKey sk = kg1.generate();
+                if (popOption.equals("POP_SUCCESS")) {
 
-            System.out.println(".before KeyWrapper");
+                    ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                    certRequest.encode(bo);
+                    signer.update(bo.toByteArray());
 
-            // wrap private key using session
-            KeyWrapper wrapper1 =
-                token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+                } else if (popOption.equals("POP_FAIL")) {
 
-            System.out.println(".key wrapper created");
+                    byte[] data = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
 
-            wrapper1.initWrap(sk, new IVParameterSpec(iv));
-
-            System.out.println(".key wrapper inited");
-            byte key_data[] = wrapper1.wrap((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate());
-
-            System.out.println(".key wrapper wrapped");
-
-            // wrap session key using DRM transport cert
-            // currently, a transport cert has to be an RSA cert,
-            // regardless of the key you are wrapping
-            KeyWrapper rsaWrap = token.getKeyWrapper(
-            KeyWrapAlgorithm.RSA);
-
-            System.out.println(".got rsaWrapper");
-
-            rsaWrap.initWrap(tcert.getPublicKey(), null);
-
-            System.out.println(".rsaWrap inited");
-
-            byte session_data[] = rsaWrap.wrap(sk);
-
-            System.out.println(".rsaWrapped");
-
-            try {
-                // create CRMF
-                CertTemplate certTemplate = new CertTemplate();
-                certTemplate.setVersion(new INTEGER(2));
-
-                Name n1 = getJssName(enable_encoding, SUBJ_DN);
-
-                Name n = new Name();
-
-                n.addCommonName("Me");
-                n.addCountryName("US");
-                n.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),  new PrintableString("MyUid")));
-
-                if (n1 != null)
-                    certTemplate.setSubject(n1);
-                else
-                    certTemplate.setSubject(n);
-
-                certTemplate.setPublicKey(new SubjectPublicKeyInfo(pair.getPublic()));
-                // set extension
-                AlgorithmIdentifier algS = null;
-                if (alg.equals("rsa")) {
-                    algS = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"), new OCTET_STRING(iv));
-                } else { // ec
-                    algS = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.10045.2.1"), new OCTET_STRING(iv));
+                    signer.update(data);
                 }
 
-                EncryptedValue encValue = new EncryptedValue(null, algS, new BIT_STRING(session_data, 0),null, null,new BIT_STRING(key_data, 0));
-                EncryptedKey key = new EncryptedKey(encValue);
-                PKIArchiveOptions opt = new PKIArchiveOptions(key);
-                SEQUENCE seq = new SEQUENCE();
-                if (foundTransport) {
-                    seq.addElement(new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opt));
+                byte[] signature = signer.sign();
+
+                if (client.verbose) System.out.println("Creating POP");
+                pop = client.createPop(algorithm, signature);
+            }
+
+            if (client.verbose) System.out.println("Creating CRMF requrest");
+            String request = client.createCRMFRequest(certRequest, pop);
+
+            StringWriter sw = new StringWriter();
+            try (PrintWriter out = new PrintWriter(sw)) {
+                out.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
+                out.println(request);
+                out.println("-----END NEW CERTIFICATE REQUEST-----");
+            }
+            String csr = sw.toString();
+
+            if (submitRequest) {
+                System.out.println("Submitting CRMF request to " + hostPort);
+                client.submitRequest(
+                        request,
+                        hostPort,
+                        username,
+                        profileName,
+                        requestor);
+
+            } else if (output != null) {
+                System.out.println("Storing CRMF requrest into " + output);
+                try (FileWriter out = new FileWriter(output)) {
+                    out.write(csr);
                 }
 
-                // Add idPOPLinkWitness control
-                String secretValue = "testing";
-                byte[] key1 = null;
-                byte[] finalDigest = null;
-                try {
-                    MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
-                    key1 = SHA1Digest.digest(secretValue.getBytes());
-                } catch (NoSuchAlgorithmException ex) {
-                    System.exit(1);
-                }
+            } else {
+                System.out.println(csr);
+            }
 
-                /* Example of adding the POP link witness control to CRMF */
-                byte[] b =
-                { 0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c,
-                     0x7a, 0x52, 0x54, 0x56, 0x71, 0x65, 0x66, 0x4c,
-                     0x51, 0x34, 0x35, 0x23, 0x3c, 0x42, 0x43, 0x45,
-                     0x61, 0x4f, 0x6e, 0x43, 0x1e, 0x2a, 0x2b, 0x31,
-                     0x32, 0x34, 0x35, 0x36, 0x55, 0x51, 0x48, 0x14,
-                     0x16, 0x29, 0x41, 0x42, 0x43, 0x7b, 0x63, 0x44,
-                     0x6a, 0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14,
-                     0x51, 0x61, 0x15, 0x22, 0x23, 0x5f, 0x5e, 0x69 };
-
-                try {
-                    MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
-                    HMACDigest hmacDigest = new HMACDigest(SHA1Digest, key1);
-                    hmacDigest.update(b);
-                    finalDigest = hmacDigest.digest();
-                } catch (NoSuchAlgorithmException ex) {
-                    System.exit(1);
-                }
-
-                OCTET_STRING ostr = new OCTET_STRING(finalDigest);
-                seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
-                CertRequest certReq = new CertRequest(new INTEGER(1), certTemplate, seq);
-
-                System.out.println(".CertRequest created");
-
-                ByteArrayOutputStream bo = new ByteArrayOutputStream();
-                certReq.encode(bo);
-                byte[] toBeVerified = bo.toByteArray();
-
-                // byte popdata[] = ASN1Util.encode(certReq);
-                byte signature[];
-
-                System.out.println(".CertRequest encoded");
-
-                Signature signer = null;
-                if (alg.equals("rsa")) {
-                    signer =  token.getSignatureContext(
-                        SignatureAlgorithm.RSASignatureWithMD5Digest);
-                } else { //ec
-                    signer =  token.getSignatureContext(
-                        SignatureAlgorithm.ECSignatureWithSHA1Digest);
-                }
-
-                System.out.println(". signer created");
-
-                signer.initSign((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate());
-
-                System.out.println(".signer inited");
-
-                System.out.println("."); //FAIL_OR_SUCC " + FAIL_OR_SUCC);
-
-                if (POP_OPTION.equals("POP_SUCCESS")) {
-                    System.out.println("CRMFPopClient: Generating Legal POP Data.....");
-                    signer.update(toBeVerified);
-                } else if (POP_OPTION.equals("POP_FAIL")) {
-                    System.out.println("CRMFPopClient: Generating Illegal POP Data.....");
-                    signer.update(iv);
-                } else if (dont_do_pop == 1) {
-                     System.out.println("CRMFPopClient: Generating NO POP Data.....");
-                }
-
-                System.out.println("."); //signer updated");
-
-                CertReqMsg crmfMsg = null;
-
-                if (dont_do_pop == 0)
-                {
-                    signature = signer.sign();
-
-                    System.out.println("CRMFPopClient: Signature completed...");
-                    System.out.println("");
-
-                    AlgorithmIdentifier algID = null;
-                    if (alg.equals("rsa")) {
-                        algID = new AlgorithmIdentifier(SignatureAlgorithm.RSASignatureWithMD5Digest.toOID(), null );
-                    } else { // "ec"
-                        algID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA1Digest.toOID(), null );
-                    }
-                    POPOSigningKey popoKey = new POPOSigningKey(null,algID, new BIT_STRING(signature,0));
-
-                    ProofOfPossession pop = ProofOfPossession.createSignature(popoKey);
-
-                    crmfMsg = new CertReqMsg(certReq, pop, null);
-                } else {
-                    crmfMsg = new CertReqMsg(certReq, null, null);
-                }
-
-                //crmfMsg.verify();
-
-                SEQUENCE s1 = new SEQUENCE();
-                s1.addElement(crmfMsg);
-                byte encoded[] = ASN1Util.encode(s1);
-
-                String Req1 = Utils.base64encode(encoded);
-
-                if (REQ_OUT_FILE != null)
-                {
-                    System.out.println("CRMFPopClient: Generated Cert Request: ...... ");
-                    System.out.println("");
-
-                    System.out.println(Req1);
-                    System.out.println("");
-                    System.out.println("CRMFPopClient: End Request:");
-
-                    PrintStream ps = null;
-                    ps = new PrintStream(new FileOutputStream(REQ_OUT_FILE));
-                    ps.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
-                    ps.println(Req1);
-                    ps.println("-----END NEW CERTIFICATE REQUEST-----");
-                    ps.flush();
-                    ps.close();
-                    System.out.println("CRMFPopClient: done output request to file: "+ REQ_OUT_FILE);
-
-                    if (doServerHit == 0)
-                        return;
-                    }
-
-                    String Req = URLEncoder.encode(Req1);
-
-                    url =
-                            new URL("http://"
-                                + HOST_PORT + "/ca/ee/ca/profileSubmit?cert_request_type=crmf&cert_request="
-                                + Req + "&renewal=false&uid=" + USER_NAME + "&xmlOutput=false&&profileId="
-                                + profileName + "&sn_uid=" + USER_NAME +"&SubId=profile&requestor_name="
-                                + REQUESTOR_NAME);
-
-                    System.out.println("CRMFPopClient: Posting " + url);
-
-                    System.out.println("");
-                    System.out.println("CRMFPopClient: Server Response.....");
-                    System.out.println("--------------------");
-                    System.out.println("");
-
-                    conn = url.openConnection();
-                    is = conn.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(is));
-                    String line = null;
-
-                    while ((line = reader.readLine()) != null) {
-                        System.out.println(line);
-                        if (line.equals("CMS Enroll Request Success")) {
-                            System.out.println("CRMFPopClient: Enrollment Successful: ......");
-                            System.out.println("");
-                        }
-                    } /* while */
-                } catch (Exception e) {
-                    System.out.println("CRMFPopClient: WARNING: " + e.toString());
-                    e.printStackTrace();
-                }
         } catch (Exception e) {
-                System.out.println("CRMFPopClient: ERROR: " + e.toString());
-                e.printStackTrace();
+            System.out.println("ERROR: " + e);
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 
-    static boolean isEncoded (String elementValue) {
-        boolean encoded = false;
-
-        if (elementValue != null && ((elementValue.startsWith("UTF8String:")) ||
-                                     (elementValue.startsWith("PrintableString:")) ||
-                                     (elementValue.startsWith("BMPString:")) ||
-                                     (elementValue.startsWith("TeletexString:")) ||
-                                     (elementValue.startsWith("UniversalString:")))) {
-            encoded = true;
-        }
-        return encoded;
+    public KeyPair generateRSAKeyPair(CryptoToken token, int length) throws Exception {
+        KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+        kg.initialize(length);
+        return kg.genKeyPair();
     }
 
-    static Name addNameElement (Name name, OBJECT_IDENTIFIER oid, int n, String elementValue) {
-        try {
-            String encodingType = (n > 0)? elementValue.substring(0, n): null;
-            String nameValue = (n > 0)? elementValue.substring(n+1): null;
-            if (encodingType != null && encodingType.length() > 0 &&
-                nameValue != null && nameValue.length() > 0) {
-                if (encodingType.equals("UTF8String")) {
-                    name.addElement( new AVA(oid, new UTF8String(nameValue)));
-                } else if (encodingType.equals("PrintableString")) {
-                    name.addElement( new AVA(oid, new PrintableString(nameValue)));
-                } else if (encodingType.equals("BMPString")) {
-                    name.addElement( new AVA(oid, new BMPString(nameValue)));
-                } else if (encodingType.equals("TeletexString")) {
-                    name.addElement( new AVA(oid, new TeletexString(nameValue)));
-                } else if (encodingType.equals("UniversalString")) {
-                    name.addElement( new AVA(oid, new UniversalString(nameValue)));
+    public KeyPair generateECCKeyPair(
+            CryptoToken token,
+            String curve,
+            boolean sslECDH,
+            boolean temporary,
+            int sensitive,
+            int extractable) throws Exception {
+        /*
+         * used with SSL server cert that does ECDH ECDSA
+         *  ** can only be used with POP_NONE **
+         */
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usagesMaskECDH = {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.SIGN_RECOVER
+        };
+
+        /* used for other certs including SSL server cert that does ECDHE ECDSA */
+        org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usagesMask = {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
+        };
+
+        return CryptoUtil.generateECCKeyPair(
+                token.getName(),
+                curve,
+                null,
+                sslECDH ? usagesMaskECDH : usagesMask,
+                temporary,
+                sensitive,
+                extractable);
+    }
+
+    public byte[] wrapPrivateKey(CryptoToken token, SymmetricKey sessionKey, byte[] iv, KeyPair keyPair) throws Exception {
+
+        // wrap private key using session
+        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+        wrapper.initWrap(sessionKey, new IVParameterSpec(iv));
+        return wrapper.wrap((org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate());
+    }
+
+    public byte[] wrapSessionKey(CryptoToken token, X509Certificate transportCert, SymmetricKey sessionKey) throws Exception {
+
+        // wrap session key using KRA transport cert
+        // currently, a transport cert has to be an RSA cert,
+        // regardless of the key you are wrapping
+        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+        wrapper.initWrap(transportCert.getPublicKey(), null);
+        return wrapper.wrap(sessionKey);
+    }
+
+    public CertRequest createCertRequest(
+            CryptoToken token,
+            X509Certificate transportCert,
+            String algorithm,
+            KeyPair keyPair,
+            Name subject) throws Exception {
+
+        PKIArchiveOptions opts = createPKIArchiveOptions(token, transportCert, algorithm, keyPair);
+        CertTemplate certTemplate = createCertTemplate(subject, keyPair.getPublic());
+
+        SEQUENCE seq = new SEQUENCE();
+        seq.addElement(new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opts));
+
+        OCTET_STRING ostr = createIDPOPLinkWitness();
+        seq.addElement(new AVA(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr));
+
+        return new CertRequest(new INTEGER(1), certTemplate, seq);
+    }
+
+    public OCTET_STRING createIDPOPLinkWitness() throws Exception {
+
+        String secretValue = "testing";
+        MessageDigest digest1 = MessageDigest.getInstance("SHA1");
+        byte[] key1 = digest1.digest(secretValue.getBytes());
+
+        /* Example of adding the POP link witness control to CRMF */
+        byte[] b = {
+            0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c,
+            0x7a, 0x52, 0x54, 0x56, 0x71, 0x65, 0x66, 0x4c,
+            0x51, 0x34, 0x35, 0x23, 0x3c, 0x42, 0x43, 0x45,
+            0x61, 0x4f, 0x6e, 0x43, 0x1e, 0x2a, 0x2b, 0x31,
+            0x32, 0x34, 0x35, 0x36, 0x55, 0x51, 0x48, 0x14,
+            0x16, 0x29, 0x41, 0x42, 0x43, 0x7b, 0x63, 0x44,
+            0x6a, 0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14,
+            0x51, 0x61, 0x15, 0x22, 0x23, 0x5f, 0x5e, 0x69
+        };
+
+        MessageDigest digest2 = MessageDigest.getInstance("SHA1");
+        HMACDigest hmacDigest = new HMACDigest(digest2, key1);
+        hmacDigest.update(b);
+        byte[] finalDigest = hmacDigest.digest();
+
+        return new OCTET_STRING(finalDigest);
+    }
+
+    public PKIArchiveOptions createPKIArchiveOptions(
+            CryptoToken token,
+            X509Certificate transportCert,
+            String algorithm,
+            KeyPair keyPair) throws Exception {
+
+        KeyGenerator keyGen = token.getKeyGenerator(KeyGenAlgorithm.DES3);
+        SymmetricKey sessionKey = keyGen.generate();
+
+        byte[] iv = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+
+        byte[] wrappedPrivateKey = wrapPrivateKey(token, sessionKey, iv, keyPair);
+        byte[] wrappedSessionKey = wrapSessionKey(token, transportCert, sessionKey);
+
+        AlgorithmIdentifier algorithmID;
+        if (algorithm.equals("rsa")) {
+            algorithmID = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"), new OCTET_STRING(iv));
+
+        } else if (algorithm.equals("ec")) {
+            algorithmID = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.10045.2.1"), new OCTET_STRING(iv));
+
+        } else {
+            throw new Exception("Unknown algorithm: " + algorithm);
+        }
+
+        EncryptedValue encValue = new EncryptedValue(
+                null,
+                algorithmID,
+                new BIT_STRING(wrappedSessionKey, 0),
+                null,
+                null,
+                new BIT_STRING(wrappedPrivateKey, 0));
+
+        EncryptedKey key = new EncryptedKey(encValue);
+
+        return new PKIArchiveOptions(key);
+    }
+
+    public CertTemplate createCertTemplate(Name subject, PublicKey publicKey) throws Exception {
+
+        CertTemplate template = new CertTemplate();
+        template.setVersion(new INTEGER(2));
+        template.setSubject(subject);
+        template.setPublicKey(new SubjectPublicKeyInfo(publicKey));
+
+        return template;
+    }
+
+    public Signature createSigner(
+            CryptoToken token,
+            String algorithm,
+            KeyPair keyPair) throws Exception {
+
+        Signature signer;
+        if (algorithm.equals("rsa")) {
+            signer =  token.getSignatureContext(SignatureAlgorithm.RSASignatureWithMD5Digest);
+
+        } else if (algorithm.equals("ec")) {
+            signer =  token.getSignatureContext(SignatureAlgorithm.ECSignatureWithSHA1Digest);
+
+        } else {
+            throw new Exception("Unknown algorithm: " + algorithm);
+        }
+
+        signer.initSign((org.mozilla.jss.crypto.PrivateKey) keyPair.getPrivate());
+
+        return signer;
+    }
+
+    public ProofOfPossession createPop(String algorithm, byte[] signature) throws Exception {
+
+        AlgorithmIdentifier algorithmID;
+        if (algorithm.equals("rsa")) {
+            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.RSASignatureWithMD5Digest.toOID(), null);
+
+        } else if (algorithm.equals("ec")) {
+            algorithmID = new AlgorithmIdentifier(SignatureAlgorithm.ECSignatureWithSHA1Digest.toOID(), null);
+
+        } else {
+            throw new Exception("Unknown algorithm: " + algorithm);
+        }
+
+        POPOSigningKey popoKey = new POPOSigningKey(null, algorithmID, new BIT_STRING(signature, 0));
+        return ProofOfPossession.createSignature(popoKey);
+    }
+
+    public String createCRMFRequest(
+            CertRequest certRequest,
+            ProofOfPossession pop) throws Exception {
+
+        CertReqMsg crmfMessage = new CertReqMsg(certRequest, pop, null);
+        //crmfMessage.verify();
+
+        SEQUENCE seq = new SEQUENCE();
+        seq.addElement(crmfMessage);
+
+        byte[] encodedCrmfMessage = ASN1Util.encode(seq);
+        return Utils.base64encode(encodedCrmfMessage);
+    }
+
+    public void submitRequest(
+            String request,
+            String hostPort,
+            String username,
+            String profileName,
+            String requestor) throws Exception {
+
+        String encodedRequest = URLEncoder.encode(request, "UTF-8");
+
+        URL url = new URL(
+                "http://" + hostPort + "/ca/ee/ca/profileSubmit"
+                + "?cert_request_type=crmf"
+                + "&cert_request=" + encodedRequest
+                + "&renewal=false&uid=" + username
+                + "&xmlOutput=false"
+                + "&profileId=" + profileName
+                + "&sn_uid=" + username
+                + "&SubId=profile"
+                + "&requestor_name=" + requestor);
+
+        if (verbose) System.out.println("Opening " + url);
+
+        URLConnection conn = url.openConnection();
+        InputStream is = conn.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+        if (verbose) System.out.println("--------------------");
+        String line = null;
+        String status = null;
+        String requestId = null;
+        while ((line = reader.readLine()) != null) {
+            if (verbose) System.out.println(line);
+
+            if (line.startsWith("errorCode=")) {
+                int i = line.indexOf("\"");
+                int j = line.indexOf("\";", i+1);
+                String errorCode = line.substring(i+1, j);
+
+                if ("0".equals(errorCode)) {
+                    status = "completed";
+
+                } else if ("1".equals(errorCode)) {
+                    status = "failed";
+
+                } else if ("2".equals(errorCode)) {
+                    status = "pending";
+
+                } else {
+                    status = "unknown";
                 }
+
+            } else if (line.startsWith("requestList.requestId=")) {
+                int i = line.indexOf("\"");
+                int j = line.indexOf("\";", i+1);
+                requestId = line.substring(i+1, j);
             }
-        }  catch (Exception e)  {
-            System.out.println("CRMFPopClient: Error adding name element: " + elementValue + " Error: "  + e.toString());
         }
-        return name;
+        if (verbose) System.out.println("--------------------");
+
+        if (requestId != null) {
+            System.out.println("Request ID: " + requestId);
+        }
+
+        if (status != null) {
+            System.out.println("Request Status: " + status);
+        }
     }
 
-    static Name getJssName(boolean enable_encoding, String dn) {
+    public boolean isEncoded(String elementValue) {
 
-        X500Name x5Name = null;
+        if (elementValue == null) return false;
 
-        try {
-            x5Name = new X500Name(dn);
+        return elementValue.startsWith("UTF8String:")
+                || elementValue.startsWith("PrintableString:")
+                || elementValue.startsWith("BMPString:")
+                || elementValue.startsWith("TeletexString:")
+                || elementValue.startsWith("UniversalString:");
+    }
 
-        } catch (IOException e) {
+    public AVA createAVA(OBJECT_IDENTIFIER oid, int n, String elementValue) throws Exception {
 
-            System.out.println("CRMFPopClient: Illegal Subject Name:  " + dn + " Error: " + e.toString());
-            System.out.println("CRMFPopClient: Filling in default Subject Name......");
-            return null;
+        String encodingType = n > 0 ? elementValue.substring(0, n) : null;
+        String nameValue = n > 0 ? elementValue.substring(n+1) : null;
+
+        if (encodingType != null && encodingType.length() > 0
+                && nameValue != null && nameValue.length() > 0) {
+
+            if (encodingType.equals("UTF8String")) {
+                return new AVA(oid, new UTF8String(nameValue));
+
+            } else if (encodingType.equals("PrintableString")) {
+                return new AVA(oid, new PrintableString(nameValue));
+
+            } else if (encodingType.equals("BMPString")) {
+                return new AVA(oid, new BMPString(nameValue));
+
+            } else if (encodingType.equals("TeletexString")) {
+                return new AVA(oid, new TeletexString(nameValue));
+
+            } else if (encodingType.equals("UniversalString")) {
+                return new AVA(oid, new UniversalString(nameValue));
+
+            } else {
+                throw new Exception("Unsupported encoding: " + encodingType);
+            }
         }
 
-        Name ret = new Name();
+        return null;
+    }
 
-        netscape.security.x509.RDN[] names = null;
+    public Name createName(String dn, boolean encodingEnabled) throws Exception {
 
-        names = x5Name.getNames();
+        X500Name x500Name = new X500Name(dn);
+        Name jssName = new Name();
 
-        int nameLen = x5Name.getNamesLength();
+        for (netscape.security.x509.RDN rdn : x500Name.getNames()) {
 
-        //            System.out.println("x5Name len: " + nameLen);
-
-        netscape.security.x509.RDN cur = null;
-
-        for (int i = 0; i < nameLen; i++) {
-            cur = names[i];
-
-            String rdnStr = cur.toString();
+            String rdnStr = rdn.toString();
+            if (verbose) System.out.println("RDN: " + rdnStr);
 
             String[] split = rdnStr.split("=");
+            if (split.length != 2) continue;
 
-            if (split.length != 2)
-                continue;
-            int n = split[1].indexOf(':');
+            String attribute = split[0];
+            String value = split[1];
 
-            try {
+            int n = value.indexOf(':');
 
-                if (split[0].equals("UID")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement(ret, new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
-                                             n, split[1]);
-                    } else {
-                        ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),
-                                               new PrintableString(split[1])));
-                    }
-                    //                    System.out.println("UID found : " + split[1]);
+            if (attribute.equalsIgnoreCase("UID")) {
+                AVA ava;
+                if (encodingEnabled && isEncoded(value)) {
+                    ava = createAVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), n, value);
+                } else {
+                    ava = new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(value));
+                }
+                jssName.addElement(ava);
 
+            } else if (attribute.equalsIgnoreCase("C")) {
+                jssName.addCountryName(value);
+
+            } else if (attribute.equalsIgnoreCase("CN")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.commonName, n, value));
+                } else {
+                    jssName.addCommonName(value);
                 }
 
-                if (split[0].equals("C")) {
-                    ret.addCountryName(split[1]);
-                    //                   System.out.println("C found : " + split[1]);
-                    continue;
-
+            } else if (attribute.equalsIgnoreCase("L")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.localityName, n, value));
+                } else {
+                    jssName.addLocalityName(value);
                 }
 
-                if (split[0].equals("CN")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.commonName, n, split[1]);
-                    } else {
-                        ret.addCommonName(split[1]);
-                    }
-                    //                  System.out.println("CN found : " + split[1]);
-                    continue;
+            } else if (attribute.equalsIgnoreCase("O")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.organizationName, n, value));
+                } else {
+                    jssName.addOrganizationName(value);
                 }
 
-                if (split[0].equals("L")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.localityName, n, split[1]);
-                    } else {
-                        ret.addLocalityName(split[1]);
-                    }
-                    //                 System.out.println("L found : " + split[1]);
-                    continue;
+            } else if (attribute.equalsIgnoreCase("ST")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.stateOrProvinceName, n, value));
+                } else {
+                    jssName.addStateOrProvinceName(value);
                 }
 
-                if (split[0].equals("O")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.organizationName, n, split[1]);
-                    } else {
-                        ret.addOrganizationName(split[1]);
-                    }
-                    //                System.out.println("O found : " + split[1]);
-                    continue;
+            } else if (attribute.equalsIgnoreCase("OU")) {
+                if (encodingEnabled && isEncoded(value)) {
+                    jssName.addElement(createAVA(Name.organizationalUnitName, n, value));
+                } else {
+                    jssName.addOrganizationalUnitName(value);
                 }
 
-                if (split[0].equals("ST")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.stateOrProvinceName, n, split[1]);
-                    } else {
-                        ret.addStateOrProvinceName(split[1]);
-                    }
-                    //               System.out.println("ST found : " + split[1]);
-                    continue;
-                }
-
-                if (split[0].equals("OU")) {
-                    if (enable_encoding && isEncoded(split[1])) {
-                        ret = addNameElement (ret, Name.organizationalUnitName, n, split[1]);
-                    } else {
-                        ret.addOrganizationalUnitName(split[1]);
-                    }
-                    //              System.out.println("OU found : " + split[1]);
-                    continue;
-                }
-            } catch (Exception e) {
-                System.out.println("CRMFPopClient: Error constructing RDN: " + rdnStr + " Error: " + e.toString());
-
-                continue;
+            } else {
+                throw new Exception("Unsupported attribute: " + attribute);
             }
-
         }
 
-        return ret;
-
+        return jssName;
     }
 }
