@@ -129,7 +129,7 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
                 attributeValue = new ACertAttrSet(inAttrValue);
             }
         } catch (InvocationTargetException invk) {
-            throw new IOException(invk.getTargetException().getMessage());
+            throw new IOException(invk.getTargetException().getMessage(), invk);
         } catch (Exception e) {
             throw new IOException(e.toString());
         }
