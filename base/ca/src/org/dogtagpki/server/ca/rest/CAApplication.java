@@ -34,6 +34,9 @@ public class CAApplication extends Application {
         // installer
         classes.add(CAInstallerService.class);
 
+        // sub-ca management
+        classes.add(AuthorityService.class);
+
         // certs and requests
         classes.add(CertService.class);
         classes.add(CertRequestService.class);

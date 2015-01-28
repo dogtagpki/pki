@@ -65,7 +65,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -565,18 +567,15 @@ public class CAService implements ICAService, IService {
     /// CA related routines.
     ///
 
-    public X509CertImpl issueX509Cert(X509CertInfo certi)
-            throws EBaseException {
-        return issueX509Cert(certi, null, null);
-    }
-
     /**
      * issue cert for enrollment.
      */
-    public X509CertImpl issueX509Cert(X509CertInfo certi, String profileId, String rid)
+    public X509CertImpl issueX509Cert(
+                AuthorityID aid, X509CertInfo certi,
+                String profileId, String rid)
             throws EBaseException {
         CMS.debug("issueX509Cert");
-        X509CertImpl certImpl = issueX509Cert("", certi, false, null);
+        X509CertImpl certImpl = issueX509Cert(aid, "", certi, false, null);
 
         CMS.debug("storeX509Cert " + certImpl.getSerialNumber());
         storeX509Cert(profileId, rid, certImpl);
@@ -615,9 +614,21 @@ public class CAService implements ICAService, IService {
      * renewal is expected to have original cert serial no. in cert info
      * field.
      */
-    X509CertImpl issueX509Cert(String rid, X509CertInfo certi,
-            boolean renewal, BigInteger oldSerialNo)
-            throws EBaseException {
+    X509CertImpl issueX509Cert(
+                String rid, X509CertInfo certi,
+                boolean renewal, BigInteger oldSerialNo
+            ) throws EBaseException {
+        return issueX509Cert(null, rid, certi, renewal, oldSerialNo);
+    }
+
+    private X509CertImpl issueX509Cert(
+                AuthorityID aid, String rid, X509CertInfo certi,
+                boolean renewal, BigInteger oldSerialNo
+            ) throws EBaseException {
+        ICertificateAuthority ca = mCA.getCA(aid);
+        if (ca == null)
+            throw new CANotFoundException("No such CA: " + aid);
+
         String algname = null;
         X509CertImpl cert = null;
 
@@ -642,7 +653,7 @@ public class CAService implements ICAService, IService {
             // set default cert version. If policies added a extensions
             // the version would already be set to version 3.
             if (certi.get(X509CertInfo.VERSION) == null) {
-                certi.set(X509CertInfo.VERSION, mCA.getDefaultCertVersion());
+                certi.set(X509CertInfo.VERSION, ca.getDefaultCertVersion());
             }
 
             // set default validity if not set.
@@ -665,7 +676,7 @@ public class CAService implements ICAService, IService {
                 }
 
                 begin = CMS.getCurrentDate();
-                end = new Date(begin.getTime() + mCA.getDefaultValidity());
+                end = new Date(begin.getTime() + ca.getDefaultValidity());
                 certi.set(CertificateValidity.NAME,
                         new CertificateValidity(begin, end));
             }
@@ -705,7 +716,7 @@ public class CAService implements ICAService, IService {
             }
 
             Date caNotAfter =
-                    mCA.getSigningUnit().getCertImpl().getNotAfter();
+                    ca.getSigningUnit().getCertImpl().getNotAfter();
 
             if (begin.after(caNotAfter)) {
                 mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_PAST_VALIDITY"));
@@ -714,7 +725,7 @@ public class CAService implements ICAService, IService {
 
             if (end.after(caNotAfter)) {
                 if (!is_ca) {
-                    if (!mCA.isEnablePastCATime()) {
+                    if (!ca.isEnablePastCATime()) {
                         end = caNotAfter;
                         certi.set(CertificateValidity.NAME,
                                 new CertificateValidity(begin, caNotAfter));
@@ -734,7 +745,7 @@ public class CAService implements ICAService, IService {
                     certi.get(X509CertInfo.ALGORITHM_ID);
 
             if (algor == null || algor.toString().equals(CertInfo.SERIALIZE_ALGOR.toString())) {
-                algname = mCA.getSigningUnit().getDefaultAlgorithm();
+                algname = ca.getSigningUnit().getDefaultAlgorithm();
                 algid = AlgorithmId.get(algname);
                 certi.set(X509CertInfo.ALGORITHM_ID,
                         new CertificateAlgorithmId(algid));
@@ -820,16 +831,16 @@ public class CAService implements ICAService, IService {
         }
 
         try {
-            if (mCA.getIssuerObj() != null) {
+            if (ca.getIssuerObj() != null) {
                 // this ensures the isserDN has the same encoding as the
                 // subjectDN of the CA signing cert
                 CMS.debug("CAService: issueX509Cert: setting issuerDN using exact CA signing cert subjectDN encoding");
                 certi.set(X509CertInfo.ISSUER,
-                        mCA.getIssuerObj());
+                        ca.getIssuerObj());
             } else {
-                CMS.debug("CAService: issueX509Cert: mCA.getIssuerObj() is null, creating new CertificateIssuerName");
+                CMS.debug("CAService: issueX509Cert: ca.getIssuerObj() is null, creating new CertificateIssuerName");
                 certi.set(X509CertInfo.ISSUER,
-                        new CertificateIssuerName(mCA.getX500Name()));
+                        new CertificateIssuerName(ca.getX500Name()));
             }
         } catch (CertificateException e) {
             mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SET_ISSUER", e.toString()));
@@ -861,8 +872,8 @@ public class CAService implements ICAService, IService {
             }
         }
 
-        CMS.debug("About to mCA.sign cert.");
-        cert = mCA.sign(certi, algname);
+        CMS.debug("About to ca.sign cert.");
+        cert = ca.sign(certi, algname);
         return cert;
     }
 

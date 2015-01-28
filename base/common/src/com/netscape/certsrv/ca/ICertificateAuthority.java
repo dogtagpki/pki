@@ -18,6 +18,7 @@
 package com.netscape.certsrv.ca;
 
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -515,4 +516,71 @@ public interface ICertificateAuthority extends ISubsystem {
 
     public CertificateIssuerName getIssuerObj();
     public CertificateSubjectName getSubjectObj();
+
+    /**
+     * Enumerate all authorities, including host authority.
+     */
+    public List<ICertificateAuthority> getCAs();
+
+    /**
+     * Return whether this CA is the host authority (not a
+     * lightweight authority).
+     */
+    public boolean isHostAuthority();
+
+    /**
+     * Get the AuthorityID of this CA.
+     */
+    public AuthorityID getAuthorityID();
+
+    /**
+     * Get the AuthorityID of this CA's parent CA, if available.
+     */
+    public AuthorityID getAuthorityParentID();
+
+    /**
+     * Return CA description.  May be null.
+     */
+    public boolean getAuthorityEnabled();
+
+    /**
+     * Return CA description.  May be null.
+     */
+    public String getAuthorityDescription();
+
+    /**
+     * Get the CA by ID.  Returns null if CA not found.
+     */
+    public ICertificateAuthority getCA(AuthorityID aid);
+
+    /**
+     * Get the CA by DN.  Returns null if CA not found.
+     */
+    public ICertificateAuthority getCA(X500Name dn);
+
+    /**
+     * Create a new sub-CA under the specified parent CA.
+     */
+    public ICertificateAuthority createCA(
+            String dn, AuthorityID parentAID, String desc)
+        throws EBaseException;
+
+    /**
+     * Create a new sub-CA IMMEDIATELY beneath this one.
+     *
+     * This method DOES NOT add the new CA to caMap; it is the
+     * caller's responsibility.
+     */
+    public ICertificateAuthority createSubCA(
+            String dn, String desc)
+        throws EBaseException;
+
+    /**
+     * Update authority configurables.
+     *
+     * @param enabled Whether CA is enabled or disabled
+     * @param desc Description; null or empty removes it
+     */
+    public void modifyAuthority(Boolean enabled, String desc)
+        throws EBaseException;
 }

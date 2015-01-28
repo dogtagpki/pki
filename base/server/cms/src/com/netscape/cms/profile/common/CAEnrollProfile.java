@@ -29,6 +29,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
@@ -95,8 +96,8 @@ public class CAEnrollProfile extends EnrollProfile {
         CMS.debug("CAEnrollProfile: execute reqId=" +
                 request.getRequestId().toString());
         ICertificateAuthority ca = (ICertificateAuthority) getAuthority();
-        ICAService caService = (ICAService) ca.getCAService();
 
+        ICAService caService = (ICAService) ca.getCAService();
         if (caService == null) {
             throw new EProfileException("No CA Service");
         }
@@ -190,9 +191,13 @@ public class CAEnrollProfile extends EnrollProfile {
         if (setId != null) {
             sc.put("profileSetId", setId);
         }
+        AuthorityID aid = null;
+        String aidString = request.getExtDataInString(REQUEST_AUTHORITY_ID);
+        if (aidString != null)
+            aid = new AuthorityID(aidString);
         try {
-            theCert = caService.issueX509Cert(info, getId() /* profileId */,
-                    id /* requestId */);
+            theCert = caService.issueX509Cert(
+                aid, info, getId() /* profileId */, id /* requestId */);
         } catch (EBaseException e) {
             CMS.debug(e.toString());
 

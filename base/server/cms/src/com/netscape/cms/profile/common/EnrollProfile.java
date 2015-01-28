@@ -190,6 +190,9 @@ public abstract class EnrollProfile extends BasicProfile
             if (locale != null) {
                 result[i].setExtData(REQUEST_LOCALE, locale.getLanguage());
             }
+
+            // set requested CA
+            result[i].setExtData(REQUEST_AUTHORITY_ID, ctx.get(REQUEST_AUTHORITY_ID));
         }
         return result;
     }

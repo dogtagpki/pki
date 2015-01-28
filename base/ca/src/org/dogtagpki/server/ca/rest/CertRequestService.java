@@ -38,9 +38,11 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
@@ -210,6 +212,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         } catch (BadRequestDataException e) {
             CMS.debug("changeRequestState: bad request data: " + e);
             throw new BadRequestException(e.toString());
+        } catch (CADisabledException e) {
+            CMS.debug("changeRequestState: CA disabled: " + e);
+            throw new ConflictingOperationException(e.toString());
         } catch (EPropertyException e) {
             CMS.debug("changeRequestState: execution error " + e);
             throw new PKIException(CMS.getUserMessage(getLocale(headers),

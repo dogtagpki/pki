@@ -23,6 +23,7 @@ import netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.request.IRequest;
 
@@ -59,13 +60,15 @@ public interface ICAService {
      * Issues certificate base on enrollment information,
      * creates certificate record, and stores all necessary data.
      *
+     * @param caID CA ID
      * @param certi information obtain from revocation request
+     * @param profileId Name of profile used
+     * @param rid Request ID
      * @exception EBaseException failed to issue certificate or create certificate record
      */
-    public X509CertImpl issueX509Cert(X509CertInfo certi)
-            throws EBaseException;
-
-    public X509CertImpl issueX509Cert(X509CertInfo certi, String profileId, String rid)
+    public X509CertImpl issueX509Cert(
+                AuthorityID aid, X509CertInfo certi,
+                String profileId, String rid)
             throws EBaseException;
 
     /**

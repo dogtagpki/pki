@@ -30,6 +30,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
@@ -98,7 +100,7 @@ public class EnrollmentProcessor extends CertProcessor {
         }
 
         CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
-        return processEnrollment(data, cmsReq.getHttpReq());
+        return processEnrollment(data, cmsReq.getHttpReq(), null);
     }
 
     /**
@@ -118,8 +120,11 @@ public class EnrollmentProcessor extends CertProcessor {
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
-    public HashMap<String, Object> processEnrollment(CertEnrollmentRequest data, HttpServletRequest request)
-            throws EBaseException {
+    public HashMap<String, Object> processEnrollment(
+            CertEnrollmentRequest data,
+            HttpServletRequest request,
+            AuthorityID aid)
+        throws EBaseException {
 
         try {
             if (CMS.debugOn()) {
@@ -146,6 +151,10 @@ public class EnrollmentProcessor extends CertProcessor {
             }
 
             IProfileContext ctx = profile.createContext();
+
+            if (aid != null)
+                ctx.set(IEnrollProfile.REQUEST_AUTHORITY_ID, aid.toString());
+
             CMS.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);
 

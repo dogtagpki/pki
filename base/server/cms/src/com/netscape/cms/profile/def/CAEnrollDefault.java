@@ -68,9 +68,7 @@ public abstract class CAEnrollDefault extends EnrollDefault {
         return null;
     }
 
-    public KeyIdentifier getCAKeyIdentifier() {
-        ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+    public KeyIdentifier getCAKeyIdentifier(ICertificateAuthority ca) {
         X509CertImpl caCert = ca.getCACert();
         if (caCert == null) {
             // during configuration, we dont have the CA certificate

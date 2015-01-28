@@ -123,15 +123,13 @@ public final class SigningUnit implements ISigningUnit {
         return mConfig.getString(PROP_TOKEN_NAME);
     }
 
-    public String getNickName() throws EBaseException {
-        try {
-            return mConfig.getString(PROP_RENAMED_CERT_NICKNAME);
-        } catch (EBaseException e) {
-            return mConfig.getString(PROP_CERT_NICKNAME);
-        }
-    }
 
     public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
+        init(owner, config, null);
+    }
+
+    public void init(ISubsystem owner, IConfigStore config, String nickname)
             throws EBaseException {
         mOwner = owner;
         mConfig = config;
@@ -140,7 +138,15 @@ public final class SigningUnit implements ISigningUnit {
         try {
             mManager = CryptoManager.getInstance();
 
-            mNickname = getNickName();
+            if (nickname == null) {
+                try {
+                    mNickname = mConfig.getString(PROP_RENAMED_CERT_NICKNAME);
+                } catch (EBaseException e) {
+                    mNickname = mConfig.getString(PROP_CERT_NICKNAME);
+                }
+            } else {
+                mNickname = nickname;
+            }
 
             tokenname = config.getString(PROP_TOKEN_NAME);
             if (tokenname.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN) ||

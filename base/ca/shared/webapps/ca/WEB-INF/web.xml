@@ -2417,6 +2417,16 @@
 
     <security-constraint>
         <web-resource-collection>
+            <web-resource-name>Authority Services</web-resource-name>
+            <url-pattern>/rest/authorities/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
             <web-resource-name>Security Domain Services</web-resource-name>
             <url-pattern>/rest/securityDomain/installToken</url-pattern>
         </web-resource-collection>

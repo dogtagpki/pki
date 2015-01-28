@@ -56,7 +56,10 @@ public class PKIService {
     public static List<MediaType> MESSAGE_FORMATS = Arrays.asList(
             MediaType.APPLICATION_XML_TYPE,
             MediaType.APPLICATION_JSON_TYPE,
-            MediaType.APPLICATION_FORM_URLENCODED_TYPE
+            MediaType.APPLICATION_FORM_URLENCODED_TYPE,
+            MediaType.valueOf("application/pkix-cert"),
+            MediaType.valueOf("application/pkcs7-mime"),
+            MediaType.valueOf("application/x-pem-file")
     );
 
     public final static int MIN_FILTER_LENGTH = 3;

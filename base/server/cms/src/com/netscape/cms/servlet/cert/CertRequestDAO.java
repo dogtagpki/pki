@@ -175,7 +175,7 @@ public class CertRequestDAO extends CMSRequestDAO {
             results = processor.processRenewal(data, request);
         } else {
             EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
-            results = processor.processEnrollment(data, request);
+            results = processor.processEnrollment(data, request, null);
         }
 
         IRequest reqs[] = (IRequest[]) results.get(CAProcessor.ARG_REQUESTS);

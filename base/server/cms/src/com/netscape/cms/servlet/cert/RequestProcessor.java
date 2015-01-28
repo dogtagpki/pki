@@ -36,6 +36,10 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
@@ -327,6 +331,31 @@ public class RequestProcessor extends CertProcessor {
     }
 
     /**
+     * Ensure validity of AuthorityID and that CA exists and is enabled.
+     */
+    private void ensureCAEnabled(String aidString) throws EBaseException {
+        AuthorityID aid = null;
+        try {
+            aid = new AuthorityID(aidString);
+        } catch (IllegalArgumentException e) {
+            // this shouldn't happen because request was already accepted
+            throw new BadRequestDataException("Invalid AuthorityID in request data");
+        }
+        ICertificateAuthority ca = (ICertificateAuthority)
+            CMS.getSubsystem("ca");
+        if (ca == null)
+            // this shouldn't happen
+            throw new CANotFoundException("Could not get host authority");  // shouldn't happen
+        ca = ca.getCA(aid);
+        if (ca == null)
+            // this shouldn't happen because request was already accepted
+            throw new CANotFoundException("Unknown CA: " + aidString);
+        if (!ca.getAuthorityEnabled())
+            // authority was disabled after request was accepted
+            throw new CADisabledException("CA '" + aidString + "' is disabled");
+    }
+
+    /**
      * Approve request
      * <P>
      *
@@ -346,10 +375,15 @@ public class RequestProcessor extends CertProcessor {
      *                occurred
      */
     private void approveRequest(IRequest req, CertReviewResponse data, IProfile profile, Locale locale)
-            throws EProfileException {
+            throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
+
+        // ensure target CA is enabled
+        String aidString = req.getExtDataInString(IEnrollProfile.REQUEST_AUTHORITY_ID);
+        if (aidString != null)
+            ensureCAEnabled(aidString);
 
         try {
             profile.execute(req);

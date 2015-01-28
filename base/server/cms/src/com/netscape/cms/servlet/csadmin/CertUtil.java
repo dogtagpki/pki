@@ -434,8 +434,19 @@ public class CertUtil {
                (signingKeyType.equals("dsa") && algorithm.contains("DSA")));
     }
 
+    public static X509CertImpl createLocalCertWithCA(IConfigStore config, X509Key x509key,
+            String prefix, String certTag, String type, ICertificateAuthority ca) throws IOException {
+        return createLocalCert(config, x509key, prefix, certTag, type, ca, null);
+    }
+
     public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
             String prefix, String certTag, String type, Context context) throws IOException {
+        return createLocalCert(config, x509key, prefix, certTag, type, null, context);
+    }
+
+    public static X509CertImpl createLocalCert(IConfigStore config, X509Key x509key,
+            String prefix, String certTag, String type,
+            ICertificateAuthority ca, Context context) throws IOException {
 
         CMS.debug("Creating local certificate... certTag=" + certTag);
         String profile = null;
@@ -446,12 +457,13 @@ public class CertUtil {
         }
 
         X509CertImpl cert = null;
-        ICertificateAuthority ca = null;
         ICertificateRepository cr = null;
         RequestId reqId = null;
         String profileId = null;
         IRequestQueue queue = null;
         IRequest req = null;
+
+        boolean caProvided = ca != null;
 
         try {
             Boolean injectSAN = config.getBoolean(
@@ -468,7 +480,8 @@ public class CertUtil {
             } else {
                 keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
             }
-            ca = (ICertificateAuthority) CMS.getSubsystem(
+            if (!caProvided)
+                ca = (ICertificateAuthority) CMS.getSubsystem(
                     ICertificateAuthority.ID);
             cr = ca.getCertificateRepository();
             BigInteger serialNo = cr.getNextSerialNumber();
@@ -496,9 +509,9 @@ public class CertUtil {
             }
             CMS.debug("Cert Template: " + info.toString());
 
-            String instanceRoot = config.getString("instanceRoot");
+            String instanceRoot = CMS.getConfigStore().getString("instanceRoot");
 
-            String configurationRoot = config.getString("configurationRoot");
+            String configurationRoot = CMS.getConfigStore().getString("configurationRoot");
 
             CertInfoProfile processor = new CertInfoProfile(
                     instanceRoot + configurationRoot + profile);
@@ -541,11 +554,18 @@ public class CertUtil {
 
             processor.populate(req, info);
 
-            String caPriKeyID = config.getString(
-                    prefix + "signing" + ".privkey.id");
-            byte[] keyIDb = CryptoUtil.string2byte(caPriKeyID);
-            PrivateKey caPrik = CryptoUtil.findPrivateKeyFromID(
-                    keyIDb);
+            PrivateKey caPrik = null;
+            if (caProvided) {
+                java.security.PrivateKey pk = ca.getSigningUnit().getPrivateKey();
+                if (!(pk instanceof PrivateKey))
+                    throw new IOException("CA Private key must be a JSS PrivateKey");
+                caPrik = (PrivateKey) pk;
+            } else {
+                String caPriKeyID = config.getString(
+                        prefix + "signing" + ".privkey.id");
+                byte[] keyIDb = CryptoUtil.string2byte(caPriKeyID);
+                caPrik = CryptoUtil.findPrivateKeyFromID(keyIDb);
+            }
 
             if (caPrik == null) {
                 CMS.debug("CertUtil::createSelfSignedCert() - "

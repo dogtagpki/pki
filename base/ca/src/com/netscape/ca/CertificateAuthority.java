@@ -23,35 +23,25 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
-import netscape.security.x509.X509Key;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -60,6 +50,9 @@ import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkix.cert.Extension;
@@ -73,15 +66,21 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.policy.IPolicyProcessor;
@@ -96,6 +95,8 @@ import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.servlet.csadmin.CertUtil;
+import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -106,6 +107,7 @@ import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.KeyCertUtil;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -123,6 +125,29 @@ import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509ExtensionException;
+import netscape.security.x509.X509Key;
+
+
 /**
  * A class represents a Certificate Authority that is
  * responsible for certificate specific operations.
@@ -135,6 +160,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     public static final String OFFICIAL_NAME = "Certificate Manager";
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
+
+    private static final Map<AuthorityID, ICertificateAuthority> caMap = new TreeMap<>();
+    protected CertificateAuthority hostCA = null;
+    protected AuthorityID authorityID = null;
+    protected AuthorityID authorityParentID = null;
+    protected String authorityDescription = null;
+    protected boolean authorityEnabled = true;
 
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
@@ -234,6 +266,41 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * Constructs a CA subsystem.
      */
     public CertificateAuthority() {
+        hostCA = this;
+    }
+
+    /**
+     * Construct and initialise a lightweight authority
+     */
+    private CertificateAuthority(
+            CertificateAuthority hostCA,
+            AuthorityID aid,
+            AuthorityID parentAID,
+            String signingKeyNickname,
+            String authorityDescription,
+            boolean authorityEnabled
+            ) throws EBaseException {
+        setId(hostCA.getId());
+        this.hostCA = hostCA;
+        this.authorityID = aid;
+        this.authorityParentID = parentAID;
+        this.authorityDescription = authorityDescription;
+        this.authorityEnabled = authorityEnabled;
+        mNickname = signingKeyNickname;
+        init(hostCA.mOwner, hostCA.mConfig);
+    }
+
+    public boolean isHostAuthority() {
+        return hostCA == this;
+    }
+
+    private void ensureEnabled() throws CADisabledException {
+        if (!authorityEnabled)
+            throw new CADisabledException("Authority is disabled");
+    }
+
+    public boolean getAuthorityEnabled() {
+        return authorityEnabled;
     }
 
     /**
@@ -334,8 +401,22 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             mOwner = owner;
             mConfig = config;
 
-            // init cert & crl database.
-            initCaDatabases();
+            // init cert & crl database
+            initCertDatabase();
+            initCrlDatabase();
+
+            // init replica id repository
+            if (isHostAuthority()) {
+                String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
+                if (replicaReposDN == null) {
+                    replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
+                }
+                mReplicaRepot = new ReplicaIDRepository(
+                        DBSubsystem.getInstance(), 1, replicaReposDN);
+                CMS.debug("Replica Repot inited");
+            } else {
+                mReplicaRepot = hostCA.mReplicaRepot;
+            }
 
             // init signing unit & CA cert.
             try {
@@ -358,50 +439,36 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             if (CMS.isPreOpMode())
                 return;
 
-            // set certificate status to 10 minutes
-            mCertRepot.setCertStatusUpdateInterval(
+            /* The host CA owns these resources so skip these
+             * steps for lightweight CAs.
+             */
+            if (isHostAuthority()) {
+                /* These methods configure and start threads related to
+                 * CertificateRepository.  Ideally all of the config would
+                 * be pushed into CertificateRepository constructor and a
+                 * single 'start' method would start the threads.
+                 */
+                // set certificate status to 10 minutes
+                mCertRepot.setCertStatusUpdateInterval(
                     mRequestQueue.getRequestRepository(),
                     mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
                     mConfig.getBoolean("listenToCloneModifications", false));
-            mCertRepot.setConsistencyCheck(
+                mCertRepot.setConsistencyCheck(
                     mConfig.getBoolean("ConsistencyCheck", false));
-            mCertRepot.setSkipIfInConsistent(
+                mCertRepot.setSkipIfInConsistent(
                     mConfig.getBoolean("SkipIfInConsistent", false));
 
-            // set serial number update task to run every 10 minutes
-            mCertRepot.setSerialNumberUpdateInterval(
+                // set serial number update task to run every 10 minutes
+                mCertRepot.setSerialNumberUpdateInterval(
                     mRequestQueue.getRequestRepository(),
                     mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
 
-            mService.init(config.getSubStore("connector"));
+                mService.init(config.getSubStore("connector"));
 
-            initMiscellaneousListeners();
-
-            // instantiate CRL publisher
-            IConfigStore cpStore = null;
-
-            mByName = config.getBoolean("byName", true);
-
-            cpStore = config.getSubStore("crlPublisher");
-            if (cpStore != null && cpStore.size() > 0) {
-                String publisherClass = cpStore.getString("class");
-
-                if (publisherClass != null) {
-                    try {
-                        @SuppressWarnings("unchecked")
-                        Class<ICRLPublisher> pc = (Class<ICRLPublisher>) Class.forName(publisherClass);
-
-                        mCRLPublisher = pc.newInstance();
-                        mCRLPublisher.init(this, cpStore);
-                    } catch (ClassNotFoundException ee) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
-                    } catch (IllegalAccessException ee) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
-                    } catch (InstantiationException ee) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
-                    }
-                }
+                initMiscellaneousListeners();
             }
+
+            initCRLPublisher();
 
             // initialize publisher processor (publish remote admin
             // rely on this subsystem, so it has to be initialized)
@@ -412,11 +479,45 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             // being functional.
             initCRL();
 
+            if (isHostAuthority())
+                loadLightweightCAs();
+
         } catch (EBaseException e) {
             if (CMS.isPreOpMode())
                 return;
             else
                 throw e;
+        }
+    }
+
+    private void initCRLPublisher() throws EBaseException {
+        // instantiate CRL publisher
+        if (!isHostAuthority()) {
+            mByName = hostCA.mByName;
+            mCRLPublisher = hostCA.mCRLPublisher;
+            return;
+        }
+
+        mByName = mConfig.getBoolean("byName", true);
+        IConfigStore cpStore = mConfig.getSubStore("crlPublisher");
+        if (cpStore != null && cpStore.size() > 0) {
+            String publisherClass = cpStore.getString("class");
+
+            if (publisherClass != null) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    Class<ICRLPublisher> pc = (Class<ICRLPublisher>) Class.forName(publisherClass);
+
+                    mCRLPublisher = pc.newInstance();
+                    mCRLPublisher.init(this, cpStore);
+                } catch (ClassNotFoundException ee) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                } catch (IllegalAccessException ee) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                } catch (InstantiationException ee) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                }
+            }
         }
     }
 
@@ -540,14 +641,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         mService.startup();
         mRequestQueue.recover();
 
-        // Note that this could be null.
-
-        // setup Admin operations
-
-        initNotificationListeners();
-
-        startPublish();
-        //		startCRL();
+        if (isHostAuthority()) {
+            // setup Admin operations
+            initNotificationListeners();
+            startPublish();
+        }
     }
 
     /**
@@ -555,6 +653,10 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * <P>
      */
     public void shutdown() {
+        // lightweight authorities don't own these resources
+        if (!isHostAuthority())
+            return;
+
         Enumeration<ICRLIssuingPoint> enums = mCRLIssuePoints.elements();
         while (enums.hasMoreElements()) {
             CRLIssuingPoint point = (CRLIssuingPoint) enums.nextElement();
@@ -967,6 +1069,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      */
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
             throws EBaseException {
+        ensureEnabled();
         X509CRLImpl signedcrl = null;
 
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
@@ -1039,6 +1142,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      */
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException {
+        ensureEnabled();
 
         X509CertImpl signedcert = null;
 
@@ -1123,6 +1227,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      */
     public byte[] sign(byte[] data, String algname)
             throws EBaseException {
+        ensureEnabled();
         return mSigningUnit.sign(data, algname);
     }
 
@@ -1228,13 +1333,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
             }
 
-            mSigningUnit.init(this, caSigningCfg);
+            mSigningUnit.init(this, caSigningCfg, mNickname);
             CMS.debug("CA signing unit inited");
 
             // for identrus
             IConfigStore CrlStore = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
 
-            if (CrlStore != null && CrlStore.size() > 0) {
+            if (isHostAuthority() && CrlStore != null && CrlStore.size() > 0) {
                 mCRLSigningUnit = new SigningUnit();
                 mCRLSigningUnit.init(this, mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE));
             } else {
@@ -1304,7 +1409,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
             IConfigStore OCSPStore = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
 
-            if (OCSPStore != null && OCSPStore.size() > 0) {
+            if (isHostAuthority() && OCSPStore != null && OCSPStore.size() > 0) {
                 mOCSPSigningUnit = new SigningUnit();
                 mOCSPSigningUnit.init(this, mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE));
                 CMS.debug("Separate OCSP signing unit inited");
@@ -1443,8 +1548,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * init cert & crl database
      */
-    private void initCaDatabases()
+    private void initCertDatabase()
             throws EBaseException {
+        if (!isHostAuthority()) {
+            mCertRepot = hostCA.mCertRepot;
+            return;
+        }
+
         int certdb_inc = mConfig.getInteger(PROP_CERTDB_INC, 5);
 
         String certReposDN = mConfig.getString(PROP_CERT_REPOS_DN, null);
@@ -1471,8 +1581,17 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         mCertRepot.setTransitRecordPageSize(transitRecordPageSize);
 
         CMS.debug("Cert Repot inited");
+    }
 
-        // init crl repot.
+    /**
+     * init cert & crl database
+     */
+    private void initCrlDatabase()
+            throws EBaseException {
+        if (!isHostAuthority()) {
+            mCRLRepot = hostCA.mCRLRepot;
+            return;
+        }
 
         int crldb_inc = mConfig.getInteger(PROP_CRLDB_INC, 5);
 
@@ -1482,14 +1601,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                     "ou=crlIssuingPoints, ou=" + getId() + ", " +
                             getDBSubsystem().getBaseDN());
         CMS.debug("CRL Repot inited");
-
-        String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
-        if (replicaReposDN == null) {
-            replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
-        }
-        mReplicaRepot = new ReplicaIDRepository(
-                DBSubsystem.getInstance(), 1, replicaReposDN);
-        CMS.debug("Replica Repot inited");
     }
 
     private void startPublish()
@@ -1513,6 +1624,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      */
     private void initPublish()
             throws EBaseException {
+        if (!isHostAuthority()) {
+            mPublisherProcessor = hostCA.mPublisherProcessor;
+            return;
+        }
+
         IConfigStore c = null;
 
         try {
@@ -1676,6 +1792,15 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      */
     private void initRequestQueue()
             throws EBaseException {
+        if (!isHostAuthority()) {
+            mPolicy = hostCA.mPolicy;
+            mService = hostCA.mService;
+            mNotify = hostCA.mNotify;
+            mPNotify = hostCA.mPNotify;
+            mRequestQueue = hostCA.mRequestQueue;
+            return;
+        }
+
         mPolicy = new CAPolicy();
         mPolicy.init(this, mConfig.getSubStore(PROP_POLICY));
         CMS.debug("CA policy inited");
@@ -1734,6 +1859,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     @SuppressWarnings("unchecked")
     private void initCRL()
             throws EBaseException {
+        if (!isHostAuthority()) {
+            mCRLIssuePoints = hostCA.mCRLIssuePoints;
+            mMasterCRLIssuePoint = hostCA.mMasterCRLIssuePoint;
+            return;
+        }
         IConfigStore crlConfig = mConfig.getSubStore(PROP_CRL_SUBSTORE);
 
         if ((crlConfig == null) || (crlConfig.size() <= 0)) {
@@ -1797,6 +1927,109 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
          }
          */
         log(ILogger.LL_INFO, "CRL Issuing Points inited");
+    }
+
+    /**
+     * Find, instantiate and register lightweight CAs.
+     *
+     * This method must only be called by the host CA.
+     */
+    private synchronized void loadLightweightCAs() throws EBaseException {
+        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("loadLightweightCAs");
+        dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
+        LDAPConnection conn = dbFactory.getConn();
+
+        String searchDN = "ou=authorities,ou=" + getId()
+            + "," + getDBSubsystem().getBaseDN();
+        LDAPSearchResults results = null;
+        boolean foundHostAuthority = false;
+        boolean haveLightweightCAsContainer = true;
+        try {
+            results = conn.search(
+                searchDN, LDAPConnection.SCOPE_ONE,
+                "(objectclass=authority)", null, false);
+
+            while (results.hasMoreElements()) {
+                LDAPEntry entry = results.next();
+                LDAPAttribute aidAttr = entry.getAttribute("authorityID");
+                LDAPAttribute nickAttr = entry.getAttribute("authorityKeyNickname");
+                LDAPAttribute dnAttr = entry.getAttribute("authorityDN");
+                LDAPAttribute parentAIDAttr = entry.getAttribute("authorityParentID");
+                LDAPAttribute parentDNAttr = entry.getAttribute("authorityParentDN");
+
+                if (aidAttr == null || nickAttr == null || dnAttr == null)
+                    throw new ECAException("Malformed authority object; required attribute(s) missing: " + entry.getDN());
+
+                AuthorityID aid = new AuthorityID((String)
+                    aidAttr.getStringValues().nextElement());
+
+                X500Name dn = null;
+                try {
+                    dn = new X500Name((String) dnAttr.getStringValues().nextElement());
+                } catch (IOException e) {
+                    throw new ECAException("Malformed authority object; invalid authorityDN: " + entry.getDN());
+                }
+
+                String desc = null;
+                LDAPAttribute descAttr = entry.getAttribute("description");
+                if (descAttr != null)
+                    desc = (String) descAttr.getStringValues().nextElement();
+
+                if (dn.equals(mName)) {
+                    foundHostAuthority = true;
+                    this.authorityID = aid;
+                    this.authorityDescription = desc;
+                    caMap.put(aid, this);
+                    continue;
+                }
+
+                @SuppressWarnings("unused")
+                X500Name parentDN = null;
+                if (parentDNAttr != null) {
+                    try {
+                        parentDN = new X500Name((String) parentDNAttr.getStringValues().nextElement());
+                    } catch (IOException e) {
+                        throw new ECAException("Malformed authority object; invalid authorityParentDN: " + entry.getDN());
+                    }
+                }
+
+                String keyNick = (String) nickAttr.getStringValues().nextElement();
+                AuthorityID parentAID = null;
+                if (parentAIDAttr != null)
+                    parentAID = new AuthorityID((String)
+                        parentAIDAttr.getStringValues().nextElement());
+
+                boolean enabled = true;
+                LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
+                if (enabledAttr != null) {
+                    String enabledString = (String)
+                        enabledAttr.getStringValues().nextElement();
+                    enabled = enabledString.equalsIgnoreCase("TRUE");
+                }
+
+                CertificateAuthority ca = new CertificateAuthority(
+                    this, aid, parentAID, keyNick, desc, enabled);
+                caMap.put(aid, ca);
+            }
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                CMS.debug(
+                    "Missing lightweight CAs container '" + searchDN
+                    + "'.  Disabling lightweight CAs.");
+                haveLightweightCAsContainer = false;
+            } else {
+                throw new ECAException("Failed to execute LDAP search for lightweight CAs: " + e);
+            }
+        } finally {
+            dbFactory.returnConn(conn);
+            dbFactory.reset();
+        }
+
+        if (haveLightweightCAsContainer && !foundHostAuthority) {
+            CMS.debug("loadLightweightCAs: no entry for host authority");
+            CMS.debug("loadLightweightCAs: adding entry for host authority");
+            caMap.put(addHostAuthorityEntry(), this);
+        }
     }
 
     public String getOfficialName() {
@@ -1960,6 +2193,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     }
 
     private BasicOCSPResponse sign(ResponseData rd) throws EBaseException {
+        ensureEnabled();
         try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
 
@@ -2083,4 +2317,310 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
         return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
     }
+
+    /**
+     * Enumerate all authorities (including host authority)
+     */
+    public synchronized List<ICertificateAuthority> getCAs() {
+        List<ICertificateAuthority> cas = new ArrayList<>();
+        for (ICertificateAuthority ca : caMap.values()) {
+            cas.add(ca);
+        }
+        return cas;
+    }
+
+    /**
+     * Get authority by ID.
+     *
+     * @param aid The ID of the CA to retrieve, or null
+     *             to retreive the host authority.
+     *
+     * @return the authority, or null if not found
+     */
+    public ICertificateAuthority getCA(AuthorityID aid) {
+        return aid == null ? hostCA : caMap.get(aid);
+    }
+
+    public ICertificateAuthority getCA(X500Name dn) {
+        for (ICertificateAuthority ca : getCAs()) {
+            if (ca.getX500Name().equals(dn))
+                return ca;
+        }
+        return null;
+    }
+
+    public AuthorityID getAuthorityID() {
+        return authorityID;
+    }
+
+    public AuthorityID getAuthorityParentID() {
+        return authorityParentID;
+    }
+
+    public String getAuthorityDescription() {
+        return authorityDescription;
+    }
+
+    /**
+     * Create a new lightweight authority.
+     *
+     * @param subjectDN Subject DN for new CA
+     * @param parentAID ID of parent CA
+     * @param description Optional string description of CA
+     */
+    public ICertificateAuthority createCA(
+            String subjectDN, AuthorityID parentAID,
+            String description)
+            throws EBaseException {
+        ICertificateAuthority parentCA = getCA(parentAID);
+        if (parentCA == null)
+            throw new CANotFoundException(
+                "Parent CA \"" + parentAID + "\" does not exist");
+
+        ICertificateAuthority ca = parentCA.createSubCA(
+                subjectDN, description);
+        synchronized (this) {
+            caMap.put(ca.getAuthorityID(), ca);
+        }
+        return ca;
+    }
+
+    private void ensureAuthorityDNAvailable(X500Name dn)
+            throws IssuerUnavailableException {
+        for (ICertificateAuthority ca : getCAs()) {
+            if (ca.getX500Name().equals(dn))
+                throw new IssuerUnavailableException(
+                    "DN '" + dn + "' is used by an existing authority");
+        }
+    }
+
+    /**
+     * Create a new lightweight authority signed by this authority.
+     *
+     * This method DOES NOT add the new CA to caMap; it is the
+     * caller's responsibility.
+     */
+    public ICertificateAuthority createSubCA(
+            String subjectDN, String description)
+            throws EBaseException {
+
+        // check requested DN
+        X500Name subjectX500Name = null;
+        try {
+            subjectX500Name = new X500Name(subjectDN);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(
+                "Invalid Subject DN: " + subjectDN);
+        }
+        ensureAuthorityDNAvailable(subjectX500Name);
+
+        // generate authority ID and nickname
+        AuthorityID aid = new AuthorityID();
+        String aidString = aid.toString();
+        String nickname = hostCA.getNickname() + " " + aidString;
+
+        // build database entry
+        String dn = "cn=" + aidString + ",ou=authorities,ou="
+            + getId() + "," + getDBSubsystem().getBaseDN();
+        CMS.debug("createSubCA: DN = " + dn);
+        String parentDNString = null;
+        try {
+            parentDNString = mName.toLdapDNString();
+        } catch (IOException e) {
+            throw new EBaseException("Failed to convert issuer DN to string: " + e);
+        }
+
+        LDAPAttribute[] attrs = {
+            new LDAPAttribute("objectclass", "authority"),
+            new LDAPAttribute("cn", aidString),
+            new LDAPAttribute("authorityID", aidString),
+            new LDAPAttribute("authorityKeyNickname", nickname),
+            new LDAPAttribute("authorityEnabled", "TRUE"),
+            new LDAPAttribute("authorityDN", subjectDN),
+            new LDAPAttribute("authorityParentDN", parentDNString)
+        };
+        LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+        if (this.authorityID != null)
+            attrSet.add(new LDAPAttribute(
+                "authorityParentID", this.authorityID.toString()));
+        if (description != null)
+            attrSet.add(new LDAPAttribute("description", description));
+        LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
+
+        // connect to database
+        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("createSubCA");
+        dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
+        LDAPConnection conn = dbFactory.getConn();
+
+        try {
+            // add entry to database
+            conn.add(ldapEntry);
+
+            try {
+                // Generate signing key
+                CryptoManager cryptoManager = CryptoManager.getInstance();
+                // TODO read PROP_TOKEN_NAME config
+                CryptoToken token = cryptoManager.getInternalKeyStorageToken();
+                // TODO algorithm parameter
+                KeyPairGenerator gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+                gen.initialize(2048);
+                KeyPair keypair = gen.genKeyPair();
+                PublicKey pub = keypair.getPublic();
+                X509Key x509key = CryptoUtil.convertPublicKeyToX509Key(pub);
+
+                // Sign certificate
+                String algName = mSigningUnit.getDefaultAlgorithm();
+                IConfigStore cs = new PropConfigStore("cs");
+                cs.put(".profile", "caCert.profile");
+                cs.put(".dn", subjectDN);
+                cs.put(".keyalgorithm", algName);
+                X509CertImpl cert =
+                    CertUtil.createLocalCertWithCA(cs, x509key, "", "", "local", this);
+
+                // Add certificate to nssdb
+                cryptoManager.importCertPackage(cert.getEncoded(), nickname);
+            } catch (Exception e) {
+                // something went wrong; delete just-added entry
+                conn.delete(dn);
+                throw new ECAException("Error creating lightweight CA certificate: " + e);
+            }
+        } catch (LDAPException e) {
+            throw new EBaseException("Error adding authority entry to database: " + e);
+        } finally {
+            dbFactory.returnConn(conn);
+            dbFactory.reset();
+        }
+
+        return new CertificateAuthority(
+            hostCA, aid, this.authorityID, nickname, description, true);
+    }
+
+    /**
+     * Add an LDAP entry for the host authority.
+     *
+     * This method also sets the authorityID and authorityDescription
+     * fields.
+     *
+     * It is the caller's responsibility to add the returned
+     * AuthorityID to the caMap.
+     */
+    private AuthorityID addHostAuthorityEntry() throws EBaseException {
+        if (!isHostAuthority())
+            throw new EBaseException("Can only invoke from host CA");
+
+        // generate authority ID
+        AuthorityID aid = new AuthorityID();
+        String aidString = aid.toString();
+
+        // build database entry
+        String dn = "cn=" + aidString + ",ou=authorities,ou="
+            + getId() + "," + getDBSubsystem().getBaseDN();
+        String dnString = null;
+        try {
+            dnString = mName.toLdapDNString();
+        } catch (IOException e) {
+            throw new EBaseException("Failed to convert issuer DN to string: " + e);
+        }
+
+        String desc = "Host authority";
+        LDAPAttribute[] attrs = {
+            new LDAPAttribute("objectclass", "authority"),
+            new LDAPAttribute("cn", aidString),
+            new LDAPAttribute("authorityID", aidString),
+            new LDAPAttribute("authorityKeyNickname", getNickname()),
+            new LDAPAttribute("authorityEnabled", "TRUE"),
+            new LDAPAttribute("authorityDN", dnString),
+            new LDAPAttribute("description", desc)
+        };
+        LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
+        LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
+
+        // connect to database
+        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("addHostAuthorityEntry");
+        dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
+        LDAPConnection conn = dbFactory.getConn();
+
+        try {
+            conn.add(ldapEntry);
+        } catch (LDAPException e) {
+            throw new ELdapException("Error adding host authority entry to database: " + e);
+        } finally {
+            dbFactory.returnConn(conn);
+            dbFactory.reset();
+        }
+
+        this.authorityID = aid;
+        this.authorityDescription = desc;
+        return aid;
+    }
+
+    /**
+     * Update lightweight authority attributes.
+     *
+     * Pass null values to exclude an attribute from the update.
+     *
+     * If a passed value matches the current value, it is excluded
+     * from the update.
+     *
+     * To remove optional string values, pass the empty string.
+     */
+    public void modifyAuthority(Boolean enabled, String desc)
+            throws EBaseException {
+        if (isHostAuthority() && enabled != null && !enabled)
+            throw new CATypeException("Cannot disable the host CA");
+
+        LDAPModificationSet mods = new LDAPModificationSet();
+
+        boolean nextEnabled = authorityEnabled;
+        if (enabled != null && enabled.booleanValue() != authorityEnabled) {
+            mods.add(
+                LDAPModification.REPLACE,
+                new LDAPAttribute("authorityEnabled", enabled ? "TRUE" : "FALSE"));
+            nextEnabled = enabled;
+        }
+
+        String nextDesc = authorityDescription;
+        if (desc != null) {
+            if (!desc.isEmpty() && authorityDescription != null
+                    && !desc.equals(authorityDescription)) {
+                mods.add(
+                    LDAPModification.REPLACE,
+                    new LDAPAttribute("description", desc));
+                nextDesc = desc;
+            } else if (desc.isEmpty() && authorityDescription != null) {
+                mods.add(
+                    LDAPModification.DELETE,
+                    new LDAPAttribute("description", authorityDescription));
+                nextDesc = null;
+            } else if (!desc.isEmpty() && authorityDescription == null) {
+                mods.add(
+                    LDAPModification.ADD,
+                    new LDAPAttribute("description", desc));
+                nextDesc = desc;
+            }
+        }
+
+        if (mods.size() > 0) {
+            String dn = "cn=" + authorityID.toString() + ",ou=authorities,ou="
+                + getId() + "," + getDBSubsystem().getBaseDN();
+
+            // connect to database
+            ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("updateAuthority");
+            dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
+            LDAPConnection conn = dbFactory.getConn();
+            try {
+                conn.modify(dn, mods);
+            } catch (LDAPException e) {
+                throw new EBaseException("Error adding authority entry to database: " + e);
+            } finally {
+                dbFactory.returnConn(conn);
+                dbFactory.reset();
+            }
+
+            // update was successful; update CA's state
+            authorityEnabled = nextEnabled;
+            authorityDescription = nextDesc;
+        }
+    }
+
 }

@@ -175,6 +175,11 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQUEST_ALGORITHM_PARAMS = "req_algorithm_params";
 
     /**
+     * ID of requested certificate authority (absense implies host authority)
+     */
+    public static final String REQUEST_AUTHORITY_ID = "req_authority_id";
+
+    /**
      * Set Default X509CertInfo in the request.
      *
      * @param request profile-based certificate request.

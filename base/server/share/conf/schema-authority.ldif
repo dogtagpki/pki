@@ -1,0 +1,8 @@
+dn: cn=schema
+attributeTypes: ( authorityID-oid NAME 'authorityID' DESC 'Authority ID' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 X-ORIGIN 'user defined' )
+attributeTypes: ( authorityKeyNickname-oid NAME 'authorityKeyNickname' DESC 'Authority key nickname' SYNTAX 1.3.6.1.4.1.1466.115.121.1.44 X-ORIGIN 'user-defined' )
+attributeTypes: ( authorityParentID-oid NAME 'authorityParentID' DESC 'Authority Parent ID' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 X-ORIGIN 'user defined' )
+attributeTypes: ( authorityEnabled-oid NAME 'authorityEnabled' DESC 'Authority Enabled' SYNTAX 1.3.6.1.4.1.1466.115.121.1.7 X-ORIGIN 'user defined' )
+attributeTypes: ( authorityDN-oid NAME 'authorityDN' DESC 'Authority Enabled' SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 X-ORIGIN 'user defined' )
+attributeTypes: ( authorityParentDN-oid NAME 'authorityParentDN' DESC 'Authority Enabled' SYNTAX 1.3.6.1.4.1.1466.115.121.1.12 X-ORIGIN 'user defined' )
+objectClasses: ( authority-oid NAME 'authority' DESC 'Certificate Authority' SUP top STRUCTURAL MUST ( cn $ authorityID $ authorityKeyNickname $ authorityEnabled $ authorityDN ) MAY ( authorityParentID $ authorityParentDN $ description ) X-ORIGIN 'user defined' )

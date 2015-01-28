@@ -20,19 +20,22 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+
+import netscape.security.x509.AuthorityKeyIdentifierExtension;
+import netscape.security.x509.KeyIdentifier;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements an enrollment default policy
@@ -161,18 +164,27 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
      */
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
-        AuthorityKeyIdentifierExtension ext = createExtension(info);
+        ICertificateAuthority ca = (ICertificateAuthority)
+                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        String aidString = request.getExtDataInString(
+                IEnrollProfile.REQUEST_AUTHORITY_ID);
+        if (aidString != null)
+            ca = ca.getCA(new AuthorityID(aidString));
+        if (ca == null)
+            throw new EProfileException("Could not reach requested CA");
 
+        AuthorityKeyIdentifierExtension ext = createExtension(ca, info);
         addExtension(PKIXExtensions.AuthorityKey_Id.toString(), ext, info);
     }
 
-    public AuthorityKeyIdentifierExtension createExtension(X509CertInfo info) {
+    public AuthorityKeyIdentifierExtension createExtension(
+            ICertificateAuthority ca, X509CertInfo info) {
         KeyIdentifier kid = null;
         String localKey = getConfig("localKey");
         if (localKey != null && localKey.equals("true")) {
             kid = getKeyIdentifier(info);
         } else {
-            kid = getCAKeyIdentifier();
+            kid = getCAKeyIdentifier(ca);
         }
 
         if (kid == null)

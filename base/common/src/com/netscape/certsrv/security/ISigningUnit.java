@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.security;
 
+import java.security.PrivateKey;
 import java.security.PublicKey;
 
 import netscape.security.x509.X509CertImpl;
@@ -161,4 +162,11 @@ public interface ISigningUnit {
      * @return public key
      */
     public PublicKey getPublicKey();
+
+    /**
+     * Retrieves the private key associated in this unit.
+     *
+     * @return public key
+     */
+    public PrivateKey getPrivateKey();
 }
