@@ -191,6 +191,7 @@
 . ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-requests.sh
 . ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-enrollments.sh
 . ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-retrieval.sh
+. ./acceptance/legacy/ca-tests/logs/ca-ad-logs.sh
 . ./acceptance/install-tests/ca-installer.sh
 . ./acceptance/install-tests/kra-installer.sh
 . ./acceptance/install-tests/ocsp-installer.sh
@@ -1511,6 +1512,11 @@ rlJournalStart
 		subsystemType=ca
 		run_ca-ag-certificates_tests $subsystemType $MYROLE
 	fi	
+	PKI_LEGACY_CA_ADMIN_LOGS_UPPERCASE=$(echo $PKI_LEGACY_CA_ADMIN_LOGS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_ADMIN_LOGS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_admin-ca-log_tests $subsystemType $MYROLE
+	fi
 	######## INSTALL TESTS ############
         PKI_INSTALL_TESTS_UPPERCASE=$(echo $PKI_INSTALL_TESTS | tr [a-z] [A-Z])
         if [ "$PKI_INSTALL_TESTS_UPPERCASE" = "TRUE" ] ; then
