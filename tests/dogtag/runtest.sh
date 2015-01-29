@@ -187,6 +187,10 @@
 . ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
 . ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
 . ./acceptance/legacy/ca-tests/ocsp/ca-ee-ocsp.sh
+. ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-certificates.sh
+. ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-requests.sh
+. ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-enrollments.sh
+. ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-retrieval.sh
 . ./acceptance/install-tests/ca-installer.sh
 . ./acceptance/install-tests/kra-installer.sh
 . ./acceptance/install-tests/ocsp-installer.sh
@@ -1472,7 +1476,6 @@ rlJournalStart
                 subsystemType=ca
                 run_admin-ca-crlissuingpoints_tests $subsystemType $MYROLE
         fi
-
         PKI_LEGACY_CA_AGENT_CRL_UPPERCASE=$(echo $PKI_LEGACY_CA_AGENT_CRL | tr [a-z] [A-Z])
         if [ "$PKI_LEGACY_CA_AGENT_CRL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
                 subsystemType=ca
@@ -1488,6 +1491,26 @@ rlJournalStart
                 subsystemType=ca
                 run_ca-ee-ocsp_tests $subsystemType $MYROLE
         fi
+	PKI_LEGACY_CA_EE_ENROLLMENT_UPPERCASE=$(echo $PKI_LEGACY_CA_EE_ENROLLMENT | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_EE_ENROLLMENT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_ee-ca-enrollment_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_CA_EE_RETRIEVAL_UPPERCASE=$(echo $PKI_LEGACY_CA_EE_RETRIEVAL | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_EE_RETRIEVAL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_ee-ca-retrieval_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_CA_AG_REQUESTS_UPPERCASE=$(echo $PKI_LEGACY_CA_AG_REQUESTS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_AG_REQUESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_ca-ag-requests_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_CA_AG_CERTIFICATES_UPPERCASE=$(echo $PKI_LEGACY_CA_AG_CERTIFICATES | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_AG_CERTIFICATES_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_ca-ag-certificates_tests $subsystemType $MYROLE
+	fi	
 	######## INSTALL TESTS ############
         PKI_INSTALL_TESTS_UPPERCASE=$(echo $PKI_INSTALL_TESTS | tr [a-z] [A-Z])
         if [ "$PKI_INSTALL_TESTS_UPPERCASE" = "TRUE" ] ; then

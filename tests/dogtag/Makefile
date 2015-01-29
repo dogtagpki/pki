@@ -254,6 +254,10 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
 	chmod a+x ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
 	chmod a+x ./acceptance/legacy/ca-tests/ocsp/ca-ee-ocsp.sh
+	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-retrieval.sh
+	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-enrollments.sh
+	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-requests.sh
+	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-certificates.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
