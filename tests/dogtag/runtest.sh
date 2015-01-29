@@ -192,6 +192,10 @@
 . ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-enrollments.sh
 . ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-retrieval.sh
 . ./acceptance/legacy/ca-tests/logs/ca-ad-logs.sh
+. ./acceptance/legacy/drm-tests/acls/drm-ad-acls.sh
+. ./acceptance/legacy/drm-tests/agent/drm-ag-tests.sh
+. ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
+. ./acceptance/legacy/drm-tests/usergroups/drm-ad-usergroups.sh
 . ./acceptance/install-tests/ca-installer.sh
 . ./acceptance/install-tests/kra-installer.sh
 . ./acceptance/install-tests/ocsp-installer.sh
@@ -1516,6 +1520,26 @@ rlJournalStart
 	if [ "$PKI_LEGACY_CA_ADMIN_LOGS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		subsystemType=ca
 		run_admin-ca-log_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_KRA_AG_UPPERCASE=$(echo $PKI_LEGACY_KRA_AG_TESTS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_KRA_AG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=kra
+		run_kra-ag_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_KRA_AD_USERGROUPS_UPPERCASE=$(echo $PKI_LEGACY_KRA_AD_USERGROUPS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_KRA_AD_USERGROUPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=kra
+		run_kra-ad_usergroups $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_KRA_AD_ACLS_UPPERCASE=$(echo $PKI_LEGACY_KRA_AD_ACLS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_KRA_AD_ACLS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=kra
+		run_admin-kra-acl_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_KRA_AD_INTERNALDB_UPPERCASE=$(echo $PKI_LEGACY_KRA_AD_INTERNALDB | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_KRA_AD_INTERNALDB_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=kra
+		run_admin-kra-internaldb_tests $subsystemType $MYROLE
 	fi
 	######## INSTALL TESTS ############
         PKI_INSTALL_TESTS_UPPERCASE=$(echo $PKI_INSTALL_TESTS | tr [a-z] [A-Z])
