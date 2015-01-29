@@ -178,6 +178,8 @@
 . ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 . ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
 . ./acceptance/legacy/ca-tests/profiles/ca-profile.sh
+. ./acceptance/legacy/ca-tests/profiles/ca-ad-profiles.sh
+. ./acceptance/legacy/ca-tests/profiles/ca-ag-profiles.sh
 . ./acceptance/legacy/ca-tests/internaldb/ca-admin-internaldb.sh
 . ./acceptance/legacy/ca-tests/acls/ca-admin-acl.sh
 . ./acceptance/legacy/ca-tests/authplugin/ca-admin-authplugins.sh
@@ -1416,8 +1418,6 @@ rlJournalStart
                 rlLog "Subsystem ID CA=$CA_INST"
                 run_pki-user-cli-user-cleanup_tests $CA_INST ca $MY_ROLE
 	fi
-        rlPhaseEnd
-
 	######## LEGACY TESTS ############
 	PKI_CA_LEGACY_TESTS_UPPERCASE=$(echo $PKI_CA_LEGACY_TESTS | tr [a-z] [A-Z])
         if [ "$PKI_CA_LEGACY_TESTS_UPPERCASE" = "TRUE" ] ; then
@@ -1442,11 +1442,15 @@ rlJournalStart
                   rlLog "Subsystem ID CA=$CA_INST, MY_ROLE=$MYROLE"
                   run_pki-legacy-ca-usergroup_tests $subsystemId $subsystemType $MYROLE
         fi
-
-	PKI_LEGACY_CA_PROFILE_UPPERCASE=$(echo $PKI_LEGACY_CA_PROFILE | tr [a-z] [A-Z])
-	if [ "$PKI_LEGACY_CA_PROFILE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+	PKI_LEGACY_CA_ADMIN_PROFILE_UPPERCASE=$(echo $PKI_LEGACY_CA_ADMIN_PROFILE | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_ADMIN_PROFILE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		subsystemType=ca
-		run_admin-ca-log_tests $subsystemType $MYROLE
+		run_admin-ca-profile_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_CA_AGENT_PROFILE_UPPERCASE=$(echo $PKI_LEGACY_CA_AGENT_PROFILE | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_AGENT_PROFILE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_agent-ca-profile_tests $subsystemType $MYROLE 
 	fi
 	PKI_LEGACY_CA_ACLS_UPPERCASE=$(echo $PKI_LEGACY_CA_ACLS | tr [a-z] [A-Z])
         if [ "$PKI_LEGACY_CA_ACLS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
@@ -1484,8 +1488,6 @@ rlJournalStart
                 subsystemType=ca
                 run_ca-ee-ocsp_tests $subsystemType $MYROLE
         fi
-        rlPhaseEnd
-
 	######## INSTALL TESTS ############
         PKI_INSTALL_TESTS_UPPERCASE=$(echo $PKI_INSTALL_TESTS | tr [a-z] [A-Z])
         if [ "$PKI_INSTALL_TESTS_UPPERCASE" = "TRUE" ] ; then
@@ -1538,6 +1540,7 @@ rlJournalStart
                   subsystemType=tks
                   run_rhcs_tks_installer_tests $subsystemId $subsystemType $MYROLE
         fi
+	rlPhaseEnd
 	######## DEV UNIT TESTS ############
 	DEV_JAVA_TESTS_UPPERCASE=$(echo $DEV_JAVA_TESTS | tr [a-z] [A-Z])
         if [ "$DEV_JAVA_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then

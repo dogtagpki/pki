@@ -245,7 +245,8 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-ca-profile-cli/pki-ca-profile-cli-mod.sh
 	# Legacy tests
 	chmod a+x ./acceptance/legacy/ca-tests/usergroups/pki-ca-usergroups.sh
-	chmod a+x ./acceptance/legacy/ca-tests/profiles/ca-profile.sh
+	chmod a+x ./acceptance/legacy/ca-tests/profiles/ca-ad-profiles.sh
+	chmod a+x ./acceptance/legacy/ca-tests/profiles/ca-ag-profiles.sh
 	chmod a+x ./acceptance/legacy/ca-tests/acls/ca-admin-acl.sh
 	chmod a+x ./acceptance/legacy/ca-tests/internaldb/ca-admin-internaldb.sh
 	chmod a+x ./acceptance/legacy/ca-tests/authplugin/ca-admin-authplugins.sh
