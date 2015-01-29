@@ -188,9 +188,9 @@ public class MainCLI extends CLI {
         option.setArgName("format");
         options.addOption(option);
 
-        options.addOption("v", false, "Verbose");
-        options.addOption(null, "help", false, "Help");
-        options.addOption(null, "version", false, "Version");
+        options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "help", false, "Show help message.");
+        options.addOption(null, "version", false, "Show version number.");
     }
 
     public String[] readPlaintextPasswordFromFile(String pwfile) throws IOException {

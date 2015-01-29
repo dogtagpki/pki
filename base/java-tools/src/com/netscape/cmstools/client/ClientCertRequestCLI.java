@@ -73,8 +73,7 @@ public class ClientCertRequestCLI extends CLI {
         option.setArgName("request type");
         options.addOption(option);
 
-        option = new Option(null, "attribute-encoding", true, "Attribute encoding (default: false)");
-        option.setArgName("boolean");
+        option = new Option(null, "attribute-encoding", false, "Enable Attribute encoding");
         options.addOption(option);
 
         option = new Option(null, "algorithm", true, "Algorithm (default: rsa)");
@@ -89,12 +88,10 @@ public class ClientCertRequestCLI extends CLI {
         option.setArgName("curve name");
         options.addOption(option);
 
-        option = new Option(null, "ssl-ecdh", true, "SSL certificate with ECDH ECDSA (default: false)");
-        option.setArgName("boolean");
+        option = new Option(null, "ssl-ecdh", false, "SSL certificate with ECDH ECDSA");
         options.addOption(option);
 
-        option = new Option(null, "temporary", true, "Temporary (default: true)");
-        option.setArgName("boolean");
+        option = new Option(null, "permanent", false, "Permanent");
         options.addOption(option);
 
         option = new Option(null, "sensitive", true, "Sensitive");
@@ -105,15 +102,18 @@ public class ClientCertRequestCLI extends CLI {
         option.setArgName("boolean");
         options.addOption(option);
 
-        option = new Option(null, "transport-cert", true, "Transport certificate");
+        option = new Option(null, "transport", true, "PEM transport certificate");
         option.setArgName("path");
         options.addOption(option);
 
-        option = new Option(null, "profile", true, "Certificate profile (default: caEncUserCert)");
+        option = new Option(null, "profile", true, "Certificate profile (RSA default: caUserCert, ECC default: caECUserCert)");
         option.setArgName("profile");
         options.addOption(option);
 
-        options.addOption(null, "help", false, "Help");
+        option = new Option(null, "without-pop", false, "Do not include Proof-of-Possession in CRMF request");
+        options.addOption(option);
+
+        options.addOption(null, "help", false, "Show help message.");
     }
 
     public void execute(String[] args) throws Exception {
@@ -152,15 +152,15 @@ public class ClientCertRequestCLI extends CLI {
         // pkcs10, crmf
         String requestType = cmd.getOptionValue("type", "pkcs10");
 
-        boolean attributeEncoding = Boolean.parseBoolean(cmd.getOptionValue("attribute-encoding", "false"));
+        boolean attributeEncoding = cmd.hasOption("attribute-encoding");
 
         // rsa, ec
         String algorithm = cmd.getOptionValue("algorithm", "rsa");
         int length = Integer.parseInt(cmd.getOptionValue("length", "1024"));
 
         String curve = cmd.getOptionValue("curve", "nistp256");
-        boolean sslECDH = Boolean.parseBoolean(cmd.getOptionValue("ssl-ecdh", "false"));
-        boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("temporary", "true"));
+        boolean sslECDH = cmd.hasOption("ssl-ecdh");
+        boolean temporary = !cmd.hasOption("permanent");
 
         String s = cmd.getOptionValue("sensitive");
         int sensitive;
@@ -178,16 +178,18 @@ public class ClientCertRequestCLI extends CLI {
             extractable = Boolean.parseBoolean(s) ? 1 : 0;
         }
 
-        String transportCertFilename = cmd.getOptionValue("transport-cert");
+        String transportCertFilename = cmd.getOptionValue("transport");
 
         String profileID = cmd.getOptionValue("profile");
         if (profileID == null) {
-            if ("rsa".equals(algorithm)) {
+            if (algorithm.equals("rsa")) {
                 profileID = "caUserCert";
-            } else if ("ec".equals(algorithm)) {
-                profileID = "caEncECUserCert";
+            } else if (algorithm.equals("ec")) {
+                profileID = "caECUserCert";
             }
         }
+
+        boolean withPop = !cmd.hasOption("without-pop");
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
         File certDatabase = mainCLI.certDatabase;
@@ -229,7 +231,8 @@ public class ClientCertRequestCLI extends CLI {
             CryptoManager manager = CryptoManager.getInstance();
             X509Certificate transportCert = manager.importCACertPackage(transportCertData);
 
-            csr = generateCrmfRequest(transportCert, subjectDN, attributeEncoding, algorithm, length, curve, sslECDH, temporary, sensitive, extractable);
+            csr = generateCrmfRequest(transportCert, subjectDN, attributeEncoding,
+                    algorithm, length, curve, sslECDH, temporary, sensitive, extractable, withPop);
 
         } else {
             throw new Exception("Unknown request type: " + requestType);
@@ -257,16 +260,17 @@ public class ClientCertRequestCLI extends CLI {
         csrAttr.setValue(csr);
 
         ProfileInput sn = request.getInput("Subject Name");
+        if (sn != null) {
+            DN dn = new DN(subjectDN);
+            Vector<?> rdns = dn.getRDNs();
 
-        DN dn = new DN(subjectDN);
-        Vector<?> rdns = dn.getRDNs();
-
-        for (int i=0; i< rdns.size(); i++) {
-            RDN rdn = (RDN)rdns.elementAt(i);
-            String type = rdn.getTypes()[0].toLowerCase();
-            String value = rdn.getValues()[0];
-            ProfileAttribute uidAttr = sn.getAttribute("sn_" + type);
-            uidAttr.setValue(value);
+            for (int i=0; i< rdns.size(); i++) {
+                RDN rdn = (RDN)rdns.elementAt(i);
+                String type = rdn.getTypes()[0].toLowerCase();
+                String value = rdn.getValues()[0];
+                ProfileAttribute uidAttr = sn.getAttribute("sn_" + type);
+                uidAttr.setValue(value);
+            }
         }
 
         if (verbose) {
@@ -325,7 +329,8 @@ public class ClientCertRequestCLI extends CLI {
             boolean sslECDH,
             boolean temporary,
             int sensitive,
-            int extractable
+            int extractable,
+            boolean withPop
             ) throws Exception {
 
         CryptoManager manager = CryptoManager.getInstance();
@@ -348,15 +353,17 @@ public class ClientCertRequestCLI extends CLI {
 
         CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject);
 
-        Signature signer = client.createSigner(token, algorithm, keyPair);
+        ProofOfPossession pop = null;
+        if (withPop) {
+            Signature signer = client.createSigner(token, algorithm, keyPair);
 
-        ByteArrayOutputStream bo = new ByteArrayOutputStream();
-        certRequest.encode(bo);
-        signer.update(bo.toByteArray());
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            certRequest.encode(bo);
+            signer.update(bo.toByteArray());
+            byte[] signature = signer.sign();
 
-        byte[] signature = signer.sign();
-
-        ProofOfPossession pop = client.createPop(algorithm, signature);
+            pop = client.createPop(algorithm, signature);
+        }
 
         return client.createCRMFRequest(certRequest, pop);
     }

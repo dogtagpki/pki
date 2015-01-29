@@ -34,6 +34,11 @@ import java.security.PublicKey;
 
 import netscape.security.x509.X500Name;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -94,187 +99,282 @@ public class CRMFPopClient {
 
     public boolean verbose;
 
-    private static void usage() {
+    public static Options createOptions() {
 
-        System.out.println("Usage: CRMFPopClient -d <location of certdb> -p <token password> -h <tokenname> -o <output file which saves the base64 CRMF request> -n <subjectDN> -a <algorithm: 'rsa' or 'ec'> -l <rsa key length> -c <ec curve name> -m <hostname:port> -f <profile name; rsa default caEncUserCert; ec default caEncECUserCert> -u <user name> -r <requestor name> -q <POP_NONE, POP_SUCCESS, or POP_FAIL; default POP_SUCCESS> \n");
-        System.out.println("    Optionally, for ECC key generation per definition in JSS pkcs11.PK11KeyPairGenerator:\n");
-        System.out.println("    -k <true for enabling encoding of attribute values; false for default encoding of attribute values; default is false>\n");
-        System.out.println("    -t <true for temporary(session); false for permanent(token); default is true>\n");
-        System.out.println("    -s <1 for sensitive; 0 for non-sensitive; -1 temporaryPairMode dependent; default is -1>\n");
-        System.out.println("    -e <1 for extractable; 0 for non-extractable; -1 token dependent; default is -1>\n");
-        System.out.println("    Also optional for ECC key generation:\n");
-        System.out.println("    -x <true for SSL cert that does ECDH ECDSA; false otherwise; default false>\n");
-        System.out.println("    --transport-cert <transport cert file; default transport.txt>\n");
-        System.out.println(" note: '-x true' can only be used with POP_NONE");
-        System.out.println("   available ECC curve names (if provided by the crypto module): nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2\n");
+        Options options = new Options();
 
-        System.out.println("\n");
-        System.out.println("IMPORTANT:  The transport certificate file needs to be created to contain the");
-        System.out.println("            transport certificate in its base64 encoded format.");
+        Option option = new Option("d", true, "Security database location");
+        option.setArgName("database");
+        options.addOption(option);
+
+        option = new Option("p", true, "Security token password");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option("h", true, "Security token name");
+        option.setArgName("token");
+        options.addOption(option);
+
+        option = new Option("o", true, "Output file to store base-64 CRMF request");
+        option.setArgName("output");
+        options.addOption(option);
+
+        option = new Option("n", true, "Subject DN");
+        option.setArgName("subject DN");
+        options.addOption(option);
+
+        option = new Option("a", true, "Key algorithm");
+        option.setArgName("algorithm");
+        options.addOption(option);
+
+        option = new Option("l", true, "Key length");
+        option.setArgName("length");
+        options.addOption(option);
+
+        option = new Option("c", true, "ECC curve name");
+        option.setArgName("curve");
+        options.addOption(option);
+
+        option = new Option("m", true, "CA server hostname and port");
+        option.setArgName("hostname:port");
+        options.addOption(option);
+
+        option = new Option("f", true, "Certificate profile");
+        option.setArgName("profile");
+        options.addOption(option);
+
+        option = new Option("u", true, "Username");
+        option.setArgName("username");
+        options.addOption(option);
+
+        option = new Option("r", true, "Requestor");
+        option.setArgName("requestor");
+        options.addOption(option);
+
+        option = new Option("q", true, "POP option");
+        option.setArgName("POP option");
+        options.addOption(option);
+
+        option = new Option("b", true, "PEM transport certificate");
+        option.setArgName("transport cert");
+        options.addOption(option);
+
+        option = new Option("k", true, "Attribute encoding");
+        option.setArgName("boolean");
+        options.addOption(option);
+
+        option = new Option("x", true, "SSL certificate with ECDH ECDSA");
+        option.setArgName("boolean");
+        options.addOption(option);
+
+        option = new Option("t", true, "Temporary");
+        option.setArgName("boolean");
+        options.addOption(option);
+
+        option = new Option("s", true, "Sensitive");
+        option.setArgName("sensitive");
+        options.addOption(option);
+
+        option = new Option("e", true, "Extractable");
+        option.setArgName("extractable");
+        options.addOption(option);
+
+        options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "help", false, "Show help message.");
+
+        return options;
+    }
+
+    public static void printHelp() {
+
+        System.out.println("Usage: CRMFPopClient [OPTIONS]");
+        System.out.println();
+        System.out.println("Options:");
+        System.out.println("  -d <database>                Security database location (default: current directory)");
+        System.out.println("  -h <token>                   Security token name (default: internal)");
+        System.out.println("  -p <password>                Security token password");
+        System.out.println("  -n <subject DN>              Certificate subject DN");
+        System.out.println("  -k <true|false>              Attribute value encoding in subject DN (default: false)");
+        System.out.println("                               - true: enabled");
+        System.out.println("                               - false: disabled");
+        System.out.println("  -a <rsa|ec>                  Key algorithm (default: rsa)");
+        System.out.println("                               - rsa: RSA");
+        System.out.println("                               - ec: ECC");
+        System.out.println("  -f <profile>                 Certificate profile");
+        System.out.println("                               - RSA default: caEncUserCert");
+        System.out.println("                               - ECC default: caEncECUserCert");
+        System.out.println("  -q <POP option>              POP option (default: POP_SUCCESS)");
+        System.out.println("                               - POP_NONE: without POP");
+        System.out.println("                               - POP_SUCCESS: with valid POP");
+        System.out.println("                               - POP_FAIL: with invalid POP (for testing)");
+        System.out.println("  -b <transport cert>          PEM transport certificate (default: transport.txt)");
+        System.out.println("  -v, --verbose                Run in verbose mode.");
+        System.out.println("      --help                   Show help message.");
+        System.out.println();
+        System.out.println("With RSA algorithm the following options can be specified:");
+        System.out.println("  -l <length>                  Key length (default: 2048)");
+        System.out.println();
+        System.out.println("With ECC algorithm the following options can be specified:");
+        System.out.println("  -c <curve>                   ECC curve name (default: nistp256)");
+        System.out.println("  -t <true|false>              Temporary (default: true)");
+        System.out.println("                               - true: temporary (session)");
+        System.out.println("                               - false: permanent (token)");
+        System.out.println("  -s <-1|0|1>                  Sensitive (default: -1)");
+        System.out.println("                               - -1: temporaryPairMode dependent");
+        System.out.println("                               - 0: non-sensitive");
+        System.out.println("                               - 1: sensitive");
+        System.out.println("  -e <-1|0|1>                  Extractable (default: -1)");
+        System.out.println("                               - -1: token dependent");
+        System.out.println("                               - 0: non-extractable");
+        System.out.println("                               - 1: extractable");
+        System.out.println("  -x <true|false>              Certificate type (default: false)");
+        System.out.println("                               - true: SSL certificate with ECDH ECDSA (reqires POP_NONE)");
+        System.out.println("                               - false: otherwise");
+        System.out.println();
+        System.out.println("To store the CRMF request the following options are required:");
+        System.out.println("  -o <output>                  Output file to store base-64 CRMF request");
+        System.out.println();
+        System.out.println("To submit the CRMF request the following options are required:");
+        System.out.println("  -m <hostname:port>           CA server hostname and port");
+        System.out.println("  -u <username>                Username");
+        System.out.println("  -r <requestor>               Requestor");
+        System.out.println();
+        System.out.println("Available ECC curve names:");
+        System.out.println("  nistp256 (secp256r1), nistp384 (secp384r1), nistp521 (secp521r1), nistk163 (sect163k1),");
+        System.out.println("  sect163r1, nistb163 (sect163r2), sect193r1, sect193r2, nistk233 (sect233k1),");
+        System.out.println("  nistb233 (sect233r1), sect239k1, nistk283 (sect283k1), nistb283 (sect283r1),");
+        System.out.println("  nistk409 (sect409k1), nistb409 (sect409r1),nistk571 (sect571k1), nistb571 (sect571r1),");
+        System.out.println("  secp160k1, secp160r1, secp160r2, secp192k1, nistp192 (secp192r1, prime192v1),");
+        System.out.println("  secp224k1, nistp224 (secp224r1), secp256k1, prime192v2, prime192v3, prime239v1,");
+        System.out.println("  prime239v2, prime239v3, c2pnb163v1, c2pnb163v2, c2pnb163v3, c2pnb176v1, c2tnb191v1,");
+        System.out.println("  c2tnb191v2, c2tnb191v3, c2pnb208w1, c2tnb239v1, c2tnb239v2, c2tnb239v3, c2pnb272w1,");
+        System.out.println("  c2pnb304w1, c2tnb359w1, c2pnb368w1, c2tnb431r1, secp112r1, secp112r2, secp128r1,");
+        System.out.println("  secp128r2, sect113r1, sect113r2, sect131r1, sect131r2");
+    }
+
+    public static void printError(String message) {
+        System.err.println("ERROR: " + message);
+        System.err.println("Try 'CRMFPopClient --help' for more information.");
     }
 
     public static void main(String args[]) throws Exception {
 
-        CRMFPopClient client = new CRMFPopClient();
+        Options options = createOptions();
+        CommandLine cmd = null;
 
-        String databaseDir = ".";
-        String tokenPassword = null;
-        String tokenName = null;
+        try {
+            CommandLineParser parser = new PosixParser();
+            cmd = parser.parse(options, args);
 
-        // "rsa" or "ec"
-        String algorithm = "rsa";
-
-        /* default RSA key size */
-        int keySize = 2048;
-
-        /* default ECC key curve name */
-        String curve = "nistp256";
-
-        boolean encodingEnabled = false; /* enable encoding attribute values if true */
-        boolean temporary = true; /* session if true; token if false */
-        int sensitive = -1; /* -1, 0, or 1 */
-        int extractable = -1; /* -1, 0, or 1 */
-        boolean sslECDH = false;
-
-        String username = null;
-        String requestor = null;
-        String profileName = null;
-
-        // format: "host:port"
-        String hostPort = null;
-        String subjectDN = null;
-        boolean submitRequest = false;
-
-        // POP_NONE, POP_SUCCESS, or POP_FAIL
-        String popOption = "POP_SUCCESS";
-        boolean withPop = true;
-
-        String output = null;
-        String transportCertFilename = "transport.txt";
-
-        for (int i=0; i<args.length; i+=2) {
-            String name = args[i];
-
-            if (name.equals("-v")) {
-                client.verbose = Boolean.parseBoolean(args[i+1]);
-
-            } else if (name.equals("-p")) {
-                tokenPassword = args[i+1];
-
-            } else if (name.equals("-d")) {
-                databaseDir = args[i+1];
-
-            } else if (name.equals("-h")) {
-                tokenName = args[i+1];
-
-            } else if (name.equals("-a")) {
-                algorithm = args[i+1];
-                if (!algorithm.equals("rsa") && !algorithm.equals("ec")) {
-                    System.out.println("ERROR: invalid algorithm: " + algorithm);
-                    System.exit(1);
-                }
-
-            } else if (name.equals("-x")) {
-                String temp = args[i+1];
-                if (temp.equals("true"))
-                    sslECDH = true;
-                else
-                    sslECDH = false;
-
-            } else if (name.equals("-t")) {
-                String temp = args[i+1];
-                if (temp.equals("true"))
-                    temporary = true;
-                else
-                    temporary = false;
-            } else if (name.equals("-k")) {
-                String temp = args[i+1];
-                if (temp.equals("true"))
-                    encodingEnabled = true;
-                else
-                    encodingEnabled = false;
-
-            } else if (name.equals("-s")) {
-                String ec_sensitive_s = args[i+1];
-                sensitive = Integer.parseInt(ec_sensitive_s);
-                if ((sensitive != 0) &&
-                    (sensitive != 1) &&
-                    (sensitive != -1)) {
-                      System.out.println("ERROR: Illegal input parameters for -s.");
-                      usage();
-                      System.exit(1);
-                    }
-
-            } else if (name.equals("-e")) {
-                String ec_extractable_s = args[i+1];
-                extractable = Integer.parseInt(ec_extractable_s);
-                if ((extractable != 0) &&
-                    (extractable != 1) &&
-                    (extractable != -1)) {
-                      System.out.println("ERROR: Illegal input parameters for -e.");
-                      usage();
-                      System.exit(1);
-                    }
-
-            } else if (name.equals("-l")) {
-                keySize = Integer.parseInt(args[i+1]);
-
-            } else if (name.equals("-c")) {
-                curve = args[i+1];
-
-            } else if (name.equals("-m")) {
-                hostPort = args[i+1];
-                submitRequest = true;
-
-            } else if (name.equals("-f")) {
-                profileName = args[i+1];
-
-            } else if (name.equals("-u")) {
-                username = args[i+1];
-
-            } else if (name.equals("-r")) {
-                requestor = args[i+1];
-
-            } else if (name.equals("-n")) {
-                subjectDN = args[i+1];
-
-            } else if (name.equals("-q")) {
-                popOption = args[i+1];
-                if (!popOption.equals("POP_SUCCESS") &&
-                    !popOption.equals("POP_FAIL") &&
-                    !popOption.equals("POP_NONE")) {
-                    System.out.println("ERROR: invalid POP option: "+ popOption);
-                    System.exit(1);
-                }
-                if (popOption.equals("POP_NONE"))
-                    withPop = false;
-
-            } else if (name.equals("-o")) {
-                output = args[i+1];
-
-            } else if (name.equals("--transport-cert")) {
-                transportCertFilename = args[i+1];
-
-            } else {
-                System.out.println("Unrecognized argument(" + i + "): "
-                    + name);
-                usage();
-                System.exit(1);
-            }
+        } catch (Exception e) {
+            printError(e.getMessage());
+            System.exit(1);
         }
+
+        if (cmd.hasOption("help")) {
+            printHelp();
+            System.exit(0);
+        }
+
+        boolean verbose = cmd.hasOption("v");
+
+        String databaseDir = cmd.getOptionValue("d", ".");
+        String tokenPassword = cmd.getOptionValue("p");
+        String tokenName = cmd.getOptionValue("h");
+
+        String algorithm = cmd.getOptionValue("a", "rsa");
+        int keySize = Integer.parseInt(cmd.getOptionValue("l", "2048"));
+
+        String profileID = cmd.getOptionValue("f");
+        String subjectDN = cmd.getOptionValue("n");
+        boolean encodingEnabled = Boolean.parseBoolean(cmd.getOptionValue("k", "false"));
+
+        String transportCertFilename = cmd.getOptionValue("b", "transport.txt");
+
+        String popOption = cmd.getOptionValue("q", "POP_SUCCESS");
+
+        String curve = cmd.getOptionValue("c", "nistp256");
+        boolean sslECDH = Boolean.parseBoolean(cmd.getOptionValue("x", "false"));
+        boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", "true"));
+        int sensitive = Integer.parseInt(cmd.getOptionValue("s", "-1"));
+        int extractable = Integer.parseInt(cmd.getOptionValue("e", "-1"));
+
+        String output = cmd.getOptionValue("o");
+
+        String hostPort = cmd.getOptionValue("m");
+        String username = cmd.getOptionValue("u");
+        String requestor = cmd.getOptionValue("r");
+
+        if (subjectDN == null) {
+            printError("Missing subject DN");
+            System.exit(1);
+         }
 
         if (tokenPassword == null) {
-           System.out.println("missing password");
-           usage();
-           System.exit(1);
+            printError("Missing token password");
+            System.exit(1);
+         }
+
+        if (algorithm.equals("rsa")) {
+            if (cmd.hasOption("c")) {
+                printError("Illegal parameter for RSA: -c");
+                System.exit(1);
+            }
+
+            if (cmd.hasOption("t")) {
+                printError("Illegal parameter for RSA: -t");
+                System.exit(1);
+            }
+
+            if (cmd.hasOption("s")) {
+                printError("Illegal parameter for RSA: -s");
+                System.exit(1);
+            }
+
+            if (cmd.hasOption("e")) {
+                printError("Illegal parameter for RSA: -e");
+                System.exit(1);
+            }
+
+            if (cmd.hasOption("x")) {
+                printError("Illegal parameter for RSA: -x");
+                System.exit(1);
+            }
+
+        } else if (algorithm.equals("ec")) {
+            if (cmd.hasOption("l")) {
+                printError("Illegal parameter for ECC: -l");
+                System.exit(1);
+            }
+
+            if (sensitive != 0 && sensitive != 1 && sensitive != -1) {
+                printError("Illegal input parameters for -s: " + sensitive);
+                System.exit(1);
+            }
+
+            if (extractable != 0 && extractable != 1 && extractable != -1) {
+                printError("Illegal input parameters for -e: " + extractable);
+                System.exit(1);
+            }
+
+        } else {
+            printError("Invalid algorithm: " + algorithm);
+            System.exit(1);
         }
 
-        if (profileName == null) {
+        if (!popOption.equals("POP_SUCCESS") &&
+                !popOption.equals("POP_FAIL") &&
+                !popOption.equals("POP_NONE")) {
+            printError("Invalid POP option: "+ popOption);
+            System.exit(1);
+        }
+
+        if (profileID == null) {
             if (algorithm.equals("rsa")) {
-                profileName = "caEncUserCert";
+                profileID = "caEncUserCert";
 
             } else if (algorithm.equals("ec")) {
-                profileName = "caEncECUserCert";
+                profileID = "caEncECUserCert";
 
             } else {
                 throw new Exception("Unknown algorithm: " + algorithm);
@@ -282,7 +382,7 @@ public class CRMFPopClient {
         }
 
         try {
-            if (client.verbose) System.out.println("Initializing security database");
+            if (verbose) System.out.println("Initializing security database");
             CryptoManager.initialize(databaseDir);
 
             CryptoManager manager = CryptoManager.getInstance();
@@ -303,7 +403,10 @@ public class CRMFPopClient {
                 throw new Exception("Unable to login: " + e, e);
             }
 
-            if (client.verbose) System.out.println("Loading transport certificate");
+            CRMFPopClient client = new CRMFPopClient();
+            client.setVerbose(verbose);
+
+            if (verbose) System.out.println("Loading transport certificate");
             String encoded = FileUtils.readFileToString(new File(transportCertFilename));
             encoded = Cert.normalizeCertStrAndReq(encoded);
             encoded = Cert.stripBrackets(encoded);
@@ -311,7 +414,7 @@ public class CRMFPopClient {
 
             X509Certificate transportCert = manager.importCACertPackage(transportCertData);
 
-            if (client.verbose) System.out.println("Parsing subject DN");
+            if (verbose) System.out.println("Parsing subject DN");
             Name subject = client.createName(subjectDN, encodingEnabled);
 
             if (subject == null) {
@@ -321,7 +424,7 @@ public class CRMFPopClient {
                 subject.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"),  new PrintableString("MyUid")));
             }
 
-            if (client.verbose) System.out.println("Generating key pair");
+            if (verbose) System.out.println("Generating key pair");
             KeyPair keyPair;
             if (algorithm.equals("rsa")) {
                 keyPair = client.generateRSAKeyPair(token, keySize);
@@ -333,14 +436,14 @@ public class CRMFPopClient {
                 throw new Exception("Unknown algorithm: " + algorithm);
             }
 
-            if (client.verbose) System.out.println("Creating certificate request");
+            if (verbose) System.out.println("Creating certificate request");
             CertRequest certRequest = client.createCertRequest(token, transportCert, algorithm, keyPair, subject);
 
             ProofOfPossession pop = null;
 
-            if (withPop) {
+            if (!popOption.equals("POP_NONE")) {
 
-                if (client.verbose) System.out.println("Creating signer");
+                if (verbose) System.out.println("Creating signer");
                 Signature signer = client.createSigner(token, algorithm, keyPair);
 
                 if (popOption.equals("POP_SUCCESS")) {
@@ -358,11 +461,11 @@ public class CRMFPopClient {
 
                 byte[] signature = signer.sign();
 
-                if (client.verbose) System.out.println("Creating POP");
+                if (verbose) System.out.println("Creating POP");
                 pop = client.createPop(algorithm, signature);
             }
 
-            if (client.verbose) System.out.println("Creating CRMF requrest");
+            if (verbose) System.out.println("Creating CRMF requrest");
             String request = client.createCRMFRequest(certRequest, pop);
 
             StringWriter sw = new StringWriter();
@@ -373,13 +476,13 @@ public class CRMFPopClient {
             }
             String csr = sw.toString();
 
-            if (submitRequest) {
+            if (hostPort != null) {
                 System.out.println("Submitting CRMF request to " + hostPort);
                 client.submitRequest(
                         request,
                         hostPort,
                         username,
-                        profileName,
+                        profileID,
                         requestor);
 
             } else if (output != null) {
@@ -393,10 +496,18 @@ public class CRMFPopClient {
             }
 
         } catch (Exception e) {
-            System.out.println("ERROR: " + e);
-            e.printStackTrace();
+            if (verbose) e.printStackTrace();
+            printError(e.getMessage());
             System.exit(1);
         }
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
+
+    public boolean isVerbose() {
+        return verbose;
     }
 
     public KeyPair generateRSAKeyPair(CryptoToken token, int length) throws Exception {
@@ -603,22 +714,27 @@ public class CRMFPopClient {
             String request,
             String hostPort,
             String username,
-            String profileName,
+            String profileID,
             String requestor) throws Exception {
 
-        String encodedRequest = URLEncoder.encode(request, "UTF-8");
-
-        URL url = new URL(
-                "http://" + hostPort + "/ca/ee/ca/profileSubmit"
+        String s = "http://" + hostPort + "/ca/ee/ca/profileSubmit"
                 + "?cert_request_type=crmf"
-                + "&cert_request=" + encodedRequest
-                + "&renewal=false&uid=" + username
+                + "&cert_request=" + URLEncoder.encode(request, "UTF-8")
+                + "&renewal=false"
                 + "&xmlOutput=false"
-                + "&profileId=" + profileName
-                + "&sn_uid=" + username
-                + "&SubId=profile"
-                + "&requestor_name=" + requestor);
+                + "&profileId=" + URLEncoder.encode(profileID, "UTF-8")
+                + "&SubId=profile";
 
+        if (username != null) {
+            s += "&uid=" + URLEncoder.encode(username, "UTF-8");
+            s += "&sn_uid=" + URLEncoder.encode(username, "UTF-8");
+        }
+
+        if (requestor != null) {
+            s += "&requestor_name=" + URLEncoder.encode(requestor, "UTF-8");
+        }
+
+        URL url = new URL(s);
         if (verbose) System.out.println("Opening " + url);
 
         URLConnection conn = url.openConnection();
@@ -627,12 +743,18 @@ public class CRMFPopClient {
 
         if (verbose) System.out.println("--------------------");
         String line = null;
+        String requestID = null;
         String status = null;
-        String requestId = null;
+        String reason = null;
         while ((line = reader.readLine()) != null) {
             if (verbose) System.out.println(line);
 
-            if (line.startsWith("errorCode=")) {
+            if (line.startsWith("requestList.requestId=")) {
+                int i = line.indexOf("\"");
+                int j = line.indexOf("\";", i+1);
+                requestID = line.substring(i+1, j);
+
+            } else if (line.startsWith("errorCode=")) {
                 int i = line.indexOf("\"");
                 int j = line.indexOf("\";", i+1);
                 String errorCode = line.substring(i+1, j);
@@ -646,24 +768,31 @@ public class CRMFPopClient {
                 } else if ("2".equals(errorCode)) {
                     status = "pending";
 
+                } else if ("3".equals(errorCode)) {
+                    status = "rejected";
+
                 } else {
                     status = "unknown";
                 }
 
-            } else if (line.startsWith("requestList.requestId=")) {
+            } else if (line.startsWith("errorReason=")) {
                 int i = line.indexOf("\"");
                 int j = line.indexOf("\";", i+1);
-                requestId = line.substring(i+1, j);
+                reason = line.substring(i+1, j);
             }
         }
         if (verbose) System.out.println("--------------------");
 
-        if (requestId != null) {
-            System.out.println("Request ID: " + requestId);
+        if (requestID != null) {
+            System.out.println("Request ID: " + requestID);
         }
 
         if (status != null) {
             System.out.println("Request Status: " + status);
+        }
+
+        if (reason != null) {
+            System.out.println("Reason: " + reason);
         }
     }
 
