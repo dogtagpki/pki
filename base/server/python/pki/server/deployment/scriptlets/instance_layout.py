@@ -193,50 +193,20 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # Jackson
             deployer.symlink.create(
-                deployer.mdict['pki_jackson_annotations_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-annotations.jar'))
-            deployer.symlink.create(
                 deployer.mdict['pki_jackson_core_asl_jar'],
                 os.path.join(
                     deployer.mdict['pki_tomcat_common_lib_path'],
                     'jackson-core-asl.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_core_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-core.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_databind_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-databind.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_jaxrs_base_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-jaxrs-base.jar'))
             deployer.symlink.create(
                 deployer.mdict['pki_jackson_jaxrs_jar'],
                 os.path.join(
                     deployer.mdict['pki_tomcat_common_lib_path'],
                     'jackson-jaxrs.jar'))
             deployer.symlink.create(
-                deployer.mdict['pki_jackson_jaxrs_json_provider_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-jaxrs-json-provider.jar'))
-            deployer.symlink.create(
                 deployer.mdict['pki_jackson_mapper_asl_jar'],
                 os.path.join(
                     deployer.mdict['pki_tomcat_common_lib_path'],
                     'jackson-mapper-asl.jar'))
-            deployer.symlink.create(
-                deployer.mdict['pki_jackson_module_jaxb_annotations_jar'],
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_lib_path'],
-                    'jackson-module-jaxb-annotations.jar'))
             deployer.symlink.create(
                 deployer.mdict['pki_jackson_mrbean_jar'],
                 os.path.join(

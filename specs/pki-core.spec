@@ -49,7 +49,18 @@ BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
+%if  0%{?fedora} >= 22
+# Starting from Fedora 22, resteasy packages were split into
+# subpackages.
+BuildRequires:    resteasy-atom-provider >= 3.0.6-7
+BuildRequires:    resteasy-client >= 3.0.6-7
+BuildRequires:    resteasy-jaxb-provider >= 3.0.6-7
+BuildRequires:    resteasy-core >= 3.0.6-7
+BuildRequires:    resteasy-jaxrs-api >= 3.0.6-7
+BuildRequires:    resteasy-jackson-provider >= 3.0.6-7
+%else
 BuildRequires:    resteasy >= 3.0.6-2
+%endif
 %endif
 
 %if ! 0%{?rhel}
@@ -226,7 +237,6 @@ Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
 Requires:         java-headless >= 1:1.7.0
 Requires:         javassist
-Requires:         jackson-jaxrs-json-provider
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-35
 Requires:         ldapjdk
@@ -887,6 +897,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 * Thu Jan  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.2-0.1
 - Updated version number to 10.2.2-0.1
 - Moved web application deployment locations.
+- Updated Resteasy and Jackson dependencies.
 
 * Thu Jan  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.1-1
 - Update release number for release build

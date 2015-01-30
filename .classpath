@@ -30,15 +30,9 @@
 	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/junit.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/jackson-annotations.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-core-asl.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/jackson-core.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/jackson-databind.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-jaxrs.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-mapper-asl.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/jackson-module-jaxb-annotations.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-mrbean.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-smile.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson/jackson-xc.jar"/>

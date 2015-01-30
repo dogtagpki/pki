@@ -98,23 +98,7 @@ grant codeBase "file:/usr/share/java/jboss-web.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/jackson-annotations.jar" {
-        permission java.security.AllPermission;
-};
-
 grant codeBase "file:/usr/share/java/jackson/jackson-core-asl.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson-core.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson-databind.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar" {
         permission java.security.AllPermission;
 };
 
@@ -122,15 +106,7 @@ grant codeBase "file:/usr/share/java/jackson/jackson-jaxrs.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar" {
-        permission java.security.AllPermission;
-};
-
 grant codeBase "file:/usr/share/java/jackson/jackson-mapper-asl.jar" {
-        permission java.security.AllPermission;
-};
-
-grant codeBase "file:/usr/share/java/jackson-module-jaxb-annotations.jar" {
         permission java.security.AllPermission;
 };
 

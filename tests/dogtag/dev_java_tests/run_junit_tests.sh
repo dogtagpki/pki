@@ -31,15 +31,9 @@ run_dev_junit_tests() {
     CLASSPATH=$CLASSPATH:/usr/lib64/jss/jss4.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/httpcomponents/httpclient.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/httpcomponents/httpcore.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/jackson-annotations.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jackson/jackson-core-asl.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/jackson-core.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/jackson-databind.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-base.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jackson/jackson-jaxrs.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/jackson-jaxrs-providers/jackson-jaxrs-json-provider.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jackson/jackson-mapper-asl.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/jackson-module-jaxb-annotations.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jackson/jackson-mrbean.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jackson/jackson-smile.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/jackson/jackson-xc.jar
