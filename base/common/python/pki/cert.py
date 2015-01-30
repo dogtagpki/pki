@@ -344,9 +344,9 @@ class CertSearchRequest(object):
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'serialNumberRangeInUse', True)
 
-            if param in {
-                'email', 'common_name', 'user_id', 'org_unit', 'org',
-                'locality', 'state', 'country', 'match_exactly'
+            if param in {\
+                'email', 'common_name', 'user_id', 'org_unit', 'org',\
+                'locality', 'state', 'country', 'match_exactly'\
             }:
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'subjectInUse', True)
@@ -382,16 +382,16 @@ class CertSearchRequest(object):
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'validNotAfterInUse', True)
 
-            if param in {
-                'validity_operation', 'validity_count', 'validity_unit'
+            if param in {\
+                'validity_operation', 'validity_count', 'validity_unit'\
             }:
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'validityLengthInUse', True)
 
-            if param in {
-                'cert_type_sub_email_ca', 'cert_type_sub_ssl_ca',
-                'cert_type_secure_email', 'cert_type_ssl_client',
-                'cert_type_ssl_server'
+            if param in {\
+                'cert_type_sub_email_ca', 'cert_type_sub_ssl_ca',\
+                'cert_type_secure_email', 'cert_type_ssl_client',\
+                'cert_type_ssl_server'\
             }:
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'certTypeInUse', True)
@@ -1045,8 +1045,8 @@ def main():
     cert_client.get_enrollment_template('caUserCert')
 
     #Enrolling an user certificate
-    print('Enrolling an user certificate')
-    print('-----------------------------')
+    print 'Enrolling an user certificate'
+    print '-----------------------------'
 
     inputs = dict()
     inputs['cert_request_type'] = 'crmf'
@@ -1072,19 +1072,19 @@ def main():
     for enrollment_result in enrollment_results:
         request_data = enrollment_result.request
         cert_data = enrollment_result.cert
-        print('Request ID: ' + request_data.request_id)
-        print('Request Status:' + request_data.request_status)
-        print('Serial Number: ' + cert_data.serial_number)
-        print('Issuer: ' + cert_data.issuer_dn)
-        print('Subject: ' + cert_data.subject_dn)
-        print('Pretty Print:')
-        print(cert_data.pretty_repr)
+        print 'Request ID: ' + request_data.request_id
+        print 'Request Status:' + request_data.request_status
+        print 'Serial Number: ' + cert_data.serial_number
+        print 'Issuer: ' + cert_data.issuer_dn
+        print 'Subject: ' + cert_data.subject_dn
+        print 'Pretty Print:'
+        print cert_data.pretty_repr
 
     print
 
     # Enrolling a server certificate
-    print("Enrolling a server certificate")
-    print('------------------------------')
+    print "Enrolling a server certificate"
+    print '------------------------------'
 
     inputs = dict()
     inputs['cert_request_type'] = 'pkcs10'
@@ -1109,40 +1109,40 @@ def main():
     for enrollment_result in enrollment_results_2:
         request_data = enrollment_result.request
         cert_data = enrollment_result.cert
-        print('Request ID: ' + request_data.request_id)
-        print('Request Status:' + request_data.request_status)
+        print 'Request ID: ' + request_data.request_id
+        print 'Request Status:' + request_data.request_status
         if cert_data is not None:
             # store cert_id for usage later
             cert_id = cert_data.serial_number
-            print('Serial Number: ' + cert_id)
-            print('Issuer: ' + cert_data.issuer_dn)
-            print('Subject: ' + cert_data.subject_dn)
-            print('Pretty Print:')
-            print(cert_data.pretty_repr)
+            print 'Serial Number: ' + cert_id
+            print 'Issuer: ' + cert_data.issuer_dn
+            print 'Subject: ' + cert_data.subject_dn
+            print 'Pretty Print:'
+            print cert_data.pretty_repr
 
     print
 
     # List all the VALID certs
-    print('An example listing all VALID certs')
-    print('----------------------------------')
+    print 'An example listing all VALID certs'
+    print '----------------------------------'
 
     search_params = {'status': 'VALID'}
     cert_data_list = cert_client.list_certs(**search_params)
     for cert_data_info in cert_data_list:
-        print("Serial Number: " + cert_data_info.serial_number)
-        print("Subject DN: " + cert_data_info.subject_dn)
-        print("Status: " + cert_data_info.status)
+        print "Serial Number: " + cert_data_info.serial_number
+        print "Subject DN: " + cert_data_info.subject_dn
+        print "Status: " + cert_data_info.status
     print
 
     #Trying to get a non-existing cert
     #Assuming that there is no certificate with serial number = 100
     try:
         cert_data = cert_client.get_cert(100)
-        print('Serial Number: ' + cert_data.serial_number)
-        print('Issuer: ' + cert_data.issuer_dn)
-        print('Subject: ' + cert_data.subject_dn)
+        print 'Serial Number: ' + cert_data.serial_number
+        print 'Issuer: ' + cert_data.issuer_dn
+        print 'Subject: ' + cert_data.subject_dn
     except pki.CertNotFoundException:
-        print("Certificate with ID 100 does not exist")
+        print "Certificate with ID 100 does not exist"
         print
 
     # Certificate Serial Number used for CertClient methods.
@@ -1151,54 +1151,54 @@ def main():
     #  before.
 
     #Get certificate data
-    print('Getting information of a certificate')
-    print('------------------------------------')
+    print 'Getting information of a certificate'
+    print '------------------------------------'
 
     cert_data = cert_client.get_cert(cert_id)
     # Print the certificate information
-    print('Serial Number: ' + cert_data.serial_number)
-    print('Issuer: ' + cert_data.issuer_dn)
-    print('Subject: ' + cert_data.subject_dn)
-    print('Status: ' + cert_data.status)
-    print('Not Before: ' + cert_data.not_before)
-    print('Not After: ' + cert_data.not_after)
-    print('Encoded: ')
-    print(cert_data.encoded)
-    print("Pretty print format: ")
-    print(cert_data.pretty_repr)
+    print 'Serial Number: ' + cert_data.serial_number
+    print 'Issuer: ' + cert_data.issuer_dn
+    print 'Subject: ' + cert_data.subject_dn
+    print 'Status: ' + cert_data.status
+    print 'Not Before: ' + cert_data.not_before
+    print 'Not After: ' + cert_data.not_after
+    print 'Encoded: '
+    print cert_data.encoded
+    print "Pretty print format: "
+    print cert_data.pretty_repr
     print
 
     # Review a certificate - used to get a nonce for revoke request.
-    print('Reviewing a certificate')
-    print('-----------------------')
+    print 'Reviewing a certificate'
+    print '-----------------------'
 
     cert_data = cert_client.review_cert(cert_id)
-    print('Serial Number: ' + cert_data.serial_number)
-    print('Issuer: ' + cert_data.issuer_dn)
-    print('Subject: ' + cert_data.subject_dn)
-    print('Status: ' + cert_data.status)
-    print('Nonce: ' + str(cert_data.nonce))
+    print 'Serial Number: ' + cert_data.serial_number
+    print 'Issuer: ' + cert_data.issuer_dn
+    print 'Subject: ' + cert_data.subject_dn
+    print 'Status: ' + cert_data.status
+    print 'Nonce: ' + str(cert_data.nonce)
     print
 
     #Revoke a certificate
-    print('Revoking a certificate')
-    print('----------------------')
+    print 'Revoking a certificate'
+    print '----------------------'
 
     cert_request_info = cert_client.hold_cert(cert_data.serial_number,
                                               comments="Test revoking a cert")
-    print('Request ID: ' + cert_request_info.request_id)
-    print('Request Type: ' + cert_request_info.request_type)
-    print('Request Status: ' + cert_request_info.request_status)
+    print 'Request ID: ' + cert_request_info.request_id
+    print 'Request Type: ' + cert_request_info.request_type
+    print 'Request Status: ' + cert_request_info.request_status
     print
 
     #Un-revoke a certificate
-    print('Un-revoking a certificate')
-    print('-------------------------')
+    print 'Un-revoking a certificate'
+    print '-------------------------'
 
     cert_request_info = cert_client.unrevoke_cert(cert_data.serial_number)
-    print('Request ID: ' + cert_request_info.request_id)
-    print('Request Type: ' + cert_request_info.request_type)
-    print('Request Status: ' + cert_request_info.request_status)
+    print 'Request ID: ' + cert_request_info.request_id
+    print 'Request Type: ' + cert_request_info.request_type
+    print 'Request Status: ' + cert_request_info.request_status
     print
 
 

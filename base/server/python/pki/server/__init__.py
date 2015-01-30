@@ -29,8 +29,8 @@ import subprocess
 import pki
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
-REGISTRY_DIR      = '/etc/sysconfig/pki'
-SUBSYSTEM_TYPES   = ['ca', 'kra', 'ocsp', 'tks', 'tps']
+REGISTRY_DIR = '/etc/sysconfig/pki'
+SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 
 
 class PKISubsystem(object):

@@ -27,10 +27,10 @@ import re
 import requests
 
 
-CONF_DIR  = '/etc/pki'
+CONF_DIR = '/etc/pki'
 SHARE_DIR = '/usr/share/pki'
-BASE_DIR  = '/var/lib'
-LOG_DIR   = '/var/log/pki'
+BASE_DIR = '/var/lib'
+LOG_DIR = '/var/log/pki'
 
 PACKAGE_VERSION = SHARE_DIR + '/VERSION'
 CERT_HEADER = "-----BEGIN CERTIFICATE-----"
@@ -117,7 +117,7 @@ def implementation_version():
     raise Exception('Missing implementation version.')
 
 
-#pylint: disable-msg=R0903
+#pylint: disable=R0903
 class Attribute(object):
     """
     Class representing a key/value pair.
@@ -131,7 +131,7 @@ class Attribute(object):
         self.value = value
 
 
-#pylint: disable-msg=R0903
+#pylint: disable=R0903
 class AttributeList(object):
     """
     Class representing a list of attributes.
@@ -139,7 +139,7 @@ class AttributeList(object):
     This class is needed because of a JavaMapper used in the REST API.
     """
 
-    # pylint: disable-msg=C0103
+    # pylint: disable=C0103
     def __init__(self):
         """ Constructor """
         self.Attribute = []
@@ -151,7 +151,7 @@ class ResourceMessage(object):
     It is essentially a list of attributes.
     """
 
-    # pylint: disable-msg=C0103
+    # pylint: disable=C0103
     def __init__(self, class_name):
         """ Constructor """
         self.Attributes = AttributeList()

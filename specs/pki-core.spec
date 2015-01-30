@@ -628,10 +628,10 @@ ln -s %{_javadir}/pki/pki-tps.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WE
 %if %{with server}
 
 %if ! 0%{?rhel}
-# Scanning the python code with pylint. A return value of 0 represents there are no
-# errors or warnings reported by pylint.
+# Scanning the python code with pylint.
 sh ../pylint-build-scan.sh %{buildroot} `pwd`
-if [ $? -eq 1 ]; then
+if [ $? -ne 0 ]; then
+    echo "pylint failed. RC: $?"
     exit 1
 fi
 %endif

@@ -34,7 +34,7 @@ import pki.encoder as encoder
 
 
 #should be moved to request.py
-#pylint: disable-msg=R0903
+#pylint: disable=R0903
 class RequestId(object):
     """
     Class representing a Request ID
@@ -45,7 +45,7 @@ class RequestId(object):
         self.value = req_id
 
 
-#pylint: disable-msg=R0903
+#pylint: disable=R0903
 class KeyData(object):
     """
     This is the object that contains the encoded wrapped secret
@@ -57,7 +57,7 @@ class KeyData(object):
         'nonceData': 'nonce_data', 'wrappedPrivateData': 'wrapped_private_data'
     }
 
-    # pylint: disable-msg=C0103
+    # pylint: disable=C0103
     def __init__(self):
         """ Constructor """
         self.algorithm = None
@@ -108,7 +108,7 @@ class KeyInfo(object):
         'ownerName': 'owner_name', 'publicKey': 'public_key'
     }
 
-    # pylint: disable-msg=C0103
+    # pylint: disable=C0103
     def __init__(self):
         """ Constructor """
         self.client_key_id = None
@@ -140,7 +140,7 @@ class KeyInfo(object):
         return None
 
 
-#pylint: disable-msg=R0903
+#pylint: disable=R0903
 class KeyInfoCollection(object):
     """
     This class represents data returned when searching the DRM archived
@@ -176,7 +176,7 @@ class KeyRequestInfo(object):
         'keyURL': 'key_url', 'requestStatus': 'request_status'
     }
 
-    # pylint: disable-msg=C0103
+    # pylint: disable=C0103
     def __init__(self):
         """ Constructor """
         self.request_url = None
@@ -212,7 +212,7 @@ class KeyRequestInfo(object):
         return None
 
 
-#pylint: disable-msg=R0903
+#pylint: disable=R0903
 class KeyRequestInfoCollection(object):
     """
     This class represents the data returned when searching the key
@@ -248,7 +248,7 @@ class KeyRequestResponse(object):
     which contains the wrapped secret (if that operation is supported).
     """
 
-    # pylint: disable-msg=C0103
+    # pylint: disable=C0103
     def __init__(self):
         """ Constructor """
         self.request_info = None
@@ -705,14 +705,14 @@ class KeyClient(object):
             key_size=key_size)
 
     @pki.handle_exceptions()
-    def archive_encrypted_data(self,
-            client_key_id,
-            data_type,
-            encrypted_data,
-            wrapped_session_key,
-            algorithm_oid=None,
-            nonce_iv=None,
-            key_algorithm=None,
+    def archive_encrypted_data(self,\
+            client_key_id,\
+            data_type,\
+            encrypted_data,\
+            wrapped_session_key,\
+            algorithm_oid=None,\
+            nonce_iv=None,\
+            key_algorithm=None,\
             key_size=None):
         """
         Archive a secret (symmetric key or passphrase) on the DRM.

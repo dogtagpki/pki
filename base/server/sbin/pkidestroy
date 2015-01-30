@@ -50,7 +50,7 @@ error was:
 
 
 #Handle the Keyboard Interrupt
-# pylint: disable-msg=W0613
+# pylint: disable=W0613
 def interrupt_handler(event, frame):
     print
     print '\nUninstallation canceled.'

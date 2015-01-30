@@ -925,13 +925,13 @@ class Instance:
             # present within the PKI 'tomcat' registry directory
             for instance in os.listdir(
                     self.mdict['pki_instance_type_registry_path']):
-                if os.path.isdir(
-                    os.path.join(
-                        self.mdict['pki_instance_type_registry_path'],
+                if os.path.isdir(\
+                    os.path.join(\
+                        self.mdict['pki_instance_type_registry_path'],\
                         instance)) and not\
-                   os.path.islink(
-                       os.path.join(
-                           self.mdict['pki_instance_type_registry_path'],
+                   os.path.islink(\
+                       os.path.join(\
+                           self.mdict['pki_instance_type_registry_path'],\
                            instance)):
                     rv += 1
             config.pki_log.debug(log.PKIHELPER_TOMCAT_INSTANCES_2,
@@ -987,7 +987,7 @@ class Instance:
         # catching all exceptions because we do not want to break if underlying
         # requests or urllib3 use a different exception.
         # If the connection fails, we will time out in any case
-        # pylint: disable-msg=W0703
+        # pylint: disable=W0703
         try:
             client = pki.system.SystemStatusClient(connection)
             response = client.get_status()
@@ -1739,7 +1739,7 @@ class File:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 open(name, "w").close()
                 with open(name, "w") as FILE:
-                    noise = ''.join(random.choice(string.ascii_letters +
+                    noise = ''.join(random.choice(string.ascii_letters +\
                                     string.digits) for x in range(random_bytes))
                     FILE.write(noise)
                 # chmod <perms> <name>
@@ -2656,7 +2656,7 @@ class KRAConnector:
 
             # get a list of all the CA's in the security domain
             # noinspection PyBroadException
-            # pylint: disable-msg=W0703
+            # pylint: disable=W0703
             sechost = cs_cfg.get('securitydomain.host')
             secport = cs_cfg.get('securitydomain.httpsadminport')
             try:
@@ -2676,7 +2676,7 @@ class KRAConnector:
                 # the auth is not successful or servers are down.  In the
                 # worst case, we will time out anyways.
                 # noinspection PyBroadException
-                # pylint: disable-msg=W0703
+                # pylint: disable=W0703
                 try:
                     self.execute_using_sslget(
                         ca_port, ca_host, subsystemnick,
@@ -3675,8 +3675,8 @@ class ConfigClient:
         with open(self.mdict['pki_external_admin_csr_path'], "w") as f:
             f.write("-----BEGIN CERTIFICATE REQUEST-----\n")
         admin_certreq = None
-        with open(os.path.join(
-                  self.mdict['pki_client_database_dir'],
+        with open(os.path.join(\
+                  self.mdict['pki_client_database_dir'],\
                   "admin_pkcs10.bin.asc"), "r") as f:
             admin_certreq = f.read()
         with open(self.mdict['pki_external_admin_csr_path'], "a") as f:

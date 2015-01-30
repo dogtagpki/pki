@@ -31,7 +31,7 @@ class CustomTypeEncoder(json.JSONEncoder):
         http://stackoverflow.com/questions/12949064/python-what-happens-
         when-instance-variable-name-is-same-as-method-name
     """
-    # pylint: disable-msg=E0202
+    # pylint: disable=E0202
     def default(self, obj):
         for k, v in TYPES.items():
             if isinstance(obj, v):
@@ -44,7 +44,7 @@ class CustomTypeEncoder(json.JSONEncoder):
     def attr_name_conversion(attr_dict, object_class):
         if not hasattr(object_class, 'json_attribute_names'):
             return attr_dict
-        reverse_dict = {v: k for k,v in
+        reverse_dict = {v: k for k, v in
                         object_class.json_attribute_names.iteritems()}
         new_dict = dict()
         for k, v in attr_dict.items():

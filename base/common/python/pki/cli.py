@@ -124,7 +124,7 @@ class CLI(object):
                 # Module doesn't have children. Keep looking.
 
             # If there's no more dashes, stop.
-            if i<0:
+            if i < 0:
                 break
 
             position = i + 1

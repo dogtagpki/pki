@@ -53,7 +53,7 @@ error was:
 
 
 # Handle the Keyboard Interrupt
-# pylint: disable-msg=W0613
+# pylint: disable=W0613
 def interrupt_handler(event, frame):
     print
     print '\nInstallation canceled.'
@@ -505,7 +505,7 @@ def main(argv):
         instance = scriptlet.PkiScriptlet()
         try:
             rv = instance.spawn(deployer)
-        # pylint: disable-msg=W0703
+        # pylint: disable=W0703
         except Exception:
             log_error_details()
             print
@@ -546,9 +546,9 @@ def print_install_information(mdict):
                   % mdict['pki_client_database_dir']
         print log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name']
         print log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name']
-        if (((config.pki_subsystem == "KRA" or
-              config.pki_subsystem == "OCSP") and
-            config.str2bool(mdict['pki_standalone'])) and
+        if (((config.pki_subsystem == "KRA" or\
+              config.pki_subsystem == "OCSP") and\
+            config.str2bool(mdict['pki_standalone'])) and\
             not config.str2bool(mdict['pki_external_step_two'])):
             # Stand-alone PKI KRA/OCSP (External CA Step 1)
             print log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem
