@@ -6,6 +6,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -19,6 +20,7 @@ import netscape.security.x509.X509CertImpl;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
+import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.channel.SecureChannel.TokenKeyType;
 import org.dogtagpki.server.tps.cms.CAEnrollCertResponse;
@@ -27,12 +29,15 @@ import org.dogtagpki.server.tps.cms.CARenewCertResponse;
 import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
 import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.cms.KRARecoverKeyResponse;
+import org.dogtagpki.server.tps.cms.KRARemoteRequestHandler;
 import org.dogtagpki.server.tps.cms.KRAServerSideKeyGenResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.engine.TPSEngine.ENROLL_MODES;
+import org.dogtagpki.server.tps.main.ExternalRegAttrs;
+import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
 import org.dogtagpki.tps.main.TPSBuffer;
@@ -48,6 +53,7 @@ import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -62,6 +68,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     @Override
     public void process(BeginOpMsg beginMsg) throws TPSException, IOException {
+
         if (beginMsg == null) {
             throw new TPSException("TPSEnrollrocessor.process: invalid input data, not beginMsg provided.",
                     TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
@@ -79,6 +86,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String auditMsg = null;
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
+        IConfigStore configStore = CMS.getConfigStore();
+        String configName;
 
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
@@ -108,18 +117,123 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
 
         fillTokenRecord(tokenRecord, appletInfo);
+        String cuid = appletInfo.getCUIDhexStringPlain();
         session.setTokenRecord(tokenRecord);
-
-        String resolverInstName = getResolverInstanceName();
-
         String tokenType = null;
 
-        tokenType = resolveTokenProfile(resolverInstName, appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
-                appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-        CMS.debug("TPSEnrollProcessor.enroll: resolved tokenType: " + tokenType);
+        if (isExternalReg) {
+            CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: ON");
+            /*
+             * need to reach out to the Registration DB (authid)
+             * Entire user entry should be retrieved and parsed, if needed
+             * The following are retrieved, e.g.:
+             *     externalReg.tokenTypeAttributeName=tokenType
+             *     externalReg.certs.recoverAttributeName=certsToRecover
+             *     externalReg.tokenCuidName=userKey
+             */
+            configName = "externalReg.authId";
+            String authId;
+            try {
+                authId = configStore.getString(configName);
+            } catch (EBaseException e) {
+                CMS.debug("TPSEnrollProcessor.enroll: Internal Error obtaining mandatory config values. Error: " + e);
+                auditMsg = "TPS error getting config values from config store." + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
+
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+
+            /* get user login and password - set in "login" */
+            IAuthCredentials userCred;
+            try {
+                CMS.debug("In TPSEnrollProcessor.enroll: isExternalReg: calling requestUserId");
+                TPSAuthenticator userAuth =
+                        getAuthentication(authId);
+                processAuthentication(TPSEngine.ENROLL_OP, userAuth, cuid, tokenRecord);
+            } catch (Exception e) {
+                // all exceptions are considered login failure
+                CMS.debug("TPSEnrollProcessor.enroll:: authentication exception thrown: " + e);
+                auditMsg = "ExternalReg authentication failed, status = STATUS_ERROR_LOGIN";
+
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
+
+                throw new TPSException(auditMsg,
+                        TPSStatus.STATUS_ERROR_LOGIN);
+            }
+
+            ExternalRegAttrs erAttrs;
+            try {
+                erAttrs = processExternalRegAttrs(authId);
+            } catch (EBaseException ee) {
+                auditMsg = "after processExternalRegAttrs: " + ee.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
+
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+
+            /*
+             * If cuid is provided on the user registration record, then
+             * we have to compare that with the current token cuid;
+             *
+             * If, the cuid is not provided on the user registration record,
+             * then any token can be used.
+             */
+            if (erAttrs.getTokenCUID() != null) {
+                CMS.debug("TPSEnrollProcessor.enroll: erAttrs.getTokenCUID()=" + erAttrs.getTokenCUID());
+                CMS.debug("TPSEnrollProcessor.enroll: tokenRecord.getId()=" + tokenRecord.getId());
+                if (!tokenRecord.getId().equals(erAttrs.getTokenCUID())) {
+                    auditMsg = "isExternalReg: token CUID not matching record:" + erAttrs.getTokenCUID();
+                    CMS.debug("TPSEnrollProcessor.enroll:" + auditMsg);
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                            "failure");
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_NOT_TOKEN_OWNER);
+                }
+            }
+
+            session.setExternalRegAttrs(erAttrs);
+            if (erAttrs.getTokenType() != null) {
+                CMS.debug("In TPSEnrollProcessor.enroll: isExternalReg: setting tokenType to tokenType attribute of user entry:"
+                        +
+                        erAttrs.getTokenType());
+                setSelectedTokenType(erAttrs.getTokenType());
+            } else {
+                // get the default externalReg tokenType
+                configName = "externalReg.default.tokenType";
+                CMS.debug("TPSEnrollProcessor.enroll: externalReg user entry does not contain tokenType...setting to config: "
+                        + configName);
+                try {
+                    tokenType = configStore.getString(configName,
+                            "externalRegAddToToken");
+                    CMS.debug("In TPSEnrollProcessor.enroll: isExternalReg: setting tokenType to default:" +
+                            tokenType);
+                    setSelectedTokenType(tokenType);
+                } catch (EBaseException e) {
+                    CMS.debug("TPSEnrollProcessor.enroll: Internal Error obtaining mandatory config values. Error: "
+                            + e);
+                    auditMsg = "TPS error getting config values from config store." + e.toString();
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                            "failure");
+
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                }
+            }
+        } else {
+            CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: OFF");
+            /*
+             * Note: op.enroll.tokenProfileResolver=none indicates no resolver
+             *    plugin used (tokenType resolved perhaps via authentication)
+             */
+            String resolverInstName = getResolverInstanceName();
+
+            tokenType = resolveTokenProfile(resolverInstName, appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                    appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+            CMS.debug("TPSEnrollProcessor.enroll: resolved tokenType: " + tokenType);
+        }
 
         checkProfileStateOK();
-        String cuid = appletInfo.getCUIDhexStringPlain();
 
         boolean do_force_format = false;
         if (isTokenPresent) {
@@ -148,7 +262,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             do_force_format = tokenPolicy.isForceTokenFormat(cuid);
 
-            if (!tokenPolicy.isAllowdTokenReenroll(cuid) &&
+            if (!isExternalReg &&
+                    !tokenPolicy.isAllowdTokenReenroll(cuid) &&
                     !tokenPolicy.isAllowdTokenRenew(cuid)) {
                 CMS.debug("TPSEnrollProcessor.enroll: token renewal or reEnroll disallowed ");
                 auditMsg = "Operation renewal or reEnroll for CUID " + cuid +
@@ -158,6 +273,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 throw new TPSException(auditMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
+            } else {
+                auditMsg = "isExternalReg: skip token policy (reenroll, renewal) check";
+                CMS.debug("TPSEnrollProcessor.enroll:" + auditMsg);
             }
         } else {
             CMS.debug("TPSEnrollProcessor.enroll: token does not exist");
@@ -165,7 +283,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
         }
-        checkAndAuthenticateUser(appletInfo, tokenType);
+
+        // isExternalReg : user already authenticated earlier
+        if (!isExternalReg)
+            checkAndAuthenticateUser(appletInfo, tokenType);
 
         if (do_force_format) {
             CMS.debug("TPSEnrollProcessor.enroll: About to force format first due to policy.");
@@ -213,6 +334,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             } catch (Exception e) {
                 String failMsg = "add token failure";
                 auditMsg = failMsg + ":" + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
                 throw new TPSException(auditMsg);
             }
         }
@@ -227,38 +350,95 @@ public class TPSEnrollProcessor extends TPSProcessor {
         certsInfo.setEndProgress(90);
 
         boolean renewed = false;
-        TPSStatus status = generateCertsAfterRenewalRecoveryPolicy(certsInfo, channel, appletInfo);
+        boolean recovered = false;
+        TPSStatus status = TPSStatus.STATUS_NO_ERROR;
+
+        if (!isExternalReg) {
+            status = generateCertsAfterRenewalRecoveryPolicy(certsInfo, channel, appletInfo);
+        }
+
         //most failed would have thrown an exception
         String statusString = "Unknown"; // gives some meaningful debug message
         if (status == TPSStatus.STATUS_NO_ERROR)
             statusString = "Enrollment to follow";
-        else if (status == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED)
+        else if (status == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED) {
             statusString = "Recovery processed";
-        else if (status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED)
+            recovered = true;
+            //TODO:
+            //tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), auditMsg, "success");
+        } else if (status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED) {
             statusString = "Renewal processed";
-        else {
+            renewed = true;
+            //TODO:
+            //tps.tdb.tdbActivity(ActivityDatabase.OP_RENEWAL, tokenRecord, session.getIpAddress(), auditMsg, "success");
+        } else {
             auditMsg = " generateCertsAfterRenewalRecoveryPolicy returned status=" + status;
             CMS.debug("TPSEnrollProcessor.enroll:" + auditMsg);
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                    "failure");
             throw new TPSException(auditMsg);
         }
-        auditMsg = "generateCertsAfterRenewalRecoveryPolicy returns status:"
-                + EndOpMsg.statusToInt(status) + " : " + statusString;
-        CMS.debug("TPSEnrollProcessor.enroll: " + auditMsg);
+        if (!isExternalReg) {
+            auditMsg = "generateCertsAfterRenewalRecoveryPolicy returns status:"
+                    + EndOpMsg.statusToInt(status) + " : " + statusString;
+            CMS.debug("TPSEnrollProcessor.enroll: " + auditMsg);
+        }
         if (status == TPSStatus.STATUS_NO_ERROR) {
             if (!generateCertificates(certsInfo, channel, appletInfo)) {
-                CMS.debug("TPSEnrollProcessor.enroll:generateCertificates returned false means some certs failed enrollment;  clean up (format) the token");
-                format(true /*skipAuth*/);
+                // in case isExternalReg, leave the token alone, do not format
+                if (!isExternalReg) {
+                    CMS.debug("TPSEnrollProcessor.enroll:generateCertificates returned false means some certs failed enrollment;  clean up (format) the token");
+                    format(true /*skipAuth*/);
+                }
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
                 throw new TPSException("generateCertificates failed");
             } else {
                 CMS.debug("TPSEnrollProcessor.enroll:generateCertificates returned true means cert enrollment successful");
+                /*
+                 * isExternalReg -
+                 * ??  Renew if token has "RENEW=YES" set by admin
+                 *   recovery and delete/revoke happens:
+                 *       recover certsToRecover
+                 *       delete/revoke certsToDelete
+                 *       (per latest design, delete is implied for certs
+                 *       not existing in the recover list)
+                 */
+
+                if (isExternalReg) {
+                    try {
+                        TPSStatus recoverStatus = externalRegRecover(cuid, userid, channel, certsInfo, appletInfo,
+                                tokenRecord);
+                        CMS.debug("TPSEnrollProcessor.enroll: after externalRegRecover status is:" + recoverStatus);
+                        if (recoverStatus == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED) {
+                            recovered = true;
+                            //TODO:
+                            //tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), auditMsg, "success");
+                        }
+                    } catch (EBaseException e) {
+                        auditMsg = "TPSEnrollProcessor.enroll: externalRegRecover: " + e;
+                        CMS.debug(auditMsg);
+                        tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(),
+                                auditMsg,
+                                "failure");
+
+                        throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_BAD_STATUS);
+                    }
+                } else {
+                    //TODO:
+                    //tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                    //"success");
+                }
             }
         }
         // at this point, enrollment, renewal, or recovery have been processed accordingly;
-        if (status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED &&
+        if (!isExternalReg &&
+                status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED &&
                 tokenPolicy.isAllowdTokenRenew(cuid)) {
             renewed = true;
             CMS.debug("TPSEnrollProcessor.enroll: renewal happened.. ");
         }
+
         /*
          * TODO:
          * find the point to do the following...
@@ -306,7 +486,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         } catch (Exception e) {
             String failMsg = "update token failure";
             auditMsg = failMsg + ":" + e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), failMsg,
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
                     "failure");
             throw new TPSException(auditMsg);
         }
@@ -316,7 +496,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             // clean up the cert records used to belong to this token in tokendb
             tps.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
         } catch (Exception e) {
-            auditMsg = "Attempt to clean up record with tdbRemoveCertificatesByCUID failed; token probably clean; continue anyway:" + e;
+            auditMsg = "Attempt to clean up record with tdbRemoveCertificatesByCUID failed; token probably clean; continue anyway:"
+                    + e;
             CMS.debug("TPSEnrollProcessor.enroll:" + auditMsg);
         }
         CMS.debug("TPSEnrollProcessor.enroll: adding certs to token with tdbAddCertificatesForCUID...");
@@ -325,17 +506,37 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSEnrollProcessor.enroll: tokendb updated with certs to the cuid so that it reflects what's on the token");
 
         auditMsg = "appletVersion=" + lastObjVer + "; tokenType =" + selectedTokenType + "; userid =" + userid;
-        if (renewed) {
-            tps.tdb.tdbActivity(ActivityDatabase.OP_RENEWAL, tokenRecord, session.getIpAddress(), auditMsg, "success");
-        } else {
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
-                    "success");
-        }
+        tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                "success");
 
         CMS.debug("TPSEnrollProcessor.enroll: leaving ...");
 
         statusUpdate(100, "PROGRESS_DONE_ENROLLMENT");
     }
+
+/*
+    protected void checkIsDelegation() throws TPSException {
+        String method = "TPSEnrollProcessor.checkIsDelegation:";
+        String auditMsg;
+
+        IConfigStore configStore = CMS.getConfigStore();
+        CMS.debug(method + "begins");
+        String RH_Delegation_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." +
+                TPSEngine.CFG_ER_DELEGATION + ".enable";
+
+        try {
+            //These defaults are well known, it is safe to use them.
+
+            this.isDelegation = configStore.getBoolean(RH_Delegation_Cfg, false);
+            CMS.debug(method + " isDelegation: " + isDelegation);
+        } catch (EBaseException e1) {
+            auditMsg = "Internal Error obtaining config values. Error: " + e1;
+            CMS.debug(method + auditMsg);
+            throw new TPSException(method + auditMsg);
+        }
+
+    }
+*/
 
     private void writeFinalPKCS11ObjectToToken(PKCS11Obj pkcs11objx, AppletInfo ainfo, SecureChannel channel)
             throws TPSException, IOException {
@@ -482,6 +683,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String auditMsg;
         final String method = "TPSEnrollProcessor.generateCertsAfterRenewalRecoveryPolicy";
         CMS.debug(method + ": begins");
+        IConfigStore configStore = CMS.getConfigStore();
+        String configName;
         TPSSubsystem tps =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
@@ -625,8 +828,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                     // ToDo: This section has not been tested to work.. Make sure this works.
 
-                    IConfigStore configStore = CMS.getConfigStore();
-                    String configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType()
+                    configStore = CMS.getConfigStore();
+                    configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType()
                             + ".temporaryToken.tokenType";
                     try {
                         String tmpTokenType = configStore.getString(configName);
@@ -653,6 +856,113 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
 
         CMS.debug(method + ": ends");
+        return status;
+    }
+
+    /*
+     * (for isExternalReg)
+     * externalRegRecover
+     *    reaches out to CA for retrieving cert to recover
+     *    reaches out to KRA for key recovery.
+     *    All the certs to have keys recovered are in
+     *    session.getExternalRegAttrs().getCertsToRecover()
+     *
+     * when returned successfully, externalRegCertToRecover should have
+     * completed externalReg recovery
+     */
+    private TPSStatus externalRegRecover(
+            String cuid,
+            String userid,
+            SecureChannel channel,
+            EnrolledCertsInfo certsInfo,
+            AppletInfo appletInfo,
+            TokenRecord tokenRecord)
+            throws EBaseException, IOException {
+
+        String method = "TPSEnrollProcessor.externalRegRecover:";
+        String auditMsg;
+        CMS.debug(method + "begins");
+        TPSStatus status = TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED;
+        if (session == null || session.getExternalRegAttrs() == null ||
+                session.getExternalRegAttrs().getCertsToRecover() == null) {
+            CMS.debug(method + "nothing to recover...");
+        }
+        CMS.debug(method + "number of certs to recover=" +
+                session.getExternalRegAttrs().getCertsToRecoverCount());
+        ArrayList<ExternalRegCertToRecover> erCertsToRecover =
+                session.getExternalRegAttrs().getCertsToRecover();
+
+        for (ExternalRegCertToRecover erCert : erCertsToRecover) {
+            BigInteger keyid = erCert.getKeyid();
+            BigInteger serial = erCert.getSerial();
+            String caConn = erCert.getCaConn();
+            String kraConn = erCert.getKraConn();
+
+            auditMsg = "ExternalReg cert record: serial=" +
+                    serial.toString();
+
+            // recover cert
+            CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConn);
+            CARetrieveCertResponse certResp = caRH.retrieveCertificate(serial);
+            if (certResp == null) {
+                auditMsg = "In recovery mode, CARetieveCertResponse object not found!";
+                CMS.debug(method + auditMsg);
+                return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
+            }
+
+            String retCertB64 = certResp.getCertB64();
+            CMS.debug(method + "recovering:  retCertB64: " + retCertB64);
+            byte[] cert_bytes = Utils.base64decode(retCertB64);
+
+            TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
+            CMS.debug(method + "recovering: retCertB64: "
+                    + cert_bytes_buf.toHexString());
+            if (retCertB64 != null)
+                CMS.debug(method + "recovering: cert b64 =" + retCertB64);
+            else {
+                auditMsg = "recovering cert b64 not found";
+                CMS.debug(method + auditMsg);
+                return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
+            }
+
+            // recover keys
+            KRARecoverKeyResponse keyResp = null;
+            if (kraConn != null) {
+                auditMsg = "kraConn not null";
+                CMS.debug(method + auditMsg);
+                KRARemoteRequestHandler kraRH = new KRARemoteRequestHandler(kraConn);
+                if (channel.getDRMWrappedDesKey() == null) {
+                    auditMsg = "channel.getDRMWrappedDesKey() null";
+                    CMS.debug(method + auditMsg);
+                    return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
+                } else {
+                    auditMsg = "channel.getDRMWrappedDesKey() not null";
+                    CMS.debug(method + auditMsg);
+                }
+                keyResp = kraRH.recoverKey(cuid, userid, Util.specialURLEncode(channel.getDRMWrappedDesKey()),
+                        Util.uriEncode(retCertB64));
+                if (keyResp == null) {
+                    auditMsg = "recovering key not found";
+                    CMS.debug(method + auditMsg);
+                    return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
+                }
+            }
+
+            CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
+
+            cEnrollInfo.setTokenToBeRecovered(tokenRecord);
+            cEnrollInfo.setRecoveredCertData(certResp);
+            cEnrollInfo.setRecoveredKeyData(keyResp);
+
+            generateCertificate(certsInfo, channel, appletInfo,
+                    "encryption",
+                    TPSEngine.ENROLL_MODES.MODE_RECOVERY,
+                    certsInfo.getCurrentCertIndex() + 1, cEnrollInfo);
+
+            CMS.debug(method + "after generateCertificate() with MODE_RECOVERY");
+        }
+
+        CMS.debug(method + "ends");
         return status;
     }
 
@@ -1077,7 +1387,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 if (serialToRecover != null) {
                     // get recovery conn id
                     String caConnId;
-                    String config = "op.enroll." + certToRecover.getType() + ".keyGen." + certToRecover.getKeyType() + ".ca.conn";
+                    String config = "op.enroll." + certToRecover.getType() + ".keyGen." + certToRecover.getKeyType()
+                            + ".ca.conn";
                     try {
                         caConnId = configStore.getString(config);
                     } catch (Exception e) {
@@ -1170,6 +1481,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         int keyTypeNum = getNumberCertsToEnroll();
 
+        if (isExternalReg && keyTypeNum == 0) {
+            CMS.debug("TPSEnrollProcess.generateCertificates: isExternalReg with tokenType:" + selectedTokenType
+                    + "; no certs to enroll per configuration");
+            return noFailedCerts;
+        }
+
         certsInfo.setNumCertsToEnroll(keyTypeNum);
 
         CMS.debug("TPSEnrollProcessor.generateCertificate: Number of certs to enroll: " + keyTypeNum);
@@ -1254,7 +1571,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSEnrollProcessor.generateCertificate: entering ... certIdNumOverride: " + certIdNumOverride
                 + " mode: " + mode);
 
-        if (certsInfo == null || aInfo == null || channel == null || aInfo == null) {
+        if (certsInfo == null || aInfo == null || channel == null) {
             throw new TPSException("TPSEnrollProcessor.generateCertificate: Bad Input data!",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
@@ -1283,8 +1600,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
             CMS.debug("TPSEnrollProcessor.generateCertificate: keyTypePrefix: " + keyTypePrefix);
 
             String configName = keyTypePrefix + ".ca.profileId";
-            String profileId = configStore.getString(configName);
-            CMS.debug("TPSEnrollProcessor.generateCertificate: profileId: " + profileId);
+            String profileId = null;
+            if (isExternalReg) {
+                profileId = configStore.getString(configName, "NA"); // if not supplied then does not apply due to recovery
+            } else {
+                profileId = configStore.getString(configName);
+                CMS.debug("TPSEnrollProcessor.generateCertificate: profileId: " + profileId);
+            }
 
             configName = keyTypePrefix + ".certId";
             String certId = configStore.getString(configName, "C0");
@@ -1587,9 +1909,116 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: userid =" + userid + ", cuid="
                         + aInfo.getCUIDhexString());
-                CAEnrollCertResponse caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
-                        aInfo.getCUIDhexString(), getSelectedTokenType(),
-                        cEnrollInfo.getKeyType());
+
+                CAEnrollCertResponse caEnrollResp;
+                if (session.getExternalRegAttrs()!= null &&
+                        session.getExternalRegAttrs().getIsDelegation()) {
+                    int sanNum = 0;
+                    String urlSanExt = null;
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: isDelegation true");
+                    /*
+                     * build up name/value pairs for pattern mapping
+                     */
+                    LinkedHashMap<String, String> nv = new LinkedHashMap<String, String>();
+
+                    nv.put("cuid", aInfo.getCUIDhexStringPlain());
+                    nv.put("msn", aInfo.getMSNString());
+                    nv.put("userid", userid);
+                    nv.put("auth.cn", userid);
+                    nv.put("profileId", getSelectedTokenType());
+
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: fill in nv with authToken name/value pairs");
+                    Enumeration<String> n = authToken.getElements();
+                    while (n.hasMoreElements()) {
+                        String name = n.nextElement();
+                        CMS.debug("TPSEnrollProcessor.enrollOneCertificate::name =" + name);
+                        if (ldapStringAttrs != null && ldapStringAttrs.contains(name)) {
+                            String[] vals = authToken.getInStringArray(name);
+                            if (vals != null) {
+                                CMS.debug("TPSEnrollProcessor.enrollOneCertificate::val =" + vals[0]);
+                                nv.put("auth." + name, vals[0]);
+                            } else {
+                                CMS.debug("TPSEnrollProcessor.enrollOneCertificate::name not found in authToken:"
+                                        + name);
+                            }
+                        }
+                    }
+
+                    String subjectdn = "";
+                    /*
+                     * isDelegate: process subjectdn
+                     * e.g.
+                     *     op.enroll.delegateISEtoken.keyGen.encryption.dnpattern=
+                     *         cn=$auth.firstname$.$auth.lastname$.$auth.edipi$,e=$auth.mail$,o=TMS Org
+                     *     becomes:
+                     *       CN=Jane.Doe.0123456789,E=jdoe@redhat.com,O=TMS Org
+                     */
+                    IConfigStore configStore = CMS.getConfigStore();
+                    String configName;
+                    configName = TPSEngine.OP_ENROLL_PREFIX + "." +
+                            getSelectedTokenType() + ".keyGen." +
+                            cEnrollInfo.getKeyType() + ".dnpattern";
+                    try {
+                        String dnpattern = configStore.getString(configName);
+                        subjectdn = mapPattern(nv, dnpattern);
+                    } catch (EBaseException e) {
+                        CMS.debug("TPSEnrollProcessor.enrollOneCertificate: isDelegation dnpattern not set");
+                    }
+
+                    /*
+                     * isDelegate: process SAN_ext
+                     * e.g.
+                     *     op.enroll.delegateISEtoken.keyGen.encryption.SANpattern=
+                     *         $auth.edipi$.abc@redhat.com
+                     *     becomes:
+                     *       0123456789.abc@redhat.com
+                     */
+                    configName = TPSEngine.OP_ENROLL_PREFIX + "." +
+                            getSelectedTokenType() + ".keyGen." +
+                            cEnrollInfo.getKeyType() + ".SANpattern";
+                    try {
+                        String sanPattern = configStore.getString(configName);
+                        String[] sanToks = sanPattern.split(",");
+                        for (String sanToken : sanToks) {
+                            /*
+                             * for every "tok" in pattern,
+                             * 1. mapPattern
+                             * 2. uriEncode
+                             * 3. append
+                             * url_san_ext will look like san1&san2&san3...&
+                             */
+                            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: isDeletation: sanToken:" + sanToken);
+                            String sanExt = mapPattern(nv, sanToken);
+                            String urlSanExt1 = Util.uriEncode(sanExt);
+                            if (urlSanExt == null) { // first one
+                                urlSanExt = "req_san_pattern_" +
+                                        sanNum + "=" + urlSanExt1;
+                            } else {
+                                urlSanExt = urlSanExt +
+                                        "&req_san_pattern_" + sanNum +
+                                        "=" + urlSanExt1;
+                            }
+                            CMS.debug("TPSEnrollProcessor.enrollOneCertificate: isDelegation: urlSanExt1:" + urlSanExt1);
+
+                            sanNum++;
+                        }
+                    } catch (EBaseException e) {
+                        CMS.debug("TPSEnrollProcessor.enrollOneCertificate: isDeletation sanPattern not set");
+                    }
+
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: isDelegation: Before calling enrolCertificate");
+                    caEnrollResp =
+                            caRH.enrollCertificate(encodedParsedPubKey, userid,
+                                    subjectdn, sanNum, urlSanExt,
+                                    aInfo.getCUIDhexString(), getSelectedTokenType(),
+                                    cEnrollInfo.getKeyType());
+                } else {
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: not isDelegation: Before calling enrolCertificate");
+                    caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
+                            aInfo.getCUIDhexString(), getSelectedTokenType(),
+                            cEnrollInfo.getKeyType());
+                }
+
                 String retCertB64 = caEnrollResp.getCertB64();
 
                 CMS.debug("TPSEnrollProcessor.enrollOneCertificate: retCertB64: " + retCertB64);
@@ -1688,7 +2117,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         throw new TPSException("TPSEnrollProcessor.enrollOneCertificate: new cert not found",
                                 TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
                     }
-
 
                     TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
                     CMS.debug("TPSEnrollProcessor.enrollOneCertificate: renewing: retCertB64: "
@@ -2367,27 +2795,32 @@ public class TPSEnrollProcessor extends TPSProcessor {
     }
 
     protected int getNumberCertsToEnroll() throws TPSException {
+        String method = "TPSEnrollProcessor.getNumberCertsToEnroll:";
+        String auditMsg;
         IConfigStore configStore = CMS.getConfigStore();
         int keyTypeNum = 0;
         try {
             String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
                     + TPSEngine.CFG_KEYGEN_KEYTYPE_NUM;
+            CMS.debug(method + "getting config value for:" + configValue);
             keyTypeNum = configStore.getInteger(
                     configValue, 0);
 
         } catch (EBaseException e) {
-            throw new TPSException("TPSEnrollProcessor.getNumberCertsToEnroll: Internal error finding config value: "
-                    + e,
+            auditMsg = "Internal error finding config value: " + e;
+            throw new TPSException(method + auditMsg,
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
 
-        if (keyTypeNum == 0) {
-            throw new TPSException(
-                    "TPSEnrollProcessor.getNumberCertsToEnroll: invalid number of certificates configured!",
-                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        if (!isExternalReg) {
+            if (keyTypeNum == 0) {
+                throw new TPSException(
+                        method + " invalid number of certificates configured!",
+                        TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
         }
-        CMS.debug("TPSProcess.getNumberCertsToEnroll: returning: " + keyTypeNum);
+        CMS.debug(method + " returning: " + keyTypeNum);
 
         return keyTypeNum;
     }

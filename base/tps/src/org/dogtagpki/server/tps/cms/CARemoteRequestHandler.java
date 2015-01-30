@@ -77,6 +77,21 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String tokenType,
             String keyType)
             throws EBaseException {
+        return enrollCertificate(pubKeybuf, uid, null /*subjectdn*/,
+                0/*sanNum*/, null /*urlSANext*/,
+                cuid, tokenType, keyType);
+    }
+
+    public CAEnrollCertResponse enrollCertificate(
+            TPSBuffer pubKeybuf,
+            String uid,
+            String subjectdn,
+            int sanNum,
+            String urlSANext,
+            String cuid,
+            String tokenType,
+            String keyType)
+            throws EBaseException {
 
         CMS.debug("CARemoteRequestHandler: enrollCertificate(): begins.");
         if (pubKeybuf == null || uid == null || cuid == null) {
@@ -101,18 +116,82 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             CMS.debug("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
             throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
         }
+        String sendMsg = null;
+        if (subjectdn == null)
+            CMS.debug("CARemoteRequestHandler: enrollCertificate():subjectdn null");
+        if (sanNum == 0)
+            CMS.debug("CARemoteRequestHandler: enrollCertificate():sanNum 0");
+        if (subjectdn == null && sanNum == 0) {
+            sendMsg = IRemoteRequest.GET_XML + "=" +
+                    true +
+                    "&" + IRemoteRequest.TOKEN_CUID + "=" +
+                    cuid +
+                    "&" + IRemoteRequest.CA_ENROLL_screenname + "=" +
+                    uid +
+                    "&" + IRemoteRequest.CA_ENROLL_publickey + "=" +
+                    encodedPubKey +
+                    "&" + IRemoteRequest.CA_ProfileId + "=" +
+                    profileId;
+        } else {
+            CMS.debug("CARemoteRequestHandler: enrollCertificate(): before send() with subjectdn and/or url_SAN_ext");
+            if (subjectdn != null && sanNum == 0) {
+                try {
+                    String urlSubjectdn = Util.uriEncode(subjectdn);
+                    sendMsg = IRemoteRequest.GET_XML + "=" +
+                            true +
+                            "&" + IRemoteRequest.TOKEN_CUID + "=" +
+                            cuid +
+                            "&" + IRemoteRequest.CA_ENROLL_screenname + "=" +
+                            uid +
+                            "&" + IRemoteRequest.CA_ENROLL_publickey + "=" +
+                            encodedPubKey +
+                            "&" + IRemoteRequest.CA_ProfileId + "=" +
+                            profileId +
+                            "&" + IRemoteRequest.CA_ENROLL_subjectdn + "=" +
+                            urlSubjectdn;
+                } catch (Exception e) {
+                    CMS.debug("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
+                    throw new EBaseException(
+                            "CARemoteRequestHandler: enrollCertificate(): uriEncode of subjectdn failed: " + e);
+                }
+            } else if (subjectdn == null && sanNum != 0) {
+                sendMsg = IRemoteRequest.GET_XML + "=" +
+                        true +
+                        "&" + IRemoteRequest.TOKEN_CUID + "=" +
+                        cuid +
+                        "&" + IRemoteRequest.CA_ENROLL_screenname + "=" +
+                        uid +
+                        "&" + IRemoteRequest.CA_ENROLL_publickey + "=" +
+                        encodedPubKey +
+                        "&" + IRemoteRequest.CA_ProfileId + "=" +
+                        profileId +
+                        "&" + urlSANext;
+            } else if (subjectdn != null && sanNum != 0) {
+                try {
+                    String urlSubjectdn = Util.uriEncode(subjectdn);
+                    sendMsg = IRemoteRequest.GET_XML + "=" +
+                            true +
+                            "&" + IRemoteRequest.TOKEN_CUID + "=" +
+                            cuid +
+                            "&" + IRemoteRequest.CA_ENROLL_screenname + "=" +
+                            uid +
+                            "&" + IRemoteRequest.CA_ENROLL_publickey + "=" +
+                            encodedPubKey +
+                            "&" + IRemoteRequest.CA_ProfileId + "=" +
+                            profileId +
+                            "&" + IRemoteRequest.CA_ENROLL_subjectdn + "=" +
+                            urlSubjectdn +
+                            "&" + urlSANext;
+                } catch (Exception e) {
+                    CMS.debug("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
+                    throw new EBaseException(
+                            "CARemoteRequestHandler: enrollCertificate(): uriEncode of subjectdn failed: " + e);
+                }
+            }
+        }
+        CMS.debug("CARemoteRequestHandler: enrollCertificate(): sendMsg =" + sendMsg);
         HttpResponse resp =
-                conn.send("enrollment",
-                        IRemoteRequest.GET_XML + "=" +
-                                true +
-                                "&" + IRemoteRequest.TOKEN_CUID + "=" +
-                                cuid +
-                                "&" + IRemoteRequest.CA_ENROLL_screenname + "=" +
-                                uid +
-                                "&" + IRemoteRequest.CA_ENROLL_publickey + "=" +
-                                encodedPubKey +
-                                "&" + IRemoteRequest.CA_ProfileId + "=" +
-                                profileId);
+                conn.send("enrollment", sendMsg);
 
         String content = resp.getContent();
 
@@ -214,7 +293,6 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         String configName = "tps.connector." + connid + ".uri.getBySerial";
         String servlet = conf.getString(configName, "/ca/ee/ca/displayBySerial");
         */
-
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -404,7 +482,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             RevocationReason reason)
             throws EBaseException {
 
-        CMS.debug("CARemoteRequestHandler: revokeCertificate(): begins on serial#:"+ serialno);
+        CMS.debug("CARemoteRequestHandler: revokeCertificate(): begins on serial#:" + serialno);
         if (serialno == null || reason == null) {
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter null.");
         }
@@ -473,7 +551,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             String serialno)
             throws EBaseException {
 
-        CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): begins on serial#:"+ serialno);
+        CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): begins on serial#:" + serialno);
         if (serialno == null) {
             throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate(): input parameter null.");
         }
@@ -554,14 +632,12 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         return revokeFromOtherCA(revoke, cert.getSerialNumber().toString(), certAkiString, reason);
     }
 
-
     private CARevokeCertResponse revokeFromOtherCA(
             boolean revoke, // true==revoke; false==unrevoke
             String serialno,
             String certAkiString,
             RevocationReason reason)
             throws EBaseException {
-
 
         CMS.debug("CARemoteRequestHandler: revokeFromOtherCA: begins");
 
@@ -672,8 +748,6 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
 
         return caSkiString;
     }
-
-
 
     /**
      * revokeCertificate() supports revocation routing by providing

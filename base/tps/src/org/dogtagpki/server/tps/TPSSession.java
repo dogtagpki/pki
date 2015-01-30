@@ -20,6 +20,7 @@ package org.dogtagpki.server.tps;
 import java.io.IOException;
 
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.processor.TPSEnrollProcessor;
 import org.dogtagpki.server.tps.processor.TPSPinResetProcessor;
 import org.dogtagpki.server.tps.processor.TPSProcessor;
@@ -36,6 +37,8 @@ public class TPSSession {
     private TPSConnection connection;
     private String ipAddress; /* remote IP */
     private TokenRecord tokenRecord;
+
+    private ExternalRegAttrs extRegAttrs;
 
     public TPSSession(TPSConnection conn, String ip) {
 
@@ -171,4 +174,11 @@ public class TPSSession {
         this.ipAddress = ipAddress;
     }
 
+    public void setExternalRegAttrs(ExternalRegAttrs erAttrs) {
+        extRegAttrs = erAttrs;
+    }
+
+    public ExternalRegAttrs getExternalRegAttrs() {
+        return extRegAttrs;
+    }
 }

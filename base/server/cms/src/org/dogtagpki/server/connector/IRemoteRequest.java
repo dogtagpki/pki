@@ -49,7 +49,7 @@ public interface IRemoteRequest {
     public static final String TKS_RESPONSE_SessionKey = "sessionKey";
     public static final String TKS_RESPONSE_EncSessionKey = "encSessionKey";
     public static final String TKS_RESPONSE_KEK_DesKey = "kek_wrapped_desKey";
-    public static final String TKS_RESPONSE_DRM_Trans_DesKey = "drm_trans_wrapped_desKey";
+    public static final String TKS_RESPONSE_DRM_Trans_DesKey = "drm_trans_desKey";
     public static final String TKS_RESPONSE_KeyCheck = "keycheck";
     public static final String TKS_RESPONSE_HostCryptogram = "hostCryptogram";
 
@@ -66,6 +66,8 @@ public interface IRemoteRequest {
     public static final String CA_ProfileId = "profileId";
     public static final String CA_ENROLL_screenname = "screenname";
     public static final String CA_ENROLL_publickey = "publickey";
+    public static final String CA_ENROLL_subjectdn = "subject";
+    public static final String CA_ENROLL_san_num = "req_san_entries";
     public static final String CA_RenewedCertificate = "renewedCertificate";
     public static final String CA_RENEWAL_SerialNum = "serial_num";
     public static final String CA_RENEWAL= "renewal";

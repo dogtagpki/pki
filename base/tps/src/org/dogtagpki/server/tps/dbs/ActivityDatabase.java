@@ -41,6 +41,7 @@ public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
     public final static String OP_DELETE = "delete"; // delete a token
     //public final static String OP_MODIFY_AUDIT_SIGNING = "modify_audit_signing";
     public final static String OP_ENROLLMENT = "enrollment";
+    public final static String OP_RECOVERY = "recovery";
     public final static String OP_RENEWAL = "renewal";
     public final static String OP_PIN_RESET = "pin_reset";
     public final static String OP_FORMAT = "format";

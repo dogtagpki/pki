@@ -152,6 +152,7 @@ public class TPSEngine {
     /* External reg values */
 
     public static final String CFG_EXTERNAL_REG = "externalReg";
+    public static final String CFG_ER_DELEGATION = "delegation";
 
     /* misc values */
 

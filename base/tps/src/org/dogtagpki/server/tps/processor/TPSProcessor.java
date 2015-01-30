@@ -24,9 +24,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,6 +50,9 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.main.ExternalRegAttrs;
+//import org.dogtagpki.server.tps.main.ExternalRegCertToDelete;
+import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.server.tps.profile.BaseTokenProfileResolver;
 import org.dogtagpki.server.tps.profile.TokenProfileParams;
 import org.dogtagpki.tps.apdu.APDU;
@@ -106,6 +112,8 @@ public class TPSProcessor {
     protected TPSSession session;
     //protected TokenRecord tokenRecord;
     protected String selectedTokenType;
+    IAuthToken authToken;
+    List<String> ldapStringAttrs;
 
     protected String userid = null;
     protected String currentTokenOperation;
@@ -155,7 +163,7 @@ public class TPSProcessor {
 
         TokenRecord tokenRecord = getTokenRecord();
 
-        if(tokenRecord == null) {
+        if (tokenRecord == null) {
             throw new NullPointerException("TPSProcessor.setSelectedTokenType: Can't find token record for token!");
         }
         tokenRecord.setType(selectedTokenType);
@@ -750,6 +758,20 @@ public class TPSProcessor {
             CMS.debug(auditMsg);
             throw new EBaseException(auditMsg);
         }
+        return getAuthentication(authId);
+    }
+
+    public TPSAuthenticator getAuthentication(String authId)
+            throws EBaseException {
+        CMS.debug("TPSProcessor.getAuthentication");
+        String auditMsg = null;
+
+        if (authId.isEmpty()) {
+            auditMsg = "TPSProcessor.getAuthentication: missing parameters: authId";
+            CMS.debug(auditMsg);
+            throw new EBaseException(auditMsg);
+        }
+        IConfigStore configStore = CMS.getConfigStore();
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -765,7 +787,46 @@ public class TPSProcessor {
             throw new EBaseException(auditMsg);
         }
         authInst.setAuthCredName(authCredName);
+
+        // set ldapStringAttrs for later processing
+        String authLdapStringAttrs = "auths.instance." + authId + ".ldapStringAttributes";
+        CMS.debug("TPSProcessor.getAuthentication: getting config: " +
+                authLdapStringAttrs);
+        String authLdapStringAttributes = configStore.getString(authLdapStringAttrs, "");
+        if (authLdapStringAttributes != null && !authLdapStringAttributes.equals("")) {
+            auditMsg = "TPSProcessor.getAuthentication: got ldapStringAttributes... setting up";
+            CMS.debug(auditMsg);
+            ldapStringAttrs = Arrays.asList(authLdapStringAttributes.split(","));
+        } else {
+            // not set is okay
+            auditMsg = "TPSProcessor.getAuthentication: config param not set:" + authLdapStringAttributes;
+            CMS.debug(auditMsg);
+        }
+
         return authInst;
+    }
+
+
+    public void processAuthentication(String op, TPSAuthenticator userAuth, String cuid, TokenRecord tokenRecord)
+            throws EBaseException, TPSException, IOException {
+        IAuthCredentials userCred;
+        String method = "TPSProcessor:processAuthentication:";
+        String opPrefix;
+        if (op.equals(TPSEngine.FORMAT_OP))
+            opPrefix = TPSEngine.OP_FORMAT_PREFIX;
+        else if (op.equals(TPSEngine.ENROLL_OP))
+            opPrefix = TPSEngine.OP_ENROLL_PREFIX;
+        else
+            opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
+
+        userCred = requestUserId(op, cuid, userAuth, beginMsg.getExtensions());
+        userid = (String) userCred.get(userAuth.getAuthCredName());
+        CMS.debug(method + op + " userCred (attempted) userid=" + userid);
+        tokenRecord.setUserID(userid);
+        authToken = authenticateUser(op, userAuth, userCred);
+        userid = authToken.getInString("userid");
+        tokenRecord.setUserID(userid);
+        CMS.debug(method + " auth token userid=" + userid);
     }
 
     /**
@@ -782,9 +843,7 @@ public class TPSProcessor {
             TPSAuthenticator userAuth,
             IAuthCredentials userCred)
             throws EBaseException, TPSException {
-        /**
-         * TODO: isExternalReg is not handled until decision made
-         */
+
         String auditMsg = null;
         CMS.debug("TPSProcessor.authenticateUser");
         if (op.isEmpty() || userAuth == null || userCred == null) {
@@ -796,12 +855,17 @@ public class TPSProcessor {
 
         try {
             // Authenticate user
-            IAuthToken aToken = auth.authenticate(userCred);
-            if (aToken != null) {
+            authToken = auth.authenticate(userCred);
+            if (authToken != null) {
                 CMS.debug("TPSProcessor.authenticateUser: authentication success");
-                return aToken;
+                Enumeration<String> n = authToken.getElements();
+                while (n.hasMoreElements()) {
+                    String name = n.nextElement();
+                    CMS.debug("TPSProcessor.authenticateUser: got authToken val name:" + name);
+                }
+                return authToken;
             } else {
-                CMS.debug("TPSProcessor.authenticateUser: authentication failure with aToken null");
+                CMS.debug("TPSProcessor.authenticateUser: authentication failure with authToken null");
                 throw new TPSException("TPS error user authentication failed.",
                         TPSStatus.STATUS_ERROR_LOGIN);
             }
@@ -1249,14 +1313,126 @@ public class TPSProcessor {
         CMS.debug(method + ": done for cuid:" + cuid);
     }
 
+    /*
+     * processExternalRegAttrs :
+     * - retrieve from authToken relevant attributes for externalReg
+     * - parse the multi-valued attributes
+     * @returns ExternalRegAttrs
+     */
+    ExternalRegAttrs processExternalRegAttrs(/*IAuthToken authToken,*/String authId) throws EBaseException {
+        String method = "processExternalRegAttrs";
+        String configName;
+        String tVal;
+        String[] vals;
+        ExternalRegAttrs erAttrs = new ExternalRegAttrs(authId);
+        IConfigStore configStore = CMS.getConfigStore();
+
+        CMS.debug(method + ": getting from authToken:"
+                + erAttrs.ldapAttrNameTokenType);
+        vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenType);
+        if (vals == null) {
+            // get the default externalReg tokenType
+            configName = "externalReg.default.tokenType";
+            tVal = configStore.getString(configName,
+                    "externalRegAddToToken");
+            CMS.debug(method + ": set default tokenType:" + tVal);
+        } else {
+            CMS.debug(method + ": retrieved tokenType:" + vals[0]);
+        }
+        erAttrs.setTokenType(vals[0]);
+
+        CMS.debug(method + ": getting from authToken:"
+                + erAttrs.ldapAttrNameTokenCUID);
+        vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenCUID);
+        if (vals != null) {
+            CMS.debug(method + ": retrieved cuid:" + vals[0]);
+            erAttrs.setTokenCUID(vals[0]);
+        }
+
+        /*
+         * certs to be recovered for this user
+         *     - multi-valued
+         */
+        CMS.debug(method + ": getting from authToken:"
+                + erAttrs.ldapAttrNameCertsToRecover);
+        vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
+        if (vals != null) {
+            for (String val : vals) {
+                CMS.debug(method + ": retrieved certsToRecover:" + val);
+                /*
+                 * Each cert is represented as
+                 *    (serial#, caID, keyID, drmID)
+                 * e.g.
+                 *    (1234, ca1, 81, drm1)
+                 *    note: numbers above are in decimal
+                 */
+                String[] items = val.split(",");
+                ExternalRegCertToRecover erCert =
+                        new ExternalRegCertToRecover();
+                for (int i = 0; i < items.length; i++) {
+                    if (i == 0)
+                        erCert.setSerial(new BigInteger(items[i]));
+                    else if (i == 1)
+                        erCert.setCaConn(items[i]);
+                    else if (i == 2)
+                        erCert.setKeyid(new BigInteger(items[i]));
+                    else if (i == 3)
+                        erCert.setKraConn(items[i]);
+                }
+                erAttrs.addCertToRecover(erCert);
+            }
+        }
+
+        /*
+         * certs to be deleted for this user
+         *     - multi-valued
+         * TODO: decide if we need CertsToDelete or not
+         *
+        CMS.debug(method + ": getting from authToken:"
+                + erAttrs.ldapAttrNameCertsToDelete);
+        vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToDelete);
+        if (vals != null) {
+            for (String val : vals) {
+                CMS.debug(method + ": retrieved certsToDelete:" + val);
+                
+                //  Each cert is represented as
+                //     (serial#, caID, revokeOnDelete)
+                //  e.g.
+                //     (234, ca1, true)
+                //     note: number above is in decimal
+                 
+                String[] items = val.split(",");
+                ExternalRegCertToDelete erCert =
+                        new ExternalRegCertToDelete();
+                for (int i = 0; i < items.length; i++) {
+                    if (i == 0)
+                        erCert.setSerial(new BigInteger(items[i]));
+                    else if (i == 1)
+                        erCert.setCaConn(items[i]);
+                    else if (i == 2) {
+                        if (items[i].equals("true"))
+                            erCert.setRevoke(true);
+                        else
+                            erCert.setRevoke(false);
+                    }
+                }
+                erAttrs.addCertsToDelete(erCert);
+            }
+        }
+        */
+
+        return erAttrs;
+    }
+
     protected void format(boolean skipAuth) throws TPSException, IOException {
 
+        IConfigStore configStore = CMS.getConfigStore();
+        String configName = null;
         String auditMsg = null;
         String appletVersion = null;
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
-        boolean isExternalReg = false;
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
         try {
@@ -1306,8 +1482,97 @@ public class TPSProcessor {
         IAuthCredentials userCred =
                 new com.netscape.certsrv.authentication.AuthCredentials();
         if (isExternalReg) {
-            //ToDo, do some external Reg stuff along with authentication
-            tokenType = "externalRegAddToToken";
+            CMS.debug("In TPSProcessor.format isExternalReg: ON");
+            /*
+              need to reach out to the Registration DB (authid)
+              Entire user entry should be retrieved and parsed, if needed
+              The following are retrieved:
+                  externalReg.tokenTypeAttributeName=tokenType
+                  externalReg.certs.recoverAttributeName=certsToRecover
+             */
+            /*
+             * - tokenType id NULL at this point for isExternalReg
+             * - loginRequest cannot be per profile(tokenType) for isExternalReg
+             *   because of the above; now it is per instance:
+             *     "externalReg.format.loginRequest.enable"
+             *     "externalReg.default.tokenType"
+             *   it is not enabled by default.
+             */
+            configName = "externalReg.format.loginRequest.enable";
+            boolean requireLoginRequest;
+            try {
+                requireLoginRequest = configStore.getBoolean(configName, false);
+            } catch (EBaseException e) {
+                CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
+                auditMsg = "TPS error getting config values from config store." + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
+
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+            if (!requireLoginRequest) {
+                CMS.debug("In TPSProcessor.format: no Login required");
+                // get the default externalReg tokenType
+                configName = "externalReg.default.tokenType";
+                try {
+                    tokenType = configStore.getString(configName,
+                            "externalRegAddToToken");
+                    setSelectedTokenType(tokenType);
+                } catch (EBaseException e) {
+                    CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
+                    auditMsg = "TPS error getting config values from config store." + e.toString();
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                            "failure");
+
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                }
+                CMS.debug("In TPSProcessor.format: isExternalReg: setting tokenType to default first:" +
+                        tokenType);
+            } else {
+                /* get user login and password - set in "login" */
+                CMS.debug("In TPSProcessor.format: isExternalReg: calling requestUserId");
+                configName = "externalReg.authId";
+                String authId;
+                try {
+                    authId = configStore.getString(configName);
+                } catch (EBaseException e) {
+                    CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
+                    auditMsg = "TPS error getting config values from config store." + e.toString();
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                            "failure");
+
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                }
+                try {
+                    TPSAuthenticator userAuth =
+                            getAuthentication(authId);
+
+                    processAuthentication(TPSEngine.FORMAT_OP, userAuth, cuid, tokenRecord);
+                } catch (Exception e) {
+                    // all exceptions are considered login failure
+                    CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
+                    auditMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
+
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                            "failure");
+
+                    throw new TPSException(auditMsg,
+                            TPSStatus.STATUS_ERROR_LOGIN);
+                }
+
+                ExternalRegAttrs erAttrs;
+                try {
+                    erAttrs = processExternalRegAttrs(/*authToken,*/authId);
+                } catch (EBaseException ee) {
+                    auditMsg = "processExternalRegAttrs: " + ee.toString();
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                            "failure");
+
+                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                }
+                session.setExternalRegAttrs(erAttrs);
+                setSelectedTokenType(erAttrs.getTokenType());
+            }
         } else {
             CMS.debug("In TPSProcessor.format isExternalReg: OFF");
             /*
@@ -1330,8 +1595,7 @@ public class TPSProcessor {
         // isExternalReg : user already authenticated earlier
         if (!isExternalReg) {
             // authenticate per profile/tokenType configuration
-            String configName = TPSEngine.OP_FORMAT_PREFIX + "." + tokenType + ".auth.enable";
-            IConfigStore configStore = CMS.getConfigStore();
+            configName = TPSEngine.OP_FORMAT_PREFIX + "." + tokenType + ".auth.enable";
             boolean isAuthRequired;
             try {
                 CMS.debug("TPSProcessor.format: getting config: " + configName);
@@ -1349,16 +1613,7 @@ public class TPSProcessor {
                 try {
                     TPSAuthenticator userAuth =
                             getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);
-                    userCred = requestUserId("format", cuid, userAuth, beginMsg.getExtensions());
-                    userid = (String) userCred.get(userAuth.getAuthCredName());
-                    CMS.debug("TPSProcessor.format: userCred (attempted) userid=" + userid);
-                    // initialize userid first for logging purposes in case authentication fails
-                    tokenRecord.setUserID(userid);
-                    IAuthToken authToken = authenticateUser("format", userAuth, userCred);
-                    userid = authToken.getInString("userid");
-                    tokenRecord.setUserID(userid);
-                    CMS.debug("TPSProcessor.format:: auth token userid=" + userid);
-                    // TODO: should check if userid match?
+                    processAuthentication(TPSEngine.FORMAT_OP, userAuth, cuid, tokenRecord);
                 } catch (Exception e) {
                     // all exceptions are considered login failure
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
@@ -1373,13 +1628,7 @@ public class TPSProcessor {
             } // TODO: if no auth required, should wipe out existing tokenRecord entry data later?
         }
 
-        /**
-         * TODO:
-         * isExternalReg is not handled beyond this point until decided
-         */
-
         //Now check provided profile
-
         checkProfileStateOK();
 
         if (isTokenPresent) {
@@ -1538,8 +1787,10 @@ public class TPSProcessor {
 
             opDefault = TPSEngine.CFG_DEF_PIN_RESET_PROFILE_RESOLVER;
             opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
-        } else{
-            throw new TPSException("TPSProcessor.getResolverInstanceName: Invalid operation type, can not calculate resolver instance!",TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        } else {
+            throw new TPSException(
+                    "TPSProcessor.getResolverInstanceName: Invalid operation type, can not calculate resolver instance!",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         String config = opPrefix +
@@ -2390,61 +2641,88 @@ public class TPSProcessor {
         return newPin;
     }
 
-    protected String mapPattern(LinkedHashMap<String, String> map, String pattern) throws TPSException {
+    /*
+     * mapPattern maps pattern with $...$ tokens
+     * e.g.
+     * dnpattern=cn=$auth.firstname$.$auth.lastname$,e=$auth.mail$,o=Example Org
+     *   where from ldap,
+     *       value of firstname is John
+     *       value of lastname is Doe
+     *       value of mail is JohnDoe@EXAMPLE.org
+     *   then the returned value will be:
+     *       John.Doe,e=JohnDoe@EXAMPLE.org,o=Example Org
+     *
+     * TODO: It could be made more efficient
+     */
+    protected String mapPattern(LinkedHashMap<String, String> map, String inPattern) throws TPSException {
 
-        //Right now only support one pattern to match within pattern: for instance:
-        // "encryption key for $userid$ , not only the one "$userid$" pattern.
+        String result = "";
 
-        String result = null;
-
-        if (pattern == null || map == null) {
+        if (inPattern == null || map == null) {
             throw new TPSException("TPSProcessor.mapPattern: Illegal input paramters!",
                     TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
 
         final char delim = '$';
-        int firstPos = 0;
-        int nextPos = 0;
-        String patternToMap = null;
-        String patternMapped = null;
+        String pattern = inPattern;
 
-        firstPos = pattern.indexOf(delim);
-        nextPos = pattern.indexOf(delim, firstPos + 1);
-
-        if ((nextPos - firstPos) <= 1) {
-            return pattern;
-        }
-
-        patternToMap = pattern.substring(firstPos + 1, nextPos);
-
-        CMS.debug("TPSProcessor.mapPattern: patternTo map: " + patternToMap);
-
-        String piece1 = "";
-        if (firstPos >= 1)
-            piece1 = pattern.substring(0, firstPos);
-
-        String piece2 = "";
-        if (nextPos < (pattern.length() - 1))
-            piece2 = pattern.substring(nextPos + 1);
-
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            String key = entry.getKey();
-
-            String value = entry.getValue();
-            CMS.debug("TPSProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
-
-            if (key.equals(patternToMap)) {
-                CMS.debug("TPSProcessor.mapPattern: found match: key: " + key + " mapped to: " + value);
-                patternMapped = value;
+        while (true) {
+            String patternToMap = null;
+            int firstPos = 0;
+            int nextPos = 0;
+            CMS.debug("TPSProcessor.mapPattern: pattern =" + pattern);
+            String patternMapped = "";
+            firstPos = pattern.indexOf(delim);
+            if (firstPos == -1) {
+                //no more token
                 break;
             }
+            nextPos = pattern.indexOf(delim, firstPos + 1);
 
+            if ((nextPos - firstPos) <= 1) {
+                //  return pattern;
+                break; // no more pattern to match
+            }
+
+            patternToMap = pattern.substring(firstPos + 1, nextPos);
+
+            CMS.debug("TPSProcessor.mapPattern: patternTo map: " + patternToMap);
+
+            String piece1 = "";
+            if (firstPos >= 1)
+                piece1 = pattern.substring(0, firstPos);
+
+            String piece2 = "";
+            if (nextPos < (pattern.length() - 1))
+                piece2 = pattern.substring(nextPos + 1);
+
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                String key = entry.getKey();
+
+                String value = entry.getValue();
+                CMS.debug("TPSProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
+
+                if (key.equalsIgnoreCase(patternToMap)) {
+                    CMS.debug("TPSProcessor.mapPattern: found match: key: " + key + " mapped to: " + value);
+                    patternMapped = value;
+                    CMS.debug("TPSProcessor.mapPattern: pattern mapped: " + patternMapped);
+                    break;
+                }
+
+            }
+
+            // if patternMapped wasn't mapped, it will be ""
+            result = (piece1 + patternMapped + piece2);
+            pattern = result;
         }
 
-        result = piece1 + patternMapped + piece2;
-
-        CMS.debug("TPSProcessor.mapPattern: returning: " + result);
-        return result;
+        if (result.equals("")) {
+            CMS.debug("TPSProcessor.mapPattern: returning: " + inPattern);
+            return (inPattern);
+        } else {
+            CMS.debug("TPSProcessor.mapPattern: returning: " + result);
+            return result;
+        }
 
     }
 
@@ -2540,20 +2818,18 @@ public class TPSProcessor {
 
     protected void checkAndAuthenticateUser(AppletInfo appletInfo, String tokenType) throws TPSException {
         IAuthCredentials userCred;
-        IAuthToken authToken;
         TokenRecord tokenRecord = getTokenRecord();
         String method = "checkAndAuthenticateUser";
 
         String opPrefix = null;
 
-        if(TPSEngine.ENROLL_OP.equals( currentTokenOperation)) {
+        if (TPSEngine.ENROLL_OP.equals(currentTokenOperation)) {
             opPrefix = TPSEngine.OP_ENROLL_PREFIX;
         } else if (TPSEngine.FORMAT_OP.equals(currentTokenOperation)) {
             opPrefix = TPSEngine.OP_FORMAT_PREFIX;
         } else {
             opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
         }
-
 
         if (!isExternalReg) {
             // authenticate per profile/tokenType configuration
@@ -2574,25 +2850,13 @@ public class TPSProcessor {
                         TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
 
-
-
             CMS.debug(method + ": opPrefox: " + opPrefix);
 
             if (isAuthRequired) {
                 try {
                     TPSAuthenticator userAuth =
                             getAuthentication(opPrefix, tokenType);
-                    userCred = requestUserId(TPSEngine.ENROLL_OP, appletInfo.getCUIDhexString(), userAuth,
-                            beginMsg.getExtensions());
-                    userid = (String) userCred.get(userAuth.getAuthCredName());
-                    CMS.debug("TPSEnrollProcessor.checkAndAuthenticateUser: userCred (attempted) userid=" + userid);
-                    // initialize userid first for logging purposes in case authentication fails
-                    tokenRecord.setUserID(userid);
-                    authToken = authenticateUser(TPSEngine.ENROLL_OP, userAuth, userCred);
-                    userid = authToken.getInString("userid");
-                    tokenRecord.setUserID(userid);
-                    CMS.debug("TPSProcessor.checkAndAuthenticateUser: auth passed: userid: "
-                            + authToken.get("userid"));
+                    processAuthentication(TPSEngine.ENROLL_OP, userAuth, appletInfo.getCUIDhexString(), tokenRecord);
 
                 } catch (Exception e) {
                     // all exceptions are considered login failure

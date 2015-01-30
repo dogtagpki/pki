@@ -94,19 +94,19 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             }
 
             request = IRemoteRequest.KRA_KEYGEN_Archive + "=" +
-            archive +
-            "&" + IRemoteRequest.TOKEN_CUID + "=" +
-            cuid +
-            "&" + IRemoteRequest.KRA_UserId + "=" +
-            userid +
-            "&" + IRemoteRequest.KRA_KEYGEN_KeyType + "=" +
-            "EC" +
-            "&" + IRemoteRequest.KRA_KEYGEN_EC_KeyCurve + "=" +
-            eckeycurve +
-            "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-            sDesKey;
+                    archive +
+                    "&" + IRemoteRequest.TOKEN_CUID + "=" +
+                    cuid +
+                    "&" + IRemoteRequest.KRA_UserId + "=" +
+                    userid +
+                    "&" + IRemoteRequest.KRA_KEYGEN_KeyType + "=" +
+                    "EC" +
+                    "&" + IRemoteRequest.KRA_KEYGEN_EC_KeyCurve + "=" +
+                    eckeycurve +
+                    "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
+                    sDesKey;
 
-           CMS.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
+            CMS.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
 
             resp =
                     conn.send("GenerateKeyPair",
@@ -136,8 +136,9 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
         //For some reason the send method can return null and not throw an exception.
         // Check here;
 
-        if(resp == null) {
-            throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): No response object returned from connection.");
+        if (resp == null) {
+            throw new EBaseException(
+                    "KRARemoteRequestHandler: serverSideKeyGen(): No response object returned from connection.");
         }
 
         String content = resp.getContent();
@@ -155,7 +156,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             Integer ist = new Integer(IRemoteRequest.RESPONSE_STATUS_NOT_FOUND);
             String value = (String) response.get(IRemoteRequest.RESPONSE_STATUS);
 
-            if(value == null) {
+            if (value == null) {
                 throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): Invalide status returned!");
             }
 
