@@ -17,288 +17,226 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
-import java.security.MessageDigest;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.INTEGER;
-import org.mozilla.jss.asn1.NULL;
-import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.asn1.OCTET_STRING;
-import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
-import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.GoodInfo;
+import com.netscape.cmsutil.ocsp.OCSPProcessor;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
-import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
-import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
-import com.netscape.cmsutil.util.Utils;
 
 /**
- * This class implements a OCSP client for testing.
+ * This class implements an OCSP command line interface.
  *
  * @version $Revision$, $Date$
  */
 public class OCSPClient {
-    private String _host = null;
-    private int _port = 0;
 
-    public OCSPClient(String host, int port, String dbdir)
-            throws Exception {
-        _host = host;
-        _port = port;
-        CryptoManager.initialize(dbdir);
+    public static Options createOptions() throws UnknownHostException {
+
+        Options options = new Options();
+
+        Option option = new Option("d", true, "Security database location (default: current directory)");
+        option.setArgName("database");
+        options.addOption(option);
+
+        option = new Option("h", true, "OCSP server hostname (default: "+ InetAddress.getLocalHost().getCanonicalHostName() + ")");
+        option.setArgName("hostname");
+        options.addOption(option);
+
+        option = new Option("p", true, "OCSP server port number (default: 8080)");
+        option.setArgName("port");
+        options.addOption(option);
+
+        option = new Option("t", true, "OCSP service path (default: /ocsp/ee/ocsp)");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option("c", true, "CA certificate nickname (default: CA Signing Certificate)");
+        option.setArgName("nickname");
+        options.addOption(option);
+
+        option = new Option("n", true, "Number of submissions (default: 1)");
+        option.setArgName("times");
+        options.addOption(option);
+
+        option = new Option(null, "serial", true, "Serial number of certificate to be checked");
+        option.setArgName("serial");
+        options.addOption(option);
+
+        option = new Option(null, "input", true, "Input file containing DER-encoded OCSP request");
+        option.setArgName("input");
+        options.addOption(option);
+
+        option = new Option(null, "output", true, "Output file to store DER-encoded OCSP response");
+        option.setArgName("output");
+        options.addOption(option);
+
+        options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "help", false, "Show help message.");
+
+        return options;
     }
 
-    public void send(String uri, String nickname, int serialno, String output)
-            throws Exception {
-        CryptoManager manager = CryptoManager.getInstance();
-        X509Certificate caCert = manager.findCertByNickname(nickname);
-        OCSPRequest request = getOCSPRequest(caCert, serialno);
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        request.encode(os);
-        byte request_data[] = os.toByteArray();
-        sendOCSPRequest(uri, _host, _port, request_data, output);
+    public static void printHelp() throws Exception {
+        System.out.println("Usage: OCSPClient [OPTIONS]");
+        System.out.println();
+        System.out.println("Options:");
+        System.out.println("  -d <database>        Security database location (default: current directory)");
+        System.out.println("  -h <hostname>        OCSP server hostname (default: "+ InetAddress.getLocalHost().getCanonicalHostName() + ")");
+        System.out.println("  -p <port>            OCSP server port number (default: 8080)");
+        System.out.println("  -t <path>            OCSP service path (default: /ocsp/ee/ocsp)");
+        System.out.println("  -c <nickname>        CA certificate nickname (defaut: CA Signing Certificate)");
+        System.out.println("  -n <times>           Number of submissions (default: 1)");
+        System.out.println();
+        System.out.println("  --serial <serial>    Serial number of certificate to be checked");
+        System.out.println("  --input <input>      Input file containing DER-encoded OCSP request");
+        System.out.println("  --output <output>    Output file to store DER-encoded OCSP response");
+        System.out.println();
+        System.out.println("  -v, --verbose        Run in verbose mode.");
+        System.out.println("      --help           Show help message.");
     }
 
-    public void sendRequestData(String uri, String nickname, byte request_data[], String output)
-            throws Exception {
-        sendOCSPRequest(uri, _host, _port, request_data, output);
+    public static void printError(String message) {
+        System.err.println("ERROR: " + message);
+        System.err.println("Try 'OCSPClient --help' for more information.");
     }
 
-    public OCSPRequest getOCSPRequest(X509Certificate caCert, int serialno)
-             throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SHA");
+    public static void main(String args[]) throws Exception {
 
-        // calculate issuer key hash
-        X509CertImpl x509Cert = new X509CertImpl(caCert.getEncoded());
-        X509Key x509key = (X509Key) x509Cert.getPublicKey();
-        byte issuerKeyHash[] = md.digest(x509key.getKey());
+        Options options = createOptions();
+        CommandLine cmd = null;
 
-        // calculate name hash
-        X500Name name = (X500Name) x509Cert.getSubjectDN();
-        byte issuerNameHash[] = md.digest(name.getEncoded());
-        // constructing the OCSP request
-        CertID certid = new CertID(
-                new AlgorithmIdentifier(
-                        new OBJECT_IDENTIFIER("1.3.14.3.2.26"), new NULL()),
-                new OCTET_STRING(issuerNameHash),
-                new OCTET_STRING(issuerKeyHash),
-                new INTEGER(serialno));
-        Request request = new Request(certid, null);
-        SEQUENCE requestList = new SEQUENCE();
-        requestList.addElement(request);
-        TBSRequest tbsRequest = new TBSRequest(null, null, requestList, null);
-        return new OCSPRequest(tbsRequest, null);
-    }
-
-    public void sendOCSPRequest(String uri, String host, int port,
-            byte request_data[], String output) throws Exception {
-        Socket socket = null;
-        DataOutputStream dos = null;
-        InputStream iiss = null;
-        FileOutputStream fof = null;
-        BufferedInputStream fis = null;
         try {
-            socket = new Socket(host, port);
+            CommandLineParser parser = new PosixParser();
+            cmd = parser.parse(options, args);
 
-            // send request
-            System.out.println("URI: " + uri);
-
-            dos = new DataOutputStream(socket.getOutputStream());
-            dos.writeBytes("POST " + uri + " HTTP/1.0\r\n");
-            dos.writeBytes("Content-length: " + request_data.length + "\r\n");
-            dos.writeBytes("\r\n");
-            dos.write(request_data);
-            dos.flush();
-
-            System.out.println("Data Length: " + request_data.length);
-            System.out.println("Data: " + Utils.base64encode(request_data));
-
-            iiss = socket.getInputStream();
-            fof = new FileOutputStream(output);
-            boolean startSaving = false;
-            int sum = 0;
-            boolean hack = false;
-            try {
-                while (true) {
-                    int r = iiss.read();
-                    if (r == -1)
-                        break;
-                    if (r == 10) {
-                        sum++;
-                    }
-                    if (sum == 6) {
-                        startSaving = true;
-                        continue;
-                    }
-                    if (startSaving) {
-                        if (hack) {
-                            fof.write(r);
-                        }
-                        if (hack == false) {
-                            hack = true;
-                        }
-                    }
-                } // while
-            } catch (IOException e) {
-            }
-            // parse OCSPResponse
-            fis = new BufferedInputStream(
-                    new FileInputStream(output));
-            OCSPResponse resp = (OCSPResponse)
-                    OCSPResponse.getTemplate().decode(fis);
-            ResponseBytes bytes = resp.getResponseBytes();
-            BasicOCSPResponse basic = (BasicOCSPResponse)
-                    BasicOCSPResponse.getTemplate().decode(
-                            new ByteArrayInputStream(bytes.getResponse().toByteArray()));
-            ResponseData rd = basic.getResponseData();
-            for (int i = 0; i < rd.getResponseCount(); i++) {
-                SingleResponse rd1 = rd.getResponseAt(i);
-                if (rd1 == null) {
-                    throw new Exception("No OCSP Response data.");
-                }
-                System.out.println("CertID.serialNumber=" +
-                        rd1.getCertID().getSerialNumber());
-                CertStatus status1 = rd1.getCertStatus();
-                if (status1 instanceof GoodInfo) {
-                    System.out.println("CertStatus=Good");
-                }
-                if (status1 instanceof UnknownInfo) {
-                    System.out.println("CertStatus=Unknown");
-                }
-                if (status1 instanceof RevokedInfo) {
-                    System.out.println("CertStatus=Revoked");
-                }
-            }
-        } finally {
-            if (socket != null)
-                socket.close();
-            if (dos != null)
-                dos.close();
-            if (iiss != null)
-                iiss.close();
-            if (fof != null)
-                fof.close();
-            if (fis != null)
-                fis.close();
-
+        } catch (Exception e) {
+            printError(e.getMessage());
+            System.exit(1);
         }
-    }
 
-    public static void printUsage() {
-        System.out.println("Usage: OCSPClient " +
-                "<host> <port> <dbdir> <nickname> <serialno_or_filename> <output> <times>");
-        System.out.println("  <host>     = OCSP server hostname");
-        System.out.println("  <port>     = OCSP server port number");
-        System.out.println("  <dbdir>    = Certificate Database Directory");
-        System.out.println("  <nickname> = Nickname of CA Certificate");
-        System.out.println(
-                "  <serialno_or_filename> = Serial Number Being Checked, Or Name of file that contains the request");
-        System.out.println("  <output>   = Filename of Response in DER encoding");
-        System.out.println("  <times>    = Submit Request Multiple Times");
-        System.out.println("  [<uri>]    = OCSP Service URI (i.e. /ocsp/ee/ocsp)");
-    }
-
-    public static void main(String args[]) {
-        if (args.length != 7 && args.length != 8) {
-            System.out.println("ERROR: Invalid number of arguments - got "
-                              + args.length + " expected 7!");
-            for (int i = 0; i < args.length; i++) {
-                System.out.println("arg[" + i + "]=" + args[i]);
-            }
-            printUsage();
+        if (cmd.hasOption("help")) {
+            printHelp();
             System.exit(0);
         }
 
-        String host = args[0];
-        int port = -1;
-        try {
-            port = Integer.parseInt(args[1]);
-        } catch (Exception e) {
-            System.out.println("Error: Invalid Port Number");
-            printUsage();
-            System.exit(0);
+        boolean verbose = cmd.hasOption("v");
+
+        String databaseDir = cmd.getOptionValue("d", ".");
+        String hostname = cmd.getOptionValue("h", InetAddress.getLocalHost().getCanonicalHostName());
+        int port = Integer.parseInt(cmd.getOptionValue("p", "8080"));
+        String path = cmd.getOptionValue("t", "/ocsp/ee/ocsp");
+        String caNickname = cmd.getOptionValue("c", "CA Signing Certificate");
+        int times = Integer.parseInt(cmd.getOptionValue("n", "1"));
+
+        String input = cmd.getOptionValue("input");
+        String serial = cmd.getOptionValue("serial");
+        String output = cmd.getOptionValue("output");
+
+        if (times < 1) {
+            printError("Invalid number of submissions");
+            System.exit(1);
         }
-        String dbdir = args[2];
-        String nickname = args[3];
-        int serialno = -1;
-        byte data[] = null;
+
         try {
-            serialno = Integer.parseInt(args[4]);
-        } catch (Exception e) {
-            FileInputStream fis = null;
-            try {
-                System.out.println("Warning: Serial Number not found. It may be a filename.");
-                /* it could be a file name */
-                fis = new FileInputStream(args[4]);
-                System.out.println("File Size: " + fis.available());
-                data = new byte[fis.available()];
-                fis.read(data);
-            } catch (Exception e1) {
-                System.out.println("Error: Invalid Serial Number or File Name");
-                printUsage();
-                System.exit(0);
-            } finally {
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+            if (verbose) System.out.println("Initializing security database");
+            CryptoManager.initialize(databaseDir);
+
+            String url = "http://" + hostname + ":" + port + path;
+
+            OCSPProcessor processor = new OCSPProcessor();
+            processor.setVerbose(verbose);
+
+            OCSPRequest request;
+            if (serial != null) {
+                if (verbose) System.out.println("Creating request for serial number " + serial);
+
+                BigInteger serialNumber = new BigInteger(serial);
+                request = processor.createRequest(caNickname, serialNumber);
+
+            } else if (input != null) {
+                if (verbose) System.out.println("Loading request from " + input);
+
+                try (FileInputStream in = new FileInputStream(input)) {
+                    byte[] data = new byte[in.available()];
+                    in.read(data);
+                    request = processor.createRequest(data);
                 }
+
+            } else {
+                throw new Exception("Missing serial number or input file.");
             }
-        }
-        String output = args[5];
-        int times = 1;
-        try {
-            times = Integer.parseInt(args[6]);
-        } catch (Exception e) {
-            System.out.println("Error: Invalid Times");
-            printUsage();
-            System.exit(0);
-        }
-        String uri = "/ocsp/ee/ocsp";
-        if (args.length > 7) {
-            uri = args[7];
-        }
-        try {
-            OCSPClient client =
-                    new OCSPClient(host, port, dbdir);
+
+            OCSPResponse response = null;
             for (int i = 0; i < times; i++) {
-                if (data != null) {
-                    client.sendRequestData(uri, nickname, data, output);
-                } else {
-                    client.send(uri, nickname, serialno, output);
+
+                if (verbose) System.out.println("Submitting OCSP request");
+                response = processor.submitRequest(url, request);
+
+                ResponseBytes bytes = response.getResponseBytes();
+                BasicOCSPResponse basic = (BasicOCSPResponse)BasicOCSPResponse.getTemplate().decode(
+                        new ByteArrayInputStream(bytes.getResponse().toByteArray()));
+
+                ResponseData rd = basic.getResponseData();
+                for (int j = 0; j < rd.getResponseCount(); j++) {
+                    SingleResponse sr = rd.getResponseAt(j);
+
+                    if (sr == null) {
+                        throw new Exception("No OCSP Response data.");
+                    }
+
+                    System.out.println("CertID.serialNumber=" +
+                            sr.getCertID().getSerialNumber());
+
+                    CertStatus status = sr.getCertStatus();
+                    if (status instanceof GoodInfo) {
+                        System.out.println("CertStatus=Good");
+
+                    } else if (status instanceof UnknownInfo) {
+                        System.out.println("CertStatus=Unknown");
+
+                    } else if (status instanceof RevokedInfo) {
+                        System.out.println("CertStatus=Revoked");
+                    }
                 }
             }
-            System.out.println("Success: Output " + output);
+
+            if (output != null) {
+                if (verbose) System.out.println("Storing response into " + output);
+
+                try (FileOutputStream out = new FileOutputStream(output)) {
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    response.encode(os);
+                    out.write(os.toByteArray());
+                }
+
+                System.out.println("Success: Output " + output);
+            }
+
         } catch (Exception e) {
-            System.out.println("Error: " + e.toString());
-            printUsage();
-            System.exit(0);
+            if (verbose) e.printStackTrace();
+            printError(e.getMessage());
+            System.exit(1);
         }
     }
 }

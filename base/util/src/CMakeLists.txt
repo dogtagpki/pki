@@ -30,6 +30,20 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
+find_file(HTTPCLIENT_JAR
+    NAMES
+        httpclient.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
+
+find_file(HTTPCORE_JAR
+    NAMES
+        httpcore.jar
+    PATHS
+        /usr/share/java/httpcomponents
+)
+
 find_file(XALAN_JAR
     NAMES
         xalan-j2.jar
@@ -92,7 +106,8 @@ javac(pki-cmsutil-classes
     SOURCES
         com/netscape/cmsutil/*.java
     CLASSPATH
-        ${APACHE_COMMONS_LANG_JAR} ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
+        ${APACHE_COMMONS_LANG_JAR} ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
+        ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
