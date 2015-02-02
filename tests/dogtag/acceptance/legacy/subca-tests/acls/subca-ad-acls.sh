@@ -64,7 +64,7 @@ run_admin-subca-acl_tests()
         local valid_admin_user_password=$SUBCA_INST\_adminV_password
 
 
-	rlPhaseStartTest "pki_console_acl-001:SUBCA - Admin Interface - list all ACLs"
+	rlPhaseStartTest "pki_console_acl_subca-001:SUBCA - Admin Interface - list all ACLs"
 	header_001="$TmpDir/subca_acl_001.txt"
 	rlLog "List all ACLs"
 	local acls=(certServer.ca certServer.securitydomain certServer.log certServer.acl certServer.general certServer.ee certServer.ra certServer.admin certServer.ocsp certServer.auth certServer.clone certServer.policy certServer.publisher certServer.registry certServer.profile)

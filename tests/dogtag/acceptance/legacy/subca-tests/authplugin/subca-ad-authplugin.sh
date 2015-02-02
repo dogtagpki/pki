@@ -62,7 +62,7 @@ run_admin-subca-authplugin_tests()
 	local valid_admin_user=$SUBCA_INST\_adminV
         local valid_admin_user_password=$SUBCA_INST\_adminV_password
 
-	rlPhaseStartTest "pki_console_authplugin-001:SUBCA - Admin Interface - list all auth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-001:SUBCA - Admin Interface - list all auth plugin"
 	header_001="$TmpDir/subca_auth_001.txt"
 	rlLog "List all auth plugins"
 	local authlist=(raCertAuth AgentCertAuth SSLclientCertAuth flatFileAuth TokenAuth challengeAuthMgr certUserDBAuthMgr CMCAuth sslClientCertAuthMgr passwdUserDBAuthMgr)
@@ -84,7 +84,7 @@ run_admin-subca-authplugin_tests()
 	done
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-002:SUBCA - Admin Interface - view auth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-002:SUBCA - Admin Interface - view auth plugin"
         local plugin_id="AgentCertAuth"
 	header_002="$TmpDir/subca_auth_002.txt"
 	admin_out="$TmpDir/admin_out_viewauthplugin"
@@ -104,7 +104,7 @@ run_admin-subca-authplugin_tests()
 	rlAssertGrep "implName=AgentCertAuth" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-003:SUBCA - Admin Interface - Add agentcertauth auth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-003:SUBCA - Admin Interface - Add agentcertauth auth plugin"
         local plugin_id="plug$RANDOM"
 	header_003="$TmpDir/ca_auth_003.txt"
 	admin_out="$TmpDir/admin_out_addagentcertplug"
@@ -130,7 +130,7 @@ run_admin-subca-authplugin_tests()
 	rlAssertGrep "$plugin_id" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-004:SUBCA - Admin Interface - Add cmccertauth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-004:SUBCA - Admin Interface - Add cmccertauth plugin"
         local plugin_id="plug$RANDOM"
 	header_004="$TmpDir/subca_auth_004.txt"
 	admin_out="$TmpDir/admin_out_addcmccertauth"
@@ -156,7 +156,7 @@ run_admin-subca-authplugin_tests()
         rlAssertGrep "$plugin_id" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-005:SUBCA - Admin Interface - Add uidpwddirauth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-005:SUBCA - Admin Interface - Add uidpwddirauth plugin"
 	header_005="$TmpDir/ca_auth_005.txt"
         local plugin_id="plug$RANDOM"
 	local OP_TYPE="OP_ADD"
@@ -195,7 +195,7 @@ run_admin-subca-authplugin_tests()
         rlAssertGrep "$plugin_id" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-006:SUBCA - Admin Interface - edit uidpwddirauth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-006:SUBCA - Admin Interface - edit uidpwddirauth plugin"
 	local OP_TYPE="OP_MODIFY"
 	header_006="$TmpDir/subca_auth_006.txt"
 	local LDAP_BYTE_ATTR="uid"
@@ -227,7 +227,7 @@ run_admin-subca-authplugin_tests()
 	rlAssertGrep "ldapByteAttributes=$LDAP_BYTE_ATTR" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-007:SUBCA - Admin Interface - Add uidpwdpindirauth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-007:SUBCA - Admin Interface - Add uidpwdpindirauth plugin"
 	header_007="$TmpDir/subca_auth_007.txt"
         local plugin_id="plug$RANDOM"
         local OP_TYPE="OP_ADD"
@@ -261,7 +261,7 @@ run_admin-subca-authplugin_tests()
         rlAssertGrep "$plugin_id" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-008:SUBCA - Admin Interface - edit uidpwdpindirauth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-008:SUBCA - Admin Interface - edit uidpwdpindirauth plugin"
 	header_008="$TmpDir/subca_auth_008.txt"
         local OP_TYPE="OP_MODIFY"
 	local LDAP_BYTE_ATTR="uid"
@@ -293,7 +293,7 @@ run_admin-subca-authplugin_tests()
         rlAssertGrep "ldapByteAttributes=$LDAP_BYTE_ATTR" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-009:SUBCA - Admin Interface - Add udnpwddirauth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-009:SUBCA - Admin Interface - Add udnpwddirauth plugin"
         local plugin_id="plug$RANDOM"
 	header_009="$TmpDir/subca_auth_009.txt"
         local OP_TYPE="OP_ADD"
@@ -321,7 +321,7 @@ run_admin-subca-authplugin_tests()
         rlAssertGrep "$plugin_id" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-010:SUBCA - Admin Interface - Edit udnpwddirauth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-010:SUBCA - Admin Interface - Edit udnpwddirauth plugin"
 	header_010="$TmpDir/subca_auth_010.txt"
         local OP_TYPE="OP_MODIFY"
         local LDAP_BYTE_ATTR="uid"
@@ -353,7 +353,7 @@ run_admin-subca-authplugin_tests()
         rlAssertGrep "ldapByteAttributes=$LDAP_BYTE_ATTR" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_authplugin-011:SUBCA - Admin Interface - Delete auth plugin"
+	rlPhaseStartTest "pki_console_authplugin_subca-011:SUBCA - Admin Interface - Delete auth plugin"
         local OP_TYPE="OP_DELETE"
 	header_011="$TmpDir/subca_auth_011.txt"
 	admin_out="$TmpDir/admin_out_deleteauthplugin"

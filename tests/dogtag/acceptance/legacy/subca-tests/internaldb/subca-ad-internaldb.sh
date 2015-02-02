@@ -66,7 +66,7 @@ run_admin-subca-intdb_tests()
 	local valid_admin_user=$SUBCA_INST\_adminV
         local valid_admin_user_password=$SUBCA_INST\_adminV_password
 
-	rlPhaseStartTest "pki_console_list_intdb-001:SUBCA - Admin Interface - list internaldb"
+	rlPhaseStartTest "pki_console_list_intdb_subca-001:SUBCA - Admin Interface - list internaldb"
 	header_001="$TmpDir/subca_intdb_001.txt"
 	rlLog "List internal db"
 	rlRun "curl --capath "$CERTDB_DIR" --basic \
@@ -82,7 +82,7 @@ run_admin-subca-intdb_tests()
 	rlAssertGrep "ldapconn.version=" "$admin_out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_intdb-002:SUBCA - Admin Interface - edit internaldb"
+	rlPhaseStartTest "pki_console_edit_intdb_subca-002:SUBCA - Admin Interface - edit internaldb"
         rlLog "Edit internal db"
 	header_002="$TmpDir/subca_intdb_002.txt"
         rlRun "curl --capath "$CERTDB_DIR" --basic \

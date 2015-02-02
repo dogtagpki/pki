@@ -69,7 +69,7 @@ run_admin-subca-publishing_tests()
 	local valid_admin_user=$SUBCA_INST\_adminV
         local valid_admin_user_password=$SUBCA_INST\_adminV_password
 
-	rlPhaseStartTest "pki_console_enable_publishing-001:SUBCA - Admin Interface - Enable Publishing"
+	rlPhaseStartTest "pki_console_enable_publishing_subca-001:SUBCA - Admin Interface - Enable Publishing"
 	header_001="$TmpDir/subca_pub_001.txt"
 	local admin_out="$TmpDir/admin_out_enablepub"
 	rlLog "Enable Publishing"
@@ -84,7 +84,7 @@ run_admin-subca-publishing_tests()
 	rlAssertNotGrep "Failure" "$admin_out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_read_publishing_config-002:SUBCA - Admin Interface - Read Publishing config"
+	rlPhaseStartTest "pki_console_read_publishing_config_subca-002:SUBCA - Admin Interface - Read Publishing config"
 	header_002="$TmpDir/subca_pub_002.txt"
         local admin_out="$TmpDir/admin_out_readpubconf"
         rlLog "Read Publishing Config"
@@ -109,7 +109,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "enable=true" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_list_all_mappers-003:SUBCA - Admin Interface - List all mappers"
+	rlPhaseStartTest "pki_console_list_all_mappers_subca-003:SUBCA - Admin Interface - List all mappers"
 	header_003="$TmpDir/subca_pub_003.txt"
         local admin_out="$TmpDir/admin_out_listmappers"
         rlLog "List all mappers"
@@ -126,7 +126,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "LdapCrlMap=LdapCaSimpleMap:visible" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_list_all_mapper_plugins-004:SUBCA - Admin Interface - List all mapper plugins"
+	rlPhaseStartTest "pki_console_list_all_mapper_plugins_subca-004:SUBCA - Admin Interface - List all mapper plugins"
         local admin_out="$TmpDir/admin_out_listmapperplugin"
 	header_004="$TmpDir/subca_pub_004.txt"
         rlLog "List all mapper plugin"
@@ -146,7 +146,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "LdapDNCompsMap=com.netscape.cms.publish.mappers.LdapCertCompsMap%2CLdapCertCompsMap" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_read_mapper_rule-005:SUBCA - Admin Interface - Read a mapper rule"
+	rlPhaseStartTest "pki_console_read_mapper_rule_subca-005:SUBCA - Admin Interface - Read a mapper rule"
         local admin_out="$TmpDir/admin_out_readmaprule"
 	header_005="$TmpDir/subca_pub_005.txt"
 	searchrule="LdapUserCertMap"
@@ -162,7 +162,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "dnPattern=" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_mapper-006:SUBCA - Admin Interface - Add CA ldap mapper"
+	rlPhaseStartTest "pki_console_add_ldap_mapper_subca-006:SUBCA - Admin Interface - Add CA ldap mapper"
         local admin_out="$TmpDir/admin_out_addmapper"
 	header_006="$TmpDir/subca_pub_006.txt"
         mapper_id="pub07"
@@ -192,7 +192,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "createCAEntry=$create_ca_entry" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_ldap_mapper-007:SUBCA - Admin Interface - Edit CA ldap mapper"
+	rlPhaseStartTest "pki_console_edit_ldap_mapper_subca-007:SUBCA - Admin Interface - Edit CA ldap mapper"
         local admin_out="$TmpDir/admin_out_editmapper"
 	header_007="$TmpDir/subca_pub_007.txt"
         dn_pattern="uid=\$req.HTTP_PARAMS.uid,ou=\$subj.ou,o=netscapecertificateserver"
@@ -219,7 +219,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_007"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_dn_comps_mapper-008:SUBCA - Admin Interface - Add ldap dn comps mapper"
+	rlPhaseStartTest "pki_console_add_ldap_dn_comps_mapper_subca-008:SUBCA - Admin Interface - Add ldap dn comps mapper"
         local admin_out="$TmpDir/admin_out_addldapdncomps"
 	header_008="$TmpDir/subca_pub_008.txt"
         mapper_id="pub09"
@@ -250,7 +250,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "filterComps=$filter_comps" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_ldap_dn_comps_mapper-009:SUBCA - Admin Interface - Edit ldap dn comps mapper"
+	rlPhaseStartTest "pki_console_edit_ldap_dn_comps_mapper_subca-009:SUBCA - Admin Interface - Edit ldap dn comps mapper"
         local admin_out="$TmpDir/admin_out_editldapdncomps"
 	header_009="$TmpDir/subca_pub_009.txt"
         base_dn="o=redhat-ldapdncompsmap-edit"
@@ -277,7 +277,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_009"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_dn_exact_mapper-010:SUBCA - Admin Interface - Add ldap dn exact mapper"
+	rlPhaseStartTest "pki_console_add_ldap_dn_exact_mapper_subca-010:SUBCA - Admin Interface - Add ldap dn exact mapper"
         local admin_out="$TmpDir/admin_out_addldapdnexact"
 	header_010="$TmpDir/subca_pub_010.txt"
         mapper_id="pub11"
@@ -307,7 +307,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_010"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_enhanced_mapper-011:SUBCA - Admin Interface - Add ldap enhanced mapper"
+	rlPhaseStartTest "pki_console_add_ldap_enhanced_mapper_subca-011:SUBCA - Admin Interface - Add ldap enhanced mapper"
         local admin_out="$TmpDir/admin_out_addldapenhanced"
 	header_011="$TmpDir/subca_pub_011.txt"
         mapper_id="pub12"
@@ -343,7 +343,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "attrPattern0=$attrpattern1" "$admin_out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_ldap_enhanced_mapper-012:SUBCA - Admin Interface - Edit ldap enhanced mapper"
+	rlPhaseStartTest "pki_console_edit_ldap_enhanced_mapper_subca-012:SUBCA - Admin Interface - Edit ldap enhanced mapper"
         local admin_out="$TmpDir/admin_out_editldapenhanced"
 	header_012="$TmpDir/subca_pub_012.txt"
         dn_pattern="uid=\$req.HTTP_PARAMS.uid,ou=\$subj.ou,o=netscapecertificateserver-e"
@@ -370,7 +370,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_012"
         rlPhaseEnd
 	
-	rlPhaseStartTest "pki_console_add_ldap_simple_mapper-013:SUBCA - Admin Interface - Add ldap simple mapper"
+	rlPhaseStartTest "pki_console_add_ldap_simple_mapper_subca-013:SUBCA - Admin Interface - Add ldap simple mapper"
 	header_013="$TmpDir/subca_pub_013.txt"
         local admin_out="$TmpDir/admin_out_addldapsimple"
         mapper_id="pub14"
@@ -397,7 +397,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "dnPattern=$dnpattern1" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_ldap_simple_mapper-014:SUBCA - Admin Interface - Edit ldap simple mapper"
+	rlPhaseStartTest "pki_console_edit_ldap_simple_mapper_subca-014:SUBCA - Admin Interface - Edit ldap simple mapper"
         local admin_out="$TmpDir/admin_out_editldapsimple"
 	header_014="$TmpDir/subca_pub_014.txt"
         mapper_id="pub14"
@@ -425,7 +425,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_014"
         rlPhaseEnd
 	
-	rlPhaseStartTest "pki_console_add_ldap_subj_attr_mapper-015:SUBCA - Admin Interface - Add ldap subj attr mapper"
+	rlPhaseStartTest "pki_console_add_ldap_subj_attr_mapper_subca-015:SUBCA - Admin Interface - Add ldap subj attr mapper"
         local admin_out="$TmpDir/admin_out_addldapsubjattr"
 	header_015="$TmpDir/subca_pub_015.txt"
         mapper_id="pub16"
@@ -454,7 +454,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "searchBase=$searchbase1" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_ldap_subj_attr_mapper-016:SUBCA - Admin Interface - Edit ldap subj attr mapper"
+	rlPhaseStartTest "pki_console_edit_ldap_subj_attr_mapper_subca-016:SUBCA - Admin Interface - Edit ldap subj attr mapper"
         local admin_out="$TmpDir/admin_out_editldapsubjattr"
 	header_016="$TmpDir/subca_pub_016.txt"
         search_base="o=redhat-subjattr"
@@ -481,7 +481,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_016"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_no_map-017:SUBCA - Admin Interface - Add ldap no map"
+	rlPhaseStartTest "pki_console_add_ldap_no_map_subca-017:SUBCA - Admin Interface - Add ldap no map"
         local admin_out="$TmpDir/admin_out_addldapnomap"
 	header_017="$TmpDir/subca_pub_017.txt"
         mapper_id="pub18"
@@ -497,7 +497,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "implName=$mapper" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_read_ldap_no_map-018:SUBCA - Admin Interface - Read ldap no map"
+	rlPhaseStartTest "pki_console_read_ldap_no_map_subca-018:SUBCA - Admin Interface - Read ldap no map"
         local admin_out="$TmpDir/admin_out_readldapnomap"
 	header_018="$TmpDir/subca_pub_018.txt"
         rlLog "Add ldap no map"
@@ -511,7 +511,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "implName=$mapper" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_delete_ldap_no_map-019:SUBCA - Admin Interface - Delete ldap no map"
+	rlPhaseStartTest "pki_console_delete_ldap_no_map_subca-019:SUBCA - Admin Interface - Delete ldap no map"
         local admin_out="$TmpDir/admin_out_deleteldapnomap"
 	header_019="$TmpDir/subca_pub_019.txt"
         rlLog "Delete ldap no map"
@@ -531,7 +531,7 @@ run_admin-subca-publishing_tests()
 	rlAssertNotGrep "$mapper" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_file_based_publisher-020:SUBCA - Admin Interface - Add file based publisher"
+	rlPhaseStartTest "pki_console_add_file_based_publisher_subca-020:SUBCA - Admin Interface - Add file based publisher"
         local admin_out="$TmpDir/admin_out_addfilebasedpub"
 	header_020="$TmpDir/subca_pub_020.txt"
         pub_id="pub24"
@@ -562,7 +562,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "Filename.b64=$file_b64" "$admin_out"
         rlPhaseEnd
 	
-	rlPhaseStartTest "pki_console_edit_file_based_publisher-021:SUBCA - Admin Interface - Edit file based publisher"
+	rlPhaseStartTest "pki_console_edit_file_based_publisher_subca-021:SUBCA - Admin Interface - Edit file based publisher"
         local admin_out="$TmpDir/admin_out_editfilebasedpub"
 	header_021="$TmpDir/subca_pub_021.txt"
         file_dir="/usr"
@@ -590,7 +590,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_021"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_cacert_publisher-022:SUBCA - Admin Interface - Add Ldap cacert publisher"
+	rlPhaseStartTest "pki_console_add_ldap_cacert_publisher_subca-022:SUBCA - Admin Interface - Add Ldap cacert publisher"
         local admin_out="$TmpDir/admin_out_addldapcacertpub"
 	header_022="$TmpDir/subca_pub_022.txt"
         pub_id="pub26"
@@ -625,7 +625,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_022"
         rlPhaseEnd
 	
-	rlPhaseStartTest "pki_console_add_ldap_certificate_pair_publisher-023:SUBCA - Admin Interface - Add Ldap certificate pair publisher"
+	rlPhaseStartTest "pki_console_add_ldap_certificate_pair_publisher_subca-023:SUBCA - Admin Interface - Add Ldap certificate pair publisher"
         local admin_out="$TmpDir/admin_out_addldapcertpairpub"
 	header_023="$TmpDir/subca_pub_023.txt"
         pub_id="pub27"
@@ -660,7 +660,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_023"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_crl_publisher-024:SUBCA - Admin Interface - Add Ldap crl publisher"
+	rlPhaseStartTest "pki_console_add_ldap_crl_publisher_subca-024:SUBCA - Admin Interface - Add Ldap crl publisher"
         local admin_out="$TmpDir/admin_out_addldapcrlpub"
 	header_024="$TmpDir/subca_pub_024.txt"
         pub_id="pub28"
@@ -693,7 +693,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_024"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_delta_crl_publisher-025:SUBCA - Admin Interface - Add Ldap delta crl publisher"
+	rlPhaseStartTest "pki_console_add_ldap_delta_crl_publisher_subca-025:SUBCA - Admin Interface - Add Ldap delta crl publisher"
         local admin_out="$TmpDir/admin_out_addldapdeltacrlpub"
 	header_025="$TmpDir/subca_pub_025.txt"
         pub_id="pub29"
@@ -726,7 +726,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_025"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ldap_user_cert_publisher-026:SUBCA - Admin Interface - Add Ldap user cert publisher"
+	rlPhaseStartTest "pki_console_add_ldap_user_cert_publisher_subca-026:SUBCA - Admin Interface - Add Ldap user cert publisher"
         local admin_out="$TmpDir/admin_out_addldapusercertpub"
 	header_026="$TmpDir/subca_pub_026.txt"
         pub_id="pub30"
@@ -759,7 +759,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_026"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_ocsp_publisher-027:SUBCA - Admin Interface - Add ocsp publisher"
+	rlPhaseStartTest "pki_console_add_ocsp_publisher_subca-027:SUBCA - Admin Interface - Add ocsp publisher"
         local admin_out="$TmpDir/admin_out_addocsppub"
 	header_027="$TmpDir/subca_pub_027.txt"
         pub_id="pub31"
@@ -787,7 +787,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "port=$ocsp_port" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_ocsp_publisher-028:SUBCA - Admin Interface - Edit ocsp publisher"
+	rlPhaseStartTest "pki_console_edit_ocsp_publisher_subca-028:SUBCA - Admin Interface - Edit ocsp publisher"
         local admin_out="$TmpDir/admin_out_editocsppub"
 	header_028="$TmpDir/subca_pub_028.txt"
         ocsp_host="somehost.redhat.com"
@@ -808,7 +808,7 @@ run_admin-subca-publishing_tests()
         rlAssertGrep "host=$ocsp_host" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_delete_publisher-029:SUBCA - Admin Interface - Delete publisher"
+	rlPhaseStartTest "pki_console_delete_publisher_subca-029:SUBCA - Admin Interface - Delete publisher"
         local admin_out="$TmpDir/admin_out_deletepub"
 	header_029="$TmpDir/subca_pub_029.txt"
         rlRun "curl --capath "$CERTDB_DIR" --basic \
@@ -827,7 +827,7 @@ run_admin-subca-publishing_tests()
 	rlAssertNotGrep "implName=$mapper" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_list_all_publishing_rules-030:SUBCA - Admin Interface - List all publishing rules"
+	rlPhaseStartTest "pki_console_list_all_publishing_rules_subca-030:SUBCA - Admin Interface - List all publishing rules"
         local admin_out="$TmpDir/admin_out_listpubrules"
 	header_030="$TmpDir/subca_pub_030.txt"
         rlRun "curl --capath "$CERTDB_DIR" --basic \
@@ -843,7 +843,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "LdapCrlRule" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_publishing_rule_type_certs-031:SUBCA - Admin Interface - Add publishing rule - type certs"
+	rlPhaseStartTest "pki_console_add_publishing_rule_type_certs_subca-031:SUBCA - Admin Interface - Add publishing rule - type certs"
         local admin_out="$TmpDir/admin_out_addpubrulecerts"
 	header_031="$TmpDir/subca_pub_031.txt"
         rule_id="rule35"
@@ -881,7 +881,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_031"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_publishing_rule_type_cacert-032:SUBCA - Admin Interface - Add publishing rule - type cacert"
+	rlPhaseStartTest "pki_console_add_publishing_rule_type_cacert_subca-032:SUBCA - Admin Interface - Add publishing rule - type cacert"
         local admin_out="$TmpDir/admin_out_addpubrulecacert"
 	header_032="$TmpDir/subca_pub_032.txt"
         rule_id="rule36"
@@ -919,7 +919,7 @@ run_admin-subca-publishing_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$header_032"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_add_publishing_rule_type_crl-033:SUBCA - Admin Interface - Add publishing rule - type crl"
+	rlPhaseStartTest "pki_console_add_publishing_rule_type_crl_subca-033:SUBCA - Admin Interface - Add publishing rule - type crl"
         local admin_out="$TmpDir/admin_out_addpubrulecrl"
 	header_033="$TmpDir/subca_pub_033.txt"
         rule_id="rule37"
@@ -951,7 +951,7 @@ run_admin-subca-publishing_tests()
         rlAssertGrep "publisher=$rule_publisher" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_read_publishing_rule-034:SUBCA - Admin Interface - Read publishing rule"
+	rlPhaseStartTest "pki_console_read_publishing_rule_subca-034:SUBCA - Admin Interface - Read publishing rule"
         local admin_out="$TmpDir/admin_out_readpubrule"
 	header_034="$TmpDir/subca_pub_034.txt"
 	rlLog "Read publishing rule"
@@ -971,7 +971,7 @@ run_admin-subca-publishing_tests()
         rlAssertGrep "publisher=$rule_publisher" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_delete_publishing_rule-035:SUBCA - Admin Interface - Delete publishing rule"
+	rlPhaseStartTest "pki_console_delete_publishing_rule_subca-035:SUBCA - Admin Interface - Delete publishing rule"
         local admin_out="$TmpDir/admin_out_deletepubrule"
 	header_035="$TmpDir/subca_pub_035.txt"
 	rlLog "Delete publishing rule"
@@ -992,7 +992,7 @@ run_admin-subca-publishing_tests()
 	rlAssertNotGrep "implName=Rule" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_disable_publishing-036:SUBCA - Admin Interface - Disable Publishing"
+	rlPhaseStartTest "pki_console_disable_publishing_subca-036:SUBCA - Admin Interface - Disable Publishing"
         local admin_out="$TmpDir/admin_out_disablepub"
 	header_036="$TmpDir/subca_pub_036.txt"
         rlLog "Disable Publishing"
