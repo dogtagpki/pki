@@ -33,6 +33,7 @@ BuildRequires:    nss-devel >= 3.14.3
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
+BuildRequires:    python-lxml
 BuildRequires:    python-sphinx
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
@@ -898,6 +899,7 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 - Updated version number to 10.2.2-0.1
 - Moved web application deployment locations.
 - Updated Resteasy and Jackson dependencies.
+- Added missing python-lxml build dependency.
 
 * Thu Jan  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.1-1
 - Update release number for release build
