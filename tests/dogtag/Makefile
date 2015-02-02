@@ -250,19 +250,25 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/ca-tests/acls/ca-admin-acl.sh
 	chmod a+x ./acceptance/legacy/ca-tests/internaldb/ca-admin-internaldb.sh
 	chmod a+x ./acceptance/legacy/ca-tests/authplugin/ca-admin-authplugins.sh
+	chmod a+x ./acceptance/legacy/ca-tests/logs/ca-ad-logs.sh
+	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-enrollments.sh
+	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-requests.sh
+	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-retrieval.sh
 	chmod a+x ./acceptance/legacy/ca-tests/crlissuingpoint/ca-admin-crlissuingpoints.sh
 	chmod a+x ./acceptance/legacy/ca-tests/crls/ca-agent-crls.sh
 	chmod a+x ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
-	chmod a+x ./acceptance/legacy/ca-tests/ocsp/ca-ee-ocsp.sh
-	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-retrieval.sh
-	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ee-enrollments.sh
-	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-requests.sh
 	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-certificates.sh
-	chmod a+x ./acceptance/legacy/ca-tests/logs/ca-ad-logs.sh
+	chmod a+x ./acceptance/legacy/ca-tests/ocsp/ca-ee-ocsp.sh
 	chmod a+x ./acceptance/legacy/drm-tests/acls/drm-ad-acls.sh
 	chmod a+x ./acceptance/legacy/drm-tests/agent/drm-ag-tests.sh
 	chmod a+x ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
-	chmod a+x ./acceptance/legacy/drm-tests/usergroups/drm-ad-usergroups.sh
+	chmod a+x ./acceptance/legacy/drm-tests/usergroups/drm-ad-usergroups.sh	
+	chmod a+x ./acceptance/legacy/subca-tests/acls/subca-ad-acls.sh
+	chmod a+x ./acceptance/legacy/subca-tests/internaldb/subca-ad-internaldb.sh
+	chmod a+x ./acceptance/legacy/subca-tests/authplugin/subca-ad-authplugin.sh
+	chmod a+x ./acceptance/legacy/subca-tests/crlissuingpoint/subca-ad-crlissuingpoints.sh
+	chmod a+x ./acceptance/legacy/subca-tests/publishing/subca-ad-publishing.sh
+	chmod a+x ./acceptance/legacy/subca-tests/crls/subca-ag-crls.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
@@ -273,11 +279,6 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/bugzilla/jss-bugs/bug-1133718.sh
 	chmod a+x ./acceptance/bugzilla/jss-bugs/bug-1040640.sh
 	chmod a+x ./acceptance/bugzilla/pki-core-bugs/bug-790924.sh
-	#installer tests
-	chmod a+x ./acceptance/install-tests/ca-installer.sh
-	chmod a+x ./acceptance/install-tests/kra-installer.sh
-	chmod a+x ./acceptance/install-tests/ocsp-installer.sh
-	chmod a+x ./acceptance/install-tests/tks-installer.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)

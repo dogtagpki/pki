@@ -2,8 +2,8 @@
 # vim: dict=/usr/share/beakerlib/dictionary.vim cpt=.,w,b,u,t,i,k
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-#   runtest.sh of /CoreOS/rhcs/acceptance/legacy/ca_tests/crlissuingpoints/ca-admin-crlissuingpoints.sh
-#   Description: CA Admin CRL Issuing Point tests
+#   runtest.sh of /CoreOS/rhcs/acceptance/legacy/subca-tests/crlissuingpoint/subca-ad-crlissuingpoints.sh
+#   Description: SUBCA Admin CRL Issuing Point tests
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 #   Author: Roshni Pattath <rpattath@redhat.com>
@@ -35,12 +35,12 @@
 . /opt/rhqa_pki/pki-cert-cli-lib.sh
 . /opt/rhqa_pki/env.sh
 
-run_admin-ca-crlissuingpoints_tests()
+run_admin-subca-crlissuingpoints_tests()
 {
         local cs_Type=$1
         local cs_Role=$2
         
-	# Creating Temporary Directory for ca-admin-internaldb tests
+	# Creating Temporary Directory for ca-admin-crlissuingpoint tests
         rlPhaseStartSetup "pki_console_internaldb Temporary Directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
@@ -48,22 +48,26 @@ run_admin-ca-crlissuingpoints_tests()
 
         # Local Variables
         get_topo_stack $cs_Role $TmpDir/topo_file
-        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
-        local target_unsecure_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
-        local target_secure_port=$(eval echo \$${CA_INST}_SECURE_PORT)
-        local tmp_ca_admin=$CA_INST\_adminV
-        local tmp_ca_port=$(eval echo \$${CA_INST}_UNSECURE_PORT)
+	if [ $cs_Role="MASTER" ]; then
+                SUBCA_INST=$(cat $TmpDir/topo_file | grep MY_SUBCA | cut -d= -f2)
+        elif [ $cs_Role="SUBCA2" || $cs_Role="SUBCA1" ]; then
+                SUBCA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        fi
+        local target_unsecure_port=$(eval echo \$${SUBCA_INST}_UNSECURE_PORT)
+        local target_secure_port=$(eval echo \$${SUBCA_INST}_SECURE_PORT)
+        local tmp_ca_admin=$SUBCA_INST\_adminV
+        local tmp_ca_port=$(eval echo \$${SUBCA_INST}_UNSECURE_PORT)
         local tmp_ca_host=$(eval echo \$${cs_Role})
-        local valid_admin_cert=$CA_INST\_adminV
+        local valid_admin_cert=$SUBCA_INST\_adminV
 	local crl_ip_id="crl02"
 	local crl_ip_desc="testdescription"
 	local crl_ip_enable="true"
-	local valid_admin_user=$CA_INST\_adminV
-        local valid_admin_user_password=$CA_INST\_adminV_password
+	local valid_admin_user=$SUBCA_INST\_adminV
+        local valid_admin_user_password=$SUBCA_INST\_adminV_password
 
-	rlPhaseStartTest "pki_console_add_crl_issuing_point-001:CA - Admin Interface - add crl issuing point"
+	rlPhaseStartTest "pki_console_add_crl_issuing_point-001:SUBCA - Admin Interface - add crl issuing point"
 	local admin_out="$TmpDir/admin_out_addcrlip"
-	header_001="$TmpDir/ca_cip_001.txt"
+	header_001="$TmpDir/subca_cip_001.txt"
 	rlLog "Add crl issuing point"
 	rlRun "curl --capath "$CERTDB_DIR" --basic \
 		--dump-header  $header_001 \
@@ -77,9 +81,9 @@ run_admin-ca-crlissuingpoints_tests()
 	rlAssertGrep "enable=$crl_ip_enable" "$admin_out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_crl_issuing_point-002:CA - Admin Interface - edit crl issuing point"
+	rlPhaseStartTest "pki_console_edit_crl_issuing_point-002:SUBCA - Admin Interface - edit crl issuing point"
 	local admin_out="$TmpDir/admin_out_edit_crlip"
-	header_002="$TmpDir/ca_cip_002.txt"
+	header_002="$TmpDir/subca_cip_002.txt"
 	crl_ip_desc="testdescriptionmodified"
         rlLog "Edit crl issuing point"
         rlRun "curl --capath "$CERTDB_DIR" --basic \
@@ -94,9 +98,9 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "enable=$crl_ip_enable" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_list_all_crl_issuing_point-003:CA - Admin Interface - List all crl issuing point"
+	rlPhaseStartTest "pki_console_list_all_crl_issuing_point-003:SUBCA - Admin Interface - List all crl issuing point"
 	local admin_out="$TmpDir/admin_out_list_crlip"
-	header_003="$TmpDir/ca_cip_003.txt"
+	header_003="$TmpDir/subca_cip_003.txt"
         rlLog "List all crl issuing point"
         rlRun "curl --capath "$CERTDB_DIR" --basic \
 		--dump-header  $header_003 \
@@ -111,9 +115,9 @@ run_admin-ca-crlissuingpoints_tests()
 	rlAssertGrep "MasterCRL.enable=true" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_read_crl_update_info-004:CA - Admin Interface - Read CRL update info"
+	rlPhaseStartTest "pki_console_read_crl_update_info-004:SUBCA - Admin Interface - Read CRL update info"
 	local admin_out="$TmpDir/admin_out_read_crl_update_info"
-	header_004="$TmpDir/ca_cip_004.txt"
+	header_004="$TmpDir/subca_cip_004.txt"
         rlLog "Read CRL update info"
         rlRun "curl --capath "$CERTDB_DIR" --basic \
 		--dump-header  $header_004 \
@@ -135,8 +139,8 @@ run_admin-ca-crlissuingpoints_tests()
 	rlAssertGrep "allSigningAlgorithms=SHA1withRSA:SHA256withRSA:SHA512withRSA:MD5withRSA:MD2withRSA" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_read_crl_cache_info-005:CA - Admin Interface - Read CRL cache info"
-	header_005="$TmpDir/ca_cip_005.txt"
+	rlPhaseStartTest "pki_console_read_crl_cache_info-005:SUBCA - Admin Interface - Read CRL cache info"
+	header_005="$TmpDir/subca_cip_005.txt"
 	local admin_out="$TmpDir/admin_out_read_crl_cache_info"
         rlLog "Read CRL cache info"
         rlRun "curl --capath "$CERTDB_DIR" --basic \
@@ -153,8 +157,8 @@ run_admin-ca-crlissuingpoints_tests()
 	rlAssertGrep "allSigningAlgorithms=SHA1withRSA:SHA256withRSA:SHA512withRSA:MD5withRSA:MD2withRSA" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_read_crl_format_info-006:CA - Admin Interface - Read CRL format info"
-	header_006="$TmpDir/ca_cip_006.txt"
+	rlPhaseStartTest "pki_console_read_crl_format_info-006:SUBCA - Admin Interface - Read CRL format info"
+	header_006="$TmpDir/subca_cip_006.txt"
 	local admin_out="$TmpDir/admin_out_read_crl_format_info"
         rlLog "Read CRL format info"
         rlRun "curl --capath "$CERTDB_DIR" --basic \
@@ -174,8 +178,8 @@ run_admin-ca-crlissuingpoints_tests()
 	rlAssertGrep "allSigningAlgorithms=SHA1withRSA:SHA256withRSA:SHA512withRSA:MD5withRSA:MD2withRSA" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_crl_update_info-007:CA - Admin Interface - Edit CRL update info"
-	header_007="$TmpDir/ca_cip_007.txt"
+	rlPhaseStartTest "pki_console_edit_crl_update_info-007:SUBCA - Admin Interface - Edit CRL update info"
+	header_007="$TmpDir/subca_cip_007.txt"
 	local admin_out="$TmpDir/admin_out_edit_crl_update_info"
 	enable_crl_update="true"
 	update_schema="1"
@@ -212,8 +216,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "nextUpdateGracePeriod=$next_update_grace_period" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_crl_cache_info-008:CA - Admin Interface - Edit CRL cache info"
-	header_008="$TmpDir/ca_cip_008.txt"
+	rlPhaseStartTest "pki_console_edit_crl_cache_info-008:SUBCA - Admin Interface - Edit CRL cache info"
+	header_008="$TmpDir/subca_cip_008.txt"
         local admin_out="$TmpDir/admin_out_edit_crl_cache_info"
 	enable_crl_cache="true"
 	cache_update_interval="15"
@@ -239,8 +243,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "allSigningAlgorithms=SHA1withRSA:SHA256withRSA:SHA512withRSA:MD5withRSA:MD2withRSA" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_crl_format_info-009:CA - Admin Interface - Edit CRL format info"
-	header_009="$TmpDir/ca_cip_009.txt"
+	rlPhaseStartTest "pki_console_edit_crl_format_info-009:SUBCA - Admin Interface - Edit CRL format info"
+	header_009="$TmpDir/subca_cip_009.txt"
         local admin_out="$TmpDir/admin_out_edit_crl_format_info"
 	allow_extensions="true"
 	include_expired_certs="false"
@@ -272,8 +276,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "allSigningAlgorithms=SHA1withRSA:SHA256withRSA:SHA512withRSA:MD5withRSA:MD2withRSA" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_list_all_crl_extensions-010:CA - Admin Interface - List all crl extensions"
-	header_010="$TmpDir/ca_cip_010.txt"
+	rlPhaseStartTest "pki_console_list_all_crl_extensions-010:SUBCA - Admin Interface - List all crl extensions"
+	header_010="$TmpDir/subca_cip_010.txt"
         local admin_out="$TmpDir/admin_out_list_crl_extension"
         rlLog "List all crl extension"
         rlRun "curl --capath "$CERTDB_DIR" --basic \
@@ -296,8 +300,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlPhaseEnd
 
 
-        rlPhaseStartTest "pki_console_edit_crl_reason_extension-011:CA - Admin Interface - Edit crl reason extension"
-	header_011="$TmpDir/ca_cip_011.txt"
+        rlPhaseStartTest "pki_console_edit_crl_reason_extension-011:SUBCA - Admin Interface - Edit crl reason extension"
+	header_011="$TmpDir/subca_cip_011.txt"
         local admin_out="$TmpDir/admin_out_edit_crl_reason_extension"
         crl_reason_enable="true"
         crl_reason_status="enabled"
@@ -319,8 +323,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "CRLReason=CRLReason:visible:$crl_reason_status" "$admin_out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_console_edit_delta_crl_extension-012:CA - Admin Interface - Edit delta crl extension"
-	header_012="$TmpDir/ca_cip_012.txt"
+        rlPhaseStartTest "pki_console_edit_delta_crl_extension-012:SUBCA - Admin Interface - Edit delta crl extension"
+	header_012="$TmpDir/subca_cip_012.txt"
         local admin_out="$TmpDir/admin_out_edit_delta_crl_extension"
         delta_crl_enable="true"
         delta_crl_critical="false"
@@ -341,8 +345,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "enable=$delta_crl_enable" "$admin_out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_console_edit_issuer_alternative_name_extension-013:CA - Admin Interface - Edit issuer alternative name extension"
-	header_013="$TmpDir/ca_cip_013.txt"
+        rlPhaseStartTest "pki_console_edit_issuer_alternative_name_extension-013:SUBCA - Admin Interface - Edit issuer alternative name extension"
+	header_013="$TmpDir/subca_cip_013.txt"
         local admin_out="$TmpDir/admin_out_edit_issuer_alternative_name_extension"
         ian_enable="true"
         ian_critical="false"
@@ -365,8 +369,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "enable=$ian_enable" "$admin_out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_console_edit_invalidity_date_extension-014:CA - Admin Interface - Edit invalidity date extension"
-	header_014="$TmpDir/ca_cip_014.txt"
+        rlPhaseStartTest "pki_console_edit_invalidity_date_extension-014:SUBCA - Admin Interface - Edit invalidity date extension"
+	header_014="$TmpDir/subca_cip_014.txt"
         local admin_out="$TmpDir/admin_out_edit_invalidity_date_extension"
         inv_date_enable="true"
         inv_date_critical="false"
@@ -387,8 +391,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "enable=$inv_date_enable" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_authority_key_identifier_extension-015:CA - Admin Interface - Edit authority key identifier extension"
-	header_015="$TmpDir/ca_cip_015.txt"
+	rlPhaseStartTest "pki_console_edit_authority_key_identifier_extension-015:SUBCA - Admin Interface - Edit authority key identifier extension"
+	header_015="$TmpDir/subca_cip_015.txt"
         local admin_out="$TmpDir/admin_out_edit_authority_key_identifier_extension"
         aki_enable="true"
         aki_critical="false"
@@ -409,8 +413,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "enable=$aki_enable" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_freshest_crl_extension-016:CA - Admin Interface - Edit freshest crl extension"
-	header_016="$TmpDir/ca_cip_016.txt"
+	rlPhaseStartTest "pki_console_edit_freshest_crl_extension-016:SUBCA - Admin Interface - Edit freshest crl extension"
+	header_016="$TmpDir/subca_cip_016.txt"
         local admin_out="$TmpDir/admin_out_edit_freshest_crl_extension"
         fcrl_enable="true"
         fcrl_critical="false"
@@ -433,8 +437,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "enable=$fcrl_enable" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_crl_number_extension-017:CA - Admin Interface - Edit CRL number extension"
-	header_017="$TmpDir/ca_cip_017.txt"
+	rlPhaseStartTest "pki_console_edit_crl_number_extension-017:SUBCA - Admin Interface - Edit CRL number extension"
+	header_017="$TmpDir/subca_cip_017.txt"
         local admin_out="$TmpDir/admin_out_edit_crl_number_extension"
         cnum_enable="true"
         cnum_critical="false"
@@ -455,8 +459,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "enable=$cnum_enable" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_edit_issuing_distribution_point_extension-018:CA - Admin Interface - Edit Issuing Distribution Point extension"
-	header_018="$TmpDir/ca_cip_018.txt"
+	rlPhaseStartTest "pki_console_edit_issuing_distribution_point_extension-018:SUBCA - Admin Interface - Edit Issuing Distribution Point extension"
+	header_018="$TmpDir/subca_cip_018.txt"
         local admin_out="$TmpDir/admin_out_issuing_dp_extension"
         idp_enable="true"
         idp_critical="false"
@@ -483,8 +487,8 @@ run_admin-ca-crlissuingpoints_tests()
         rlAssertGrep "enable=$idp_enable" "$admin_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_console_delete_crl_issuing_point-019:CA - Admin Interface - delete crl issuing point"
-	header_019="$TmpDir/ca_cip_019.txt"
+	rlPhaseStartTest "pki_console_delete_crl_issuing_point-019:SUBCA - Admin Interface - delete crl issuing point"
+	header_019="$TmpDir/subca_cip_019.txt"
         local admin_out="$TmpDir/admin_out_deletecrl"
         rlLog "Delete crl issuing point"
         rlRun "curl --capath "$CERTDB_DIR" --basic \

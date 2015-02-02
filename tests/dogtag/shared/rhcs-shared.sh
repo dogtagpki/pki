@@ -628,10 +628,10 @@ get_topo_stack()
         	echo "MY_OCSP=OCSP3" >> $TOPO_FILE
 	        echo "MY_TKS=TKS1" >> $TOPO_FILE
 		echo "MY_SUBCA=SUBCA1" >> $TOPO_FILE
-		echo "MY_CLONE_CA=CLONE_CA1" >> $TOPO_FILE
-		echo "MY_CLONE_KRA=CLONE_KRA1" >> $TOPO_FILE
-		echo "MY_CLONE_OCSP=CLONE_OCSP1" >> $TOPO_FILE
-		echo "MY_CLONE_TKS=CLONE_TKS1" >> $TOPO_FILE
+                echo "MY_CLONE_CA=CLONE_CA1" >> $TOPO_FILE
+                echo "MY_CLONE_KRA=CLONE_KRA1" >> $TOPO_FILE
+                echo "MY_CLONE_OCSP=CLONE_OCSP1" >> $TOPO_FILE
+                echo "MY_CLONE_TKS=CLONE_TKS1" >> $TOPO_FILE
 	elif [ $MY_ROLE == "SUBCA1" ]; then
         	echo "MY_CA=SUBCA1" > $TOPO_FILE
 	        echo "MY_KRA=KRA1" >> $TOPO_FILE
@@ -651,3 +651,19 @@ get_topo_stack()
 	fi
 }
 #################################################################
+#
+#When using curl to query/update a resource in console,
+#use this function to process the output receieved
+#
+##################################################################
+process_curl_output()
+{
+        output_file=$1
+        sed -i "s/\&/\n&/g" $output_file
+        sed -i "s/+//g"  $output_file
+        sed -i "s/^&//g" $output_file
+        sed -i "s/%3A/":"/g" $output_file
+        sed -i "s/%3B/":"/g" $output_file
+        sed -i "s/%3D/"="/g" $output_file
+}
+

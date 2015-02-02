@@ -209,7 +209,13 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 	        if [ $userid == $(eval echo \$${subsystemId}_adminV_user) -o $userid == $(eval echo \$${subsystemId}_adminR_user) -o $userid == $(eval echo \$${subsystemId}_adminE_user) -o $userid == $(eval echo \$${subsystemId}_agentV_user) -o $userid == $(eval echo \$${subsystemId}_agentR_user) -o $userid == $(eval echo \$${subsystemId}_agentE_user) -o $userid == $(eval echo \$${subsystemId}_auditV_user) -o $userid == $(eval echo \$${subsystemId}_operatorV_user) ]; then
 			if [ "$MYROLE" = "MASTER" ]; then
 				get_topo_stack MASTER $TmpDir/topo_file
-		                MYCAHOST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+				if [ $subsystemId = "SUBCA1" ]; then
+					MYCAHOST=$(cat $TmpDir/topo_file | grep MY_SUBCA | cut -d= -f2)
+				elif [ $subsystemId = "CLONE_CA1" ]; then
+                                        MYCAHOST=$(cat $TmpDir/topo_file | grep MY_CLONE_CA | cut -d= -f2)
+				else
+		                	MYCAHOST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+				fi
 			else 
 				MYCAHOST=$MYROLE
 			fi
@@ -305,10 +311,18 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			elif [ $userid == $(eval echo \$${subsystemId}_adminE_user) -o $userid == $(eval echo \$${subsystemId}_agentE_user) ]; then
 			 #=======Expired cert waiting on response to --output ticket         https://fedorahosted.org/pki/ticket/674        =======#
 				if [ "$MYROLE" = "MASTER" ]; then
-					MYHOSTCA=ROOTCA
-				else
-					MYHOSTCA=$MYROLE
-				fi
+                                get_topo_stack MASTER $TmpDir/topo_file
+                                if [ $subsystemId = "SUBCA1" ]; then
+                                        MYHOSTCA=$(cat $TmpDir/topo_file | grep MY_SUBCA | cut -d= -f2)
+                                elif [ $subsystemId = "CLONE_CA1" ]; then
+                                        MYHOSTCA=$(cat $TmpDir/topo_file | grep MY_CLONE_CA | cut -d= -f2)
+                                else
+                                        MYHOSTCA=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+                                fi
+                        else
+                                MYHOSTCA=$MYROLE
+                        fi
+
 				local profile_file="/var/lib/pki/$(eval echo \$${MYHOSTCA}_TOMCAT_INSTANCE_NAME)/ca/profiles/ca/caUserCert.cfg"
 				default_days="policyset.userCertSet.2.default.params.range=180"
 				change_days="policyset.userCertSet.2.default.params.range=1"
