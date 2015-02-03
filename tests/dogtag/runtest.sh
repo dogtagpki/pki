@@ -197,10 +197,18 @@
 . ./acceptance/legacy/subca-tests/crlissuingpoint/subca-ad-crlissuingpoints.sh
 . ./acceptance/legacy/subca-tests/publishing/subca-ad-publishing.sh
 . ./acceptance/legacy/subca-tests/crls/subca-ag-crls.sh
+. ./acceptance/legacy/subca-tests/cert-enrollment/subca-ag-certificates.sh
+. ./acceptance/legacy/subca-tests/cert-enrollment/subca-ag-requests.sh
+. ./acceptance/legacy/subca-tests/cert-enrollment/subca-ee-enrollments.sh
+. ./acceptance/legacy/subca-tests/cert-enrollment/subca-ee-retrieval.sh
+. ./acceptance/legacy/subca-tests/profiles/subca-ad-profiles.sh
+. ./acceptance/legacy/subca-tests/profiles/subca-ag-profiles.sh
+. ./acceptance/legacy/subca-tests/logs/subca-ad-logs.sh
 . ./acceptance/legacy/drm-tests/acls/drm-ad-acls.sh
 . ./acceptance/legacy/drm-tests/agent/drm-ag-tests.sh
 . ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
 . ./acceptance/legacy/drm-tests/usergroups/drm-ad-usergroups.sh
+. ./acceptance/legacy/drm-tests/logs/drm-ad-logs.sh
 . ./acceptance/bugzilla/bug_setup.sh
 . ./acceptance/bugzilla/bug_uninstall.sh
 . ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
@@ -1544,6 +1552,11 @@ rlJournalStart
 		subsystemType=kra
 		run_admin-kra-internaldb_tests $subsystemType $MYROLE
 	fi
+	PKI_LEGACY_KRA_AD_LOGS_UPPERCASE=$(echo $PKI_LEGACY_KRA_AD_LOGS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_KRA_AD_LOGS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=kra
+		run_admin-kra-log_tests $subsystemType $MYROLE
+	fi
 	PKI_LEGACY_SUBCA_ADMIN_ACLS_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_ADMIN_ACLS | tr [a-z] [A-Z])
         if [ "$PKI_LEGACY_SUBCA_ADMIN_ACLS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
                 subsystemType=ca
@@ -1574,6 +1587,41 @@ rlJournalStart
                 subsystemType=ca
                 run_agent-subca-crls_tests $subsystemType $MYROLE
         fi
+	PKI_LEGACY_SUBCA_AG_CERTIFICATES_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_AG_CERTIFICATES | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_SUBCA_AG_CERTIFICATES_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_subca-ag-certificates_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_SUBCA_AG_REQUESTS_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_AG_REQUESTS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_SUBCA_AG_REQUESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_subca-ag-requests_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_SUBCA_EE_ENROLLMENT_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_EE_ENROLLMENT | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_SUBCA_EE_ENROLLMENT_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_ee-subca-enrollment_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_SUBCA_EE_RETRIEVAL_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_EE_RETRIEVAL | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_SUBCA_EE_RETRIEVAL_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_ee-subca-retrieval_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_SUBCA_ADMIN_PROFILE_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_ADMIN_PROFILE | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_SUBCA_ADMIN_PROFILE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_admin-subca-profile_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_SUBCA_AGENT_PROFILE_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_AGENT_PROFILE | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_SUBCA_AGENT_PROFILE_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_agent-subca-profile_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_SUBCA_ADMIN_LOGS_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_ADMIN_LOGS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_SUBCA_ADMIN_LOGS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=ca
+		run_admin-subca-log_tests $subsystemType $MYROLE
+	fi	
 	rlPhaseEnd
 	######## DEV UNIT TESTS ############
 	DEV_JAVA_TESTS_UPPERCASE=$(echo $DEV_JAVA_TESTS | tr [a-z] [A-Z])

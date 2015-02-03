@@ -263,12 +263,20 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/drm-tests/agent/drm-ag-tests.sh
 	chmod a+x ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
 	chmod a+x ./acceptance/legacy/drm-tests/usergroups/drm-ad-usergroups.sh	
+	chmod a+x ./acceptance/legacy/drm-tests/logs/drm-ad-logs.sh
 	chmod a+x ./acceptance/legacy/subca-tests/acls/subca-ad-acls.sh
 	chmod a+x ./acceptance/legacy/subca-tests/internaldb/subca-ad-internaldb.sh
 	chmod a+x ./acceptance/legacy/subca-tests/authplugin/subca-ad-authplugin.sh
 	chmod a+x ./acceptance/legacy/subca-tests/crlissuingpoint/subca-ad-crlissuingpoints.sh
 	chmod a+x ./acceptance/legacy/subca-tests/publishing/subca-ad-publishing.sh
 	chmod a+x ./acceptance/legacy/subca-tests/crls/subca-ag-crls.sh
+	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ag-certificates.sh
+	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ag-requests.sh
+	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ee-enrollments.sh
+	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ee-retrieval.sh
+	chmod a+x ./acceptance/legacy/subca-tests/profiles/subca-ad-profiles.sh
+	chmod a+x ./acceptance/legacy/subca-tests/profiles/subca-ag-profiles.sh
+	chmod a+x ./acceptance/legacy/subca-tests/logs/subca-ad-logs.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
