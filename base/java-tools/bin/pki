@@ -19,7 +19,6 @@
 # All rights reserved.
 #
 
-import os
 import shlex
 import subprocess
 import sys
@@ -109,6 +108,7 @@ def run_java_cli(args):
     exit(rv)
 
 
+# pylint: disable=W0613
 def run_python_cli(args):
 
     raise Exception('Not implemented')
