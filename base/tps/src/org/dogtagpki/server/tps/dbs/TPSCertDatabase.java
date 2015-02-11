@@ -19,8 +19,7 @@
 package org.dogtagpki.server.tps.dbs;
 
 import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
+import java.util.Map;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -59,13 +58,21 @@ public class TPSCertDatabase extends LDAPDatabase<TPSCertRecord> {
     }
 
     @Override
-    public String createFilter(String filter) {
+    public String createFilter(String keyword, Map<String, String> attributes) {
 
-        if (StringUtils.isEmpty(filter)) {
-            return "(id=*)";
+        StringBuilder sb = new StringBuilder();
+
+        if (keyword != null) {
+            keyword = LDAPUtil.escapeFilter(keyword);
+            sb.append("(|(id=*" + keyword + "*)(tokenID=*" + keyword + "*)(userID=*" + keyword + "*))");
         }
 
-        filter = LDAPUtil.escapeFilter(filter);
-        return "(|(id=*" + filter + "*)(tokenID=*" + filter + "*)(userID=*" + filter + "*))";
+        createFilter(sb, attributes);
+
+        if (sb.length() == 0) {
+            sb.append("(id=*)");
+        }
+
+        return sb.toString();
     }
 }

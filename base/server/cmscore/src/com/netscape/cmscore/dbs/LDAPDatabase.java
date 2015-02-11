@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Map;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -17,6 +18,7 @@ import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * This class implements LDAP database.
@@ -98,15 +100,33 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     }
 
     public abstract String createDN(String id);
-    public abstract String createFilter(String filter);
+    public abstract String createFilter(String keyword, Map<String, String> attributes);
+
+    public void createFilter(StringBuilder sb, Map<String, String> attributes) {
+
+        // if no attributes specified, don't change filter
+        if (attributes == null || attributes.isEmpty()) return;
+
+        // wrap current filter with attribute matching filter
+        sb.insert(0, "(&");
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            sb.append("(" + entry.getKey() + "=" + LDAPUtil.escapeFilter(entry.getValue()) + ")");
+        }
+        sb.append(")");
+    }
 
     @Override
-    public Collection<E> findRecords(String filter) throws Exception {
+    public Collection<E> findRecords(String keyword) throws Exception {
+        return findRecords(keyword, null);
+    }
+
+    public Collection<E> findRecords(String keyword, Map<String, String> attributes) throws Exception {
+
         CMS.debug("LDAPDatabase: findRecords()");
 
         try (IDBSSession session = dbSubsystem.createSession()) {
             Collection<E> list = new ArrayList<E>();
-            String ldapFilter = createFilter(filter);
+            String ldapFilter = createFilter(keyword, attributes);
             CMS.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
             IDBSearchResults results = session.search(baseDN, ldapFilter);
 
