@@ -121,7 +121,8 @@ public class TokenService extends PKIService implements TokenResource {
         return TokenStatus.PERM_LOST;
     }
 
-    public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState) throws Exception {
+    public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser)
+            throws Exception {
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
         switch (tokenState) {
@@ -135,7 +136,7 @@ public class TokenService extends PKIService implements TokenResource {
             if (origStatus.equalsIgnoreCase("lost") &&
                     origReason.equalsIgnoreCase("onHold")) {
                 //unrevoke certs
-                tps.tdb.unRevokeCertsByCUID(tokenRecord.getId());
+                tps.tdb.unRevokeCertsByCUID(tokenRecord.getId(), ipAddress, remoteUser);
             }
 
             tokenRecord.setStatus("active");
@@ -147,14 +148,14 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord.setReason("keyCompromise");
 
             //revoke certs
-            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "keyCompromise");
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "keyCompromise", ipAddress, remoteUser);
             break;
         case DAMAGED:
             tokenRecord.setStatus("lost");
             tokenRecord.setReason("destroyed");
 
             //revoke certs
-            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "destroyed");
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "destroyed", ipAddress, remoteUser);
 
             break;
         case TEMP_LOST:
@@ -162,10 +163,10 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord.setReason("onHold");
 
             // put certs onHold
-            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "onHold");
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "onHold", ipAddress, remoteUser);
             break;
         case TERMINATED:
-            String reason = "keyCompromise";
+            String reason = "terminated";
             String origStatus2 = tokenRecord.getStatus();
             String origReason2 = tokenRecord.getReason();
             // temp token looks at "onHold"
@@ -177,7 +178,7 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord.setReason(reason);
 
             //revoke certs
-            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), reason) ;
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), reason, ipAddress, remoteUser) ;
             break;
         default:
             throw new PKIException("Unsupported token state: " + tokenState);
@@ -213,13 +214,13 @@ public class TokenService extends PKIService implements TokenResource {
         return tokenData;
     }
 
-    public TokenRecord createTokenRecord(TokenData tokenData) throws Exception {
+    public TokenRecord createTokenRecord(TokenData tokenData, String ipAddress, String remoteUser) throws Exception {
 
         TokenRecord tokenRecord = new TokenRecord();
         tokenRecord.setId(tokenData.getID());
         tokenRecord.setUserID(tokenData.getUserID());
         tokenRecord.setType(tokenData.getType());
-        setTokenStatus(tokenRecord, tokenData.getStatus());
+        setTokenStatus(tokenRecord, tokenData.getStatus(), ipAddress, remoteUser);
         tokenRecord.setAppletID(tokenData.getAppletID());
         tokenRecord.setKeyInfo(tokenData.getKeyInfo());
         tokenRecord.setPolicy(tokenData.getPolicy());
@@ -320,7 +321,7 @@ public class TokenService extends PKIService implements TokenResource {
             // new tokens are uninitialized when created
             tokenData.setStatus(TokenStatus.UNINITIALIZED);
 
-            tokenRecord = createTokenRecord(tokenData);
+            tokenRecord = createTokenRecord(tokenData, ipAddress, remoteUser);
             tokenRecord.setId(tokenID);
             database.addRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
@@ -506,7 +507,7 @@ public class TokenService extends PKIService implements TokenResource {
             }
 
             CMS.debug("TokenService.changeTokenStatus(): next status allowed: " + tokenStatus);
-            setTokenStatus(tokenRecord, tokenStatus);
+            setTokenStatus(tokenRecord, tokenStatus, ipAddress, remoteUser);
             database.updateRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
                 ipAddress, msg, "success",

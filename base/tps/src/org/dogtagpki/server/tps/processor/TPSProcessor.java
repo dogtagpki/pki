@@ -1195,7 +1195,7 @@ public class TPSProcessor {
             throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
         //find all certs belonging to the token
-        ArrayList<TPSCertRecord> certRecords = tps.tdb.tdbGetCertificatesByCUID(cuid);
+        ArrayList<TPSCertRecord> certRecords = tps.tdb.tdbGetCertRecordsByCUID(cuid);
 
         CMS.debug(method + ": found " + certRecords.size() + " certs");
 

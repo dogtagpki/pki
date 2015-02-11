@@ -1004,7 +1004,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
          * Get certs from the tokendb for this token to find out about
          * renewal possibility
          */
-        ArrayList<TPSCertRecord> allCerts = tps.tdb.tdbGetCertificatesByCUID(tokenRecord.getId());
+        ArrayList<TPSCertRecord> allCerts = tps.tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
 
         certsInfo.setNumCertsToEnroll(keyTypeNum);
 
@@ -1366,7 +1366,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     actualCertIndex++;
                 }
 
-                ArrayList<TPSCertRecord> certs = tps.tdb.tdbGetCertificatesByCUID(toBeRecovered.getId());
+                ArrayList<TPSCertRecord> certs = tps.tdb.tdbGetCertRecordsByCUID(toBeRecovered.getId());
 
                 String serialToRecover = null;
                 TPSCertRecord certToRecover = null;
@@ -1441,10 +1441,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         }
                     }
 
-                    // set cert status to active
-                    certToRecover.setStatus("active");
                     try {
-                        tps.tdb.tdbUpdateCertEntry(certToRecover);
+                        // set cert status to active
+                        tps.tdb.updateCertsStatus(certToRecover.getSerialNumber(),
+                                                  certToRecover.getIssuedBy(),
+                                                  "active");
                     } catch (Exception e) {
                         auditMsg = "failed tdbUpdateCertEntry";
                         CMS.debug(method + ":" + auditMsg);

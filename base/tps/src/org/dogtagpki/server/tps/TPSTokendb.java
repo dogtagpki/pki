@@ -20,6 +20,7 @@ package org.dogtagpki.server.tps;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import netscape.security.x509.RevocationReason;
 
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
 import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
+import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.tps.main.TPSException;
@@ -258,7 +260,7 @@ public class TPSTokendb {
      * @param cuid the cuid of the token
      * @return ArrayList of the cert records
      */
-    public ArrayList<TPSCertRecord> tdbGetCertificatesByCUID(String cuid)
+    public ArrayList<TPSCertRecord> tdbGetCertRecordsByCUID(String cuid)
             throws TPSException {
         if (cuid == null)
             throw new TPSException("TPSTokendb.tdbGetCertificatesByCUID: cuid null");
@@ -268,6 +270,36 @@ public class TPSTokendb {
         Iterator<TPSCertRecord> records;
         try {
              records = tps.certDatabase.findRecords(filter).iterator();
+        } catch (Exception e) {
+            CMS.debug("TPSTokendb.tdbGetCertificatesByCUID:" + e);
+            throw new TPSException(e.getMessage());
+        }
+
+        while (records.hasNext()) {
+            TPSCertRecord certRecord = records.next();
+            certRecords.add(certRecord);
+        }
+
+        return certRecords;
+    }
+
+    public ArrayList<TPSCertRecord> tdbGetCertRecordsByCert(String serial, String issuer)
+            throws TPSException {
+        if (serial == null)
+            throw new TPSException("TPSTokendb.tdbGetCertificatesBySerial: serial null");
+
+        if (issuer == null) {
+            throw new TPSException("TPSTokendb.tdbGetCertificatesBySerial: issuer null");
+        }
+
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put("serialNumber", serial);
+        attributes.put("issuedBy", issuer);
+
+        ArrayList<TPSCertRecord> certRecords = new ArrayList<TPSCertRecord>();
+        Iterator<TPSCertRecord> records;
+        try {
+            records = tps.certDatabase.findRecords(null, attributes).iterator();
         } catch (Exception e) {
             CMS.debug("TPSTokendb.tdbGetCertificatesByCUID:" + e);
             throw new TPSException(e.getMessage());
@@ -306,20 +338,105 @@ public class TPSTokendb {
         }
     }
 
-    public void revokeCertsByCUID(String cuid, String tokenReason) throws Exception {
+    public void revokeCertsByCUID(String cuid, String tokenReason, String ipAddress, String remoteUser)
+            throws Exception {
         String method = "TPStokendb.revokeCertsByCUID";
         CMS.debug(method + ": called");
         if (cuid == null)
             throw new TPSException(method + ": cuid null");
-        revokeCertsByCUID(true, cuid, tokenReason);
+        revokeCertsByCUID(true, cuid, tokenReason, ipAddress, remoteUser);
     }
 
-    public void unRevokeCertsByCUID(String cuid) throws Exception {
+    public void unRevokeCertsByCUID(String cuid, String ipAddress, String remoteUser) throws Exception {
         String method = "TPStokendb.unRevokeCertsByCUID";
         CMS.debug(method + ": called");
         if (cuid == null)
             throw new TPSException(method + ": cuid null");
-        revokeCertsByCUID(false, cuid, null /* null for unrevoke*/);
+        revokeCertsByCUID(false, cuid, null /* null for unrevoke*/, ipAddress, remoteUser);
+    }
+
+    private boolean isLastActiveSharedCert(String serial, String issuer, String cuid) throws TPSException {
+        ArrayList<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertRecordsByCert(serial, issuer);
+        for (TPSCertRecord cert : certRecords) {
+            // exclude current token
+            if (cert.getTokenID().equals(cuid))
+                continue;
+
+            if (cert.getStatus().equals("active"))
+                return false;
+        }
+
+        return true;
+    }
+
+    private boolean shouldRevoke(TPSCertRecord cert, String cuid, String tokenReason,
+            String ipAddress, String remoteUser) throws Exception {
+        IConfigStore configStore = CMS.getConfigStore();
+        String method = "TPStokendb.shouldRevoke";
+        String activityMsg;
+
+        if (cert == null) {
+            throw new TPSException(method + ": cert null");
+        }
+
+        String tokenType = cert.getType();
+        String keyType = cert.getKeyType();
+
+        // check if certificate revocation is enabled
+        String config = "op.enroll." + tokenType + ".keyGen." + keyType +
+                ".recovery." + tokenReason + ".revokeCert";
+        boolean revokeCerts = configStore.getBoolean(config, true);
+        if (!revokeCerts) {
+            activityMsg = "certificate revocation (serial " + cert.getSerialNumber() +
+                    ") not enabled for tokenType: " + tokenType +
+                    ", keyType: " + keyType +
+                    ", state: " + tokenReason;
+
+            tdbActivity(ActivityDatabase.OP_DO_TOKEN, tdbGetTokenEntry(cuid),
+                    ipAddress, activityMsg, "success", remoteUser);
+
+            return false;
+        }
+
+        // check if expired certificates should be revoked.
+        config = "op.enroll." + tokenType + ".keyGen." + keyType + ".recovery." +
+                tokenReason + ".revokeExpiredCerts";
+        boolean revokeExpiredCerts = configStore.getBoolean(config, true);
+        if (!revokeExpiredCerts) {
+            Date notBefore = cert.getValidNotBefore();
+            Date notAfter = cert.getValidNotAfter();
+            Date now = new Date();
+            if (now.after(notAfter)) {
+                activityMsg = "revocation not enabled for expired cert: " + cert.getSerialNumber();
+                tdbActivity(ActivityDatabase.OP_DO_TOKEN, tdbGetTokenEntry(cuid),
+                        ipAddress, activityMsg, "success", remoteUser);
+                return false;
+            }
+            if (now.before(notBefore)) {
+                activityMsg = "revocation not enabled for cert that is not yet valid: " + cert.getSerialNumber();
+                tdbActivity(ActivityDatabase.OP_DO_TOKEN, tdbGetTokenEntry(cuid),
+                        ipAddress, activityMsg, "success", remoteUser);
+                return false;
+            }
+        }
+
+        // check if certs on multiple tokens should be revoked
+        config = "op.enroll." + tokenType + ".keyGen." + keyType + ".recovery." +
+                tokenReason + ".holdRevocationUntilLastCredential";
+        boolean holdRevocation = configStore.getBoolean(config, false);
+        if (holdRevocation) {
+            if (!isLastActiveSharedCert(cert.getSerialNumber(), cert.getIssuedBy(), cuid)) {
+                activityMsg = "revocation not permitted as certificate " + cert.getSerialNumber() +
+                        " is shared by anothr active token";
+
+                tdbActivity(ActivityDatabase.OP_DO_TOKEN, tdbGetTokenEntry(cuid),
+                        ipAddress, activityMsg, "success", remoteUser);
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /*
@@ -328,17 +445,19 @@ public class TPSTokendb {
      * @param cuid cuid of token to revoke/unrevoke
      * @param onHold true if revocation is to put onHold; false if to really revoke
      */
-    private void revokeCertsByCUID(boolean isRevoke, String cuid, String tokenReason) throws Exception {
+    private void revokeCertsByCUID(boolean isRevoke, String cuid, String tokenReason,
+            String ipAddress, String remoteUser) throws Exception {
         String method = "TPSTokendb.revokeCertsByCUID";
         if (cuid == null)
             throw new TPSException(method + ": cuid null");
         String auditMsg;
         IConfigStore configStore = CMS.getConfigStore();
-        ArrayList<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertificatesByCUID(cuid);
+        ArrayList<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertRecordsByCUID(cuid);
         if (tokenReason != null) {
             if (!tokenReason.equalsIgnoreCase("onHold") &&
                     !tokenReason.equalsIgnoreCase("destroyed") &&
-                    !tokenReason.equalsIgnoreCase("keyCompromise")) {
+                    !tokenReason.equalsIgnoreCase("keyCompromise") &&
+                    !tokenReason.equalsIgnoreCase("terminated")) {
                 auditMsg = "unknown tokenRecord lost reason:" + tokenReason;
                 CMS.debug(method + ":" + auditMsg);
                 throw new Exception(method + ":" + auditMsg);
@@ -355,13 +474,8 @@ public class TPSTokendb {
             if (isRevoke) {
                 auditMsg = "called to revoke";
                 CMS.debug(method + ":" + auditMsg);
-                boolean revokeCert = false;
+                boolean revokeCert = shouldRevoke(cert, cuid, tokenReason, ipAddress, remoteUser);
 
-                // get revoke or not
-                config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() +
-                        ".recovery." + tokenReason + ".revokeCert";
-                //TODO: temporaryToken doesn't have all params; default to false if not found for now
-                revokeCert = configStore.getBoolean(config, false); // default to false
                 if (!revokeCert) {
                     auditMsg = "cert not to be revoked:" + cert.getSerialNumber();
                     CMS.debug(method + ":" + auditMsg);
@@ -407,17 +521,26 @@ public class TPSTokendb {
             // update certificate status
             if (isRevoke) {
                 if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
-                    cert.setStatus("revoked_on_hold");
+                    updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "revoked_on_hold");
                 } else {
-                    cert.setStatus("revoked");
+                    updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "revoked");
                 }
             } else {
-                cert.setStatus("active");
+                updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "active");
             }
-            tps.certDatabase.updateRecord(cert.getId(), cert);
+
             auditMsg = "cert (un)revoked:" + cert.getSerialNumber();
             CMS.debug(method + ":" + auditMsg);
             //TODO: tdbActivity
+        }
+    }
+
+    public void updateCertsStatus(String serial, String issuer, String status) throws Exception {
+        ArrayList<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertRecordsByCert(serial, issuer);
+
+        for (TPSCertRecord certRecord : certRecords) {
+            certRecord.setStatus(status);
+            tps.certDatabase.updateRecord(certRecord.getId(), certRecord);
         }
     }
 
