@@ -237,7 +237,7 @@ public abstract class EnrollProfile extends BasicProfile
             info.set(X509CertInfo.KEY,
                     new CertificateX509Key(X509Key.parse(new DerValue(dummykey))));
             info.set(X509CertInfo.SUBJECT,
-                    new CertificateSubjectName(issuerName));
+                    new CertificateSubjectName(new X500Name("CN=Dummy Subject Name")));
             info.set(X509CertInfo.VALIDITY,
                     new CertificateValidity(new Date(), new Date()));
             info.set(X509CertInfo.ALGORITHM_ID,
