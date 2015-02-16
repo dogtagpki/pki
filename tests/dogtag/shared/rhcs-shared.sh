@@ -14,10 +14,13 @@
 #	runJava <java class> <input>
 #	set_javapath
 #	install_and_trust_CA_cert <ca_server_root> <nss_db_dir>
+#       install_and_trust_user_cert <certificate pem file> <nickname> <nss-db-directory>
 #	disable_ca_nonce <ca_server_root>
 #	enable_ca_nonce <ca_server_root>
 #	importP12File <P12FileLocation> <P12FilePassword> <nssdbDirectory> <nssdbPassword> <cert_nickname>
-#
+#       forward_system_clock <number_of_days>
+#       reverse_system_clock <number_of_days>
+#       replace_string_in_a_file <file_name> <original_string> <replace_string>
 ######################################################################
 #######################################################################
 
@@ -270,6 +273,76 @@ install_and_trust_KRA_cert(){
         rlRun "certutil -d $kra_nss_dir -L -n \"$kra_cert_nick\" -a > $nss_db_dir/kra_cert.pem"
         rlRun "certutil -d $nss_db_dir -A -n \"$kra_cert_nick\" -i $nss_db_dir/kra_cert.pem -t \"CT,CT,CT\" "
 }
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# install_and_trust_user_cert
+#   Usage: install_and_trust_user_cert <certificate pem file> <nickname> <nss-db-directory>
+#
+# This will check and install user certificate in a given nss-db
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+install_and_trust_user_cert(){
+        local cert_pem_file="$1"
+        local user_cert_nick="$2"
+        local nss_db_dir="$3"
+        rlRun "certutil -d $nss_db_dir -A -n \"$user_cert_nick\" -i $cert_pem_file -t \"u,u,u\" "
+}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# forward_system_clock
+#   Usage: forward_system_clock <number_of_days>
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+forward_system_clock(){
+        local number_of_days=$1
+        rlLog "Current Date/Time: $(date)"
+        rlRun "chronyc -a 'manual on' 1> $TmpDir/chrony.out" 0 "Set chrony to manual mode"
+        rlAssertGrep "200 OK" "$TmpDir/chrony.out"
+        local cur_date=$(date)
+        rlLog "Move system to $cur_date + $number_of_days days ahead"
+        rlRun "chronyc -a -m 'offline' 'settime $cur_date + $number_of_days days' 'makestep' 'manual reset' 1> $TmpDir/chrony.out"
+        rlLog "Date after modifying using chrony: $(date)"
+}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# reverse_system_clock
+#   Usage: reverse_system_clock <number_of_days>
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+reverse_system_clock(){
+        local numdays=$1
+        rlLog "number_of_days=$numdays"
+        rlLog "Current Date/Time: $(date)"
+        local new_string="$numdays days ago"
+        local new_date=$(date -d "$new_string")
+        rlRun "chronyc -a -m 'settime $new_date' 'makestep' 'manual reset' 'online' 1> $TmpDir/chrony.out"
+        rlAssertGrep "200 OK" "$TmpDir/chrony.out"
+        rlLog "Date after modifying using chrony: $(date)"
+}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#       replace_string_in_a_file <file_name> <original_string> <replace_string>
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+replace_string_in_a_file()
+{
+        local file_name=$1
+        local original_string=$2
+        local replace_string=$3
+        local rc=0
+        temp_file="$file_name.temp"
+        rlRun "sed 's/$original_string/$replace_string/g' $file_name > $temp_file"
+        cp $temp_file $file_name
+        cat $file_name | grep $replace_string
+        if [ $? -ne 0 ] ; then
+                rlLog "$file_name did not get replaced with $replace_string"
+                rc=1
+        fi
+        return $rc
+}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # disable_ca_nonce

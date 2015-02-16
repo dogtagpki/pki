@@ -259,11 +259,15 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/ca-tests/publishing/ca-admin-publishing.sh
 	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-certificates.sh
 	chmod a+x ./acceptance/legacy/ca-tests/ocsp/ca-ee-ocsp.sh
+	chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_manual.sh
+        chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_DirAuthUserCert.sh
+        chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_caSSLClientCert.sh
 	chmod a+x ./acceptance/legacy/drm-tests/acls/drm-ad-acls.sh
 	chmod a+x ./acceptance/legacy/drm-tests/agent/drm-ag-tests.sh
 	chmod a+x ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
 	chmod a+x ./acceptance/legacy/drm-tests/usergroups/drm-ad-usergroups.sh	
 	chmod a+x ./acceptance/legacy/drm-tests/logs/drm-ad-logs.sh
+	chmod a+x ./acceptance/legacy/subca-tests/usergroups/subca-usergroups.sh
 	chmod a+x ./acceptance/legacy/subca-tests/acls/subca-ad-acls.sh
 	chmod a+x ./acceptance/legacy/subca-tests/internaldb/subca-ad-internaldb.sh
 	chmod a+x ./acceptance/legacy/subca-tests/authplugin/subca-ad-authplugin.sh
