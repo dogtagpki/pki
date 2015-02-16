@@ -277,6 +277,10 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/subca-tests/profiles/subca-ad-profiles.sh
 	chmod a+x ./acceptance/legacy/subca-tests/profiles/subca-ag-profiles.sh
 	chmod a+x ./acceptance/legacy/subca-tests/logs/subca-ad-logs.sh
+	chmod a+x ./acceptance/legacy/ocsp-tests/usergroups/ocsp-ad-usergroups.sh
+	chmod a+x ./acceptance/legacy/ocsp-tests/acls/ocsp-ad-acls.sh
+	chmod a+x ./acceptance/legacy/ocsp-tests/logs/ocsp-ad-logs.sh
+	chmod a+x ./acceptance/legacy/ocsp-tests/internaldb/ocsp-ad-internaldb.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh

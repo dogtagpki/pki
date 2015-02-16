@@ -154,7 +154,7 @@ run_ee-subca-retrieval_tests()
         rlAssertGrep "Invalid number format: abcd" "$TmpDir/$test_out"
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-004: CA Cert Retrieval -  List Certificates(Default values list first 20 records)"
+	rlPhaseStartTest "pki_subca_ee-retrieval-005: CA Cert Retrieval -  List Certificates(Default values list first 20 records)"
 	local op=listCerts
 	local queryCertFilter="(|(certStatus=VALID)(certStatus=REVOKED))"
 	local serialFrom=""
@@ -170,7 +170,7 @@ run_ee-subca-retrieval_tests()
 	rlAssertEquals "Verify No of records displayed is equal to $maxCount" $no_of_records $maxCount
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-005: CA Cert Retrieval - List Certificates from range 0x5 to 0x20"
+	rlPhaseStartTest "pki_subca_ee-retrieval-006: CA Cert Retrieval - List Certificates from range 0x5 to 0x20"
         local op=listCerts
         local queryCertFilter="(|(certStatus=VALID)(certStatus=REVOKED))"
         local serialFrom="0x5"
@@ -283,7 +283,7 @@ run_ee-subca-retrieval_tests()
 	let i=$i+1
 	done
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-006: CA Cert Retrieval - List only valid certificates"
+	rlPhaseStartTest "pki_subca_ee-retrieval-007: CA Cert Retrieval - List only valid certificates"
         local op=listCerts
         local queryCertFilter="(certStatus=VALID)"
         local serialFrom="0"
@@ -301,7 +301,7 @@ run_ee-subca-retrieval_tests()
         rlAssertNotGrep "record.revokedBy=\"$valid_agent_cert\"" "$TmpDir/$test_out"
 	rlPhaseEnd
         
-	rlPhaseStartTest "pki_subca_ee-retrieval-007: CA Cert Retrieval - List certs with max count of 10"
+	rlPhaseStartTest "pki_subca_ee-retrieval-008: CA Cert Retrieval - List certs with max count of 10"
         local op=listCerts
         local queryCertFilter="(certStatus=VALID)"
         local serialFrom="0"
@@ -321,7 +321,7 @@ run_ee-subca-retrieval_tests()
         rlPhaseEnd
 
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-008: CA Cert Retrieval - Search certs with max count of 10"
+	rlPhaseStartTest "pki_subca_ee-retrieval-009: CA Cert Retrieval - Search certs with max count of 10"
 	local test_out=srcCerts.txt
 	local op=srchCerts
 	local serialNumberRangeInUse="on"
@@ -446,7 +446,7 @@ run_ee-subca-retrieval_tests()
         rlRun "verify_cert \"$serial_number\" \"$cert_requestdn\"" 0 "Verify cert"
 	rlPhaseEnd
 
-        rlPhaseStartTest "pki_subca_ee-retrieval-009: CA Cert Retrieval - Search certs with subject Name matching Email Address(method=exact)"
+        rlPhaseStartTest "pki_subca_ee-retrieval-0010: CA Cert Retrieval - Search certs with subject Name matching Email Address(method=exact)"
         local test_out=srcCerts.txt
         local op=srchCerts
         local serialNumberRangeInUse=''
@@ -500,7 +500,7 @@ run_ee-subca-retrieval_tests()
 	rlAssertGrep "record.serialNumber=\"$serial_number_without_hex_lower\"" "$TmpDir/$test_out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_subca_ee-retrieval-0010: CA Cert Retrieval - Search certs with subject Name matching userID(method=exact)"
+        rlPhaseStartTest "pki_subca_ee-retrieval-0011: CA Cert Retrieval - Search certs with subject Name matching userID(method=exact)"
         local test_out=srcCerts.txt
         local op=srchCerts
         local serialNumberRangeInUse=''
@@ -555,7 +555,7 @@ run_ee-subca-retrieval_tests()
         rlPhaseEnd
 
 
-        rlPhaseStartTest "pki_subca_ee-retrieval-0011: CA Cert Retrieval - Search revoked certs with revoked by valid agent"
+        rlPhaseStartTest "pki_subca_ee-retrieval-0012: CA Cert Retrieval - Search revoked certs with revoked by valid agent"
         local test_out=srcCerts.txt
         local op=srchCerts
         local serialNumberRangeInUse=''
@@ -610,7 +610,7 @@ run_ee-subca-retrieval_tests()
         rlPhaseEnd
 
 	
-	rlPhaseStartTest "pki_subca_ee-retrieval-0012: CA Cert Retrieval - Search revoked certs with revoked by reason Unspecified"
+	rlPhaseStartTest "pki_subca_ee-retrieval-0013: CA Cert Retrieval - Search revoked certs with revoked by reason Unspecified"
         local op=srchCerts
         local serialNumberRangeInUse=''
         local serialFrom=''
@@ -755,7 +755,7 @@ run_ee-subca-retrieval_tests()
         rlAssertGrep "header.error = null" "$TmpDir/$test_out"
         rlPhaseEnd
 	
-	rlPhaseStartTest "pki_subca_ee-retrieval-0013: CA Cert Retrieval - Search revoked certs with revoked by reason Unspecified & key compromise"
+	rlPhaseStartTest "pki_subca_ee-retrieval-0014: CA Cert Retrieval - Search revoked certs with revoked by reason Unspecified & key compromise"
         local op=srchCerts
         local serialNumberRangeInUse=''
         local serialFrom=''
@@ -813,7 +813,7 @@ run_ee-subca-retrieval_tests()
         local no_of_records=$(cat $TmpDir/$test_out | grep "record.subject=" | wc -l)
         rlPhaseEnd
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-0014: CA Cert Retrieval - Search certs issued by Valid agent cert"
+	rlPhaseStartTest "pki_subca_ee-retrieval-0015: CA Cert Retrieval - Search certs issued by Valid agent cert"
         local op=srchCerts
         local serialNumberRangeInUse=''
         local serialFrom=''
@@ -926,7 +926,7 @@ run_ee-subca-retrieval_tests()
         rlAssertGrep "Status: VALID" "$cert_out"
         rlAssertGrep "Not  After: $NotAfterDate" "$cert_out"
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-0015: CA Cert Retrieval - Search certs with a validity period of 15 days"
+	rlPhaseStartTest "pki_subca_ee-retrieval-0016: CA Cert Retrieval - Search certs with a validity period of 15 days"
         local op=srchCerts
         local serialNumberRangeInUse=''
         local serialFrom=''
@@ -979,7 +979,7 @@ run_ee-subca-retrieval_tests()
 	rlAssertGrep "record.subject=\"$cert_subject\"" "$TmpDir/$test_out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-0015: CA Cert Retrieval - Import CA Certificate chain"
+	rlPhaseStartTest "pki_subca_ee-retrieval-0017: CA Cert Retrieval - Import CA Certificate chain"
 	local op='download'
 	local mimetype='application/x-x509-ca-cert'
 	local test_out=cacert.out
@@ -988,7 +988,7 @@ run_ee-subca-retrieval_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$admin_out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-0016: CA Cert Retrieval - Download CA certificate in binary format"
+	rlPhaseStartTest "pki_subca_ee-retrieval-0018: CA Cert Retrieval - Download CA certificate in binary format"
 	local op='downloadBin'
 	local mimetype='application/x-x509-ca-cert'
 	local test_out=cacert.out
@@ -997,7 +997,7 @@ run_ee-subca-retrieval_tests()
 	rlAssertGrep "HTTP/1.1 200 OK" "$admin_out"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_subca_ee-retrieval-0017: CA Cert Retrieval - Import latest CRL"
+	rlPhaseStartTest "pki_subca_ee-retrieval-0019: CA Cert Retrieval - Import latest CRL"
 	local crlIssuingPoint='MasterCRL'
 	local certSerialNumber=''
 	local op='importCRL'

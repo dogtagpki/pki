@@ -209,6 +209,11 @@
 . ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
 . ./acceptance/legacy/drm-tests/usergroups/drm-ad-usergroups.sh
 . ./acceptance/legacy/drm-tests/logs/drm-ad-logs.sh
+. ./acceptance/legacy/ocsp-tests/usergroups/ocsp-ad-usergroups.sh
+. ./acceptance/legacy/ocsp-tests/acls/ocsp-ad-acls.sh
+. ./acceptance/legacy/ocsp-tests/logs/ocsp-ad-logs.sh
+. ./acceptance/legacy/ocsp-tests/internaldb/ocsp-ad-internaldb.sh
+. ./acceptance/legacy/ocsp-tests/agent/ocsp-ag-tests.sh
 . ./acceptance/bugzilla/bug_setup.sh
 . ./acceptance/bugzilla/bug_uninstall.sh
 . ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
@@ -1622,6 +1627,31 @@ rlJournalStart
 		subsystemType=ca
 		run_admin-subca-log_tests $subsystemType $MYROLE
 	fi	
+        PKI_LEGACY_OCSP_AD_USERGROUPS_UPPERCASE=$(echo $PKI_LEGACY_OCSP_AD_USERGROUPS | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_OCSP_AD_USERGROUPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ocsp
+                run_ocsp-ad_usergroups $subsystemType $MYROLE
+        fi
+        PKI_LEGACY_OCSP_AD_ACLS_UPPERCASE=$(echo $PKI_LEGACY_OCSP_AD_ACLS | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_OCSP_AD_ACLS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ocsp
+                run_admin-ocsp-acl_tests $subsystemType $MYROLE
+        fi
+        PKI_LEGACY_OCSP_AD_LOGS_UPPERCASE=$(echo $PKI_LEGACY_OCSP_AD_LOGS | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_OCSP_AD_LOGS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ocsp
+                run_admin-ocsp-log_tests $subsystemType $MYROLE
+        fi
+        PKI_LEGACY_OCSP_AD_INTERNALDB_UPPERCASE=$(echo $PKI_LEGACY_OCSP_AD_INTERNALDB | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_OCSP_AD_INTERNALDB_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ocsp
+                run_admin-ocsp-internaldb_tests $subsystemType $MYROLE
+        fi
+        PKI_LEGACY_OCSP_AG_UPPERCASE=$(echo $PKI_LEGACY_OCSP_AG_TESTS | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_OCSP_AG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ocsp
+                run_ocsp-ag_tests $subsystemType $MYROLE
+        fi
 	rlPhaseEnd
 	######## DEV UNIT TESTS ############
 	DEV_JAVA_TESTS_UPPERCASE=$(echo $DEV_JAVA_TESTS | tr [a-z] [A-Z])
