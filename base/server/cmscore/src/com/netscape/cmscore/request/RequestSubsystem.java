@@ -79,12 +79,6 @@ public class RequestSubsystem
     }
 
     public IRequestQueue
-            getRequestQueue(String name, int increment, IPolicy p, IService s, INotify n)
-                    throws EBaseException {
-        return getRequestQueue(name, increment, p, s, n, null);
-    }
-
-    public IRequestQueue
             getRequestQueue(String name, int increment, IPolicy p, IService s, INotify n,
                     INotify pendingNotifier)
                     throws EBaseException {
