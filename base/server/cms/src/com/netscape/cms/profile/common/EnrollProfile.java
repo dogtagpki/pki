@@ -334,8 +334,7 @@ public abstract class EnrollProfile extends BasicProfile
         //   }
         // }
 
-        IAuthority authority = getAuthority();
-        IRequestQueue queue = authority.getRequestQueue();
+        IRequestQueue queue = getRequestQueue();
 
         // this profile queues request that is authenticated
         // by NoAuth
