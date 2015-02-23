@@ -700,11 +700,13 @@ get_topo_stack()
 	        echo "MY_KRA=KRA3" >> $TOPO_FILE
         	echo "MY_OCSP=OCSP3" >> $TOPO_FILE
 	        echo "MY_TKS=TKS1" >> $TOPO_FILE
+		echo "MY_TPS=TPS1" >> $TOPO_FILE
 		echo "MY_SUBCA=SUBCA1" >> $TOPO_FILE
                 echo "MY_CLONE_CA=CLONE_CA1" >> $TOPO_FILE
                 echo "MY_CLONE_KRA=CLONE_KRA1" >> $TOPO_FILE
                 echo "MY_CLONE_OCSP=CLONE_OCSP1" >> $TOPO_FILE
                 echo "MY_CLONE_TKS=CLONE_TKS1" >> $TOPO_FILE
+		echo "MY_CLONE_TPS=CLONE_TPS1" >> $TOPO_FILE
 	elif [ $MY_ROLE == "SUBCA1" ]; then
         	echo "MY_CA=SUBCA1" > $TOPO_FILE
 	        echo "MY_KRA=KRA1" >> $TOPO_FILE
@@ -739,4 +741,130 @@ process_curl_output()
         sed -i "s/%3B/":"/g" $output_file
         sed -i "s/%3D/"="/g" $output_file
 }
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+### This script Creates Posix Users with inetOrgPerson , PosixAccount and ShadowAccount ObjectClass
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+create_dir_user()
+{
+local SUFFIX=$1
+local MAX=`expr $2`
+local COUNT=`expr 1`
+local temp=`expr 0`
+local UIDVALUE=14583100
+local GIDVALUE=14564100
+local DOMAIN=$(hostname)
 
+                while [ "$COUNT" -le "$MAX" ]
+                do
+
+                                echo -e "dn: uid=idmuser$(expr $COUNT),ou=People,$SUFFIX"
+                                echo -e "uid: idmuser$(expr $COUNT)"
+                                echo -e "cn: idmuser$(expr $COUNT)"
+                                echo -e "sn: $(expr $COUNT)"
+                                echo -e "objectClass: top"
+                                #echo -e "objectClass: account"
+                                echo -e "objectClass: posixAccount"
+                                echo -e "objectClass: inetOrgPerson"
+                                echo -e "loginShell: /bin/bash"
+                                echo -e "homeDirectory: /home/student$(expr $COUNT)"
+                                uidNumber=$(expr $UIDVALUE + $temp)
+                                echo -e "uidNumber: $uidNumber"
+                                echo -e "gidNumber: $GIDVALUE"
+                                echo -e "userPassword: {SSHA}j3lBh1Seqe4rqF1+NuWmjhvtAni1JC5A"
+                                echo -e "mail: idmuser$(expr $COUNT)@$DOMAIN"
+                                echo -e "gecos: idmuser$(expr $COUNT) User"
+                                echo -e "l: India\n"
+                                COUNT=`expr $COUNT + 1`
+                                temp=`expr $temp + 1`
+
+                done
+                COUNT=`expr 1`
+                echo -e "dn: cn=idmusers,ou=Groups,$SUFFIX"
+                echo -e "objectClass: posixGroup"
+                echo -e "objectClass: top"
+                echo -e "objectClass: groupOfUniqueNames"
+                echo -e "cn: idmusers"
+                echo -e "userPassword: {crypt}x"
+                echo -e "gidNumber: $GIDVALUE"
+                while [ "$COUNT" -le "$MAX" ]
+                do
+                        echo -e "memberUid: idmuser$COUNT"
+                        COUNT=`expr $COUNT + 1`
+                done
+
+}
+
+#################################################################
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+### This script creates a tpsclient enrollment file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+gen_enroll_data_file()
+{
+        tps_host=$1
+        tps_port=$2
+        cuid=$3
+        ldap_user=$4
+        ldap_userpwd=$5
+        data_file=$6
+        new_pin="redhat"
+        rlLog "$data_file"
+        echo "op=var_set name=ra_host value=$tps_host" > $data_file
+        echo "op=var_set name=ra_port value=$tps_port" >> $data_file
+        echo "op=var_set name=ra_uri value=/tps/tps" >> $data_file
+        echo "op=token_set cuid=$cuid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
+        echo "op=token_set auth_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=token_set mac_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=token_set kek_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=ra_enroll uid=$ldap_user pwd=$ldap_userpwd new_pin=$new_pin num_threads=1" >> $data_file
+        echo "op=exit" >> $data_file
+}
+############################################################################################################
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+### This script creates a tpsclient format file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+gen_format_data_file()
+{
+        tps_host=$1
+        tps_port=$2
+        cuid=$3
+        ldap_user=$4
+        ldap_userpwd=$5
+        data_file=$6
+        new_pin="redhat"
+        rlLog "$data_file"
+        echo "op=var_set name=ra_host value=$tps_host" > $data_file
+        echo "op=var_set name=ra_port value=$tps_port" >> $data_file
+        echo "op=var_set name=ra_uri value=/tps/tps" >> $data_file
+        echo "op=token_set cuid=$cuid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
+        echo "op=token_set auth_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=token_set mac_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=token_set kek_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=ra_format uid=$ldap_user pwd=$ldap_userpwd new_pin=$new_pin num_threads=1" >> $data_file
+        echo "op=exit" >> $data_file
+}
+############################################################################################################
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+### This script creates a tpsclient pin reset file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+gen_pin_reset_data_file()
+{
+        tps_host=$1
+        tps_port=$2
+        cuid=$3
+        ldap_user=$4
+        ldap_userpwd=$5
+        data_file=$6
+        new_pin="redhat"
+        rlLog "$data_file"
+        echo "op=var_set name=ra_host value=$tps_host" > $data_file
+        echo "op=var_set name=ra_port value=$tps_port" >> $data_file
+        echo "op=var_set name=ra_uri value=/tps/tps" >> $data_file
+        echo "op=token_set cuid=$cuid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
+        echo "op=token_set auth_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=token_set mac_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=token_set kek_key=404142434445464748494a4b4c4d4e4f" >> $data_file
+        echo "op=ra_reset_pin uid=$ldap_user pwd=$ldap_userpwd new_pin=$new_pin num_threads=1" >> $data_file
+        echo "op=exit" >> $data_file
+}
+#################################################################
+ 
