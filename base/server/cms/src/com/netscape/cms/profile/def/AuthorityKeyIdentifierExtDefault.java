@@ -106,7 +106,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
                 populate(null, info);
 
             } catch (EProfileException e) {
-                CMS.debug("BasicConstraintsExtDefault: getValue " + e.toString());
+                CMS.debug("AuthorityKeyIdentifierExtDefault: getValue " + e.toString());
                 throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
             }
