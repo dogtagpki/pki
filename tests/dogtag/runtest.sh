@@ -218,6 +218,10 @@
 . ./acceptance/legacy/ocsp-tests/logs/ocsp-ad-logs.sh
 . ./acceptance/legacy/ocsp-tests/internaldb/ocsp-ad-internaldb.sh
 . ./acceptance/legacy/ocsp-tests/agent/ocsp-ag-tests.sh
+. ./acceptance/legacy/tks-tests/usergroups/tks-ad-usergroups.sh
+. ./acceptance/legacy/tks-tests/logs/tks-ad-logs.sh
+. ./acceptance/legacy/tks-tests/internaldb/tks-ad-internaldb.sh
+. ./acceptance/legacy/tks-tests/acls/tks-ad-acls.sh
 . ./acceptance/bugzilla/bug_setup.sh
 . ./acceptance/bugzilla/bug_uninstall.sh
 . ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
@@ -1671,6 +1675,26 @@ rlJournalStart
                 subsystemType=ocsp
                 run_ocsp-ag_tests $subsystemType $MYROLE
         fi
+	PKI_LEGACY_TKS_AD_USERGROUPS_UPPERCASE=$(echo $PKI_LEGACY_TKS_AD_USERGROUPS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_TKS_AD_USERGROUPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=tks
+		run_tks-ad_usergroups $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_TKS_AD_ACLS_UPPERCASE=$(echo $PKI_LEGACY_TKS_AD_ACLS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_TKS_AD_ACLS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=tks
+		run_admin-tks-acl_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_TKS_AD_LOGS_UPPERCASE=$(echo $PKI_LEGACY_TKS_AD_LOGS | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_TKS_AD_LOGS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=tks
+		run_admin-tks-log_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_TKS_AD_INTERNALDB_UPPERCASE=$(echo $PKI_LEGACY_TKS_AD_INTERNALDB | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_TKS_AD_INTERNALDB_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		subsystemType=tks
+		run_admin-tks-internaldb_tests $subsystemType $MYROLE
+	fi
 	rlPhaseEnd
 	######## DEV UNIT TESTS ############
 	DEV_JAVA_TESTS_UPPERCASE=$(echo $DEV_JAVA_TESTS | tr [a-z] [A-Z])

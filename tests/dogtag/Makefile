@@ -260,8 +260,8 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/ca-tests/cert-enrollment/ca-ag-certificates.sh
 	chmod a+x ./acceptance/legacy/ca-tests/ocsp/ca-ee-ocsp.sh
 	chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_manual.sh
-        chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_DirAuthUserCert.sh
-        chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_caSSLClientCert.sh
+	chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_DirAuthUserCert.sh
+	chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_caSSLClientCert.sh
 	chmod a+x ./acceptance/legacy/drm-tests/acls/drm-ad-acls.sh
 	chmod a+x ./acceptance/legacy/drm-tests/agent/drm-ag-tests.sh
 	chmod a+x ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
@@ -285,6 +285,10 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/ocsp-tests/acls/ocsp-ad-acls.sh
 	chmod a+x ./acceptance/legacy/ocsp-tests/logs/ocsp-ad-logs.sh
 	chmod a+x ./acceptance/legacy/ocsp-tests/internaldb/ocsp-ad-internaldb.sh
+	chmod a+x ./acceptance/legacy/tks-tests/acls/tks-ad-acls.sh
+	chmod a+x ./acceptance/legacy/tks-tests/internaldb/tks-ad-internaldb.sh
+	chmod a+x ./acceptance/legacy/tks-tests/logs/tks-ad-logs.sh
+	chmod a+x ./acceptance/legacy/tks-tests/usergroups/tks-ad-usergroups.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
