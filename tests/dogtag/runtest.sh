@@ -194,6 +194,7 @@
 . ./acceptance/legacy/ca-tests/renewal/renew_manual.sh
 . ./acceptance/legacy/ca-tests/renewal/renew_DirAuthUserCert.sh
 . ./acceptance/legacy/ca-tests/renewal/renew_caSSLClientCert.sh
+. ./acceptance/legacy/ca-tests/scep_tests/scep-enroll.sh
 . ./acceptance/legacy/subca-tests/usergroups/subca-usergroups.sh
 . ./acceptance/legacy/subca-tests/acls/subca-ad-acls.sh
 . ./acceptance/legacy/subca-tests/internaldb/subca-ad-internaldb.sh
@@ -208,6 +209,7 @@
 . ./acceptance/legacy/subca-tests/profiles/subca-ad-profiles.sh
 . ./acceptance/legacy/subca-tests/profiles/subca-ag-profiles.sh
 . ./acceptance/legacy/subca-tests/logs/subca-ad-logs.sh
+. ./acceptance/legacy/subca-tests/scep_tests/subca-scep-enroll.sh
 . ./acceptance/legacy/drm-tests/acls/drm-ad-acls.sh
 . ./acceptance/legacy/drm-tests/agent/drm-ag-tests.sh
 . ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
@@ -1537,23 +1539,29 @@ rlJournalStart
                 run_ca-ee-ocsp_tests $subsystemType $MYROLE
         fi
 	PKI_LEGACY_CA_RENEW_MANUAL_UPPERCASE=$(echo $PKI_LEGACY_CA_RENEW_MANUAL | tr [a-z] [A-Z])
-        if [ "$PKI_LEGACY_CA_RENEW_MANUAL_UPPERCASE" = "TRUE" ] || [ "TEST_ALL_UPPERCASE" = "TRUE" ]; then
-                # Execute pki ca-renew-manual tests
-                subsystemType=ca
-                run_pki-legacy-ca-renew_manual_tests $subsystemType $MYROLE
-        fi
-        PKI_LEGACY_CA_RENEW_DIRECTORY_AUTH_USERCERT_UPPERCASE=$(echo $PKI_LEGACY_CA_RENEW_DIRECTORY_AUTH_USERCERT | tr [a-z] [A-Z])
-        if [ "$PKI_LEGACY_CA_RENEW_DIRECTORY_AUTH_USERCERT_UPPERCASE" = "TRUE" ] || [ "TEST_ALL_UPPERCASE" = "TRUE" ]; then
-                # Execute pki ca-renew-directory-auth-usercert tests
-                subsystemType=ca
-                run_pki-legacy-ca-renew_dir_auth_user_cert_tests $subsystemType $MYROLE
-        fi
-        PKI_LEGACY_CA_RENEW_SSLCLIENTAUTH_CERT_UPPERCASE=$(echo $PKI_LEGACY_CA_RENEW_SSLCLIENTAUTH_CERT | tr [a-z] [A-Z])
-        if [ "$PKI_LEGACY_CA_RENEW_SSLCLIENTAUTH_CERT_UPPERCASE" = "TRUE" ] || [ "TEST_ALL_UPPERCASE" = "TRUE" ]; then
-                # Execute pki ca-renew-sslclient-cert tests
-                subsystemType=ca
-                run_pki-legacy-ca-renew_self_ca_user_ssl_client_cert_tests $subsystemType $MYROLE
-        fi
+	if [ "$PKI_LEGACY_CA_RENEW_MANUAL_UPPERCASE" = "TRUE" ] || [ "TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		# Execute pki ca-renew-manual tests
+		subsystemType=ca
+		run_pki-legacy-ca-renew_manual_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_CA_RENEW_DIRECTORY_AUTH_USERCERT_UPPERCASE=$(echo $PKI_LEGACY_CA_RENEW_DIRECTORY_AUTH_USERCERT | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_RENEW_DIRECTORY_AUTH_USERCERT_UPPERCASE" = "TRUE" ] || [ "TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		# Execute pki ca-renew-directory-auth-usercert tests
+		subsystemType=ca
+		run_pki-legacy-ca-renew_dir_auth_user_cert_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_CA_RENEW_SSLCLIENTAUTH_CERT_UPPERCASE=$(echo $PKI_LEGACY_CA_RENEW_SSLCLIENTAUTH_CERT | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_RENEW_SSLCLIENTAUTH_CERT_UPPERCASE" = "TRUE" ] || [ "TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		# Execute pki ca-renew-sslclient-cert tests
+		subsystemType=ca
+		run_pki-legacy-ca-renew_self_ca_user_ssl_client_cert_tests $subsystemType $MYROLE
+	fi
+	PKI_LEGACY_CA_SCEP_ENROLL_UPPERCASE=$(echo $PKI_LEGACY_CA_SCEP_ENROLL | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_CA_SCEP_ENROLL_UPPERCASE" = "TRUE" ] || [ "TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		# Execute ca scep enroll tests
+		subsystemType=ca
+		run_pki-legacy-ca-scep_tests $subsystemType $MYROLE
+	fi
 	PKI_LEGACY_KRA_AG_UPPERCASE=$(echo $PKI_LEGACY_KRA_AG_TESTS | tr [a-z] [A-Z])
 	if [ "$PKI_LEGACY_KRA_AG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
 		subsystemType=kra
@@ -1650,6 +1658,12 @@ rlJournalStart
 		subsystemType=ca
 		run_admin-subca-log_tests $subsystemType $MYROLE
 	fi	
+	PKI_LEGACY_SUBCA_SCEP_ENROLL_UPPERCASE=$(echo $PKI_LEGACY_SUBCA_SCEP_ENROLL | tr [a-z] [A-Z])
+	if [ "$PKI_LEGACY_SUBCA_SCEP_ENROLL_UPPERCASE" = "TRUE" ] || [ "TEST_ALL_UPPERCASE" = "TRUE" ]; then
+		# Execute subca scep enroll tests
+		subsystemType=ca
+		run_pki-legacy-subca-scep_tests $subsystemType $MYROLE
+	fi
         PKI_LEGACY_OCSP_AD_USERGROUPS_UPPERCASE=$(echo $PKI_LEGACY_OCSP_AD_USERGROUPS | tr [a-z] [A-Z])
         if [ "$PKI_LEGACY_OCSP_AD_USERGROUPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
                 subsystemType=ocsp

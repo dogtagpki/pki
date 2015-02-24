@@ -21,6 +21,7 @@
 #       forward_system_clock <number_of_days>
 #       reverse_system_clock <number_of_days>
 #       replace_string_in_a_file <file_name> <original_string> <replace_string>
+#       scep_do_enroll_with_sscep <scep_enroll_pin> <scep_enroll_url>  <scep_host_ipaddr> <temp_dir> <fingerprint>
 ######################################################################
 #######################################################################
 
@@ -340,6 +341,39 @@ replace_string_in_a_file()
                 rlLog "$file_name did not get replaced with $replace_string"
                 rc=1
         fi
+        return $rc
+}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#       scep_do_enroll_with_sscep <scep_enroll_pin> <scep_enroll_url> <scep_host_ipaddr> <temp_dir> <fingerprint>
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+scep_do_enroll_with_sscep()
+{
+        local scep_enroll_pin=$1
+        local scep_enroll_url=$2
+        local ipaddress=$3
+        local temp_dir=$4
+        local digest=$5
+        local rc=0
+
+        rlRun "/bin/rm -f $temp_dir/local.csr $temp_dir/local.key $temp_dir/ca.crt $temp_dir/cert.crt"
+
+        #generate a key
+        rlLog "/usr/bin/mkrequest -ip $ipaddress $scep_enroll_pin $digest"
+        rlRun "/usr/bin/mkrequest -ip $ipaddress $scep_enroll_pin $digest > $temp_dir/gen_key"
+
+        #get ca cert
+        rlLog "/usr/bin/sscep getca -c $temp_dir/ca.crt -u $scep_enroll_url"
+        rlRun "/usr/bin/sscep getca -c $temp_dir/ca.crt -u $scep_enroll_url > $temp_dir/getca_out"
+
+        #submit enrollment request
+        rlLog "/usr/bin/sscep enroll -f $temp_dir/sscep.conf -c $temp_dir/ca.crt -k $temp_dir/local.key -r $temp_dir/local.csr  -l $temp_dir/cert.crt -u $scep_enroll_url"
+        rlRun "/usr/bin/sscep enroll -f $temp_dir/sscep.conf -c $temp_dir/ca.crt -k $temp_dir/local.key -r $temp_dir/local.csr  -l $temp_dir/cert.crt -u $scep_enroll_url > $temp_dir/scep_enroll.out"
+        if [ $? -ne 0 ] ; then
+                rc=1
+        fi
+
         return $rc
 }
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -262,6 +262,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_manual.sh
 	chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_DirAuthUserCert.sh
 	chmod a+x ./acceptance/legacy/ca-tests/renewal/renew_caSSLClientCert.sh
+	chmod a+x ./acceptance/legacy/ca-tests/scep_tests/scep-enroll.sh
 	chmod a+x ./acceptance/legacy/drm-tests/acls/drm-ad-acls.sh
 	chmod a+x ./acceptance/legacy/drm-tests/agent/drm-ag-tests.sh
 	chmod a+x ./acceptance/legacy/drm-tests/internaldb/drm-ad-internaldb.sh
@@ -281,6 +282,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/subca-tests/profiles/subca-ad-profiles.sh
 	chmod a+x ./acceptance/legacy/subca-tests/profiles/subca-ag-profiles.sh
 	chmod a+x ./acceptance/legacy/subca-tests/logs/subca-ad-logs.sh
+	chmod a+x ./acceptance/legacy/subca-tests/scep_tests/subca-scep-enroll.sh
 	chmod a+x ./acceptance/legacy/ocsp-tests/usergroups/ocsp-ad-usergroups.sh
 	chmod a+x ./acceptance/legacy/ocsp-tests/acls/ocsp-ad-acls.sh
 	chmod a+x ./acceptance/legacy/ocsp-tests/logs/ocsp-ad-logs.sh
