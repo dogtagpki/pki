@@ -140,7 +140,14 @@ install(
 install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/lock/pki)")
 install(CODE "file(MAKE_DIRECTORY \$ENV{DESTDIR}${VAR_INSTALL_DIR}/run/pki)")
 
-add_subdirectory(tomcat)
+if(WITH_TOMCAT7)
+    add_subdirectory(tomcat7)
+endif(WITH_TOMCAT7)
+
+if(WITH_TOMCAT8)
+    add_subdirectory(tomcat8)
+endif(WITH_TOMCAT8)
+
 add_subdirectory(cms)
 add_subdirectory(cmsbundle)
 add_subdirectory(cmscore)

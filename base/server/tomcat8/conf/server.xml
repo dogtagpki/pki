@@ -1,0 +1,295 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- BEGIN COPYRIGHT BLOCK
+     Copyright (C) 2012 Red Hat, Inc.
+     All rights reserved.
+     Modifications: configuration parameters
+     END COPYRIGHT BLOCK -->
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!-- Note:  A "Server" is not itself a "Container", so you may not
+     define subcomponents such as "Valves" at this level.
+     Documentation at /docs/config/server.html
+ -->
+
+<!-- DO NOT REMOVE - Begin PKI Status Definitions -->
+<!-- CA Status Definitions -->
+<!--
+Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/ca/ee/ca
+Secure Agent URL    = https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/ca/agent/ca
+Secure EE URL       = https://[PKI_HOSTNAME]:[PKI_EE_SECURE_PORT]/ca/ee/ca
+Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/ca/services
+EE Client Auth URL  = https://[PKI_HOSTNAME]:[PKI_EE_SECURE_CLIENT_AUTH_PORT]/ca/eeca/ca
+PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/ca
+Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
+-->
+<!-- KRA Status Definitions -->
+<!--
+Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/kra/ee/kra
+Secure Agent URL    = https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/kra/agent/kra
+Secure EE URL       = https://[PKI_HOSTNAME]:[PKI_EE_SECURE_PORT]/kra/ee/kra
+Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/kra/services
+PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/kra
+Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
+-->
+<!-- OCSP Status Definitions -->
+<!--
+Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/ocsp/ee/ocsp
+Secure Agent URL    = https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/ocsp/agent/ocsp
+Secure EE URL       = https://[PKI_HOSTNAME]:[PKI_EE_SECURE_PORT]/ocsp/ee/ocsp
+Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/ocsp/services
+PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/ocsp
+Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
+-->
+<!-- TKS Status Definitions -->
+<!--
+Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/tks/ee/tks
+Secure Agent URL    = https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/tks/agent/tks
+Secure EE URL       = https://[PKI_HOSTNAME]:[PKI_EE_SECURE_PORT]/tks/ee/tks
+Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/tks/services
+PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/tks
+Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
+-->
+<!-- DO NOT REMOVE - End PKI Status Definitions -->
+
+<Server port="[TOMCAT_SERVER_PORT]" shutdown="SHUTDOWN">
+  <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+  <!-- Security listener. Documentation at /docs/config/listeners.html
+  <Listener className="org.apache.catalina.security.SecurityListener" />
+  -->
+  <!--APR library loader. Documentation at /docs/apr.html -->
+  <!-- The following Listener class has been commented out because this -->
+  <!-- implementation depends upon the 'tomcatjss' JSSE module, 'JSS',  -->
+  <!-- and 'NSS' rather than the 'tomcat-native' module! -->
+  <!-- Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" -->
+
+  <!-- Prevent memory leaks due to use of particular java/javax APIs-->
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+  <!-- Global JNDI resources
+       Documentation at /docs/jndi-resources-howto.html
+  -->
+  <GlobalNamingResources>
+    <!-- Editable user database that can also be used by
+         UserDatabaseRealm to authenticate users
+    -->
+    <Resource name="UserDatabase" auth="Container"
+              type="org.apache.catalina.UserDatabase"
+              description="User database that can be updated and saved"
+              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+              pathname="conf/tomcat-users.xml" />
+  </GlobalNamingResources>
+
+  <!-- A "Service" is a collection of one or more "Connectors" that share
+       a single "Container" Note:  A "Service" is not itself a "Container",
+       so you may not define subcomponents such as "Valves" at this level.
+       Documentation at /docs/config/service.html
+   -->
+  <Service name="Catalina">
+
+    <!--The connectors can use a shared executor, you can define one or more named thread pools-->
+    <!--
+    <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"
+        maxThreads="150" minSpareThreads="4"/>
+    -->
+
+
+    <!-- A "Connector" represents an endpoint by which requests are received
+         and responses are returned. Documentation at :
+         Java HTTP Connector: /docs/config/http.html (blocking & non-blocking)
+         Java AJP  Connector: /docs/config/ajp.html
+         APR (HTTP/AJP) Connector: /docs/apr.html
+         Define a non-SSL/TLS HTTP/1.1 Connector on port [PKI_UNSECURE_PORT]
+    -->
+
+    [PKI_UNSECURE_PORT_SERVER_COMMENT]
+    <Connector name="[PKI_UNSECURE_PORT_CONNECTOR_NAME]"
+           port="[PKI_UNSECURE_PORT]"
+           protocol="HTTP/1.1"
+           redirectPort="[PKI_SECURE_PORT]"
+           maxHttpHeaderSize="8192"
+           acceptCount="100"
+           maxThreads="150"
+           minSpareThreads="25"
+           enableLookups="false"
+           connectionTimeout="20000"
+           disableUploadTimeout="true"
+           />
+
+    <!-- A "Connector" using the shared thread pool-->
+    <!--
+    <Connector executor="tomcatThreadPool"
+               port="[PKI_UNSECURE_PORT]" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="[PKI_SECURE_PORT]" />
+    -->
+
+    <!-- Define a SSL/TLS HTTP/1.1 Connector on port [PKI_SECURE_PORT]
+         This connector uses the NIO implementation that requires the JSSE
+         style configuration. When using the APR/native implementation, the
+         OpenSSL style configuration is required as described in the APR/native
+         documentation -->
+    [PKI_SECURE_PORT_SERVER_COMMENT]
+    <!-- DO NOT REMOVE - Begin define PKI secure port
+    NOTE: The following 'keys' (and their assigned values) are exclusive to
+          the 'tomcatjss' JSSE module:
+
+              'enableOCSP'
+              'ocspResponderURL'
+              'ocspResponderCertNickname'
+              'ocspCacheSize'
+              'ocspMinCacheEntryDuration'
+              'ocspMaxCacheEntryDuration'
+              'ocspTimeout'
+              'strictCiphers'
+              'clientauth' (ALL lowercase)
+              'sslOptions'
+              'ssl2Ciphers'
+              'ssl3Ciphers'
+              'tlsCiphers'
+              'sslVersionRangeStream'
+              'sslVersionRangeDatagram'
+              'sslRangeCiphers'
+              'serverCertNickFile'
+              'passwordFile'
+              'passwordClass'
+              'certdbDir'
+
+          and are referenced via the value of the 'sslImplementationName' key.
+    NOTE: The OCSP settings take effect globally, so it should only be set once.
+
+      In setup where SSL clientauth="true", OCSP can be turned on by
+      setting enableOCSP to true like the following:
+        enableOCSP="true"
+      along with changes to related settings, especially:
+        ocspResponderURL=<see example in connector definition below>
+        ocspResponderCertNickname=<see example in connector definition below>
+      Here are the definition to all the OCSP-related settings:
+        enableOCSP - turns on/off the ocsp check
+        ocspResponderURL - sets the url where the ocsp requests are sent
+        ocspResponderCertNickname - sets the nickname of the cert that is
+        either CA's signing certificate or the OCSP server's signing
+        certificate.
+        The CA's signing certificate should already be in the db, in
+        case of the same security domain.
+        In case of an ocsp signing certificate, one must import the cert
+        into the subsystem's nss db and set trust. e.g.:
+          certutil -d . -A -n "ocspSigningCert cert-pki-ca" -t "C,," -a -i ocspCert.b64
+        ocspCacheSize - sets max cache entries
+        ocspMinCacheEntryDuration - sets minimum seconds to next fetch attempt
+        ocspMaxCacheEntryDuration - sets maximum seconds to next fetch attempt
+        ocspTimeout -sets OCSP timeout in seconds
+    -->
+    <Connector name="[PKI_SECURE_PORT_CONNECTOR_NAME]"
+           port="[PKI_SECURE_PORT]"
+           protocol="org.apache.coyote.http11.Http11Protocol"
+           SSLEnabled="true"
+           sslProtocol="SSL"
+           scheme="https"
+           secure="true"
+           maxHttpHeaderSize="8192"
+           acceptCount="100" maxThreads="150" minSpareThreads="25"
+           enableLookups="false" disableUploadTimeout="true"
+           sslImplementationName="org.apache.tomcat.util.net.jss.JSSImplementation"
+           enableOCSP="false"
+           ocspResponderURL="http://[PKI_HOSTNAME]:9080/ca/ocsp"
+           ocspResponderCertNickname="ocspSigningCert cert-pki-ca"
+           ocspCacheSize="1000"
+           ocspMinCacheEntryDuration="60"
+           ocspMaxCacheEntryDuration="120"
+           ocspTimeout="10"
+           strictCiphers="true"
+           clientAuth="[PKI_AGENT_CLIENTAUTH]"
+           sslOptions="[TOMCAT_SSL_OPTIONS]"
+           ssl2Ciphers="[TOMCAT_SSL2_CIPHERS]"
+           ssl3Ciphers="[TOMCAT_SSL3_CIPHERS]"
+           tlsCiphers="[TOMCAT_TLS_CIPHERS]"
+           sslVersionRangeStream="[TOMCAT_SSL_VERSION_RANGE_STREAM]"
+           sslVersionRangeDatagram="[TOMCAT_SSL_VERSION_RANGE_DATAGRAM]"
+           sslRangeCiphers="[TOMCAT_SSL_RANGE_CIPHERS]"
+           serverCertNickFile="[PKI_INSTANCE_PATH]/conf/serverCertNick.conf"
+           passwordFile="[PKI_INSTANCE_PATH]/conf/password.conf"
+           passwordClass="org.apache.tomcat.util.net.jss.PlainPasswordFile"
+           certdbDir="[PKI_INSTANCE_PATH]/alias"
+           />
+    <!-- DO NOT REMOVE - End define PKI secure port -->
+
+    <!-- Define an AJP 1.3 Connector on port [PKI_AJP_PORT] -->
+[PKI_OPEN_AJP_PORT_COMMENT]
+    <Connector port="[PKI_AJP_PORT]"
+            protocol="AJP/1.3"
+            redirectPort="[PKI_AJP_REDIRECT_PORT]"
+            address="127.0.0.1" />
+[PKI_CLOSE_AJP_PORT_COMMENT]
+
+
+    <!-- An Engine represents the entry point (within Catalina) that processes
+         every request.  The Engine implementation for Tomcat stand alone
+         analyzes the HTTP headers included with the request, and passes them
+         on to the appropriate Host (virtual host).
+         Documentation at /docs/config/engine.html -->
+
+    <!-- You should set jvmRoute to support load-balancing via AJP ie :
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
+    -->
+    <Engine name="Catalina" defaultHost="localhost">
+
+      <!--For clustering, please take a look at documentation at:
+          /docs/cluster-howto.html  (simple how to)
+          /docs/config/cluster.html (reference documentation) -->
+      <!--
+      <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"/>
+      -->
+
+      <!-- Use the LockOutRealm to prevent attempts to guess user passwords
+           via a brute-force attack -->
+      <!--
+      <Realm className="org.apache.catalina.realm.LockOutRealm">
+      -->
+        <!-- This Realm uses the UserDatabase configured in the global JNDI
+             resources under the key "UserDatabase".  Any edits
+             that are performed against this UserDatabase are immediately
+             available for use by the Realm.  -->
+      <!--
+        <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+               resourceName="UserDatabase"/>
+      </Realm>
+      -->
+
+      <Host name="localhost"  appBase="[PKI_INSTANCE_PATH]/webapps"
+            unpackWARs="true" autoDeploy="true">
+
+        <!-- SingleSignOn valve, share authentication between web applications
+             Documentation at: /docs/config/valve.html -->
+        <!--
+        <Valve className="org.apache.catalina.authenticator.SingleSignOn" />
+        -->
+
+        <!-- Access log processes all example.
+             Documentation at: /docs/config/valve.html
+             Note: The pattern used is equivalent to using pattern="common" -->
+        [PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT]
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="localhost_access_log" suffix=".txt"
+               pattern="common" resolveHosts="false"/>
+        [PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT]
+
+      </Host>
+    </Engine>
+  </Service>
+</Server>

@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.common;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,12 +26,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Enumeration;
-
-import javax.servlet.ServletOutputStream;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -531,8 +529,7 @@ public class CMSTemplate extends CMSFile {
      */
     public String getOutput(CMSTemplateParams input)
             throws IOException {
-        debugOutputStream out = new debugOutputStream();
-
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
         renderOutput(out, input);
         return out.toString();
     }
@@ -572,22 +569,4 @@ public class CMSTemplate extends CMSFile {
         }
 
     }
-
-    private static class debugOutputStream extends ServletOutputStream {
-        private StringWriter mStringWriter = new StringWriter();
-
-        public debugOutputStream() {
-            super();
-        }
-
-        public void write(int b) throws IOException {
-            mStringWriter.write(b);
-        }
-
-        public String toString() {
-            return mStringWriter.toString();
-        }
-
-    }
-
 }

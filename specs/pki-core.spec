@@ -1,7 +1,35 @@
+# Python
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from
 distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from
 distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+
+# Tomcat
+%if 0%{?fedora} >= 23
+%define with_tomcat7 0
+%define with_tomcat8 1
+%else
+# 0%{?rhel} || 0%{?fedora} <= 22
+%define with_tomcat7 1
+%define with_tomcat8 0
+%endif
+
+# RESTEasy
+%if 0%{?rhel}
+%define resteasy_lib /usr/share/java/resteasy-base
+%else
+# 0%{?fedora}
+%define resteasy_lib /usr/share/java/resteasy
+%endif
+
+# Dogtag
+%bcond_without    server
+%bcond_without    javadoc
+
+# ignore unpackaged files from native 'tpsclient'
+# REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
+%define _unpackaged_files_terminate_build 0
+
 
 Name:             pki-core
 Version:          10.2.3
@@ -10,12 +38,6 @@ Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
 Group:            System Environment/Daemons
-
-%bcond_without    server
-%bcond_without    javadoc
-# ignore unpackaged files from native 'tpsclient'
-# REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
-%define _unpackaged_files_terminate_build 0
 
 BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -39,7 +61,7 @@ BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
-%if  0%{?rhel}
+%if 0%{?rhel}
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on RHEL platforms
@@ -50,7 +72,7 @@ BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
-%if  0%{?fedora} >= 22
+%if 0%{?fedora} >= 22
 # Starting from Fedora 22, resteasy packages were split into
 # subpackages.
 BuildRequires:    resteasy-atom-provider >= 3.0.6-7
@@ -80,7 +102,11 @@ BuildRequires:    systemd-units
 %if 0%{?rhel}
 BuildRequires:    tomcatjss >= 7.1.0-5
 %else
-BuildRequires:    tomcatjss >= 7.1.1
+%if 0%{?fedora} >= 23
+BuildRequires:         tomcatjss >= 7.1.2
+%else
+BuildRequires:         tomcatjss >= 7.1.1
+%endif
 %endif
 
 # additional build requirements needed to build native 'tpsclient'
@@ -245,7 +271,7 @@ Requires:         python-ldap
 Requires:         python-lxml
 Requires:         python-requests >= 1.1.0-3
 
-%if  0%{?rhel}
+%if 0%{?rhel}
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on RHEL platforms
@@ -256,7 +282,7 @@ Requires:    resteasy-base-jaxrs >= 3.0.6-1
 Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
 Requires:    resteasy-base-jackson-provider >= 3.0.6-1
 %else
-%if  0%{?fedora} >= 22
+%if 0%{?fedora} >= 22
 # Starting from Fedora 22, resteasy packages were split into
 # subpackages.
 Requires:    resteasy-atom-provider >= 3.0.6-7
@@ -333,7 +359,7 @@ Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 Requires:         policycoreutils-python
 
-%if  0%{?fedora} >= 21
+%if 0%{?fedora} >= 21
 Requires:         selinux-policy-targeted >= 3.13.1-9
 %else
 # 0%{?rhel} || 0%{?fedora} < 21
@@ -364,7 +390,11 @@ Requires(postun): systemd-units
 %if 0%{?rhel}
 Requires:         tomcatjss >= 7.1.0-5
 %else
+%if 0%{?fedora} >= 23
+Requires:         tomcatjss >= 7.1.2
+%else
 Requires:         tomcatjss >= 7.1.1
+%endif
 %endif
 
 %description -n   pki-server
@@ -603,10 +633,15 @@ cd build
 	-DBUILD_PKI_CORE:BOOL=ON \
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
-%if 0%{?rhel}
-	-DRESTEASY_LIB=/usr/share/java/resteasy-base \
-%else
-	-DRESTEASY_LIB=/usr/share/java/resteasy \
+%if ! %{with_tomcat7}
+	-DWITH_TOMCAT7:BOOL=OFF \
+%endif
+%if ! %{with_tomcat8}
+	-DWITH_TOMCAT8:BOOL=OFF \
+%endif
+	-DRESTEASY_LIB=%{resteasy_lib} \
+%if ! %{with server}
+	-DWITH_SERVER:BOOL=OFF \
 %endif
 %if ! %{with server}
 	-DWITH_SERVER:BOOL=OFF \
@@ -907,6 +942,7 @@ systemctl daemon-reload
 %changelog
 * Thu Apr  9 2015 Dogtag Team <pki-devel@redhat.com> 10.2.3-0.1
 - Reverted version number back to 10.2.3-0.1
+- Added support for Tomcat 8.
 
 * Mon Apr  6 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.1
 - Updated version number to 10.3.0-0.1

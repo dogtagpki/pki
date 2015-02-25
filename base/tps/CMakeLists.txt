@@ -6,6 +6,14 @@ add_subdirectory(src)
 add_subdirectory(setup)
 add_subdirectory(shared/conf)
 
+if(WITH_TOMCAT7)
+    add_subdirectory(tomcat7)
+endif(WITH_TOMCAT7)
+
+if(WITH_TOMCAT8)
+    add_subdirectory(tomcat8)
+endif(WITH_TOMCAT8)
+
 # install manual pages
 install(
     DIRECTORY

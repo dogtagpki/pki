@@ -22,7 +22,11 @@ ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %if 0%{?rhel}
 %define tomcatjss_version          7.1.0-5
 %else
+%if 0%{?fedora} >= 23
+%define tomcatjss_version          7.1.2
+%else
 %define tomcatjss_version          7.1.1
+%endif
 %endif
 
 Requires:         apache-commons-codec
@@ -118,6 +122,7 @@ rm -rf %{buildroot}
 %changelog
 * Thu Apr  9 2015 Dogtag Team <pki-devel@redhat.com> 10.2.3-0.1
 - Reverted version number back to 10.2.3-0.1
+- Added support for Tomcat 8.
 
 * Mon Apr  6 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.1
 - Updated version number to 10.3.0-0.1

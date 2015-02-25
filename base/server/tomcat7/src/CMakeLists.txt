@@ -44,9 +44,9 @@ find_file(TOMCAT_CATALINA_JAR
         /usr/share/java/tomcat
 )
 
-find_file(TOMCAT_UTIL_JAR
+find_file(TOMCAT_UTIL_SCAN_JAR
     NAMES
-        tomcat-util.jar
+        tomcat-util-scan.jar
     PATHS
         /usr/share/java/tomcat
 )
@@ -123,7 +123,7 @@ javac(pki-tomcat-classes
     SOURCES
         com/netscape/cms/tomcat/*.java
     CLASSPATH
-        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_SCAN_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
 )
