@@ -72,4 +72,4 @@ add_junit_test(test-pki-server
 )
 
 # include test into the main test
-add_dependencies(test test-pki-server)
+add_dependencies(unit-test test-pki-server)

@@ -40,4 +40,4 @@ add_junit_test(test-pki-util
 )
 
 # include test into the main test
-add_dependencies(test test-pki-util)
+add_dependencies(unit-test test-pki-util)

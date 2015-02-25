@@ -607,7 +607,7 @@ cd build
 %endif
 	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
-# %{__make} VERBOSE=1 %{?_smp_mflags} test
+# %{__make} VERBOSE=1 %{?_smp_mflags} unit-test
 
 
 %install

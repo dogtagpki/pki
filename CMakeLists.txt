@@ -55,7 +55,7 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
 # required for all PKI components
 include(JUnit)
 
-add_custom_target(test)
+add_custom_target(unit-test)
 
 # search for libraries
 

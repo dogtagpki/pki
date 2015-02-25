@@ -35,7 +35,7 @@ javadoc(pki-javadoc
 )
 
 install(
-    FILES
+    DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${APPLICATION_VERSION}
     DESTINATION
         ${CMAKE_INSTALL_PREFIX}/share/javadoc
