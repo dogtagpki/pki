@@ -704,6 +704,7 @@ echo "Upgrading server at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{ver
 /sbin/pki-server-upgrade --silent >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
+systemctl daemon-reload
 
 ## %preun -n pki-server
 ## NOTE:  At this time, NO attempt has been made to update ANY PKI subsystem
