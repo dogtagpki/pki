@@ -354,7 +354,9 @@ PKI_CHECK_STATUS_MESSAGE = '''
             systemctl status pki-tomcatd@%s.service
 '''
 PKI_ACCESS_URL = "      The URL for the subsystem is: \n"\
-                 "            https://%s:%s/%s"
+                 "            https://%s:%s/%s/services"
+PKI_ACCESS_TPS_URL = "      The URL for the subsystem is: \n"\
+                     "            https://%s:%s/%s"
 PKI_INSTANCE_RESTART_MESSAGE = \
     "      To restart the subsystem: \n"\
     "            systemctl restart pki-tomcatd@%s.service"
