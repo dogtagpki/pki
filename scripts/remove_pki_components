@@ -124,6 +124,9 @@ printf "done.\n\n"
 
 PKI_COMPONENT_LIST=""
 for COMPONENT in ${PKI_COMPONENTS} ; do
+    if [ "${COMPONENT}" = "bouncycastle-pkix" ] ; then
+        continue
+    fi
     if [ "${PKI_COMPONENT_LIST}" = "" ] ; then
         PKI_COMPONENT_LIST="${COMPONENT}"
     else
