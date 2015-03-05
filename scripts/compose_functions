@@ -61,6 +61,7 @@ export PKI_BASE_MANIFEST
 PKI_DOGTAG_MANIFEST="CMakeLists.txt"
 export PKI_DOGTAG_MANIFEST
 
+RHEL="/rhel/"
 
 ##
 ## Usage statement
@@ -96,13 +97,25 @@ Usage()
 	printf "                           produces an SRPM and one or more RPMS\n"
 	printf "                           ${MESSAGE}\n\n"
 	printf "            patched_srpm - copies a spec file from local source,\n"
-	printf "                           fetches a tarball from the spec's URL,\n"
+	printf "                           fetches a non-RHEL tarball from the spec's URL,\n"
 	printf "                           fetches any relevant patches from the\n"
 	printf "                           spec's URL, and\n"
 	printf "                           produces an SRPM\n"
 	printf "                           [suitable for use by 'mock']\n\n"
 	printf "            patched_rpms - copies a spec file from local source,\n"
-	printf "                           fetches a tarball from the spec's URL,\n"
+	printf "                           fetches a non-RHEL tarball from the spec's URL,\n"
+	printf "                           fetches any relevant patches from the\n"
+	printf "                           spec's URL, and\n"
+	printf "                           produces an SRPM and one or more RPMS\n"
+	printf "                           ${MESSAGE}\n\n"
+	printf "            patched_rhel_srpm - copies a spec file from local source,\n"
+	printf "                           fetches a RHEL tarball from the spec's URL,\n"
+	printf "                           fetches any relevant patches from the\n"
+	printf "                           spec's URL, and\n"
+	printf "                           produces an SRPM\n"
+	printf "                           [suitable for use by 'mock']\n\n"
+	printf "            patched_rhel_rpms - copies a spec file from local source,\n"
+	printf "                           fetches a RHEL tarball from the spec's URL,\n"
 	printf "                           fetches any relevant patches from the\n"
 	printf "                           spec's URL, and\n"
 	printf "                           produces an SRPM and one or more RPMS\n"
@@ -141,11 +154,13 @@ Fetch_Patch_Files()
 
 	component_name_marker="Name"
 	component_version_marker="Version"
+	component_release_marker="Release"
 	component_source_marker="Source"
 	component_patch_marker="Patch"
 
 	component_name=""
 	component_version=""
+	component_release=""
 	component_source=""
 	component_url=""
 	component_patch=""
@@ -157,9 +172,23 @@ Fetch_Patch_Files()
 			component_name=`echo $line | cut -d' ' -f 2`
 		elif [ "${entry:0:7}" = "${component_version_marker}" ] ; then
 			component_version=`echo $line | cut -d' ' -f 2`
+		elif [ "${entry:0:7}" = "${component_release_marker}" ] ; then
+			data=`echo $line | cut -d'%' -f 1`
+			component_release=`echo $data | cut -d' ' -f 2`
 		elif [ "${entry:0:6}" = "${component_source_marker}" ] ; then
 			value=`echo $line | cut -d' ' -f 2`
-			component_source=`echo $value | sed -e "s/\%{name}/${component_name}/g" -e "s/\%{version}/${component_version}/g"`
+			component_source=`echo $value | sed -e "s/\%{name}/${component_name}/g" -e "s/\%{version}/${component_version}/g" -e "s/\%{release}/${component_release}/g" -e "s/\%{?prerel}//g"`
+			if [[ "$component_source" =~ "$RHEL" ]] ; then
+				if [ ${FETCH_RHEL_PATCH_FILES} -ne 1 ] ; then
+					# non-RHEL Source patch files are desired
+					continue;
+				fi
+			else
+				if [ ${FETCH_RHEL_PATCH_FILES} -eq 1 ] ; then
+					# RHEL Source patch files are desired
+					continue;
+				fi
+			fi
 			component_url=`dirname ${component_source}`
 		elif [ "${entry:0:5}" = "${component_patch_marker}" ] ; then
             if [ ${component_url} != "" ] ; then
@@ -210,10 +239,12 @@ Fetch_Source_Tarball()
 
 	component_name_marker="Name"
 	component_version_marker="Version"
+	component_release_marker="Release"
 	component_tarball_marker="Source"
 
 	component_name=""
 	component_version=""
+	component_release=""
 	component_tarball=""
 
 	exec < ${SPECFILE}
@@ -223,9 +254,23 @@ Fetch_Source_Tarball()
 			component_name=`echo $line | cut -d' ' -f 2`
 		elif [ "${entry:0:7}" = "${component_version_marker}" ] ; then
 			component_version=`echo $line | cut -d' ' -f 2`
+		elif [ "${entry:0:7}" = "${component_release_marker}" ] ; then
+			data=`echo $line | cut -d'%' -f 1`
+			component_release=`echo $data | cut -d' ' -f 2`
 		elif [ "${entry:0:6}" = "${component_tarball_marker}" ] ; then
 			value=`echo $line | cut -d' ' -f 2`
-			component_tarball=`echo $value | sed -e "s/\%{name}/${component_name}/g" -e "s/\%{version}/${component_version}/g"`
+			component_tarball=`echo $value | sed -e "s/\%{name}/${component_name}/g" -e "s/\%{version}/${component_version}/g" -e "s/\%{release}/${component_release}/g" -e "s/\%{?prerel}//g"`
+			if [[ "${component_tarball}" =~ "$RHEL" ]] ; then
+				if [ ${FETCH_RHEL_SOURCE_TARBALL} -ne 1 ] ; then
+					# non-RHEL Source URL is desired
+					continue;
+				fi
+			else
+				if [ ${FETCH_RHEL_SOURCE_TARBALL} -eq 1 ] ; then
+					# RHEL Source URL is desired
+					continue;
+				fi
+			fi
 			wget -q -O ${TARGET_DIR}/`basename ${component_tarball}` ${component_tarball}
 			if [ $? -ne 0 ] ; then
 				printf "ERROR:  Failed to download '${component_tarball}'!\n\n"
@@ -346,7 +391,15 @@ elif [ $1 = "hybrid_srpm" ] ; then
 elif [ $1 = "patched_srpm" ] ; then
 	OPTIONS="$OPTIONS -bs"
 	FETCH_SOURCE_TARBALL=1
+	FETCH_RHEL_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=1
+	FETCH_RHEL_PATCH_FILES=0
+elif [ $1 = "patched_rhel_srpm" ] ; then
+	OPTIONS="$OPTIONS -bs"
+	FETCH_SOURCE_TARBALL=1
+	FETCH_RHEL_SOURCE_TARBALL=1
+	FETCH_PATCH_FILES=1
+	FETCH_RHEL_PATCH_FILES=1
 elif [ $1 = "rpms" ] ; then
 	OPTIONS="$OPTIONS -ba"
 	FETCH_SOURCE_TARBALL=0
@@ -358,7 +411,15 @@ elif [ $1 = "hybrid_rpms" ] ; then
 elif [ $1 = "patched_rpms" ] ; then
 	OPTIONS="$OPTIONS -ba"
 	FETCH_SOURCE_TARBALL=1
+	FETCH_RHEL_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=1
+	FETCH_RHEL_PATCH_FILES=0
+elif [ $1 = "patched_rhel_rpms" ] ; then
+	OPTIONS="$OPTIONS -ba"
+	FETCH_SOURCE_TARBALL=1
+	FETCH_RHEL_SOURCE_TARBALL=1
+	FETCH_PATCH_FILES=1
+	FETCH_RHEL_PATCH_FILES=1
 else
 	Usage
 	exit 255
