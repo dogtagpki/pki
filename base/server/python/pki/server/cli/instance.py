@@ -36,6 +36,7 @@ class InstanceCLI(pki.cli.CLI):
         self.add_module(InstanceShowCLI())
         self.add_module(InstanceStartCLI())
         self.add_module(InstanceStopCLI())
+        self.add_module(InstanceMigrateCLI())
 
     @staticmethod
     def print_instance(instance):
@@ -250,3 +251,72 @@ class InstanceStopCLI(pki.cli.CLI):
         instance.stop()
 
         self.print_message('%s instance stopped' % instance_name)
+
+class InstanceMigrateCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(InstanceMigrateCLI, self).__init__('migrate', 'Migrate instance')
+
+    def print_help(self):
+        print 'Usage: pki-server instance-migrate [OPTIONS] <instance ID>'
+        print
+        print '      --tomcat <version>       Use the specified Tomcat version.'
+        print '  -v, --verbose                Run in verbose mode.'
+        print '      --debug                  Show debug messages.'
+        print '      --help                   Show help message.'
+        print
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.getopt(argv, 'i:v', [
+                'tomcat=', 'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print 'ERROR: ' + str(e)
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) != 1:
+            print 'ERROR: missing instance ID'
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
+        tomcat_version = None
+
+        for o, a in opts:
+            if o == '--tomcat':
+                tomcat_version = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print 'ERROR: unknown option ' + o
+                self.print_help()
+                sys.exit(1)
+
+        if not tomcat_version:
+            print 'ERROR: missing Tomcat version'
+            self.print_help()
+            sys.exit(1)
+
+        module = self.top.find_module('migrate')
+        module.set_verbose(self.verbose)
+        module.set_debug(self.debug)
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        module.migrate(instance, tomcat_version) # pylint: disable=no-member,maybe-no-member
+
+        self.print_message('%s instance migrated' % instance_name)

@@ -19,8 +19,9 @@
 # All rights reserved.
 #
 
-import sys
 import collections
+import getopt
+import sys
 
 
 class CLI(object):
@@ -30,14 +31,22 @@ class CLI(object):
         self.name = name
         self.description = description
         self.parent = None
+        self.top = self
 
         self.verbose = False
+        self.debug = False
+
         self.modules = collections.OrderedDict()
 
     def set_verbose(self, verbose):
         self.verbose = verbose
         if self.parent:
             self.parent.set_verbose(verbose)
+
+    def set_debug(self, debug):
+        self.debug = debug
+        if self.parent:
+            self.parent.set_debug(debug)
 
     def get_full_name(self):
         if self.parent:
@@ -50,6 +59,7 @@ class CLI(object):
     def add_module(self, module):
         self.modules[module.name] = module
         module.parent = self
+        module.top = self.top
 
     def get_module(self, name):
         return self.modules.get(name)
@@ -67,18 +77,20 @@ class CLI(object):
             full_name = module.get_full_name()
             print ' {:30}{:30}'.format(full_name, module.description)
 
-    def init(self):
-        pass
+    def find_module(self, command):
 
-    def execute(self, args):
+        module = self
 
-        if len(args) == 0:
-            self.print_help()
-            sys.exit()
+        while True:
+            (module, command) = module.parse_command(command)
+
+            if not module or not command:
+                return module
+
+    def parse_command(self, command):
 
         # A command consists of parts joined by dashes: <part 1>-<part 2>-...-<part N>.
         # For example: cert-request-find
-        command = args[0]
 
         # The command will be split into module name and sub command, for example:
         #  - module name: cert
@@ -104,7 +116,7 @@ class CLI(object):
                 module_name = command
                 sub_command = None
 
-            if self.verbose:
+            if self.debug:
                 print 'Module: %s' % module_name
 
             m = self.get_module(module_name)
@@ -129,8 +141,15 @@ class CLI(object):
 
             position = i + 1
 
+        return (module, sub_command)
+
+    def parse_args(self, args):
+
+        command = args[0]
+        (module, sub_command) = self.parse_command(command)
+
         if not module:
-            raise Exception('Invalid module "%s".' % self.get_full_module_name(module_name))
+            raise Exception('Invalid module "%s".' % command)
 
         # Prepare module arguments.
         if sub_command:
@@ -141,5 +160,36 @@ class CLI(object):
             # Otherwise, pass the original arguments: <args>...
             module_args = args[1:]
 
-        module.init()
+        return (module, module_args)
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.getopt(argv, 'v', [
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print 'ERROR: ' + str(e)
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) == 0:
+            self.print_help()
+            sys.exit()
+
+        for o, _ in opts:
+            if o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print 'ERROR: unknown option %s' % o
+                self.print_help()
+                sys.exit(1)
+
+        (module, module_args) = self.parse_args(argv)
+
         module.execute(module_args)

@@ -33,6 +33,23 @@ REGISTRY_DIR = '/etc/sysconfig/pki'
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 
 
+class PKIServer(object):
+
+    @classmethod
+    def instances(cls):
+
+        instances = []
+
+        if not os.path.exists(os.path.join(REGISTRY_DIR, 'tomcat')):
+            return instances
+
+        for instance_name in os.listdir(pki.server.INSTANCE_BASE_DIR):
+            instance = pki.server.PKIInstance(instance_name)
+            instance.load()
+            instances.append(instance)
+
+        return instances
+
 class PKISubsystem(object):
 
     def __init__(self, instance, subsystem_name):
@@ -92,13 +109,15 @@ class PKIInstance(object):
             self.base_dir = os.path.join(pki.BASE_DIR, name)
             self.conf_dir = os.path.join(self.base_dir, 'conf')
 
-        self.registry_file = os.path.join(
-            pki.server.REGISTRY_DIR, 'tomcat', self.name, self.name)
+        self.registry_dir = os.path.join(pki.server.REGISTRY_DIR, 'tomcat', self.name)
+        self.registry_file = os.path.join(self.registry_dir, self.name)
 
         self.service_name = 'pki-tomcatd@%s.service' % self.name
 
         self.user = None
         self.group = None
+
+        self.subsystems = []
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)
@@ -131,6 +150,11 @@ class PKIInstance(object):
             m = re.search('^PKI_GROUP=(.*)$', line)
             if m:
                 self.group = m.group(1)
+
+        for subsystem_name in os.listdir(self.registry_dir):
+            if subsystem_name in pki.server.SUBSYSTEM_TYPES:
+                subsystem = PKISubsystem(self, subsystem_name)
+                self.subsystems.append(subsystem)
 
     def is_deployed(self, webapp_name):
         context_xml = os.path.join(
