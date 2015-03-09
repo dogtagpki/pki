@@ -224,6 +224,8 @@
 . ./acceptance/legacy/tks-tests/logs/tks-ad-logs.sh
 . ./acceptance/legacy/tks-tests/internaldb/tks-ad-internaldb.sh
 . ./acceptance/legacy/tks-tests/acls/tks-ad-acls.sh
+. ./acceptance/legacy/ipa-tests/ipa_backend_plugin.sh
+. ./acceptance/legacy/clone_ca_tests/clone_tests.sh
 . ./acceptance/bugzilla/bug_setup.sh
 . ./acceptance/bugzilla/bug_uninstall.sh
 . ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
@@ -1709,6 +1711,16 @@ rlJournalStart
 		subsystemType=tks
 		run_admin-tks-internaldb_tests $subsystemType $MYROLE
 	fi
+	PKI_LEGACY_IPA_UPPERCASE=$(echo $PKI_LEGACY_IPA_TESTS | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_IPA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                run_ipa_backend_plugin $subsystemType $MYROLE
+        fi
+        PKI_LEGACY_CLONE_CA_TESTS_UPPERCASE=$(echo $PKI_LEGACY_CLONE_CA_TESTS | tr [a-z] [A-Z])
+        if [ "$PKI_LEGACY_CLONE_CA_TESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPERCASE" = "TRUE" ]; then
+                subsystemType=ca
+                clone_legacy_ca_tests $subsystemType $MYROLE
+        fi	
 	rlPhaseEnd
 	######## DEV UNIT TESTS ############
 	DEV_JAVA_TESTS_UPPERCASE=$(echo $DEV_JAVA_TESTS | tr [a-z] [A-Z])

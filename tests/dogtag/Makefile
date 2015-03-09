@@ -291,6 +291,8 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/tks-tests/internaldb/tks-ad-internaldb.sh
 	chmod a+x ./acceptance/legacy/tks-tests/logs/tks-ad-logs.sh
 	chmod a+x ./acceptance/legacy/tks-tests/usergroups/tks-ad-usergroups.sh
+	chmod a+x ./acceptance/legacy/ipa-tests/ipa_backend_plugin.sh
+	chmod a+x ./acceptance/legacy/clone_ca_tests/clone_tests.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
