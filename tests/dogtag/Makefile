@@ -293,6 +293,7 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/tks-tests/usergroups/tks-ad-usergroups.sh
 	chmod a+x ./acceptance/legacy/ipa-tests/ipa_backend_plugin.sh
 	chmod a+x ./acceptance/legacy/clone_ca_tests/clone_tests.sh
+	chmod a+x ./acceptance/legacy/clone_drm_tests/clone_drm_agent_tests.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
