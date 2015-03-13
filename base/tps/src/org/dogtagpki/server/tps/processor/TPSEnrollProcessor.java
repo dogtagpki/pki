@@ -301,7 +301,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSEnrollProcessor.enroll: Finished updating applet if needed.");
 
         //Check and upgrade keys if called for
-        SecureChannel channel = checkAndUpgradeSymKeys();
+        SecureChannel channel = checkAndUpgradeSymKeys(appletInfo,tokenRecord);
         channel.externalAuthenticate();
 
         //Reset the token's pin, create one if we don't have one already
@@ -467,13 +467,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
         pkcs11objx.setFormatVersion(pkcs11objx.getOldFormatVersion());
 
         // Make sure we have a good secure channel before writing out the final objects
-        channel = setupSecureChannel();
+        channel = setupSecureChannel(appletInfo);
 
         statusUpdate(92, "PROGRESS_WRITE_OBJECTS");
 
         writeFinalPKCS11ObjectToToken(pkcs11objx, appletInfo, channel);
         statusUpdate(98, "PROGRESS_ISSUER_INFO");
-        writeIssuerInfoToToken(channel);
+        writeIssuerInfoToToken(channel,appletInfo);
 
         statusUpdate(99, "PROGRESS_SET_LIFECYCLE");
         channel.setLifeycleState((byte) 0x0f);

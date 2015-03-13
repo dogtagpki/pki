@@ -12,6 +12,7 @@ public class AppletInfo {
 
     private TPSBuffer aid;
     private TPSBuffer cuid;
+    private TPSBuffer kdd;
     private TPSBuffer msn;
     private int totalMem;
     private int freeMem;
@@ -25,12 +26,36 @@ public class AppletInfo {
 
     }
 
+    public void setKDD(TPSBuffer theKDD) {
+        kdd = new TPSBuffer(theKDD);
+    }
+
+    public TPSBuffer getKDD() {
+        return kdd;
+    }
+
     public void setCUID(TPSBuffer theCuid) {
         cuid = new TPSBuffer(theCuid);
     }
 
     public TPSBuffer getCUID() {
         return cuid;
+    }
+
+    public String getKDDhexString(){
+        if(cuid != null) {
+            return kdd.toHexString();
+        }
+
+        return null;
+    }
+
+    public String getKDDhexStringPlain() {
+        if(cuid != null) {
+            return kdd.toHexStringPlain();
+        }
+
+        return null;
     }
 
     public void setMSN(TPSBuffer theMsn) {

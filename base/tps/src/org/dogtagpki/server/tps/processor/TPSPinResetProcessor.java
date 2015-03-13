@@ -119,7 +119,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         //Check and upgrade keys if called for
 
-        SecureChannel channel = checkAndUpgradeSymKeys();
+        SecureChannel channel = checkAndUpgradeSymKeys(appletInfo,tokenRecord);
         channel.externalAuthenticate();
 
         checkAndHandlePinReset(channel);

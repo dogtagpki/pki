@@ -34,6 +34,7 @@ public class TPSPhoneHome extends HttpServlet {
         ServletOutputStream stream = null;
         BufferedInputStream buf = null;
         FileInputStream input = null;
+        CMS.debug("TPSPhoneHome.renderPhoneHome entering.");
 
         try {
 
@@ -42,7 +43,13 @@ public class TPSPhoneHome extends HttpServlet {
 
             String confPath = getConfigPath();
 
+            if(confPath == null) {
+                throw new IOException("TPSPhoneHome.rederPhoneHome: Can not deteriming path to phone home data!");
+            }
+
             confPath += File.separator + phoneHomeName;
+
+            CMS.debug("TPSPhoneHome.renderPhoneHome: confPath" + confPath);
 
             input = new FileInputStream(confPath);
             // InputStream input = ctx.getResourceAsStream(phoneHomeName);
@@ -73,6 +80,8 @@ public class TPSPhoneHome extends HttpServlet {
 
     private String getConfigPath() {
 
+        CMS.debug("TPSPhoneHome.getConfigPath: entering.");
+
         String path = null;
         String context = getServletContext().getContextPath();
 
@@ -80,7 +89,18 @@ public class TPSPhoneHome extends HttpServlet {
         String subsystem = context.startsWith("/") ? context.substring(1) : context;
 
         // catalina.base points to instance dir
-        String instanceDir = System.getProperty("catalina.base");
+        String instanceDir = null;
+
+        try {
+
+            instanceDir = System.getProperty("catalina.base");
+
+        } catch (Exception e) {
+            CMS.debug("TPSPhoneHome.getConfigPath: System.getProperty exception: " + e);
+            return null;
+        }
+
+        CMS.debug("TPSPhoneHome.getConfigPath: instanceDir: " + instanceDir);
 
         //Finish off path of conf directory
         path = instanceDir + File.separator + "conf" + File.separator +

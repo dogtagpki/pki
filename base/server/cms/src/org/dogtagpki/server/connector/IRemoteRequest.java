@@ -27,6 +27,7 @@ package org.dogtagpki.server.connector;
 public interface IRemoteRequest {
 //    public static final String TOKEN_CUID = "CUID";
     public static final String TOKEN_CUID = "tokencuid";
+    public static final String TOKEN_KDD = "KDD";
     public static final String GET_XML = "xml";
     public static final int RESPONSE_STATUS_NOT_FOUND = -1;
     public static final String RESPONSE_STATUS = "status";

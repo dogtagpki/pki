@@ -79,7 +79,10 @@ public class SessionKey {
     public static native byte[] ComputeSessionKeySCP02(String tokenName,
             String keyName,
             byte[] keyInfo,
+            byte nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE
+            boolean nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE
             byte[] CUID,
+            byte[] KDD,
             byte[] devKeyArray,
             byte[] sequenceCounter,
             byte[] derivationConstant,
@@ -180,7 +183,7 @@ public class SessionKey {
             byte[] oldKeyInfo,          // AC: KDF SPEC CHANGE
           // AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!  This means the parameters must be jbyteArray's
           //     -- Changed parameter "jstring keyInfo" to "jbyteArray newKeyInfo"
-            byte[] newKeyInfo,          
+            byte[] newKeyInfo,
             byte nistSP800_108KdfOnKeyVersion,    // AC: KDF SPEC CHANGE
             boolean nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE
             byte[] CUIDValue,

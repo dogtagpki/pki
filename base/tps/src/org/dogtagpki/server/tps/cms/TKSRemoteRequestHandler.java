@@ -76,6 +76,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      * @return response TKSComputeSessionKeyResponse class object
      */
     public TKSComputeSessionKeyResponse computeSessionKey(
+            TPSBuffer kdd,
             TPSBuffer cuid,
             TPSBuffer keyInfo,
             TPSBuffer card_challenge,
@@ -85,7 +86,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throws EBaseException {
 
         CMS.debug("TKSRemoteRequestHandler: computeSessionKey(): begins.");
-        if (cuid == null || keyInfo == null || card_challenge == null
+        if (cuid == null || kdd == null || keyInfo == null || card_challenge == null
                 || card_cryptogram == null || host_challenge == null) {
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKey(): input parameter null.");
         }
@@ -105,6 +106,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
 
         String requestString = IRemoteRequest.SERVER_SIDE_KEYGEN + "=" + serverKeygen +
+                "&" + IRemoteRequest.TOKEN_KDD + "=" + Util.specialURLEncode(kdd) +
                 "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
                 "&" + IRemoteRequest.TOKEN_CARD_CHALLENGE + "=" + Util.specialURLEncode(card_challenge) +
                 "&" + IRemoteRequest.TOKEN_HOST_CHALLENGE + "=" + Util.specialURLEncode(host_challenge) +
@@ -229,6 +231,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      * @return response TKSComputeSessionKeyResponse class object
      */
     public TKSComputeSessionKeyResponse computeSessionKeySCP02(
+            TPSBuffer kdd,
             TPSBuffer cuid,
             TPSBuffer keyInfo,
             TPSBuffer sequenceCounter,
@@ -237,7 +240,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throws EBaseException {
 
         CMS.debug("TKSRemoteRequestHandler: computeSessionKeySCP02(): begins.");
-        if (cuid == null || keyInfo == null ||
+        if (cuid == null || kdd == null || keyInfo == null ||
                 sequenceCounter == null
                 || derivationConstant == null) {
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKeySCP02(): input parameter null.");
@@ -258,6 +261,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
 
         String requestString = IRemoteRequest.SERVER_SIDE_KEYGEN + "=" + serverKeygen +
+                "&" + IRemoteRequest.TOKEN_KDD + "=" + Util.specialURLEncode(kdd) +
                 "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
                 "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialURLEncode(keyInfo) +
                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet +
@@ -364,7 +368,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
     public TKSCreateKeySetDataResponse createKeySetData(
             TPSBuffer NewMasterVer,
             TPSBuffer version,
-            TPSBuffer cuid, int protocol, TPSBuffer wrappedDekSessionKey)
+            TPSBuffer cuid, TPSBuffer kdd, int protocol, TPSBuffer wrappedDekSessionKey)
             throws EBaseException {
         CMS.debug("TKSRemoteRequestHandler: createKeySetData(): begins.");
         if (cuid == null || NewMasterVer == null || version == null) {
@@ -382,15 +386,15 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         CMS.debug("TKSRemoteRequestHandler: createKeySetData(): sending request to tks.");
 
         String command = IRemoteRequest.TOKEN_NEW_KEYINFO + "=" + Util.specialURLEncode(NewMasterVer) +
+                "&" + IRemoteRequest.TOKEN_KDD + "=" + Util.specialURLEncode(kdd) +
                 "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
                 "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialURLEncode(version) +
                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet +
                 "&" + IRemoteRequest.CHANNEL_PROTOCOL + "=" + protocol;
 
-        if(wrappedDekSessionKey != null) { // We have secure channel protocol 02 trying to upgrade the key set.
+        if (wrappedDekSessionKey != null) { // We have secure channel protocol 02 trying to upgrade the key set.
             command += "&" + IRemoteRequest.WRAPPED_DEK_SESSION_KEY + "=" + Util.specialURLEncode(wrappedDekSessionKey);
         }
-
 
         HttpResponse resp =
                 conn.send("createKeySetData",
@@ -529,12 +533,13 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      * @return response TKSEncryptDataResponse class object
      */
     public TKSEncryptDataResponse encryptData(
+            TPSBuffer kdd,
             TPSBuffer cuid,
             TPSBuffer version,
             TPSBuffer inData)
             throws EBaseException {
         CMS.debug("TKSRemoteRequestHandler: encryptData(): begins.");
-        if (cuid == null || version == null || inData == null) {
+        if (cuid == null || kdd == null || version == null || inData == null) {
             throw new EBaseException("TKSRemoteRequestHandler: encryptData(): input parameter null.");
         }
 
@@ -552,6 +557,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 conn.send("encryptData",
                         IRemoteRequest.TOKEN_DATA + "=" + Util.specialURLEncode(inData) +
                                 "&" + IRemoteRequest.TOKEN_CUID + "=" + Util.specialURLEncode(cuid) +
+                                "&" + IRemoteRequest.TOKEN_KDD + "=" + Util.specialURLEncode(kdd) +
                                 "&" + IRemoteRequest.TOKEN_KEYINFO + "=" + Util.specialURLEncode(version) +
                                 "&" + IRemoteRequest.TOKEN_KEYSET + "=" + keySet);
 

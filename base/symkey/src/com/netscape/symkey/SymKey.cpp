@@ -535,7 +535,6 @@ PK11SymKey *ComputeCardKey(PK11SymKey *masterKey, unsigned char *data, PK11SlotI
     static SECItem noParams = { siBuffer, NULL, 0 };
     unsigned char *in = data;
     PK11SymKey *tmpkey = NULL;
-    unsigned char icv[EIGHT_BYTES] = { 0 };
     unsigned char wrappedkey[DES3_LENGTH];
     SECItem wrappeditem = { siBuffer, NULL, 0 };
 
@@ -825,8 +824,8 @@ PRStatus CreateKeySetDataWithSymKeys( Buffer &newMasterVer,const Buffer &old_kek
     Buffer kc_kek_key(3);
     Buffer result;
 
-    //Buffer *dumpBuffer = NULL;
-    //int showDerivedKeys = 0;
+    Buffer *dumpBuffer = NULL;
+    int showDerivedKeys = 0;
 
     PR_fprintf(PR_STDOUT,"In CreateKeySetDataWithSymKeys! Protocol: %d \n",protocol);
 
@@ -873,8 +872,6 @@ PRStatus CreateKeySetDataWithSymKeys( Buffer &newMasterVer,const Buffer &old_kek
         authKey16 = PK11_Derive(new_auth_key, CKM_EXTRACT_KEY_FROM_KEY, &paramsItem, CKA_ENCRYPT,
                                                             CKA_DERIVE, 16);
 
-        /*
-
         if(showDerivedKeys == 1) {
             SECItem *keyData = NULL;
             PK11_ExtractKeyValue( authKey16 ); 
@@ -885,8 +882,6 @@ PRStatus CreateKeySetDataWithSymKeys( Buffer &newMasterVer,const Buffer &old_kek
             delete dumpBuffer;
             dumpBuffer = NULL;
         }
-
-        */
 
         if ( authKey16 == NULL ) {
             PR_fprintf(PR_STDERR,"Error deriving authKey16. Error %d \n", PR_GetError());
@@ -908,7 +903,6 @@ PRStatus CreateKeySetDataWithSymKeys( Buffer &newMasterVer,const Buffer &old_kek
             goto done;
         }
 
-        /*
 
         if(showDerivedKeys == 1) {
             SECItem *keyData = NULL;
@@ -921,7 +915,6 @@ PRStatus CreateKeySetDataWithSymKeys( Buffer &newMasterVer,const Buffer &old_kek
             dumpBuffer = NULL;
         }
 
-        */
 
         wrappedKeyItem.data = (unsigned char *) encrypted_mac_key;
         wrappedKeyItem.len  = encrypted_mac_key.size();
@@ -939,8 +932,6 @@ PRStatus CreateKeySetDataWithSymKeys( Buffer &newMasterVer,const Buffer &old_kek
             PR_fprintf(PR_STDERR,"Error deriving kekKey16. Error %d \n", PR_GetError());
         }
 
-        /*
-
         if(showDerivedKeys == 1) {
             SECItem *keyData = NULL;
             PK11_ExtractKeyValue( kekKey16 );
@@ -951,8 +942,6 @@ PRStatus CreateKeySetDataWithSymKeys( Buffer &newMasterVer,const Buffer &old_kek
             delete dumpBuffer;
             dumpBuffer = NULL;
         }
-   
-        */
 
         wrappedKeyItem.data = (unsigned char *) encrypted_kek_key;
         wrappedKeyItem.len  = encrypted_mac_key.size();

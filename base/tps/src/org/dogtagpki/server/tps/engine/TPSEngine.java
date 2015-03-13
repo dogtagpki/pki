@@ -159,6 +159,12 @@ public class TPSEngine {
 
     /* misc values */
 
+    public static final String CFG_CUID_MUST_MATCH_KDD = "cuidMustMatchKDD";
+    public static final String CFG_ENABLE_BOUNDED_GP_KEY_VERSION = "enableBoundedGPKeyVersion";
+    public static final String CFG_MINIMUM_GP_KEY_VERSION = "minimumGPKeyVersion";
+    public static final String CFG_MAXIMUM_GP_KEY_VERSION = "maximumGPKeyVersion";
+    public static final String CFG_VALIDATE_CARD_KEY_INFO_AGAINST_DB = "validateCardKeyInfoAgainstTokenDB";
+
     public static final String ENROLL_OP = "enroll";
     public static final String FORMAT_OP = "format";
     public static final String RECOVERY_OP = "recovery";
@@ -208,6 +214,7 @@ public class TPSEngine {
     }
 
     public TKSComputeSessionKeyResponse computeSessionKeySCP02(
+            TPSBuffer kdd,
             TPSBuffer cuid,
             TPSBuffer keyInfo,
             TPSBuffer sequenceCounter,
@@ -216,7 +223,7 @@ public class TPSEngine {
             String tokenType)
             throws TPSException {
 
-        if (cuid == null || keyInfo == null || sequenceCounter == null || derivationConstant == null
+        if (cuid == null || kdd == null || keyInfo == null || sequenceCounter == null || derivationConstant == null
                 || tokenType == null) {
             throw new TPSException("TPSEngine.computeSessionKeySCP02: Invalid input data!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -229,7 +236,7 @@ public class TPSEngine {
         TKSComputeSessionKeyResponse resp = null;
         try {
             tks = new TKSRemoteRequestHandler(connId);
-            resp = tks.computeSessionKeySCP02(cuid, keyInfo, sequenceCounter, derivationConstant, tokenType);
+            resp = tks.computeSessionKeySCP02(kdd,cuid, keyInfo, sequenceCounter, derivationConstant, tokenType);
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.computeSessionKeySCP02: Error computing session key!" + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -246,7 +253,7 @@ public class TPSEngine {
 
     }
 
-    public TKSComputeSessionKeyResponse computeSessionKey(TPSBuffer cuid,
+    public TKSComputeSessionKeyResponse computeSessionKey(TPSBuffer kdd, TPSBuffer cuid,
             TPSBuffer keyInfo,
             TPSBuffer card_challenge,
             TPSBuffer host_challenge,
@@ -254,7 +261,7 @@ public class TPSEngine {
             String connId,
             String tokenType) throws TPSException {
 
-        if (cuid == null || keyInfo == null || card_challenge == null || host_challenge == null
+        if (cuid == null || kdd == null || keyInfo == null || card_challenge == null || host_challenge == null
                 || card_cryptogram == null || connId == null || tokenType == null) {
 
             throw new TPSException("TPSEngine.computeSessionKey: Invalid input data!",
@@ -269,7 +276,7 @@ public class TPSEngine {
         TKSComputeSessionKeyResponse resp = null;
         try {
             tks = new TKSRemoteRequestHandler(connId);
-            resp = tks.computeSessionKey(cuid, keyInfo, card_challenge, card_cryptogram, host_challenge, tokenType);
+            resp = tks.computeSessionKey(kdd,cuid, keyInfo, card_challenge, card_cryptogram, host_challenge, tokenType);
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.computeSessionKey: Error computing session key!" + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -372,11 +379,11 @@ public class TPSEngine {
 
     }
 
-    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer wrappedDekSessionKey, String connId)
+    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId)
             throws TPSException {
         CMS.debug("TPSEngine.createKeySetData. entering...");
 
-        if (newMasterVersion == null || oldVersion == null || cuid == null || connId == null) {
+        if (newMasterVersion == null || oldVersion == null || cuid == null || kdd == null || connId == null) {
             throw new TPSException("TPSEngine.createKeySetData: Invalid input data",
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
         }
@@ -387,7 +394,7 @@ public class TPSEngine {
 
         try {
             tks = new TKSRemoteRequestHandler(connId);
-            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, protocol,wrappedDekSessionKey);
+            resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey);
         } catch (EBaseException e) {
 
             throw new TPSException("TPSEngine.createKeySetData, failure to get key set data from TKS",

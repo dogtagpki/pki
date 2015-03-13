@@ -674,12 +674,12 @@ extern "C"
  * Signature: ([B[B[B[B)[B
  */
     JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeSessionKeySCP02
-        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jstring, jstring, jstring);
+        (JNIEnv *, jclass, jstring, jstring, jbyteArray, jbyte, jboolean, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jstring, jstring, jstring);
 #ifdef __cplusplus
 }
 #endif
 #define KEYLENGTH 16
-extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeSessionKeySCP02(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray keyInfo, jbyteArray CUID, jbyteArray devKeyArray, jbyteArray sequenceCounter, jbyteArray derivationConstant, jstring useSoftToken_s, jstring keySet, jstring sharedSecretKeyName)
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_ComputeSessionKeySCP02(JNIEnv * env, jclass this2, jstring tokenName, jstring keyName, jbyteArray keyInfo, jbyte nistSP800_108KdfOnKeyVersion, jboolean nistSP800_108KdfUseCuidAsKdd, jbyteArray CUID, jbyteArray KDD, jbyteArray devKeyArray, jbyteArray sequenceCounter, jbyteArray derivationConstant, jstring useSoftToken_s, jstring keySet, jstring sharedSecretKeyName)
 {
     /* hardcode permanent dev key */
     jbyte *dev_key = NULL;
@@ -707,6 +707,10 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     PK11SymKey *symkey16 = NULL;
     PK11SymKey *devKey = NULL;
 
+    // KDF output keys
+    PK11SymKey* macKey = NULL;
+    PK11SymKey* encKey = NULL;
+    PK11SymKey* kekKey = NULL;
 
     BYTE devData[KEYLENGTH];
     char keyname[KEYNAMELENGTH];
@@ -730,6 +734,10 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     jbyte *handleBytes=NULL;
 
     jbyte *    cuidValue = NULL;
+    jsize cuidValue_len = -1;
+
+    jbyte* kddValue = NULL;
+    jsize kddValue_len = -1;
 
     jbyte *sc = NULL;
     int sc_len = 0;
@@ -799,9 +807,25 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
 
     if ( CUID != NULL ) {
         cuidValue =  (jbyte*)(env)->GetByteArrayElements( CUID, NULL);
+         cuidValue_len = env->GetArrayLength(CUID);
     }
 
     if( cuidValue == NULL) {
+        goto done;
+    }
+
+    if ( cuidValue_len <= 0){  // check that CUID is at least 1 byte in length
+        goto done;
+    }
+
+    if ( KDD != NULL ){
+        kddValue = env->GetByteArrayElements(KDD, NULL);
+        kddValue_len = env->GetArrayLength(KDD);
+    }
+    if ( kddValue == NULL ){
+        goto done;
+    }
+    if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
         goto done;
     }
 
@@ -843,8 +867,6 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
       break;
     }
 
-    GetDiversificationData(cuidValue,devData,kType);
-
     PR_fprintf(PR_STDOUT,"In SessionKey.ComputeSessionKeySCP02! keyName %s keyVersion[0] %d keyVersion[1] %d \n",keyname,(int) keyVersion[0],(int) keyVersion[1]);
 
     if ( (keyVersion[0] == 0x1 && keyVersion[1]== 0x1 ) ||
@@ -868,7 +890,7 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             goto done;
         }
 
-        //In the enc key case create the auth as well, we may need it later.
+        //In the enc key case create the auth developer as well, we may need it later.
 
         if(kType == enc) {
 
@@ -883,7 +905,6 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
 
             PK11_FreeSymKey(authKey);
             authKey = NULL; 
-
         }
 
     }else
@@ -895,23 +916,89 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
             goto done;
         }
 
-        devKey =ComputeCardKeyOnToken(masterKey,devData,2);
-        if(devKey == NULL)
-        {
-            goto done;
-        }
-         
-        symkey = DeriveKeySCP02(devKey, Buffer((BYTE*)sc, sc_len), Buffer((BYTE*)dc, dc_len));
 
-        if(symkey == NULL)
-        {
-            goto done;
-        }
+        BYTE nistSP800_108KdfOnKeyVersion_byte = static_cast<BYTE>(nistSP800_108KdfOnKeyVersion);
+        BYTE requestedKeyVersion_byte = static_cast<BYTE>(keyVersion[0]);
+        // if requested key version meets setting value, use NIST SP800-108 KDF
+       if (NistSP800_108KDF::useNistSP800_108KDF(nistSP800_108KdfOnKeyVersion_byte, requestedKeyVersion_byte) == true){
+           PR_fprintf(PR_STDOUT,"ComputeSessionKeySCP02 NistSP800_108KDF code: Using NIST SP800-108 KDF.\n");
+
+           jbyte* context_jbyte = NULL;
+            jsize context_len_jsize = 0;
+            if (nistSP800_108KdfUseCuidAsKdd == JNI_TRUE){
+                context_jbyte = cuidValue;
+                context_len_jsize = cuidValue_len;
+            }else{
+                context_jbyte = kddValue;
+                context_len_jsize = kddValue_len;
+            }
+
+            const BYTE* const context = reinterpret_cast<const BYTE*>(context_jbyte);
+
+            const size_t context_len = static_cast<size_t>(context_len_jsize);
+            if (context_len > 0x000000FF){  // sanity check (CUID should never be larger than 255 bytes)
+                PR_fprintf(PR_STDERR, "ComputeSessionKeySCP02 NistSP800_108KDF code: Error; context_len larger than 255 bytes.\n");
+                goto done;
+            }
+
+            try{
+                NistSP800_108KDF::ComputeCardKeys(masterKey, context, context_len, &encKey, &macKey, &kekKey);
+            }catch(std::runtime_error& ex){
+                PR_fprintf(PR_STDERR, "ComputeSessionKeySCP02 NistSP800_108KDF code: Exception invoking NistSP800_108KDF::ComputeCardKeys: ");
+                PR_fprintf(PR_STDERR, "%s\n", ex.what() == NULL ? "null" : ex.what());
+                goto done;
+            }catch(...){
+                PR_fprintf(PR_STDERR, "ComputeSessionKeySCP02 NistSP800_108KDF code: Unknown exception invoking NistSP800_108KDF::ComputeCardKeys.\n");
+                goto done;
+            }
+
+
+            //Decide upon the key we actually are asking for.
+            if(kType == mac ) {
+                PR_fprintf(PR_STDOUT,"SessionKey.ComputeSessionKeySCP02! Getting mac key. \n");
+                devKey = macKey;
+                macKey = NULL;
+            }
+
+            if(kType == enc) {
+                PR_fprintf(PR_STDOUT,"SessionKey.ComputeSessionKeySCP02! Getting enc key. \n");
+                devKey = encKey;
+                encKey = NULL;
+
+            }
+
+            if(kType == kek) {
+                PR_fprintf(PR_STDOUT,"SessionKey.ComputeSessionKeySCP02! Getting kek key. \n");
+                devKey = kekKey;
+                kekKey = NULL;
+            }
+
+       } else {
+
+           // Do what the original code did, using the standard routines.
+           PR_fprintf(PR_STDOUT,"ComputeSessionKeySCP02 NistSP800_108KDF code: Using original KDF.\n");
+           GetDiversificationData(cuidValue,devData,kType);
+
+           devKey =ComputeCardKeyOnToken(masterKey,devData,2);
+
+       }        
+
+       if(devKey == NULL)
+       {
+           goto done;
+       }
+         
+       symkey = DeriveKeySCP02(devKey, Buffer((BYTE*)sc, sc_len), Buffer((BYTE*)dc, dc_len));
+
+       if(symkey == NULL)
+       {
+           goto done;
+       }
     }
     //Now wrap the key for the trip back to TPS with shared secret transport key
 
     symkey16 = NULL;
-     transportKey = ReturnSymKey( internal, GetSharedSecretKeyName(NULL));
+    transportKey = ReturnSymKey( internal, GetSharedSecretKeyName(NULL));
     if ( transportKey == NULL ) {
         PR_fprintf(PR_STDERR, "Can't find shared secret transport key! \n");
         goto done;
@@ -954,6 +1041,19 @@ done:
     if ( symkey ) {
         PK11_FreeSymKey( symkey);
         symkey = NULL;
+    }
+
+    if( macKey ) {
+        PK11_FreeSymKey( macKey);
+        macKey = NULL;
+    }
+    if ( encKey ) {
+        PK11_FreeSymKey(encKey);
+        encKey = NULL;
+    }
+    if ( kekKey ) {
+        PK11_FreeSymKey(kekKey);
+        kekKey = NULL;
     }
 
     if ( transportKey )  {
@@ -1023,8 +1123,6 @@ done:
 
 }
 
-
-
 //=================================================================================
 #ifdef __cplusplus
 extern "C"
@@ -1053,13 +1151,10 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         return NULL;
     }
 
-    unsigned char input[KEYLENGTH] = {0};
-    int i = 0;
 
     SECItem wrappedKeyItem = { siBuffer, NULL , 0};
     SECItem noParams = { siBuffer, NULL, 0 };
     SECStatus wrapStatus = SECFailure;
-
 
     char *keyNameChars=NULL;
     char *tokenNameChars=NULL;
@@ -1189,17 +1284,6 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     }
     if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
         goto done;
-    }
-
-
-    /* copy card and host challenge into input buffer */
-    for (i = 0; i < 8; i++)
-    {
-        input[i] = cc[i];
-    }
-    for (i = 0; i < 8; i++)
-    {
-        input[8+i] = hc[i];
     }
 
     // AC: KDF SPEC CHANGE: Moved this call down. (We don't necessarily need it anymore depending on the KDF we're going to use.)
@@ -1483,8 +1567,6 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
         return NULL;
     }
 
-    unsigned char input[KEYLENGTH] = {0};
-    int i = 0;
 
     SECItem wrappedKeyItem = { siBuffer, NULL , 0};
     SECItem noParams = { siBuffer, NULL, 0 };
@@ -1603,17 +1685,6 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Comp
     }
     if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
         goto done;
-    }
-
-
-    /* copy card and host challenge into input buffer */
-    for (i = 0; i < 8; i++)
-    {
-        input[i] = cc[i];
-    }
-    for (i = 0; i < 8; i++)
-    {
-        input[8+i] = hc[i];
     }
 
     // AC: KDF SPEC CHANGE: Moved this call down. (We don't necessarily need it anymore depending on the KDF we're going to use.)
@@ -1897,8 +1968,6 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
         keySetString = (char *) DEFKEYSET_NAME;
     }
 
-    unsigned char input[KEYLENGTH] = {0};
-    int i;
     jobject keyObj = NULL;
 
     jbyte *cc =  NULL;
@@ -1978,17 +2047,6 @@ extern "C" JNIEXPORT jobject JNICALL Java_com_netscape_symkey_SessionKey_Compute
     }
     if ( kddValue_len != static_cast<jsize>(NistSP800_108KDF::KDD_SIZE_BYTES) ){   // check that KDD is expected size
         goto done;
-    }
-
-
-    /* copy card and host challenge into input buffer */
-    for (i = 0; i < 8; i++)
-    {
-        input[i] = cc[i];
-    }
-    for (i = 0; i < 8; i++)
-    {
-        input[8+i] = hc[i];
     }
 
     // AC: KDF SPEC CHANGE: Moved this call down. (We don't necessarily need it anymore depending on the KDF we're going to use.)

@@ -346,18 +346,14 @@ public class TokenServlet extends CMSServlet {
         IConfigStore sconfig = CMS.getConfigStore();
 
         boolean isCryptoValidate = false;
-        byte[] keyInfo, CUID = null, session_key = null;
+        byte[] keyInfo, xCUID = null, session_key = null;
 
         Exception missingSettingException = null;
 
         String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
 
-        String rKDD = req.getParameter("KDD");
-        if ((rKDD == null) || (rKDD.length() == 0)) {
-            // KDF phase1: default to rCUID if not present
-            CMS.debug("TokenServlet: KDD not supplied, set to CUID before TPS change");
-            rKDD = rCUID;
-        }
+        String rKDD = req.getParameter(IRemoteRequest.TOKEN_KDD);
+
 
         String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
 
@@ -411,25 +407,31 @@ public class TokenServlet extends CMSServlet {
         audit(auditMessage);
 
         if (!missingParam) {
-            CUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+            xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
 
-            if (CUID == null || CUID.length != 10) {
+            if (xCUID == null || xCUID.length != 10) {
                 badParams += " CUID length,";
                 CMS.debug("TokenServlet.processCompureSessionKeySCP02: Invalid CUID length");
+                missingParam = true;
+            }
+
+            if ((rKDD == null) || (rKDD.length() == 0)) {
+                CMS.debug("TokenServlet.processComputeSessionKeySCP02(): missing request parameter: KDD");
+                badParams += " KDD,";
                 missingParam = true;
             }
 
             xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
             if (xKDD == null || xKDD.length != 10) {
                 badParams += " KDD length,";
-                CMS.debug("TokenServlet: Invalid KDD length");
+                CMS.debug("TokenServlet.processComputeSessionKeySCP02: Invalid KDD length");
                 missingParam = true;
             }
 
             keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
             if (keyInfo == null || keyInfo.length != 2) {
                 badParams += " KeyInfo length,";
-                CMS.debug("TokenServlet: Invalid key info length.");
+                CMS.debug("TokenServlet.processComputeSessionKeySCP02: Invalid key info length.");
                 missingParam = true;
             }
 
@@ -529,8 +531,6 @@ public class TokenServlet extends CMSServlet {
 
         CMS.debug("TokenServlet: processComputeSessionKeySCP02(): tksSharedSymKeyName: " + transportKeyName);
 
-        CMS.debug("TokenServlet: ComputeSessionKeySCP02(): tksSharedSymKeyName: " + transportKeyName);
-
         try {
             isCryptoValidate = sconfig.getBoolean("cardcryptogram.validate.enable", true);
         } catch (EBaseException eee) {
@@ -559,7 +559,9 @@ public class TokenServlet extends CMSServlet {
 
                 session_key = SessionKey.ComputeSessionKeySCP02(
                         selectedToken, keyNickName,
-                        keyInfo, CUID, macKeyArray, sequenceCounter, derivationConstant, useSoftToken_s, keySet,
+                        keyInfo,
+                        nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                        nistSP800_108KdfUseCuidAsKdd,xCUID,xKDD, macKeyArray, sequenceCounter, derivationConstant, useSoftToken_s, keySet,
                         transportKeyName);
 
                 if (session_key == null) {
@@ -812,7 +814,7 @@ public class TokenServlet extends CMSServlet {
 
         if (status.equals("0")) {
 
-            String[] logParams = { log_string_from_specialDecoded_byte_array(CUID), // CUID_decoded
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
                     ILogger.SUCCESS, // Outcome
                     status, // status
@@ -831,7 +833,7 @@ public class TokenServlet extends CMSServlet {
 
         } else {
 
-            String[] logParams = { log_string_from_specialDecoded_byte_array(CUID), // CUID_decoded
+            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
                     ILogger.FAILURE, // Outcome
                     status, // status

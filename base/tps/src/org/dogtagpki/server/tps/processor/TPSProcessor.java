@@ -291,7 +291,7 @@ public class TPSProcessor {
     }
 
     protected TPSBuffer getCplcData() throws IOException, TPSException {
-        CMS.debug("In TPS_Processor.");
+        CMS.debug("In TPS_Processor. getCplcData");
 
         GetDataAPDU get_data_apdu = new GetDataAPDU();
 
@@ -366,7 +366,7 @@ public class TPSProcessor {
 
         try {
             tks = new TKSRemoteRequestHandler(connId);
-            data = tks.encryptData(appletInfo.getCUID(), keyInfo, plaintextChallenge);
+            data = tks.encryptData(appletInfo.getKDD(),appletInfo.getCUID(), keyInfo, plaintextChallenge);
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.encryptData: Erorr getting wrapped data from TKS!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -436,7 +436,7 @@ public class TPSProcessor {
 
     }
 
-    protected SecureChannel setupSecureChannel() throws TPSException, IOException {
+    protected SecureChannel setupSecureChannel(AppletInfo appletInfo) throws TPSException, IOException {
         SecureChannel channel = null;
 
         //Create a standard secure channel with current key set.
@@ -446,7 +446,7 @@ public class TPSProcessor {
         int defKeyIndex = getChannelDefKeyIndex();
 
         channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex,
-                getTKSConnectorID());
+                getTKSConnectorID(),appletInfo);
 
         channel.externalAuthenticate();
 
@@ -454,13 +454,18 @@ public class TPSProcessor {
     }
 
     protected SecureChannel setupSecureChannel(byte keyVersion, byte keyIndex,
-            String connId)
+            String connId,AppletInfo appletInfo)
             throws IOException, TPSException {
 
         //Assume generating host challenge on TKS, we no longer support not involving the TKS.
 
         CMS.debug("TPSProcessor.setupSecureChannel: keyVersion: " + keyVersion + " keyIndex: " + keyIndex
                 );
+
+        if(appletInfo == null) {
+            throw new TPSException("TPSProcessor.setupSecureChannel: invalid input data.", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+         }
+
 
         TPSBuffer randomData = computeRandomData(8, connId);
         CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData: " + randomData.toHexString());
@@ -470,6 +475,8 @@ public class TPSProcessor {
         TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
 
         TPSBuffer key_diversification_data = initUpdateResp.substr(0, DIVERSIFICATION_DATA_SIZE);
+        appletInfo.setKDD(key_diversification_data);
+
         CMS.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
 
         TPSBuffer key_info_data = initUpdateResp.substr(DIVERSIFICATION_DATA_SIZE, 2);
@@ -512,6 +519,8 @@ public class TPSProcessor {
             key_info_data.setAt(1, (byte) 0x1);
             CMS.debug("TPSProcessor.setupSecureChannel 02: key Info , after massage: " + key_info_data.toHexString());
 
+            tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
+
         } else {
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET, CARD_CHALLENGE_SIZE);
         }
@@ -522,7 +531,7 @@ public class TPSProcessor {
         try {
             channel = generateSecureChannel(connId, key_diversification_data, key_info_data, card_challenge,
                     card_cryptogram,
-                    randomData, sequenceCounter);
+                    randomData, sequenceCounter,appletInfo);
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.setupSecureChannel: Can't set up secure channel: " + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -534,11 +543,11 @@ public class TPSProcessor {
 
     protected SecureChannel generateSecureChannel(String connId, TPSBuffer keyDiversificationData,
             TPSBuffer keyInfoData, TPSBuffer cardChallenge, TPSBuffer cardCryptogram, TPSBuffer hostChallenge,
-            TPSBuffer sequenceCounter)
+            TPSBuffer sequenceCounter,AppletInfo appletInfo)
             throws EBaseException, TPSException, IOException {
 
         if (connId == null || keyDiversificationData == null || keyInfoData == null || cardChallenge == null
-                || cardCryptogram == null || hostChallenge == null) {
+                || cardCryptogram == null || hostChallenge == null || appletInfo == null) {
             throw new TPSException("TPSProcessor.generateSecureChannel: Invalid input data!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -565,6 +574,30 @@ public class TPSProcessor {
 
         PK11SymKey sharedSecret = null;
 
+        //Sanity checking
+
+        boolean cuidOK = checkCUIDMatchesKDD(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain());
+
+        boolean isVersionInRange = checkCardGPKeyVersionIsInRange(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain(), keyInfoData.toHexStringPlain());
+
+        boolean doesVersionMatchTokenDB = checkCardGPKeyVersionMatchesTokenDB(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain(), keyInfoData.toHexStringPlain());
+
+        if(cuidOK == false) {
+            throw new TPSException("TPSProcessor.generateSecureChannel: cuid vs kdd matching policy not met!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        if(isVersionInRange == false) {
+
+            throw new TPSException("TPSProcessor.generateSecureChannel: key version is not within acceptable range!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
+        if(doesVersionMatchTokenDB == false) {
+            throw new TPSException("TPSProcessor.generateSecureChannel: key version from token does not match that of the token db!",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
         try {
             sharedSecret = getSharedSecretTransportKey(connId);
         } catch (Exception e) {
@@ -577,7 +610,7 @@ public class TPSProcessor {
 
         if (platProtInfo.isGP201() || platProtInfo.isSCP01()) {
 
-            resp = engine.computeSessionKey(keyDiversificationData, keyInfoData,
+            resp = engine.computeSessionKey(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     cardChallenge, hostChallenge, cardCryptogram,
                     connId, getSelectedTokenType());
 
@@ -652,7 +685,7 @@ public class TPSProcessor {
             }
 
             CMS.debug("TPSProcessor.generateSecureChannel Trying secure channel protocol 02");
-            respEnc02 = engine.computeSessionKeySCP02(keyDiversificationData, keyInfoData,
+            respEnc02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.ENCDerivationConstant),
                     connId, getSelectedTokenType());
 
@@ -666,7 +699,7 @@ public class TPSProcessor {
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
-            respCMac02 = engine.computeSessionKeySCP02(keyDiversificationData, keyInfoData,
+            respCMac02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.C_MACDerivationConstant),
                     connId, getSelectedTokenType());
 
@@ -681,7 +714,7 @@ public class TPSProcessor {
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
-            respRMac02 = engine.computeSessionKeySCP02(keyDiversificationData, keyInfoData,
+            respRMac02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.R_MACDerivationConstant),
                     connId, getSelectedTokenType());
 
@@ -696,7 +729,7 @@ public class TPSProcessor {
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
-            respDek02 = engine.computeSessionKeySCP02(keyDiversificationData, keyInfoData,
+            respDek02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.DEKDerivationConstant),
                     connId, getSelectedTokenType());
 
@@ -793,7 +826,7 @@ public class TPSProcessor {
 
                 upgraded = 1;
                 CMS.debug("TPSProcessor.checkAndUpgradeApplet: Upgrading applet to : " + targetAppletVersion);
-                upgradeApplet("op." + currentTokenOperation, targetAppletVersion, getBeginMessage()
+                upgradeApplet(appletInfo, "op." + currentTokenOperation, targetAppletVersion, getBeginMessage()
                         .getExtensions(),
                         tksConnId, 5, 12);
             }
@@ -804,13 +837,13 @@ public class TPSProcessor {
 
             // We didn't need to upgrade the applet but create new channel for now.
             selectCardManager();
-            setupSecureChannel();
+            setupSecureChannel(appletInfo);
 
         }
 
     }
 
-    protected void upgradeApplet(String operation, String new_version,
+    protected void upgradeApplet(AppletInfo appletInfo, String operation, String new_version,
             Map<String, String> extensions, String connId, int startProgress, int endProgress) throws IOException,
             TPSException {
 
@@ -850,7 +883,7 @@ public class TPSProcessor {
             throw new TPSException("TPSProcessor.upgradeApplet: Can't selelect the card manager!");
         }
 
-        SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, connId);
+        SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, connId,appletInfo);
 
         channel.externalAuthenticate();
 
@@ -1866,14 +1899,15 @@ public class TPSProcessor {
 
         String tksConnId = getTKSConnectorID();
 
-        upgradeApplet(TPSEngine.OP_FORMAT_PREFIX, appletRequiredVersion,
+        upgradeApplet(appletInfo,TPSEngine.OP_FORMAT_PREFIX, appletRequiredVersion,
                 beginMsg.getExtensions(), tksConnId,
                 10, 90);
         CMS.debug("TPSProcessor.format: Completed applet upgrade.");
 
+
         // Add issuer info to the token
 
-        writeIssuerInfoToToken(null);
+        writeIssuerInfoToToken(null,appletInfo);
 
         if (requiresStatusUpdate()) {
             statusUpdate(100, "PROGRESS_DONE");
@@ -1881,9 +1915,8 @@ public class TPSProcessor {
 
         // Upgrade Symm Keys if needed
 
-        SecureChannel channel = checkAndUpgradeSymKeys();
+        SecureChannel channel = checkAndUpgradeSymKeys(appletInfo,tokenRecord);
         channel.externalAuthenticate();
-        tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
 
         if (isTokenPresent && revokeCertsAtFormat()) {
             // Revoke certificates on token, if so configured
@@ -1922,7 +1955,7 @@ public class TPSProcessor {
 
     }
 
-    protected void writeIssuerInfoToToken(SecureChannel origChannel) throws TPSException, IOException,
+    protected void writeIssuerInfoToToken(SecureChannel origChannel,AppletInfo appletInfo) throws TPSException, IOException,
             UnsupportedEncodingException {
         if (checkIssuerInfoEnabled()) {
 
@@ -1937,7 +1970,7 @@ public class TPSProcessor {
                 channel = origChannel;
             } else {
 
-                channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, tksConnId);
+                channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, tksConnId,appletInfo);
                 channel.externalAuthenticate();
 
             }
@@ -2566,7 +2599,7 @@ public class TPSProcessor {
         selectCardManager();
 
         TPSBuffer cplc_data = getCplcData();
-        CMS.debug("cplc_data: " + cplc_data.toString());
+        CMS.debug("cplc_data: " + cplc_data.toHexString());
 
         TPSBuffer token_cuid = extractTokenCUID(cplc_data);
         TPSBuffer token_msn = extractTokenMSN(cplc_data);
@@ -2670,7 +2703,7 @@ public class TPSProcessor {
         return version;
     }
 
-    protected SecureChannel checkAndUpgradeSymKeys() throws TPSException, IOException {
+    protected SecureChannel checkAndUpgradeSymKeys(AppletInfo appletInfo,TokenRecord tokenRecord) throws TPSException, IOException {
 
         /* If the key of the required version is
           not found, create them.
@@ -2690,6 +2723,10 @@ public class TPSProcessor {
             set it to be the new default]
         */
 
+        if(tokenRecord == null || appletInfo == null) {
+            throw new TPSException("TPSProcessor.checkAndUpgradeSymKeys: invalid input data!");
+        }
+
         SecureChannel channel = null;
 
         int defKeyVersion = 0;
@@ -2708,7 +2745,7 @@ public class TPSProcessor {
             try {
 
                 channel = setupSecureChannel((byte) requiredVersion, (byte) defKeyIndex,
-                        getTKSConnectorID());
+                        getTKSConnectorID(),appletInfo);
 
             } catch (TPSException e) {
 
@@ -2721,7 +2758,7 @@ public class TPSProcessor {
 
                 selectCardManager();
 
-                channel = setupSecureChannel();
+                channel = setupSecureChannel(appletInfo);
 
                 /* Assemble the Buffer with the version information
                  The second byte is the key offset, which is always 1
@@ -2745,8 +2782,30 @@ public class TPSProcessor {
                     protocol = 2;
                 }
 
+                //Sanity checking
+
+                boolean cuidOK = checkCUIDMatchesKDD(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain());
+                boolean isVersionInRange = checkCardGPKeyVersionIsInRange(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain(), curKeyInfo.toHexStringPlain());
+                boolean doesVersionMatchTokenDB = checkCardGPKeyVersionMatchesTokenDB(appletInfo.getCUIDhexStringPlain(), appletInfo.getKDDhexStringPlain(), curKeyInfo.toHexStringPlain());
+
+                if(cuidOK == false) {
+                    throw new TPSException("TPSProcessor.generateSecureChannel: cuid vs kdd matching policy not met!",
+                            TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                }
+
+                if(isVersionInRange == false) {
+
+                    throw new TPSException("TPSProcessor.generateSecureChannel: key version is not within acceptable range!",
+                            TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                }
+
+                if(doesVersionMatchTokenDB == false) {
+                    throw new TPSException("TPSProcessor.generateSecureChannel: key version from token does not match that of the token db!",
+                            TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                }
+
                 TPSBuffer keySetData = engine.createKeySetData(newVersion, curKeyInfo, protocol,
-                        channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId);
+                        appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId);
 
                 CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: new keySetData from TKS: " + keySetData.toHexString());
 
@@ -2768,7 +2827,7 @@ public class TPSProcessor {
 
                         byte[] nv_dev = { (byte) 0x1, (byte) 0x1 };
                         TPSBuffer devKeySetData = engine.createKeySetData(new TPSBuffer(nv_dev), curKeyInfo, protocol,
-                                channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId);
+                              appletInfo.getCUID(),  channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId);
 
                         CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: about to get rid of keyset 0xFF and replace it with keyset 0x1 with developer key set");
                         channel.putKeys((byte) 0x0, (byte) 0x1, devKeySetData);
@@ -2783,8 +2842,11 @@ public class TPSProcessor {
 
                 String curVersionStr = curKeyInfo.toHexString();
                 String newVersionStr = newVersion.toHexString();
-                TPSSession session = getSession();
-                TokenRecord tokenRecord = session.getTokenRecord();
+
+                //Only change in db if we upgrade, thus we don't need to worry about rolling back on failure.
+                //Thus the setting, rollbackKeyVersionOnPutKeyFailure is not needed.
+
+                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: changing token db keyInfo to: " + newVersion.toHexStringPlain());
                 tokenRecord.setKeyInfo(newVersion.toHexStringPlain());
 
                 CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: curVersionStr: " + curVersionStr + " newVersionStr: "
@@ -2792,11 +2854,13 @@ public class TPSProcessor {
                 selectCoolKeyApplet();
 
                 channel = setupSecureChannel((byte) requiredVersion, (byte) defKeyIndex,
-                        getTKSConnectorID());
+                        getTKSConnectorID(),appletInfo);
 
             } else {
                 CMS.debug("TPSProcessor.checkAndUpgradeSymeKeys: We are already at the desired key set, returning secure channel.");
             }
+
+           // tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
 
         } else {
             //Create a standard secure channel with current key set.
@@ -2805,7 +2869,7 @@ public class TPSProcessor {
             defKeyVersion = getChannelDefKeyVersion();
 
             channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex,
-                    getTKSConnectorID());
+                    getTKSConnectorID(),appletInfo);
 
         }
 
@@ -3233,6 +3297,245 @@ public class TPSProcessor {
     public PlatformAndSecChannelProtoInfo getChannelPlatformAndProtocolInfo() {
         return platProtInfo;
     }
+
+    boolean checkCardGPKeyVersionIsInRange(String CUID, String KDD, String keyInfoData) throws TPSException {
+        boolean result = true;
+
+        //ToDo : Add Audit messages .
+
+
+        String method = "checkCardGPKeyVersionIsInRange: ";
+
+        CMS.debug(method + " entering: keyInfoData: " + keyInfoData);
+
+        if (CUID == null || KDD == null || keyInfoData == null) {
+            throw new TPSException(method + " Invalid input data!");
+        }
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String checkBoundedGPKeyVersionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_ENABLE_BOUNDED_GP_KEY_VERSION;
+
+        CMS.debug(method + " config to check: " + checkBoundedGPKeyVersionConfig);
+
+        try {
+            result = configStore.getBoolean(checkBoundedGPKeyVersionConfig, true);
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    method + " error getting config value.");
+        }
+
+        CMS.debug(method + " returning: " + result);
+
+        // Check only if asked.
+
+        if (result == true) {
+
+            String minConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                    + TPSEngine.CFG_MINIMUM_GP_KEY_VERSION;
+            String maxConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                    + TPSEngine.CFG_MAXIMUM_GP_KEY_VERSION;
+
+            CMS.debug(method + " config to check: minConfig: " + minConfig + " maxConfig: " + maxConfig);
+
+            String maxVersion = null;
+            String minVersion = null;
+
+            try {
+                minVersion = configStore.getString(minConfig, "01");
+                maxVersion = configStore.getString(maxConfig, "FF");
+            } catch (EBaseException e) {
+                throw new TPSException(
+                        method + " error getting config value.");
+            }
+
+            if (minVersion.length() != 2 || maxVersion.length() != 2) {
+                result = false;
+            }
+
+            CMS.debug(method + " minVersion: " + minVersion + " maxVersion: " + maxVersion);
+
+            if (keyInfoData.length() != 4) {
+                result = false;
+            } else {
+                // Actually check the version range;
+
+                String keyInfoVer = keyInfoData.substring(0, 2);
+
+                CMS.debug(method + " Version reported from key Info Data: " + keyInfoVer);
+
+                int versionMinCompare = keyInfoVer.compareToIgnoreCase(minVersion);
+                int versionMaxCompare = keyInfoVer.compareToIgnoreCase(maxVersion);
+
+                CMS.debug(method + " versionMinCompare: " + versionMinCompare + " versionMaxCompare: "
+                        + versionMaxCompare);
+
+                if (versionMinCompare >= 0 && versionMaxCompare <= 0) {
+                    CMS.debug(method + " Version : " + keyInfoVer + " is in range of: " + minVersion + " and: "
+                            + maxVersion);
+                    result = true;
+                } else {
+                    result = false;
+                    CMS.debug(method + " Version : " + keyInfoVer + " is NOT in range of: " + minVersion + " and: "
+                            + maxVersion);
+                }
+            }
+
+        } else {
+            //Configured to ignore, report success.
+            result = true;
+        }
+
+        CMS.debug(method + " Returning result of: " + result);
+
+        return result;
+    }
+
+    boolean checkCUIDMatchesKDD(String CUID, String KDD) throws TPSException {
+        boolean result = true;
+
+        String method = "TPsProcessor.checkCUIDMatchesKDD: " ;
+
+        CMS.debug(method + " CUID " + CUID + " KDD: " + KDD);
+
+        if (CUID == null || KDD == null) {
+            throw new TPSException(method + " invalid input data!");
+        }
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String checkCUIDMatchesKDDConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_CUID_MUST_MATCH_KDD;
+
+        CMS.debug(method + " config to check: " + checkCUIDMatchesKDDConfig);
+
+        try {
+            result = configStore.getBoolean(checkCUIDMatchesKDDConfig, false);
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    method + " error getting config value.");
+        }
+
+        CMS.debug(method + " config result: " + result);
+
+        // Check only if asked to
+        if (result == true) {
+            if (CUID.compareToIgnoreCase(KDD) == 0) {
+                CMS.debug(method + " CUID and KDD values match!");
+                result = true;
+            } else {
+                CMS.debug(method + " CUID and KDD values differ!");
+                result = false;
+            }
+        } else {
+            //Configured to ignore, report success.
+            result = true;
+        }
+
+        CMS.debug(method + " returning result: " + result);
+
+        return result;
+    }
+
+    protected String getKeyInfoFromTokenDB(String cuid) throws TPSException {
+        String keyInfo = null;
+
+        if (cuid == null) {
+            throw new TPSException("TPSProcessor.getKeyInfoFromTokenDB: invalid input data!",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+
+        TokenRecord tokenRecord = getTokenRecord();
+
+        keyInfo = tokenRecord.getKeyInfo();
+
+        CMS.debug("TPProcessor.getKeyInfioFromTokenDB: returning: " + keyInfo);
+
+        return keyInfo;
+
+    }
+
+    boolean checkCardGPKeyVersionMatchesTokenDB(String CUID, String KDD,
+            String keyInfoData) throws TPSException {
+
+        String method = "checkCardGPKeyVersionMatchesTokenDB: ";
+
+        if(CUID == null || KDD == null || keyInfoData == null) {
+            throw new TPSException(method + " Invalid input data!");
+        }
+
+        boolean result = true;
+
+        IConfigStore configStore = CMS.getConfigStore();
+
+        String checkValidateVersion = "op." + currentTokenOperation + "." + selectedTokenType + "."
+                + TPSEngine.CFG_VALIDATE_CARD_KEY_INFO_AGAINST_DB;
+
+        CMS.debug(method + " config to check: " + checkValidateVersion);
+
+        try {
+            result = configStore.getBoolean(checkValidateVersion, true);
+        } catch (EBaseException e) {
+            throw new TPSException(
+                    method + " error getting config value.");
+        }
+
+        CMS.debug(method + " config result: " + result);
+
+
+        if(result == true) {
+            //Check only if asked to.
+
+            String keyInfoInDB = getKeyInfoFromTokenDB(CUID);
+
+            CMS.debug(method + " keyInfoFromTokenDB: " + keyInfoInDB);
+            CMS.debug(method + " keyInfoFromToken: " +  keyInfoData);
+
+
+            if(keyInfoData.compareToIgnoreCase(keyInfoInDB) != 0) {
+                CMS.debug(method + " Key Info in the DB is NOT the same as the one from the token!");
+                result = false;
+            } else {
+                CMS.debug(method + " Key Info in the DB IS the same as the one from the token!");
+                result = true;
+            }
+
+        } else {
+            result = true;
+        }
+
+        CMS.debug(method + " returning result: " + result);
+
+        return result;
+
+    }
+
+    /* Only for debugging, extract bytes of a PK11SymKey
+    private String getSymKeyData(PK11SymKey key) {
+        String result = null;
+
+        if(key == null) {
+            result = "";
+            return result;
+        }
+
+        try {
+            byte [] extracted = key.getKeyData();
+
+            TPSBuffer keyBuff = new TPSBuffer(extracted);
+
+            result = keyBuff.toHexString();
+
+        } catch (Exception e) {
+
+            //Probably can not extract this key due to policy
+            result = "";
+        }
+
+        return result;
+    }
+    */
 
     public static void main(String[] args) {
     }
