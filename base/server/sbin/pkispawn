@@ -204,9 +204,44 @@ def main(argv):
                 parser.read_text('Hostname',
                                  config.pki_subsystem,
                                  'pki_ds_hostname')
-                parser.read_text('Port',
-                                 config.pki_subsystem,
-                                 'pki_ds_ldap_port')
+
+                if parser.mdict['pki_ds_secure_connection'] == 'True':
+                    secure = 'Y'
+                else:
+                    secure = 'N'
+
+                secure = parser.read_text(
+                    'Use a secure LDAPS connection (Yes/No/Quit)',
+                    default=secure,
+                    options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
+                    sign='?', case_sensitive=False).lower()
+
+                if secure == 'q' or secure == 'quit':
+                    print "Installation canceled."
+                    sys.exit(0)
+
+                if secure == 'y' or secure == 'yes':
+                    # Set secure DS connection to true
+                    parser.set_property(config.pki_subsystem,
+                                        'pki_ds_secure_connection',
+                                        'True')
+                    # Prompt for secure 'ldaps' port
+                    parser.read_text('Secure LDAPS Port',
+                                     config.pki_subsystem,
+                                     'pki_ds_ldaps_port')
+                    # Specify complete path to a directory server
+                    # CA certificate pem file
+                    pem_file = parser.read_text(
+                        'Directory Server CA certificate pem file',
+                        allow_empty=False)
+                    parser.set_property(config.pki_subsystem,
+                                        'pki_ds_secure_connection_ca_pem_file',
+                                        pem_file)
+                else:
+                    parser.read_text('LDAP Port',
+                                     config.pki_subsystem,
+                                     'pki_ds_ldap_port')
+
                 parser.read_text('Bind DN',
                                  config.pki_subsystem,
                                  'pki_ds_bind_dn')

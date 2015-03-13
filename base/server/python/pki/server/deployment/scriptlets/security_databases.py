@@ -95,8 +95,30 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # Delete the temporary 'noise' file
                 deployer.file.delete(
                     deployer.mdict['pki_self_signed_noise_file'])
-            # Delete the temporary 'pfile'
-            deployer.file.delete(deployer.mdict['pki_shared_pfile'])
+
+            # Check to see if a secure connection is being used for the DS
+            if config.str2bool(deployer.mdict['pki_ds_secure_connection']):
+                # Check to see if a directory server CA certificate
+                # using the same nickname already exists
+                rv = deployer.certutil.verify_certificate_exists(
+                    deployer.mdict['pki_database_path'],
+                    deployer.mdict['pki_cert_database'],
+                    deployer.mdict['pki_key_database'],
+                    deployer.mdict['pki_secmod_database'],
+                    deployer.mdict['pki_self_signed_token'],
+                    deployer.mdict['pki_ds_secure_connection_ca_nickname'],
+                    password_file=deployer.mdict['pki_shared_pfile'])
+                if not rv:
+                    # Import the directory server CA certificate
+                    rv = deployer.certutil.import_cert(
+                        deployer.mdict['pki_ds_secure_connection_ca_nickname'],
+                        deployer.mdict['pki_ds_secure_connection_ca_trustargs'],
+                        deployer.mdict['pki_ds_secure_connection_ca_pem_file'],
+                        password_file=deployer.mdict['pki_shared_pfile'],
+                        path=deployer.mdict['pki_database_path'])
+
+        # Always delete the temporary 'pfile'
+        deployer.file.delete(deployer.mdict['pki_shared_pfile'])
         return self.rv
 
     def destroy(self, deployer):

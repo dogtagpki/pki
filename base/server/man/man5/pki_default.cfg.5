@@ -169,6 +169,14 @@ Credentials to connect to the database during installation.  Directory Manager-l
 .IP
 Sets whether to require connections to the Directory Server using LDAPS.  This requires SSL to be set up on the Directory Server first.  Defaults to false.
 .PP
+.B pki_ds_secure_connection_ca_nickname
+.IP
+Once a Directory Server CA certificate has been imported into the PKI security databases (see \fBpki_ds_secure_connection_ca_pem_file\fP), \fBpki_ds_secure_connection_ca_nickname\fP will contain the nickname under which it is stored.  The \fBdefault.cfg\fP file contains a default value for this nickname.  This parameter is only utilized when \fBpki_ds_secure_connection\fP has been set to true.
+.PP
+.B pki_ds_secure_connection_ca_pem_file
+.IP
+The \fBpki_ds_secure_connection_ca_pem_file\fP parameter will consist of the fully-qualified path including the filename of a file which contains an exported copy of a Directory Server's CA certificate.  While this parameter is only utilized when \fBpki_ds_secure_connection\fP has been set to true, a valid value is required for this parameter whenever this condition exists.
+.PP
 .B pki_ds_remove_data
 .IP
 Sets whether to remove any data from the base DN before starting the installation.  Defaults to True.

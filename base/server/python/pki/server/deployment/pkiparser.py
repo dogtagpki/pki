@@ -400,6 +400,12 @@ class PKIConfigParser:
         if config.str2bool(self.mdict['pki_ds_secure_connection']):
             protocol = 'ldaps'
             port = self.mdict['pki_ds_ldaps_port']
+            # ldap.set_option(ldap.OPT_DEBUG_LEVEL, 255)
+            ldap.set_option(ldap.OPT_X_TLS_DEMAND, True)
+            ldap.set_option(ldap.OPT_X_TLS, ldap.OPT_X_TLS_DEMAND)
+            ldap.set_option(ldap.OPT_X_TLS_CACERTFILE,
+                            self.mdict['pki_ds_secure_connection_ca_pem_file'])
+            ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_DEMAND)
         else:
             protocol = 'ldap'
             port = self.mdict['pki_ds_ldap_port']
@@ -774,6 +780,8 @@ class PKIConfigParser:
                     "-->"
                 self.mdict['PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
                     "-->"
+                self.mdict['PKI_DS_SECURE_CONNECTION_SLOT'] = \
+                    self.mdict['pki_ds_secure_connection'].lower()
                 self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT'] = \
                     self.mdict['pki_https_port']
                 self.mdict\

@@ -817,6 +817,18 @@ class ConfigurationFile:
                     (port, context))
         return
 
+    def verify_ds_secure_connection_data(self):
+        # Check to see if a secure connection is being used for the DS
+        if config.str2bool(self.mdict['pki_ds_secure_connection']):
+            # Verify existence of a local PEM file containing a
+            # directory server CA certificate
+            self.confirm_file_exists("pki_ds_secure_connection_ca_pem_file")
+            # Verify existence of a nickname for this
+            # directory server CA certificate
+            self.confirm_data_exists("pki_ds_secure_connection_ca_nickname")
+            # Set trustargs for this directory server CA certificate
+            self.mdict['pki_ds_secure_connection_ca_trustargs'] = "CT,CT,CT"
+
     def verify_command_matches_configuration_file(self):
         # Silently verify that the command-line parameters match the values
         # that are present in the corresponding configuration file
@@ -3957,7 +3969,12 @@ class ConfigClient:
 
     def set_database_parameters(self, data):
         data.dsHost = self.mdict['pki_ds_hostname']
-        data.dsPort = self.mdict['pki_ds_ldap_port']
+        if config.str2bool(self.mdict['pki_ds_secure_connection']):
+            data.secureConn = "true"
+            data.dsPort = self.mdict['pki_ds_ldaps_port']
+        else:
+            data.secureConn = "false"
+            data.dsPort = self.mdict['pki_ds_ldap_port']
         data.baseDN = self.mdict['pki_ds_base_dn']
         data.bindDN = self.mdict['pki_ds_bind_dn']
         data.database = self.mdict['pki_ds_database']
@@ -3970,10 +3987,6 @@ class ConfigClient:
             data.removeData = "true"
         else:
             data.removeData = "false"
-        if config.str2bool(self.mdict['pki_ds_secure_connection']):
-            data.secureConn = "true"
-        else:
-            data.secureConn = "false"
         if config.str2bool(self.mdict['pki_share_db']):
             data.sharedDB = "true"
             data.sharedDBUserDN = self.mdict['pki_share_dbuser_dn']

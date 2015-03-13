@@ -632,7 +632,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("internaldb.database", data.getDatabase());
         cs.putString("internaldb.basedn", data.getBaseDN());
         cs.putString("internaldb.ldapauth.bindDN", data.getBindDN());
-        cs.putBoolean("internaldb.ldapconn.secureConn", data.getSecureConn().equals("on"));
+        cs.putBoolean("internaldb.ldapconn.secureConn", data.getSecureConn().equals("true"));
         cs.putString("preop.database.removeData", data.getRemoveData());
         cs.putBoolean("preop.database.createNewDB", data.getCreateNewDB());
         cs.putBoolean("preop.database.setupReplication", data.getSetupReplication());
@@ -675,7 +675,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.putString("internaldb.ldapconn.cloneReplicationPort", cloneReplicationPort);
 
             String replicationSecurity = data.getReplicationSecurity();
-            if ((cloneReplicationPort == data.getDsPort()) && (data.getSecureConn().equals("on"))) {
+            if ((cloneReplicationPort == data.getDsPort()) && (data.getSecureConn().equals("true"))) {
                 replicationSecurity = "SSL";
             } else if (replicationSecurity == null) {
                 replicationSecurity = "None";

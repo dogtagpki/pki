@@ -171,7 +171,7 @@ public class ConfigurationRequest {
     @XmlElement
     protected String database;
 
-    @XmlElement(defaultValue = "off")
+    @XmlElement(defaultValue = "false")
     protected String secureConn;
 
     @XmlElement
