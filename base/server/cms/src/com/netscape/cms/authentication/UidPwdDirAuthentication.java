@@ -18,10 +18,12 @@
 package com.netscape.cms.authentication;
 
 // ldap java sdk
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
@@ -45,6 +47,8 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * uid/pwd directory based authentication manager
@@ -59,7 +63,6 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     public static final String CRED_UID = "uid";
     public static final String CRED_PWD = "pwd";
     protected static String[] mRequiredCreds = { CRED_UID, CRED_PWD };
-    public static final String USERID = "userid";
 
     /* Holds configuration parameters accepted by this implementation.
      * This list is passed to the configuration console so configuration
@@ -89,10 +92,58 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     };
 
     /**
-     * Default constructor, initialization must follow.
+     * Retrieves group base dn.
      */
-    public UidPwdDirAuthentication() {
-        super();
+    private String getGroupBaseDN() {
+        return mGroups + "," + mGroupsBaseDN;
+    }
+
+    /**
+     * List groups of which user is a member.
+     */
+    private ArrayList<String> listGroups(LDAPConnection ldapconn, String uid, String userdn)
+            throws EUsrGrpException, LDAPException {
+        String method = "UidPwdDirAuthentication: listGroups: ";
+        CMS.debug(method + " begins");
+        String[] attrs = {};
+
+        String k = null;
+        if (mGroupObjectClass.equalsIgnoreCase("groupOfUniqueNames"))
+            k = "uniquemember";
+        else if (mGroupObjectClass.equalsIgnoreCase("groupOfNames"))
+            k = "member";
+        else {
+            CMS.debug("UidPwdDirAuthentication: isMemberOfLdapGroup: unrecognized mGroupObjectClass: " + mGroupObjectClass);
+            return null;
+        }
+
+        String filter = null;
+        if (mSearchGroupUserByUserdn)
+            filter = k + "=" + LDAPUtil.escapeFilter(userdn);
+        else
+            filter = k + "=" + mGroupUserIDName + "=" + LDAPUtil.escapeFilter(uid);
+
+        CMS.debug(method + "searching " + getGroupBaseDN() + " for (&(objectclass=" + mGroupObjectClass + ")(" + filter + "))");
+        LDAPSearchResults res = ldapconn.search(
+            getGroupBaseDN(),
+            LDAPv2.SCOPE_SUB,
+            "(&(objectclass=" + mGroupObjectClass + ")(" + filter + "))",
+            attrs, true /* attrsOnly */ );
+
+        CMS.debug(method + " ends");
+        return buildGroups(res);
+    }
+
+    private ArrayList<String> buildGroups(LDAPSearchResults res) {
+        ArrayList<String> v = new ArrayList<>();
+
+        while (res.hasMoreElements()) {
+            LDAPEntry entry = (LDAPEntry) res.nextElement();
+            String groupDN = entry.getDN();
+            CMS.debug("UidPwdDirAuthentication: Authenticate: Found group membership: " + groupDN);
+            v.add(groupDN);
+        }
+        return v;
     }
 
     /**
@@ -131,18 +182,29 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
-            // get user dn.
-            CMS.debug("Authenticating: Searching for UID=" + uid +
-                      " base DN=" + mBaseDN);
-            LDAPSearchResults res = conn.search(mBaseDN,
-                    LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", null, false);
+            /*
+             * first try and see if the directory server supports "memberOf"
+             * if so, use it, if not, then pull all groups to check
+             */
+            String emptyAttrs[] = {};
+            String groupAttrs[] = {"memberOf"};
 
+            // get user dn.
+            CMS.debug("UidPwdDirAuthentication: Authenticating: Searching for " +
+                    mUserIDName + "=" + uid + " base DN=" + mBaseDN);
+            LDAPSearchResults res = conn.search(
+                mBaseDN,
+                LDAPv2.SCOPE_SUB,
+                "(" + mUserIDName + "=" + LDAPUtil.escapeFilter(uid) + ")",
+                (mGroupsEnable ? groupAttrs : emptyAttrs),
+                false);
+
+            LDAPEntry entry = null;
             if (res.hasMoreElements()) {
-                //LDAPEntry entry = (LDAPEntry)res.nextElement();
-                LDAPEntry entry = res.next();
+                entry = res.next();
 
                 userdn = entry.getDN();
-                CMS.debug("Authenticating: Found User DN=" + userdn);
+                CMS.debug("UidPwdDirAuthentication: Authenticating: Found User DN=" + userdn);
             } else {
                 log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
@@ -150,9 +212,25 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
 
             // bind as user dn and pwd - authenticates user with pwd.
             conn.authenticate(userdn, pwd);
+
+            LDAPAttribute attribute = entry.getAttribute("memberOf");
+            if ( attribute != null ) {
+                CMS.debug("UidPwdDirAuthentication: Authenticate: Found memberOf attribute");
+                String[] groups = attribute.getStringValueArray();
+                token.set(IAuthToken.GROUPS, groups);
+            } else if (mGroupsEnable) {
+                CMS.debug("UidPwdDirAuthentication: Authenticate: memberOf attribute not found.");
+                ArrayList<String> groups = null;
+                groups = listGroups(conn, uid, userdn);
+                if (groups != null) {
+                    String[] groupsArray = new String[groups.size()];
+                    token.set(IAuthToken.GROUPS, groups.toArray(groupsArray));
+                }
+            }
+
             // set uid in the token.
-            token.set(CRED_UID, uid);
-            token.set(USERID, uid);
+            token.set(IAuthToken.UID, uid);
+            token.set(IAuthToken.USER_ID, uid);
 
             return userdn;
         } catch (ELdapException e) {

@@ -38,6 +38,8 @@ public interface IAuthToken {
      * Constant for userid.
      */
     public static final String USER_ID = "userid";
+    public static final String UID = "uid";
+    public static final String GROUPS = "groups";
 
     /**
      * Sets an attribute value within this AttrSet.

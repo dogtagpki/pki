@@ -74,6 +74,13 @@ public abstract class DirBasedAuthentication
     /* configuration parameter keys */
     protected static final String PROP_LDAP = "ldap";
     protected static final String PROP_BASEDN = "basedn";
+    protected static final String PROP_GROUPS_ENABLE = "groupsEnable";
+    protected static final String PROP_GROUPS_BASEDN = "groupsBasedn";
+    protected static final String PROP_GROUPS = "groups";
+    protected static final String PROP_GROUP_OBJECT_CLASS = "groupObjectClass";
+    protected static final String PROP_GROUP_USERID_NAME = "groupUseridName";
+    protected static final String PROP_USERID_NAME = "useridName";
+    protected static final String PROP_SEARCH_GROUP_USER_BY_USERDN = "searchGroupUserByUserdn";
     protected static final String PROP_DNPATTERN = "dnpattern";
     protected static final String PROP_LDAPSTRINGATTRS = "ldapStringAttributes";
     protected static final String PROP_LDAPBYTEATTRS = "ldapByteAttributes";
@@ -94,6 +101,14 @@ public abstract class DirBasedAuthentication
 
     /* ldap base dn */
     protected String mBaseDN = null;
+    protected boolean mGroupsEnable = false;
+    protected String mGroups = null; // e.g. "ou=Groups"
+    protected String mGroupsBaseDN = null; // in case it's different from mBaseDN
+    protected String mGroupObjectClass = null;
+    protected String mUserIDName = null; // e.g. "uid"
+    protected String mGroupUserIDName = null;  // in case it's different from mUserIDName
+    /* whether to search for member=<userDN> or member=<mGroupUserIdName>=<uid> */
+    protected boolean mSearchGroupUserByUserdn = true;
 
     /* factory of anonymous ldap connections */
     protected ILdapConnFactory mConnFactory = null;
@@ -243,10 +258,25 @@ public abstract class DirBasedAuthentication
 
         /* initialize ldap server configuration */
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
-        if (needBaseDN)
+        if (needBaseDN) {
             mBaseDN = mLdapConfig.getString(PROP_BASEDN);
-        if (needBaseDN && ((mBaseDN == null) || (mBaseDN.length() == 0) || (mBaseDN.trim().equals(""))))
-            throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "basedn"));
+            if (mBaseDN == null || mBaseDN.trim().equals(""))
+                throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "basedn"));
+            mGroupsEnable = mLdapConfig.getBoolean(PROP_GROUPS_ENABLE, false);
+            CMS.debug("DirBasedAuthentication: mGroupsEnable=" + (mGroupsEnable ? "true" : "false"));
+            mGroupsBaseDN = mLdapConfig.getString(PROP_GROUPS_BASEDN, mBaseDN);
+            CMS.debug("DirBasedAuthentication: mGroupsBaseDN="+ mGroupsBaseDN);
+            mGroups= mLdapConfig.getString(PROP_GROUPS, "ou=groups");
+            CMS.debug("DirBasedAuthentication: mGroups="+ mGroups);
+            mGroupObjectClass = mLdapConfig.getString(PROP_GROUP_OBJECT_CLASS, "groupofuniquenames");
+            CMS.debug("DirBasedAuthentication: mGroupObjectClass="+ mGroupObjectClass);
+            mUserIDName = mLdapConfig.getString(PROP_USERID_NAME, "uid");
+            CMS.debug("DirBasedAuthentication: mUserIDName="+ mUserIDName);
+            mSearchGroupUserByUserdn = mLdapConfig.getBoolean(PROP_SEARCH_GROUP_USER_BY_USERDN, true);
+            CMS.debug("DirBasedAuthentication: mSearchGroupUserByUserdn="+ mSearchGroupUserByUserdn);
+            mGroupUserIDName = mLdapConfig.getString(PROP_GROUP_USERID_NAME, "cn");
+            CMS.debug("DirBasedAuthentication: mGroupUserIDName="+ mGroupUserIDName);
+        }
         mConnFactory = CMS.getLdapAnonConnFactory();
         mConnFactory.init(mLdapConfig);
 

@@ -54,10 +54,6 @@ import com.netscape.cmsutil.xml.XMLObject;
 public class TokenAuthentication implements IAuthManager,
         IProfileAuthenticator {
 
-    /* result auth token attributes */
-    public static final String TOKEN_UID = "uid";
-    public static final String TOKEN_GID = "gid";
-
     /* required credentials */
     public static final String CRED_SESSION_ID = IAuthManager.CRED_SESSION_ID;
     protected String[] mRequiredCreds = { CRED_SESSION_ID };
@@ -191,9 +187,10 @@ public class TokenAuthentication implements IAuthManager,
 
                 String uid = parser.getValue("uid");
                 String gid = parser.getValue("gid");
+                String[] groups = {gid};
 
-                authToken.set(TOKEN_UID, uid);
-                authToken.set(TOKEN_GID, gid);
+                authToken.set(IAuthToken.UID, uid);
+                authToken.set(IAuthToken.GROUPS, groups);
 
                 if (context != null) {
                     CMS.debug("SessionContext.USER_ID " + uid + " SessionContext.GROUP_ID " + gid);

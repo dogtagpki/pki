@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
+import java.util.Arrays;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -101,9 +102,9 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             // should define "uid" at a common place
             String uid = null;
 
-            uid = authToken.getInString("userid");
+            uid = authToken.getInString(IAuthToken.USER_ID);
             if (uid == null) {
-                uid = authToken.getInString("uid");
+                uid = authToken.getInString(IAuthToken.UID);
                 if (uid == null) {
                     CMS.debug("GroupAccessEvaluator: evaluate: uid null");
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
@@ -112,17 +113,15 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             }
             CMS.debug("GroupAccessEvaluator: evaluate: uid=" + uid + " value=" + value);
 
-            String groupname = authToken.getInString("gid");
-
-            if (groupname != null) {
-                CMS.debug("GroupAccessEvaluator: evaluate: authToken gid=" + groupname);
-                if (op.equals("=")) {
-                    return groupname.equals(Utils.stripQuotes(value));
-                } else if (op.equals("!=")) {
-                    return !groupname.equals(Utils.stripQuotes(value));
-                }
+            String[] groups = authToken.getInStringArray(IAuthToken.GROUPS);
+            if (groups != null) {
+                boolean matched = Arrays.asList(groups).contains(Utils.stripQuotes(value));
+                if (op.equals("="))
+                    return matched;
+                else if (op.equals("!="))
+                    return !matched;
             } else {
-                CMS.debug("GroupAccessEvaluator: evaluate: no gid in authToken");
+                CMS.debug("GroupAccessEvaluator: evaluate: no groups in authToken");
                 IUser id = null;
                 try {
                     id = mUG.getUser(uid);
