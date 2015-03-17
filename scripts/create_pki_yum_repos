@@ -17,7 +17,7 @@ cd `dirname $0`/../..
 PKI_PWD=`pwd`
 
 # Establish a list of 'packages' directories
-PKI_PACKAGE_DIRS_LIST="packages packages.dogtag_theme packages.core packages.kra packages.ocsp packages.ra packages.tks packages.tps packages.console"
+PKI_PACKAGE_DIRS_LIST="packages packages.theme packages.dogtag_theme packages.core packages.console packages.meta"
 
 # This script is only executable from the directory
 # containing at the "./pki" directory!
