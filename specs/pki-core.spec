@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.1
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -883,6 +883,9 @@ echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 %endif # %{with server}
 
 %changelog
+* Wed Mar 25 2015 Matthew Harmsen <mharmsen@redhat.com> - 10.2.1-2
+- PKI TRAC Ticket #1319 - Invalid upgrade script in 10.2.1
+
 * Thu Jan  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.1-1
 - Update release number for release build
 
