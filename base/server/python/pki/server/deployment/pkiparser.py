@@ -1227,6 +1227,12 @@ class PKIConfigParser:
                     "restart" + " " + \
                     "pki-tomcatd" + "@" + \
                     self.mdict['pki_instance_name'] + "." + "service"
+
+            if config.str2bool(self.mdict['pki_profiles_in_ldap']):
+                self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'LDAPProfileSubsystem'
+            else:
+                self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'ProfileSubsystem'
+
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
