@@ -5,7 +5,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.1
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -884,6 +884,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Mar 26 2015 Endi S. Dewata <edewata@redhat.com> 10.2.1-3
+- PKI TRAC Ticket #1255 - Restart fails after upgrade
+
 * Wed Mar 25 2015 Matthew Harmsen <mharmsen@redhat.com> - 10.2.1-2
 - PKI TRAC Ticket #1319 - Invalid upgrade script in 10.2.1
 
