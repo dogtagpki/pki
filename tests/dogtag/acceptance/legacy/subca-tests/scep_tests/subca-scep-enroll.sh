@@ -71,13 +71,13 @@ run_pki-legacy-subca-scep_tests()
 	local search_string="ca.scep.enable=false"
 	local replace_string="ca.scep.enable=true"
 
+	local scep_enroll_url="http://$ca_host:$ca_unsecure_port/ca/cgi-bin/pkiclient.exe"
+	local scep_location="ftp://wiki.idm.lab.bos.redhat.com/dirsec/images-mp1/packages/scep_software/sscep/rhel7-x86_64_modified"
+	local scep_enroll_pin="netscape"
+	local scep_password="netscape"
+	local scep_host_ip=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1 -d'/')
+	
 	rlPhaseStartTest "pki_subca_scep_tests-001: Perform scep enrollment with the SUBCA using sha512 fingerprint"
-		local scep_enroll_url="http://$ca_host:$ca_unsecure_port/ca/cgi-bin/pkiclient.exe"
-		local scep_location="ftp://wiki.idm.lab.bos.redhat.com/dirsec/images-mp1/packages/scep_software/sscep/rhel7-x86_64_modified"
-		local scep_enroll_pin="netscape"
-		local scep_password="netscape"
-		local scep_host_ip=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1 -d'/')
-
 		#Turn on scep
 		replace_string_in_a_file $ca_config_file $search_string $replace_string
 		if [ $? -eq 0 ] ; then
@@ -108,7 +108,7 @@ ca_file_loc_EOF
 		rhcs_stop_instance $tomcat_name
 		rhcs_start_instance $tomcat_name
 
-		local digest=sha512
+		local digest="sha512"
 
                 #Copy sscep.conf file
                 rlRun "wget $scep_location/sscep.conf -O $TmpDir/sscep.conf"
@@ -119,15 +119,16 @@ ca_file_loc_EOF
 		rlAssertGrep "certificate written as $TmpDir/cert.crt" "$TmpDir/scep_enroll.out"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/cert.crt"
 		rlAssertGrep "-----END CERTIFICATE-----" "$TmpDir/cert.crt"
+
+		#Verify certificate is created with sha512 signing algorithm
+                rlRun "cp $TmpDir/cert.crt $TmpDir/cert.crt.mod"
+                rlRun "sed '/^-----BEGIN CERTIFICATE-----/d' $TmpDir/cert.crt.mod > $TmpDir/cert.crt.mod.1"
+                rlRun "sed '/^-----END CERTIFICATE-----/d' $TmpDir/cert.crt.mod.1 > $TmpDir/cert.crt.mod.2"
+                rlRun "PrettyPrintCert $TmpDir/cert.crt.mod.2 $TmpDir/cert.crt.pretty"
+                rlAssertGrep "Signature Algorithm: SHA512withRSA" "$TmpDir/cert.crt.pretty"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_subca_scep_tests-002: Perform scep enrollment with the SUBCA using sha256 fingerprint"
-		local scep_enroll_url="http://$ca_host:$ca_unsecure_port/ca/cgi-bin/pkiclient.exe"
-		local scep_location="ftp://wiki.idm.lab.bos.redhat.com/dirsec/images-mp1/packages/scep_software/sscep/rhel7-x86_64_modified"
-		local scep_enroll_pin="netscape"
-		local scep_password="netscape"
-		local scep_host_ip=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1 -d'/')
-
 		#Turn on scep
 		replace_string_in_a_file $ca_config_file $search_string $replace_string
 		if [ $? -eq 0 ] ; then
@@ -162,9 +163,13 @@ ca_file_loc_EOF
 
                 #Copy sscep.conf file
                 rlRun "wget $scep_location/sscep.conf -O $TmpDir/sscep.conf"
-                local orig_fingerprint="FingerPrint     sha512"
-                local replace_fingerprint="FingerPrint     $digest"
-                replace_string_in_a_file $TmpDir/sscep.conf $orig_fingerprint $replace_fingerprint
+                local orig_fingerprint="FingerPrint\tsha512"
+                local replace_fingerprint="FingerPrint\t$digest"
+                replace_string_in_a_file $TmpDir/sscep.conf "$orig_fingerprint" "$replace_fingerprint"
+
+		local orig_sigalgorithm="SigAlgorithm\tsha512"
+                local replace_sigalgorithm="SigAlgorithm\t$digest"
+                replace_string_in_a_file $TmpDir/sscep.conf "$orig_sigalgorithm" "$replace_sigalgorithm"
 
 		#do scep enrollment
 		rlRun "scep_do_enroll_with_sscep $scep_enroll_pin $scep_enroll_url $scep_host_ip $TmpDir $digest"
@@ -173,9 +178,77 @@ ca_file_loc_EOF
 		rlAssertGrep "certificate written as $TmpDir/cert.crt" "$TmpDir/scep_enroll.out"
 		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/cert.crt"
 		rlAssertGrep "-----END CERTIFICATE-----" "$TmpDir/cert.crt"
+                rlRun "cp $TmpDir/cert.crt $TmpDir/cert.crt2.mod"
+                rlRun "sed '/^-----BEGIN CERTIFICATE-----/d' $TmpDir/cert.crt2.mod > $TmpDir/cert.crt2.mod.1"
+                rlRun "sed '/^-----END CERTIFICATE-----/d' $TmpDir/cert.crt2.mod.1 > $TmpDir/cert.crt2.mod.2"
+                rlRun "PrettyPrintCert $TmpDir/cert.crt2.mod.2 $TmpDir/cert.crt2.pretty"
+                rlAssertGrep "Signature Algorithm: SHA256withRSA" "$TmpDir/cert.crt2.pretty"
+                rlLog "BZ1199692 - https://bugzilla.redhat.com/show_bug.cgi?id=1199692"
 	rlPhaseEnd
 
 	
+	rlPhaseStartTest "pki_subca_scep_tests-003: Perform scep enrollment with the SUBCA using sha1 fingerprint"
+		#Turn on scep
+		replace_string_in_a_file $ca_config_file $search_string $replace_string
+		if [ $? -eq 0 ] ; then
+			chown pkiuser:pkiuser $ca_config_file
+			rhcs_stop_instance $tomcat_name
+			rhcs_start_instance $tomcat_name
+		fi
+
+		rlRun "wget $scep_location/sscep -O $TmpDir/sscep"
+		#delete extisting sscep from /usr/bin if any
+		rlLog "Delete existing sscep from /usr/bin = rm -rf /usr/bin/sscep"
+		rlRun "rm -rf /usr/bin/sscep"
+		#Move sscep to /usr/bin
+		rlRun "mv $TmpDir/sscep /usr/bin"
+		rlRun "chmod +x /usr/bin/sscep"
+		#Get mkrequest
+		rlRun "wget $scep_location/mkrequest -O $TmpDir/mkrequest"
+		rlRun "mv $TmpDir/mkrequest /usr/bin"
+		rlRun "chmod +x /usr/bin/mkrequest"
+
+		#Add a flatfile auth to the SUBCA instance conf dir
+		local ca_file_loc="/var/lib/pki/$tomcat_name/ca/conf/flatfile.txt"
+		cat > $ca_file_loc << ca_file_loc_EOF
+UID:$scep_host_ip
+PWD:$scep_password
+ca_file_loc_EOF
+		#Restart SUBCA
+		rhcs_stop_instance $tomcat_name
+		rhcs_start_instance $tomcat_name
+
+		local digest=sha1
+
+                #Copy sscep.conf file
+                rlRun "wget $scep_location/sscep.conf -O $TmpDir/sscep.conf"
+                local orig_fingerprint="FingerPrint\tsha512"
+                local replace_fingerprint="FingerPrint\t$digest"
+                replace_string_in_a_file $TmpDir/sscep.conf "$orig_fingerprint" "$replace_fingerprint"
+
+		local orig_sigalgorithm="SigAlgorithm\tsha512"
+                local replace_sigalgorithm="SigAlgorithm\t$digest"
+                replace_string_in_a_file $TmpDir/sscep.conf "$orig_sigalgorithm" "$replace_sigalgorithm"
+
+		#do scep enrollment
+		rlRun "scep_do_enroll_with_sscep $scep_enroll_pin $scep_enroll_url $scep_host_ip $TmpDir $digest"
+
+		rlAssertGrep "pkistatus: SUCCESS" "$TmpDir/scep_enroll.out"
+		rlAssertGrep "certificate written as $TmpDir/cert.crt" "$TmpDir/scep_enroll.out"
+		rlAssertGrep "-----BEGIN CERTIFICATE-----" "$TmpDir/cert.crt"
+		rlAssertGrep "-----END CERTIFICATE-----" "$TmpDir/cert.crt"
+                rlRun "cp $TmpDir/cert.crt $TmpDir/cert.crt3.mod"
+                rlRun "sed '/^-----BEGIN CERTIFICATE-----/d' $TmpDir/cert.crt3.mod > $TmpDir/cert.crt3.mod.1"
+                rlRun "sed '/^-----END CERTIFICATE-----/d' $TmpDir/cert.crt3.mod.1 > $TmpDir/cert.crt3.mod.2"
+                rlRun "PrettyPrintCert $TmpDir/cert.crt3.mod.2 $TmpDir/cert.crt3.pretty"
+                rlAssertGrep "Signature Algorithm: SHA256withRSA" "$TmpDir/cert.crt3.pretty"
+                rlLog "BZ1199692 - https://bugzilla.redhat.com/show_bug.cgi?id=1199692"
+	rlPhaseEnd
+
+	
+	rlPhaseStartTest "pki_subca_scep_tests_cleanup: delete temporary directory and turn off sscep "
+		#Delete temporary directory
+                rlRun "popd"
 	rlPhaseStartTest "pki_subca_scep_tests_cleanup: delete temporary directory and turn off sscep "
 		#Delete temporary directory
                 rlRun "popd"

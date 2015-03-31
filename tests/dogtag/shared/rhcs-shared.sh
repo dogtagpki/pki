@@ -368,8 +368,8 @@ scep_do_enroll_with_sscep()
         rlRun "/usr/bin/sscep getca -c $temp_dir/ca.crt -u $scep_enroll_url > $temp_dir/getca_out"
 
         #submit enrollment request
-        rlLog "/usr/bin/sscep enroll -f $temp_dir/sscep.conf -c $temp_dir/ca.crt -k $temp_dir/local.key -r $temp_dir/local.csr  -l $temp_dir/cert.crt -u $scep_enroll_url"
-        rlRun "/usr/bin/sscep enroll -f $temp_dir/sscep.conf -c $temp_dir/ca.crt -k $temp_dir/local.key -r $temp_dir/local.csr  -l $temp_dir/cert.crt -u $scep_enroll_url > $temp_dir/scep_enroll.out"
+        rlLog "/usr/bin/sscep enroll -f $temp_dir/sscep.conf -c $temp_dir/ca.crt -k $temp_dir/local.key -r $temp_dir/local.csr -S $digest -l $temp_dir/cert.crt -u $scep_enroll_url"
+        rlRun "/usr/bin/sscep enroll -f $temp_dir/sscep.conf -c $temp_dir/ca.crt -k $temp_dir/local.key -r $temp_dir/local.csr -S $digest -l $temp_dir/cert.crt -u $scep_enroll_url > $temp_dir/scep_enroll.out"
         if [ $? -ne 0 ] ; then
                 rc=1
         fi
