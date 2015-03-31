@@ -245,10 +245,6 @@ ca_file_loc_EOF
                 rlLog "BZ1199692 - https://bugzilla.redhat.com/show_bug.cgi?id=1199692"
 	rlPhaseEnd
 
-	
-	rlPhaseStartTest "pki_subca_scep_tests_cleanup: delete temporary directory and turn off sscep "
-		#Delete temporary directory
-                rlRun "popd"
 	rlPhaseStartTest "pki_subca_scep_tests_cleanup: delete temporary directory and turn off sscep "
 		#Delete temporary directory
                 rlRun "popd"
