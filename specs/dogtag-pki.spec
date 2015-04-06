@@ -1,6 +1,6 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          10.2.3
+Version:          10.3.0
 Release:          0.1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
@@ -116,6 +116,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Mon Apr  6 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.1
+- Updated version number to 10.3.0-0.1
+
 * Wed Mar 18 2015 Dogtag Team <pki-devel@redhat.com> 10.2.3-0.1
 - Updated version number to 10.2.3-0.1
 
