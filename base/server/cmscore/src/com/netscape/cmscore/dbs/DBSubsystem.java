@@ -35,6 +35,7 @@ import netscape.security.x509.CertificateValidity;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
@@ -648,17 +649,29 @@ public class DBSubsystem implements IDBSubsystem {
 
         try {
             mLdapConnFactory.init(tmpConfig);
+
+        } catch (EPropertyNotDefined e) {
+            if (CMS.isPreOpMode()) {
+                CMS.debug("DBSubsystem: Ignore EPropertyNotDefined during pre-op: " + e);
+                return;
+            }
+
+            CMS.debug(e);
+            throw e;
+
         } catch (ELdapServerDownException e) {
             CMS.debug(e);
             if (CMS.isPreOpMode())
                 return;
             throw new EDBNotAvailException(
                     CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+
         } catch (ELdapException e) {
             CMS.debug(e);
             if (CMS.isPreOpMode())
                 return;
             throw new EDBException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_ERROR", e.toString()));
+
         } catch (EBaseException e) {
             CMS.debug(e);
             if (CMS.isPreOpMode())
