@@ -47,6 +47,7 @@ import org.dogtagpki.server.tps.cms.TKSComputeRandomDataResponse;
 import org.dogtagpki.server.tps.cms.TKSComputeSessionKeyResponse;
 import org.dogtagpki.server.tps.cms.TKSEncryptDataResponse;
 import org.dogtagpki.server.tps.cms.TKSRemoteRequestHandler;
+import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
@@ -88,6 +89,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.symkey.SessionKey;
 
@@ -124,6 +126,8 @@ public class TPSProcessor {
 
     protected BeginOpMsg beginMsg;
     private PlatformAndSecChannelProtoInfo platProtInfo;
+
+    ProfileDatabase profileDatabase = new ProfileDatabase();
 
     public TPSProcessor(TPSSession session) {
         setSession(session);
@@ -2110,22 +2114,18 @@ public class TPSProcessor {
 
     void checkProfileStateOK() throws TPSException {
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMS.debug("TPSProcessor.checkProfileStateOK()");
 
-        String profileConfig = "config.Profiles." + selectedTokenType + ".state";
         String profileState = null;
-
-        CMS.debug("TPSProcessor.checkProfileStateOK: config value to check: " + profileConfig);
-
         try {
-            profileState = configStore.getString(profileConfig, TPSEngine.CFG_ENABLED);
+            profileState = profileDatabase.getRecordStatus(selectedTokenType);
         } catch (EBaseException e) {
             //Default TPSException will return a "contact admin" error code.
             throw new TPSException(
                     "TPSProcessor.checkProfileStateOK: internal error in getting profile state from config.");
         }
 
-        if (!profileState.equals(TPSEngine.CFG_ENABLED)) {
+        if (!profileState.equals(Constants.CFG_ENABLED)) {
             CMS.debug("TPSProcessor.checkProfileStateOK: profile specifically disabled.");
             throw new TPSException("TPSProcessor.checkProfileStateOK: profile disabled!");
         }

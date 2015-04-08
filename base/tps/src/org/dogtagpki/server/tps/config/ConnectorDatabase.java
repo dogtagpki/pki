@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.common.Constants;
 import com.netscape.cmscore.dbs.CSCfgDatabase;
 
 /**
@@ -174,7 +175,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
 
         ConnectorRecord record = new ConnectorRecord();
         record.setID(id);
-        record.setStatus("Enabled");
+        record.setStatus(Constants.CFG_ENABLED);
 
         record.setProperty(prefix + "." + id + ".enable", "true");
         record.setProperty(prefix + "." + id + ".host", hostname);
@@ -198,7 +199,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
 
         ConnectorRecord record = new ConnectorRecord();
         record.setID(id);
-        record.setStatus("Enabled");
+        record.setStatus(Constants.CFG_ENABLED);
 
         record.setProperty(prefix + "." + id + ".enable", "true");
         record.setProperty(prefix + "." + id + ".host", hostname);
@@ -219,7 +220,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
 
         ConnectorRecord record = new ConnectorRecord();
         record.setID(id);
-        record.setStatus("Enabled");
+        record.setStatus(Constants.CFG_ENABLED);
 
         record.setProperty(prefix + "." + id + ".enable", "true");
         record.setProperty(prefix + "." + id + ".host", hostname);

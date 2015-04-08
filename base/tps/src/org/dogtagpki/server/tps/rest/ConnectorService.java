@@ -41,6 +41,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.tps.connector.ConnectorCollection;
 import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.certsrv.tps.connector.ConnectorResource;
@@ -185,7 +186,7 @@ public class ConnectorService extends PKIService implements ConnectorResource {
 
             if (status == null || database.requiresApproval() && !database.canApprove(principal)) {
                 // if status is unspecified or user doesn't have rights to approve, the entry is disabled
-                connectorData.setStatus("Disabled");
+                connectorData.setStatus(Constants.CFG_DISABLED);
             }
 
             database.addRecord(connectorData.getID(), createConnectorRecord(connectorData));
@@ -217,21 +218,21 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             ConnectorRecord record = database.getRecord(connectorID);
 
             // only disabled connector can be updated
-            if (!"Disabled".equals(record.getStatus())) {
+            if (!Constants.CFG_DISABLED.equals(record.getStatus())) {
                 throw new ForbiddenException("Unable to update connector " + connectorID);
             }
 
             // update status if specified
             String status = connectorData.getStatus();
-            if (status != null && !"Disabled".equals(status)) {
-                if (!"Enabled".equals(status)) {
+            if (status != null && !Constants.CFG_DISABLED.equals(status)) {
+                if (!Constants.CFG_ENABLED.equals(status)) {
                     throw new ForbiddenException("Invalid connector status: " + status);
                 }
 
                 // if user doesn't have rights, set to pending
                 Principal principal = servletRequest.getUserPrincipal();
                 if (database.requiresApproval() && !database.canApprove(principal)) {
-                    status = "Pending_Approval";
+                    status = Constants.CFG_PENDING_APPROVAL;
                 }
 
                 // enable connector
@@ -274,25 +275,25 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             ConnectorRecord record = database.getRecord(connectorID);
             String status = record.getStatus();
 
-            if ("Disabled".equals(status)) {
+            if (Constants.CFG_DISABLED.equals(status)) {
                 if ("enable".equals(action)) {
-                    status = "Enabled";
+                    status = Constants.CFG_ENABLED;
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }
 
-            } else if ("Enabled".equals(status)) {
+            } else if (Constants.CFG_ENABLED.equals(status)) {
                 if ("disable".equals(action)) {
-                    status = "Disabled";
+                    status = Constants.CFG_DISABLED;
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }
 
-            } else if ("Pending_Approval".equals(status)) {
+            } else if (Constants.CFG_PENDING_APPROVAL.equals(status)) {
                 if ("approve".equals(action)) {
-                    status = "Enabled";
+                    status = Constants.CFG_ENABLED;
                 } else if ("reject".equals(action)) {
-                    status = "Disabled";
+                    status = Constants.CFG_DISABLED;
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }
@@ -331,7 +332,7 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             ConnectorRecord record = database.getRecord(connectorID);
             String status = record.getStatus();
 
-            if (!"Disabled".equals(status)) {
+            if (!Constants.CFG_DISABLED.equals(status)) {
                 throw new ForbiddenException("Unable to delete connector " + connectorID);
             }
 

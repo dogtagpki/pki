@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.Constants;
 import com.netscape.cms.realm.PKIPrincipal;
 
 
@@ -59,7 +60,7 @@ public class CSCfgDatabase<E extends CSCfgRecord> extends Database<E> {
     }
 
     public String getRecordStatus(String recordID) throws EBaseException {
-        return configStore.getString("config." + substoreName + "." + recordID + ".state", "Disabled");
+        return configStore.getString("config." + substoreName + "." + recordID + ".state", Constants.CFG_ENABLED);
     }
 
     public void setRecordStatus(String recordID, String status) throws EBaseException {

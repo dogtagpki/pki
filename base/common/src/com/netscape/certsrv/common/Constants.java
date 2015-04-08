@@ -733,4 +733,9 @@ public interface Constants {
     public final static String PR_REPLICATION_PORT_2 = "replication.master2.port";
     public final static String PR_REPLICATION_BINDDN_2 = "replication.master2.binddn";
     public final static String PR_REPLICATION_CHANGELOGDB_2 = "replication.master2.changelogdb";
+
+    //Config
+    public final static String CFG_ENABLED = "Enabled";
+    public final static String CFG_DISABLED = "Disabled";
+    public final static String CFG_PENDING_APPROVAL = "Pending_Approval";
 }
