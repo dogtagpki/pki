@@ -32,6 +32,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileRecord;
@@ -140,11 +141,12 @@ public class ProfileService extends PKIService implements ProfileResource {
             return createOKResponse(response);
 
         } catch (PKIException e) {
+            CMS.debug("ProfileService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -162,11 +164,12 @@ public class ProfileService extends PKIService implements ProfileResource {
             return createOKResponse(createProfileData(database.getRecord(profileID)));
 
         } catch (PKIException e) {
+            CMS.debug("ProfileService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -184,7 +187,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             String status = profileData.getStatus();
             Principal principal = servletRequest.getUserPrincipal();
 
-            if (status == null || database.requiresApproval() && !database.canApprove(principal)) {
+            if (StringUtils.isEmpty(status) || database.requiresApproval() && !database.canApprove(principal)) {
                 // if status is unspecified or user doesn't have rights to approve, the entry is disabled
                 profileData.setStatus(Constants.CFG_DISABLED);
             }
@@ -196,11 +199,12 @@ public class ProfileService extends PKIService implements ProfileResource {
             return createCreatedResponse(profileData, profileData.getLink().getHref());
 
         } catch (PKIException e) {
+            CMS.debug("ProfileService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -253,11 +257,12 @@ public class ProfileService extends PKIService implements ProfileResource {
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
+            CMS.debug("ProfileService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -311,11 +316,12 @@ public class ProfileService extends PKIService implements ProfileResource {
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
+            CMS.debug("ProfileService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -334,7 +340,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             String status = record.getStatus();
 
             if (!Constants.CFG_DISABLED.equals(status)) {
-                throw new ForbiddenException("Unable to delete profile " + profileID);
+                throw new ForbiddenException("Profile " + profileID + " is not disabled");
             }
 
             database.removeRecord(profileID);
@@ -342,11 +348,12 @@ public class ProfileService extends PKIService implements ProfileResource {
             return createNoContentResponse();
 
         } catch (PKIException e) {
+            CMS.debug("ProfileService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 }
