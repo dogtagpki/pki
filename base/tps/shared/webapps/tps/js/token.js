@@ -153,6 +153,14 @@ var TokenPage = EntryPage.extend({
 
             dialog.open();
         });
+
+        self.showCertsLink = $("a[name='showCerts']", self.menu);
+
+        self.showCertsLink.click(function(e) {
+
+            e.preventDefault();
+            window.location.hash = window.location.hash + "/certs";
+        });
     },
     renderContent: function() {
         var self = this;

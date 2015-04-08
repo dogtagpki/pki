@@ -90,9 +90,18 @@ var CertificatesPage = Page.extend({
     load: function() {
         var self = this;
 
+        if (self.collection && self.collection.options && self.collection.options.tokenID) {
+            $(".pki-breadcrumb-tokens").show();
+            $(".pki-breadcrumb-token a")
+                .attr("href", "#tokens/" + self.collection.options.tokenID)
+                .text("Token " + self.collection.options.tokenID);
+            $(".pki-breadcrumb-token").show();
+            $(".pki-title").text("Certificates for Token " + self.collection.options.tokenID);
+        }
+
         var table = new CertificatesTable({
             el: $("table[name='certificates']"),
-            collection: new CertificateCollection()
+            collection: self.collection
         });
 
         table.render();

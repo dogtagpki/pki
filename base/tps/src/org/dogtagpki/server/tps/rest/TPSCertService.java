@@ -21,7 +21,9 @@ package org.dogtagpki.server.tps.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -61,7 +63,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     private HttpServletRequest servletRequest;
 
     public TPSCertService() {
-        System.out.println("TPSCertService.<init>()");
+        CMS.debug("TPSCertService.<init>()");
     }
 
     public TPSCertData createCertData(TPSCertRecord certRecord) {
@@ -108,12 +110,17 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     }
 
     @Override
-    public Response findCerts(String filter, Integer start, Integer size) {
+    public Response findCerts(String filter, String tokenID, Integer start, Integer size) {
 
-        System.out.println("TPSCertService.findCerts()");
+        CMS.debug("TPSCertService.findCerts(" + filter + ", " + tokenID + ", " + start + ", " + size + ")");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
+        }
+
+        Map<String, String> attributes = new HashMap<String, String>();
+        if (tokenID != null) {
+            attributes.put("tokenID", tokenID);
         }
 
         start = start == null ? 0 : start;
@@ -123,7 +130,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
-            Iterator<TPSCertRecord> activities = database.findRecords(filter).iterator();
+            Iterator<TPSCertRecord> activities = database.findRecords(filter, attributes).iterator();
 
             TPSCertCollection response = new TPSCertCollection();
             int i = 0;
@@ -163,7 +170,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         if (certID == null) throw new BadRequestException("Certificate ID is null.");
 
-        System.out.println("TPSCertService.getCert(\"" + certID + "\")");
+        CMS.debug("TPSCertService.getCert(\"" + certID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);

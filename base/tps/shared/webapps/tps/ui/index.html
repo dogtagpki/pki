@@ -17,6 +17,7 @@
      --- END COPYRIGHT BLOCK --- -->
 <html>
 <head>
+    <title>Token Processing System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/pki/css/patternfly.css" rel="stylesheet" media="screen, print">
     <link href="/pki/css/pki-ui.css" rel="stylesheet" type="text/css">
@@ -117,7 +118,8 @@ $(function() {
     router.route("certs", "certs", function() {
         new CertificatesPage({
             el: content,
-            url: "certs.html"
+            url: "certs.html",
+            collection: new CertificateCollection()
         }).open();
     });
 
@@ -273,6 +275,14 @@ $(function() {
             url: "token.html",
             model: new TokenModel({ id: id }),
             editable: ["userID", "type", "appletID", "keyInfo", "policy"]
+        }).open();
+    });
+
+    router.route("tokens/:id/certs", "certs", function(id) {
+        new CertificatesPage({
+            el: content,
+            url: "certs.html",
+            collection: new CertificateCollection({ tokenID: id })
         }).open();
     });
 

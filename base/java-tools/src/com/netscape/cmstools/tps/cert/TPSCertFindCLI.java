@@ -48,7 +48,11 @@ public class TPSCertFindCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "start", true, "Page start");
+        Option option = new Option(null, "token", true, "Token ID");
+        option.setArgName("ID");
+        options.addOption(option);
+
+        option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);
 
@@ -79,13 +83,15 @@ public class TPSCertFindCLI extends CLI {
         String[] cmdArgs = cmd.getArgs();
         String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
 
+        String tokenID = cmd.getOptionValue("token");
+
         String s = cmd.getOptionValue("start");
         Integer start = s == null ? null : Integer.valueOf(s);
 
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        TPSCertCollection result = certCLI.certClient.findCerts(filter, start, size);
+        TPSCertCollection result = certCLI.certClient.findCerts(filter, tokenID, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

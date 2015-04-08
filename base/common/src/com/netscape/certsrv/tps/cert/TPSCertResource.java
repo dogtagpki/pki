@@ -36,6 +36,7 @@ public interface TPSCertResource {
     @ClientResponseType(entityType=TPSCertCollection.class)
     public Response findCerts(
             @QueryParam("filter") String filter,
+            @QueryParam("tokenID") String tokenID,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
