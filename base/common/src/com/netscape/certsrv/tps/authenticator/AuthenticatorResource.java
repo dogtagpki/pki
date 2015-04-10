@@ -67,9 +67,9 @@ public interface AuthenticatorResource {
 
     @POST
     @Path("{authenticatorID}")
-    @ACLMapping("authenticators.approve")
+    @ACLMapping("authenticators.change-status")
     @ClientResponseType(entityType=AuthenticatorData.class)
-    public Response changeAuthenticatorStatus(
+    public Response changeStatus(
             @PathParam("authenticatorID") String authenticatorID,
             @QueryParam("action") String action);
 

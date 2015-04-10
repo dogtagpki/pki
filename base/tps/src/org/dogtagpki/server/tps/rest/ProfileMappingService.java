@@ -141,11 +141,12 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             return createOKResponse(response);
 
         } catch (PKIException e) {
+            CMS.debug("ProfileMappingService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -161,11 +162,12 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             return createOKResponse(createProfileMappingData(database.getRecord(profileMappingID)));
 
         } catch (PKIException e) {
+            CMS.debug("ProfileMappingService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -192,11 +194,12 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             return createCreatedResponse(profileMappingData, profileMappingData.getLink().getHref());
 
         } catch (PKIException e) {
+            CMS.debug("ProfileMappingService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -246,21 +249,22 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             return createOKResponse(profileMappingData);
 
         } catch (PKIException e) {
+            CMS.debug("ProfileMappingService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
     @Override
-    public Response changeProfileMappingStatus(String profileMappingID, String action) {
+    public Response changeStatus(String profileMappingID, String action) {
 
         if (profileMappingID == null) throw new BadRequestException("Profile mapping ID is null.");
         if (action == null) throw new BadRequestException("Action is null.");
 
-        CMS.debug("ProfileMappingService.changeProfileMappingStatus(\"" + profileMappingID + "\")");
+        CMS.debug("ProfileMappingService.changeStatus(\"" + profileMappingID + "\", \"" + action + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
@@ -269,25 +273,52 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             ProfileMappingRecord record = database.getRecord(profileMappingID);
             String status = record.getStatus();
 
+            Principal principal = servletRequest.getUserPrincipal();
+            boolean canApprove = database.canApprove(principal);
+
             if (Constants.CFG_DISABLED.equals(status)) {
-                if ("enable".equals(action)) {
-                    status = Constants.CFG_ENABLED;
+
+                if (database.requiresApproval()) {
+
+                    if ("submit".equals(action) && !canApprove) {
+                        status = Constants.CFG_PENDING_APPROVAL;
+
+                    } else if ("enable".equals(action) && canApprove) {
+                        status = Constants.CFG_ENABLED;
+
+                    } else {
+                        throw new BadRequestException("Invalid action: " + action);
+                    }
+
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    if ("enable".equals(action)) {
+                        status = Constants.CFG_ENABLED;
+
+                    } else {
+                        throw new BadRequestException("Invalid action: " + action);
+                    }
                 }
 
             } else if (Constants.CFG_ENABLED.equals(status)) {
+
                 if ("disable".equals(action)) {
                     status = Constants.CFG_DISABLED;
+
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }
 
             } else if (Constants.CFG_PENDING_APPROVAL.equals(status)) {
-                if ("approve".equals(action)) {
+
+                if ("approve".equals(action) && canApprove) {
                     status = Constants.CFG_ENABLED;
-                } else if ("reject".equals(action)) {
+
+                } else if ("reject".equals(action) && canApprove) {
                     status = Constants.CFG_DISABLED;
+
+                } else if ("cancel".equals(action) && !canApprove) {
+                    status = Constants.CFG_DISABLED;
+
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }
@@ -304,11 +335,12 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             return createOKResponse(profileMappingData);
 
         } catch (PKIException e) {
+            CMS.debug("ProfileMappingService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -333,11 +365,12 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             return createNoContentResponse();
 
         } catch (PKIException e) {
+            CMS.debug("ProfileMappingService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 }

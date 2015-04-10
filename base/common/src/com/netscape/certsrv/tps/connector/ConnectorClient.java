@@ -61,7 +61,7 @@ public class ConnectorClient extends Client {
     }
 
     public ConnectorData changeConnectorStatus(String connectorID, String action) {
-        Response response = resource.changeConnectorStatus(connectorID, action);
+        Response response = resource.changeStatus(connectorID, action);
         return client.getEntity(response, ConnectorData.class);
     }
 

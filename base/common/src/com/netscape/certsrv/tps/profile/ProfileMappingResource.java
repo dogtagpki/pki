@@ -67,9 +67,9 @@ public interface ProfileMappingResource {
 
     @POST
     @Path("{profileMappingID}")
-    @ACLMapping("profiles-mappings.approve")
+    @ACLMapping("profiles-mappings.change-status")
     @ClientResponseType(entityType=ProfileMappingData.class)
-    public Response changeProfileMappingStatus(
+    public Response changeStatus(
             @PathParam("profileMappingID") String profileMappingID,
             @QueryParam("action") String action);
 

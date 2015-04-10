@@ -67,9 +67,9 @@ public interface ConnectorResource {
 
     @POST
     @Path("{connectorID}")
-    @ACLMapping("connectors.approve")
+    @ACLMapping("connectors.change-status")
     @ClientResponseType(entityType=ConnectorData.class)
-    public Response changeConnectorStatus(
+    public Response changeStatus(
             @PathParam("connectorID") String connectorID,
             @QueryParam("action") String action);
 

@@ -65,7 +65,7 @@ public class ProfileClient extends Client {
     }
 
     public ProfileData changeProfileStatus(String profileID, String action) {
-        Response response = resource.changeProfileStatus(profileID, action);
+        Response response = resource.changeStatus(profileID, action);
         return client.getEntity(response, ProfileData.class);
     }
 

@@ -267,12 +267,12 @@ public class ProfileService extends PKIService implements ProfileResource {
     }
 
     @Override
-    public Response changeProfileStatus(String profileID, String action) {
+    public Response changeStatus(String profileID, String action) {
 
         if (profileID == null) throw new BadRequestException("Profile ID is null.");
         if (action == null) throw new BadRequestException("Action is null.");
 
-        CMS.debug("ProfileService.changeProfileStatus(\"" + profileID + "\")");
+        CMS.debug("ProfileService.changeStatus(\"" + profileID + "\", \"" + action + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
@@ -281,25 +281,52 @@ public class ProfileService extends PKIService implements ProfileResource {
             ProfileRecord record = database.getRecord(profileID);
             String status = record.getStatus();
 
+            Principal principal = servletRequest.getUserPrincipal();
+            boolean canApprove = database.canApprove(principal);
+
             if (Constants.CFG_DISABLED.equals(status)) {
-                if ("enable".equals(action)) {
-                    status = Constants.CFG_ENABLED;
+
+                if (database.requiresApproval()) {
+
+                    if ("submit".equals(action) && !canApprove) {
+                        status = Constants.CFG_PENDING_APPROVAL;
+
+                    } else if ("enable".equals(action) && canApprove) {
+                        status = Constants.CFG_ENABLED;
+
+                    } else {
+                        throw new BadRequestException("Invalid action: " + action);
+                    }
+
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    if ("enable".equals(action)) {
+                        status = Constants.CFG_ENABLED;
+
+                    } else {
+                        throw new BadRequestException("Invalid action: " + action);
+                    }
                 }
 
             } else if (Constants.CFG_ENABLED.equals(status)) {
+
                 if ("disable".equals(action)) {
                     status = Constants.CFG_DISABLED;
+
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }
 
             } else if (Constants.CFG_PENDING_APPROVAL.equals(status)) {
-                if ("approve".equals(action)) {
+
+                if ("approve".equals(action) && canApprove) {
                     status = Constants.CFG_ENABLED;
-                } else if ("reject".equals(action)) {
+
+                } else if ("reject".equals(action) && canApprove) {
                     status = Constants.CFG_DISABLED;
+
+                } else if ("cancel".equals(action) && !canApprove) {
+                    status = Constants.CFG_DISABLED;
+
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }

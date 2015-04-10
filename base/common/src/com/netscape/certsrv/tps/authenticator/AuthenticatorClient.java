@@ -61,7 +61,7 @@ public class AuthenticatorClient extends Client {
     }
 
     public AuthenticatorData changeAuthenticatorStatus(String authenticatorID, String action) {
-        Response response = resource.changeAuthenticatorStatus(authenticatorID, action);
+        Response response = resource.changeStatus(authenticatorID, action);
         return client.getEntity(response, AuthenticatorData.class);
     }
 

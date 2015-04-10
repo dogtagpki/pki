@@ -61,7 +61,7 @@ public class ProfileMappingClient extends Client {
     }
 
     public ProfileMappingData changeProfileMappingStatus(String profileMappingID, String action) {
-        Response response = resource.changeProfileMappingStatus(profileMappingID, action);
+        Response response = resource.changeStatus(profileMappingID, action);
         return client.getEntity(response, ProfileMappingData.class);
     }
 

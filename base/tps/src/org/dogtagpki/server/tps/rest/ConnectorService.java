@@ -141,11 +141,12 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             return createOKResponse(response);
 
         } catch (PKIException e) {
+            CMS.debug("ConnectorService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -163,11 +164,12 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             return createOKResponse(createConnectorData(database.getRecord(connectorID)));
 
         } catch (PKIException e) {
+            CMS.debug("ConnectorService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -196,11 +198,12 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             return createCreatedResponse(connectorData, connectorData.getLink().getHref());
 
         } catch (PKIException e) {
+            CMS.debug("ConnectorService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -253,21 +256,22 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             return createOKResponse(connectorData);
 
         } catch (PKIException e) {
+            CMS.debug("ConnectorService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
     @Override
-    public Response changeConnectorStatus(String connectorID, String action) {
+    public Response changeStatus(String connectorID, String action) {
 
         if (connectorID == null) throw new BadRequestException("Connector ID is null.");
         if (action == null) throw new BadRequestException("Action is null.");
 
-        CMS.debug("ConnectorService.changeConnectorStatus(\"" + connectorID + "\")");
+        CMS.debug("ConnectorService.changeStatus(\"" + connectorID + "\", \"" + action + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
@@ -276,25 +280,52 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             ConnectorRecord record = database.getRecord(connectorID);
             String status = record.getStatus();
 
+            Principal principal = servletRequest.getUserPrincipal();
+            boolean canApprove = database.canApprove(principal);
+
             if (Constants.CFG_DISABLED.equals(status)) {
-                if ("enable".equals(action)) {
-                    status = Constants.CFG_ENABLED;
+
+                if (database.requiresApproval()) {
+
+                    if ("submit".equals(action) && !canApprove) {
+                        status = Constants.CFG_PENDING_APPROVAL;
+
+                    } else if ("enable".equals(action) && canApprove) {
+                        status = Constants.CFG_ENABLED;
+
+                    } else {
+                        throw new BadRequestException("Invalid action: " + action);
+                    }
+
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    if ("enable".equals(action)) {
+                        status = Constants.CFG_ENABLED;
+
+                    } else {
+                        throw new BadRequestException("Invalid action: " + action);
+                    }
                 }
 
             } else if (Constants.CFG_ENABLED.equals(status)) {
+
                 if ("disable".equals(action)) {
                     status = Constants.CFG_DISABLED;
+
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }
 
             } else if (Constants.CFG_PENDING_APPROVAL.equals(status)) {
-                if ("approve".equals(action)) {
+
+                if ("approve".equals(action) && canApprove) {
                     status = Constants.CFG_ENABLED;
-                } else if ("reject".equals(action)) {
+
+                } else if ("reject".equals(action) && canApprove) {
                     status = Constants.CFG_DISABLED;
+
+                } else if ("cancel".equals(action) && !canApprove) {
+                    status = Constants.CFG_DISABLED;
+
                 } else {
                     throw new BadRequestException("Invalid action: " + action);
                 }
@@ -311,11 +342,12 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             return createOKResponse(connectorData);
 
         } catch (PKIException e) {
+            CMS.debug("ConnectorService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -342,11 +374,12 @@ public class ConnectorService extends PKIService implements ConnectorResource {
             return createNoContentResponse();
 
         } catch (PKIException e) {
+            CMS.debug("ConnectorService: " + e);
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 }
