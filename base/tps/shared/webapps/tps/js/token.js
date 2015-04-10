@@ -110,7 +110,7 @@ var TokenPage = EntryPage.extend({
 
         TokenPage.__super__.setup.call(self);
 
-        self.changeStatusLink = $("a[name='changeStatus']", self.menu);
+        self.changeStatusLink = $("a[name='changeStatus']", self.viewMenu);
 
         self.changeStatusLink.click(function(e) {
 
@@ -154,7 +154,7 @@ var TokenPage = EntryPage.extend({
             dialog.open();
         });
 
-        self.showCertsLink = $("a[name='showCerts']", self.menu);
+        self.showCertsLink = $("a[name='showCerts']", self.viewMenu);
 
         self.showCertsLink.click(function(e) {
 

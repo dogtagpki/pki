@@ -19,6 +19,8 @@
  * @author Endi S. Dewata
  */
 
+var tps = {};
+
 var PropertiesTableItem = TableItem.extend({
     initialize: function(options) {
         var self = this;
@@ -114,6 +116,24 @@ var PropertiesTable = Table.extend({
     }
 });
 
+var HomePage = Page.extend({
+    load: function() {
+        var roles = tps.user.Roles.Role;
+        var home_accounts = self.$("[name=home-accounts]");
+        var home_system = self.$("[name=home-system]");
+
+        if (_.contains(roles, "Administrators")) {
+            home_accounts.show();
+            $("li", home_system).show();
+
+        } else if (_.contains(roles, "TPS Agents")) {
+            home_accounts.hide();
+            $("li", home_system).hide();
+            $("[name=profiles]", home_system).show();
+        }
+    }
+});
+
 var ConfigEntryPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
@@ -126,8 +146,8 @@ var ConfigEntryPage = EntryPage.extend({
 
         ConfigEntryPage.__super__.setup.call(self);
 
-        self.enableLink = $("a[name='enable']", self.menu);
-        self.disableLink = $("a[name='disable']", self.menu);
+        self.enableLink = $("a[name='enable']", self.viewMenu);
+        self.disableLink = $("a[name='disable']", self.viewMenu);
 
         self.enableLink.click(function(e) {
 

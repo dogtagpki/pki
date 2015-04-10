@@ -142,8 +142,8 @@ var AuditPage = EntryPage.extend({
 
         AuditPage.__super__.setup.call(self);
 
-        self.enableLink = $("a[name='enable']", self.menu);
-        self.disableLink = $("a[name='disable']", self.menu);
+        self.enableLink = $("a[name='enable']", self.viewMenu);
+        self.disableLink = $("a[name='disable']", self.viewMenu);
 
         self.enableLink.click(function(e) {
 

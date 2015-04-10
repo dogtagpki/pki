@@ -925,12 +925,14 @@ var EntryPage = Page.extend({
     setup: function() {
         var self = this;
 
-        self.menu = self.$(".pki-menu");
-        self.editLink = $("a[name='edit']", self.menu);
+        self.actions = self.$(".pki-actions");
 
-        self.buttons = self.$(".pki-buttons");
-        self.cancelButton = $("button[name='cancel']", self.buttons);
-        self.saveButton = $("button[name='save']", self.buttons);
+        self.viewMenu = $(".pki-actions-menu[name='view']", self.actions);
+        self.editLink = $("a[name='edit']", self.viewMenu);
+
+        self.editMenu = $(".pki-actions-menu[name='edit']", self.actions);
+        self.cancelButton = $("button[name='cancel']", self.editMenu);
+        self.saveButton = $("button[name='save']", self.editMenu);
 
         self.idField = self.$("input[name='id']");
         self.statusField = self.$("input[name='status']");
@@ -996,11 +998,10 @@ var EntryPage = Page.extend({
                 input.attr("readonly", "readonly");
             });
 
-            self.buttons.hide();
-            self.menu.show();
+            self.viewMenu.show();
+            self.editMenu.hide();
 
         } else {
-            self.menu.hide();
 
             // Show editable fields.
             self.$(".pki-fields input").each(function(index) {
@@ -1013,7 +1014,8 @@ var EntryPage = Page.extend({
                 }
             });
 
-            self.buttons.show();
+            self.viewMenu.hide();
+            self.editMenu.show();
         }
 
         self.$(".pki-fields input").each(function(index) {
