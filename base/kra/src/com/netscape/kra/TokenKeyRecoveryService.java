@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Hashtable;
@@ -287,8 +288,10 @@ public class TokenKeyRecoveryService implements IService {
 
         // retrieve based on Certificate
         String cert_s = request.getExtDataInString(ATTR_USER_CERT);
-        if (cert_s == null) {
-            CMS.debug("TokenKeyRecoveryService: not receive cert");
+        String keyid_s = request.getExtDataInString(IRequest.NETKEY_ATTR_KEYID);
+        /* have to have at least one */
+        if ((cert_s == null) && (keyid_s == null)) {
+            CMS.debug("TokenKeyRecoveryService: not receive cert or keyid");
             request.setExtData(IRequest.RESULT, Integer.valueOf(3));
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
@@ -301,13 +304,29 @@ public class TokenKeyRecoveryService implements IService {
             return false;
         }
 
-        String cert = normalizeCertStr(cert_s);
+        String cert = null;
+        BigInteger keyid = null;
         java.security.cert.X509Certificate x509cert = null;
-        try {
-            x509cert = Cert.mapCert(cert);
-            if (x509cert == null) {
-                CMS.debug("cert mapping failed");
-                request.setExtData(IRequest.RESULT, Integer.valueOf(5));
+        if (keyid_s == null) {
+            cert = normalizeCertStr(cert_s);
+            try {
+                x509cert = Cert.mapCert(cert);
+                if (x509cert == null) {
+                    CMS.debug("cert mapping failed");
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(5));
+                    auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            auditRecoveryID,
+                            agentId);
+
+                    audit(auditMessage);
+                    return false;
+                }
+            } catch (IOException e) {
+                CMS.debug("TokenKeyRecoveryService: mapCert failed");
+                request.setExtData(IRequest.RESULT, Integer.valueOf(6));
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
                         auditSubjectID,
@@ -318,18 +337,8 @@ public class TokenKeyRecoveryService implements IService {
                 audit(auditMessage);
                 return false;
             }
-        } catch (IOException e) {
-            CMS.debug("TokenKeyRecoveryService: mapCert failed");
-            request.setExtData(IRequest.RESULT, Integer.valueOf(6));
-            auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        agentId);
-
-            audit(auditMessage);
-            return false;
+        } else {
+            keyid = new BigInteger(keyid_s);
         }
 
         try {
@@ -346,7 +355,14 @@ public class TokenKeyRecoveryService implements IService {
             KeyRecord keyRecord = null;
             CMS.debug("KRA reading key record");
             try {
-                keyRecord = (KeyRecord) mStorage.readKeyRecord(cert);
+                if (keyid != null) {
+                    CMS.debug("TokenKeyRecoveryService: recover by keyid");
+                    keyRecord = (KeyRecord) mStorage.readKeyRecord(keyid);
+                } else {
+                    CMS.debug("TokenKeyRecoveryService: recover by cert");
+                    keyRecord = (KeyRecord) mStorage.readKeyRecord(cert);
+                }
+
                 if (keyRecord != null)
                     CMS.debug("read key record");
                 else {
@@ -389,25 +405,15 @@ public class TokenKeyRecoveryService implements IService {
             }
 
             // see if the certificate matches the key
-            byte pubData[] = keyRecord.getPublicKeyData();
-            byte inputPubData[] = x509cert.getPublicKey().getEncoded();
+            byte pubData[] = null;
+            pubData = keyRecord.getPublicKeyData();
+            // but if search by keyid, did not come with a cert
+            // so can't check
+            if (keyid == null) {
+                // see if the certificate matches the key
+                byte inputPubData[] = x509cert.getPublicKey().getEncoded();
 
-            if (inputPubData.length != pubData.length) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
-                auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        agentId);
-
-                audit(auditMessage);
-                throw new EKRAException(
-                        CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
-            }
-
-            for (int i = 0; i < pubData.length; i++) {
-                if (pubData[i] != inputPubData[i]) {
+                if (inputPubData.length != pubData.length) {
                     mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
                     auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
@@ -420,7 +426,23 @@ public class TokenKeyRecoveryService implements IService {
                     throw new EKRAException(
                             CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
                 }
-            }
+
+                for (int i = 0; i < pubData.length; i++) {
+                    if (pubData[i] != inputPubData[i]) {
+                        mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
+                        auditMessage = CMS.getLogMessage(
+                                LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                auditRecoveryID,
+                                agentId);
+
+                        audit(auditMessage);
+                        throw new EKRAException(
+                                CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
+                    }
+                }
+            } // else, searched by keyid, can't check
 
             Type keyType = PrivateKey.RSA;
             byte wrapped[];

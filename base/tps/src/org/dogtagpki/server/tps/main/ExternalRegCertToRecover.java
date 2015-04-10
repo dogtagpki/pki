@@ -7,9 +7,10 @@ public class ExternalRegCertToRecover {
     BigInteger serial;
     String caConn;
     String kraConn;
-    boolean ignoreForUpdateCerts;
+    boolean isRetainable;
 
     public ExternalRegCertToRecover() {
+        isRetainable = false;
     }
 
     public void setKeyid(BigInteger keyid) {
@@ -44,11 +45,11 @@ public class ExternalRegCertToRecover {
         return kraConn;
     }
 
-    public void setIgnoreForUpdateCerts(boolean ignore) {
-        ignoreForUpdateCerts = ignore;
+    public void setIsRetainable(boolean retainable) {
+        isRetainable = retainable;
     }
 
-    public boolean getIgnoreForUpdateCerts() {
-        return ignoreForUpdateCerts;
+    public boolean getIsRetainable() {
+        return isRetainable;
     }
 }

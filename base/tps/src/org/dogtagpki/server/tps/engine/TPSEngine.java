@@ -539,7 +539,7 @@ public class TPSEngine {
             boolean isECC) throws TPSException {
 
         CMS.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
-                + userid + " drConnId: " + drmConnId + " wrappedDesKey: " + wrappedDesKey + " archive: " + archive
+                + userid + " drmConnId: " + drmConnId + " wrappedDesKey: " + wrappedDesKey + " archive: " + archive
                 + " isECC: " + isECC);
 
         if (cuid == null || userid == null || drmConnId == null || wrappedDesKey == null) {

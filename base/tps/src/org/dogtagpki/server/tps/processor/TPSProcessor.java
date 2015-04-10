@@ -1546,7 +1546,7 @@ public class TPSProcessor {
      * - parse the multi-valued attributes
      * @returns ExternalRegAttrs
      */
-    ExternalRegAttrs processExternalRegAttrs(/*IAuthToken authToken,*/String authId) throws EBaseException {
+    ExternalRegAttrs processExternalRegAttrs(/*IAuthToken authToken,*/String authId) throws NumberFormatException, EBaseException {
         String method = "processExternalRegAttrs";
         String configName;
         String tVal;
@@ -1563,10 +1563,11 @@ public class TPSProcessor {
             tVal = configStore.getString(configName,
                     "externalRegAddToToken");
             CMS.debug(method + ": set default tokenType:" + tVal);
+            erAttrs.setTokenType(tVal);
         } else {
             CMS.debug(method + ": retrieved tokenType:" + vals[0]);
+            erAttrs.setTokenType(vals[0]);
         }
-        erAttrs.setTokenType(vals[0]);
 
         CMS.debug(method + ": getting from authToken:"
                 + erAttrs.ldapAttrNameTokenCUID);
@@ -1584,19 +1585,27 @@ public class TPSProcessor {
                 + erAttrs.ldapAttrNameCertsToRecover);
         vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
         if (vals != null) {
+            // if any cert is mis-configured, the whole thing will bail
             for (String val : vals) {
                 CMS.debug(method + ": retrieved certsToRecover:" + val);
                 /*
                  * Each cert is represented as
-                 *    (serial#, caID, keyID, drmID)
+                 *    (serial#, caID, keyID, kraID)
                  * e.g.
-                 *    (1234, ca1, 81, drm1)
+                 *    (1234, ca1, 81, kra1)
                  *    note: numbers above are in decimal
+                 *    note: if keyID is less than or equal to 0, then recovery will be done by cert
+                 *          otherwise recovery is done by keyID
+                 *    note: if it only contains the serial# and caID (missing keyID and kraID)
+                 *          then it is used for retaining certs already existing on token
                  */
                 String[] items = val.split(",");
+                if (items.length !=2 && items.length !=4)
+                    throw new EBaseException(method + ": certsToRecover format error");
                 ExternalRegCertToRecover erCert =
                         new ExternalRegCertToRecover();
-                for (int i = 0; i < items.length; i++) {
+                int i = 0;
+                for (i = 0; i < items.length; i++) {
                     if (i == 0)
                         erCert.setSerial(new BigInteger(items[i]));
                     else if (i == 1)
@@ -1606,8 +1615,15 @@ public class TPSProcessor {
                     else if (i == 3)
                         erCert.setKraConn(items[i]);
                 }
+                /* TODO: for phase 3, retenable certs/keys
+                if (i<3) {
+                    erCert.setIsRetainable(true);
+                }
+                */
                 erAttrs.addCertToRecover(erCert);
             }
+        } else {
+            CMS.debug(method + ": certsToRecover attribute not found");
         }
 
         /*
@@ -1790,7 +1806,7 @@ public class TPSProcessor {
                 ExternalRegAttrs erAttrs;
                 try {
                     erAttrs = processExternalRegAttrs(/*authToken,*/authId);
-                } catch (EBaseException ee) {
+                } catch (Exception ee) {
                     auditMsg = "processExternalRegAttrs: " + ee.toString();
                     tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
                             "failure");
@@ -2932,7 +2948,6 @@ public class TPSProcessor {
      *   then the returned value will be:
      *       John.Doe,e=JohnDoe@EXAMPLE.org,o=Example Org
      *
-     * TODO: It could be made more efficient
      */
     protected String mapPattern(LinkedHashMap<String, String> map, String inPattern) throws TPSException {
 
@@ -2946,6 +2961,11 @@ public class TPSProcessor {
         final char delim = '$';
         String pattern = inPattern;
 
+        /*
+         * Outer (while) loop searches for next token (in the format of $xxx$) to be mapped
+         *   when a pattern is found
+         *     inner (for) loop goes through all mappable params that the token maps to
+         */
         while (true) {
             String patternToMap = null;
             int firstPos = 0;
@@ -2966,7 +2986,7 @@ public class TPSProcessor {
 
             patternToMap = pattern.substring(firstPos + 1, nextPos);
 
-            CMS.debug("TPSProcessor.mapPattern: patternTo map: " + patternToMap);
+            //CMS.debug("TPSProcessor.mapPattern: patternTo map: " + patternToMap);
 
             String piece1 = "";
             if (firstPos >= 1)
@@ -2980,12 +3000,12 @@ public class TPSProcessor {
                 String key = entry.getKey();
 
                 String value = entry.getValue();
-                CMS.debug("TPSProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
+                //CMS.debug("TPSProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
 
                 if (key.equalsIgnoreCase(patternToMap)) {
                     CMS.debug("TPSProcessor.mapPattern: found match: key: " + key + " mapped to: " + value);
                     patternMapped = value;
-                    CMS.debug("TPSProcessor.mapPattern: pattern mapped: " + patternMapped);
+                    //CMS.debug("TPSProcessor.mapPattern: pattern mapped: " + patternMapped);
                     break;
                 }
 

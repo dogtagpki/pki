@@ -18,6 +18,7 @@
 
 package org.dogtagpki.server.tps.cms;
 
+import java.math.BigInteger;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
@@ -75,7 +76,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
-        CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): sending request to CA");
+        CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): sending request to KRA");
         HttpResponse resp;
         String request;
         if (isECC) {
@@ -231,28 +232,65 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             String sDesKey,
             String b64cert)
             throws EBaseException {
+        return recoverKey(cuid, userid, sDesKey, b64cert, BigInteger.valueOf(0));
+    }
+
+    public KRARecoverKeyResponse recoverKey(
+            String cuid,
+            String userid,
+            String sDesKey,
+            String b64cert,
+            BigInteger keyid)
+            throws EBaseException {
 
         CMS.debug("KRARemoteRequestHandler: recoverKey(): begins.");
-        if (cuid == null || userid == null || sDesKey == null || b64cert == null) {
+        if (b64cert == null && keyid == BigInteger.valueOf(0)) {
+            throw new EBaseException("KRARemoteRequestHandler: recoverKey(): one of b64cert or kid has to be a valid value");
+        }
+        if (cuid == null || userid == null || sDesKey == null) {
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): input parameter null.");
         }
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMS.debug("KRARemoteRequestHandler: getting conn id: " + connid);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
-        CMS.debug("KRARemoteRequestHandler: recoverKey(): sending request to CA");
+        if (conn == null) {
+            CMS.debug("KRARemoteRequestHandler: recoverKey(): conn null");
+            throw new EBaseException("KRARemoteRequestHandler: recoverKey(): conn null");
+        }
+        CMS.debug("KRARemoteRequestHandler: recoverKey(): sending request to KRA");
 
+        String sendMsg = null;
+        if (b64cert != null) { // recover by cert
+            sendMsg = IRemoteRequest.TOKEN_CUID + "=" +
+                    cuid +
+                    "&" + IRemoteRequest.KRA_UserId + "=" +
+                    userid +
+                    "&" + IRemoteRequest.KRA_RECOVERY_CERT + "=" +
+                    b64cert +
+                    "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
+                    sDesKey;
+        } else if (keyid != BigInteger.valueOf(0)){ // recover by keyid ... keyid != BigInteger.valueOf(0)
+            CMS.debug("KRARemoteRequestHandler: recoverKey(): keyid = " + keyid);
+            sendMsg = IRemoteRequest.TOKEN_CUID + "=" +
+                    cuid +
+                    "&" + IRemoteRequest.KRA_UserId + "=" +
+                    userid +
+                    "&" + IRemoteRequest.KRA_RECOVERY_KEYID + "=" +
+                    keyid.toString() +
+                    "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
+                    sDesKey;
+        }
+        CMS.debug("KRARemoteRequestHandler: recoverKey(): sendMsg =" + sendMsg);
         HttpResponse resp =
                 conn.send("TokenKeyRecovery",
-                        "&" + IRemoteRequest.TOKEN_CUID + "=" +
-                                cuid +
-                                "&" + IRemoteRequest.KRA_UserId + "=" +
-                                userid +
-                                "&" + IRemoteRequest.KRA_RECOVERY_CERT + "=" +
-                                b64cert +
-                                "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
-                                sDesKey);
+                        sendMsg);
+        if (resp == null) {
+            throw new EBaseException(
+                    "KRARemoteRequestHandler: recoverKey(): No response object returned from connection.");
+        }
 
         String content = resp.getContent();
 

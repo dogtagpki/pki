@@ -212,7 +212,7 @@ public class PKCS11Obj {
         return tokenName;
     }
 
-    int getObjectSpecCount()
+    public int getObjectSpecCount()
     {
         return objectSpecs.size();
     }
