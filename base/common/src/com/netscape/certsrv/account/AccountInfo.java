@@ -20,9 +20,9 @@ package com.netscape.certsrv.account;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.TreeSet;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -30,7 +30,6 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -56,7 +55,7 @@ public class AccountInfo {
     String id;
     String fullName;
     String email;
-    List<String> roles;
+    Collection<String> roles = new TreeSet<String>();
 
     @XmlAttribute(name="id")
     public String getID() {
@@ -87,12 +86,13 @@ public class AccountInfo {
 
     @XmlElement(name="Roles")
     @XmlJavaTypeAdapter(RolesAdapter.class)
-    public List<String> getRoles() {
+    public Collection<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setRoles(Collection<String> roles) {
+        this.roles.clear();
+        this.roles.addAll(roles);
     }
 
     @Override
@@ -157,38 +157,28 @@ public class AccountInfo {
         }
     }
 
-    public static class RolesAdapter extends XmlAdapter<RoleList, List<String>> {
+    public static class RolesAdapter extends XmlAdapter<RoleList, Collection<String>> {
 
-        public RoleList marshal(List<String> roles) {
+        public RoleList marshal(Collection<String> roles) {
             RoleList list = new RoleList();
-            for (String value : roles) {
-                Role role = new Role();
-                role.value = value;
-                list.entries.add(role);
-            }
+            list.roles = roles.toArray(new String[roles.size()]);
             return list;
         }
 
-        public List<String> unmarshal(RoleList list) {
-            List<String> roles = new ArrayList<String>();
-            for (Role role : list.entries) {
-                roles.add(role.value);
+        public Collection<String> unmarshal(RoleList list) {
+            Collection<String> roles = new TreeSet<String>();
+            if (list.roles != null) {
+                roles.addAll(Arrays.asList(list.roles));
             }
             return roles;
         }
     }
 
     public static class RoleList {
-        public List<Role> entries = new ArrayList<Role>();
+
+        @XmlElement(name="Role")
+        public String[] roles;
     }
-
-    @XmlRootElement(name="Role")
-    public static class Role {
-
-        @XmlValue
-        public String value;
-    }
-
 
     public static void main(String args[]) throws Exception {
 
