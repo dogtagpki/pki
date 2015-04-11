@@ -25,9 +25,9 @@
 
 <span class="pki-actions">
 
-<span name="view" class="pki-actions-menu">
-<a name="edit" href="#">Edit</a><br>
-</span>
+<ul name="view" class="pki-actions-menu">
+<li name="edit"><a href="#">Edit</a></li>
+</ul>
 
 <span name="edit" class="pki-actions-menu" style="display: none;">
 <button name="cancel">Cancel</button>
@@ -38,14 +38,16 @@
 
 </div>
 
-<table name="properties">
+<div name="properties">
+
+<table name="list">
 <thead>
     <tr>
          <th class="pki-table-actions" colspan="3">
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
              </span>
-             <span class="pki-table-buttons" style="display: none;">
+             <span class="pki-table-buttons">
                  <button name="add">Add</button>
                  <button name="remove">Remove</button>
              </span>
@@ -87,6 +89,8 @@
     </tr>
 </tfoot>
 </table>
+
+</div>
 
 <div id="property-dialog" class="modal">
     <div class="modal-dialog">

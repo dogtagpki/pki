@@ -24,14 +24,30 @@ function Account() {
     this.url = "/tps/rest/account";
 
     this.login = function(options) {
-        var jqxhr = $.get(this.url + "/login", null, null, "json");
-        jqxhr.done(options.success);
-        jqxhr.fail(options.error);
+        var self = this;
+
+        $.ajax({
+            type: "GET",
+            url: self.url + "/login",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
     };
 
     this.logout = function(options) {
-        var jqxhr = $.get(this.url + "/logout");
-        jqxhr.done(options.success);
-        jqxhr.fail(options.error);
+        var self = this;
+
+        $.ajax({
+            type: "GET",
+            url: self.url + "/logout",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
     };
 };

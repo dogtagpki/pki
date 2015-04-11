@@ -217,7 +217,7 @@ $(function() {
     });
 
     router.route("profiles/:id", "profile", function(id) {
-        new ConfigEntryPage({
+        new ProfilePage({
             el: content,
             url: "profile.html",
             model: new ProfileModel({ id: id })
@@ -225,7 +225,7 @@ $(function() {
     });
 
     router.route("new-profile", "new-profile", function() {
-        new ConfigEntryPage({
+        new ProfilePage({
             el: content,
             url: "profile.html",
             model: new ProfileModel(),

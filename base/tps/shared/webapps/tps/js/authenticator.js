@@ -38,24 +38,11 @@ var AuthenticatorModel = Model.extend({
             }
         };
     },
-    enable: function(options) {
+    changeStatus: function(action, options) {
         var self = this;
         $.ajax({
             type: "POST",
-            url: self.url() + "?action=enable",
-            dataType: "json"
-        }).done(function(data, textStatus, jqXHR) {
-            self.set(self.parseResponse(data));
-            if (options.success) options.success.call(self, data, textStatus, jqXHR);
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
-        });
-    },
-    disable: function(options) {
-        var self = this;
-        $.ajax({
-            type: "POST",
-            url: self.url() + "?action=disable",
+            url: self.url() + "?action=" + action,
             dataType: "json"
         }).done(function(data, textStatus, jqXHR) {
             self.set(self.parseResponse(data));

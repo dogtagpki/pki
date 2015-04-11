@@ -44,24 +44,11 @@ var AuditModel = Model.extend({
             }
         };
     },
-    enable: function(options) {
+    changeStatus: function(action, options) {
         var self = this;
         $.ajax({
             type: "POST",
-            url: self.url() + "?action=enable",
-            dataType: "json"
-        }).done(function(data, textStatus, jqXHR) {
-            self.set(self.parseResponse(data));
-            if (options.success) options.success.call(self, data, textStatus, jqXHR);
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
-        });
-    },
-    disable: function(options) {
-        var self = this;
-        $.ajax({
-            type: "POST",
-            url: self.url() + "?action=disable",
+            url: self.url() + "?action=" + action,
             dataType: "json"
         }).done(function(data, textStatus, jqXHR) {
             self.set(self.parseResponse(data));
@@ -142,16 +129,16 @@ var AuditPage = EntryPage.extend({
 
         AuditPage.__super__.setup.call(self);
 
-        self.enableLink = $("a[name='enable']", self.viewMenu);
-        self.disableLink = $("a[name='disable']", self.viewMenu);
+        self.enableAction = $("[name='enable']", self.viewMenu);
+        self.disableAction = $("[name='disable']", self.viewMenu);
 
-        self.enableLink.click(function(e) {
+        $("a", self.enableAction).click(function(e) {
 
             e.preventDefault();
 
             var message = "Are you sure you want to enable this entry?";
             if (!confirm(message)) return;
-            self.model.enable({
+            self.model.changeStatus("enable", {
                 success: function(data, textStatus, jqXHR) {
                     self.entry = _.clone(self.model.attributes);
                     self.render();
@@ -166,13 +153,13 @@ var AuditPage = EntryPage.extend({
             });
         });
 
-        self.disableLink.click(function(e) {
+        $("a", self.disableAction).click(function(e) {
 
             e.preventDefault();
 
             var message = "Are you sure you want to disable this entry?";
             if (!confirm(message)) return;
-            self.model.disable({
+            self.model.changeStatus("disable", {
                 success: function(data, textStatus, jqXHR) {
                     self.entry = _.clone(self.model.attributes);
                     self.render();
@@ -204,12 +191,14 @@ var AuditPage = EntryPage.extend({
 
         var status = self.entry.status;
         if (status == "Disabled") {
-            self.enableLink.show();
-            self.disableLink.hide();
+            self.editAction.show();
+            self.enableAction.show();
+            self.disableAction.hide();
 
-        } else if (status == "Enabled") {
-            self.enableLink.hide();
-            self.disableLink.show();
+        } else {
+            self.editAction.hide();
+            self.enableAction.hide();
+            self.disableAction.show();
         }
 
         if (self.mode == "edit") {

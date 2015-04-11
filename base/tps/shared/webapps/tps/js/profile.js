@@ -38,24 +38,11 @@ var ProfileModel = Model.extend({
             }
         };
     },
-    enable: function(options) {
+    changeStatus: function(action, options) {
         var self = this;
         $.ajax({
             type: "POST",
-            url: self.url() + "?action=enable",
-            dataType: "json"
-        }).done(function(data, textStatus, jqXHR) {
-            self.set(self.parseResponse(data));
-            if (options.success) options.success.call(self, data, textStatus, jqXHR);
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
-        });
-    },
-    disable: function(options) {
-        var self = this;
-        $.ajax({
-            type: "POST",
-            url: self.url() + "?action=disable",
+            url: self.url() + "?action=" + action,
             dataType: "json"
         }).done(function(data, textStatus, jqXHR) {
             self.set(self.parseResponse(data));
@@ -91,6 +78,91 @@ var ProfilesTable = ModelTable.extend({
         var self = this;
 
         window.location.hash = "#new-profile";
+    }
+});
+
+var ProfilePage = ConfigEntryPage.extend({
+    renderContent: function() {
+        var self = this;
+
+        ProfilePage.__super__.renderContent.call(self);
+
+        var roles = tps.user.Roles.Role;
+        var status = self.entry.status;
+
+        if (_.contains(roles, "Administrators")) {
+
+            // admins can edit disabled entries
+            if (status == "Disabled") {
+                self.editAction.show();
+            } else {
+                self.editAction.hide();
+            }
+
+        } else {
+            self.editAction.hide();
+        }
+
+        if (_.contains(roles, "TPS Agents")) {
+
+            // agents can enable or disable entries
+            if (status == "Disabled") {
+                self.approveAction.hide();
+                self.rejectAction.hide();
+                self.enableAction.show();
+                self.disableAction.hide();
+
+            } else if (status == "Enabled") {
+                self.approveAction.hide();
+                self.rejectAction.hide();
+                self.enableAction.hide();
+                self.disableAction.show();
+
+            } else if (status == "Pending_Approval") {
+                self.approveAction.show();
+                self.rejectAction.show();
+                self.enableAction.hide();
+                self.disableAction.hide();
+
+            } else {
+                self.approveAction.hide();
+                self.rejectAction.hide();
+                self.enableAction.hide();
+                self.disableAction.hide();
+            }
+
+            self.submitAction.hide();
+            self.cancelAction.hide();
+
+        } else if (_.contains(roles, "Administrators")) {
+
+            // admins can submit or cancel entries
+            if (status == "Disabled") {
+                self.submitAction.show();
+                self.cancelAction.hide();
+
+            } else if (status == "Pending_Approval") {
+                self.submitAction.hide();
+                self.cancelAction.show();
+
+            } else {
+                self.submitAction.hide();
+                self.cancelAction.hide();
+            }
+
+            self.approveAction.hide();
+            self.rejectAction.hide();
+            self.enableAction.hide();
+            self.disableAction.hide();
+
+        } else {
+            self.enableAction.hide();
+            self.disableAction.hide();
+            self.approveAction.hide();
+            self.rejectAction.hide();
+            self.submitAction.hide();
+            self.cancelAction.hide();
+        }
     }
 });
 

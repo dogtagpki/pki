@@ -146,16 +146,20 @@ var ConfigEntryPage = EntryPage.extend({
 
         ConfigEntryPage.__super__.setup.call(self);
 
-        self.enableLink = $("a[name='enable']", self.viewMenu);
-        self.disableLink = $("a[name='disable']", self.viewMenu);
+        self.submitAction = $("[name='submit']", self.viewMenu);
+        self.cancelAction = $("[name='cancel']", self.viewMenu);
+        self.approveAction = $("[name='approve']", self.viewMenu);
+        self.rejectAction = $("[name='reject']", self.viewMenu);
+        self.enableAction = $("[name='enable']", self.viewMenu);
+        self.disableAction = $("[name='disable']", self.viewMenu);
 
-        self.enableLink.click(function(e) {
+        $("a", self.submitAction).click(function(e) {
 
             e.preventDefault();
 
-            var message = "Are you sure you want to enable this entry?";
+            var message = "Are you sure you want to submit this entry?";
             if (!confirm(message)) return;
-            self.model.enable({
+            self.model.changeStatus("submit", {
                 success: function(data, textStatus, jqXHR) {
                     self.entry = _.clone(self.model.attributes);
                     self.render();
@@ -170,13 +174,97 @@ var ConfigEntryPage = EntryPage.extend({
             });
         });
 
-        self.disableLink.click(function(e) {
+        $("a", self.cancelAction).click(function(e) {
+
+            e.preventDefault();
+
+            var message = "Are you sure you want to cancel this entry?";
+            if (!confirm(message)) return;
+            self.model.changeStatus("cancel", {
+                success: function(data, textStatus, jqXHR) {
+                    self.entry = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
+                }
+            });
+        });
+
+        $("a", self.approveAction).click(function(e) {
+
+            e.preventDefault();
+
+            var message = "Are you sure you want to approve this entry?";
+            if (!confirm(message)) return;
+            self.model.changeStatus("approve", {
+                success: function(data, textStatus, jqXHR) {
+                    self.entry = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
+                }
+            });
+        });
+
+        $("a", self.rejectAction).click(function(e) {
+
+            e.preventDefault();
+
+            var message = "Are you sure you want to reject this entry?";
+            if (!confirm(message)) return;
+            self.model.changeStatus("reject", {
+                success: function(data, textStatus, jqXHR) {
+                    self.entry = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
+                }
+            });
+        });
+
+        $("a", self.enableAction).click(function(e) {
+
+            e.preventDefault();
+
+            var message = "Are you sure you want to enable this entry?";
+            if (!confirm(message)) return;
+            self.model.changeStatus("enable", {
+                success: function(data, textStatus, jqXHR) {
+                    self.entry = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
+                }
+            });
+        });
+
+        $("a", self.disableAction).click(function(e) {
 
             e.preventDefault();
 
             var message = "Are you sure you want to disable this entry?";
             if (!confirm(message)) return;
-            self.model.disable({
+            self.model.changeStatus("disable", {
                 success: function(data, textStatus, jqXHR) {
                     self.entry = _.clone(self.model.attributes);
                     self.render();
@@ -199,12 +287,11 @@ var ConfigEntryPage = EntryPage.extend({
             actions: ["cancel", "add"]
         });
 
-        var table = self.$("table[name='properties']");
-        self.addButton = $("button[name='add']", table);
-        self.removeButton = $("button[name='remove']", table);
+        var propertiesSection = self.$("[name='properties']");
+        self.propertiesList = $("[name='list']", propertiesSection);
 
         self.propertiesTable = new PropertiesTable({
-            el: table,
+            el: self.propertiesList,
             addDialog: addDialog,
             tableItem: self.tableItem,
             pageSize: self.tableSize,
@@ -218,34 +305,50 @@ var ConfigEntryPage = EntryPage.extend({
 
         var status = self.entry.status;
         if (status == "Disabled") {
-            self.enableLink.show();
-            self.disableLink.hide();
+            self.editAction.show();
+            self.enableAction.show();
+            self.disableAction.hide();
 
-        } else if (status == "Enabled") {
-            self.enableLink.hide();
-            self.disableLink.show();
+        } else {
+            self.editAction.hide();
+            self.enableAction.hide();
+            self.disableAction.show();
         }
+
+        self.submitAction.hide();
+        self.cancelAction.hide();
+        self.approveAction.hide();
+        self.rejectAction.hide();
 
         if (self.mode == "add") {
             self.propertiesTable.mode = "edit";
-            self.propertiesTable.entries = [];
+            self.setProperties([]);
 
         } else if (self.mode == "edit") {
             self.propertiesTable.mode = "edit";
-            self.propertiesTable.entries = self.entry.properties;
+            self.setProperties(self.entry.properties);
 
         } else { // self.mode == "view"
             self.propertiesTable.mode = "view";
-            self.propertiesTable.entries = self.entry.properties;
+            self.setProperties(self.entry.properties);
         }
-
-        self.propertiesTable.render();
     },
     saveFields: function() {
         var self = this;
 
         ConfigEntryPage.__super__.saveFields.call(self);
 
-        self.entry.properties = self.propertiesTable.entries;
+        self.entry.properties = self.getProperties();
+    },
+    setProperties: function(properties) {
+        var self = this;
+
+        self.propertiesTable.entries = properties;
+        self.propertiesTable.render();
+    },
+    getProperties: function() {
+        var self = this;
+
+        return self.propertiesTable.entries;
     }
 });

@@ -26,10 +26,15 @@
 
 <span class="pki-actions">
 
-<span name="view" class="pki-actions-menu">
-<a name="edit" href="#">Edit</a><br>
-<a name="enable" href="#">Enable</a><a name="disable" href="#" style="display: none;">Disable</a><br>
-</span>
+<ul name="view" class="pki-actions-menu">
+<li name="edit" style="display: none;"><a href="#">Edit</a></li>
+<li name="submit" style="display: none;"><a href="#">Submit</a></li>
+<li name="cancel" style="display: none;"><a href="#">Cancel</a></li>
+<li name="approve" style="display: none;"><a href="#">Approve</a></li>
+<li name="reject" style="display: none;"><a href="#">Reject</a></li>
+<li name="enable" style="display: none;"><a href="#">Enable</a></li>
+<li name="disable" style="display: none;"><a href="#">Disable</a></li>
+</ul>
 
 <span name="edit" class="pki-actions-menu" style="display: none;">
 <button name="cancel">Cancel</button>
@@ -51,16 +56,18 @@
 </fieldset>
 </div>
 
+<div name="properties">
+
 <h2>Properties</h2>
 
-<table name="properties">
+<table name="list">
 <thead>
     <tr>
          <th class="pki-table-actions" colspan="3">
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
              </span>
-             <span class="pki-table-buttons" style="display: none;">
+             <span class="pki-table-buttons">
                  <button name="add">Add</button>
                  <button name="remove">Remove</button>
              </span>
@@ -102,6 +109,8 @@
     </tr>
 </tfoot>
 </table>
+
+</div>
 
 <div id="property-dialog" class="modal">
     <div class="modal-dialog">

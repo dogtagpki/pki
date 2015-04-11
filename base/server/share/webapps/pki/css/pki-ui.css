@@ -42,13 +42,25 @@
 }
 
 .pki-menu {
+  display: inline-block;
+}
+
+.pki-menu ul {
   padding: 0;
   list-style-type: none;
+  list-style-position: inside;
 }
 
 .pki-actions {
   float: right;
   display: inline-block;
+}
+
+.pki-actions ul {
+  padding: 0;
+  list-style-type: none;
+  list-style-position: inside;
+  text-align: right;
 }
 
 .pki-fields {
@@ -77,6 +89,14 @@ input[readonly="readonly"]:focus {
 
 input[readonly="readonly"]:enabled:hover {
   border-color: #FFFFFF;
+}
+
+textarea {
+  background-color: #FFFFFF;
+}
+
+textarea[readonly="readonly"] {
+  background-color: #F8F8F8;
 }
 
 table tfoot tr th {

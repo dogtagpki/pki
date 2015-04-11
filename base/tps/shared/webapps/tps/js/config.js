@@ -40,12 +40,72 @@ var ConfigModel = Model.extend({
     }
 });
 
-var ConfigPage = ConfigEntryPage.extend({
+var ConfigPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
         options.model = new ConfigModel();
-        options.tableItem = PropertiesTableItem;
-        options.tableSize = 15;
         ConfigPage.__super__.initialize.call(self, options);
+        self.tableItem = options.tableItem || PropertiesTableItem;
+        self.tableSize = options.tableSize || 15;
+    },
+    setup: function() {
+        var self = this;
+
+        ConfigPage.__super__.setup.call(self);
+
+        var dialog = self.$("#property-dialog");
+
+        var addDialog = new Dialog({
+            el: dialog,
+            title: "Add Property",
+            actions: ["cancel", "add"]
+        });
+
+        var propertiesSection = self.$("[name='properties']");
+        self.propertiesList = $("[name='list']", propertiesSection);
+
+        self.propertiesTable = new PropertiesTable({
+            el: self.propertiesList,
+            addDialog: addDialog,
+            tableItem: self.tableItem,
+            pageSize: self.tableSize,
+            parent: self
+        });
+    },
+    renderContent: function() {
+        var self = this;
+
+        ConfigPage.__super__.renderContent.call(self);
+
+        if (self.mode == "add") {
+            self.propertiesTable.mode = "edit";
+            self.setProperties([]);
+
+        } else if (self.mode == "edit") {
+            self.propertiesTable.mode = "edit";
+            self.setProperties(self.entry.properties);
+
+        } else { // self.mode == "view"
+            self.propertiesTable.mode = "view";
+            self.setProperties(self.entry.properties);
+        }
+    },
+    saveFields: function() {
+        var self = this;
+
+        ConfigPage.__super__.saveFields.call(self);
+
+        self.entry.properties = self.getProperties();
+    },
+    setProperties: function(properties) {
+        var self = this;
+
+        self.propertiesTable.entries = properties;
+        self.propertiesTable.render();
+    },
+    getProperties: function() {
+        var self = this;
+
+        return self.propertiesTable.entries;
     }
 });
