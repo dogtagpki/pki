@@ -1,6 +1,5 @@
 [Unit]
 Description=PKI Tomcat Server %i
-After=pki-tomcatd.target syslog.target network.target
 PartOf=pki-tomcatd.target
 
 [Service]
@@ -14,6 +13,3 @@ ExecStop=/usr/libexec/tomcat/server stop
 SuccessExitStatus=143
 User=pkiuser
 Group=pkiuser
-
-[Install]
-WantedBy=multi-user.target

@@ -76,7 +76,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # establish top-level infrastructure, instance, and subsystem
         # base directories and create the "registry" symbolic link that
         # the "pkidestroy" executable relies upon
-        deployer.directory.create(deployer.mdict['pki_path'])
+        if deployer.mdict['pki_path'] != "/var/lib/pki":
+            # create relocated top-level infrastructure base
+            deployer.directory.create(deployer.mdict['pki_path'])
         deployer.directory.create(deployer.mdict['pki_instance_path'])
         deployer.directory.create(deployer.mdict['pki_subsystem_path'])
         deployer.symlink.create(
@@ -104,8 +106,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # remove top-level infrastructure base
         if deployer.mdict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
            deployer.instance.pki_instance_subsystems() == 0:
-            # remove top-level infrastructure base
-            deployer.directory.delete(deployer.mdict['pki_path'])
+
+            if deployer.mdict['pki_path'] != "/var/lib/pki":
+                # remove relocated top-level infrastructure base
+                deployer.directory.delete(deployer.mdict['pki_path'])
             # do NOT remove top-level infrastructure logs
             # since it now stores 'pkispawn'/'pkidestroy' logs
             # deployer.directory.delete(deployer.mdict['pki_log_path'])

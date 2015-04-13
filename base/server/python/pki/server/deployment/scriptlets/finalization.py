@@ -56,6 +56,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.file.copy(
             deployer.mdict['pki_manifest'],
             deployer.mdict['pki_manifest_spawn_archive'])
+        # Optionally, programmatically 'enable' the configured PKI instance
+        # to be started upon system boot (default is True)
+        if not config.str2bool(deployer.mdict['pki_enable_on_system_boot']):
+            deployer.systemd.disable()
+        else:
+            deployer.systemd.enable()
         # Optionally, programmatically 'restart' the configured PKI instance
         if config.str2bool(deployer.mdict['pki_restart_configured_instance']):
             deployer.systemd.restart()
@@ -84,6 +90,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.FINALIZATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         deployer.file.modify(deployer.mdict['pki_destroy_log'], silent=True)
+        # If this is the last remaining PKI instance, ALWAYS remove the
+        # link to start configured PKI instances upon system reboot
+        if deployer.mdict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
+           deployer.instance.pki_instance_subsystems() == 0:
+            deployer.systemd.disable()
         # Start this Tomcat PKI Process
         if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
                 and len(deployer.instance.tomcat_instance_subsystems()) >= 1:

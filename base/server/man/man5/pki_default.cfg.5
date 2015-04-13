@@ -206,6 +206,21 @@ Located in the [Tomcat] section, this variable determines whether the instance w
 .IP
 Sets whether to attach a Java debugger such as Eclipse to the instance for troubleshooting.  Defaults to False.
 .PP
+.B pki_enable_on_system_boot
+.IP
+Sets whether or not PKI instances should be started upon system boot.
+.IP
+Currently, if this PKI subsystem exists within a shared instance, and it has been configured to start upon system boot, then ALL other previously configured PKI subsystems within this shared instance will start upon system boot.
+.IP
+Similarly, if this PKI subsystem exists within a shared instance, and it has been configured to NOT start upon system boot, then ALL other previously configured PKI subsystems within this shared instance will NOT start upon system boot.
+.IP
+Additionally, if more than one PKI instance exists, no granularity exists which allows one PKI instance to be enabled while another PKI instance is disabled (i.e. - PKI instances are either all enabled or all disabled).  To provide this capability, the PKI instances must reside on separate machines.
+.IP
+Defaults to True (see the following note on why this was previously 'False').
+.TP
+\fBNote:\fP
+Since this parameter did not exist prior to Dogtag 10.2.3, the default behavior of PKI instances in Dogtag 10.2.2 and prior was False.  To manually enable this behavior, obtain superuser privileges, and execute '\fBsystemctl enable pki-tomcatd.target\fP'; to manually disable this behavior, execute '\fBsystemctl disable pki-tomcatd.target\fP'.
+.PP
 .B pki_security_manager
 .IP
 Enables the Java security manager policies provided by the JDK to be used with the instance.  Defaults to True.

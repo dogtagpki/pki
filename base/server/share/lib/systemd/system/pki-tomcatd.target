@@ -1,8 +1,7 @@
 [Unit]
 Description=PKI Tomcat Server
-After=syslog.target network.target
+Wants=dirsrv.target
+After=syslog.target network.target dirsrv.target
 
 [Install]
 WantedBy=multi-user.target
-
-

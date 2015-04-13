@@ -3248,6 +3248,108 @@ class Systemd(object):
                 raise
         return
 
+    def disable(self, critical_failure=True):
+        # Legacy SysVinit shutdown (kill) script on system shutdown values:
+        #
+        #    /etc/rc3.d/K13<TPS instance>  --> /etc/init.d/<TPS instance>
+        #    /etc/rc3.d/K14<RA instance>   --> /etc/init.d/<RA instance>
+        #    /etc/rc3.d/K16<TKS instance>  --> /etc/init.d/<TKS instance>
+        #    /etc/rc3.d/K17<OCSP instance> --> /etc/init.d/<OCSP instance>
+        #    /etc/rc3.d/K18<KRA instance>  --> /etc/init.d/<KRA instance>
+        #    /etc/rc3.d/K19<CA instance>   --> /etc/init.d/<CA instance>
+        #
+        """PKI Deployment execution management 'disable' method.
+
+        Executes a 'systemd disable pki-tomcatd.target' system command, or
+        an 'rm /etc/rc3.d/*<instance>' system command on Debian systems.
+
+        Args:
+          critical_failure (boolean, optional):  Raise exception on failures;
+                                                 defaults to 'True'.
+
+        Attributes:
+
+        Returns:
+
+        Raises:
+          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
+
+        Examples:
+
+        """
+        try:
+            if pki.system.SYSTEM_TYPE == "debian":
+                command = ["rm", "/etc/rc3.d/*" +
+                           self.mdict['pki_instance_name']]
+            else:
+                command = ["systemctl", "disable", "pki-tomcatd.target"]
+
+            # Display this "systemd" execution managment command
+            config.pki_log.info(
+                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            # Execute this "systemd" execution management command
+            subprocess.check_call(command)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure:
+                raise
+        return
+
+    def enable(self, critical_failure=True):
+        # Legacy SysVinit startup script on system boot values:
+        #
+        #    /etc/rc3.d/S81<CA instance>   --> /etc/init.d/<CA instance>
+        #    /etc/rc3.d/S82<KRA instance>  --> /etc/init.d/<KRA instance>
+        #    /etc/rc3.d/S83<OCSP instance> --> /etc/init.d/<OCSP instance>
+        #    /etc/rc3.d/S84<TKS instance>  --> /etc/init.d/<TKS instance>
+        #    /etc/rc3.d/S86<RA instance>   --> /etc/init.d/<RA instance>
+        #    /etc/rc3.d/S87<TPS instance>  --> /etc/init.d/<TPS instance>
+        #
+        """PKI Deployment execution management 'enable' method.
+
+           Executes a 'systemd enable pki-tomcatd.target' system command, or
+           an 'ln -s /etc/init.d/pki-tomcatd /etc/rc3.d/S89<instance>'
+           system command on Debian systems.
+
+        Args:
+          critical_failure (boolean, optional):  Raise exception on failures;
+                                                 defaults to 'True'.
+
+        Attributes:
+
+        Returns:
+
+        Raises:
+          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
+
+        Examples:
+
+        """
+        try:
+            if pki.system.SYSTEM_TYPE == "debian":
+                command = ["ln", "-s", "/etc/init.d/pki-tomcatd",
+                           "/etc/rc3.d/S89" + self.mdict['pki_instance_name']]
+            else:
+                command = ["systemctl", "enable", "pki-tomcatd.target"]
+
+            # Display this "systemd" execution managment command
+            config.pki_log.info(
+                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            # Execute this "systemd" execution management command
+            subprocess.check_call(command)
+        except subprocess.CalledProcessError as exc:
+            if pki.system.SYSTEM_TYPE == "debian":
+                if exc.returncode == 6:
+                    return
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure:
+                raise
+        return
+
     def start(self, critical_failure=True, reload_daemon=True):
         """PKI Deployment execution management 'start' method.
 
