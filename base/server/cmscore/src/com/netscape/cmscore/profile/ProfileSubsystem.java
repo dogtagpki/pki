@@ -55,7 +55,6 @@ public class ProfileSubsystem
         IPluginRegistry registry = (IPluginRegistry)
                 CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
-        mProfileIds = new Vector<String>();
         mProfiles = new Hashtable<String, IProfile>();
         mProfileClassIds = new Hashtable<String, String>();
 
@@ -126,7 +125,6 @@ public class ProfileSubsystem
             CMS.debug("ProfileSubsystem: initing " + className);
             profile.setId(id);
             profile.init(this, subStoreConfig);
-            mProfileIds.addElement(id);
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);
             if (isNew)
@@ -179,7 +177,6 @@ public class ProfileSubsystem
         if (!file1.delete()) {
             CMS.debug("ProfileSubsystem: deleteProfile: Cannot delete the configuration file : " + configPath);
         }
-        mProfileIds.removeElement(id);
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
         try {
@@ -226,7 +223,6 @@ public class ProfileSubsystem
      * <P>
      */
     public void shutdown() {
-        mProfileIds.clear();
         mProfiles.clear();
         mProfileClassIds.clear();
     }

@@ -73,7 +73,6 @@ public class LDAPProfileSubsystem
         CMS.debug("LDAPProfileSubsystem: start init");
 
         // (re)init member collections
-        mProfileIds = new Vector<String>();
         mProfiles = new Hashtable<String, IProfile>();
         mProfileClassIds = new Hashtable<String, String>();
 
@@ -163,8 +162,6 @@ public class LDAPProfileSubsystem
             IProfile profile = (IProfile) Class.forName(className).newInstance();
             profile.setId(id);
             profile.init(this, subStoreConfig);
-            if (!mProfiles.containsKey(id))
-                mProfileIds.addElement(id);
             mProfiles.put(id, profile);
             mProfileClassIds.put(id, classid);
             return profile;
@@ -216,7 +213,6 @@ public class LDAPProfileSubsystem
      * notification that a profile was deleted.
      */
     private void forgetProfile(String id) {
-        mProfileIds.removeElement(id);
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
     }
@@ -250,7 +246,6 @@ public class LDAPProfileSubsystem
     }
 
     private void forgetAllProfiles() {
-        mProfileIds.clear();
         mProfiles.clear();
         mProfileClassIds.clear();
     }

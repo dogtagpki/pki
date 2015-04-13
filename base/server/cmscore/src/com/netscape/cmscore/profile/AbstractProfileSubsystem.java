@@ -36,7 +36,6 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
     protected IConfigStore mConfig = null;
     @SuppressWarnings("unused")
     protected ISubsystem mOwner;
-    protected Vector<String> mProfileIds;
     protected Hashtable<String, IProfile> mProfiles;
     protected Hashtable<String, String> mProfileClassIds;
 
@@ -133,7 +132,7 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
      * list is of type String.
      */
     public Enumeration<String> getProfileIds() {
-        return mProfileIds.elements();
+        return mProfiles.keys();
     }
 
     /**
