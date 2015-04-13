@@ -29,6 +29,7 @@ import java.util.Vector;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPControl;
+import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchConstraints;
@@ -107,8 +108,13 @@ public class LDAPProfileSubsystem
         IPluginRegistry registry = (IPluginRegistry)
             CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
-        String profileId = (String)
-            ldapProfile.getAttribute("cn").getStringValues().nextElement();
+        String profileId = null;
+        String dn = ldapProfile.getDN();
+        if (!dn.startsWith("cn=")) {
+            CMS.debug("Error reading profile entry: DN " + dn + " does not start with 'cn='");
+            return;
+        }
+        profileId = LDAPDN.explodeDN(dn, true)[0];
 
         String classId = (String)
             ldapProfile.getAttribute("classId").getStringValues().nextElement();
@@ -219,13 +225,14 @@ public class LDAPProfileSubsystem
     }
 
     private void forgetProfile(LDAPEntry entry) {
-        String profileId = (String)
-            entry.getAttribute("cn").getStringValues().nextElement();
-        if (profileId == null) {
-            CMS.debug("forgetProfile: error retrieving cn (profileId) from LDAPEntry");
-        } else {
-            forgetProfile(profileId);
+        String profileId = null;
+        String dn = entry.getDN();
+        if (!dn.startsWith("cn=")) {
+            CMS.debug("forgetProfile: DN " + dn + " does not start with 'cn='");
+            return;
         }
+        profileId = LDAPDN.explodeDN(dn, true)[0];
+        forgetProfile(profileId);
     }
 
     /**
