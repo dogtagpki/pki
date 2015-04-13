@@ -268,7 +268,7 @@ public class LDAPProfileSubsystem
         LDAPPersistSearchControl persistCtrl =
             new LDAPPersistSearchControl(op, false, true, true);
 
-        LDAPConnection conn;
+        LDAPConnection conn = null;
 
         CMS.debug("Profile change monitor: starting.");
 
@@ -276,16 +276,6 @@ public class LDAPProfileSubsystem
             forgetAllProfiles();
             try {
                 conn = dbFactory.getConn();
-            } catch (ELdapException e) {
-                CMS.debug("Profile change monitor: failed to get LDAPConnection. Retrying in 1 second.");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
-                continue;
-            }
-            try {
                 LDAPSearchConstraints cons = conn.getSearchConstraints();
                 cons.setServerControls(persistCtrl);
                 cons.setBatchSize(1);
@@ -334,13 +324,23 @@ public class LDAPProfileSubsystem
                         readProfile(entry);
                     }
                 }
+            } catch (ELdapException e) {
+                CMS.debug("Profile change monitor: failed to get LDAPConnection. Retrying in 1 second.");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
             } catch (LDAPException e) {
                 CMS.debug("Profile change monitor: Caught exception: " + e.toString());
             } finally {
-                try {
-                    dbFactory.returnConn(conn);
-                } catch (Exception e) {
-                    CMS.debug("Profile change monitor: Error releasing the LDAPConnection" + e.toString());
+                if (conn != null) {
+                    try {
+                        dbFactory.returnConn(conn);
+                        conn = null;
+                    } catch (Exception e) {
+                        CMS.debug("Profile change monitor: Error releasing the LDAPConnection" + e.toString());
+                    }
                 }
             }
         }
