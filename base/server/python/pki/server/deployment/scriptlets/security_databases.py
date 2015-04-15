@@ -54,6 +54,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_key_database'],
             deployer.mdict['pki_secmod_database'],
             password_file=deployer.mdict['pki_shared_pfile'])
+        if config.str2bool(deployer.mdict['pki_hsm_enable']):
+            deployer.modutil.register_security_module(
+                deployer.mdict['pki_database_path'],
+                deployer.mdict['pki_hsm_modulename'],
+                deployer.mdict['pki_hsm_libfile'])
         deployer.file.modify(
             deployer.mdict['pki_cert_database'],
             perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)

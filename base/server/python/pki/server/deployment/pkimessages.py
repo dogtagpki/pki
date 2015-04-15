@@ -217,6 +217,11 @@ PKIHELPER_MKDIR_1 = "mkdir -p %s"
 PKIHELPER_MODIFY_DIR_1 = "modifying '%s'"
 PKIHELPER_MODIFY_FILE_1 = "modifying '%s'"
 PKIHELPER_MODIFY_SYMLINK_1 = "modifying '%s'"
+PKIHELPER_MODUTIL_MISSING_LIBFILE = \
+    "modutil:  Missing '-libfile libfile' option!"
+PKIHELPER_MODUTIL_MISSING_MODULENAME = \
+    "modutil:  Missing '-add modulename' option!"
+PKIHELPER_MODUTIL_MISSING_PATH = "modutil:  Missing '-dbdir path' option!"
 PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA = \
     "cloned CAs and external CAs MUST be MUTUALLY EXCLUSIVE in '%s'"
 PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA = \
@@ -244,6 +249,7 @@ PKIHELPER_PK12UTIL_MISSING_OUTFILE = \
     "pk12util missing -o output-file option!"
 PKIHELPER_PK12UTIL_MISSING_PWFILE = \
     "pk12util missing -w pw-file option!"
+PKIHELPER_REGISTER_SECURITY_MODULE_1 = "executing '%s'"
 
 PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2 = \
     "instance '%s' contains '%d' PKI subsystems"

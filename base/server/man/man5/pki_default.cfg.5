@@ -61,6 +61,10 @@ Specifies the default administrative user, group, and auditor group identities f
 .B pki_token_name, pki_token_password
 .IP
 The token and password where this instance's system certificate and keys are stored.  Defaults to the NSS internal software token.
+.TP
+.B pki_hsm_enable, pki_hsm_libfile, pki_hsm_modulename
+.IP
+If an optional hardware security module (HSM) is being utilized (rather than the default software security module included in NSS), then the \fBpki_hsm_enable\fP parameter must be set to 'True' (by default this parameter is 'False'), and values must be supplied for both the \fBpki_hsm_libfile\fP (e. g. - \fBpki_hsm_libfile=/opt/nfast/toolkits/pkcs11/libcknfast.so\fP) and \fPpki_hsm_modulename\fB parameters (e. g. - \fBpki_hsm_modulename=nethsm\fP).
 
 .SS SYSTEM CERTIFICATE PARAMETERS
 \fBpkispawn\fP sets up a number of system certificates for each subsystem.  The system certificates which are required differ between subsystems.  Each system certificate is denoted by a tag, as noted below.  The different system certificates are:

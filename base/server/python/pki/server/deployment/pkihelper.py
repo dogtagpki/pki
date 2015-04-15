@@ -2531,6 +2531,68 @@ class Certutil:
         return
 
 
+class Modutil:
+    """PKI Deployment NSS 'modutil' Class"""
+
+    def __init__(self, deployer):
+        self.mdict = deployer.mdict
+
+    def register_security_module(self, path, modulename, libfile,
+                                 prefix=None, critical_failure=True):
+        try:
+            # Compose this "modutil" command
+            command = ["modutil"]
+            #   Provide a path to the NSS security databases
+            if path:
+                command.extend(["-dbdir", path])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_MODUTIL_MISSING_PATH,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(log.PKIHELPER_MODUTIL_MISSING_PATH)
+            #   Add optional security database prefix
+            if prefix is not None:
+                command.extend(["--dbprefix", prefix])
+            #   Append '-nocertdb' switch
+            command.extend(["-nocertdb"])
+            #   Specify a 'modulename'
+            if modulename:
+                command.extend(["-add", modulename])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_MODUTIL_MISSING_MODULENAME,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(log.PKIHELPER_MODUTIL_MISSING_MODULENAME)
+            #   Specify a 'libfile'
+            if libfile:
+                command.extend(["-libfile", libfile])
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_MODUTIL_MISSING_LIBFILE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(log.PKIHELPER_MODUTIL_MISSING_LIBFILE)
+            #   Append '-force' switch
+            command.extend(["-force"])
+            # Display this "modutil" command
+            config.pki_log.info(
+                log.PKIHELPER_REGISTER_SECURITY_MODULE_1,
+                ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            # Execute this "modutil" command
+            subprocess.check_call(command)
+        except subprocess.CalledProcessError as exc:
+            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure:
+                raise
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure:
+                raise
+        return
+
+
 class PK12util:
     """PKI Deployment pk12util class"""
 
@@ -4282,6 +4344,7 @@ class PKIDeployer:
         self.war = War(self)
         self.password = Password(self)
         self.certutil = Certutil(self)
+        self.modutil = Modutil(self)
         self.pk12util = PK12util(self)
         self.kra_connector = KRAConnector(self)
         self.security_domain = SecurityDomain(self)
