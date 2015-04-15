@@ -46,6 +46,7 @@ public class SystemCertData {
     public static final String REQUEST_EXT_OID = "req_ext_oid";
     public static final String REQUEST_EXT_CRITICAL = "req_ext_critial";
     public static final String REQUEST_EXT_DATA = "req_ext_data";
+    public static final String SERVER_CERT_SAN = "san_for_server_cert";
 
     @XmlElement
     protected String tag;
@@ -92,6 +93,9 @@ public class SystemCertData {
     @XmlElement
     protected String req_ext_data;
 
+    @XmlElement
+    protected String san_for_server_cert;
+
     public SystemCertData() {
         // required for JAXB
     }
@@ -113,6 +117,8 @@ public class SystemCertData {
         req_ext_oid = form.getFirst(REQUEST_EXT_OID);
         req_ext_critical = form.getFirst(REQUEST_EXT_CRITICAL);
         req_ext_data = form.getFirst(REQUEST_EXT_DATA);
+        //support SAN in server cert
+        san_for_server_cert = form.getFirst(SERVER_CERT_SAN);
     }
 
     /**
@@ -305,6 +311,13 @@ public class SystemCertData {
             return true;
         else
             return false;
+    }
+
+    /**
+     * @return the server cert SAN
+     */
+    public String getServerCertSAN() {
+        return san_for_server_cert;
     }
 
 }

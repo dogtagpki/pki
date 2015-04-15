@@ -410,6 +410,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
                 cs.putString("preop.cert." + tag + ".nickname", nickname);
                 cs.putString("preop.cert." + tag + ".dn", dn);
+
+                // support injecting SAN into server cert
+                if ( tag.equals("sslserver") && certData.getServerCertSAN() != null) {
+                    CMS.debug("updateConfiguration(): san_server_cert found");
+                    cs.putString("service.injectSAN", "true");
+                    cs.putString("service.sslserver.san", certData.getServerCertSAN());
+                } else {
+                    if ( tag.equals("sslserver"))
+                        CMS.debug("SystemConfigService:processCerts(): san_server_cert not found for tag sslserver");
+                }
                 cs.commit(false);
 
                 if (!request.getStepTwo()) {

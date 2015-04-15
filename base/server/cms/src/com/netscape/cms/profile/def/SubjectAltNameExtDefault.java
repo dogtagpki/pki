@@ -450,6 +450,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 if (!pattern.equals("")) {
                     CMS.debug("SubjectAltNameExtDefault: createExtension() pattern="+ pattern);
                     String gname = "";
+                    String gtype = "";
 
                     // cfu - see if this is server-generated (e.g. UUID4)
                     // to use this feature, use $server.source$ in pattern
@@ -479,16 +480,18 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     } else {
                         if (request != null) {
                             gname = mapPattern(request, pattern);
+                            gtype = mapPattern(request, type);
                         }
                     }
 
-                    if (gname.equals("") || gname.contains("$")) {
-                        CMS.debug("ubjectAltNameExtDefault: mapPattern()failed. Not added. gname="+ gname);
+                    if (gname.equals("") ||
+                        gname.startsWith(CONFIG_SAN_REQ_PATTERN_PREFIX)) {
+                        CMS.debug("SubjectAltNameExtDefault: gname is empty,not added.");
                         continue;
                     }
-                    CMS.debug("SubjectAltNameExtDefault: createExtension got gname=" + gname);
+                    CMS.debug("SubjectAltNameExtDefault: createExtension got gname=" +gname + " with type=" + gtype);
 
-                    GeneralNameInterface n = parseGeneralName(type + ":" + gname);
+                    GeneralNameInterface n = parseGeneralName(gtype + ":" + gname);
 
                     CMS.debug("adding gname: " + gname);
                     if (n != null) {

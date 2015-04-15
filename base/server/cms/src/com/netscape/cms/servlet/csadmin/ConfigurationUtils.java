@@ -2492,11 +2492,22 @@ public class ConfigurationUtils {
                     } catch (Exception ee) {
                     }
 
+                    String sslserver_extension = "";
+                    Boolean injectSAN = config.getBoolean(
+                                      "service.injectSAN", false);
+                    CMS.debug("ConfigurationUtils: injectSAN="+injectSAN);
+                    if (certTag.equals("sslserver") &&
+                        injectSAN == true) {
+                        sslserver_extension = 
+                            CertUtil.buildSANSSLserverURLExtension(config);
+                    }
+
                     String content =
                             "requestor_name="
                                     + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
                                     + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
-                                    + "&xmlOutput=true&sessionID=" + session_id;
+                                    + "&xmlOutput=true&sessionID=" + session_id
+                                    + sslserver_extension;
                     cert = CertUtil.createRemoteCert(ca_hostname, ca_port,
                             content, response, panel);
                     if (cert == null) {

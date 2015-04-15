@@ -206,6 +206,85 @@ public class CertUtil {
         }
     }
 
+ 
+    // Dynamically inject the SubjectAlternativeName extension to a
+    // local/self-signed master CA's request for its SSL Server Certificate.
+    //
+    // Since this information may vary from instance to
+    // instance, obtain the necessary information from the
+    // 'service.sslserver.san' value(s) in the instance's
+    // CS.cfg, process these values converting each item into
+    // its individual SubjectAlternativeName components, and
+    // inject these values into the local request.
+    //
+    public static void injectSANextensionIntoRequest(IConfigStore config,
+                           IRequest req) throws Exception {
+        CMS.debug("CertUtil::injectSANextensionIntoRequest() - injecting SAN " +
+                  "entries into request . . .");
+        int i = 0;
+        if (config == null || req == null) {
+            throw new EBaseException("injectSANextensionIntoRequest: parameters config and req cannot be null");
+        }
+        String sanHostnames = config.getString("service.sslserver.san");
+        String sans[] = StringUtils.split(sanHostnames, ",");
+        for (String san : sans) {
+            CMS.debug("CertUtil: injectSANextensionIntoRequest() injecting " +
+                      "SAN hostname: " + san);
+            req.setExtData("req_san_pattern_" + i, san);
+            i++;
+        }
+        CMS.debug("CertUtil: injectSANextensionIntoRequest() " + "injected " +
+                  i + " SAN entries into request.");
+    }
+
+    // Dynamically apply the SubjectAlternativeName extension to a
+    // remote PKI instance's request for its SSL Server Certificate.
+    //
+    // Since this information may vary from instance to
+    // instance, obtain the necessary information from the
+    // 'service.sslserver.san' value(s) in the instance's
+    // CS.cfg, process these values converting each item into
+    // its individual SubjectAlternativeName components, and
+    // build an SSL Server Certificate URL extension consisting
+    // of this information.
+    //
+    // 03/27/2013 - Should consider removing this
+    //              "buildSANSSLserverURLExtension()"
+    //              method if it becomes possible to
+    //              embed a certificate extension into
+    //              a PKCS #10 certificate request.
+    //
+    public static String buildSANSSLserverURLExtension(IConfigStore config)
+           throws Exception {
+        String url = "";
+        String entries = "";
+
+        CMS.debug("CertUtil: buildSANSSLserverURLExtension() " +
+                  "building SAN SSL Server Certificate URL extension . . .");
+        int i = 0;
+        if (config == null) {
+            throw new EBaseException("injectSANextensionIntoRequest: parameter config cannot be null");
+        }
+        String sanHostnames = config.getString("service.sslserver.san");
+        String sans[] = StringUtils.split(sanHostnames, ",");
+        for (String san : sans) {
+            CMS.debug("CertUtil: buildSANSSLserverURLExtension() processing " +
+                      "SAN hostname: " + san);
+            // Add the DNSName for all SANs
+            entries = entries +
+                      "&req_san_pattern_" + i + "=" + san;
+            i++;
+        }
+
+        url = "&req_san_entries=" + i + entries;
+
+        CMS.debug("CertUtil: buildSANSSLserverURLExtension() " + "placed " +
+                  i + " SAN entries into SSL Server Certificate URL.");
+
+        return url;
+    }
+
+
     /*
      * create requests so renewal can work on these initial certs
      */
@@ -375,6 +454,9 @@ public class CertUtil {
         IRequest req = null;
 
         try {
+            Boolean injectSAN = config.getBoolean(
+                                      "service.injectSAN", false);
+            CMS.debug("createLocalCert: injectSAN=" + injectSAN);
             String dn = config.getString(prefix + certTag + ".dn");
             String keyAlgorithm = null;
             Date date = new Date();
@@ -426,6 +508,10 @@ public class CertUtil {
                 queue = ca.getRequestQueue();
                 if (queue != null) {
                     req = createLocalRequest(queue, serialNo.toString(), info);
+                    if (certTag.equals("sslserver") &&
+                        injectSAN == true) {
+                          injectSANextensionIntoRequest(config, req);
+                    }
                     CMS.debug("CertUtil profile name= " + profile);
                     req.setExtData("req_key", x509key.toString());
 
@@ -498,7 +584,7 @@ public class CertUtil {
             }
         } catch (Exception e) {
             CMS.debug(e);
-            CMS.debug("NamePanel configCert() exception caught:" + e.toString());
+            CMS.debug("CertUtil createLocalCert() exception caught:" + e.toString());
         }
 
         if (cr == null) {
@@ -520,22 +606,22 @@ public class CertUtil {
                     cert.getSerialNumber(), cert, meta);
         } catch (Exception e) {
             CMS.debug(
-                    "NamePanel configCert: failed to add metainfo. Exception: " + e.toString());
+                    "CertUtil createLocalCert: failed to add metainfo. Exception: " + e.toString());
         }
 
         try {
             cr.addCertificateRecord(record);
             CMS.debug(
-                    "NamePanel configCert: finished adding certificate record.");
+                    "CertUtil createLocalCert: finished adding certificate record.");
         } catch (Exception e) {
             CMS.debug(
-                    "NamePanel configCert: failed to add certificate record. Exception: "
+                    "CertUtil createLocalCert: failed to add certificate record. Exception: "
                             + e.toString());
             try {
                 cr.deleteCertificateRecord(record.getSerialNumber());
                 cr.addCertificateRecord(record);
             } catch (Exception ee) {
-                CMS.debug("NamePanel update: Exception: " + ee.toString());
+                CMS.debug("CertUtil createLocalCert: Exception: " + ee.toString());
             }
         }
 

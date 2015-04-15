@@ -463,6 +463,11 @@ class ConfigurationFile:
             self.mdict['pki_skip_configuration'])
         self.standalone = config.str2bool(self.mdict['pki_standalone'])
         self.subordinate = config.str2bool(self.mdict['pki_subordinate'])
+        # server cert san injection support
+        self.san_inject = config.str2bool(self.mdict['pki_san_inject'])
+        if self.san_inject:
+            self.confirm_data_exists('pki_san_for_server_cert')
+            self.san_for_server_cert = self.mdict['pki_san_for_server_cert']
         # set useful 'string' object variables for this class
         self.subsystem = self.mdict['pki_subsystem']
 
@@ -3637,6 +3642,7 @@ class ConfigClient:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
         self.security_domain_type = self.mdict['pki_security_domain_type']
+        self.san_inject = config.str2bool(self.mdict['pki_san_inject'])
 
     def configure_pki_data(self, data):
         config.pki_log.info(
@@ -4335,6 +4341,9 @@ class ConfigClient:
         cert.nickname = self.mdict["pki_%s_nickname" % tag]
         cert.subjectDN = self.mdict["pki_%s_subject_dn" % tag]
         cert.token = self.mdict["pki_%s_token" % tag]
+        if tag == 'ssl_server' and self.san_inject:
+            cert.san_for_server_cert = \
+                self.mdict['pki_san_for_server_cert']
         return cert
 
     def retrieve_existing_server_cert(self, cfg_file):
