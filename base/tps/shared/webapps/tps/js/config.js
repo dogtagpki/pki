@@ -63,6 +63,8 @@ var ConfigPage = EntryPage.extend({
 
         var propertiesSection = self.$("[name='properties']");
         self.propertiesList = $("[name='list']", propertiesSection);
+        self.propertiesEditor = $("[name='editor']", propertiesSection);
+        self.propertiesTextarea = $("textarea", self.propertiesEditor);
 
         self.propertiesTable = new PropertiesTable({
             el: self.propertiesList,
@@ -70,6 +72,24 @@ var ConfigPage = EntryPage.extend({
             tableItem: self.tableItem,
             pageSize: self.tableSize,
             parent: self
+        });
+
+        $("[name='showEditor']", propertiesSection).click(function(e) {
+
+            var properties = self.getProperties();
+            self.setProperties(properties);
+
+            self.propertiesList.hide();
+            self.propertiesEditor.show();
+        });
+
+        $("[name='showList']", propertiesSection).click(function(e) {
+
+            var properties = self.getProperties();
+            self.setProperties(properties);
+
+            self.propertiesList.show();
+            self.propertiesEditor.hide();
         });
     },
     renderContent: function() {
@@ -79,14 +99,17 @@ var ConfigPage = EntryPage.extend({
 
         if (self.mode == "add") {
             self.propertiesTable.mode = "edit";
+            self.propertiesTextarea.removeAttr("readonly");
             self.setProperties([]);
 
         } else if (self.mode == "edit") {
             self.propertiesTable.mode = "edit";
+            self.propertiesTextarea.removeAttr("readonly");
             self.setProperties(self.entry.properties);
 
         } else { // self.mode == "view"
             self.propertiesTable.mode = "view";
+            self.propertiesTextarea.attr("readonly", "readonly");
             self.setProperties(self.entry.properties);
         }
     },
@@ -102,10 +125,40 @@ var ConfigPage = EntryPage.extend({
 
         self.propertiesTable.entries = properties;
         self.propertiesTable.render();
+
+        var text = "";
+        _.each(properties, function(property) {
+            var name = property.name;
+            var value = property.value;
+            text += name + "=" + value + "\n";
+        });
+        self.propertiesTextarea.val(text);
     },
     getProperties: function() {
         var self = this;
 
-        return self.propertiesTable.entries;
+        if (self.propertiesList.is(":visible")) {
+            return self.propertiesTable.entries;
+
+        } else {
+            var properties = [];
+
+            var lines = self.propertiesTextarea.val().split("\n");
+            _.each(lines, function(line) {
+                var match = /^([^=]+)=(.*)$/.exec(line);
+                if (!match) return;
+
+                var name = match[1];
+                var value = match[2];
+
+                var property = {};
+                property["name"] = name;
+                property["value"] = value;
+
+                properties.push(property);
+            });
+
+            return properties;
+        }
     }
 });
