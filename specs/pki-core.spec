@@ -345,6 +345,15 @@ Obsoletes:        pki-selinux
 Requires:         tomcat >= 7.0.54
 %else
 Requires:         tomcat >= 7.0.47
+%if 0%{?fedora} >= 23
+Requires:         tomcat-el-3.0-api
+Requires:         tomcat-jsp-2.3-api
+Requires:         tomcat-servlet-3.1-api
+%else
+Requires:         tomcat-el-2.2-api
+Requires:         tomcat-jsp-2.2-api
+Requires:         tomcat-servlet-3.0-api
+%endif
 %endif
 
 Requires:         velocity
