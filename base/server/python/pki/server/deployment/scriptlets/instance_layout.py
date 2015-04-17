@@ -255,6 +255,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_tomcat_common_lib_path'],
                     'resteasy-jackson-provider.jar'))
 
+            # nuxwdog
+            deployer.symlink.create(
+                deployer.mdict['pki_nuxwdog_client_jar'],
+                os.path.join(
+                    deployer.mdict['pki_tomcat_common_lib_path'],
+                    'nuxwdog.jar'))
+
             # establish shared NSS security databases for this instance
             deployer.directory.create(deployer.mdict['pki_database_path'])
             # establish instance convenience symbolic links

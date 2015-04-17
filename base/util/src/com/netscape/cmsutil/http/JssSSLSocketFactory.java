@@ -19,7 +19,6 @@ package com.netscape.cmsutil.http;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import org.mozilla.jss.CryptoManager;

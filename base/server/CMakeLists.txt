@@ -148,6 +148,7 @@ if(WITH_TOMCAT8)
     add_subdirectory(tomcat8)
 endif(WITH_TOMCAT8)
 
+add_subdirectory(tomcat)
 add_subdirectory(cms)
 add_subdirectory(cmsbundle)
 add_subdirectory(cmscore)

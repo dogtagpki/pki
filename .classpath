@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/test/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/tomcat/src"/>
 	<classpathentry kind="src" output="tests/dogtag/dev_java_tests/bin" path="tests/dogtag/dev_java_tests/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/symkey/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/src"/>
@@ -50,11 +51,13 @@
 	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/xml-commons-apis.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/istack-commons-runtime.jar"/>
-	<classpathentry kind="lib" path="/usr/lib64/jss/jss4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-lang.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-atom-provider.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/catalina.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/tomcat/tomcat-util.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/commons-io.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/java/nuxwdog.jar"/>
+	<classpathentry kind="lib" path="/usr/lib/java/jss4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/tomcatjss.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

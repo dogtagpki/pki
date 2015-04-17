@@ -1,10 +1,7 @@
 package com.netscape.cmstools.profile;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
-
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;

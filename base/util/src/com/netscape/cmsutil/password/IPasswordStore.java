@@ -23,7 +23,7 @@ import java.util.Enumeration;
 public interface IPasswordStore {
     public void init(String pwdPath) throws IOException;
 
-    public String getPassword(String tag);
+    public String getPassword(String tag, int iteration);
 
     public Enumeration<String> getTags();
 

@@ -1647,7 +1647,7 @@ public final class CMS {
         _engine.setListOfVerifiedCerts(size, interval, unknownStateInterval);
     }
 
-    public static IPasswordStore getPasswordStore() {
+    public static IPasswordStore getPasswordStore() throws EBaseException {
         return _engine.getPasswordStore();
     }
 

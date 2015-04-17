@@ -1,4 +1,4 @@
-project(pki-tomcat)
+project(pki-tomcat8)
 
 find_file(JSS_JAR
     NAMES
@@ -119,13 +119,13 @@ find_file(HTTPCORE_JAR
 )
 
 # build pki-tomcat
-javac(pki-tomcat-classes
+javac(pki-tomcat8-classes
     SOURCES
         com/netscape/cms/tomcat/*.java
     CLASSPATH
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_SCAN_JAR}
     OUTPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_BINARY_DIR}/../../tomcat
 )
 
 configure_file(
@@ -141,11 +141,12 @@ jar(pki-tomcat-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-tomcat.mf
     INPUT_DIR
-        ${CMAKE_BINARY_DIR}/classes
+        ${CMAKE_BINARY_DIR}/../../tomcat
     FILES
         com/netscape/cms/tomcat/*.class
     DEPENDS
         pki-tomcat-classes
+        pki-tomcat8-classes
 )
 
 install(

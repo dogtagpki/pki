@@ -34,7 +34,6 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
     protected static final String PROP_ENABLE_BY = "enableBy";
 
     protected IConfigStore mConfig = null;
-    @SuppressWarnings("unused")
     protected ISubsystem mOwner;
     protected Hashtable<String, IProfile> mProfiles;
     protected Hashtable<String, String> mProfileClassIds;

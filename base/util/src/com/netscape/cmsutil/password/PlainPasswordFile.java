@@ -30,11 +30,11 @@ public class PlainPasswordFile implements IPasswordStore {
     private static final String PASSWORD_WRITER_HEADER = "";
 
     public PlainPasswordFile() {
+        mPwdStore = new Properties();
     }
 
     public void init(String pwdPath)
             throws IOException {
-        mPwdStore = new Properties();
         // initialize mPwdStore
         mPwdPath = pwdPath;
         FileInputStream file = null;
@@ -48,7 +48,7 @@ public class PlainPasswordFile implements IPasswordStore {
         }
     }
 
-    public String getPassword(String tag) {
+    public String getPassword(String tag, int iteration) {
         return mPwdStore.getProperty(tag);
     }
 

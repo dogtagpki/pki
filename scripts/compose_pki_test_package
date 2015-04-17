@@ -129,6 +129,7 @@ CLASSPATH=$CLASSPATH:/usr/share/java/xml-commons-apis.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/tomcat/catalina.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/tomcat/tomcat-util.jar
 CLASSPATH=$CLASSPATH:/usr/share/java/commons-io.jar
+CLASSPATH=$CLASSPATH:/usr/lib/java/nuxwdog.jar
 
 javac -classpath $CLASSPATH -d bin src/*java
 

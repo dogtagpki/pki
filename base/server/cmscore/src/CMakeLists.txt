@@ -118,6 +118,14 @@ find_file(HTTPCORE_JAR
         /usr/share/java/httpcomponents
 )
 
+find_file(NUXWDOG_JAR
+    NAMES
+        nuxwdog.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
 # build pki-cmscore
 javac(pki-cmscore-classes
     SOURCES
@@ -130,6 +138,7 @@ javac(pki-cmscore-classes
         ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR} ${SYMKEY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
+        ${NUXWDOG_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS

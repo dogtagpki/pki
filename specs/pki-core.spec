@@ -49,9 +49,11 @@ BuildRequires:    ldapjdk
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
+BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.14.3
+BuildRequires:    nuxwdog-client-java
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
@@ -352,6 +354,7 @@ Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java-headless >= 1:1.7.0
 Requires:         net-tools
+Requires:         nuxwdog
 Requires:         perl(File::Slurp)
 Requires:         policycoreutils
 Requires:         openldap-clients

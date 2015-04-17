@@ -60,6 +60,14 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
+find_file(NUXWDOG_JAR
+    NAMES
+        nuxwdog.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
 # build pki-nsutil
 javac(pki-nsutil-classes
     SOURCES
@@ -108,7 +116,7 @@ javac(pki-cmsutil-classes
     CLASSPATH
         ${APACHE_COMMONS_LANG_JAR} ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${NUXWDOG_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS

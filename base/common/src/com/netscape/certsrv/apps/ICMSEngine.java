@@ -1135,7 +1135,7 @@ public interface ICMSEngine extends ISubsystem {
      */
     public void forceShutdown();
 
-    public IPasswordStore getPasswordStore();
+    public IPasswordStore getPasswordStore() throws EBaseException;
 
     public ISecurityDomainSessionTable getSecurityDomainSessionTable();
 

@@ -62,7 +62,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         init(config, host, port, secure);
     }
 
-    public String getPasswordFromStore(String prompt) {
+    public String getPasswordFromStore(String prompt) throws EBaseException {
         String pwd = null;
         CMS.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");
 
@@ -82,7 +82,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         // Finally, interactively obtain the password from the user
         if (pwdStore != null) {
             CMS.debug("LdapAuthInfo: getPasswordFromStore: password store available");
-            pwd = pwdStore.getPassword(prompt);
+            pwd = pwdStore.getPassword(prompt, 0);
             //            pwd = pstore.getString(prompt);
             if (pwd == null) {
                 CMS.debug("LdapAuthInfo: getPasswordFromStore: password for " + prompt +
@@ -90,7 +90,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
                 //               pwd = pstore.getString("internaldb");
 
-                pwd = pwdStore.getPassword("internaldb"); // last resort
+                pwd = pwdStore.getPassword("internaldb", 0); // last resort
             } else
                 CMS.debug("LdapAuthInfo: getPasswordFromStore: password found for prompt in password store");
         } else

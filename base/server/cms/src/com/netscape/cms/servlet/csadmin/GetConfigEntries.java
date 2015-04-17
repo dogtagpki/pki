@@ -219,14 +219,14 @@ public class GetConfigEntries extends CMSServlet {
     protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }
 
-    private String getLDAPPassword() {
+    private String getLDAPPassword() throws EBaseException {
         IPasswordStore pwdStore = CMS.getPasswordStore();
-        return pwdStore.getPassword("internaldb");
+        return pwdStore.getPassword("internaldb", 0);
     }
 
-    private String getReplicationPassword() {
+    private String getReplicationPassword() throws EBaseException {
         IPasswordStore pwdStore = CMS.getPasswordStore();
-        return pwdStore.getPassword("replicationdb");
+        return pwdStore.getPassword("replicationdb", 0);
     }
 
 }
