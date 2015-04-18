@@ -51,6 +51,15 @@ void ComputeCardKeys(  PK11SymKey* masterKey,               // Key Derivation Ke
                        PK11SymKey** macKey,                 // output parameter: generated mac key
                        PK11SymKey** kekKey)                 // output parameter: generated kek key
 {
+
+    // sanity check input parameters
+    if (masterKey == NULL){
+        throw std::runtime_error("Input parameter \"masterKey\" was NULL.");
+    }
+    if (context == NULL){
+        throw std::runtime_error("Input parameter \"context\" was NULL.");
+    }
+
     // sanity check output parameters
     if (*encKey != NULL){
         throw std::runtime_error("Output parameter \"encKey\" wasn't initialized to NULL. Overwriting may result in a memory leak.");
