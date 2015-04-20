@@ -1280,9 +1280,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_netscape_symkey_SessionKey_Dive
         (env)->ReleaseStringUTFChars(newMasterKeyName, (const char *)newMasterKeyNameChars);
     }
 
-    if(masterKey == NULL) {
-        goto done;
-    }
+    // masterKey is null in key changeover from version 2 to 1.
+    // Thus sanity checking is not needed here.
 
     // AC: BUGFIX for key versions higher than 09:  Since "jstring keyInfo" is now passed in as "jbyteArray newKeyInfo", we no longer need this code.
     //
