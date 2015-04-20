@@ -74,6 +74,7 @@ run_rhcs_install_packages() {
 	#####################################################################
 		yum clean all
 		yum -y update
+		yum -y install wget
 		#CA install
 		rc=0
 		rlLog "CA instance will be installed on $HOSTNAME"
@@ -148,48 +149,55 @@ run_install_subsystem_RootCA()
 }
 
 #KRA Install
+
 run_install_subsystem_kra() {
-	rlPhaseStartSetup "rhcs_install_subsystem_kra: Default install"
-		rlLog "KRA instance will be installed on $HOSTNAME"
-		rc=0
- 		number=$1
+        rlPhaseStartSetup "rhcs_install_subsystem_kra: Default install"
+                rlLog "KRA instance will be installed on $HOSTNAME"
+                rc=0
+                number=$1
                 master_hostname=$2
                 CA=$3
-		rpm -qa | grep pki-kra
-		if [ $? -eq 0 ] ; then
-			rlLog "pki-kra package is installed"
-	        else
-			rlLog "ERROR: $item package is NOT installed"
-			rc=1
-		fi
+                KRA="KRA${number}"
+                eval ${KRA}_INSTALLED=TRUE
+                rpm -qa | grep pki-kra
+                if [ $? -eq 0 ] ; then
+                        rlLog "pki-kra package is installed"
+                else
+                        rlLog "ERROR: $item package is NOT installed"
+                        rc=1
+                        eval ${KRA}_INSTALLED=FALSE
+                fi
 
-		if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
-			rhcs_install_kra $number $master_hostname $CA
-		fi
-	rlPhaseEnd
+                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
+                        rhcs_install_kra $number $master_hostname $CA
+                fi
+        rlPhaseEnd
 }
 
 #OCSP install
+
 run_install_subsystem_ocsp() {
-	rlPhaseStartSetup "rhcs_install_subsystem_ocsp: Default install"
-		rlLog "OCSP instance will be installed on $HOSTNAME"
-		rc=0
-		number=$1
+        rlPhaseStartSetup "rhcs_install_subsystem_ocsp: Default install"
+                rlLog "OCSP instance will be installed on $HOSTNAME"
+                rc=0
+                number=$1
                 master_hostname=$2
                 CA=$3
-		rpm -qa | grep pki-ocsp 
-		if [ $? -eq 0 ] ; then
-			rlLog "pki-ocsp package is installed"
+                rpm -qa | grep pki-ocsp
+                if [ $? -eq 0 ] ; then
+                        rlLog "pki-ocsp package is installed"
                 else
-			rlLog "ERROR: $item package is NOT installed"
-			rc=1
-		fi
+                        rlLog "ERROR: $item package is NOT installed"
+                        rc=1
+                        OCSP3_INSTALLED=FALSE
+                fi
 
-		if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
-			rhcs_install_ocsp $number $master_hostname $CA
-		fi
-	rlPhaseEnd
+                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
+                        rhcs_install_ocsp $number $master_hostname $CA
+                fi
+        rlPhaseEnd
 }
+
 		
 #RA install
 #rlLog "RA instance will be installed on $HOSTNAME"
@@ -217,49 +225,53 @@ run_install_subsystem_ocsp() {
 
 #TKS install
 run_install_subsystem_tks() {
-	rlPhaseStartSetup "rhcs_install_subsystem_tks: Default install"
-		rlLog "TKS instance will be installed on $HOSTNAME"
-		rc=0
-		number=$1
+        rlPhaseStartSetup "rhcs_install_subsystem_tks: Default install"
+                rlLog "TKS instance will be installed on $HOSTNAME"
+                rc=0
+                number=$1
                 master_hostname=$2
                 CA=$3
-		rpm -qa | grep pki-tks
+                TKS="TKS${number}"
+                eval ${TKS}_INSTALLED=TRUE
+                rpm -qa | grep pki-tks
                 if [ $? -eq 0 ] ; then
-			rlLog "pki-tks package is installed"
+                        rlLog "pki-tks package is installed"
                 else
                         rlLog "ERROR: $item package is NOT installed"
-			rc=1
+                        rc=1
+                        eval ${TKS}_INSTALLED=FALSE
                 fi
 
-		if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
-			rlLog "Installing TKS"
-			rhcs_install_tks $number $master_hostname $CA
-		fi
-	rlPhaseEnd
+                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
+                        rlLog "Installing TKS"
+                        rhcs_install_tks $number $master_hostname $CA
+                fi
+        rlPhaseEnd
 }
-		#TPS install
-		#rlLog "TPS instance will be installed on $HOSTNAME"
-		#rc=0
-                #yum -y install $COMMON_SERVER_PACKAGES
-                #yum -y install $TPS_SERVER_PACKAGES
-			#ALL_PACKAGES="$COMMON_SERVER_PACKAGES $DOGTAG_PACKAGES"
-                        #for item in $ALL_PACKAGES ; do
-				#rpm -qa | grep $item
-                                #if [ $? -eq 0 ] ; then
-					#rlLog "$item package is installed"
-                                #else
-					#rlLog "ERROR: $item package is NOT installed"
-					#rc=1
-                                #fi
-                        #done
 
-		#if [ $rc -eq 0 ] ; then
-			#rlLog "Installing TPS"
-			#rhcs_install_tps
-		#fi
-	#else
-		#rlLog "Machine in recipe is not a MASTER"
-	#fi
+#TPS install
+run_install_subsystem_tps() {
+        rlPhaseStartSetup "rhcs_install_subsystem_tps: Default install"
+                rlLog "TPS instance will be installed on $HOSTNAME"
+                rc=0
+                number=$1
+                master_hostname=$2
+                CA=$3
+                KRA=$4
+                TKS=$5
+                rpm -qa | grep pki-tks
+                if [ $? -eq 0 ] ; then
+                        rlLog "$item package is installed"
+                else
+                        rlLog "ERROR: $item package is NOT installed"
+                        rc=1
+                fi
+                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ] && [ $(eval echo \$${KRA}_INSTALLED) = "TRUE" ] && [ $(eval echo \$${TKS}_INSTALLED) = "TRUE" ] ; then
+                        rlLog "Installing TPS"
+                        rhcs_install_tps $number $master_hostname $CA $KRA $TKS
+                fi
+        rlPhaseEnd
+}
 
 #####################SUBCA######################
 ################################################
@@ -402,4 +414,27 @@ run_install_subsystem_cloneTKS(){
                 fi
 	rlPhaseEnd
 }
+#CLONE TPS install
+run_install_subsystem_cloneTPS(){
+        rlPhaseStartSetup "rhcs_install_subsystem_clonetps: Default install"
+                rlLog "Clone TPS instance will be installed on $HOSTNAME"
+                rc=0
+                number=$1
+                master_hostname=$2
+                CA=$3
+                KRA=$4
+                TKS=$5
+                rpm -qa | grep pki-tps
+                if [ $? -eq 0 ] ; then
+                        rlLog "pki-tps package is installed"
+                else
+                        rlLog "ERROR: pki-tps package is NOT installed"
+                        rc=1
+                fi
 
+                if [ $rc -eq 0 ] ; then
+                        rlLog "Installing TPS"
+                        rhcs_install_cloneTPS $number $master_hostname $CA $KRA $TKS
+                fi
+        rlPhaseEnd
+}

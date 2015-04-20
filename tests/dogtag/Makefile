@@ -275,8 +275,8 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/subca-tests/crlissuingpoint/subca-ad-crlissuingpoints.sh
 	chmod a+x ./acceptance/legacy/subca-tests/publishing/subca-ad-publishing.sh
 	chmod a+x ./acceptance/legacy/subca-tests/crls/subca-ag-crls.sh
-	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ag-certificates.sh
 	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ag-requests.sh
+	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ag-certificates.sh
 	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ee-enrollments.sh
 	chmod a+x ./acceptance/legacy/subca-tests/cert-enrollment/subca-ee-retrieval.sh
 	chmod a+x ./acceptance/legacy/subca-tests/profiles/subca-ad-profiles.sh
@@ -287,13 +287,15 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/legacy/ocsp-tests/acls/ocsp-ad-acls.sh
 	chmod a+x ./acceptance/legacy/ocsp-tests/logs/ocsp-ad-logs.sh
 	chmod a+x ./acceptance/legacy/ocsp-tests/internaldb/ocsp-ad-internaldb.sh
-	chmod a+x ./acceptance/legacy/tks-tests/acls/tks-ad-acls.sh
-	chmod a+x ./acceptance/legacy/tks-tests/internaldb/tks-ad-internaldb.sh
-	chmod a+x ./acceptance/legacy/tks-tests/logs/tks-ad-logs.sh
+	chmod a+x ./acceptance/legacy/ocsp-tests/agent/ocsp-ag-tests.sh
 	chmod a+x ./acceptance/legacy/tks-tests/usergroups/tks-ad-usergroups.sh
+	chmod a+x ./acceptance/legacy/tks-tests/acls/tks-ad-acls.sh 
+	chmod a+x ./acceptance/legacy/tks-tests/logs/tks-ad-logs.sh
+	chmod a+x ./acceptance/legacy/tks-tests/internaldb/tks-ad-internaldb.sh
 	chmod a+x ./acceptance/legacy/ipa-tests/ipa_backend_plugin.sh
-	chmod a+x ./acceptance/legacy/clone_ca_tests/clone_tests.sh
 	chmod a+x ./acceptance/legacy/clone_drm_tests/clone_drm_agent_tests.sh
+	chmod a+x ./acceptance/legacy/clone_ca_tests/clone_tests.sh
+	chmod a+x ./acceptance/legacy/tps-tests/tps-enrollments.sh
 	# bug verifications
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1058366.sh
 	chmod a+x ./acceptance/bugzilla/tomcatjss-bugs/bug-1084224.sh
@@ -304,6 +306,12 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/bugzilla/jss-bugs/bug-1133718.sh
 	chmod a+x ./acceptance/bugzilla/jss-bugs/bug-1040640.sh
 	chmod a+x ./acceptance/bugzilla/pki-core-bugs/bug-790924.sh
+	#installer tests
+	chmod a+x ./acceptance/install-tests/ca-installer.sh
+	chmod a+x ./acceptance/install-tests/kra-installer.sh
+	chmod a+x ./acceptance/install-tests/ocsp-installer.sh
+	chmod a+x ./acceptance/install-tests/tks-installer.sh
+	chmod a+x ./acceptance/install-tests/tps-installer.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)

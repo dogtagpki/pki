@@ -34,61 +34,180 @@ run_rhcs_tks_installer_tests()
 	SUBSYSTEM_TYPE=$2
 	MYROLE=$3
 	if [ "$TOPO9" = "TRUE" ] ; then
-        	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
 	        prefix=$subsystemId
-        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
 	elif [ "$MYROLE" = "MASTER" ] ; then
-        	if [[ $subsystemId == SUBCA* ]]; then
-                	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
+		if [[ $subsystemId == SUBCA* ]]; then
 	                prefix=$subsystemId
-        	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)	
-        	else
-                	ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
+		else
 	                prefix=ROOTCA
-        	        CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        	fi
+		fi
 	else
-        	ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
 	        prefix=$MYROLE
-	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
 	fi
 
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	INSTANCECFG=/tmp/tks_instance.inf
 	##### Create a temporary directory to save output files #####
 	rlPhaseStartSetup "pki_run_rhcs_tks_installer_tests: Create temporary directory"
-        	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        	rlRun "pushd $TmpDir"
+		rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+		rlRun "pushd $TmpDir"
 	rlPhaseEnd
- 	rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-001: Installing and Uninstalling TKS"
- 		 local number=3
+	rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-001: Installing and Uninstalling TKS"
+		 local number=1
 		 local BEAKERMASTER=`hostname`
 		 local CA=ROOTCA
                  run_rhcs_install_packages
-                 run_install_subsystem_RootCA 
-		 run_install_subsystem_TKS $number $BEAKERMASTER $CA
+                 run_install_subsystem_RootCA
+		 run_install_subsystem_tks $number $BEAKERMASTER $CA
                  rlRun "pkidaemon status tomcat > $TmpDir/tks-install.out"
                  exp_message2_1="PKI Instance Name:   $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)"
                  rlAssertGrep "$exp_message2_1" "$TmpDir/tks-install.out"
-                 exp_message2_2="PKI Subsystem Type:   (Security Domain)"
+                 exp_message2_2="PKI Subsystem Type:  TKS"
                  rlAssertGrep "$exp_message2_2" "$TmpDir/tks-install.out"
                  rlLog "Uninstall TKS tests"
-                 rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" > $TmpDir/uninstallKRA.out
-                 exp_message2_3 "Uninstallation complete" "$TmpDir/uninstallTKS.out"
+                 rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" > $TmpDir/uninstallTKS.out
+                 exp_message2_3="Uninstallation complete"
                  rlAssertGrep "$exp_message2_3" "$TmpDir/uninstallTKS.out"
- 
          rlPhaseEnd
 	rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-002: SSL cert parameters"
 		cp $INSTANCECFG $TmpDir/tmpconfig1.in
 		sed -i -e "/pki_ssl_server_key_type/d" $TmpDir/tmpconfig1.in
+		rlRun "sleep 5"
 		sed -i -e "/pki_ssl_server_token/d" $TmpDir/tmpconfig1.in
+		rlRun "sleep 5"
 		sed -i -e "/pki_ssl_server_signing_algorithm/d" $TmpDir/tmpconfig1.in
+		rlRun "sleep 5"
 		sed -i -e "/pki_ssl_server_key_algorithm/d" $TmpDir/tmpconfig1.in
+		rlRun "sleep 5"
 		sed -i -e "/pki_ssl_server_key_size/d" $TmpDir/tmpconfig1.in
+		rlRun "sleep 5"
 		sed -i -e "/pki_ssl_server_nickname/d" $TmpDir/tmpconfig1.in
+		rlRun "sleep 5"
 		sed -i -e "/pki_ssl_server_subject_dn/d" $TmpDir/tmpconfig1.in
+		rlRun "sleep 5"
 		rlRun "pkispawn -s TKS -f $TmpDir/tmpconfig1.in  > $TmpDir/tks_ssl.out 2>&1" 1 "Should fail"
-                exp_messg3="Installation Failed."
+                exp_messg3="Installation failed."
                 rlAssertGrep "$exp_messg3" "$TmpDir/tks_ssl.out"
+		rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" > $TmpDir/uninstallTKS.out
+                 exp_message2_3="Uninstallation complete"
+                 rlAssertGrep "$exp_message2_3" "$TmpDir/uninstallTKS.out"
+		rlRun "sleep 20"
+                rlRun "pkidestroy -s CA -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" 0 "Uninstalled CA"
+                rlRun "sleep 20"
 	rlPhaseEnd
+
+	rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-003: Token password parameter has special characters"
+                token_password="{\&+\$\@*!"
+		INSTANCECFG_CA=/tmp/ca_instance.inf
+		rlRun "pkispawn -s CA -f $INSTANCECFG_CA" 0 "Install CA"
+                rlRun "sleep 20"
+                 rlLog "Copying config file into temp file"
+                 rlRun "cp $INSTANCECFG $TmpDir/tmpconfigfile3.in"
+                 sed -i -e "/pki_token_password=/s/=.*/=$token_password/g" $TmpDir/tmpconfigfile3.in
+                 rlRun "pkispawn -s TKS -f $TmpDir/tmpconfigfile3.in"
+                rlRun "pkidaemon status tomcat > $TmpDir/tks-install.out"
+                exp_message2_1="PKI Instance Name:   $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)"
+                rlAssertGrep "$exp_message2_1" "$TmpDir/tks-install.out"
+                exp_message2_2="PKI Subsystem Type:  TKS"
+                rlAssertGrep "$exp_message2_2" "$TmpDir/tks-install.out"
+                  #expected output & cleanup
+                 rlLog "cleanup"
+                 rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" 0 "Unistall TKS"
+                rlRun "sleep 20"
+         rlPhaseEnd
+
+        rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-004: Client pkcs12 password parameter has special characters"
+                client_password="{\&+\$\@*!"
+                 rlLog "Copying config file into temp file"
+                 rlRun "cp $INSTANCECFG $TmpDir/tmpconfigfile4.in"
+                 sed -i -e "/pki_client_pkcs12_password=/s/=.*/=$client_password/g" $TmpDir/tmpconfigfile4.in
+                 rlRun "pkispawn -s TKS -f $TmpDir/tmpconfigfile4.in"
+                rlRun "pkidaemon status tomcat > $TmpDir/tks-install.out"
+                exp_message2_1="PKI Instance Name:   $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)"
+                rlAssertGrep "$exp_message2_1" "$TmpDir/tks-install.out"
+                exp_message2_2="PKI Subsystem Type:  TKS"
+                rlAssertGrep "$exp_message2_2" "$TmpDir/tks-install.out"
+                  #expected output & cleanup
+                 rlLog "cleanup"
+                 rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" 0 "Unistall TKS"
+                rlRun "sleep 20"
+         rlPhaseEnd
+
+        rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-005: Admin password parameter has special characters"
+                admin_password="{\&+\$\@*!"
+                 rlLog "Copying config file into temp file"
+                 rlRun "cp $INSTANCECFG $TmpDir/tmpconfigfile5.in"
+                 sed -i -e "/pki_admin_password=/s/=.*/=$admin_password/g" $TmpDir/tmpconfigfile5.in
+                 rlRun "pkispawn -s TKS -f $TmpDir/tmpconfigfile5.in"
+                rlRun "pkidaemon status tomcat > $TmpDir/tks-install.out"
+                exp_message2_1="PKI Instance Name:   $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)"
+                rlAssertGrep "$exp_message2_1" "$TmpDir/tks-install.out"
+                exp_message2_2="PKI Subsystem Type:  TKS"
+                rlAssertGrep "$exp_message2_2" "$TmpDir/tks-install.out"
+                  #expected output & cleanup
+                 rlLog "cleanup"
+                 rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" 0 "Unistall TKS"
+                rlRun "sleep 20"
+         rlPhaseEnd
+
+	rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-006: Backup password parameter has special characters"
+                backup_password="{\&+\$\@*!%"
+                 rlLog "Copying config file into temp file"
+                 rlRun "cp $INSTANCECFG $TmpDir/tmpconfigfile6.in"
+                 sed -i -e "/pki_backup_password=/s/=.*/=$backup_password/g" $TmpDir/tmpconfigfile6.in
+                 rlRun "pkispawn -s TKS -f $TmpDir/tmpconfigfile6.in"
+                rlRun "pkidaemon status tomcat > $TmpDir/tks-install.out"
+                exp_message2_1="PKI Instance Name:   $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)"
+                rlAssertGrep "$exp_message2_1" "$TmpDir/tks-install.out"
+                exp_message2_2="PKI Subsystem Type:  TKS"
+                rlAssertGrep "$exp_message2_2" "$TmpDir/tks-install.out"
+                  #expected output & cleanup
+                 rlLog "cleanup"
+                 rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" 0 "Unistall TKS"
+                rlRun "sleep 20"
+         rlPhaseEnd
+
+        rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-007: Client database password parameter has special characters"
+                clientdb_password="{\&+\$\@*!"
+                 rlLog "Copying config file into temp file"
+                 rlRun "cp $INSTANCECFG $TmpDir/tmpconfigfile7.in"
+                 sed -i -e "/pki_client_database_password=/s/=.*/=$clientdb_password/g" $TmpDir/tmpconfigfile7.in
+                 rlRun "pkispawn -s TKS -f $TmpDir/tmpconfigfile7.in"
+                rlRun "pkidaemon status tomcat > $TmpDir/tks-install.out"
+                exp_message2_1="PKI Instance Name:   $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)"
+                rlAssertGrep "$exp_message2_1" "$TmpDir/tks-install.out"
+                exp_message2_2="PKI Subsystem Type:  TKS"
+                rlAssertGrep "$exp_message2_2" "$TmpDir/tks-install.out"
+                  #expected output & cleanup
+                 rlLog "cleanup"
+                 rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" 0 "Unistall TKS"
+                rlRun "sleep 20"
+         rlPhaseEnd
+
+	rlPhaseStartTest "pki_run_rhcs_tks_installer_tests-008: Security domain password parameter has special characters - Ticket 668"
+                sec_password="{\&+\$\@*!"
+                 rlLog "Copying config file into temp file"
+                 rlRun "cp $INSTANCECFG $TmpDir/tmpconfigfile8.in"
+                 sed -i -e "/pki_security_domain_password=/s/=.*/=$sec_password/g" $TmpDir/tmpconfigfile8.in
+                 rlRun "pkispawn -s TKS -f $TmpDir/tmpconfigfile8.in > $TmpDir/tks8.out 2>&1"
+                rlRun "pkidaemon status tomcat > $TmpDir/tks-install.out"
+                exp_message2_1="PKI Instance Name:   $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)"
+                rlAssertGrep "$exp_message2_1" "$TmpDir/tks-install.out"
+                exp_message2_2="PKI Subsystem Type:  TKS"
+                rlAssertGrep "$exp_message2_2" "$TmpDir/tks-install.out"
+                  #expected output & cleanup
+                 rlLog "cleanup"
+                 rlRun "pkidestroy -s TKS -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" 0 "Unistall TKS"
+                rlRun "sleep 20"
+                rlLog "https://fedorahosted.org/pki/ticket/668"
+         rlPhaseEnd
+
+	rlPhaseStartSetup "pki_run_rhcs_tks_installer_tests-cleanup"
+        #Delete temporary directory
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+	rlRun "remove-ds.pl -f -i slapd-pki-tks1-ldap" 0 "TKS ldap instance removed"
+        rlRun "remove-ds.pl -f -i slapd-pki-ca-ldap" 0 "CA ldap instance removed"
+        rlRun "pkidestroy -s CA -i $(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)" 0 "Uninstalled CA"
+        rlPhaseEnd
 }

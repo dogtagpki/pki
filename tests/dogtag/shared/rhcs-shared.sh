@@ -825,7 +825,6 @@ local DOMAIN=$(hostname)
                         echo -e "memberUid: idmuser$COUNT"
                         COUNT=`expr $COUNT + 1`
                 done
-
 }
 
 #################################################################
@@ -836,8 +835,8 @@ gen_enroll_data_file()
 {
         tps_host=$1
         tps_port=$2
-        cuid=$3
-        ldap_user=$4
+        tokenid=$3
+        ldapuser=$4
         ldap_userpwd=$5
         data_file=$6
         new_pin="redhat"
@@ -845,23 +844,23 @@ gen_enroll_data_file()
         echo "op=var_set name=ra_host value=$tps_host" > $data_file
         echo "op=var_set name=ra_port value=$tps_port" >> $data_file
         echo "op=var_set name=ra_uri value=/tps/tps" >> $data_file
-        echo "op=token_set cuid=$cuid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
+        echo "op=token_set cuid=$tokenid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
         echo "op=token_set auth_key=404142434445464748494a4b4c4d4e4f" >> $data_file
         echo "op=token_set mac_key=404142434445464748494a4b4c4d4e4f" >> $data_file
         echo "op=token_set kek_key=404142434445464748494a4b4c4d4e4f" >> $data_file
-        echo "op=ra_enroll uid=$ldap_user pwd=$ldap_userpwd new_pin=$new_pin num_threads=1" >> $data_file
+        echo "op=ra_enroll uid=$ldapuser pwd=$ldap_userpwd new_pin=$new_pin num_threads=1" >> $data_file
         echo "op=exit" >> $data_file
 }
 ############################################################################################################
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-### This script creates a tpsclient format file
+### This script createa a tpsclient format file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 gen_format_data_file()
 {
         tps_host=$1
         tps_port=$2
-        cuid=$3
-        ldap_user=$4
+        tokenid=$3
+        ldapuser=$4
         ldap_userpwd=$5
         data_file=$6
         new_pin="redhat"
@@ -869,11 +868,11 @@ gen_format_data_file()
         echo "op=var_set name=ra_host value=$tps_host" > $data_file
         echo "op=var_set name=ra_port value=$tps_port" >> $data_file
         echo "op=var_set name=ra_uri value=/tps/tps" >> $data_file
-        echo "op=token_set cuid=$cuid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
+        echo "op=token_set cuid=$tokenid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
         echo "op=token_set auth_key=404142434445464748494a4b4c4d4e4f" >> $data_file
         echo "op=token_set mac_key=404142434445464748494a4b4c4d4e4f" >> $data_file
         echo "op=token_set kek_key=404142434445464748494a4b4c4d4e4f" >> $data_file
-        echo "op=ra_format uid=$ldap_user pwd=$ldap_userpwd new_pin=$new_pin num_threads=1" >> $data_file
+        echo "op=ra_format uid=$ldapuser pwd=$ldap_userpwd new_pin=$new_pin num_threads=1 extensions=tokenType=userKey" >> $data_file
         echo "op=exit" >> $data_file
 }
 ############################################################################################################
@@ -884,8 +883,8 @@ gen_pin_reset_data_file()
 {
         tps_host=$1
         tps_port=$2
-        cuid=$3
-        ldap_user=$4
+        tokenid=$3
+        ldapuser=$4
         ldap_userpwd=$5
         data_file=$6
         new_pin="redhat"
@@ -893,12 +892,12 @@ gen_pin_reset_data_file()
         echo "op=var_set name=ra_host value=$tps_host" > $data_file
         echo "op=var_set name=ra_port value=$tps_port" >> $data_file
         echo "op=var_set name=ra_uri value=/tps/tps" >> $data_file
-        echo "op=token_set cuid=$cuid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
+        echo "op=token_set cuid=$tokenid msn=01020304 app_ver=6FBBC105 key_info=0101 major_ver=0 minor_ver=0" >> $data_file
         echo "op=token_set auth_key=404142434445464748494a4b4c4d4e4f" >> $data_file
         echo "op=token_set mac_key=404142434445464748494a4b4c4d4e4f" >> $data_file
         echo "op=token_set kek_key=404142434445464748494a4b4c4d4e4f" >> $data_file
-        echo "op=ra_reset_pin uid=$ldap_user pwd=$ldap_userpwd new_pin=$new_pin num_threads=1" >> $data_file
+        echo "op=ra_reset_pin uid=$ldapuser pwd=$ldap_userpwd new_pin=$new_pin num_threads=1" >> $data_file
         echo "op=exit" >> $data_file
 }
 #################################################################
- 
+

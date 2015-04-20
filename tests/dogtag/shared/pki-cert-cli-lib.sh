@@ -347,6 +347,21 @@ create_new_cert_request()
                         return 1
                 fi
 	fi
+        if [ "$request_type" == "crmfdual" ] && [ "$archive" == "true" ];then
+                rlLog "PWD=$PWD"
+                rlLog "Get Transport Cert"
+                rlRun "cat $CA_SERVER_ROOT/conf/CS.cfg | grep ca.connector.KRA.transportCert | awk -F \"=\" '{print \$2}' > transport.txt"
+                rlRun "set_newjavapath \":./:/usr/lib/java/jss4.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/apache-commons-codec.jar:/opt/rhqa_pki/jars/pki-qe-tools.jar:\"" 0 "Setting Java CLASSPATH"
+                rlRun "source /opt/rhqa_pki/env.sh" 0 "Set Environment Variables"
+                rlLog "Executing  generateDualCRMFRequest"
+                rlLog "java -cp $CLASSPATH generateDualCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file -transport_cert_file transport.txt 1> $dir/crmf.out"
+                rlRun "java -cp $CLASSPATH generateDualCRMFRequest -client_certdb_dir $dir -client_certdb_pwd $password -debug false -request_subject \"$subject\" -request_keytype $algo -request_keysize $key_size -output_file $cert_request_file -transport_cert_file transport.txt 1> $dir/crmf.out"
+                RETVAL=$?
+                if [ $RETVAL != 0 ]; then
+                        rlFail "CRMFPopClient Failed"
+                        return 1
+                fi
+        fi
 #### Strip  headers from request, Note for CRMF requests Our class doesn't generate the headers
 	if [ "$request_type" == "pkcs10" ] || [ "$archive" == "false" ]; then
 
@@ -977,5 +992,57 @@ run_req_action_cert()
         elif [ $RETVAL -eq 255 ]
         then
              echo PKI_ERROR=$(cat $tmp_nss_db/pki-req-approve-out) >> $cert_info
+        fi
+}
+##################################################################
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+### This script generates an xml file with the certificate request
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+generate_xml()
+{
+        cert_request_file=$1
+        cert_subject_file=$2
+        xml_profile_file=$3
+        cert_profile=$4
+        rlLog "cert_request_file=$cert_request_file"
+        rlLog "cert_subject_file=$cert_subject_file"
+        rlLog "xml_profile_file=$xml_profile_file"
+        rlLog "cert_profile=$cert_profile"
+
+        local request_type=$(cat $cert_subject_file | grep RequestType: | cut -d: -f2)
+        local subject_cn=$(cat $cert_subject_file | grep CN: | cut -d: -f2)
+        local subject_uid=$(cat $cert_subject_file | grep UID: | cut -d: -f2)
+        local subject_email=$(cat $cert_subject_file | grep Email: | cut -d: -f2)
+        local subject_ou=$(cat $cert_subject_file | grep OU: | cut -d: -f2)
+        local subject_org=$(cat $cert_subject_file | grep Org: | cut -d: -f2)
+        local subject_c=$(cat $cert_subject_file | grep Country: | cut -d: -f2)
+
+
+        if [ "$cert_profile" == "caUserCert" ]  || [ "$cert_profile" ==  "caUserSMIMEcapCert" ] || [ "$cert_profile" ==  "caDualCert" ];then
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $cert_request_file)\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_uid']/Value\" -v \"$subject_uid\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_e']/Value\" -v \"$subject_email\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_cn']/Value\" -v \"$subject_cn\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_ou']/Value\" -v \"$subject_ou\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_o']/Value\" -v \"$subject_org\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='sn_c']/Value\" -v \"$subject_c\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$subject_cn\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v \"$subject_email\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
+        fi
+
+        if [ "$cert_profile" != "CaDualCert" ] && \
+        [ "$cert_profile" != "caDirPinUserCert" ] && \
+        [ "$cert_profile" != "caDirUserCert" ] && \
+        [ "$cert_profile" != "caECDirUserCert" ] && \
+        [ "$cert_profile" != "caAgentServerCert" ] && \
+        [ "$cert_profile" != "caUserCert" ] &&
+        [ "$cert_profile" != "caUserSMIMEcapCert" ]; then
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request_type']/Value\" -v \"$request_type\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='cert_request']/Value\" -v \"$(cat -v $cert_request_file)\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_name']/Value\" -v \"$subject_cn\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v \"$subject_email\" $xml_profile_file"
+        rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $xml_profile_file"
         fi
 }

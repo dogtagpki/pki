@@ -66,39 +66,41 @@ else
 fi
 
 SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
-
 eval ${subsystemId}_adminV_user=${subsystemId}_adminV
-eval ${subsystemId}_adminV_fullName=${subsystemId}_Admin_ValidCert
-eval ${subsystemId}_adminV_password=${subsystemId}_adminV_password
-eval ${subsystemId}_adminR_user=${subsystemId}_adminR
-eval ${subsystemId}_adminR_fullName=${subsystemId}_Admin_RevokedCert
-eval ${subsystemId}_adminR_password=${subsystemId}_adminR_password
-eval ${subsystemId}_adminE_user=${subsystemId}_adminE
-eval ${subsystemId}_adminE_fullName=${subsystemId}_admin_ExpiredCert
-eval ${subsystemId}_adminE_password=${subsystemId}_adminE_password
-eval ${subsystemId}_adminUTCA_user=${subsystemId}_adminUTCA
-eval ${subsystemId}_adminUTCA_fullName=${subsystemId}_Admin_CertIssuedByUntrustedCA
-eval ${subsystemId}_adminUTCA_password=${subsystemId}_adminUTCA_password
-eval ${subsystemId}_agentV_user=${subsystemId}_agentV
-eval ${subsystemId}_agentV_fullName=${subsystemId}_Agent_ValidCert
-eval ${subsystemId}_agentV_password=${subsystemId}_agentV_password
-eval ${subsystemId}_agentR_user=${subsystemId}_agentR
-eval ${subsystemId}_agentR_fullName=${subsystemId}_Agent_RevokedCert
-eval ${subsystemId}_agentR_password=${subsystemId}_agentR_password
-eval ${subsystemId}_agentE_user=${subsystemId}_agentE
-eval ${subsystemId}_agentE_fullName=${subsystemId}_agent_ExpiredCert
-eval ${subsystemId}_agentE_password=${subsystemId}_agentE_password
-eval ${subsystemId}_agentUTCA_user=${subsystemId}_agentUTCA
-eval ${subsystemId}_agentUTCA_fullName=${subsystemId}_Agent_CertIssuedByUntrustedCA
-eval ${subsystemId}_agentUTCA_password=${subsystemId}_agentUTCA_password
-eval ${subsystemId}_auditV_user=${subsystemId}_auditV
-eval ${subsystemId}_auditV_fullName=${subsystemId}_Audit_ValidCert
-eval ${subsystemId}_auditV_password=${subsystemId}_auditV_password
-eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
-eval ${subsystemId}_operatorV_password=${subsystemId}_operatorV_password
-eval ${subsystemId}_operatorV_fullName=${subsystemId}_Operator_ValidCert
+        eval ${subsystemId}_adminV_fullName=${subsystemId}_Admin_ValidCert
+        eval ${subsystemId}_adminV_password=${subsystemId}_adminV_password
+        eval ${subsystemId}_adminR_user=${subsystemId}_adminR
+        eval ${subsystemId}_adminR_fullName=${subsystemId}_Admin_RevokedCert
+        eval ${subsystemId}_adminR_password=${subsystemId}_adminR_password
+        eval ${subsystemId}_adminE_user=${subsystemId}_adminE
+        eval ${subsystemId}_adminE_fullName=${subsystemId}_admin_ExpiredCert
+        eval ${subsystemId}_adminE_password=${subsystemId}_adminE_password
+        eval ${subsystemId}_adminUTCA_user=${subsystemId}_adminUTCA
+        eval ${subsystemId}_adminUTCA_fullName=${subsystemId}_Admin_CertIssuedByUntrustedCA
+        eval ${subsystemId}_adminUTCA_password=${subsystemId}_adminUTCA_password
+        eval ${subsystemId}_agentV_user=${subsystemId}_agentV
+        eval ${subsystemId}_agentV_fullName=${subsystemId}_Agent_ValidCert
+        eval ${subsystemId}_agentV_password=${subsystemId}_agentV_password
+        eval ${subsystemId}_agentR_user=${subsystemId}_agentR
+        eval ${subsystemId}_agentR_fullName=${subsystemId}_Agent_RevokedCert
+        eval ${subsystemId}_agentR_password=${subsystemId}_agentR_password
+        eval ${subsystemId}_agentE_user=${subsystemId}_agentE
+        eval ${subsystemId}_agentE_fullName=${subsystemId}_agent_ExpiredCert
+        eval ${subsystemId}_agentE_password=${subsystemId}_agentE_password
+        eval ${subsystemId}_agentUTCA_user=${subsystemId}_agentUTCA
+        eval ${subsystemId}_agentUTCA_fullName=${subsystemId}_Agent_CertIssuedByUntrustedCA
+        eval ${subsystemId}_agentUTCA_password=${subsystemId}_agentUTCA_password
+        eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
+        eval ${subsystemId}_operatorV_password=${subsystemId}_operatorV_password
+        eval ${subsystemId}_operatorV_fullName=${subsystemId}_Operator_ValidCert
 
-export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_adminE_user ${subsystemId}_adminUTCA_user ${subsystemId}_agentV_user ${subsystemId}_agentR_user ${subsystemId}_agentE_user ${subsystemId}_agentUT${subsystemId}_user ${subsystemId}_auditV_user ${subsystemId}_operatorV_user
+	export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_adminE_user ${subsystemId}_adminUTCA_user ${subsystemId}_agentV_user ${subsystemId}_agentR_user ${subsystemId}_agentE_user ${subsystemId}_agentUTCA_user ${subsystemId}_operatorV_user
+if [ $SUBSYSTEM_TYPE != "tps" ] ; then
+	eval ${subsystemId}_auditV_user=${subsystemId}_auditV
+	eval ${subsystemId}_auditV_fullName=${subsystemId}_Audit_ValidCert
+	eval ${subsystemId}_auditV_password=${subsystemId}_auditV_password
+	export ${subsystemId}_auditV_user
+fi
 ######################################################################
 
     rlPhaseStartSetup "create-role-user-startup: Create temp directory and import CA agent cert into a nss certificate db and trust CA root cert"
@@ -119,7 +121,11 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
     rlPhaseEnd
 
     rlPhaseStartSetup "Creating user and add user to the group"
-	 user=($(eval echo \$${subsystemId}_adminV_user) $(eval echo \$${subsystemId}_adminV_fullName) $(eval echo \$${subsystemId}_adminV_password) $(eval echo \$${subsystemId}_adminR_user) $(eval echo \$${subsystemId}_adminR_fullName) $(eval echo \$${subsystemId}_adminR_password) $(eval echo \$${subsystemId}_adminE_user) $(eval echo \$${subsystemId}_adminE_fullName) $(eval echo \$${subsystemId}_adminE_password) $(eval echo \$${subsystemId}_adminUTCA_user) $(eval echo \$${subsystemId}_adminUTCA_fullName) $(eval echo \$${subsystemId}_adminUTCA_password) $(eval echo \$${subsystemId}_agentV_user) $(eval echo \$${subsystemId}_agentV_fullName) $(eval echo \$${subsystemId}_agentV_password)  $(eval echo \$${subsystemId}_agentR_user) $(eval echo \$${subsystemId}_agentR_fullName) $(eval echo \$${subsystemId}_agentR_password) $(eval echo \$${subsystemId}_agentE_user) $(eval echo \$${subsystemId}_agentE_fullName) $(eval echo \$${subsystemId}_agentE_password) $(eval echo \$${subsystemId}_agentUTCA_user) $(eval echo \$${subsystemId}_agentUTCA_fullName) $(eval echo \$${subsystemId}_agentUTCA_password) $(eval echo \$${subsystemId}_auditV_user) $(eval echo \$${subsystemId}_auditV_fullName) $(eval echo \$${subsystemId}_auditV_password) $(eval echo \$${subsystemId}_operatorV_user) $(eval echo \$${subsystemId}_operatorV_fullName) $(eval echo \$${subsystemId}_operatorV_password))
+	if [ $SUBSYSTEM_TYPE = "tps" ] ; then
+		user=($(eval echo \$${subsystemId}_adminV_user) $(eval echo \$${subsystemId}_adminV_fullName) $(eval echo \$${subsystemId}_adminV_password) $(eval echo \$${subsystemId}_adminR_user) $(eval echo \$${subsystemId}_adminR_fullName) $(eval echo \$${subsystemId}_adminR_password) $(eval echo \$${subsystemId}_adminE_user) $(eval echo \$${subsystemId}_adminE_fullName) $(eval echo \$${subsystemId}_adminE_password) $(eval echo \$${subsystemId}_adminUTCA_user) $(eval echo \$${subsystemId}_adminUTCA_fullName) $(eval echo \$${subsystemId}_adminUTCA_password) $(eval echo \$${subsystemId}_agentV_user) $(eval echo \$${subsystemId}_agentV_fullName) $(eval echo \$${subsystemId}_agentV_password)  $(eval echo \$${subsystemId}_agentR_user) $(eval echo \$${subsystemId}_agentR_fullName) $(eval echo \$${subsystemId}_agentR_password) $(eval echo \$${subsystemId}_agentE_user) $(eval echo \$${subsystemId}_agentE_fullName) $(eval echo \$${subsystemId}_agentE_password) $(eval echo \$${subsystemId}_agentUTCA_user) $(eval echo \$${subsystemId}_agentUTCA_fullName) $(eval echo \$${subsystemId}_agentUTCA_password) $(eval echo \$${subsystemId}_operatorV_user) $(eval echo \$${subsystemId}_operatorV_fullName) $(eval echo \$${subsystemId}_operatorV_password))
+	else
+	 	user=($(eval echo \$${subsystemId}_adminV_user) $(eval echo \$${subsystemId}_adminV_fullName) $(eval echo \$${subsystemId}_adminV_password) $(eval echo \$${subsystemId}_adminR_user) $(eval echo \$${subsystemId}_adminR_fullName) $(eval echo \$${subsystemId}_adminR_password) $(eval echo \$${subsystemId}_adminE_user) $(eval echo \$${subsystemId}_adminE_fullName) $(eval echo \$${subsystemId}_adminE_password) $(eval echo \$${subsystemId}_adminUTCA_user) $(eval echo \$${subsystemId}_adminUTCA_fullName) $(eval echo \$${subsystemId}_adminUTCA_password) $(eval echo \$${subsystemId}_agentV_user) $(eval echo \$${subsystemId}_agentV_fullName) $(eval echo \$${subsystemId}_agentV_password)  $(eval echo \$${subsystemId}_agentR_user) $(eval echo \$${subsystemId}_agentR_fullName) $(eval echo \$${subsystemId}_agentR_password) $(eval echo \$${subsystemId}_agentE_user) $(eval echo \$${subsystemId}_agentE_fullName) $(eval echo \$${subsystemId}_agentE_password) $(eval echo \$${subsystemId}_agentUTCA_user) $(eval echo \$${subsystemId}_agentUTCA_fullName) $(eval echo \$${subsystemId}_agentUTCA_password) $(eval echo \$${subsystemId}_auditV_user) $(eval echo \$${subsystemId}_auditV_fullName) $(eval echo \$${subsystemId}_auditV_password) $(eval echo \$${subsystemId}_operatorV_user) $(eval echo \$${subsystemId}_operatorV_fullName) $(eval echo \$${subsystemId}_operatorV_password))
+	fi
 	i=0
 	while [ $i -lt ${#user[@]} ] ; do
 	       userid=${user[$i]}
@@ -164,7 +170,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
                                 agent_group_name="Token Key Service Manager Agents"
                             elif [ "$SUBSYSTEM_TYPE" = "tps" ] ; then
                                 #### Enter correct TPS agent group ####
-                                agent_group_name="TPS Manager Agents"
+                                agent_group_name="TPS Agents"
                             fi
                             rlRun "pki -d $CERTDB_DIR \
                                    -n \"$admin_cert_nickname\" \
@@ -192,23 +198,27 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			    rlAssertGrep "User: $userid" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
 
 		elif [ $userid == $(eval echo \$${subsystemId}_operatorV_user) ]; then
+			    if [ "$SUBSYSTEM_TYPE" = "tps" ] ; then
+                                operator_group_name="TPS Operators"
+			    else
+				operator_group_name="Trusted Managers"
+			    fi
 			    rlRun "pki -d $CERTDB_DIR \
 			   -n \"$admin_cert_nickname\" \
 			   -c $CERTDB_DIR_PASSWORD \
 			   -h $SUBSYSTEM_HOST \
 			   -t $SUBSYSTEM_TYPE \
 			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-			    group-member-add \"Trusted Managers\"  $userid > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
+			    group-member-add \"$operator_group_name\"  $userid > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
 			    0 \
-			    "Add user $userid to Trusted Managers  group"
+			    "Add user $userid to $operator_group_name  group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
 			    rlAssertGrep "User: $userid" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
                 fi
 		#================#
-
-	        if [ $userid == $(eval echo \$${subsystemId}_adminV_user) -o $userid == $(eval echo \$${subsystemId}_adminR_user) -o $userid == $(eval echo \$${subsystemId}_adminE_user) -o $userid == $(eval echo \$${subsystemId}_agentV_user) -o $userid == $(eval echo \$${subsystemId}_agentR_user) -o $userid == $(eval echo \$${subsystemId}_agentE_user) -o $userid == $(eval echo \$${subsystemId}_auditV_user) -o $userid == $(eval echo \$${subsystemId}_operatorV_user) ]; then
+	        if [ $userid = $(eval echo \$${subsystemId}_adminV_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminR_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminE_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentV_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentR_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentE_user) ] || [ $userid = $(eval echo \$${subsystemId}_auditV_user) ] || [ $userid = $(eval echo \$${subsystemId}_operatorV_user) ]; then
 			if [ "$MYROLE" = "MASTER" ]; then
-				get_topo_stack MASTER $TmpDir/topo_file
+				get_topo_stack $MYROLE $TmpDir/topo_file
 				if [ $subsystemId = "SUBCA1" ]; then
 					MYCAHOST=$(cat $TmpDir/topo_file | grep MY_SUBCA | cut -d= -f2)
 				elif [ $subsystemId = "CLONE_CA1" ]; then
@@ -247,7 +257,7 @@ export ${subsystemId}_adminV_user ${subsystemId}_adminR_user ${subsystemId}_admi
 			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v $userid@example.com $temp_file"
 			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $temp_file"
 
-			if [ $userid == $(eval echo \$${subsystemId}_adminV_user) -o $userid == $(eval echo \$${subsystemId}_adminR_user) -o $userid == $(eval echo \$${subsystemId}_agentV_user) -o $userid == $(eval echo \$${subsystemId}_agentR_user) -o $userid == $(eval echo \$${subsystemId}_auditV_user) -o $userid == $(eval echo \$${subsystemId}_operatorV_user) ]; then
+                if [ $userid = $(eval echo \$${subsystemId}_adminV_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminR_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminE_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentV_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentR_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentE_user) ] || [ $userid = $(eval echo \$${subsystemId}_auditV_user) ] || [ $userid = $(eval echo \$${subsystemId}_operatorV_user) ]; then
 				#cert-request-submit=====
 				#subsystem can be ca or tps
 				subsystem=ca    

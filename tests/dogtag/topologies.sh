@@ -134,33 +134,36 @@ run_rhcs_install_set_vars()
 ############################################################
 
 run_rhcs_install_quickinstall()
-{   
+{
     rlPhaseStartTest "run_rhcs_install_quickinstall - Install Master, Clone and SUBCA"
-	rlLog "QuickInstall - run_rhcs_install_quickinstall"
-	local BEAKERMASTER=$MASTER
-	local number=3
-	local TKS_number=1
-	local CA=ROOTCA
+        rlLog "QuickInstall - run_rhcs_install_quickinstall"
+        local BEAKERMASTER=$MASTER
+        local number=3
+        local TKS_number=1
+        local TPS_number=1
+        local CA=ROOTCA
         local CLONE_number=1
-	local SUBCA_number=1
-	local MASTER_KRA=KRA3
-	local MASTER_OCSP=OCSP3
-	run_rhcs_install_packages
+        local SUBCA_number=1
+        local MASTER_KRA=KRA3
+        local MASTER_OCSP=OCSP3
+        local MASTER_TKS=TKS1
+        run_rhcs_install_packages
         run_install_subsystem_RootCA
         run_install_subsystem_kra $number $BEAKERMASTER $CA
         run_install_subsystem_ocsp $number $BEAKERMASTER $CA
         run_install_subsystem_tks $TKS_number $BEAKERMASTER $CA
+        run_install_subsystem_tps $TPS_number $BEAKERMASTER $CA $MASTER_KRA $MASTER_TKS
         run_install_subsystem_cloneCA $CLONE_number $BEAKERMASTER $CA
         run_install_subsystem_cloneKRA $CLONE_number $BEAKERMASTER $CA $MASTER_KRA
         #run_install_subsystem_cloneOCSP $CLONE_number $BEAKERMASTER $CA $MASTER_OCSP
         run_install_subsystem_cloneTKS $CLONE_number $BEAKERMASTER $CA
-	run_install_subsystem_subca $SUBCA_number $BEAKERMASTER $CA
-	run_rhcs_add_to_env "ROOTCA_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12"
-	run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
+        #run_install_subsystem_cloneTPS $CLONE_number $BEAKERMASTER $CA $MASTER_KRA $MASTER_TKS
+        run_install_subsystem_subca $SUBCA_number $BEAKERMASTER $CA
+        run_rhcs_add_to_env "ROOTCA_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12"
+        run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
 
-    rlPhaseEnd 
+    rlPhaseEnd
 }
-
 
 #######Topology 1#######
 #SubCA1 - RootCA - Clone CA1
@@ -725,27 +728,27 @@ run_rhcs_install_topo_8()
 		
 }
 
-
-
-
 run_rhcs_install_topo_9()
 {
-    rlPhaseStartTest "run_rhcs_install_quickinstall - Install Master, Clone and SUBCA"
-        rlLog "QuickInstall - run_rhcs_install_quickinstall"
+    rlPhaseStartTest "run_rhcs_install_topo9 - Install Master, Clone and SUBCA"
+        rlLog "In topo9"
         local BEAKERMASTER=$MASTER
         local number=3
         local TKS_number=1
+        local TPS_number=1
         local CA=ROOTCA
         local CLONE_number=1
         local SUBCA_number=1
         local MASTER_KRA=KRA3
         local MASTER_OCSP=OCSP3
-	run_rhcs_edit_env
+        local MASTER_TKS=TKS1
+        run_rhcs_edit_env
         run_rhcs_install_packages
         run_install_subsystem_RootCA
         run_install_subsystem_kra $number $BEAKERMASTER $CA
         run_install_subsystem_ocsp $number $BEAKERMASTER $CA
         run_install_subsystem_tks $TKS_number $BEAKERMASTER $CA
+        run_install_subsystem_tps $TPS_number $BEAKERMASTER $CA $MASTER_KRA $MASTER_TKS
         run_install_subsystem_cloneCA $CLONE_number $BEAKERMASTER $CA
         run_install_subsystem_cloneKRA $CLONE_number $BEAKERMASTER $CA $MASTER_KRA
         #run_install_subsystem_cloneOCSP $CLONE_number $BEAKERMASTER $CA $MASTER_OCSP
@@ -759,39 +762,52 @@ run_rhcs_install_topo_9()
 run_rhcs_edit_env ()
 {
    rlPhaseStartTest "run_rhcs_edit_env - edit env.sh for different tomcat instances for every subsystem"
-	sed -i 's/^\(KRA3_TOMCAT_INSTANCE_NAME=\).*/\1rootkra/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(OCSP3_TOMCAT_INSTANCE_NAME=\).*/\1rootocsp/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(TKS1_TOMCAT_INSTANCE_NAME=\).*/\1roottks/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_KRA1_TOMCAT_INSTANCE_NAME=\).*/\1clonekra1/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_OCSP1_TOMCAT_INSTANCE_NAME=\).*/\1cloneocsp1/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_TKS1_TOMCAT_INSTANCE_NAME=\).*/\1clonetks1/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(KRA3_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(OCSP3_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(TKS1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_KRA1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_OCSP1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_TKS1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(KRA3_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(OCSP3_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(TKS1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_KRA1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_OCSP1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_TKS1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(KRA3_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(OCSP3_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(TKS1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_KRA1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_OCSP1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_TKS1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(KRA3_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(OCSP3_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(TKS1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_KRA1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_OCSP1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
-	sed -i 's/^\(CLONE_TKS1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(KRA3_TOMCAT_INSTANCE_NAME=\).*/\1rootkra/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(OCSP3_TOMCAT_INSTANCE_NAME=\).*/\1rootocsp/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TKS1_TOMCAT_INSTANCE_NAME=\).*/\1roottks/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TPS1_TOMCAT_INSTANCE_NAME=\).*/\1roottps/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_KRA1_TOMCAT_INSTANCE_NAME=\).*/\1clonekra1/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_OCSP1_TOMCAT_INSTANCE_NAME=\).*/\1cloneocsp1/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_TKS1_TOMCAT_INSTANCE_NAME=\).*/\1clonetks1/' /opt/rhqa_pki/env.sh
+	sed -i 's/^\(CLONE_TPS1_TOMCAT_INSTANCE_NAME=\).*/\1clonetps1/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(KRA3_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(OCSP3_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TKS1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TPS1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_KRA1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_OCSP1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_TKS1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+	sed -i 's/^\(CLONE_TPS1_SECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(KRA3_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(OCSP3_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TKS1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TPS1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_KRA1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_OCSP1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_TKS1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+	sed -i 's/^\(CLONE_TPS1_UNSECURE_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(KRA3_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(OCSP3_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TKS1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TPS1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_KRA1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_OCSP1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_TKS1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+	sed -i 's/^\(CLONE_TPS1_AJP_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(KRA3_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(OCSP3_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TKS1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(TPS1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_KRA1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_OCSP1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+        sed -i 's/^\(CLONE_TKS1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+	sed -i 's/^\(CLONE_TPS1_TOMCAT_SERVER_PORT=\).*/\1'$[($RANDOM % 2001) + 30000]'/' /opt/rhqa_pki/env.sh
+	. /opt/rhqa_pki/env.sh
    rlPhaseEnd
 
 }
+
+
 ######### Routine to get subsystem IDs ########
 get_rhcs_subsystem_id()
 {
