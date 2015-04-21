@@ -82,26 +82,12 @@ public class SessionContext extends Hashtable<Object, Object> {
      */
     public static final String IPADDRESS = "ipAddress";
 
-    private static Hashtable<Thread, SessionContext> mContexts = new Hashtable<Thread, SessionContext>();
+    private static ThreadLocal<SessionContext> instance = new ThreadLocal<SessionContext>();
 
     /**
      * Constructs a session context.
      */
     public SessionContext() {
-        super();
-    }
-
-    /**
-     * Creates a new context and associates it with
-     * the current thread. If the current thread is
-     * also associated with a old context, the old
-     * context will be replaced.
-     */
-    private static SessionContext createContext() {
-        SessionContext sc = new SessionContext();
-
-        setContext(sc);
-        return sc;
     }
 
     /**
@@ -114,7 +100,7 @@ public class SessionContext extends Hashtable<Object, Object> {
      * @param sc session context
      */
     public static void setContext(SessionContext sc) {
-        mContexts.put(Thread.currentThread(), sc);
+        instance.set(sc);
     }
 
     /**
@@ -125,12 +111,12 @@ public class SessionContext extends Hashtable<Object, Object> {
      * @return sesssion context
      */
     public static SessionContext getContext() {
-        SessionContext sc = mContexts.get(Thread.currentThread());
-
-        if (sc == null) {
-            sc = createContext();
+        SessionContext context = instance.get();
+        if (context == null) {
+            context = new SessionContext();
+            instance.set(context);
         }
-        return sc;
+        return context;
     }
 
     /**
@@ -141,23 +127,13 @@ public class SessionContext extends Hashtable<Object, Object> {
      * @return sesssion context
      */
     public static SessionContext getExistingContext() {
-        SessionContext sc = mContexts.get(Thread.currentThread());
-
-        if (sc == null) {
-            return null;
-        }
-
-        return sc;
+        return instance.get();
     }
 
     /**
      * Releases the current session context.
      */
     public static void releaseContext() {
-        SessionContext sc = mContexts.get(Thread.currentThread());
-
-        if (sc != null) {
-            mContexts.remove(Thread.currentThread());
-        }
+        instance.set(null);
     }
 }
