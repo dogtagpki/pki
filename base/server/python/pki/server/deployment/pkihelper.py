@@ -577,6 +577,15 @@ class ConfigurationFile:
                 if not self.skip_configuration and not self.standalone:
                     self.confirm_data_exists("pki_security_domain_password")
             # If required, verify existence of Token Password
+            if config.str2bool(self.mdict['pki_hsm_enable']):
+                self.confirm_data_exists("pki_hsm_libfile")
+                self.confirm_data_exists("pki_hsm_modulename")
+                self.confirm_data_exists("pki_token_name")
+                if self.mdict['pki_token_name'] == "internal":
+                    config.pki_log.error(
+                        log.PKIHELPER_UNDEFINED_HSM_TOKEN,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    raise Exception(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
             if not self.mdict['pki_token_name'] == "internal":
                 self.confirm_data_exists("pki_token_password")
         return
@@ -2032,6 +2041,38 @@ class Password:
                     else:
                         fd.write(self.mdict['pki_self_signed_token'] +
                                  "=" + str(pin))
+        except OSError as exc:
+            config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            if critical_failure:
+                raise
+        return
+
+    def create_hsm_password_conf(self, path, pin, hsm_pin,
+                                 overwrite_flag=False, critical_failure=True):
+        try:
+            if os.path.exists(path):
+                if overwrite_flag:
+                    config.pki_log.info(
+                        log.PKIHELPER_PASSWORD_CONF_1, path,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    # overwrite the existing 'password.conf' file
+                    with open(path, "w") as fd:
+                        fd.write(self.mdict['pki_self_signed_token'] +
+                                 "=" + str(pin) + "\n")
+                        fd.write("hardware-" +
+                                 self.mdict['pki_token_name'] +
+                                 "=" + str(hsm_pin))
+            else:
+                config.pki_log.info(log.PKIHELPER_PASSWORD_CONF_1, path,
+                                    extra=config.PKI_INDENTATION_LEVEL_2)
+                # create a new 'password.conf' file
+                with open(path, "w") as fd:
+                    fd.write(self.mdict['pki_self_signed_token'] +
+                             "=" + str(pin) + "\n")
+                    fd.write("hardware-" +
+                             self.mdict['pki_token_name'] +
+                             "=" + str(hsm_pin))
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
@@ -3793,6 +3834,9 @@ class ConfigClient:
 
         # Miscellaneous Configuration Information
         data.pin = self.mdict['pki_one_time_pin']
+        if config.str2bool(self.mdict['pki_hsm_enable']):
+            data.token = self.mdict['pki_token_name']
+            data.tokenPassword = self.mdict['pki_token_password']
         data.subsystemName = self.mdict['pki_subsystem_name']
         data.standAlone = self.standalone
         data.stepTwo = self.external_step_two

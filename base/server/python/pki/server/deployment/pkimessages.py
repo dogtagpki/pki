@@ -304,6 +304,8 @@ PKIHELPER_UNDEFINED_CLIENT_DATABASE_PASSWORD_2 = \
     "the randomly generated client pin MUST be used"
 PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 = \
     "A value for '%s' MUST be defined in '%s'"
+PKIHELPER_UNDEFINED_HSM_TOKEN = \
+    "A value other than 'internal' MUST be defined for 'pki_token_name'"
 PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME = "subsystem nickname not defined"
 PKIHELPER_UNDEFINED_TKS_HOST_PORT = "TKS Host or Port is undefined"
 PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 = "Password for token '%s' not defined"
