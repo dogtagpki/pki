@@ -25,6 +25,27 @@ var port = location.port;
 </script>
 
 <head>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.js"></script>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.i18n.properties.js"></script>
+
+<script type="text/javascript" language="JavaScript">
+$(function() {
+    $.i18n.properties({
+        name: '404',
+        language: ' ', // suppress potential 404's due to .i18n.browserLang()
+        path: '/pki/kra/',
+        mode: 'map',
+        callback: function() {
+            var key;
+            for (key in $.i18n.map) {
+                var message = $.i18n.prop(key);
+                $('span.message[name='+key+']').html(message);
+            }
+        }
+    });
+});
+</script>
+
 <title>DRM 404 Error!</title>
 <!-- always expand ALL relative paths -->
 <script language=javascript>
@@ -50,18 +71,13 @@ document.write('<META http-equiv=Content-Type content="text/html; charset=UTF-8"
 <body bgcolor="#FFFFFF" link="#666699" vlink="#666699" alink="#333366">
 <div id="header">
 <!-- always expand ALL relative paths -->
-<script language=javascript>
-document.write('<a href="http://pki.fedoraproject.org/" title="Visit pki.fedoraproject.org for more information about Dogtag products and services"><img src="');
-document.write(protocol);
-document.write('//');
-document.write(hostname);
-document.write(':');
-document.write(port);
-document.write('/pki/images/logo_header.gif');
-document.write('" alt="Dogtag" id="myLogo" /></a>');
-</script>
+<span class="message" name="logo">
+<a href="http://pki.fedoraproject.org/" title="Visit pki.fedoraproject.org for more information about Certificate System products and services"><img src="/pki/images/logo_header.gif" alt="Certificate System" id="myLogo" /></a>
+</span>
     <div id="headertitle">
-    <a href="/" title="Dogtag Network homepage">Dogtag<sup><font size="-2">&reg;</font></sup> Certificate System</a>
+    <span class="message" name="title">
+    <a href="/" title=Certificate System">Certificate System</a>
+    </span>
     </div>
     <div id="account">
           <dl><dt><span></span></dt><dd></dd></dl>
