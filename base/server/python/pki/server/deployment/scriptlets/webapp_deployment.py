@@ -53,97 +53,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.directory.set_mode(
                 deployer.mdict['pki_tomcat_subsystem_webapps_path'])
 
-            # For TPS, deploy web application directly from /usr/share/pki.
-            if deployer.mdict['pki_subsystem'] == "TPS":
-                deployer.deploy_webapp(
-                    "tps",
-                    os.path.join(
-                        config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                        "tps",
-                        "webapps",
-                        "tps"),
-                    os.path.join(
-                        config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                        "tps",
-                        "conf",
-                        "Catalina",
-                        "localhost",
-                        "tps.xml"))
-
-                return self.rv
-
-            # For other subsystems, deploy as custom web application.
-
-            # Copy /usr/share/pki/<subsystem>/webapps/<subsystem>
-            # to <instance>/<subsystem>/webapps/<subsystem>
-            deployer.directory.copy(
+            # Deploy web application directly from /usr/share/pki.
+            deployer.deploy_webapp(
+                deployer.mdict['pki_subsystem'].lower(),
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
                     deployer.mdict['pki_subsystem'].lower(),
                     "webapps",
                     deployer.mdict['pki_subsystem'].lower()),
-                deployer.mdict['pki_tomcat_webapps_subsystem_path'],
-                overwrite_flag=True)
-
-            # Copy /usr/share/pki/server/webapps/pki/admin
-            # to <instance>/<subsystem>/webapps/<subsystem>/admin
-            # TODO: common templates should be deployed in common webapp
-            deployer.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "server",
-                    "webapps",
-                    "pki",
-                    "admin"),
-                os.path.join(
-                    deployer.mdict['pki_tomcat_webapps_subsystem_path'],
-                    "admin"),
-                overwrite_flag=True)
-
-            deployer.directory.create(
-                deployer.mdict['pki_tomcat_webapps_subsystem_webinf_classes_path'])
-            deployer.directory.create(
-                deployer.mdict['pki_tomcat_webapps_subsystem_webinf_lib_path'])
-            # establish Tomcat webapps subsystem WEB-INF lib symbolic links
-            deployer.symlink.create(
-                deployer.mdict['pki_certsrv_jar'],
-                deployer.mdict['pki_certsrv_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_cmsbundle'],
-                deployer.mdict['pki_cmsbundle_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_cmscore'],
-                deployer.mdict['pki_cmscore_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_cms'],
-                deployer.mdict['pki_cms_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_cmsutil'],
-                deployer.mdict['pki_cmsutil_jar_link'])
-            deployer.symlink.create(
-                deployer.mdict['pki_nsutil'],
-                deployer.mdict['pki_nsutil_jar_link'])
-            if deployer.mdict['pki_subsystem'] == "CA":
-                deployer.symlink.create(
-                    deployer.mdict['pki_ca_jar'],
-                    deployer.mdict['pki_ca_jar_link'])
-            elif deployer.mdict['pki_subsystem'] == "KRA":
-                deployer.symlink.create(
-                    deployer.mdict['pki_kra_jar'],
-                    deployer.mdict['pki_kra_jar_link'])
-            elif deployer.mdict['pki_subsystem'] == "OCSP":
-                deployer.symlink.create(
-                    deployer.mdict['pki_ocsp_jar'],
-                    deployer.mdict['pki_ocsp_jar_link'])
-            elif deployer.mdict['pki_subsystem'] == "TKS":
-                deployer.symlink.create(
-                    deployer.mdict['pki_tks_jar'],
-                    deployer.mdict['pki_tks_jar_link'])
-
-            # Deploy subsystem web application.
-            deployer.deploy_webapp(
-                deployer.mdict['pki_subsystem'].lower(),
-                deployer.mdict['pki_tomcat_webapps_subsystem_path'],
                 os.path.join(
                     config.PKI_DEPLOYMENT_SOURCE_ROOT,
                     deployer.mdict['pki_subsystem'].lower(),
@@ -166,11 +83,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "Catalina",
                     "localhost",
                     deployer.mdict['pki_subsystem'].lower() + ".xml"))
-
-            # For subsystems other than TPS, delete
-            # <instance>/<subsystem>/webapps/<subsystem>.
-            if deployer.mdict['pki_subsystem'] != "TPS":
-                deployer.directory.delete(
-                    deployer.mdict['pki_tomcat_webapps_subsystem_path'])
 
         return self.rv

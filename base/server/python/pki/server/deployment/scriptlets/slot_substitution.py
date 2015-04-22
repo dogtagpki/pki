@@ -70,15 +70,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_target_tomcat_conf'],
                 overwrite_flag=True)
 
-            # Configure web.xml and velocity.properties for each subsystem.
-            # For TPS this is not necessary since the files are no longer
-            # copied to the target location in the instance directory.
-            if deployer.mdict['pki_subsystem'] != "TPS":
-                deployer.file.apply_slot_substitution(
-                    deployer.mdict['pki_target_velocity_properties'])
-                deployer.file.apply_slot_substitution(
-                    deployer.mdict['pki_target_subsystem_web_xml'])
-
             # Strip "<filter>" section from subsystem "web.xml"
             # This is ONLY necessary because XML comments cannot be "nested"!
             # deployer.file.copy(deployer.mdict['pki_target_subsystem_web_xml'],
@@ -94,8 +85,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.file.copy_with_slot_substitution(
                     deployer.mdict['pki_source_proxy_conf'],
                     deployer.mdict['pki_target_proxy_conf'])
-                deployer.file.apply_slot_substitution(
-                    deployer.mdict['pki_target_profileselect_template'])
             elif deployer.mdict['pki_subsystem'] == "TPS":
                 deployer.file.copy_with_slot_substitution(
                     deployer.mdict['pki_source_registry_cfg'],

@@ -1108,11 +1108,6 @@ verify_symlinks()
     pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_NAME}"
     pki_systemd_dir="/etc/systemd/system/pki-tomcatd.target.wants"
     pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_NAME}.service"
-    pki_ca_jar_dir="${PKI_INSTANCE_PATH}/ca/webapps/ca/WEB-INF/lib"
-    pki_kra_jar_dir="${PKI_INSTANCE_PATH}/kra/webapps/kra/WEB-INF/lib"
-    pki_ocsp_jar_dir="${PKI_INSTANCE_PATH}/ocsp/webapps/ocsp/WEB-INF/lib"
-    pki_tks_jar_dir="${PKI_INSTANCE_PATH}/tks/webapps/tks/WEB-INF/lib"
-    pki_tps_jar_dir="${PKI_INSTANCE_PATH}/tps/webapps/tps/WEB-INF/lib"
 
     # '${PKI_INSTANCE_PATH}' symlinks
     base_symlinks=(
@@ -1128,32 +1123,12 @@ verify_symlinks()
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/ca
         [registry]=${pki_registry_dir})
 
-    # '${pki_ca_jar_dir}' symlinks
-    ca_jar_symlinks=(
-        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
-        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
-        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
-        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
-        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
-        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
-        [pki-ca.jar]=${java_dir}/pki/pki-ca.jar)
-
     # '${PKI_INSTANCE_PATH}/kra' symlinks
     kra_symlinks=(
         [alias]=${PKI_INSTANCE_PATH}/alias
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}/kra
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/kra
         [registry]=${pki_registry_dir})
-
-    # '${pki_kra_jar_dir}' symlinks
-    kra_jar_symlinks=(
-        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
-        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
-        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
-        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
-        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
-        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
-        [pki-kra.jar]=${java_dir}/pki/pki-kra.jar)
 
     # '${PKI_INSTANCE_PATH}/ocsp' symlinks
     ocsp_symlinks=(
@@ -1162,16 +1137,6 @@ verify_symlinks()
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/ocsp
         [registry]=${pki_registry_dir})
 
-    # '${pki_ocsp_jar_dir}' symlinks
-    ocsp_jar_symlinks=(
-        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
-        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
-        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
-        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
-        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
-        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
-        [pki-ocsp.jar]=${java_dir}/pki/pki-ocsp.jar)
-
     # '${PKI_INSTANCE_PATH}/tks' symlinks
     tks_symlinks=(
         [alias]=${PKI_INSTANCE_PATH}/alias
@@ -1179,32 +1144,12 @@ verify_symlinks()
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tks
         [registry]=${pki_registry_dir})
 
-    # '${pki_tks_jar_dir}' symlinks
-    tks_jar_symlinks=(
-        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
-        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
-        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
-        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
-        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
-        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
-        [pki-tks.jar]=${java_dir}/pki/pki-tks.jar)
-
     # '${PKI_INSTANCE_PATH}/tps' symlinks
     tps_symlinks=(
         [alias]=${PKI_INSTANCE_PATH}/alias
         [conf]=/etc/pki/${PKI_INSTANCE_NAME}/tps
         [logs]=/var/log/pki/${PKI_INSTANCE_NAME}/tps
         [registry]=${pki_registry_dir})
-
-    # '${pki_tps_jar_dir}' symlinks
-    tps_jar_symlinks=(
-        [pki-certsrv.jar]=${java_dir}/pki/pki-certsrv.jar
-        [pki-cms.jar]=${java_dir}/pki/pki-cms.jar
-        [pki-cmsbundle.jar]=${java_dir}/pki/pki-cmsbundle.jar
-        [pki-cmscore.jar]=${java_dir}/pki/pki-cmscore.jar
-        [pki-cmsutil.jar]=${java_dir}/pki/pki-cmsutil.jar
-        [pki-nsutil.jar]=${java_dir}/pki/pki-nsutil.jar
-        [pki-tps.jar]=${java_dir}/pki/pki-tps.jar)
 
     # '${pki_common_jar_dir}' symlinks
     if ! $debian; then
@@ -1307,14 +1252,6 @@ verify_symlinks()
             if [ $rv -ne 0 ]; then
                 return $rv
             fi
-            # Detect and correct 'ca_jar_symlinks'
-            ca_jar_symlinks_string=$(declare -p ca_jar_symlinks)
-            eval "declare -A symlinks=${ca_jar_symlinks_string#*=}"
-            check_symlinks ${pki_ca_jar_dir} ${PKI_USER} ${PKI_GROUP}
-            rv=$?
-            if [ $rv -ne 0 ]; then
-                return $rv
-            fi
         fi
 
         if [ -e ${PKI_INSTANCE_PATH}/kra ]; then
@@ -1322,14 +1259,6 @@ verify_symlinks()
             kra_symlinks_string=$(declare -p kra_symlinks)
             eval "declare -A symlinks=${kra_symlinks_string#*=}"
             check_symlinks ${PKI_INSTANCE_PATH}/kra ${PKI_USER} ${PKI_GROUP}
-            rv=$?
-            if [ $rv -ne 0 ]; then
-                return $rv
-            fi
-            # Detect and correct 'kra_jar_symlinks'
-            kra_jar_symlinks_string=$(declare -p kra_jar_symlinks)
-            eval "declare -A symlinks=${kra_jar_symlinks_string#*=}"
-            check_symlinks ${pki_kra_jar_dir} ${PKI_USER} ${PKI_GROUP}
             rv=$?
             if [ $rv -ne 0 ]; then
                 return $rv
@@ -1345,14 +1274,6 @@ verify_symlinks()
             if [ $rv -ne 0 ]; then
                 return $rv
             fi
-            # Detect and correct 'ocsp_jar_symlinks'
-            ocsp_jar_symlinks_string=$(declare -p ocsp_jar_symlinks)
-            eval "declare -A symlinks=${ocsp_jar_symlinks_string#*=}"
-            check_symlinks ${pki_ocsp_jar_dir} ${PKI_USER} ${PKI_GROUP}
-            rv=$?
-            if [ $rv -ne 0 ]; then
-                return $rv
-            fi
         fi
 
         if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
@@ -1360,14 +1281,6 @@ verify_symlinks()
             tks_symlinks_string=$(declare -p tks_symlinks)
             eval "declare -A symlinks=${tks_symlinks_string#*=}"
             check_symlinks ${PKI_INSTANCE_PATH}/tks ${PKI_USER} ${PKI_GROUP}
-            rv=$?
-            if [ $rv -ne 0 ]; then
-                return $rv
-            fi
-            # Detect and correct 'tks_jar_symlinks'
-            tks_jar_symlinks_string=$(declare -p tks_jar_symlinks)
-            eval "declare -A symlinks=${tks_jar_symlinks_string#*=}"
-            check_symlinks ${pki_tks_jar_dir} ${PKI_USER} ${PKI_GROUP}
             rv=$?
             if [ $rv -ne 0 ]; then
                 return $rv

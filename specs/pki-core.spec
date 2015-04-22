@@ -662,15 +662,24 @@ cd build
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
-# Create symlinks for TPS web application
-%{__mkdir_p} %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
-ln -s %{_javadir}/pki/pki-nsutil.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
-ln -s %{_javadir}/pki/pki-cmsutil.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
-ln -s %{_javadir}/pki/pki-certsrv.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
-ln -s %{_javadir}/pki/pki-cms.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
-ln -s %{_javadir}/pki/pki-cmscore.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
-ln -s %{_javadir}/pki/pki-cmsbundle.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
-ln -s %{_javadir}/pki/pki-tps.jar %{buildroot}%{_datadir}/pki/tps/webapps/tps/WEB-INF/lib
+# Create symlinks for admin console (TPS does not use admin console)
+for subsystem in ca kra ocsp tks; do
+    %{__mkdir_p} %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/admin
+    ln -s %{_datadir}/pki/server/webapps/pki/admin/console %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/admin
+done
+
+# Create symlinks for subsystem libraries
+for subsystem in ca kra ocsp tks tps; do
+    %{__mkdir_p} %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+    ln -s %{_javadir}/pki/pki-nsutil.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+    ln -s %{_javadir}/pki/pki-cmsutil.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+    ln -s %{_javadir}/pki/pki-certsrv.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+    ln -s %{_javadir}/pki/pki-cms.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+    ln -s %{_javadir}/pki/pki-cmscore.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+    ln -s %{_javadir}/pki/pki-cmsbundle.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+    ln -s %{_javadir}/pki/pki-$subsystem.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+done
+
 
 %if %{with server}
 

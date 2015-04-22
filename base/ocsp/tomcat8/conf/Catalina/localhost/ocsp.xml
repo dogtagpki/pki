@@ -22,7 +22,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<Context crossContext="true">
+<Context docBase="/usr/share/pki/ocsp/webapps/ocsp" crossContext="true">
 
     <Manager
         secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>

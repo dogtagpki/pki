@@ -657,11 +657,6 @@ class PKIConfigParser:
                         self.mdict['pki_instance_configuration_path'],
                         "tomcat.conf")
                 # in-place slot substitution name/value pairs
-                self.mdict['pki_target_velocity_properties'] = \
-                    os.path.join(
-                        self.mdict['pki_tomcat_webapps_subsystem_path'],
-                        "WEB-INF",
-                        "velocity.properties")
                 self.mdict['pki_target_subsystem_web_xml'] = \
                     os.path.join(
                         self.mdict['pki_tomcat_webapps_subsystem_path'],
@@ -712,12 +707,6 @@ class PKIConfigParser:
                             self.mdict['pki_subsystem_configuration_path'],
                             "subsystemCert.profile")
                     # in-place slot substitution name/value pairs
-                    self.mdict['pki_target_profileselect_template'] = \
-                        os.path.join(
-                            self.mdict['pki_tomcat_webapps_subsystem_path'],
-                            "ee",
-                            self.mdict['pki_subsystem'].lower(),
-                            "ProfileSelect.template")
                     if config.str2bool(self.mdict['pki_profiles_in_ldap']):
                         self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'LDAPProfileSubsystem'
                     else:
