@@ -52,7 +52,7 @@ function process(fop) {
   
 #include ( "tps/admin/console/config/header.vm" )
 
-<div id="mainNavOuter">
+<div id="mainNavOuter" class="pki-ee-theme">
 <div id="mainNav">
 
 <div id="mainNavInner">

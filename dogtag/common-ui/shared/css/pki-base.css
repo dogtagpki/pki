@@ -19,6 +19,7 @@
 
 @import url("pki.css");
 @import url("pki-360.css");
+@import url("pki-theme.css");
 
 /* The following styles are for ALL browsers, including Netscape
    Navigator 4.x.  Put more detailed CSS in pki.css. */

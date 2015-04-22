@@ -21,9 +21,10 @@
 <link rel="shortcut icon" href="/pki/images/favicon.ico" />
 <HEAD>
 <TITLE>TPS Agent</Title>
+<link rel="stylesheet" href="/pki/css/pki-theme.css" type="text/css" />
 </HEAD>
 
-<table border="0" width="100%" cellspacing="0" cellpadding="0" bgcolor="#000080">
+<table border="0" width="100%" cellspacing="0" cellpadding="0" class="pki-agent-theme">
   <tr>
     <td>
       <table border="0" cellspacing="12" cellpadding="0">
