@@ -95,6 +95,8 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
               pathname="conf/tomcat-users.xml" />
   </GlobalNamingResources>
 
+  <Listener className="com.netscape.cms.tomcat.NuxwdogPasswordStoreInitializer"/>
+
   <!-- A "Service" is a collection of one or more "Connectors" that share
        a single "Container" Note:  A "Service" is not itself a "Container",
        so you may not define subcomponents such as "Valves" at this level.

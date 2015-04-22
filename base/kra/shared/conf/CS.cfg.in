@@ -179,6 +179,7 @@ cmc.revokeCert.verify=true
 cmc.revokeCert.sharedSecret.class=com.netscape.cms.authentication.SharedSecret
 cmc.sharedSecret.class=com.netscape.cms.authentication.SharedSecret
 cms.version=@APPLICATION_VERSION_MAJOR@.@APPLICATION_VERSION_MINOR@
+cms.passwordlist=internaldb,replicationdb
 dbs.enableSerialManagement=false
 dbs.beginRequestNumber=1
 dbs.endRequestNumber=10000000

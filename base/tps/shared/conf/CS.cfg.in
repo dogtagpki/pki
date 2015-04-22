@@ -115,6 +115,7 @@ channel.defKeyVersion=0
 channel.defKeyIndex=0
 cms.product.version=@APPLICATION_VERSION@
 cms.version=@APPLICATION_VERSION_MAJOR@.@APPLICATION_VERSION_MINOR@
+cms.passwordlist=internaldb
 config.Generals.General.state=Enabled
 config.Generals.General.timestamp=1280283607424406
 configurationRoot=/[PKI_SUBSYSTEM_TYPE]/conf/

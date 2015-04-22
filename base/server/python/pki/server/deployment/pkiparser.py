@@ -1007,6 +1007,13 @@ class PKIConfigParser:
                     "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
                     "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 
+                if config.pki_architecture == 64:
+                    self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
+                        '/usr/lib64/nuxwdog-jni')
+                else:
+                    self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
+                        '/usr/lib/nuxwdog-jni')
+
                 # tps parameters
                 self.mdict['TOKENDB_HOST_SLOT'] = \
                     self.mdict['pki_ds_hostname']

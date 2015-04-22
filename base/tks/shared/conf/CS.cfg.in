@@ -26,6 +26,7 @@ preop.wizard.name=TKS Setup Wizard
 preop.system.name=TKS
 preop.product.name=CS
 cms.product.version=@APPLICATION_VERSION@
+cms.passwordlist=internaldb,replicationdb
 preop.system.fullname=Token Key Service
 proxy.securePort=[PKI_PROXY_SECURE_PORT]
 proxy.unsecurePort=[PKI_PROXY_UNSECURE_PORT]
