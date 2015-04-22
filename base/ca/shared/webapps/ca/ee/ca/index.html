@@ -18,6 +18,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.js"></script>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.i18n.properties.js"></script>
+
 <title>CA End-Entity</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="shortcut icon" href="/pki/images/favicon.ico" />
@@ -313,13 +316,14 @@ function loadTabs()
 		writeln('<tr><td>');
 		writeln('<table border=0 cellspacing=12 cellpadding=0>');
 		writeln('<tr>');
-		writeln('<td><img src="/pki/images/logo_header.gif"></td>');
+		writeln('<td><span class="message" name="logo"><img src="/pki/images/logo_header.gif"></span></td>');
 		writeln('<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>');
-	if (subsystemname == 'ca') {
-		writeln('<td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Dogtag<sup><font color="#cccccc" size="-2">&reg;</font></sup> Certificate Manager</b></font></td>');
-	} else {
-		writeln('<td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b><b>Dogtag<sup><font color="#cccccc" size="-2">&reg;</font></sup> Registration Manager</b></font></td>');
-	}
+
+		writeln('<td><span class="message" name="title">'
+		    + '<font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white">'
+		    + '<b>Certificate Manager</b></font>'
+		    + '</span></td>');
+
 		writeln('</tr>');
 		writeln('</table>');
 
@@ -358,6 +362,20 @@ function loadTabs()
 		close();
 
 	}
+
+    $.i18n.properties({
+        name: 'index',
+        language: ' ', // suppress potential 404's due to .i18n.browserLang()
+        path: '/pki/ca/ee/ca/',
+        mode: 'map',
+        callback: function() {
+            var key;
+            for (key in $.i18n.map) {
+                var message = $.i18n.prop(key);
+                $('span.message[name='+key+']', top.tabsf.document).html(message);
+            }
+        }
+    });
 }
 
 
