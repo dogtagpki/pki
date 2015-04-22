@@ -70,7 +70,6 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
         }
     }
 
-    @Override
     public String getPassword(String tag, int iteration) {
         if (pwCache.containsKey(tag)) {
             return pwCache.get(tag);

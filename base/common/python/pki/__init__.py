@@ -372,7 +372,7 @@ class PropertyFile(object):
         :param index: point at which to insert value.
         :type index: int
         :param line: value to be inserted.
-        :type line; str
+        :type line: str
         :return: None
         """
         self.lines.insert(index, line)
