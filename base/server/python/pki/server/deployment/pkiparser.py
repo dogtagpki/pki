@@ -718,6 +718,10 @@ class PKIConfigParser:
                             "ee",
                             self.mdict['pki_subsystem'].lower(),
                             "ProfileSelect.template")
+                    if config.str2bool(self.mdict['pki_profiles_in_ldap']):
+                        self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'LDAPProfileSubsystem'
+                    else:
+                        self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'ProfileSubsystem'
                 elif self.mdict['pki_subsystem'] == "KRA":
                     # '*.profile'
                     self.mdict['pki_target_servercert_profile'] = \
@@ -1230,11 +1234,6 @@ class PKIConfigParser:
                     "restart" + " " + \
                     "pki-tomcatd" + "@" + \
                     self.mdict['pki_instance_name'] + "." + "service"
-
-            if config.str2bool(self.mdict['pki_profiles_in_ldap']):
-                self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'LDAPProfileSubsystem'
-            else:
-                self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'ProfileSubsystem'
 
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
