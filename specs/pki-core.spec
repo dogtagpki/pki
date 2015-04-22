@@ -851,6 +851,7 @@ systemctl daemon-reload
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
+%{_sbindir}/pki-server-nuxwdog
 %{_sbindir}/pki-server-upgrade
 #%{_bindir}/pki-setup-proxy
 %{python_sitelib}/pki/server/
