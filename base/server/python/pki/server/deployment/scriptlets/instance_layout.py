@@ -60,7 +60,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.deploy_webapp(
                 "ROOT",
                 os.path.join(
-                    deployer.mdict['pki_tomcat_common_webapps_path'],
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "server",
+                    "webapps",
                     "ROOT"),
                 os.path.join(
                     deployer.mdict['pki_source_server_path'],
@@ -68,17 +70,45 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "localhost",
                     "ROOT.xml"))
 
-            # Deploy pki web application
+            # Deploy theme web application
             deployer.deploy_webapp(
                 "pki",
-                os.path.join(
-                    deployer.mdict['pki_tomcat_common_webapps_path'],
-                    "pki"),
+                deployer.mdict['pki_theme_server_dir'],
                 os.path.join(
                     deployer.mdict['pki_source_server_path'],
                     "Catalina",
                     "localhost",
                     "pki.xml"))
+
+            # Deploy admin templates
+            deployer.deploy_webapp(
+                "pki#admin",
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "server",
+                    "webapps",
+                    "pki",
+                    "admin"),
+                os.path.join(
+                    deployer.mdict['pki_source_server_path'],
+                    "Catalina",
+                    "localhost",
+                    "pki#admin.xml"))
+
+            # Deploy JS library
+            deployer.deploy_webapp(
+                "pki#js",
+                os.path.join(
+                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                    "server",
+                    "webapps",
+                    "pki",
+                    "js"),
+                os.path.join(
+                    deployer.mdict['pki_source_server_path'],
+                    "Catalina",
+                    "localhost",
+                    "pki#js.xml"))
 
             # establish Tomcat instance base
             deployer.directory.create(deployer.mdict['pki_tomcat_common_path'])
@@ -98,26 +128,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_instance_conf_log4j_properties'],
                 deployer.mdict['pki_instance_lib_log4j_properties'])
             deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])
-
-            # Copy /usr/share/pki/server/webapps to <instance>/common/webapps
-            deployer.directory.copy(
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    "server",
-                    "webapps"),
-                deployer.mdict['pki_tomcat_common_webapps_path'])
-
-            # If desired and available,
-            # copy selected server theme
-            # to <instance>/common/webapps/pki
-            if config.str2bool(deployer.mdict['pki_theme_enable']) and\
-                    os.path.exists(deployer.mdict['pki_theme_server_dir']):
-                deployer.directory.copy(
-                    deployer.mdict['pki_theme_server_dir'],
-                    os.path.join(
-                        deployer.mdict['pki_tomcat_common_webapps_path'],
-                        "pki"),
-                    overwrite_flag=True)
 
             deployer.directory.create(deployer.mdict['pki_tomcat_work_path'])
             deployer.directory.create(

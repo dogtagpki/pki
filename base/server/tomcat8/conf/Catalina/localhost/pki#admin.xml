@@ -22,7 +22,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<Context docBase="/usr/share/pki/common-ui" crossContext="true">
+<Context docBase="/usr/share/pki/server/webapps/pki/admin" crossContext="true">
 
     <Manager
         secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>
