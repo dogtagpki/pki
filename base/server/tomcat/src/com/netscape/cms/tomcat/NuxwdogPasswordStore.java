@@ -86,6 +86,11 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
     }
 
     @Override
+    public String getPassword(String tag){
+        return getPassword(tag, 0);
+    }
+
+    @Override
     public Enumeration<String> getTags() {
         return  Collections.enumeration(tags);
     }
