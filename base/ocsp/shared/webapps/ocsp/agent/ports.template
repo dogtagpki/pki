@@ -18,7 +18,26 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<CMS_TEMPLATE>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.js"></script>
+<script type="text/javascript" language="JavaScript" src="/pki/js/jquery.i18n.properties.js"></script>
+
+<script type="text/javascript" language="JavaScript">
+$(function() {
+    $.i18n.properties({
+        name: 'ports',
+        language: ' ', // suppress potential 404's due to .i18n.browserLang()
+        path: '/pki/oscp/agent/',
+        mode: 'map',
+        callback: function() {
+            var key;
+            for (key in $.i18n.map) {
+                var message = $.i18n.prop(key);
+                $('span.message[name='+key+']').html(message);
+            }
+        }
+    });
+});
+</script>
 <title>OCSP Agent Ports</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" href="/pki/css/pki-theme.css" type="text/css" />
@@ -32,7 +51,7 @@
         <tr> 
           <td><img src="/pki/images/logo_header.gif"></td>
           <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-          <td><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Dogtag<sup><font color="#999999" size="-2">&reg;</font></sup> Services Summary</b></font></td>
+          <td><span class="message" name="title"><font size="+1" face="PrimaSans BT, Verdana, sans-serif" color="white"><b>Services Summary</b></font></span></td>
         </tr>
       </table>
     </td>
