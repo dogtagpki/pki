@@ -816,7 +816,7 @@ internaldb.maxConns=15
 internaldb.minConns=3
 internaldb.ldapauth.authtype=BasicAuth
 internaldb.ldapauth.bindDN=cn=Directory Manager
-internaldb.ldapauth.bindPWPrompt=Internal LDAP Database
+internaldb.ldapauth.bindPWPrompt=internaldb
 internaldb.ldapauth.clientCertNickname=
 internaldb.ldapconn.host=
 internaldb.ldapconn.port=

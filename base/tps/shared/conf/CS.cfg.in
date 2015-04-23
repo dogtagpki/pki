@@ -164,7 +164,7 @@ internaldb._001=## Internal Database
 internaldb._002=##
 internaldb.ldapauth.authtype=BasicAuth
 internaldb.ldapauth.bindDN=cn=Directory Manager
-internaldb.ldapauth.bindPWPrompt=Internal LDAP Database
+internaldb.ldapauth.bindPWPrompt=internaldb
 internaldb.ldapauth.clientCertNickname=
 internaldb.ldapconn.host=
 internaldb.ldapconn.port=

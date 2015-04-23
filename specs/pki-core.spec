@@ -53,7 +53,7 @@ BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.14.3
-BuildRequires:    nuxwdog-client-java
+BuildRequires:    nuxwdog-client-java >= 1.0.2
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
@@ -101,15 +101,7 @@ BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-35
 BuildRequires:    systemd-units
-%if 0%{?rhel}
-BuildRequires:    tomcatjss >= 7.1.0-5
-%else
-%if 0%{?fedora} >= 23
-BuildRequires:         tomcatjss >= 7.1.2
-%else
-BuildRequires:         tomcatjss >= 7.1.1
-%endif
-%endif
+BuildRequires:    tomcatjss >= 7.1.2
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -354,7 +346,7 @@ Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java-headless >= 1:1.7.0
 Requires:         net-tools
-Requires:         nuxwdog-client-java
+Requires:         nuxwdog-client-java >= 1.0.2
 Requires:         perl(File::Slurp)
 Requires:         policycoreutils
 Requires:         openldap-clients
@@ -390,15 +382,7 @@ Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
-%if 0%{?rhel}
-Requires:         tomcatjss >= 7.1.0-5
-%else
-%if 0%{?fedora} >= 23
 Requires:         tomcatjss >= 7.1.2
-%else
-Requires:         tomcatjss >= 7.1.1
-%endif
-%endif
 
 %description -n   pki-server
 The PKI Server Framework is required by the following four PKI subsystems:
