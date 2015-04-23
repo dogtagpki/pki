@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.2.3
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -120,6 +120,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Thu Apr 23 2015 Dogtag Team <pki-devel@redhat.com> 10.2.3-1
+- Update release number for release build
+
 * Thu Apr  9 2015 Dogtag Team <pki-devel@redhat.com> 10.2.3-0.1
 - Reverted version number back to 10.2.3-0.1
 - Added support for Tomcat 8.
