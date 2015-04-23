@@ -49,6 +49,9 @@ export PKI_BASE_DIR
 PKI_DOGTAG_DIR="${PKI_DIR}/dogtag"
 export PKI_DOGTAG_DIR
 
+PKI_REDHAT_DIR="${PKI_DIR}/redhat"
+export PKI_REDHAT_DIR
+
 PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake pylint-build-scan.sh dogtag.pylintrc"
 export PKI_FILE_LIST
 
@@ -60,6 +63,9 @@ export PKI_BASE_MANIFEST
 
 PKI_DOGTAG_MANIFEST="CMakeLists.txt"
 export PKI_DOGTAG_MANIFEST
+
+PKI_REDHAT_MANIFEST="CMakeLists.txt"
+export PKI_REDHAT_MANIFEST
 
 RHEL="/rhel/"
 
