@@ -20,6 +20,7 @@ package com.netscape.cmscore.profile;
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -55,7 +56,7 @@ public class ProfileSubsystem
         IPluginRegistry registry = (IPluginRegistry)
                 CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
-        mProfiles = new Hashtable<String, IProfile>();
+        mProfiles = new LinkedHashMap<String, IProfile>();
         mProfileClassIds = new Hashtable<String, String>();
 
         mConfig = config;

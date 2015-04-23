@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.lang.Thread;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import netscape.ldap.LDAPAttribute;
@@ -73,7 +74,7 @@ public class LDAPProfileSubsystem
         CMS.debug("LDAPProfileSubsystem: start init");
 
         // (re)init member collections
-        mProfiles = new Hashtable<String, IProfile>();
+        mProfiles = new LinkedHashMap<String, IProfile>();
         mProfileClassIds = new Hashtable<String, String>();
 
         IConfigStore cs = CMS.getConfigStore();

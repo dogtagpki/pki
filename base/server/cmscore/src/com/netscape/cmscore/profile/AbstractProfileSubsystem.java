@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.profile;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -35,7 +37,7 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
 
     protected IConfigStore mConfig = null;
     protected ISubsystem mOwner;
-    protected Hashtable<String, IProfile> mProfiles;
+    protected LinkedHashMap<String, IProfile> mProfiles;
     protected Hashtable<String, String> mProfileClassIds;
 
     /**
@@ -131,7 +133,7 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
      * list is of type String.
      */
     public Enumeration<String> getProfileIds() {
-        return mProfiles.keys();
+        return Collections.enumeration(mProfiles.keySet());
     }
 
     /**
