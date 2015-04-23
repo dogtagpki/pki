@@ -32,8 +32,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 
 Name:             pki-core
-Version:          10.2.3
-Release:          1%{?dist}
+Version:          10.2.4
+Release:          0.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -937,6 +937,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Apr 23 2015 Dogtag Team <pki-devel@redhat.com> 10.2.4-0.1
+- Updated version number to 10.2.4-0.1
+
 * Thu Apr 23 2015 Dogtag Team <pki-devel@redhat.com> 10.2.3-1
 - Update release number for release build
 
