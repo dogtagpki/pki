@@ -354,7 +354,7 @@ Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java-headless >= 1:1.7.0
 Requires:         net-tools
-Requires:         nuxwdog
+Requires:         nuxwdog-client-java
 Requires:         perl(File::Slurp)
 Requires:         policycoreutils
 Requires:         openldap-clients
