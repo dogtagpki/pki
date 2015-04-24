@@ -49,8 +49,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # establish instance logs
             deployer.directory.create(deployer.mdict['pki_instance_log_path'])
 
-            # establish Tomcat instance configuration
-            # don't copy over the common ldif files to etc instance path
+            # copy /usr/share/pki/server/conf tree into /var/lib/pki/<instance>/conf
+            # except common ldif files and theme deployment descriptor
             deployer.directory.copy(
                 deployer.mdict['pki_source_server_path'],
                 deployer.mdict['pki_instance_configuration_path'],
@@ -70,15 +70,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     "localhost",
                     "ROOT.xml"))
 
-            # Deploy theme web application
-            deployer.deploy_webapp(
-                "pki",
-                deployer.mdict['pki_theme_server_dir'],
-                os.path.join(
-                    deployer.mdict['pki_source_server_path'],
-                    "Catalina",
-                    "localhost",
-                    "pki.xml"))
+            if os.path.exists(deployer.mdict['pki_theme_server_dir']):
+                # Deploy theme web application if available
+                deployer.deploy_webapp(
+                    "pki",
+                    deployer.mdict['pki_theme_server_dir'],
+                    os.path.join(
+                        deployer.mdict['pki_source_server_path'],
+                        "Catalina",
+                        "localhost",
+                        "pki.xml"))
 
             # Deploy admin templates
             deployer.deploy_webapp(
@@ -333,5 +334,5 @@ def file_ignore_callback_src_server(src, names):
     config.pki_log.info(log.FILE_EXCLUDE_CALLBACK_2, src, names,
                         extra=config.PKI_INDENTATION_LEVEL_1)
 
-    excludes = {'schema.ldif', 'database.ldif', 'manager.ldif'}
+    excludes = {'schema.ldif', 'database.ldif', 'manager.ldif', 'pki.xml'}
     return excludes
