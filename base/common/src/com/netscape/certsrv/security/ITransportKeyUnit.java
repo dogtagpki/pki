@@ -69,7 +69,6 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
      * @param encSymmKey wrapped symmetric key to be unwrapped
      * @param usage Key usage for unwrapped key.
      * @return Symmetric key object
-     * @exception EBaseException failed to unwrap
      */
 
     public SymmetricKey unwrap_sym(byte encSymmKey[], SymmetricKey.Usage usage);
@@ -80,7 +79,6 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
      *
      * @param encSymmKey wrapped symmetric key to be unwrapped
      * @return Symmetric key object
-     * @exception EBaseException failed to unwrap
      */
 
     public SymmetricKey unwrap_sym(byte encSymmKey[]);
@@ -91,7 +89,6 @@ public interface ITransportKeyUnit extends IEncryptionUnit {
      *
      * @param encSymmKey wrapped symmetric key to be unwrapped
      * @return Symmetric key object
-     * @exception EBaseException failed to unwrap
      */
 
     public SymmetricKey unwrap_encrypt_sym(byte encSymmKey[]);

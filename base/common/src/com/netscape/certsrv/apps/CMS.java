@@ -1115,7 +1115,6 @@ public final class CMS {
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param params configuration parameters
-     * @exception EBaseException failed to create subject alt name configuration
      */
     public static void getGeneralNameConfigDefaultParams(String name,
             boolean isValueConfigured, Vector<String> params) {
@@ -1129,7 +1128,6 @@ public final class CMS {
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param params configuration parameters
-     * @exception EBaseException failed to create subject alt name configuration
      */
     public static void getGeneralNamesConfigDefaultParams(String name,
             boolean isValueConfigured, Vector<String> params) {
@@ -1143,7 +1141,6 @@ public final class CMS {
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param info configuration parameters
-     * @exception EBaseException failed to create subject alt name configuration
      */
     public static void getGeneralNameConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info) {
@@ -1157,7 +1154,6 @@ public final class CMS {
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param info configuration parameters
-     * @exception EBaseException failed to create subject alt name configuration
      */
     public static void getGeneralNamesConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info) {
