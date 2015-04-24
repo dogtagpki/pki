@@ -1,5 +1,10 @@
 project(pki-javadoc)
 
+set(doclintstr "")
+if(${Java_VERSION_MINOR} VERSION_EQUAL 8 OR ${Java_VERSION_MINOR} VERSION_GREATER 8)
+    set(doclintstr "-Xdoclint:none")
+endif(${Java_VERSION_MINOR} VERSION_EQUAL 8 OR ${Java_VERSION_MINOR} VERSION_GREATER 8)
+
 javadoc(pki-javadoc
     SOURCEPATH
         ${CMAKE_SOURCE_DIR}/base/util/src
@@ -31,6 +36,7 @@ javadoc(pki-javadoc
         -author
         -use
         -version
+        ${doclintstr}
     DEPENDS
         pki-cmsutil-jar pki-certsrv-jar pki-tomcat-jar pki-cms-jar pki-tools-jar
 )
