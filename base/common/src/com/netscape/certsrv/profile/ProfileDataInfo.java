@@ -54,7 +54,7 @@ public class ProfileDataInfo {
     }
 
     /**
-     * @param keyURL the profileURL to set
+     * @param profileURL the profileURL to set
      */
     public void setProfileURL(String profileURL) {
         this.profileURL = profileURL;

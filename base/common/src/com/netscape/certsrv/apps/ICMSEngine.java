@@ -919,7 +919,6 @@ public interface ICMSEngine extends ISubsystem {
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param params configuration parameters
-     * @exception EBaseException failed to create subject alt name configuration
      */
     public void getGeneralNameConfigDefaultParams(String name,
             boolean isValueConfigured, Vector<String> params);
@@ -930,7 +929,6 @@ public interface ICMSEngine extends ISubsystem {
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param params configuration parameters
-     * @exception EBaseException failed to create subject alt name configuration
      */
     public void getGeneralNamesConfigDefaultParams(String name,
             boolean isValueConfigured, Vector<String> params);
@@ -941,7 +939,6 @@ public interface ICMSEngine extends ISubsystem {
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param info configuration parameters
-     * @exception EBaseException failed to create subject alt name configuration
      */
     public void getGeneralNameConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info);
@@ -952,7 +949,6 @@ public interface ICMSEngine extends ISubsystem {
      * @param name configuration name
      * @param isValueConfigured true if value is configured
      * @param info configuration parameters
-     * @exception EBaseException failed to create subject alt name configuration
      */
     public void getGeneralNamesConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info);

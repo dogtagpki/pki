@@ -113,7 +113,6 @@ public interface IProfileInput extends IConfigTemplate {
      * @param locale user locale
      * @param request request
      * @param value value
-     * @exception EProfileException failed to get value
      */
     public void setValue(String name, Locale locale, IRequest request,
             String value) throws EPropertyException;

@@ -58,7 +58,7 @@ public class ProfileRetrievalRequest {
     }
 
     /**
-     * @param ProfileId the ProfileId to set
+     * @param profileId the ProfileId to set
      */
     public void setProfileId(String profileId) {
         this.profileId = profileId;

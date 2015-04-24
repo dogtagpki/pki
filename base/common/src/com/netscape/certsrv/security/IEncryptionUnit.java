@@ -89,10 +89,8 @@ public interface IEncryptionUnit extends IToken {
      * Unwraps data. This method rebuilds the private key by
      * unwrapping the private key data.
      *
-     * @param sessionKey session key that unwrap the private key
      * @param symmAlgOID symmetric algorithm
      * @param symmAlgParams symmetric algorithm parameters
-     * @param privateKey private key data
      * @param pubKey public key
      * @param transportCert transport certificate
      * @return private key object
@@ -139,7 +137,6 @@ public interface IEncryptionUnit extends IToken {
      *
      * @param encSymmKey wrapped symmetric key to be unwrapped
      * @return Symmetric key object
-     * @exception EBaseException failed to unwrap
      */
 
     public SymmetricKey unwrap_sym(byte encSymmKey[],
