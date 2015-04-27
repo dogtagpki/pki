@@ -25,18 +25,22 @@ import sys
 
 import pki.cli
 import pki.server
+import pki.server.cli.nuxwdog
 
 
 class InstanceCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(InstanceCLI, self).__init__('instance', 'Instance management commands')
+        super(InstanceCLI, self).__init__('instance',
+                                          'Instance management commands')
 
         self.add_module(InstanceFindCLI())
         self.add_module(InstanceShowCLI())
         self.add_module(InstanceStartCLI())
         self.add_module(InstanceStopCLI())
         self.add_module(InstanceMigrateCLI())
+        self.add_module(InstanceNuxwdogEnableCLI())
+        self.add_module(InstanceNuxwdogDisableCLI())
 
     @staticmethod
     def print_instance(instance):
@@ -252,6 +256,7 @@ class InstanceStopCLI(pki.cli.CLI):
 
         self.print_message('%s instance stopped' % instance_name)
 
+
 class InstanceMigrateCLI(pki.cli.CLI):
 
     def __init__(self):
@@ -317,6 +322,114 @@ class InstanceMigrateCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
 
-        module.migrate(instance, tomcat_version) # pylint: disable=no-member,maybe-no-member
+        module.migrate(instance, tomcat_version)  # pylint: disable=no-member,maybe-no-member
 
         self.print_message('%s instance migrated' % instance_name)
+
+
+class InstanceNuxwdogEnableCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(InstanceNuxwdogEnableCLI, self).__init__(
+            'nuxwdog-enable',
+            'Instance enable nuxwdog')
+
+    def print_help(self):
+        print 'Usage: pki-server instance-nuxwdog-enable [OPTIONS] <instance ID>'
+        print
+        print '  -v, --verbose                Run in verbose mode.'
+        print '      --help                   Show help message.'
+        print
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.getopt(argv, 'i:v', [
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print 'ERROR: ' + str(e)
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) != 1:
+            print 'ERROR: missing instance ID'
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
+
+        for o, _ in opts:
+            if o in ('-v', '--verbose'):
+                self.set_verbose(True)
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+            else:
+                print 'ERROR: unknown option ' + o
+                self.print_help()
+                sys.exit(1)
+
+        #module = self.top.find_module('nuxwdog-enable')
+        module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
+        module.set_verbose(self.verbose)
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        module.enable_nuxwdog(instance)  # pylint: disable=no-member,maybe-no-member
+
+        self.print_message('nuxwdog enabled for instance %s' % instance_name)
+
+
+class InstanceNuxwdogDisableCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(InstanceNuxwdogDisableCLI, self).__init__(
+            'nuxwdog-disable',
+            'Instance disable nuxwdog')
+
+    def print_help(self):
+        print 'Usage: pki-server instance-nuxwdog-disable [OPTIONS] <instance ID>'
+        print
+        print '  -v, --verbose                Run in verbose mode.'
+        print '      --help                   Show help message.'
+        print
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.getopt(argv, 'i:v', [
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print 'ERROR: ' + str(e)
+            self.print_help()
+            sys.exit(1)
+
+        if len(args) != 1:
+            print 'ERROR: missing instance ID'
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = args[0]
+
+        for o, _ in opts:
+            if o in ('-v', '--verbose'):
+                self.set_verbose(True)
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+            else:
+                print 'ERROR: unknown option ' + o
+                self.print_help()
+                sys.exit(1)
+
+        # module = self.top.find_module('nuxwdog-disable')
+        module = pki.server.cli.nuxwdog.NuxwdogDisableCLI()
+        module.set_verbose(self.verbose)
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        module.disable_nuxwdog(instance)  # pylint: disable=no-member,maybe-no-member
+
+        self.print_message('nuxwdog disabled for instance %s' % instance_name)

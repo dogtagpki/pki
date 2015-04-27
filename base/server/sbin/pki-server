@@ -26,6 +26,8 @@ import pki.cli
 import pki.server.cli.instance
 import pki.server.cli.subsystem
 import pki.server.cli.migrate
+import pki.server.cli.nuxwdog
+
 
 class PKIServerCLI(pki.cli.CLI):
 
@@ -36,6 +38,7 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.instance.InstanceCLI())
         self.add_module(pki.server.cli.subsystem.SubsystemCLI())
         self.add_module(pki.server.cli.migrate.MigrateCLI())
+        self.add_module(pki.server.cli.nuxwdog.NuxwdogCLI())
 
     def get_full_module_name(self, module_name):
         return module_name
