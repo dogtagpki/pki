@@ -47,30 +47,27 @@ run_pki-user-cli-user-membership-add-ca_tests(){
 	subsystemId=$1
 	SUBSYSTEM_TYPE=$2
 	MYROLE=$3
-
+	ca_instance_created="False"
 	if [ "$TOPO9" = "TRUE" ] ; then
-        	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
 	        prefix=$subsystemId
-        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
 	elif [ "$MYROLE" = "MASTER" ] ; then
         	if [[ $subsystemId == SUBCA* ]]; then
-                	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
 	                prefix=$subsystemId
-        	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+			ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
 	        else
-        	        ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 	prefix=ROOTCA
-	                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+			ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
         	fi
 	else
-        	ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
 	        prefix=$MYROLE
-        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+		ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
 	fi
 
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	untrusted_cert_nickname=role_user_UTCA
 
+if [ "$ca_instance_created" = "TRUE" ] ;  then
 	#Local variables
 	groupid1="Certificate Manager Agents"
 	groupid2="Registration Manager Agents"
@@ -728,5 +725,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
 		rlRun "popd"
 		rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
 	rlPhaseEnd
+ else
+	rlLog "CA instance not installed"
+ fi
 }
-

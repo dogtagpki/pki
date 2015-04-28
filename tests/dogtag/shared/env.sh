@@ -61,6 +61,7 @@ ROOTCA_DB_SUFFIX="dc=pki-ca"
 ROOTCA_LDAP_INSTANCE_NAME=pki-ca-ldap
 ROOTCA_CERTDB_DIR="/opt/rhqa_pki/rootca/certs_db"
 ROOTCA_CERTDB_DIR_PASSWORD="Secret123"
+ROOTCA_INSTANCE_CREATED_STATUS=False
 ########End CA params########
 
 ######## KRA1 Params used by topology 2,3,4,5, 6 and 8###########
@@ -117,6 +118,7 @@ KRA1_DB_SUFFIX="dc=pki-kra1"
 KRA1_LDAP_INSTANCE_NAME=pki-kra1-ldap
 KRA1_CLIENT_PKCS12_PASSWORD="Secret123"
 KRA1_BACKUP_PASSWORD="Secret123"
+KRA1_INSTANCE_CREATED_STATUS=False
 ####### End KRA1 params########
 
 ###### KRA 2 params used by topology 5 and 6####
@@ -174,6 +176,7 @@ KRA2_DB_SUFFIX="dc=pki-kra2"
 KRA2_LDAP_INSTANCE_NAME=pki-kra2-ldap
 KRA2_CLIENT_PKCS12_PASSWORD="Secret123"
 KRA2_BACKUP_PASSWORD="Secret123"
+KRA2_INSTANCE_CREATED_STATUS=False
 ############## End KRA 2 Params######
 
 ############# KRA3 Params used by QUICKINSTALL and topology1 ############
@@ -231,6 +234,7 @@ KRA3_LDAP_INSTANCE_NAME=pki-kra3-ldap
 KRA3_CLIENT_PKCS12_PASSWORD="Secret123"
 KRA3_BACKUP_PASSWORD="Secret123"
 KRA3_ADMIN_PASSWORD="Secret123"
+KRA3_INSTANCE_CREATED_STATUS=False
 ######### KRA3 Params################
 
 ##### OCSP1 Params -- used by topology 2, 3, 4, 5, 6 and 8 #############
@@ -281,6 +285,7 @@ OCSP1_DB_SUFFIX="dc=pki-ocsp1"
 OCSP1_LDAP_INSTANCE_NAME=pki-ocsp1-ldap
 OCSP1_BACKUP_PASSWORD="Secret123"
 OCSP1_CLIENT_PKCS12_PASSWORD="Secret123"
+OCSP1_INSTANCE_CREATED_STATUS=False
 ###### End OCSP1 Params #########
 
 ######## OCSP2 Params ##########
@@ -331,6 +336,7 @@ OCSP2_DB_SUFFIX="dc=pki-ocsp2"
 OCSP2_LDAP_INSTANCE_NAME=pki-ocsp2-ldap
 OCSP2_BACKUP_PASSWORD="Secret123"
 OCSP2_CLIENT_PKCS12_PASSWORD="Secret123"
+OCSP2_INSTANCE_CREATED_STATUS=False
 ##### End OCSP2 Params ##########
 
 #####OCSP3 Params used in QUICKINSTALL and topology1#############
@@ -380,6 +386,7 @@ OCSP3_DB_SUFFIX="dc=pki-ocsp3"
 OCSP3_LDAP_INSTANCE_NAME=pki-ocsp3-ldap
 OCSP3_BACKUP_PASSWORD="Secret123"
 OCSP3_CLIENT_PKCS12_PASSWORD="Secret123"
+OCSP3_INSTANCE_CREATED_STATUS=False
 ########End OCSP3 Params#####
 
 ######### TKS1 Parmams used in QUICKINSTALL and topology1 #########
@@ -423,6 +430,7 @@ TKS1_LDAP_INSTANCE_NAME=pki-tks1-ldap
 TKS1_DB_SUFFIX="dc=pki-tks1"
 TKS1_BACKUP_PASSWORD="Secret123"
 TKS1_CLIENT_PKCS12_PASSWORD="Secret123"
+TKS1_INSTANCE_CREATED_STATUS=False
 ########End TKS Params#######
 
 ####### TKS2 Params - this set of params not used in any topology ##########
@@ -465,6 +473,7 @@ TKS2_DB_SUFFIX="dc=pki-tks2"
 TKS2_BACKUP_PASSWORD="Secret123"
 TKS2_ADMIN_PASSWORD="Secret123"
 TKS2_CLIENT_PKCS12_PASSWORD=Secret123
+TKS2_INSTANCE_CREATED_STATUS=False
 ####### End TKS2 Params ######
 
 ######### TPS1 Parmams used in QUICKINSTALL and topology1 #########
@@ -510,6 +519,7 @@ TPS1_BACKUP_PASSWORD="Secret123"
 TPS1_CLIENT_PKCS12_PASSWORD="Secret123"
 TPS1_SERVER_KEYGEN=True
 TPS1_AUTHDB_HOST="`hostname`"
+TPS1_INSTANCE_CREATED_STATUS=False
 ########End TPS Params#######
 
 ##### GENERIC PARAMS #####
@@ -610,6 +620,7 @@ SUBCA1_BACKUP_PASSWORD=Secret123
 SUBCA1_CERTDB_DIR=$CLIENT_DIR/subca1_certs_db
 SUBCA1_CERTDB_DIR_PASSWORD=Secret123
 SUBCA1_CLIENT_DB_PURGE=True
+SUBCA1_INSTANCE_CREATED_STATUS=False
 ##### End of SUBCA1 params #######
 
 ###### SUBCA2 params - topology 3,4,5 and 6 #######
@@ -683,6 +694,7 @@ SUBCA2_BACKUP_PASSWORD=Secret123
 SUBCA2_CERTDB_DIR=$CLIENT_DIR/subca2_certs_db
 SUBCA2_CERTDB_DIR_PASSWORD=Secret123
 SUBCA2_CLIENT_DB_PURGE=True
+SUBCA2_INSTANCE_CREATED_STATUS=False
 ######## End of SUBCA2 params #######
 
 ##### CLONE generic params #########
@@ -727,6 +739,7 @@ CLONE_CA1_LDAP_PORT=1901
 CLONE_CA1_LDAP_INSTANCE_NAME=pki-cloneca1
 CLONE_CA1_SECURE_CONN=False
 CLONE_CA1_REMOVE_DATA=True 
+CLONE_CA1_INSTANCE_CREATED_STATUS=False
 ##### End of CLONE_CA1 params #######
 
 ##### CLONE_KRA1 params -- used by QUICKINSTALL, topology 1 and 8 ########
@@ -755,6 +768,7 @@ CLONE_KRA1_SSL_SERVER_SIGNING_ALGORITHM=SHA512withRSA
 CLONE_KRA1_SSL_SERVER_TOKEN=Internal
 CLONE_KRA1_SSL_SERVER_NICKNAME=cloneca1sslservercert 
 CLONE_KRA1_SSL_SERVER_CERT_SUBJECT_NAME="cn=`hostname`,O=redhat"
+CLONE_KRA1_INSTANCE_CREATED_STATUS=False
 ##### End of CLONE_KRA1 params #######
 
 
@@ -786,6 +800,7 @@ CLONE_OCSP1_SSL_SERVER_SIGNING_ALGORITHM=SHA512withRSA
 CLONE_OCSP1_SSL_SERVER_TOKEN=Internal
 CLONE_OCSP1_SSL_SERVER_NICKNAME=cloneca1sslservercert 
 CLONE_OCSP1_SSL_SERVER_CERT_SUBJECT_NAME="cn=`hostname`,O=redhat"
+CLONE_OCSP1_INSTANCE_CREATED_STATUS=False
 ###### End of CLONE_OCSP1 #######
 
 ###### CLONE_TKS1 params -- used by QUICKINSTALL and topology 1 #########
@@ -815,6 +830,7 @@ CLONE_TKS1_SSL_SERVER_SIGNING_ALGORITHM=SHA512withRSA
 CLONE_TKS1_SSL_SERVER_TOKEN=Internal
 CLONE_TKS1_SSL_SERVER_NICKNAME=cloneca1sslservercert 
 CLONE_TKS1_SSL_SERVER_CERT_SUBJECT_NAME="cn=`hostname`,O=redhat"
+CLONE_TKS1_INSTANCE_CREATED_STATUS=False
 ##### End of CLONE_TKS1 params ######
 
 ###### CLONE_TPS1 params -- used by QUICKINSTALL and topology 1 #########
@@ -845,6 +861,7 @@ CLONE_TPS1_SSL_SERVER_TOKEN=Internal
 CLONE_TPS1_SSL_SERVER_NICKNAME=cloneca1sslservercert
 CLONE_TPS1_SSL_SERVER_CERT_SUBJECT_NAME="cn=`hostname`,O=redhat"
 CLONE_TPS1_SERVER_KEYGEN=True
+CLONE_TPS1_INSTANCE_CREATED_STATUS=False
 ##### End of CLONE_TPS1 params ######
 
 
@@ -879,6 +896,7 @@ CLONE_CA2_ADMIN_SUBJECT_DN="cn=PKI CLONE2 Admin, O=redhat"
 CLONE_CA2_ADMIN_CERT_NICKNAME=cloneca2admincert
 CLONE_CA2_ADMIN_IMPORT_CERT=False
 CLONE_CA2_DS_HOSTNAME=localhost
+CLONE_CA2_INSTANCE_CREATED_STATUS=False
 ###### End of CLONE_CA2 ########
 
 
@@ -895,6 +913,7 @@ CLONE_KRA2_DS_HOSTNAME=localhost
 CLONE_KRA2_LDAP_PORT=3500
 CLONE_KRA2_SECURE_CONN=False    
 CLONE_KRA2_REMOVE_DATA=True 
+CLONE_KRA2_INSTANCE_CREATED_STATUS=False
 ###### End of CLONE_KRA2 params #######
 
 
@@ -912,6 +931,7 @@ CLONE_OCSP2_DS_HOSTNAME=localhost
 CLONE_OCSP2_LDAP_PORT=3700
 CLONE_OCSP2_SECURE_CONN=False    
 CLONE_OCSP2_REMOVE_DATA=True 
+CLONE_OCSP2_INSTANCE_CREATED_STATUS=False
 ####### End of CLONE_OCSP2 params ########
 
 ##### CLONE_TKS2 params #######
@@ -924,13 +944,14 @@ CLONE_TKS2_ADMIN_EMAIL=example@redhat.com
 CLONE_TKS2_ADMIN_DUAL_KEY=True
 CLONE_TKS2_ADMIN_KEY_SIZE=2048   
 CLONE_TKS2_ADMIN_KEY_TYPE=rsa  
-CLONE_TKS2_ADMIN_SUBJECT_DN="cn=PKI CLONE TKS2 ADMIN CLONE, O=redhat"    
+CLONE_TKS2_ADMIN_SUBJECT_DN="cn=PKI CLONE TKS2 ADMIN CLONE, O=redhat" 
 CLONE_TKS2_ADMIN_CERT_NICKNAME=clonetks2admincert
 CLONE_TKS2_ADMIN_PASSWORD=Secret123
 CLONE_TKS2_DS_HOSTNAME=localhost
+CLONE_TKS2_INSTANCE_CREATED_STATUS=False
 ######## End of CLONE_TKS2 params #######
 
-######MS ADCS params#######
+###### Microsoft ADCS params #######
 MS_ipaddr="10.13.129.103"
 MS_username="CORP\\Administrator"
 MS_password="Secret123"

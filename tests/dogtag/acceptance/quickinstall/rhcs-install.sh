@@ -56,9 +56,10 @@ run_rhcs_install_packages() {
         #TESTCOUNT=1
 
         COMMON_SERVER_PACKAGES="bind expect pki-console xmlstarlet dos2unix"
-        RHELRHCS_PACKAGES="symkey mod-nss pki-native-tools redhat-pki-ca-ui redhat-pki-common-ui redhat-pki-console-ui redhat-pki-kra-ui redhat-pki-ocsp-ui redhat-pki-ra-ui redhat-pki-tks-ui redhat-pki-tps-ui"
+        #RHELRHCS_PACKAGES="symkey mod-nss pki-native-tools redhat-pki-ca-ui redhat-pki-common-ui redhat-pki-console-ui redhat-pki-kra-ui redhat-pki-ocsp-ui redhat-pki-ra-ui redhat-pki-tks-ui redhat-pki-tps-ui"
         DOGTAG_PACKAGES="pki-tools pki-symkey dogtag-pki dogtag-pki-console-theme dogtag-pki-server-theme"
 	NTPDATE_PACKAGE="ntpdate"
+	DEPENDENT_PACKAGES="idm-console-framework pki-base pki-ca pki-console pki-kra pki-ocsp pki-server pki-symkey pki-tks pki-tools pki-tps tomcat resteasy-base-jackson-provider resteasy-base-jaxb-provider resteasy-base-jaxrs resteasy-base-jaxrs-api"
 	rlRun "setenforce 0"
         cat /etc/redhat-release | grep "Fedora"
         if [ $? -eq 0 ] ; then
@@ -127,7 +128,7 @@ run_rhcs_install_packages() {
 run_install_subsystem_RootCA()
 {	
 	rlPhaseStartSetup "rhcs_install_subsystem_RootCA: Default install"
-		ALL_PACKAGES="$COMMON_SERVER_PACKAGES $DOGTAG_PACKAGES $NTPDATE_PACKAGE"
+		ALL_PACKAGES="$COMMON_SERVER_PACKAGES $DOGTAG_PACKAGES $DEPENDENT_PACKAGES $NTPDATE_PACKAGE"
                 for item in $ALL_PACKAGES ; do
                 	rpm -qa | grep $item
                         if [ $? -eq 0 ] ; then
@@ -136,7 +137,7 @@ run_install_subsystem_RootCA()
                                rlLog "ERROR: $item package is NOT installed"
                                rc=1
 			       ROOTCA_INSTALLED=FALSE
-			       break
+			       rlDie "$item is not installed"
                         fi
                 done
 		if [ $rc -eq 0 ] ; then

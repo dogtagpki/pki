@@ -52,21 +52,26 @@ run_pki-ca-user-cli-ca-user-mod_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
+ca_instance_created="False"
 
 if [ "$TOPO9" = "TRUE" ] ; then
         prefix=$subsystemId
+	ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
                 prefix=$subsystemId
+		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
         else
                 prefix=ROOTCA
+		ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
         fi
 else
         prefix=$MYROLE
+	ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
 fi
-
-CA_HOST=$(eval echo \$${MYROLE})
-CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
+  if [ "$ca_instance_created" = "TRUE" ] ;  then
+	CA_HOST=$(eval echo \$${MYROLE})
+	CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 
     #####Create temporary dir to save the output files #####
     rlPhaseStartSetup "pki_ca_user_cli_ca_user_mod-startup: Create temporary directory"
@@ -1088,4 +1093,7 @@ $i18nuser
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
 
     rlPhaseEnd
+  else
+	rlLog "CA instance not installed"
+  fi
 }

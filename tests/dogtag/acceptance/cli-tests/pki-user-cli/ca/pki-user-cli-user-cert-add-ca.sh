@@ -53,28 +53,27 @@ run_pki-user-cli-user-cert-add-ca_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
+ca_instance_created="False"
 
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+		ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+	ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
 fi
 
 SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+
+if [ "$ca_instance_created" = "TRUE" ] ;  then
 
 	##### Create a temporary directory to save output files #####
    rlPhaseStartSetup "pki_user_cli_user_cert-add-ca-startup: Create temporary directory"
@@ -2684,9 +2683,10 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         done
 
 	#Delete temporary directory
-        #rlRun "popd"
-        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
-
-
+ else
+	rlLog "CA subsystem is not installed"
+ fi
 }

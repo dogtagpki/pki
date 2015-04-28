@@ -44,29 +44,26 @@ run_pki-user-cert()
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
-
+ca_instance_created="False"
 if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
         prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+	ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
                 prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
+		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
         else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
                 prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
+		ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
         fi
 else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
         prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
+	ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
 fi
 
 SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 
+if [ "$ca_instance_created" = "TRUE" ] ;  then
 	rlPhaseStartSetup "Create Temporary Directory "
 	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
 	rlRun "pushd $TmpDir"
@@ -94,4 +91,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartCleanup "pki user-cert cleanup: Delete temp dir"
 	rlRun "popd"
 	rlPhaseEnd
+ else
+	rlLog "CA subsystem is not installed"
+ fi
 }

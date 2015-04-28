@@ -46,20 +46,26 @@ run_pki-user-cli-user-cert-show-ca_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
-
+ca_instance_created="False"
 if [ "$TOPO9" = "TRUE" ] ; then
         prefix=$subsystemId
+	ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
                 prefix=$subsystemId
+		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
         else
                 prefix=ROOTCA
+		ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
         fi
 else
         prefix=$MYROLE
+	ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
 fi
 
 SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+
+if [ "$ca_instance_created" = "TRUE" ] ;  then
 
 	##### Create temporary directory to save output files #####
     rlPhaseStartSetup "pki_user_cli_user_cert-show-ca-startup: Create temporary directory"
@@ -1107,7 +1113,10 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         done
 
 	#Delete temporary directory
-        #rlRun "popd"
-        #rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
+        rlRun "popd"
+        rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
+ else
+        rlLog "CA instance not installed"
+ fi
 }

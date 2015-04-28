@@ -53,21 +53,26 @@ run_pki-ca-user-cli-ca-user-cert-show_tests(){
 subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
-
+ca_instance_created="False"
 if [ "$TOPO9" = "TRUE" ] ; then
         prefix=$subsystemId
+	ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
 elif [ "$MYROLE" = "MASTER" ] ; then
         if [[ $subsystemId == SUBCA* ]]; then
                 prefix=$subsystemId
+		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
         else
                 prefix=ROOTCA
+		ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
         fi
 else
         prefix=$MYROLE
+	ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
 fi
 
-CA_HOST=$(eval echo \$${MYROLE})
-CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
+if [ "$ca_instance_created" = "TRUE" ] ;  then
+ CA_HOST=$(eval echo \$${MYROLE})
+ CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 
 	##### Create temporary directory to save output files #####
     rlPhaseStartSetup "pki_user_cli_user_cert-show-ca-startup: Create temporary directory"
@@ -1069,4 +1074,7 @@ rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
+else
+	rlLog "CA instance is not created"
+fi
 }
