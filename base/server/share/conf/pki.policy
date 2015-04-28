@@ -222,3 +222,6 @@ grant codeBase "file:${catalina.base}/webapps/ROOT/-" {
         permission java.security.AllPermission;
 };
 
+grant codeBase "file:/usr/lib/java/nuxwdog.jar" {
+        permission java.security.AllPermission;
+};
