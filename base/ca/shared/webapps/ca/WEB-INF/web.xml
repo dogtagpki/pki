@@ -2197,6 +2197,11 @@
    </servlet-mapping>
 
    <servlet-mapping>  
+      <servlet-name>  caOCSP  </servlet-name>
+      <url-pattern>   /ocsp/*  </url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>  
       <servlet-name>  caDoRevoke1  </servlet-name>
       <url-pattern>   /ee/subsystem/ca/doRevoke  </url-pattern>
    </servlet-mapping>
