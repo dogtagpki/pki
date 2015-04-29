@@ -68,10 +68,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     return self.rv
 
                 # add SELinux contexts when adding the first subsystem
-                if deployer.mdict['pki_subsystem'] in \
-                        config.PKI_TOMCAT_SUBSYSTEMS and \
-                        len(deployer.instance.tomcat_instance_subsystems()) == 1:
-
+                if len(deployer.instance.tomcat_instance_subsystems()) == 1:
                     trans = seobject.semanageRecords("targeted")
                     trans.start()
                     if deployer.mdict['pki_instance_name'] != \
@@ -163,10 +160,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         while True:
             try:
                 # remove SELinux contexts when removing the last subsystem
-                if (deployer.mdict['pki_subsystem'] in
-                        config.PKI_TOMCAT_SUBSYSTEMS and
-                        len(deployer.instance.tomcat_instance_subsystems()) == 0):
-
+                if len(deployer.instance.tomcat_instance_subsystems()) == 0:
                     trans = seobject.semanageRecords("targeted")
                     trans.start()
 

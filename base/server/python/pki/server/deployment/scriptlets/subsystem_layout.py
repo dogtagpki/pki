@@ -52,57 +52,58 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #   deployer.mdict['pki_source_conf_path'],
         #   deployer.mdict['pki_subsystem_configuration_path'])
         # establish instance-based Tomcat specific subsystems
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            # establish instance-based Tomcat PKI subsystem base
-            if deployer.mdict['pki_subsystem'] == "CA":
-                deployer.directory.copy(
-                    deployer.mdict['pki_source_emails'],
-                    deployer.mdict['pki_subsystem_emails_path'])
-                deployer.directory.copy(
-                    deployer.mdict['pki_source_profiles'],
-                    deployer.mdict['pki_subsystem_profiles_path'])
-            # establish instance-based Tomcat PKI subsystem logs
-            # establish instance-based Tomcat PKI subsystem configuration
-            if deployer.mdict['pki_subsystem'] == "CA":
-                deployer.file.copy(
-                    deployer.mdict['pki_source_flatfile_txt'],
-                    deployer.mdict['pki_target_flatfile_txt'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_registry_cfg'],
-                    deployer.mdict['pki_target_registry_cfg'])
-                # '*.profile'
-                deployer.file.copy(
-                    deployer.mdict['pki_source_admincert_profile'],
-                    deployer.mdict['pki_target_admincert_profile'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_caauditsigningcert_profile'],
-                    deployer.mdict['pki_target_caauditsigningcert_profile'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_cacert_profile'],
-                    deployer.mdict['pki_target_cacert_profile'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_caocspcert_profile'],
-                    deployer.mdict['pki_target_caocspcert_profile'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_servercert_profile'],
-                    deployer.mdict['pki_target_servercert_profile'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_subsystemcert_profile'],
-                    deployer.mdict['pki_target_subsystemcert_profile'])
-            elif deployer.mdict['pki_subsystem'] == "KRA":
-                # '*.profile'
-                deployer.file.copy(
-                    deployer.mdict['pki_source_servercert_profile'],
-                    deployer.mdict['pki_target_servercert_profile'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_storagecert_profile'],
-                    deployer.mdict['pki_target_storagecert_profile'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_subsystemcert_profile'],
-                    deployer.mdict['pki_target_subsystemcert_profile'])
-                deployer.file.copy(
-                    deployer.mdict['pki_source_transportcert_profile'],
-                    deployer.mdict['pki_target_transportcert_profile'])
+
+        # establish instance-based Tomcat PKI subsystem base
+        if deployer.mdict['pki_subsystem'] == "CA":
+            deployer.directory.copy(
+                deployer.mdict['pki_source_emails'],
+                deployer.mdict['pki_subsystem_emails_path'])
+            deployer.directory.copy(
+                deployer.mdict['pki_source_profiles'],
+                deployer.mdict['pki_subsystem_profiles_path'])
+        # establish instance-based Tomcat PKI subsystem logs
+        # establish instance-based Tomcat PKI subsystem configuration
+        if deployer.mdict['pki_subsystem'] == "CA":
+            deployer.file.copy(
+                deployer.mdict['pki_source_flatfile_txt'],
+                deployer.mdict['pki_target_flatfile_txt'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_registry_cfg'],
+                deployer.mdict['pki_target_registry_cfg'])
+            # '*.profile'
+            deployer.file.copy(
+                deployer.mdict['pki_source_admincert_profile'],
+                deployer.mdict['pki_target_admincert_profile'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_caauditsigningcert_profile'],
+                deployer.mdict['pki_target_caauditsigningcert_profile'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_cacert_profile'],
+                deployer.mdict['pki_target_cacert_profile'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_caocspcert_profile'],
+                deployer.mdict['pki_target_caocspcert_profile'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_servercert_profile'],
+                deployer.mdict['pki_target_servercert_profile'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_subsystemcert_profile'],
+                deployer.mdict['pki_target_subsystemcert_profile'])
+        elif deployer.mdict['pki_subsystem'] == "KRA":
+            # '*.profile'
+            deployer.file.copy(
+                deployer.mdict['pki_source_servercert_profile'],
+                deployer.mdict['pki_target_servercert_profile'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_storagecert_profile'],
+                deployer.mdict['pki_target_storagecert_profile'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_subsystemcert_profile'],
+                deployer.mdict['pki_target_subsystemcert_profile'])
+            deployer.file.copy(
+                deployer.mdict['pki_source_transportcert_profile'],
+                deployer.mdict['pki_target_transportcert_profile'])
+
         # establish instance-based subsystem convenience symbolic links
         deployer.symlink.create(
             deployer.mdict['pki_instance_database_link'],

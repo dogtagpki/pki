@@ -425,19 +425,19 @@ class Namespace:
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
                     self.mdict['pki_instance_configuration_path']))
-        if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            # Top-Level Tomcat PKI registry path reserved name collision
-            if self.mdict['pki_instance_name'] in\
-               config.PKI_TOMCAT_REGISTRY_RESERVED_NAMES:
-                config.pki_log.error(
-                    log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
+
+        # Top-Level Tomcat PKI registry path reserved name collision
+        if self.mdict['pki_instance_name'] in\
+           config.PKI_TOMCAT_REGISTRY_RESERVED_NAMES:
+            config.pki_log.error(
+                log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
+                self.mdict['pki_instance_name'],
+                self.mdict['pki_instance_registry_path'],
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            raise Exception(
+                log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_registry_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(
-                    log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
-                        self.mdict['pki_instance_name'],
-                        self.mdict['pki_instance_registry_path']))
+                    self.mdict['pki_instance_registry_path']))
 
 
 class ConfigurationFile:
@@ -551,95 +551,93 @@ class ConfigurationFile:
 
     def verify_sensitive_data(self):
         # Silently verify the existence of 'sensitive' data
-        if self.subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            # Verify existence of Directory Server Password
-            # (unless configuration will not be automatically executed)
-            if not self.skip_configuration:
-                self.confirm_data_exists("pki_ds_password")
-            # Verify existence of Admin Password (except for Clones)
-            if not self.clone:
-                self.confirm_data_exists("pki_admin_password")
-            # If required, verify existence of Backup Password
-            if config.str2bool(self.mdict['pki_backup_keys']):
-                self.confirm_data_exists("pki_backup_password")
-            # Verify existence of Client Pin for NSS client security databases
-            self.confirm_data_exists("pki_client_database_password")
-            # Verify existence of Client PKCS #12 Password for Admin Cert
-            self.confirm_data_exists("pki_client_pkcs12_password")
-            # Verify existence of PKCS #12 Password (ONLY for Clones)
-            if self.clone:
-                self.confirm_data_exists("pki_clone_pkcs12_password")
-            # Verify existence of Security Domain Password
-            # (ONLY for PKI KRA, PKI OCSP, PKI TKS, PKI TPS, Clones, or
-            #  Subordinate CA that will be automatically configured and
-            #  are not Stand-alone PKI)
-            if (self.subsystem == "KRA" or
-                    self.subsystem == "OCSP" or
-                    self.subsystem == "TKS" or
-                    self.subsystem == "TPS" or
-                    self.clone or
-                    self.subordinate):
-                if not self.skip_configuration and not self.standalone:
-                    self.confirm_data_exists("pki_security_domain_password")
-            # If required, verify existence of Token Password
-            if config.str2bool(self.mdict['pki_hsm_enable']):
-                self.confirm_data_exists("pki_hsm_libfile")
-                self.confirm_data_exists("pki_hsm_modulename")
-                self.confirm_data_exists("pki_token_name")
-                if self.mdict['pki_token_name'] == "internal":
-                    config.pki_log.error(
-                        log.PKIHELPER_UNDEFINED_HSM_TOKEN,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
-            if not self.mdict['pki_token_name'] == "internal":
-                self.confirm_data_exists("pki_token_password")
-        return
+
+        # Verify existence of Directory Server Password
+        # (unless configuration will not be automatically executed)
+        if not self.skip_configuration:
+            self.confirm_data_exists("pki_ds_password")
+        # Verify existence of Admin Password (except for Clones)
+        if not self.clone:
+            self.confirm_data_exists("pki_admin_password")
+        # If required, verify existence of Backup Password
+        if config.str2bool(self.mdict['pki_backup_keys']):
+            self.confirm_data_exists("pki_backup_password")
+        # Verify existence of Client Pin for NSS client security databases
+        self.confirm_data_exists("pki_client_database_password")
+        # Verify existence of Client PKCS #12 Password for Admin Cert
+        self.confirm_data_exists("pki_client_pkcs12_password")
+        # Verify existence of PKCS #12 Password (ONLY for Clones)
+        if self.clone:
+            self.confirm_data_exists("pki_clone_pkcs12_password")
+        # Verify existence of Security Domain Password
+        # (ONLY for PKI KRA, PKI OCSP, PKI TKS, PKI TPS, Clones, or
+        #  Subordinate CA that will be automatically configured and
+        #  are not Stand-alone PKI)
+        if (self.subsystem == "KRA" or
+                self.subsystem == "OCSP" or
+                self.subsystem == "TKS" or
+                self.subsystem == "TPS" or
+                self.clone or
+                self.subordinate):
+            if not self.skip_configuration and not self.standalone:
+                self.confirm_data_exists("pki_security_domain_password")
+        # If required, verify existence of Token Password
+        if config.str2bool(self.mdict['pki_hsm_enable']):
+            self.confirm_data_exists("pki_hsm_libfile")
+            self.confirm_data_exists("pki_hsm_modulename")
+            self.confirm_data_exists("pki_token_name")
+            if self.mdict['pki_token_name'] == "internal":
+                config.pki_log.error(
+                    log.PKIHELPER_UNDEFINED_HSM_TOKEN,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
+        if not self.mdict['pki_token_name'] == "internal":
+            self.confirm_data_exists("pki_token_password")
 
     def verify_mutually_exclusive_data(self):
         # Silently verify the existence of 'mutually exclusive' data
-        if self.subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            if self.subsystem == "CA":
-                if self.clone and self.external and self.subordinate:
-                    config.pki_log.error(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA,
-                        self.mdict['pki_user_deployment_cfg'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA %
-                        self.mdict['pki_user_deployment_cfg'])
-                elif self.clone and self.external:
-                    config.pki_log.error(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA,
-                        self.mdict['pki_user_deployment_cfg'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA %
-                        self.mdict['pki_user_deployment_cfg'])
-                elif self.clone and self.subordinate:
-                    config.pki_log.error(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA,
-                        self.mdict['pki_user_deployment_cfg'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA %
-                        self.mdict['pki_user_deployment_cfg'])
-                elif self.external and self.subordinate:
-                    config.pki_log.error(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA,
-                        self.mdict['pki_user_deployment_cfg'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA %
-                        self.mdict['pki_user_deployment_cfg'])
-            elif self.standalone:
-                if self.clone:
-                    config.pki_log.error(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_STANDALONE_PKI,
-                        self.mdict['pki_user_deployment_cfg'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    raise Exception(
-                        log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_STANDALONE_PKI %
-                        self.mdict['pki_user_deployment_cfg'])
+        if self.subsystem == "CA":
+            if self.clone and self.external and self.subordinate:
+                config.pki_log.error(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA,
+                    self.mdict['pki_user_deployment_cfg'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA %
+                    self.mdict['pki_user_deployment_cfg'])
+            elif self.clone and self.external:
+                config.pki_log.error(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA,
+                    self.mdict['pki_user_deployment_cfg'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA %
+                    self.mdict['pki_user_deployment_cfg'])
+            elif self.clone and self.subordinate:
+                config.pki_log.error(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA,
+                    self.mdict['pki_user_deployment_cfg'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA %
+                    self.mdict['pki_user_deployment_cfg'])
+            elif self.external and self.subordinate:
+                config.pki_log.error(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA,
+                    self.mdict['pki_user_deployment_cfg'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA %
+                    self.mdict['pki_user_deployment_cfg'])
+        elif self.standalone:
+            if self.clone:
+                config.pki_log.error(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_STANDALONE_PKI,
+                    self.mdict['pki_user_deployment_cfg'],
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(
+                    log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_STANDALONE_PKI %
+                    self.mdict['pki_user_deployment_cfg'])
 
     def verify_predefined_configuration_file_data(self):
         # Silently verify the existence of any required 'predefined' data
@@ -652,127 +650,125 @@ class ConfigurationFile:
         #          etc.), and "correctness" (e. g. - file, directory, boolean
         #          'True' or 'False', etc.) of ALL required "value" parameters.
         #
-        if self.subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            self.confirm_external()
-            self.confirm_standalone()
-            self.confirm_subordinate()
-            self.confirm_external_step_two()
-            if self.clone:
-                # Verify existence of clone parameters
-                #
-                #     NOTE:  Although this will be checked prior to getting to
-                #            this method, this clone's 'pki_instance_name' MUST
-                #            be different from the master's 'pki_instance_name'
-                #            IF AND ONLY IF the master and clone are located on
-                #            the same host!
-                #
-                self.confirm_data_exists("pki_ds_base_dn")
-                # FUTURE:  Check for unused port value(s)
-                #          (e. g. - must be different from master if the
-                #                   master is located on the same host)
-                self.confirm_data_exists("pki_ds_ldap_port")
-                self.confirm_data_exists("pki_ds_ldaps_port")
-                self.confirm_data_exists("pki_ajp_port")
-                self.confirm_data_exists("pki_http_port")
-                self.confirm_data_exists("pki_https_port")
-                self.confirm_data_exists("pki_tomcat_server_port")
-                self.confirm_data_exists("pki_clone_pkcs12_path")
-                self.confirm_file_exists("pki_clone_pkcs12_path")
-                self.confirm_data_exists("pki_clone_replication_security")
-                self.confirm_data_exists("pki_clone_uri")
-            elif self.external:
-                # External CA
-                if not self.external_step_two:
-                    # External CA (Step 1)
-                    self.confirm_data_exists("pki_external_csr_path")
-                    self.confirm_missing_file("pki_external_csr_path")
-                    # generic extension support in CSR - for external CA
-                    if self.add_req_ext:
-                        self.confirm_data_exists("pki_req_ext_oid")
-                        self.confirm_data_exists("pki_req_ext_critical")
-                        self.confirm_data_exists("pki_req_ext_data")
-                else:
-                    # External CA (Step 2)
-                    self.confirm_data_exists("pki_external_ca_cert_chain_path")
-                    self.confirm_file_exists("pki_external_ca_cert_chain_path")
-                    self.confirm_data_exists("pki_external_ca_cert_path")
-                    self.confirm_file_exists("pki_external_ca_cert_path")
-            elif not self.skip_configuration and self.standalone:
-                if not self.external_step_two:
-                    # Stand-alone PKI Admin CSR (Step 1)
-                    self.confirm_data_exists("pki_external_admin_csr_path")
-                    self.confirm_missing_file("pki_external_admin_csr_path")
-                    # Stand-alone PKI Audit Signing CSR (Step 1)
+        self.confirm_external()
+        self.confirm_standalone()
+        self.confirm_subordinate()
+        self.confirm_external_step_two()
+        if self.clone:
+            # Verify existence of clone parameters
+            #
+            #     NOTE:  Although this will be checked prior to getting to
+            #            this method, this clone's 'pki_instance_name' MUST
+            #            be different from the master's 'pki_instance_name'
+            #            IF AND ONLY IF the master and clone are located on
+            #            the same host!
+            #
+            self.confirm_data_exists("pki_ds_base_dn")
+            # FUTURE:  Check for unused port value(s)
+            #          (e. g. - must be different from master if the
+            #                   master is located on the same host)
+            self.confirm_data_exists("pki_ds_ldap_port")
+            self.confirm_data_exists("pki_ds_ldaps_port")
+            self.confirm_data_exists("pki_ajp_port")
+            self.confirm_data_exists("pki_http_port")
+            self.confirm_data_exists("pki_https_port")
+            self.confirm_data_exists("pki_tomcat_server_port")
+            self.confirm_data_exists("pki_clone_pkcs12_path")
+            self.confirm_file_exists("pki_clone_pkcs12_path")
+            self.confirm_data_exists("pki_clone_replication_security")
+            self.confirm_data_exists("pki_clone_uri")
+        elif self.external:
+            # External CA
+            if not self.external_step_two:
+                # External CA (Step 1)
+                self.confirm_data_exists("pki_external_csr_path")
+                self.confirm_missing_file("pki_external_csr_path")
+                # generic extension support in CSR - for external CA
+                if self.add_req_ext:
+                    self.confirm_data_exists("pki_req_ext_oid")
+                    self.confirm_data_exists("pki_req_ext_critical")
+                    self.confirm_data_exists("pki_req_ext_data")
+            else:
+                # External CA (Step 2)
+                self.confirm_data_exists("pki_external_ca_cert_chain_path")
+                self.confirm_file_exists("pki_external_ca_cert_chain_path")
+                self.confirm_data_exists("pki_external_ca_cert_path")
+                self.confirm_file_exists("pki_external_ca_cert_path")
+        elif not self.skip_configuration and self.standalone:
+            if not self.external_step_two:
+                # Stand-alone PKI Admin CSR (Step 1)
+                self.confirm_data_exists("pki_external_admin_csr_path")
+                self.confirm_missing_file("pki_external_admin_csr_path")
+                # Stand-alone PKI Audit Signing CSR (Step 1)
+                self.confirm_data_exists(
+                    "pki_external_audit_signing_csr_path")
+                self.confirm_missing_file(
+                    "pki_external_audit_signing_csr_path")
+                # Stand-alone PKI SSL Server CSR (Step 1)
+                self.confirm_data_exists("pki_external_sslserver_csr_path")
+                self.confirm_missing_file("pki_external_sslserver_csr_path")
+                # Stand-alone PKI Subsystem CSR (Step 1)
+                self.confirm_data_exists("pki_external_subsystem_csr_path")
+                self.confirm_missing_file("pki_external_subsystem_csr_path")
+                # Stand-alone PKI KRA CSRs
+                if self.subsystem == "KRA":
+                    # Stand-alone PKI KRA Storage CSR (Step 1)
                     self.confirm_data_exists(
-                        "pki_external_audit_signing_csr_path")
+                        "pki_external_storage_csr_path")
                     self.confirm_missing_file(
-                        "pki_external_audit_signing_csr_path")
-                    # Stand-alone PKI SSL Server CSR (Step 1)
-                    self.confirm_data_exists("pki_external_sslserver_csr_path")
-                    self.confirm_missing_file("pki_external_sslserver_csr_path")
-                    # Stand-alone PKI Subsystem CSR (Step 1)
-                    self.confirm_data_exists("pki_external_subsystem_csr_path")
-                    self.confirm_missing_file("pki_external_subsystem_csr_path")
-                    # Stand-alone PKI KRA CSRs
-                    if self.subsystem == "KRA":
-                        # Stand-alone PKI KRA Storage CSR (Step 1)
-                        self.confirm_data_exists(
-                            "pki_external_storage_csr_path")
-                        self.confirm_missing_file(
-                            "pki_external_storage_csr_path")
-                        # Stand-alone PKI KRA Transport CSR (Step 1)
-                        self.confirm_data_exists(
-                            "pki_external_transport_csr_path")
-                        self.confirm_missing_file(
-                            "pki_external_transport_csr_path")
-                    # Stand-alone PKI OCSP CSRs
-                    if self.subsystem == "OCSP":
-                        # Stand-alone PKI OCSP OCSP Signing CSR (Step 1)
-                        self.confirm_data_exists(
-                            "pki_external_signing_csr_path")
-                        self.confirm_missing_file(
-                            "pki_external_signing_csr_path")
-                else:
-                    # Stand-alone PKI External CA Certificate Chain (Step 2)
-                    self.confirm_data_exists("pki_external_ca_cert_chain_path")
-                    self.confirm_file_exists("pki_external_ca_cert_chain_path")
-                    # Stand-alone PKI External CA Certificate (Step 2)
-                    self.confirm_data_exists("pki_external_ca_cert_path")
-                    self.confirm_file_exists("pki_external_ca_cert_path")
-                    # Stand-alone PKI Admin Certificate (Step 2)
-                    self.confirm_data_exists("pki_external_admin_cert_path")
-                    self.confirm_file_exists("pki_external_admin_cert_path")
-                    # Stand-alone PKI Audit Signing Certificate (Step 2)
+                        "pki_external_storage_csr_path")
+                    # Stand-alone PKI KRA Transport CSR (Step 1)
                     self.confirm_data_exists(
-                        "pki_external_audit_signing_cert_path")
+                        "pki_external_transport_csr_path")
+                    self.confirm_missing_file(
+                        "pki_external_transport_csr_path")
+                # Stand-alone PKI OCSP CSRs
+                if self.subsystem == "OCSP":
+                    # Stand-alone PKI OCSP OCSP Signing CSR (Step 1)
+                    self.confirm_data_exists(
+                        "pki_external_signing_csr_path")
+                    self.confirm_missing_file(
+                        "pki_external_signing_csr_path")
+            else:
+                # Stand-alone PKI External CA Certificate Chain (Step 2)
+                self.confirm_data_exists("pki_external_ca_cert_chain_path")
+                self.confirm_file_exists("pki_external_ca_cert_chain_path")
+                # Stand-alone PKI External CA Certificate (Step 2)
+                self.confirm_data_exists("pki_external_ca_cert_path")
+                self.confirm_file_exists("pki_external_ca_cert_path")
+                # Stand-alone PKI Admin Certificate (Step 2)
+                self.confirm_data_exists("pki_external_admin_cert_path")
+                self.confirm_file_exists("pki_external_admin_cert_path")
+                # Stand-alone PKI Audit Signing Certificate (Step 2)
+                self.confirm_data_exists(
+                    "pki_external_audit_signing_cert_path")
+                self.confirm_file_exists(
+                    "pki_external_audit_signing_cert_path")
+                # Stand-alone PKI SSL Server Certificate (Step 2)
+                self.confirm_data_exists("pki_external_sslserver_cert_path")
+                self.confirm_file_exists("pki_external_sslserver_cert_path")
+                # Stand-alone PKI Subsystem Certificate (Step 2)
+                self.confirm_data_exists("pki_external_subsystem_cert_path")
+                self.confirm_file_exists("pki_external_subsystem_cert_path")
+                # Stand-alone PKI KRA Certificates
+                if self.subsystem == "KRA":
+                    # Stand-alone PKI KRA Storage Certificate (Step 2)
+                    self.confirm_data_exists(
+                        "pki_external_storage_cert_path")
                     self.confirm_file_exists(
-                        "pki_external_audit_signing_cert_path")
-                    # Stand-alone PKI SSL Server Certificate (Step 2)
-                    self.confirm_data_exists("pki_external_sslserver_cert_path")
-                    self.confirm_file_exists("pki_external_sslserver_cert_path")
-                    # Stand-alone PKI Subsystem Certificate (Step 2)
-                    self.confirm_data_exists("pki_external_subsystem_cert_path")
-                    self.confirm_file_exists("pki_external_subsystem_cert_path")
-                    # Stand-alone PKI KRA Certificates
-                    if self.subsystem == "KRA":
-                        # Stand-alone PKI KRA Storage Certificate (Step 2)
-                        self.confirm_data_exists(
-                            "pki_external_storage_cert_path")
-                        self.confirm_file_exists(
-                            "pki_external_storage_cert_path")
-                        # Stand-alone PKI KRA Transport Certificate (Step 2)
-                        self.confirm_data_exists(
-                            "pki_external_transport_cert_path")
-                        self.confirm_file_exists(
-                            "pki_external_transport_cert_path")
-                    # Stand-alone PKI OCSP Certificates
-                    if self.subsystem == "OCSP":
-                        # Stand-alone PKI OCSP OCSP Signing Certificate (Step 2)
-                        self.confirm_data_exists(
-                            "pki_external_signing_cert_path")
-                        self.confirm_file_exists(
-                            "pki_external_signing_cert_path")
-        return
+                        "pki_external_storage_cert_path")
+                    # Stand-alone PKI KRA Transport Certificate (Step 2)
+                    self.confirm_data_exists(
+                        "pki_external_transport_cert_path")
+                    self.confirm_file_exists(
+                        "pki_external_transport_cert_path")
+                # Stand-alone PKI OCSP Certificates
+                if self.subsystem == "OCSP":
+                    # Stand-alone PKI OCSP OCSP Signing Certificate (Step 2)
+                    self.confirm_data_exists(
+                        "pki_external_signing_cert_path")
+                    self.confirm_file_exists(
+                        "pki_external_signing_cert_path")
 
     def populate_non_default_ports(self):
         if (self.mdict['pki_http_port'] !=
@@ -3489,10 +3485,9 @@ class Systemd(object):
             if reload_daemon:
                 self.daemon_reload(critical_failure)
             # Compose this "systemd" execution management command
-            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                service = "pki-tomcatd" + "@" +\
-                          self.mdict['pki_instance_name'] + "." +\
-                          "service"
+            service = "pki-tomcatd" + "@" +\
+                      self.mdict['pki_instance_name'] + "." +\
+                      "service"
 
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "start",
@@ -3540,10 +3535,9 @@ class Systemd(object):
         try:
             service = None
             # Compose this "systemd" execution management command
-            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                service = "pki-tomcatd" + "@" +\
-                          self.mdict['pki_instance_name'] + "." +\
-                          "service"
+            service = "pki-tomcatd" + "@" +\
+                      self.mdict['pki_instance_name'] + "." +\
+                      "service"
 
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "stop",
@@ -3595,10 +3589,10 @@ class Systemd(object):
             # Execute the "systemd daemon-reload" management lifecycle command
             if reload_daemon:
                 self.daemon_reload(critical_failure)
-            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                service = "pki-tomcatd" + "@" +\
-                          self.mdict['pki_instance_name'] + "." +\
-                          "service"
+
+            service = "pki-tomcatd" + "@" +\
+                      self.mdict['pki_instance_name'] + "." +\
+                      "service"
 
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "restart",

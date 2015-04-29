@@ -43,13 +43,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
         # if this is the first subsystem
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
-                and len(deployer.instance.tomcat_instance_subsystems()) == 1:
+        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
 
             # establish instance logs
             deployer.directory.create(deployer.mdict['pki_instance_log_path'])
 
-            # copy /usr/share/pki/server/conf tree into /var/lib/pki/<instance>/conf
+            # copy /usr/share/pki/server/conf tree into
+            # /var/lib/pki/<instance>/conf
             # except common ldif files and theme deployment descriptor
             deployer.directory.copy(
                 deployer.mdict['pki_source_server_path'],
@@ -301,8 +301,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if deployer.mdict['pki_subsystem'] == 'TKS':
             deployer.symlink.delete(deployer.mdict['pki_symkey_jar_link'])
 
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
-                and len(deployer.instance.tomcat_instance_subsystems()) == 0:
+        if len(deployer.instance.tomcat_instance_subsystems()) == 0:
             # remove Tomcat instance base
             deployer.directory.delete(deployer.mdict['pki_instance_path'])
             # remove Tomcat instance logs

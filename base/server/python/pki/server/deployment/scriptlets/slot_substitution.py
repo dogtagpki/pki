@@ -70,28 +70,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_target_tomcat_conf'],
                 overwrite_flag=True)
 
-            # Strip "<filter>" section from subsystem "web.xml"
-            # This is ONLY necessary because XML comments cannot be "nested"!
-            # deployer.file.copy(deployer.mdict['pki_target_subsystem_web_xml'],
-            #               deployer.mdict['pki_target_subsystem_web_xml_orig'])
-            # deployer.file.delete(
-            #   deployer.mdict['pki_target_subsystem_web_xml'])
-            # util.xml_file.remove_filter_section_from_web_xml(
-            #    deployer.mdict['pki_target_subsystem_web_xml_orig'],
-            #    deployer.mdict['pki_target_subsystem_web_xml'])
-            # deployer.file.delete(
-            #   deployer.mdict['pki_target_subsystem_web_xml_orig'])
-            if deployer.mdict['pki_subsystem'] == "CA":
-                deployer.file.copy_with_slot_substitution(
-                    deployer.mdict['pki_source_proxy_conf'],
-                    deployer.mdict['pki_target_proxy_conf'])
-            elif deployer.mdict['pki_subsystem'] == "TPS":
-                deployer.file.copy_with_slot_substitution(
-                    deployer.mdict['pki_source_registry_cfg'],
-                    deployer.mdict['pki_target_registry_cfg'])
-                deployer.file.copy_with_slot_substitution(
-                    deployer.mdict['pki_source_phone_home_xml'],
-                    deployer.mdict['pki_target_phone_home_xml'])
+        if deployer.mdict['pki_subsystem'] == "CA":
+            deployer.file.copy_with_slot_substitution(
+                deployer.mdict['pki_source_proxy_conf'],
+                deployer.mdict['pki_target_proxy_conf'])
+        elif deployer.mdict['pki_subsystem'] == "TPS":
+            deployer.file.copy_with_slot_substitution(
+                deployer.mdict['pki_source_registry_cfg'],
+                deployer.mdict['pki_target_registry_cfg'])
+            deployer.file.copy_with_slot_substitution(
+                deployer.mdict['pki_source_phone_home_xml'],
+                deployer.mdict['pki_target_phone_home_xml'])
         return self.rv
 
     def destroy(self, deployer):

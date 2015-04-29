@@ -146,8 +146,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
-                and len(deployer.instance.tomcat_instance_subsystems()) == 0:
+        if len(deployer.instance.tomcat_instance_subsystems()) == 0:
             deployer.file.delete(deployer.mdict['pki_cert_database'])
             deployer.file.delete(deployer.mdict['pki_key_database'])
             deployer.file.delete(deployer.mdict['pki_secmod_database'])

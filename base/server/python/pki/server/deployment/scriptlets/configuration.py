@@ -81,18 +81,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             password_file=deployer.mdict['pki_client_password_conf'])
 
         # Start/Restart this Tomcat PKI Process
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            # Optionally prepare to enable a java debugger
-            # (e. g. - 'eclipse'):
-            if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
-                config.prepare_for_an_external_java_debugger(
-                    deployer.mdict['pki_target_tomcat_conf_instance_id'])
-            tomcat_instance_subsystems = \
-                len(deployer.instance.tomcat_instance_subsystems())
-            if tomcat_instance_subsystems == 1:
-                deployer.systemd.start()
-            elif tomcat_instance_subsystems > 1:
-                deployer.systemd.restart()
+        # Optionally prepare to enable a java debugger
+        # (e. g. - 'eclipse'):
+        if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
+            config.prepare_for_an_external_java_debugger(
+                deployer.mdict['pki_target_tomcat_conf_instance_id'])
+        tomcat_instance_subsystems = \
+            len(deployer.instance.tomcat_instance_subsystems())
+        if tomcat_instance_subsystems == 1:
+            deployer.systemd.start()
+        elif tomcat_instance_subsystems > 1:
+            deployer.systemd.restart()
 
         # wait for startup
         status = deployer.instance.wait_for_startup(60)
@@ -122,8 +121,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS \
-                and len(deployer.instance.tomcat_instance_subsystems()) == 1:
+        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
             if deployer.directory.exists(deployer.mdict['pki_client_dir']):
                 deployer.directory.delete(deployer.mdict['pki_client_dir'])
             deployer.symlink.delete(deployer.mdict['pki_systemd_service_link'])

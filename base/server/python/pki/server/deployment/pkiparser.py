@@ -179,10 +179,9 @@ class PKIConfigParser:
         # workaround for pylint error E1103
         jni_jar_dir = str(jni_jar_dir).strip()
 
-        if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            default_instance_name = 'pki-tomcat'
-            default_http_port = '8080'
-            default_https_port = '8443'
+        default_instance_name = 'pki-tomcat'
+        default_http_port = '8080'
+        default_https_port = '8443'
 
         application_version = str(pki.upgrade.Version(
             pki.implementation_version()))
@@ -380,9 +379,8 @@ class PKIConfigParser:
         self.mdict.update(default_dict)
 
         web_server_dict = None
-        if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-            if self.pki_config.has_section('Tomcat'):
-                web_server_dict = dict(self.pki_config.items('Tomcat'))
+        if self.pki_config.has_section('Tomcat'):
+            web_server_dict = dict(self.pki_config.items('Tomcat'))
 
         if web_server_dict:
             web_server_dict[0] = None
@@ -630,114 +628,115 @@ class PKIConfigParser:
                 self.mdict['pki_one_time_pin'] = \
                     ''.join(random.choice(string.ascii_letters + string.digits)\
                     for x in range(20))
-            if self.mdict['pki_subsystem'] in\
-               config.PKI_TOMCAT_SUBSYSTEMS:
-                self.mdict['pki_target_catalina_properties'] = \
+
+            self.mdict['pki_target_catalina_properties'] = \
+                os.path.join(
+                    self.mdict['pki_instance_configuration_path'],
+                    "catalina.properties")
+            self.mdict['pki_target_servercertnick_conf'] = \
+                os.path.join(
+                    self.mdict['pki_instance_configuration_path'],
+                    "serverCertNick.conf")
+            self.mdict['pki_target_server_xml'] = \
+                os.path.join(
+                    self.mdict['pki_instance_configuration_path'],
+                    "server.xml")
+            self.mdict['pki_target_context_xml'] = \
+                os.path.join(
+                    self.mdict['pki_instance_configuration_path'],
+                    "context.xml")
+            self.mdict['pki_target_tomcat_conf_instance_id'] = \
+                self.mdict['pki_root_prefix'] + \
+                "/etc/sysconfig/" + \
+                self.mdict['pki_instance_name']
+            self.mdict['pki_target_tomcat_conf'] = \
+                os.path.join(
+                    self.mdict['pki_instance_configuration_path'],
+                    "tomcat.conf")
+            # in-place slot substitution name/value pairs
+            self.mdict['pki_target_subsystem_web_xml'] = \
+                os.path.join(
+                    self.mdict['pki_tomcat_webapps_subsystem_path'],
+                    "WEB-INF",
+                    "web.xml")
+            self.mdict['pki_target_subsystem_web_xml_orig'] = \
+                os.path.join(
+                    self.mdict['pki_tomcat_webapps_subsystem_path'],
+                    "WEB-INF",
+                    "web.xml.orig")
+            # subystem-specific slot substitution name/value pairs
+            if self.mdict['pki_subsystem'] == "CA":
+                self.mdict['pki_target_flatfile_txt'] = \
                     os.path.join(
-                        self.mdict['pki_instance_configuration_path'],
-                        "catalina.properties")
-                self.mdict['pki_target_servercertnick_conf'] = \
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "flatfile.txt")
+                self.mdict['pki_target_proxy_conf'] = \
                     os.path.join(
-                        self.mdict['pki_instance_configuration_path'],
-                        "serverCertNick.conf")
-                self.mdict['pki_target_server_xml'] = \
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "proxy.conf")
+                self.mdict['pki_target_registry_cfg'] = \
                     os.path.join(
-                        self.mdict['pki_instance_configuration_path'],
-                        "server.xml")
-                self.mdict['pki_target_context_xml'] = \
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "registry.cfg")
+                # '*.profile'
+                self.mdict['pki_target_admincert_profile'] = \
                     os.path.join(
-                        self.mdict['pki_instance_configuration_path'],
-                        "context.xml")
-                self.mdict['pki_target_tomcat_conf_instance_id'] = \
-                    self.mdict['pki_root_prefix'] + \
-                    "/etc/sysconfig/" + \
-                    self.mdict['pki_instance_name']
-                self.mdict['pki_target_tomcat_conf'] = \
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "adminCert.profile")
+                self.mdict['pki_target_caauditsigningcert_profile'] = \
                     os.path.join(
-                        self.mdict['pki_instance_configuration_path'],
-                        "tomcat.conf")
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "caAuditSigningCert.profile")
+                self.mdict['pki_target_cacert_profile'] = \
+                    os.path.join(
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "caCert.profile")
+                self.mdict['pki_target_caocspcert_profile'] = \
+                    os.path.join(
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "caOCSPCert.profile")
+                self.mdict['pki_target_servercert_profile'] = \
+                    os.path.join(
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "serverCert.profile")
+                self.mdict['pki_target_subsystemcert_profile'] = \
+                    os.path.join(
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "subsystemCert.profile")
                 # in-place slot substitution name/value pairs
-                self.mdict['pki_target_subsystem_web_xml'] = \
+                if config.str2bool(self.mdict['pki_profiles_in_ldap']):
+                    self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = \
+                        'LDAPProfileSubsystem'
+                else:
+                    self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = \
+                        'ProfileSubsystem'
+            elif self.mdict['pki_subsystem'] == "KRA":
+                # '*.profile'
+                self.mdict['pki_target_servercert_profile'] = \
                     os.path.join(
-                        self.mdict['pki_tomcat_webapps_subsystem_path'],
-                        "WEB-INF",
-                        "web.xml")
-                self.mdict['pki_target_subsystem_web_xml_orig'] = \
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "serverCert.profile")
+                self.mdict['pki_target_storagecert_profile'] = \
                     os.path.join(
-                        self.mdict['pki_tomcat_webapps_subsystem_path'],
-                        "WEB-INF",
-                        "web.xml.orig")
-                # subystem-specific slot substitution name/value pairs
-                if self.mdict['pki_subsystem'] == "CA":
-                    self.mdict['pki_target_flatfile_txt'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "flatfile.txt")
-                    self.mdict['pki_target_proxy_conf'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "proxy.conf")
-                    self.mdict['pki_target_registry_cfg'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "registry.cfg")
-                    # '*.profile'
-                    self.mdict['pki_target_admincert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "adminCert.profile")
-                    self.mdict['pki_target_caauditsigningcert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "caAuditSigningCert.profile")
-                    self.mdict['pki_target_cacert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "caCert.profile")
-                    self.mdict['pki_target_caocspcert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "caOCSPCert.profile")
-                    self.mdict['pki_target_servercert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "serverCert.profile")
-                    self.mdict['pki_target_subsystemcert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "subsystemCert.profile")
-                    # in-place slot substitution name/value pairs
-                    if config.str2bool(self.mdict['pki_profiles_in_ldap']):
-                        self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'LDAPProfileSubsystem'
-                    else:
-                        self.mdict['PKI_PROFILE_SUBSYSTEM_SLOT'] = 'ProfileSubsystem'
-                elif self.mdict['pki_subsystem'] == "KRA":
-                    # '*.profile'
-                    self.mdict['pki_target_servercert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "serverCert.profile")
-                    self.mdict['pki_target_storagecert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "storageCert.profile")
-                    self.mdict['pki_target_subsystemcert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "subsystemCert.profile")
-                    self.mdict['pki_target_transportcert_profile'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "transportCert.profile")
-                elif self.mdict['pki_subsystem'] == "TPS":
-                    self.mdict['pki_target_registry_cfg'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "registry.cfg")
-                    self.mdict['pki_target_phone_home_xml'] = \
-                        os.path.join(
-                            self.mdict['pki_subsystem_configuration_path'],
-                            "phoneHome.xml")
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "storageCert.profile")
+                self.mdict['pki_target_subsystemcert_profile'] = \
+                    os.path.join(
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "subsystemCert.profile")
+                self.mdict['pki_target_transportcert_profile'] = \
+                    os.path.join(
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "transportCert.profile")
+            elif self.mdict['pki_subsystem'] == "TPS":
+                self.mdict['pki_target_registry_cfg'] = \
+                    os.path.join(
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "registry.cfg")
+                self.mdict['pki_target_phone_home_xml'] = \
+                    os.path.join(
+                        self.mdict['pki_subsystem_configuration_path'],
+                        "phoneHome.xml")
 
             # Slot assignment name/value pairs
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
@@ -749,280 +748,280 @@ class PKIConfigParser:
             self.mdict['PKI_REGISTRY_FILE_SLOT'] = \
                 os.path.join(self.mdict['pki_subsystem_registry_path'],
                              self.mdict['pki_instance_name'])
-            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                self.mdict['INSTALL_TIME_SLOT'] = \
-                    self.mdict['pki_install_time']
-                self.mdict['PKI_ADMIN_SECURE_PORT_SLOT'] = \
-                    self.mdict['pki_https_port']
-                self.mdict['PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
-                    "Unused"
-                self.mdict['PKI_ADMIN_SECURE_PORT_SERVER_COMMENT_SLOT'] = ""
-                self.mdict['PKI_AGENT_CLIENTAUTH_SLOT'] = "want"
-                self.mdict['PKI_AGENT_SECURE_PORT_SLOT'] = \
-                    self.mdict['pki_https_port']
-                self.mdict['PKI_AJP_PORT_SLOT'] = \
-                    self.mdict['pki_ajp_port']
-                self.mdict['PKI_AJP_REDIRECT_PORT_SLOT'] = \
-                    self.mdict['pki_https_port']
-                self.mdict['PKI_CA_HOSTNAME_SLOT'] = \
-                    self.mdict['pki_ca_hostname']
-                self.mdict['PKI_CA_PORT_SLOT'] = \
-                    self.mdict['pki_ca_port']
-                self.mdict['PKI_CERT_DB_PASSWORD_SLOT'] = \
-                    self.mdict['pki_pin']
-                self.mdict['PKI_CFG_PATH_NAME_SLOT'] = \
-                    self.mdict['pki_target_cs_cfg']
-                self.mdict['PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
-                    "-->"
-                self.mdict['PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
-                    "-->"
-                self.mdict['PKI_DS_SECURE_CONNECTION_SLOT'] = \
-                    self.mdict['pki_ds_secure_connection'].lower()
-                self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT'] = \
-                    self.mdict['pki_https_port']
-                self.mdict\
-                    ['PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT'] = \
-                    "Unused"
-                self.mdict\
-                    ['PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT_SLOT'] = \
+
+            self.mdict['INSTALL_TIME_SLOT'] = \
+                self.mdict['pki_install_time']
+            self.mdict['PKI_ADMIN_SECURE_PORT_SLOT'] = \
+                self.mdict['pki_https_port']
+            self.mdict['PKI_ADMIN_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
+                "Unused"
+            self.mdict['PKI_ADMIN_SECURE_PORT_SERVER_COMMENT_SLOT'] = ""
+            self.mdict['PKI_AGENT_CLIENTAUTH_SLOT'] = "want"
+            self.mdict['PKI_AGENT_SECURE_PORT_SLOT'] = \
+                self.mdict['pki_https_port']
+            self.mdict['PKI_AJP_PORT_SLOT'] = \
+                self.mdict['pki_ajp_port']
+            self.mdict['PKI_AJP_REDIRECT_PORT_SLOT'] = \
+                self.mdict['pki_https_port']
+            self.mdict['PKI_CA_HOSTNAME_SLOT'] = \
+                self.mdict['pki_ca_hostname']
+            self.mdict['PKI_CA_PORT_SLOT'] = \
+                self.mdict['pki_ca_port']
+            self.mdict['PKI_CERT_DB_PASSWORD_SLOT'] = \
+                self.mdict['pki_pin']
+            self.mdict['PKI_CFG_PATH_NAME_SLOT'] = \
+                self.mdict['pki_target_cs_cfg']
+            self.mdict['PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
+                "-->"
+            self.mdict['PKI_CLOSE_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
+                "-->"
+            self.mdict['PKI_DS_SECURE_CONNECTION_SLOT'] = \
+                self.mdict['pki_ds_secure_connection'].lower()
+            self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT'] = \
+                self.mdict['pki_https_port']
+            self.mdict\
+                ['PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT'] = \
+                "Unused"
+            self.mdict\
+                ['PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT_SLOT'] = \
+                ""
+            self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT'] = \
+                self.mdict['pki_https_port']
+            self.mdict['PKI_EE_SECURE_PORT_SLOT'] = \
+                self.mdict['pki_https_port']
+            self.mdict['PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
+                "Unused"
+            self.mdict['PKI_EE_SECURE_PORT_SERVER_COMMENT_SLOT'] = \
+                ""
+            self.mdict['PKI_GROUP_SLOT'] = \
+                self.mdict['pki_group']
+            self.mdict['PKI_INSTANCE_PATH_SLOT'] = \
+                self.mdict['pki_instance_path']
+            self.mdict['PKI_INSTANCE_ROOT_SLOT'] = \
+                self.mdict['pki_path']
+            self.mdict['PKI_LOCKDIR_SLOT'] = \
+                os.path.join("/var/lock/pki",
+                             "tomcat")
+            self.mdict['PKI_HOSTNAME_SLOT'] = \
+                self.mdict['pki_hostname']
+            self.mdict['PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
+                "<!--"
+            self.mdict['PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
+                "<!--"
+            self.mdict['PKI_PIDDIR_SLOT'] = \
+                os.path.join("/var/run/pki", "tomcat")
+            if config.str2bool(self.mdict['pki_enable_proxy']):
+                self.mdict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] = \
                     ""
-                self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT'] = \
-                    self.mdict['pki_https_port']
-                self.mdict['PKI_EE_SECURE_PORT_SLOT'] = \
-                    self.mdict['pki_https_port']
-                self.mdict['PKI_EE_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
-                    "Unused"
-                self.mdict['PKI_EE_SECURE_PORT_SERVER_COMMENT_SLOT'] = \
+                self.mdict['PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT'] = \
                     ""
-                self.mdict['PKI_GROUP_SLOT'] = \
-                    self.mdict['pki_group']
-                self.mdict['PKI_INSTANCE_PATH_SLOT'] = \
-                    self.mdict['pki_instance_path']
-                self.mdict['PKI_INSTANCE_ROOT_SLOT'] = \
-                    self.mdict['pki_path']
-                self.mdict['PKI_LOCKDIR_SLOT'] = \
-                    os.path.join("/var/lock/pki",
-                                 "tomcat")
-                self.mdict['PKI_HOSTNAME_SLOT'] = \
-                    self.mdict['pki_hostname']
-                self.mdict['PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
-                    "<!--"
-                self.mdict['PKI_OPEN_SEPARATE_PORTS_WEB_COMMENT_SLOT'] = \
-                    "<!--"
-                self.mdict['PKI_PIDDIR_SLOT'] = \
-                    os.path.join("/var/run/pki", "tomcat")
-                if config.str2bool(self.mdict['pki_enable_proxy']):
-                    self.mdict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] = \
-                        ""
-                    self.mdict['PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT'] = \
-                        ""
-                    self.mdict['PKI_PROXY_SECURE_PORT_SLOT'] = \
-                        self.mdict['pki_proxy_https_port']
-                    self.mdict['PKI_PROXY_UNSECURE_PORT_SLOT'] = \
-                        self.mdict['pki_proxy_http_port']
-                    self.mdict['PKI_OPEN_AJP_PORT_COMMENT_SLOT'] = \
-                        ""
-                    self.mdict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] = \
-                        ""
-                else:
-                    self.mdict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] = \
-                        "-->"
-                    self.mdict['PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT'] = \
-                        "-->"
-                    self.mdict['PKI_PROXY_SECURE_PORT_SLOT'] = ""
-                    self.mdict['PKI_PROXY_UNSECURE_PORT_SLOT'] = ""
-                    self.mdict['PKI_OPEN_AJP_PORT_COMMENT_SLOT'] = \
-                        "<!--"
-                    self.mdict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] = \
-                        "<!--"
-                if config.str2bool(self.mdict['pki_standalone']):
-                    # Stand-alone PKI
-                    self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
-                        ""
-                    self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
-                        ""
-                    self.mdict['PKI_STANDALONE_SLOT'] = "true"
-                else:
-                    self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
-                        "-->"
-                    self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
-                        "<!--"
-                    self.mdict['PKI_STANDALONE_SLOT'] = "false"
-                if config.str2bool(self.mdict['pki_enable_access_log']):
-                    self.mdict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
-                        ""
-                    self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
-                        ""
-                else:
-                    self.mdict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
-                        "-->"
-                    self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
-                        "<!--"
-                self.mdict['PKI_TMPDIR_SLOT'] = \
-                    self.mdict['pki_tomcat_tmpdir_path']
-                self.mdict['PKI_RESTEASY_LIB_SLOT'] = \
-                    self.mdict['resteasy_lib']
-                self.mdict['PKI_RANDOM_NUMBER_SLOT'] = \
-                    self.mdict['pki_one_time_pin']
-                self.mdict['PKI_SECURE_PORT_SLOT'] = \
-                    self.mdict['pki_https_port']
-                self.mdict['PKI_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
-                    "Secure"
-                self.mdict['PKI_SECURE_PORT_SERVER_COMMENT_SLOT'] = \
-                    "<!-- " + \
-                    "Shared Ports:  Agent, EE, and Admin Secure Port Connector " + \
+                self.mdict['PKI_PROXY_SECURE_PORT_SLOT'] = \
+                    self.mdict['pki_proxy_https_port']
+                self.mdict['PKI_PROXY_UNSECURE_PORT_SLOT'] = \
+                    self.mdict['pki_proxy_http_port']
+                self.mdict['PKI_OPEN_AJP_PORT_COMMENT_SLOT'] = \
+                    ""
+                self.mdict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] = \
+                    ""
+            else:
+                self.mdict['PKI_CLOSE_AJP_PORT_COMMENT_SLOT'] = \
                     "-->"
-                self.mdict['PKI_SECURITY_MANAGER_SLOT'] = \
-                    self.mdict['pki_security_manager']
-                self.mdict['PKI_SERVER_XML_CONF_SLOT'] = \
-                    self.mdict['pki_target_server_xml']
-                self.mdict['PKI_SSL_SERVER_NICKNAME_SLOT'] = \
-                    self.mdict['pki_ssl_server_nickname']
-                self.mdict['PKI_SUBSYSTEM_TYPE_SLOT'] = \
-                    self.mdict['pki_subsystem'].lower()
-                self.mdict['PKI_SYSTEMD_SERVICENAME_SLOT'] = \
-                    "pki-tomcatd" + "@" + \
-                    self.mdict['pki_instance_name'] + ".service"
-                self.mdict['PKI_UNSECURE_PORT_SLOT'] = \
-                    self.mdict['pki_http_port']
-                self.mdict['PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT'] = \
-                    "Unsecure"
-                self.mdict['PKI_UNSECURE_PORT_SERVER_COMMENT_SLOT'] = \
-                    "<!-- Shared Ports:  Unsecure Port Connector -->"
-                self.mdict['PKI_USER_SLOT'] = \
-                    self.mdict['pki_user']
-                self.mdict['PKI_WEB_SERVER_TYPE_SLOT'] = \
-                    "tomcat"
-                self.mdict['PKI_WEBAPPS_NAME_SLOT'] = \
-                    "webapps"
-                self.mdict['TOMCAT_CFG_SLOT'] = \
-                    self.mdict['pki_target_tomcat_conf']
-                self.mdict['TOMCAT_INSTANCE_COMMON_LIB_SLOT'] = \
-                    os.path.join(
-                        self.mdict['pki_tomcat_common_lib_path'],
-                        "*.jar")
-                self.mdict['TOMCAT_LOG_DIR_SLOT'] = \
-                    self.mdict['pki_instance_log_path']
-                self.mdict['TOMCAT_PIDFILE_SLOT'] = \
-                    "/var/run/pki/tomcat/" + self.mdict['pki_instance_name'] + \
-                    ".pid"
-                self.mdict['TOMCAT_SERVER_PORT_SLOT'] = \
-                    self.mdict['pki_tomcat_server_port']
-                self.mdict['TOMCAT_SSL_VERSION_RANGE_STREAM_SLOT'] = \
-                    "tls1_0:tls1_2"
-                self.mdict['TOMCAT_SSL_VERSION_RANGE_DATAGRAM_SLOT'] = \
-                    "tls1_1:tls1_2"
-                self.mdict['TOMCAT_SSL_RANGE_CIPHERS_SLOT'] = \
-                    "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
-                    "-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA," + \
-                    "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
-                    "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
-                    "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256," + \
-                    "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256," + \
-                    "+TLS_RSA_WITH_AES_128_CBC_SHA256," + \
-                    "+TLS_RSA_WITH_AES_256_CBC_SHA256," + \
-                    "+TLS_RSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_DHE_DSS_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256," + \
-                    "+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256"
-                self.mdict['TOMCAT_SSL2_CIPHERS_SLOT'] = \
-                    "-SSL2_RC4_128_WITH_MD5," + \
-                    "-SSL2_RC4_128_EXPORT40_WITH_MD5," + \
-                    "-SSL2_RC2_128_CBC_WITH_MD5," + \
-                    "-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5," + \
-                    "-SSL2_DES_64_CBC_WITH_MD5," + \
-                    "-SSL2_DES_192_EDE3_CBC_WITH_MD5"
-                self.mdict['TOMCAT_SSL3_CIPHERS_SLOT'] = \
-                    "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA," + \
-                    "-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA," + \
-                    "+SSL3_RSA_WITH_RC4_128_SHA," + \
-                    "-SSL3_RSA_EXPORT_WITH_RC4_40_MD5," + \
-                    "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "-SSL3_RSA_WITH_DES_CBC_SHA," + \
-                    "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5," + \
-                    "-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA," + \
-                    "-SSL_RSA_FIPS_WITH_DES_CBC_SHA," + \
-                    "+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA," + \
-                    "-SSL3_RSA_WITH_NULL_MD5," + \
-                    "-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA," + \
-                    "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA"
-                self.mdict['TOMCAT_SSL_OPTIONS_SLOT'] = \
-                    "ssl2=false," + \
-                    "ssl3=false," + \
-                    "tls=true"
-                self.mdict['TOMCAT_TLS_CIPHERS_SLOT'] = \
-                    "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
-                    "-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA," + \
-                    "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
-                    "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
-                    "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
+                self.mdict['PKI_CLOSE_ENABLE_PROXY_COMMENT_SLOT'] = \
+                    "-->"
+                self.mdict['PKI_PROXY_SECURE_PORT_SLOT'] = ""
+                self.mdict['PKI_PROXY_UNSECURE_PORT_SLOT'] = ""
+                self.mdict['PKI_OPEN_AJP_PORT_COMMENT_SLOT'] = \
+                    "<!--"
+                self.mdict['PKI_OPEN_ENABLE_PROXY_COMMENT_SLOT'] = \
+                    "<!--"
+            if config.str2bool(self.mdict['pki_standalone']):
+                # Stand-alone PKI
+                self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
+                    ""
+                self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
+                    ""
+                self.mdict['PKI_STANDALONE_SLOT'] = "true"
+            else:
+                self.mdict['PKI_CLOSE_STANDALONE_COMMENT_SLOT'] = \
+                    "-->"
+                self.mdict['PKI_OPEN_STANDALONE_COMMENT_SLOT'] = \
+                    "<!--"
+                self.mdict['PKI_STANDALONE_SLOT'] = "false"
+            if config.str2bool(self.mdict['pki_enable_access_log']):
+                self.mdict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
+                    ""
+                self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
+                    ""
+            else:
+                self.mdict['PKI_CLOSE_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
+                    "-->"
+                self.mdict['PKI_OPEN_TOMCAT_ACCESS_LOG_COMMENT_SLOT'] = \
+                    "<!--"
+            self.mdict['PKI_TMPDIR_SLOT'] = \
+                self.mdict['pki_tomcat_tmpdir_path']
+            self.mdict['PKI_RESTEASY_LIB_SLOT'] = \
+                self.mdict['resteasy_lib']
+            self.mdict['PKI_RANDOM_NUMBER_SLOT'] = \
+                self.mdict['pki_one_time_pin']
+            self.mdict['PKI_SECURE_PORT_SLOT'] = \
+                self.mdict['pki_https_port']
+            self.mdict['PKI_SECURE_PORT_CONNECTOR_NAME_SLOT'] = \
+                "Secure"
+            self.mdict['PKI_SECURE_PORT_SERVER_COMMENT_SLOT'] = \
+                "<!-- " + \
+                "Shared Ports:  Agent, EE, and Admin Secure Port Connector " + \
+                "-->"
+            self.mdict['PKI_SECURITY_MANAGER_SLOT'] = \
+                self.mdict['pki_security_manager']
+            self.mdict['PKI_SERVER_XML_CONF_SLOT'] = \
+                self.mdict['pki_target_server_xml']
+            self.mdict['PKI_SSL_SERVER_NICKNAME_SLOT'] = \
+                self.mdict['pki_ssl_server_nickname']
+            self.mdict['PKI_SUBSYSTEM_TYPE_SLOT'] = \
+                self.mdict['pki_subsystem'].lower()
+            self.mdict['PKI_SYSTEMD_SERVICENAME_SLOT'] = \
+                "pki-tomcatd" + "@" + \
+                self.mdict['pki_instance_name'] + ".service"
+            self.mdict['PKI_UNSECURE_PORT_SLOT'] = \
+                self.mdict['pki_http_port']
+            self.mdict['PKI_UNSECURE_PORT_CONNECTOR_NAME_SLOT'] = \
+                "Unsecure"
+            self.mdict['PKI_UNSECURE_PORT_SERVER_COMMENT_SLOT'] = \
+                "<!-- Shared Ports:  Unsecure Port Connector -->"
+            self.mdict['PKI_USER_SLOT'] = \
+                self.mdict['pki_user']
+            self.mdict['PKI_WEB_SERVER_TYPE_SLOT'] = \
+                "tomcat"
+            self.mdict['PKI_WEBAPPS_NAME_SLOT'] = \
+                "webapps"
+            self.mdict['TOMCAT_CFG_SLOT'] = \
+                self.mdict['pki_target_tomcat_conf']
+            self.mdict['TOMCAT_INSTANCE_COMMON_LIB_SLOT'] = \
+                os.path.join(
+                    self.mdict['pki_tomcat_common_lib_path'],
+                    "*.jar")
+            self.mdict['TOMCAT_LOG_DIR_SLOT'] = \
+                self.mdict['pki_instance_log_path']
+            self.mdict['TOMCAT_PIDFILE_SLOT'] = \
+                "/var/run/pki/tomcat/" + self.mdict['pki_instance_name'] + \
+                ".pid"
+            self.mdict['TOMCAT_SERVER_PORT_SLOT'] = \
+                self.mdict['pki_tomcat_server_port']
+            self.mdict['TOMCAT_SSL_VERSION_RANGE_STREAM_SLOT'] = \
+                "tls1_0:tls1_2"
+            self.mdict['TOMCAT_SSL_VERSION_RANGE_DATAGRAM_SLOT'] = \
+                "tls1_1:tls1_2"
+            self.mdict['TOMCAT_SSL_RANGE_CIPHERS_SLOT'] = \
+                "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
+                "-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA," + \
+                "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA," + \
+                "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
+                "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
+                "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
+                "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
+                "+TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
+                "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
+                "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256," + \
+                "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256," + \
+                "+TLS_RSA_WITH_AES_128_CBC_SHA256," + \
+                "+TLS_RSA_WITH_AES_256_CBC_SHA256," + \
+                "+TLS_RSA_WITH_AES_128_GCM_SHA256," + \
+                "+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256," + \
+                "+TLS_DHE_DSS_WITH_AES_128_GCM_SHA256," + \
+                "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256," + \
+                "+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256," + \
+                "+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256," + \
+                "+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256," + \
+                "+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256," + \
+                "+TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256"
+            self.mdict['TOMCAT_SSL2_CIPHERS_SLOT'] = \
+                "-SSL2_RC4_128_WITH_MD5," + \
+                "-SSL2_RC4_128_EXPORT40_WITH_MD5," + \
+                "-SSL2_RC2_128_CBC_WITH_MD5," + \
+                "-SSL2_RC2_128_CBC_EXPORT40_WITH_MD5," + \
+                "-SSL2_DES_64_CBC_WITH_MD5," + \
+                "-SSL2_DES_192_EDE3_CBC_WITH_MD5"
+            self.mdict['TOMCAT_SSL3_CIPHERS_SLOT'] = \
+                "-SSL3_FORTEZZA_DMS_WITH_NULL_SHA," + \
+                "-SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA," + \
+                "+SSL3_RSA_WITH_RC4_128_SHA," + \
+                "-SSL3_RSA_EXPORT_WITH_RC4_40_MD5," + \
+                "+SSL3_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-SSL3_RSA_WITH_DES_CBC_SHA," + \
+                "-SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5," + \
+                "-SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA," + \
+                "-SSL_RSA_FIPS_WITH_DES_CBC_SHA," + \
+                "+SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA," + \
+                "-SSL3_RSA_WITH_NULL_MD5," + \
+                "-TLS_RSA_EXPORT1024_WITH_RC4_56_SHA," + \
+                "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA"
+            self.mdict['TOMCAT_SSL_OPTIONS_SLOT'] = \
+                "ssl2=false," + \
+                "ssl3=false," + \
+                "tls=true"
+            self.mdict['TOMCAT_TLS_CIPHERS_SLOT'] = \
+                "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
+                "-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA," + \
+                "+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA," + \
+                "-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_RSA_WITH_AES_128_CBC_SHA," + \
+                "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
+                "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
+                "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
+                "+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
+                "+TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
+                "+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                "+TLS_DHE_RSA_WITH_AES_128_CBC_SHA," + \
+                "+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 
-                if config.pki_architecture == 64:
-                    self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
-                        '/usr/lib64/nuxwdog-jni')
-                else:
-                    self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
-                        '/usr/lib/nuxwdog-jni')
+            if config.pki_architecture == 64:
+                self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
+                    '/usr/lib64/nuxwdog-jni')
+            else:
+                self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
+                    '/usr/lib/nuxwdog-jni')
 
-                # tps parameters
-                self.mdict['TOKENDB_HOST_SLOT'] = \
-                    self.mdict['pki_ds_hostname']
+            # tps parameters
+            self.mdict['TOKENDB_HOST_SLOT'] = \
+                self.mdict['pki_ds_hostname']
 
-                if config.str2bool(self.mdict['pki_ds_secure_connection']):
-                    self.mdict['TOKENDB_PORT_SLOT'] = \
-                        self.mdict['pki_ds_ldaps_port']
-                else:
-                    self.mdict['TOKENDB_PORT_SLOT'] = \
-                        self.mdict['pki_ds_ldap_port']
+            if config.str2bool(self.mdict['pki_ds_secure_connection']):
+                self.mdict['TOKENDB_PORT_SLOT'] = \
+                    self.mdict['pki_ds_ldaps_port']
+            else:
+                self.mdict['TOKENDB_PORT_SLOT'] = \
+                    self.mdict['pki_ds_ldap_port']
 
-                self.mdict['TOKENDB_ROOT_SLOT'] = \
-                    self.mdict['pki_ds_base_dn']
+            self.mdict['TOKENDB_ROOT_SLOT'] = \
+                self.mdict['pki_ds_base_dn']
 
-                self.mdict['TPS_DIR_SLOT'] = \
-                    self.mdict['pki_source_subsystem_path']
+            self.mdict['TPS_DIR_SLOT'] = \
+                self.mdict['pki_source_subsystem_path']
 
-                if self.mdict['pki_subsystem'] == "CA":
-                    self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
-                        self.mdict['pki_random_serial_numbers_enable'].lower()
+            if self.mdict['pki_subsystem'] == "CA":
+                self.mdict['PKI_ENABLE_RANDOM_SERIAL_NUMBERS'] = \
+                    self.mdict['pki_random_serial_numbers_enable'].lower()
             # Tomcat NSS security database name/value pairs
             self.mdict['pki_shared_pfile'] = \
                 os.path.join(
@@ -1224,12 +1223,11 @@ class PKIConfigParser:
                 "spawn" + "_" + "manifest" + "." + \
                 self.mdict['pki_timestamp']
             # Compose this "systemd" execution management command
-            if self.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-                self.mdict['pki_registry_initscript_command'] = \
-                    "systemctl" + " " + \
-                    "restart" + " " + \
-                    "pki-tomcatd" + "@" + \
-                    self.mdict['pki_instance_name'] + "." + "service"
+            self.mdict['pki_registry_initscript_command'] = \
+                "systemctl" + " " + \
+                "restart" + " " + \
+                "pki-tomcatd" + "@" + \
+                self.mdict['pki_instance_name'] + "." + "service"
 
         except OSError as exc:
             config.pki_log.error(log.PKI_OSERROR_1, exc,
@@ -1257,8 +1255,7 @@ class PKIConfigParser:
             parser.optionxform = str
             parser.read(config.PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE)
             # Slots configuration file name/value pairs
-            if config.pki_subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                self.slots_dict = dict(parser.items('Tomcat'))
+            self.slots_dict = dict(parser.items('Tomcat'))
         except ConfigParser.ParsingError, err:
             rv = err
         return rv

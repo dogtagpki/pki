@@ -33,55 +33,52 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     rv = 0
 
     def spawn(self, deployer):
-
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            if config.str2bool(deployer.mdict['pki_skip_installation']):
-                config.pki_log.info(log.SKIP_WEBAPP_DEPLOYMENT_SPAWN_1,
-                                    __name__,
-                                    extra=config.PKI_INDENTATION_LEVEL_1)
-                return self.rv
-
-            config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
+        if config.str2bool(deployer.mdict['pki_skip_installation']):
+            config.pki_log.info(log.SKIP_WEBAPP_DEPLOYMENT_SPAWN_1,
+                                __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
+            return self.rv
 
-            # Create subsystem webapps folder to store custom webapps:
-            # <instance>/<subsystem>/webapps.
-            deployer.directory.create(
-                deployer.mdict['pki_tomcat_subsystem_webapps_path'])
+        config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
+                            extra=config.PKI_INDENTATION_LEVEL_1)
 
-            # set ownerships, permissions, and acls
-            deployer.directory.set_mode(
-                deployer.mdict['pki_tomcat_subsystem_webapps_path'])
+        # Create subsystem webapps folder to store custom webapps:
+        # <instance>/<subsystem>/webapps.
+        deployer.directory.create(
+            deployer.mdict['pki_tomcat_subsystem_webapps_path'])
 
-            # Deploy web application directly from /usr/share/pki.
-            deployer.deploy_webapp(
+        # set ownerships, permissions, and acls
+        deployer.directory.set_mode(
+            deployer.mdict['pki_tomcat_subsystem_webapps_path'])
+
+        # Deploy web application directly from /usr/share/pki.
+        deployer.deploy_webapp(
+            deployer.mdict['pki_subsystem'].lower(),
+            os.path.join(
+                config.PKI_DEPLOYMENT_SOURCE_ROOT,
                 deployer.mdict['pki_subsystem'].lower(),
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    deployer.mdict['pki_subsystem'].lower(),
-                    "webapps",
-                    deployer.mdict['pki_subsystem'].lower()),
-                os.path.join(
-                    config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                    deployer.mdict['pki_subsystem'].lower(),
-                    "conf",
-                    "Catalina",
-                    "localhost",
-                    deployer.mdict['pki_subsystem'].lower() + ".xml"))
+                "webapps",
+                deployer.mdict['pki_subsystem'].lower()),
+            os.path.join(
+                config.PKI_DEPLOYMENT_SOURCE_ROOT,
+                deployer.mdict['pki_subsystem'].lower(),
+                "conf",
+                "Catalina",
+                "localhost",
+                deployer.mdict['pki_subsystem'].lower() + ".xml"))
 
         return self.rv
 
     def destroy(self, deployer):
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
-            config.pki_log.info(log.WEBAPP_DEPLOYMENT_DESTROY_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+        config.pki_log.info(log.WEBAPP_DEPLOYMENT_DESTROY_1, __name__,
+                            extra=config.PKI_INDENTATION_LEVEL_1)
 
-            # Delete <instance>/conf/Catalina/localhost/<subsystem>.xml
-            deployer.file.delete(
-                os.path.join(
-                    deployer.mdict['pki_instance_configuration_path'],
-                    "Catalina",
-                    "localhost",
-                    deployer.mdict['pki_subsystem'].lower() + ".xml"))
+        # Delete <instance>/conf/Catalina/localhost/<subsystem>.xml
+        deployer.file.delete(
+            os.path.join(
+                deployer.mdict['pki_instance_configuration_path'],
+                "Catalina",
+                "localhost",
+                deployer.mdict['pki_subsystem'].lower() + ".xml"))
 
         return self.rv
