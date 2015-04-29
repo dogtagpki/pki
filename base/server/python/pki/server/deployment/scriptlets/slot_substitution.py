@@ -44,7 +44,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_source_registry'],
             deployer.mdict['pki_target_registry'],
             overwrite_flag=True)
-        if deployer.mdict['pki_subsystem'] in config.PKI_TOMCAT_SUBSYSTEMS:
+
+        # these are instance level files. Only copy for the first instance.
+        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
             deployer.file.copy_with_slot_substitution(
                 deployer.mdict['pki_source_catalina_properties'],
                 deployer.mdict['pki_target_catalina_properties'],
