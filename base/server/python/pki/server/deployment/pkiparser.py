@@ -1259,3 +1259,23 @@ class PKIConfigParser:
         except ConfigParser.ParsingError, err:
             rv = err
         return rv
+
+    @staticmethod
+    def read_existing_deployment_data(instance_name):
+        data = {}
+        instance_root = os.path.join('/var/lib/pki', instance_name)
+        if not os.path.exists(instance_root):
+            return data
+        deployment_root = os.path.join('/etc/sysconfig/pki/tomcat',
+                                       instance_name)
+
+        for root, _dirs, names in os.walk(deployment_root):
+            if 'deployment.cfg' in names:
+                deployment_file = os.path.join(root, 'deployment.cfg')
+                data = PKIConfigParser.read_simple_configuration_file(
+                    deployment_file)
+                break
+
+        return data
+
+

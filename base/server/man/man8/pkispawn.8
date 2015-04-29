@@ -116,6 +116,8 @@ the AJP port of the Tomcat instance. The default value is 8009.
 .TP
 \fIManagement port:\fP
 the management port of the Tomcat instance. The default value is 8005.
+.TP
+\fBNote:\fP When deploying a new subsystem into an existing instance, pkispawn will attempt to read the ports from \fBdeployment.cfg\fP files stored for previously installed subsystems for this instance.  If successful, the installer will not prompt for these ports. 
 .PP
 \fBAdministrative User Parameters\fP
 .TP

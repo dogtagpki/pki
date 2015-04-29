@@ -147,13 +147,30 @@ def main(argv):
             parser.indent = 2
 
             print "Tomcat:"
-            parser.read_text('Instance', 'DEFAULT', 'pki_instance_name')
-            parser.read_text('HTTP port', config.pki_subsystem, 'pki_http_port')
-            parser.read_text('Secure HTTP port', config.pki_subsystem,
-                             'pki_https_port')
-            parser.read_text('AJP port', config.pki_subsystem, 'pki_ajp_port')
-            parser.read_text('Management port', config.pki_subsystem,
-                             'pki_tomcat_server_port')
+            instance_name = parser.read_text(
+                'Instance', 'DEFAULT', 'pki_instance_name')
+            existing_data = parser.read_existing_deployment_data(instance_name)
+
+            set_port(parser,
+                     'pki_http_port',
+                     'HTTP port',
+                     existing_data)
+
+            set_port(parser,
+                     'pki_https_port',
+                     'Secure HTTP port',
+                     existing_data)
+
+            set_port(parser,
+                     'pki_ajp_port',
+                     'AJP port',
+                     existing_data)
+
+            set_port(parser,
+                     'pki_tomcat_server_port',
+                     'Management port',
+                     existing_data)
+
             print
 
             print "Administrator:"
@@ -584,6 +601,13 @@ def main(argv):
                          extra=config.PKI_INDENTATION_LEVEL_0)
 
     print_install_information(parser.mdict)
+
+
+def set_port(parser, tag, prompt, existing_data):
+    if tag in existing_data:
+        parser.set_property(config.pki_subsystem, tag, existing_data[tag])
+    else:
+        parser.read_text(prompt, config.pki_subsystem, tag)
 
 
 def print_install_information(mdict):
