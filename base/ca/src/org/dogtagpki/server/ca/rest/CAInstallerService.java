@@ -20,6 +20,8 @@ package org.dogtagpki.server.ca.rest;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.StringTokenizer;
 
 import netscape.ldap.LDAPAttribute;
@@ -39,7 +41,6 @@ import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 
-
 /**
  * @author alee
  *
@@ -55,9 +56,9 @@ public class CAInstallerService extends SystemConfigService {
         super.finalizeConfiguration(request);
 
         try {
-             if (!request.isClone()) {
-                 ConfigurationUtils.updateNextRanges();
-             }
+            if (!request.isClone()) {
+                ConfigurationUtils.updateNextRanges();
+            }
 
         } catch (Exception e) {
             CMS.debug(e);
@@ -73,6 +74,10 @@ public class CAInstallerService extends SystemConfigService {
                 cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
                 cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
                 cs.putString("securitydomain.select", "new");
+            }
+
+            if (request.isClone()) {
+                disableCRLCachingAndGenerationForClone(request);
             }
 
         } catch (Exception e) {
@@ -105,16 +110,16 @@ public class CAInstallerService extends SystemConfigService {
     /**
      * Import profiles from the filesystem into the database.
      *
-     * @param configRoot Where to look for the profile files.  For a
-     *                   fresh installation this should be
-     *                   "/usr/share/pki".  For existing installations it
-     *                   should be CMS.getConfigStore().getString("instanceRoot").
+     * @param configRoot Where to look for the profile files. For a
+     *            fresh installation this should be
+     *            "/usr/share/pki". For existing installations it
+     *            should be CMS.getConfigStore().getString("instanceRoot").
      *
      */
     public void importProfiles(String configRoot)
             throws EBaseException, ELdapException {
         IPluginRegistry registry = (IPluginRegistry)
-            CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+                CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
         IConfigStore profileCfg = cs.getSubStore("profile");
         String profileIds = profileCfg.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");
@@ -146,10 +151,10 @@ public class CAInstallerService extends SystemConfigService {
     /**
      * Import one profile from the filesystem into the database.
      *
-     * @param dbFactory     LDAP connection factory.
-     * @param classId       The profile class of the profile to import.
-     * @param profileId     The ID of the profile to import.
-     * @param profilePath   Path to the on-disk profile configuration.
+     * @param dbFactory LDAP connection factory.
+     * @param classId The profile class of the profile to import.
+     * @param profileId The ID of the profile to import.
+     * @param profilePath Path to the on-disk profile configuration.
      */
     public void importProfile(
             ILdapConnFactory dbFactory, String classId,
@@ -160,15 +165,15 @@ public class CAInstallerService extends SystemConfigService {
 
         String dn = "cn=" + profileId + ",ou=certificateProfiles,ou=ca," + basedn;
 
-        String[] objectClasses = {"top", "certProfile"};
+        String[] objectClasses = { "top", "certProfile" };
         LDAPAttribute[] createAttrs = {
-            new LDAPAttribute("objectclass", objectClasses),
-            new LDAPAttribute("cn", profileId),
-            new LDAPAttribute("classId", classId)
+                new LDAPAttribute("objectclass", objectClasses),
+                new LDAPAttribute("cn", profileId),
+                new LDAPAttribute("classId", classId)
         };
 
         IConfigStore configStore = new LDAPConfigStore(
-            dbFactory, dn, createAttrs, "certProfileConfig");
+                dbFactory, dn, createAttrs, "certProfileConfig");
 
         try {
             FileInputStream input = new FileInputStream(profilePath);
@@ -180,5 +185,35 @@ public class CAInstallerService extends SystemConfigService {
         }
 
         configStore.commit(false /* no backup */);
+    }
+
+    private void disableCRLCachingAndGenerationForClone(ConfigurationRequest data) throws MalformedURLException {
+
+        CMS.debug("CAInstallerService:disableCRLCachingAndGenerationForClone entering.");
+        if (!data.isClone())
+            return;
+
+        //Now add some well know entries that we need to disable CRL functionality.
+        //With well known values to disable and well known master CRL ID.
+
+        cs.putInteger("ca.certStatusUpdateInterval", 0);
+        cs.putBoolean("ca.listenToCloneModifications", false);
+        cs.putBoolean("ca.crl.MasterCRL.enableCRLCache", false);
+        cs.putBoolean("ca.crl.MasterCRL.enableCRLUpdates", false);
+
+        String cloneUri = data.getCloneUri();
+        URL url = null;
+
+        url = new URL(cloneUri);
+
+        String masterHost = url.getHost();
+        int masterPort = url.getPort();
+
+        CMS.debug("CAInstallerService:disableCRLCachingAndGenerationForClone: masterHost: " + masterHost
+                + " masterPort: " + masterPort);
+
+        cs.putString("master.ca.agent.host", masterHost);
+        cs.putInteger("master.ca.agent.port", masterPort);
+
     }
 }

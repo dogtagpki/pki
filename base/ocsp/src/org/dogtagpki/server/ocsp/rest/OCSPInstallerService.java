@@ -32,6 +32,8 @@ import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
  */
 public class OCSPInstallerService extends SystemConfigService {
 
+    private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
+
     public OCSPInstallerService() throws EBaseException {
     }
 
@@ -47,17 +49,40 @@ public class OCSPInstallerService extends SystemConfigService {
             // configure the CRL Publishing to OCSP in CA
             if (!ca_host.equals("")) {
                 CMS.reinit(IOCSPAuthority.ID);
-                ConfigurationUtils.importCACertToOCSP();
+                if (!request.isClone())
+                    ConfigurationUtils.importCACertToOCSP();
+                else
+                    CMS.debug("OCSPInstallerService: Skipping importCACertToOCSP for clone.");
 
                 if (!request.getStandAlone()) {
-                    ConfigurationUtils.updateOCSPConfig();
+
+                    // For now don't register publishing with the CA for a clone.
+                    // Preserves existing functionality
+                    // Next we need to treat the publishing of clones as a group ,
+                    // and fail over amongst them.
+                    if (!request.isClone())
+                        ConfigurationUtils.updateOCSPConfig();
+
                     ConfigurationUtils.setupClientAuthUser();
                 }
+            }
+
+            if (request.isClone()) {
+                configureCloneRefresh(request);
             }
 
         } catch (Exception e) {
             CMS.debug(e);
             throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
         }
+    }
+
+    private void configureCloneRefresh(ConfigurationRequest request) {
+        if (request == null || !request.isClone())
+            return;
+
+        //Set well know default value for OCSP clone
+        cs.putInteger("ocsp.store.defStore.refreshInSec", DEF_REFRESH_IN_SECS_FOR_CLONE);
+
     }
 }
