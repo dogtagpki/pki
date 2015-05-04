@@ -1,0 +1,79 @@
+#!/usr/bin/python
+# Authors:
+#     Christina Fu <cfu@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+import sys
+from lxml import etree as ET
+
+import pki
+import pki.server.upgrade
+
+class AddMissingOCSPGETServletMappingToWebXML(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    OCSPGETServletMappingData = """
+        <servlet-mapping>
+<servlet-name> caOCSP </servlet-name>
+<url-pattern> /ocsp/* </url-pattern>
+   </servlet-mapping>
+
+       """
+
+    def __init__(self):
+
+        self.message = 'Add missing OCSP Get Servlet Mapping to upgraded Dogtag 9 instances'
+
+    def upgrade_subsystem(self, instance, subsystem):
+        # only affects CA
+        if subsystem.name != "ca":
+            return
+
+        web_xml = os.path.join(
+            instance.base_dir,
+            'ca', 'webapps', subsystem.name,
+            'WEB-INF', 'web.xml')
+
+        if not os.path.exists(web_xml):
+            return
+
+        self.backup(web_xml)
+
+        self.doc = ET.parse(web_xml)
+        self.root = self.doc.getroot()
+        self.add_ocsp_get_servlet_mapping()
+
+        self.doc.write(web_xml)
+
+    def add_ocsp_get_servlet_mapping(self):
+        #add missing OCSP Get servlet mapping
+        mappingFound = False
+        urlPattern = ""
+        index = 0
+        for mapping in self.doc.findall('.//servlet-mapping'):
+            name = mapping.find('servlet-name').text.strip()
+            if name == 'caOCSP':
+                urlPattern = mapping.find('url-pattern').text.strip()
+                index = self.root.index(mapping) + 1
+            if urlPattern == '/ocsp/*':
+                mappingFound = True
+        if not mappingFound:
+            mapping = ET.fromstring(self.OCSPGETServletMappingData)
+            mapping.tail = '\n\n    '
+            self.root.insert(index, mapping)
