@@ -242,7 +242,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      /**
       * next update as this update extension
       */
-    private long mNextAsThisUpdateExtension; 
+    private long mNextAsThisUpdateExtension;
 
     /**
      * Boolean flag controlling whether CRLv2 extensions are to be
@@ -707,7 +707,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         // get next update grace period
         mNextUpdateGracePeriod = MINUTE * config.getInteger(Constants.PR_GRACE_PERIOD, 0);
 
-        // get next update as this update extension 
+        // get next update as this update extension
         mNextAsThisUpdateExtension = MINUTE * config.getInteger(Constants.PR_NEXT_AS_THIS_EXTENSION, 0);
 
         // Get V2 or V1 CRL
@@ -1653,7 +1653,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     int j = i - mDailyUpdates.elementAt(mCurrentDay).size();
                     int nDays = 1;
                     long t = 0;
-                    if (mDailyUpdates.size() > 1) {
+                    if (mDailyUpdates.size() >= 1) {
                         while (nDays <= mDailyUpdates.size()) {
                             int nextDay = (mCurrentDay + nDays) % mDailyUpdates.size();
                             if (j < mDailyUpdates.elementAt(nextDay).size()) {
