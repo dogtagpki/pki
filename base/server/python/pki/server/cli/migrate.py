@@ -106,6 +106,8 @@ class MigrateCLI(pki.cli.CLI):
         pki_context_xml = os.path.join(instance.conf_dir, 'Catalina', 'localhost', 'pki.xml')
         self.migrate_context_xml(pki_context_xml, tomcat_version)
 
+        self.migrate_tomcat_libraries(instance)
+
     def migrate_server_xml(self, filename, tomcat_version):
 
         if self.verbose:
@@ -379,6 +381,9 @@ class MigrateCLI(pki.cli.CLI):
 
     def migrate_context_xml(self, filename, tomcat_version):
 
+        if not os.path.exists(filename):
+            return
+
         if self.verbose:
             print 'Migrating %s' % filename
 
@@ -429,3 +434,35 @@ class MigrateCLI(pki.cli.CLI):
             context.append(resources)
 
         resources.set('allowLinking', 'true')
+
+    def migrate_tomcat_libraries(self, instance):
+
+        # remove old links
+        for filename in os.listdir(instance.lib_dir):
+
+            if not filename.endswith('.jar'):
+                continue
+
+            path = os.path.join(instance.lib_dir, filename)
+
+            if self.verbose:
+                print 'Removing %s' % path
+
+            os.remove(path)
+
+        tomcat_dir = '/usr/share/tomcat/lib'
+
+        # create new links
+        for filename in os.listdir(tomcat_dir):
+
+            if not filename.endswith('.jar'):
+                continue
+
+            source = os.path.join(tomcat_dir, filename)
+            dest = os.path.join(instance.lib_dir, filename)
+
+            if self.verbose:
+                print 'Creating %s' % dest
+
+            os.symlink(source, dest)
+            os.lchown(dest, instance.uid, instance.gid)
