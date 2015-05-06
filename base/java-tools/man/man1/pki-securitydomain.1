@@ -20,7 +20,6 @@ pki-securitydomain \- Command-Line Interface for managing Certificate System sec
 .SH SYNOPSIS
 .nf
 \fBpki\fR [CLI options] \fBsecuritydomain\fR
-\fBpki\fR [CLI options] \fBsecuritydomain-get-install-token\fR [command options]
 \fBpki\fR [CLI options] \fBsecuritydomain-show\fR [command options]
 .fi
 
@@ -31,11 +30,6 @@ The \fBpki-securitydomain\fR commands provide command-line interfaces to manage 
 \fBpki\fR [CLI options] \fBsecuritydomain\fR
 .RS 4
 This command is to list available security domain commands.
-.RE
-.PP
-\fBpki\fR [CLI options] \fBsecuritydomain-get-install-token\fR [command options]
-.RS 4
-This command is to get an installation token.
 .RE
 .PP
 \fBpki\fR [CLI options] \fBsecuritydomain-show\fR [command options]
@@ -49,9 +43,7 @@ The CLI options are described in \fBpki\fR(1).
 .SH OPERATIONS
 To view available security domain commands, type \fBpki securitydomain\fP. To view each command's usage, type \fB pki securitydomain-<command> \-\-help\fP.
 
-To get an installation token (used when installing a new subsystem within a security domain):
-
-\fBpki <security domain admin authentication> securitydomain-get-install-token \-\-hostname <hostname> \-\-subsystem <subsystem>\fP
+." To get an installation token (used when installing a new subsystem within a security domain):
 
 To show the contents of the security domain:
 

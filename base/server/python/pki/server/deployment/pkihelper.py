@@ -3232,67 +3232,6 @@ class SecurityDomain:
 
         return None
 
-    def get_installation_token(self, secuser, secpass, critical_failure=True):
-        if not secuser or not secpass:
-            return None
-
-        # process this PKI subsystem instance's 'CS.cfg'
-        cs_cfg = PKIConfigParser.read_simple_configuration_file(
-            self.mdict['pki_target_cs_cfg'])
-
-        # assign key name/value pairs
-        machinename = cs_cfg.get('service.machineName')
-        cstype = cs_cfg.get('cs.type', '')
-        sechost = cs_cfg.get('securitydomain.host')
-        secadminport = cs_cfg.get('securitydomain.httpsadminport')
-        #secselect = cs_cfg.get('securitydomain.select') - Selected
-        # security domain
-
-        command = ["/bin/pki",
-                   "-p", str(secadminport),
-                   "-h", sechost,
-                   "-P", "https",
-                   "-u", secuser,
-                   "-w", secpass,
-                   "-d", self.mdict['pki_database_path'],
-                   "securitydomain-get-install-token",
-                   "--hostname", machinename,
-                   "--subsystem", cstype]
-        try:
-            output = subprocess.check_output(
-                command,
-                stderr=subprocess.STDOUT,
-                shell=True)
-
-            token_list = re.findall("Install token: \"(.*)\"", output)
-            if not token_list:
-                config.pki_log.error(
-                    log.PKIHELPER_SECURITY_DOMAIN_GET_TOKEN_FAILURE_2,
-                    str(sechost),
-                    str(secadminport),
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.error(
-                    log.PKI_SUBPROCESS_ERROR_1, output,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                if critical_failure:
-                    raise Exception(
-                        log.PKIHELPER_SECURITY_DOMAIN_GET_TOKEN_FAILURE_2 %
-                        (str(sechost), str(secadminport)))
-            else:
-                token = token_list[0]
-                return token
-        except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKIHELPER_SECURITY_DOMAIN_GET_TOKEN_FAILURE_2,
-                str(sechost),
-                str(secadminport),
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(log.PKI_SUBPROCESS_ERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure:
-                raise
-        return None
-
 
 class Systemd(object):
     """PKI Deployment Execution Management Class"""

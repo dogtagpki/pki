@@ -35,7 +35,6 @@ public class SecurityDomainCLI extends CLI {
     public SecurityDomainCLI(CLI parent) {
         super("securitydomain", "Security domain commands", parent);
 
-        addModule(new SecurityDomainGetInstallTokenCLI(this));
         addModule(new SecurityDomainShowCLI(this));
     }
 
