@@ -22,6 +22,7 @@ public class NuxwdogPasswordStore implements IPasswordStore {
     private ArrayList<String> tags = null;
 
     private final String PROMPT_PREFIX = "Please provide the password for ";
+    private String id;
 
     @Override
     public void init(String confFile) throws IOException {
@@ -61,6 +62,8 @@ public class NuxwdogPasswordStore implements IPasswordStore {
                 tags.add("hardware-" + token);
             }
         }
+
+        id = props.getProperty("instanceId");
     }
 
     private void addTag(String tag) {
@@ -76,6 +79,9 @@ public class NuxwdogPasswordStore implements IPasswordStore {
         }
 
         String prompt = PROMPT_PREFIX + tag + ":";
+        if (StringUtils.isNotEmpty(id)) {
+            prompt = "[" + id + "] " + prompt;
+        }
         String pwd = WatchdogClient.getPassword(prompt, iteration);
 
         if (pwd != null) {
@@ -98,6 +104,10 @@ public class NuxwdogPasswordStore implements IPasswordStore {
     @Override
     public void commit() throws IOException, ClassCastException, NullPointerException {
         // Nothing required here
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 }

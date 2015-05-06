@@ -30,7 +30,8 @@ import pki.server
 class SubsystemCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemCLI, self).__init__('subsystem', 'Subsystem management commands')
+        super(SubsystemCLI, self).__init__('subsystem',
+                                           'Subsystem management commands')
 
         self.add_module(SubsystemDisableCLI())
         self.add_module(SubsystemEnableCLI())

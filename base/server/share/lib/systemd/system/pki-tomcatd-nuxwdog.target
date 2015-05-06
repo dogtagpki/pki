@@ -1,0 +1,7 @@
+[Unit]
+Description=PKI Tomcat Server Started by Nuxwdog
+Wants=dirsrv.target
+After=syslog.target network.target dirsrv.target
+
+[Install]
+WantedBy=multi-user.target

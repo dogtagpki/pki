@@ -1,0 +1,15 @@
+[Unit]
+Description=PKI Tomcat Server %i Started by Nuxwdog
+PartOf=pki-tomcatd-nuxwdog.target
+
+[Service]
+Type=forking
+EnvironmentFile=/etc/tomcat/tomcat.conf
+Environment="NAME=%i"
+Environment="STARTED_BY_SYSTEMD=1"
+EnvironmentFile=-/etc/sysconfig/%i
+ExecStartPre=/usr/bin/pkidaemon start tomcat %i
+ExecStart=/bin/nuxwdog -f /etc/pki/%i/nuxwdog.conf
+SuccessExitStatus=143
+TimeoutStartSec=180
+PIDFile=/var/lib/pki/%i/logs/wd-%i.pid

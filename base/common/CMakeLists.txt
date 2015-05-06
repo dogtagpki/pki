@@ -89,6 +89,12 @@ install(
 
 install(
     DIRECTORY
+    DESTINATION
+        ${SYSTEMD_ETC_INSTALL_DIR}/pki-tomcatd-nuxwdog.target.wants
+)
+
+install(
+    DIRECTORY
         man/
     DESTINATION
         ${MAN_INSTALL_DIR}

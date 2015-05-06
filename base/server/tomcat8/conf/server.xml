@@ -80,6 +80,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
   <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
   <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
   <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+  <Listener className="com.netscape.cms.tomcat.PKIListener"/>
 
   <!-- Global JNDI resources
        Documentation at /docs/jndi-resources-howto.html
@@ -94,8 +95,6 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
               factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
               pathname="conf/tomcat-users.xml" />
   </GlobalNamingResources>
-
-  <Listener className="com.netscape.cms.tomcat.NuxwdogPasswordStoreInitializer"/>
 
   <!-- A "Service" is a collection of one or more "Connectors" that share
        a single "Container" Note:  A "Service" is not itself a "Container",

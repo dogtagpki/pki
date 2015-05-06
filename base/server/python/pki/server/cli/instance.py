@@ -378,7 +378,7 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
 
         module.enable_nuxwdog(instance)  # pylint: disable=no-member,maybe-no-member
 
-        self.print_message('nuxwdog enabled for instance %s' % instance_name)
+        self.print_message('Nuxwdog enabled for instance %s.' % instance_name)
 
 
 class InstanceNuxwdogDisableCLI(pki.cli.CLI):
@@ -432,4 +432,4 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
 
         module.disable_nuxwdog(instance)  # pylint: disable=no-member,maybe-no-member
 
-        self.print_message('nuxwdog disabled for instance %s' % instance_name)
+        self.print_message('Nuxwdog disabled for instance %s.' % instance_name)

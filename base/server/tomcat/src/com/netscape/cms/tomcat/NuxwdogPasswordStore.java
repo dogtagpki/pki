@@ -23,6 +23,7 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
     private ArrayList<String> tags = null;
 
     private final String PROMPT_PREFIX = "Please provide the password for ";
+    private String instanceId;
 
     @Override
     public void init(String confFile) throws IOException {
@@ -62,6 +63,8 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
                 tags.add("hardware-" + token);
             }
         }
+
+        instanceId = props.getProperty("instanceId");
     }
 
     private void addTag(String tag) {
@@ -76,6 +79,10 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
         }
 
         String prompt = PROMPT_PREFIX + tag + ":";
+        if (StringUtils.isNotEmpty(instanceId)) {
+            prompt = "[" + instanceId + "] " + prompt;
+        }
+
         String pwd = WatchdogClient.getPassword(prompt, iteration);
 
         if (pwd != null) {

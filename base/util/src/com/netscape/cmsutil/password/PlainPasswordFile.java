@@ -28,6 +28,7 @@ public class PlainPasswordFile implements IPasswordStore {
     private String mPwdPath = "";
     private Properties mPwdStore;
     private static final String PASSWORD_WRITER_HEADER = "";
+    private String id;
 
     public PlainPasswordFile() {
         mPwdStore = new Properties();
@@ -77,5 +78,9 @@ public class PlainPasswordFile implements IPasswordStore {
                 file.close();
             }
         }
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

@@ -18,13 +18,9 @@
 
 package com.netscape.cmscore.base;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Enumeration;
 import java.util.Map;
 
 import netscape.ldap.LDAPAttribute;

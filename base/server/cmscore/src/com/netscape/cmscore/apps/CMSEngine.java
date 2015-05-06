@@ -321,6 +321,7 @@ public class CMSEngine implements ICMSEngine {
             try {
                 mPasswordStore = (IPasswordStore) Class.forName(pwdClass).newInstance();
                 mPasswordStore.init(pwdPath);
+                mPasswordStore.setId(instanceId);
             } catch (Exception e) {
                 System.out.println("Cannot get password store: " + e);
                 throw new EBaseException(e);
@@ -467,6 +468,9 @@ public class CMSEngine implements ICMSEngine {
 
         serverStatus = "starting";
 
+        instanceDir = config.getString("instanceRoot");
+        instanceId = config.getString("instanceId");
+
         if (state == 1) {
             // configuration is complete, initialize password store
             try {
@@ -496,9 +500,6 @@ public class CMSEngine implements ICMSEngine {
             // if time source is not set, set it to simple time source
             mTimeSource = new SimpleTimeSource();
         }
-
-        instanceDir = config.getString("instanceRoot");
-        instanceId = config.getString("instanceId");
 
         loadDynSubsystems();
 

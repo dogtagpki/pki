@@ -48,7 +48,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
     def __init__(self):
         self.parser = etree.XMLParser(remove_blank_text=True)
         self.nuxwdog_listener_class = (
-            'com.netscape.cms.tomcat.NuxwdogPasswordStoreInitializer'
+            'com.netscape.cms.tomcat.PKIListener'
         )
         self.nuxwdog_pwstore_class = (
             'com.netscape.cms.tomcat.NuxwdogPasswordStore'
@@ -108,6 +108,12 @@ class NuxwdogEnableCLI(pki.cli.CLI):
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
         self.enable_nuxwdog_server_xml(server_xml, instance)
 
+        # change systemd links
+        self.change_systemd_links(instance)
+
+        # modify CS.cfg
+        self.modify_password_class_in_cs_cfg(instance)
+
     def add_nuxwdog_link(self, instance):
         nuxwdog_jar_path = '/usr/lib/java/nuxwdog.jar'
         if not os.path.exists(nuxwdog_jar_path):
@@ -156,11 +162,9 @@ class NuxwdogEnableCLI(pki.cli.CLI):
             with open(sysconfig_file, 'a') as f:
                 f.write("USE_NUXWDOG=\"true\"\n")
 
-    def get_conf_file(self, instance):
-        if not instance.subsystems:
-            print "Error: Instance has no subsystems."
-            sys.exit(1)
+        os.chown(sysconfig_file, instance.uid, instance.gid)
 
+    def get_conf_file(self, instance):
         # return the path to the first instance
         subsystem = instance.subsystems[0]
         return os.path.join(subsystem.conf_dir, 'CS.cfg')
@@ -192,7 +196,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
 
         # add before GlobalResourcesLifecycleListener if exists
         if global_naming_resources is not None:
-            index = list(server).index(global_naming_resources)
+            index = list(server).index(global_naming_resources) - 1
         else:
             index = 0
 
@@ -208,13 +212,49 @@ class NuxwdogEnableCLI(pki.cli.CLI):
         with open(filename, 'w') as f:
             f.write(etree.tostring(document, pretty_print=True))
 
+        os.chown(filename, instance.uid, instance.gid)
+
+    def change_systemd_links(self, instance):
+        old_systemd_unit_file = 'pki-tomcatd@' + instance.name + '.service'
+        old_systemd_link = os.path.join(
+            '/etc/systemd/system/pki-tomcatd.target.wants',
+            old_systemd_unit_file)
+
+        new_systemd_unit_file = ('pki-tomcatd-nuxwdog@' + instance.name
+                                 + '.service')
+        new_systemd_link = os.path.join(
+            '/etc/systemd/system/pki-tomcatd-nuxwdog.target.wants',
+            new_systemd_unit_file)
+        new_systemd_source = '/lib/systemd/system/pki-tomcatd-nuxwdog@.service'
+
+        if os.path.exists(old_systemd_link):
+            os.unlink(old_systemd_link)
+
+        if os.path.exists(new_systemd_link):
+            os.unlink(new_systemd_link)
+        os.symlink(new_systemd_source, new_systemd_link)
+
+        subprocess.check_call(['systemctl', 'daemon-reload'])
+
+    def modify_password_class_in_cs_cfg(self, instance):
+        pclass = "com.netscape.cmsutil.password.NuxwdogPasswordStore"
+
+        for subsystem in instance.subsystems:
+            cs_cfg = os.path.join(subsystem.conf_dir, 'CS.cfg')
+            for line in fileinput.input(cs_cfg, inplace=1):
+                match = re.search("^passwordClass=(.*)", line)
+                if match:
+                    line = "passwordClass=" + pclass + "\n"
+                sys.stdout.write(line)
+            os.chown(cs_cfg, instance.uid, instance.gid)
+
 
 class NuxwdogDisableCLI(pki.cli.CLI):
 
     def __init__(self):
         self.parser = etree.XMLParser(remove_blank_text=True)
         self.nuxwdog_listener_class = (
-            'com.netscape.cms.tomcat.NuxwdogPasswordStoreInitializer'
+            'com.netscape.cms.tomcat.PKIListener'
         )
         self.plain_pwstore_class = (
             'org.apache.tomcat.util.net.jss.PlainPasswordFile'
@@ -271,6 +311,10 @@ class NuxwdogDisableCLI(pki.cli.CLI):
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
         self.disable_nuxwdog_server_xml(server_xml, instance)
 
+        self.change_systemd_links(instance)
+
+        self.modify_password_class_in_cs_cfg(instance)
+
     def disable_nuxwdog_sysconfig_file(self, instance):
         sysconfig_file = os.path.join('/etc/sysconfig', instance.name)
 
@@ -292,6 +336,8 @@ class NuxwdogDisableCLI(pki.cli.CLI):
 
             sys.stdout.write(line)
 
+        os.chown(sysconfig_file, instance.uid, instance.gid)
+
     def remove_nuxwdog_link(self, instance):
         instance_jar_path = os.path.join(
             instance.base_dir,
@@ -312,13 +358,6 @@ class NuxwdogDisableCLI(pki.cli.CLI):
 
         server = document.getroot()
 
-        children = list(server)
-        for child in children:
-            if child.tag == 'Listener':
-                class_name = child.get('className')
-                if class_name == self.nuxwdog_listener_class:
-                    server.remove(child)
-
         connectors = server.findall('Service/Connector')
         for connector in connectors:
             if connector.get('secure') == 'true':
@@ -327,3 +366,39 @@ class NuxwdogDisableCLI(pki.cli.CLI):
 
         with open(filename, 'w') as f:
             f.write(etree.tostring(document, pretty_print=True))
+
+        os.chown(filename, instance.uid, instance.gid)
+
+    def change_systemd_links(self, instance):
+        old_systemd_unit_file = ('pki-tomcatd-nuxwdog@' + instance.name
+                                 + '.service')
+        old_systemd_link = os.path.join(
+            '/etc/systemd/system/pki-tomcatd-nuxwdog.target.wants',
+            old_systemd_unit_file)
+
+        new_systemd_unit_file = 'pki-tomcatd@' + instance.name + '.service'
+        new_systemd_link = os.path.join(
+            '/etc/systemd/system/pki-tomcatd.target.wants',
+            new_systemd_unit_file)
+        new_systemd_source = '/lib/systemd/system/pki-tomcatd@.service'
+
+        if os.path.exists(old_systemd_link):
+            os.unlink(old_systemd_link)
+
+        if os.path.exists(new_systemd_link):
+            os.unlink(new_systemd_link)
+        os.symlink(new_systemd_source, new_systemd_link)
+
+        subprocess.check_call(['systemctl', 'daemon-reload'])
+
+    def modify_password_class_in_cs_cfg(self, instance):
+        pclass = "com.netscape.cmsutil.password.PlainPasswordFile"
+
+        for subsystem in instance.subsystems:
+            cs_cfg = os.path.join(subsystem.conf_dir, 'CS.cfg')
+            for line in fileinput.input(cs_cfg, inplace=1):
+                match = re.search("^passwordClass=(.*)", line)
+                if match:
+                    line = "passwordClass=" + pclass + "\n"
+                sys.stdout.write(line)
+                os.chown(cs_cfg, instance.uid, instance.gid)

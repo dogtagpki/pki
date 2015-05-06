@@ -31,4 +31,6 @@ public interface IPasswordStore {
 
     public void commit()
             throws IOException, ClassCastException, NullPointerException;
+
+    public void setId(String id);
 }

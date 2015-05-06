@@ -6,7 +6,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.redhat.nuxwdog.WatchdogClient;
 
-public class NuxwdogPasswordStoreInitializer implements LifecycleListener {
+public class PKIListener implements LifecycleListener {
 
     private boolean startedByWD = false;
 

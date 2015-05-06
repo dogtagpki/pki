@@ -18,13 +18,10 @@
 package com.netscape.cmscore.profile;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.lang.Thread;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;

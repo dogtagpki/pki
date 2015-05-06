@@ -857,6 +857,9 @@ systemctl daemon-reload
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %{_unitdir}/pki-tomcatd@.service
 %{_unitdir}/pki-tomcatd.target
+%dir %{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
+%{_unitdir}/pki-tomcatd-nuxwdog@.service
+%{_unitdir}/pki-tomcatd-nuxwdog.target
 %{_javadir}/pki/pki-cms.jar
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore.jar
@@ -939,6 +942,7 @@ systemctl daemon-reload
 %changelog
 * Thu Apr 23 2015 Dogtag Team <pki-devel@redhat.com> 10.2.4-0.1
 - Updated version number to 10.2.4-0.1
+- Added nuxwdog systemd files
 
 * Thu Apr 23 2015 Dogtag Team <pki-devel@redhat.com> 10.2.3-1
 - Update release number for release build
