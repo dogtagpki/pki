@@ -19,7 +19,6 @@ package org.dogtagpki.server.rest;
 
 import java.math.BigInteger;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -31,7 +30,6 @@ import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
@@ -107,15 +105,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             isMasterCA = true;
         }
         instanceRoot = cs.getString("instanceRoot");
-    }
-
-    /* (non-Javadoc)
-     * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(javax.ws.rs.core.MultivaluedMap)
-     */
-    @Override
-    public ConfigurationResponse configure(MultivaluedMap<String, String> form) throws URISyntaxException {
-        ConfigurationRequest data = new ConfigurationRequest(form);
-        return configure(data);
     }
 
     /* (non-Javadoc)
@@ -697,7 +686,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         try {
             /* BZ 430745 create password for replication manager */
-            String replicationpwd = Integer.toString(new Random().nextInt());
+            // use user-provided password if specified
+            String replicationPassword = data.getReplicationPassword();
+
+            if (StringUtils.isEmpty(replicationPassword)) {
+                // generate random password
+                replicationPassword = Integer.toString(new Random().nextInt());
+            }
 
             IConfigStore psStore = null;
             String passwordFile = null;
@@ -705,14 +700,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             psStore = CMS.createFileConfigStore(passwordFile);
             psStore.putString("internaldb", data.getBindpwd());
             if (data.getSetupReplication()) {
-                psStore.putString("replicationdb", replicationpwd);
+                psStore.putString("replicationdb", replicationPassword);
             }
             psStore.commit(false);
 
             if (!data.getStepTwo()) {
                 ConfigurationUtils.populateDB();
 
-                cs.putString("preop.internaldb.replicationpwd", replicationpwd);
+                cs.putString("preop.internaldb.replicationpwd", replicationPassword);
                 cs.putString("preop.database.removeData", "false");
                 if (data.getSharedDB()) {
                     cs.putString("preop.internaldb.dbuser", data.getSharedDBUserDN());

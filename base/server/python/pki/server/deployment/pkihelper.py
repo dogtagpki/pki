@@ -3821,6 +3821,8 @@ class ConfigClient:
         if not self.clone:
             self.set_admin_parameters(data)
 
+        data.replicationPassword = self.mdict['pki_replication_password']
+
         # Issuing CA Information
         self.set_issuing_ca_parameters(data)
 

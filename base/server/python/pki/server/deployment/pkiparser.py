@@ -327,10 +327,14 @@ class PKIConfigParser:
                 # means that we need to deal with escaping '%' characters
                 # that might be present.
                 no_interpolation = (
-                    'pki_admin_password', 'pki_backup_password',
+                    'pki_admin_password',
+                    'pki_backup_password',
                     'pki_client_database_password',
                     'pki_client_pkcs12_password',
-                    'pki_ds_password', 'pki_security_domain_password')
+                    'pki_ds_password',
+                    'pki_pin',
+                    'pki_replicationdb_password',
+                    'pki_security_domain_password')
 
                 print 'Loading deployment configuration from ' + \
                       config.user_deployment_cfg + '.'
@@ -552,17 +556,23 @@ class PKIConfigParser:
             self.mdict['pki_user_deployment_cfg'] = config.user_deployment_cfg
             self.mdict['pki_deployed_instance_name'] = \
                 config.pki_deployed_instance_name
+
+            self.flatten_master_dict()
+
             # Generate random 'pin's for use as security database passwords
             # and add these to the "sensitive" key value pairs read in from
             # the configuration file
             pin_low = 100000000000
             pin_high = 999999999999
-            self.mdict['pki_pin'] = \
-                random.randint(pin_low, pin_high)
+
+            # use user-provided PIN if specified
+            if not self.mdict['pki_pin']:
+                # otherwise generate a random password
+                self.mdict['pki_pin'] = \
+                    random.randint(pin_low, pin_high)
+
             self.mdict['pki_client_pin'] = \
                 random.randint(pin_low, pin_high)
-
-            self.flatten_master_dict()
 
             pkilogging.sensitive_parameters = \
                 self.mdict['sensitive_parameters'].split()

@@ -21,15 +21,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * @author alee
@@ -38,69 +35,6 @@ import org.apache.commons.lang.StringUtils;
 @XmlRootElement(name="ConfigurationRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ConfigurationRequest {
-    private static final String PIN = "pin";
-    private static final String TOKEN = "token";
-    private static final String TOKEN_PASSWORD = "tokenPassword";
-    private static final String SECURITY_DOMAIN_TYPE = "securityDomainType";
-    private static final String SECURITY_DOMAIN_URI = "securityDomainUri";
-    private static final String SECURITY_DOMAIN_NAME = "securityDomainName";
-    private static final String SECURITY_DOMAIN_USER = "securityDomainUser";
-    private static final String SECURITY_DOMAIN_PASSWORD = "securityDomainPassword";
-    private static final String IS_CLONE = "isClone";
-    private static final String CLONE_URI = "cloneUri";
-    private static final String SUBSYSTEM_NAME = "subsystemName";
-    private static final String P12_FILE = "p12File";
-    private static final String P12_PASSWORD = "p12Password";
-    private static final String HIERARCHY = "hierarchy";
-    private static final String DSHOST = "dsHost";
-    private static final String DSPORT = "dsPort";
-    private static final String BASEDN = "basedn";
-    private static final String CREATE_NEW_DB = "createNewDB";
-    private static final String BINDDN = "binddn";
-    private static final String DATABASE = "database";
-    private static final String SECURECONN = "secureConn";
-    private static final String REMOVEDATA = "removeData";
-    private static final String MASTER_REPLICATION_PORT = "masterReplicationPort";
-    private static final String CLONE_REPLICATION_PORT = "cloneReplicationPort";
-    private static final String REPLICATE_SCHEMA = "replicateSchema";
-    private static final String REPLICATION_SECURITY = "replicationSecurity";
-    private static final String SETUP_REPLICATION = "setupReplication";
-    private static final String ISSUING_CA = "issuingCa";
-    private static final String BACKUP_KEYS = "backupKeys";
-    private static final String BACKUP_FILE = "backupFile";
-    private static final String BACKUP_PASSWORD = "backupPassword";
-    private static final String ADMIN_UID = "adminUid";
-    private static final String ADMIN_EMAIL = "adminEmail";
-    private static final String ADMIN_PASSWORD = "adminPassword";
-    private static final String ADMIN_CERT_REQUEST = "adminCertRequest";
-    private static final String ADMIN_CERT_REQUEST_TYPE = "adminCertRequestType";
-    private static final String ADMIN_SUBJECT_DN = "adminSubjectDN";
-    private static final String ADMIN_NAME = "adminName";
-    private static final String ADMIN_PROFILE_ID = "adminProfileID";
-    private static final String IMPORT_ADMIN_CERT = "importAdminCert";
-    private static final String ADMIN_CERT = "adminCert";
-    private static final String STANDALONE = "standAlone";
-    private static final String STEP_TWO = "stepTwo";
-    private static final String GENERATE_SERVER_CERT = "generateServerCert";
-    private static final String SUBORDINATE_SECURITY_DOMAIN_NAME = "subordinateSecurityDomainName";
-
-    // TPS specific parameters
-    private static final String AUTHDB_BASEDN = "authdbBaseDN";
-    private static final String AUTHDB_HOST = "authdbHost";
-    private static final String AUTHDB_PORT = "authdbPort";
-    private static final String AUTHDB_SECURE_CONN = "authdbSecureConn";
-    private static final String CA_URI = "caUri";
-    private static final String TKS_URI = "tksUri";
-    private static final String KRA_URI = "kraUri";
-    private static final String ENABLE_SERVER_SIDE_KEYGEN = "enableServerSideKeygen";
-
-    // TKS/TPS shared secret parameters
-    private static final String IMPORT_SHARED_SECRET = "importSharedSecret";
-
-    // Parameters for shared tomcat instances
-    private static final String GENERATE_SUBSYSTEM_CERT="generateSubsystemCert";
-    private static final String SHARED_DB = "sharedDB";
-    private static final String SHARED_DBUSER_DN = "sharedDBUserDN";
 
     //defaults
     public static final String TOKEN_DEFAULT = "Internal Key Storage Token";
@@ -188,6 +122,9 @@ public class ConfigurationRequest {
 
     @XmlElement
     protected String replicationSecurity;
+
+    @XmlElement
+    protected String replicationPassword;
 
     @XmlElement
     protected String setupReplication;
@@ -290,75 +227,6 @@ public class ConfigurationRequest {
 
     public ConfigurationRequest() {
         // required for JAXB
-    }
-
-    public ConfigurationRequest(MultivaluedMap<String, String> form) throws URISyntaxException {
-        pin = form.getFirst(PIN);
-        token = form.getFirst(TOKEN);
-        tokenPassword = form.getFirst(TOKEN_PASSWORD);
-        securityDomainType = form.getFirst(SECURITY_DOMAIN_TYPE);
-        securityDomainUri = form.getFirst(SECURITY_DOMAIN_URI);
-        securityDomainName = form.getFirst(SECURITY_DOMAIN_NAME);
-        securityDomainUser = form.getFirst(SECURITY_DOMAIN_USER);
-        securityDomainPassword = form.getFirst(SECURITY_DOMAIN_PASSWORD);
-        isClone = form.getFirst(IS_CLONE);
-        cloneUri = form.getFirst(CLONE_URI);
-        subsystemName = form.getFirst(SUBSYSTEM_NAME);
-        p12File = form.getFirst(P12_FILE);
-        p12Password = form.getFirst(P12_PASSWORD);
-        hierarchy = form.getFirst(HIERARCHY);
-        dsHost = form.getFirst(DSHOST);
-        dsPort = form.getFirst(DSPORT);
-        baseDN = form.getFirst(BASEDN);
-        createNewDB = form.getFirst(CREATE_NEW_DB);
-        bindDN = form.getFirst(BINDDN);
-        database = form.getFirst(DATABASE);
-        secureConn = form.getFirst(SECURECONN);
-        removeData = form.getFirst(REMOVEDATA);
-        masterReplicationPort = form.getFirst(MASTER_REPLICATION_PORT);
-        cloneReplicationPort = form.getFirst(CLONE_REPLICATION_PORT);
-        replicateSchema = form.getFirst(REPLICATE_SCHEMA);
-        replicationSecurity = form.getFirst(REPLICATION_SECURITY);
-        setupReplication = form.getFirst(SETUP_REPLICATION);
-        //TODO - figure out how to get the cert requests
-        issuingCA = form.getFirst(ISSUING_CA);
-        backupFile = form.getFirst(BACKUP_FILE);
-        backupPassword = form.getFirst(BACKUP_PASSWORD);
-        backupKeys = form.getFirst(BACKUP_KEYS);
-        adminUID = form.getFirst(ADMIN_UID);
-        adminEmail = form.getFirst(ADMIN_EMAIL);
-        adminPassword = form.getFirst(ADMIN_PASSWORD);
-        adminCertRequest = form.getFirst(ADMIN_CERT_REQUEST);
-        adminCertRequestType = form.getFirst(ADMIN_CERT_REQUEST_TYPE);
-        adminSubjectDN = form.getFirst(ADMIN_SUBJECT_DN);
-        adminName = form.getFirst(ADMIN_NAME);
-        adminProfileID = form.getFirst(ADMIN_PROFILE_ID);
-        adminCert = form.getFirst(ADMIN_CERT);
-        importAdminCert = form.getFirst(IMPORT_ADMIN_CERT);
-        standAlone = form.getFirst(STANDALONE);
-        stepTwo = form.getFirst(STEP_TWO);
-        generateServerCert = form.getFirst(GENERATE_SERVER_CERT);
-        authdbBaseDN = form.getFirst(AUTHDB_BASEDN);
-        authdbHost = form.getFirst(AUTHDB_HOST);
-        authdbPort = form.getFirst(AUTHDB_PORT);
-        authdbSecureConn = form.getFirst(AUTHDB_SECURE_CONN);
-        subordinateSecurityDomainName = form.getFirst(SUBORDINATE_SECURITY_DOMAIN_NAME);
-
-        String value = form.getFirst(CA_URI);
-        if (!StringUtils.isEmpty(value)) setCaUri(new URI(value));
-
-        value = form.getFirst(TKS_URI);
-        if (!StringUtils.isEmpty(value)) setTksUri(new URI(value));
-
-        value = form.getFirst(KRA_URI);
-        if (!StringUtils.isEmpty(value)) setKraUri(new URI(value));
-
-        enableServerSideKeyGen = form.getFirst(ENABLE_SERVER_SIDE_KEYGEN);
-        importSharedSecret = form.getFirst(IMPORT_SHARED_SECRET);
-
-        generateSubsystemCert = form.getFirst(GENERATE_SUBSYSTEM_CERT);
-        sharedDB = form.getFirst(SHARED_DB);
-        sharedDBUserDN = form.getFirst(SHARED_DBUSER_DN);
     }
 
     public String getSubsystemName() {
@@ -635,6 +503,14 @@ public class ConfigurationRequest {
      */
     public void setReplicationSecurity(String replicationSecurity) {
         this.replicationSecurity = replicationSecurity;
+    }
+
+    public String getReplicationPassword() {
+        return replicationPassword;
+    }
+
+    public void setReplicationPassword(String replicationPassword) {
+        this.replicationPassword = replicationPassword;
     }
 
     public boolean getSetupReplication() {
