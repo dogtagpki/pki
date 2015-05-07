@@ -563,7 +563,9 @@ class ConfigurationFile:
         if config.str2bool(self.mdict['pki_backup_keys']):
             self.confirm_data_exists("pki_backup_password")
         # Verify existence of Client Pin for NSS client security databases
-        self.confirm_data_exists("pki_client_database_password")
+        # if not a clone.
+        if not self.clone:
+            self.confirm_data_exists("pki_client_database_password")
         # Verify existence of Client PKCS #12 Password for Admin Cert
         self.confirm_data_exists("pki_client_pkcs12_password")
         # Verify existence of PKCS #12 Password (ONLY for Clones)
