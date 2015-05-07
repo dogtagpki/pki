@@ -119,6 +119,9 @@ class PKIInstance(object):
         self.user = None
         self.group = None
 
+        self.uid = None
+        self.gid = None
+
         self.subsystems = []
 
     def is_valid(self):
