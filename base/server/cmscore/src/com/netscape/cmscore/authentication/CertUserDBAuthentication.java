@@ -168,6 +168,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         try {
             user = (User) mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
+            CMS.debug("CertUserDBAuthentication: cannot map certificate to any user");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
                     .toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
@@ -179,7 +180,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         // any unexpected error occurs like internal db down,
         // UGSubsystem only returns null for user.
         if (user == null) {
-            CMS.debug("Authentication: cannot map certificate to user");
+            CMS.debug("CertUserDBAuthentication: cannot map certificate to any user");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_USER_NOT_FOUND"));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }

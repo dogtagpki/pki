@@ -42,6 +42,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.realm.PKIPrincipal;
 
 /**
@@ -49,6 +50,17 @@ import com.netscape.cms.realm.PKIPrincipal;
  */
 @Provider
 public class ACLInterceptor implements ContainerRequestFilter {
+    protected ILogger signedAuditLogger = CMS.getSignedAuditLogger();
+    private final static String LOGGING_SIGNED_AUDIT_AUTHZ_FAIL =
+            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_5";
+    private final static String LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS =
+            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_5";
+
+    private final static String LOGGING_ACL_PARSING_ERROR = "internal error: ACL parsing error";
+    private final static String LOGGING_NO_ACL_ACCESS_ALLOWED = "no ACL configured; OK";
+    private final static String LOGGING_MISSING_AUTH_TOKEN = "auth token not found";
+    private final static String LOGGING_MISSING_ACL_MAPPING = "ACL mapping not found; OK";
+    private final static String LOGGING_INVALID_ACL_MAPPING = "internal error: invalid ACL mapping";
 
     Properties properties;
 
@@ -93,71 +105,149 @@ public class ACLInterceptor implements ContainerRequestFilter {
                 .getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
         Method method = methodInvoker.getMethod();
         Class<?> clazz = methodInvoker.getResourceClass();
+        String auditInfo =  clazz.getSimpleName() + "." + method.getName();
 
-        CMS.debug("ACLInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
+        CMS.debug("ACLInterceptor: " + auditInfo + "()");
+        String auditMessage = null;
+        String auditSubjectID = ILogger.UNIDENTIFIED;
 
+        /*
+         * when aclMapping is null, it's either of the following :
+         *   - only authentication needed
+         *   - allows anonymous, i.e. no authentication or authorization needed
+         * use authzRequired to track when aclMapping is not null for ease of following the code
+         */
+        boolean authzRequired = true;
         ACLMapping aclMapping = method.getAnnotation(ACLMapping.class);
-
         // If not available, get ACL mapping for the class.
         if (aclMapping == null) {
             aclMapping = clazz.getAnnotation(ACLMapping.class);
         }
-
-        // If still not available, it's unprotected, allow request.
         if (aclMapping == null) {
-            CMS.debug("ACLInterceptor: No ACL mapping.");
-            return;
+            CMS.debug("ACLInterceptor.filter: no authorization required");
+            authzRequired = false;
         }
 
-        String name = aclMapping.value();
-        CMS.debug("ACLInterceptor: mapping: " + name);
-
-        Principal principal = securityContext.getUserPrincipal();
+        Principal principal = null;
+        principal = securityContext.getUserPrincipal();
 
         // If unauthenticated, reject request.
-        if (principal == null) {
+        if (principal == null && authzRequired) {
             CMS.debug("ACLInterceptor: No user principal provided.");
+            // audit comment: no Principal, no one to blame here
             throw new ForbiddenException("No user principal provided.");
         }
-
-        CMS.debug("ACLInterceptor: principal: " + principal.getName());
+        if (principal != null)
+            CMS.debug("ACLInterceptor: principal: " + principal.getName());
 
         // If unrecognized principal, reject request.
-        if (!(principal instanceof PKIPrincipal)) {
+        if (principal != null && !(principal instanceof PKIPrincipal)) {
             CMS.debug("ACLInterceptor: Invalid user principal.");
+            // audit comment: no Principal, no one to blame here
             throw new ForbiddenException("Invalid user principal.");
         }
 
-        PKIPrincipal pkiPrincipal = (PKIPrincipal) principal;
-        IAuthToken authToken = pkiPrincipal.getAuthToken();
-
-        // If missing auth token, reject request.
-        if (authToken == null) {
-            CMS.debug("ACLInterceptor: No authorization token present.");
-            throw new ForbiddenException("No authorization token present.");
+        PKIPrincipal pkiPrincipal = null;
+        IAuthToken authToken = null;
+        if (principal != null) {
+            pkiPrincipal = (PKIPrincipal) principal;
+            authToken = pkiPrincipal.getAuthToken();
         }
 
+        // If missing auth token, reject request.
+        if (authToken == null && authzRequired) {
+            CMS.debug("ACLInterceptor: No authentication token present.");
+            // store a message in the signed audit log file
+            // although if it didn't pass authentication, it should not have gotten here
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        null, // resource
+                        null, // operation
+                        LOGGING_MISSING_AUTH_TOKEN + ":" + auditInfo);
+            audit(auditMessage);
+            throw new ForbiddenException("No authorization token present.");
+        }
+        if (authToken != null)
+            auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
+
+        // If still not available, it's unprotected, allow request.
+        if (!authzRequired) {
+            CMS.debug("ACLInterceptor: No ACL mapping; authz not required.");
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        null, //resource
+                        null, //operation
+                        LOGGING_MISSING_ACL_MAPPING + ":" + auditInfo); //info
+            audit(auditMessage);
+            return;
+        }
+
+        // we know aclMapping is not null now (!noAuthzRequired); authz game on...
+        String name = aclMapping.value();
+        CMS.debug("ACLInterceptor: mapping: " + name);
+
+        String values[] = null;
+        String value = null;
         try {
             loadProperties();
 
-            String value = properties.getProperty(name);
+            value = properties.getProperty(name);
 
-            // If no property defined, allow request.
-            if (value == null) {
-                CMS.debug("ACLInterceptor: No ACL configuration.");
-                return;
-            }
+        } catch (IOException e) {
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        null, //resource
+                        null, //operation
+                        LOGGING_ACL_PARSING_ERROR + ":" + auditInfo);
 
-            String values[] = value.split(",");
+            audit(auditMessage);
+            e.printStackTrace();
+            throw new Failure(e);
+        }
 
-            // If invalid mapping, reject request.
-            if (values.length != 2) {
-                CMS.debug("ACLInterceptor: Invalid ACL mapping.");
-                throw new ForbiddenException("Invalid ACL mapping.");
-            }
+        // If no property defined, allow request.
+        if (value == null) {
+            CMS.debug("ACLInterceptor: No ACL configuration.");
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                    LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    null, //resource
+                    null, //operation
+                    LOGGING_NO_ACL_ACCESS_ALLOWED + ":" + auditInfo);
+            return;
+        }
 
-            CMS.debug("ACLInterceptor: ACL: " + value);
+        values = value.split(",");
 
+        // If invalid mapping, reject request.
+        if (values.length != 2) {
+            CMS.debug("ACLInterceptor: Invalid ACL mapping.");
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                    LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    null, //resource
+                    null, //operation
+                    LOGGING_INVALID_ACL_MAPPING + ":" + auditInfo);
+
+            audit(auditMessage);
+            throw new ForbiddenException("Invalid ACL mapping.");
+        }
+
+        CMS.debug("ACLInterceptor: ACL: " + value);
+
+        try {
             // Check authorization.
             IAuthzSubsystem mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
             AuthzToken authzToken = mAuthz.authorize(
@@ -168,22 +258,84 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
             // If not authorized, reject request.
             if (authzToken == null) {
-                CMS.debug("ACLInterceptor: No authorization token present.");
+                String info = "No authorization token present.";
+                CMS.debug("ACLInterceptor: " + info);
+                // store a message in the signed audit log file
+                auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                            auditSubjectID,
+                            ILogger.FAILURE,
+                            values[0], // resource
+                            values[1], // operation
+                            info);
+                audit(auditMessage);
                 throw new ForbiddenException("No authorization token present.");
             }
 
             CMS.debug("ACLInterceptor: access granted");
 
         } catch (EAuthzAccessDenied e) {
-            CMS.debug("ACLInterceptor: " + e.getMessage());
+            String info = e.getMessage();
+            CMS.debug("ACLInterceptor: " + info);
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        values[0], // resource
+                        values[1], // operation
+                        info);
+            audit(auditMessage);
             throw new ForbiddenException(e.toString());
 
-        } catch (IOException | EBaseException e) {
+        } catch (EBaseException e) {
+            String info = e.getMessage();
+            // store a message in the signed audit log file
+            auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTHZ_FAIL,
+                        auditSubjectID,
+                        ILogger.FAILURE,
+                        values[0], // resource
+                        values[1], // operation
+                        info);
+            audit(auditMessage);
             e.printStackTrace();
             throw new Failure(e);
         }
 
         // Allow request.
+        // store a message in the signed audit log file
+        auditMessage = CMS.getLogMessage(
+                    LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS,
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    values[0], // resource
+                    values[1], // operation
+                    auditInfo);
+        audit(auditMessage);
         return;
+    }
+
+    /**
+     * Signed Audit Log
+     *
+     * This method is called to store messages to the signed audit log.
+     * <P>
+     *
+     * @param msg signed audit log message
+     */
+    protected void audit(String msg) {
+        // in this case, do NOT strip preceding/trailing whitespace
+        // from passed-in String parameters
+
+        if (signedAuditLogger == null) {
+            return;
+        }
+
+        signedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
     }
 }
