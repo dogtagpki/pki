@@ -3693,8 +3693,19 @@ class ConfigClient:
                     self.process_admin_cert(admin_cert)
 
         except Exception, e:
+            config.pki_log.error(
+                log.PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION + " " + str(e),
+                extra=config.PKI_INDENTATION_LEVEL_2)
+
             if hasattr(e, 'response'):
-                root = ET.fromstring(e.response.text)
+                try:
+                    root = ET.fromstring(e.response.text)
+                except ET.ParseError, pe:
+                    config.pki_log.error(
+                        "ParseError: %s: %s " % (pe, e.response.text),
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    raise
+
                 if root.tag == 'PKIException':
                     message = root.findall('.//Message')[0].text
                     if message is not None:
@@ -3702,12 +3713,8 @@ class ConfigClient:
                             log.PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION + " "
                             + message,
                             extra=config.PKI_INDENTATION_LEVEL_2)
-                        raise
-            config.pki_log.error(
-                log.PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION + " " + str(e),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+
             raise
-        return
 
     def process_admin_cert(self, admin_cert):
         config.pki_log.debug(
