@@ -476,7 +476,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
-            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            auditSymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
             throw new PKIException(e.toString());
         }
     }
@@ -498,7 +498,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
-            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            auditAsymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
             throw new PKIException(e.toString());
         }
     }
