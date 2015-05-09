@@ -19,9 +19,7 @@
 # All rights reserved.
 #
 
-import grp
 import os
-import pwd
 import re
 import pki.server
 import pki.server.upgrade
@@ -42,16 +40,7 @@ class FixRegistryFile(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         with open(registry_file, "w") as registry:
             for line in lines:
-                m = re.search('^PKI_USER=(.*)$', line)
-                if m:
-                    user = m.group(1)
-                m = re.search('^PKI_GROUP=(.*)$', line)
-                if m:
-                    group = m.group(1)
-
                 registry.write(
                     re.sub(r'PKI_INSTANCE_ID', 'PKI_INSTANCE_NAME', line))
 
-        uid = pwd.getpwnam(user).pw_uid
-        gid = grp.getgrnam(group).gr_gid
-        os.chown(registry_file, uid, gid)
+        os.chown(registry_file, instance.uid, instance.gid)

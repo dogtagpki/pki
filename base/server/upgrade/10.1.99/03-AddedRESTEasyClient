@@ -19,10 +19,7 @@
 # All rights reserved.
 #
 
-import grp
 import os
-import pwd
-import re
 import subprocess
 
 import pki.server.upgrade
@@ -39,24 +36,6 @@ class AddedRESTEasyClient(pki.server.upgrade.PKIServerUpgradeScriptlet):
         # Tomcat common library
         common_lib = os.path.join(instance.base_dir, 'common', 'lib')
 
-        # Tomcat user and group
-        registry_file = os.path.join(
-            pki.server.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
-
-        with open(registry_file, "r") as registry:
-            lines = registry.readlines()
-
-        for line in lines:
-            m = re.search('^PKI_USER=(.*)$', line)
-            if m:
-                user = m.group(1)
-            m = re.search('^PKI_GROUP=(.*)$', line)
-            if m:
-                group = m.group(1)
-
-        uid = pwd.getpwnam(user).pw_uid
-        gid = grp.getgrnam(group).gr_gid
-
         # RESTEasy library
         resteasy_lib = subprocess.check_output(
             '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
@@ -67,10 +46,10 @@ class AddedRESTEasyClient(pki.server.upgrade.PKIServerUpgradeScriptlet):
         # create new links
         source = os.path.join(resteasy_lib, 'resteasy-client.jar')
         link = os.path.join(common_lib, 'resteasy-client.jar')
-        self.create_link(source, link, uid, gid)
+        self.create_link(instance, source, link)
 
-    def create_link(self, source, link, uid, gid):
+    def create_link(self, instance, source, link):
 
         self.backup(link)
         os.symlink(source, link)
-        os.lchown(link, uid, gid)
+        os.lchown(link, instance.uid, instance.gid)

@@ -19,10 +19,7 @@
 # All rights reserved.
 #
 
-import grp
 import os
-import pwd
-import re
 
 import pki.server.upgrade
 
@@ -72,26 +69,8 @@ class MoveWebApplicationContextFile(pki.server.upgrade.PKIServerUpgradeScriptlet
         # copy context file, don't overwrite existing file
         pki.util.copyfile(old_context_file, new_context_file, overwrite=False)
 
-        # find uid and gid
-        registry_file = os.path.join(
-            pki.server.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
-
-        with open(registry_file, 'r') as registry:
-            lines = registry.readlines()
-
-        for line in lines:
-            m = re.search('^PKI_USER=(.*)$', line)
-            if m:
-                user = m.group(1)
-            m = re.search('^PKI_GROUP=(.*)$', line)
-            if m:
-                group = m.group(1)
-
-        uid = pwd.getpwnam(user).pw_uid
-        gid = grp.getgrnam(group).gr_gid
-
         # set file and folder ownership
-        pki.util.chown(catalina_dir, uid, gid)
+        pki.util.chown(catalina_dir, instance.uid, instance.gid)
 
         # remove old context file
         if os.path.exists(old_context_file):

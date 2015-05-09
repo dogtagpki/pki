@@ -19,9 +19,7 @@
 # All rights reserved.
 #
 
-import grp
 import os
-import pwd
 import shutil
 import signal
 import sys
@@ -52,10 +50,7 @@ class MoveWebApplicationDeploymentLocations(pki.server.upgrade.PKIServerUpgradeS
         if not os.path.exists(subsystem_webapps):
             os.mkdir(subsystem_webapps)
 
-        uid = pwd.getpwnam('pkiuser').pw_uid
-        gid = grp.getgrnam('pkiuser').gr_gid
-
-        os.chown(subsystem_webapps, uid, gid)
+        os.chown(subsystem_webapps, instance.uid, instance.gid)
         os.chmod(subsystem_webapps, 0770)
 
         # move subsystem webapp
@@ -74,10 +69,7 @@ class MoveWebApplicationDeploymentLocations(pki.server.upgrade.PKIServerUpgradeS
         if not os.path.exists(common_webapps):
             os.mkdir(common_webapps)
 
-        uid = pwd.getpwnam('pkiuser').pw_uid
-        gid = grp.getgrnam('pkiuser').gr_gid
-
-        os.chown(common_webapps, uid, gid)
+        os.chown(common_webapps, instance.uid, instance.gid)
         os.chmod(common_webapps, 0770)
 
         # move ROOT webapp

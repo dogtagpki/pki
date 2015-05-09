@@ -19,9 +19,7 @@
 # All rights reserved.
 #
 
-import grp
 import os
-import pwd
 import shutil
 import signal
 import sys
@@ -45,12 +43,13 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
         meta_inf = os.path.join(instance.base_dir, 'webapps', subsystem.name, 'META-INF')
         self.backup(meta_inf)
 
-        self.create_meta_inf(meta_inf)
+        self.create_meta_inf(instance, meta_inf)
 
         context_xml = os.path.join(meta_inf, 'context.xml')
         self.backup(context_xml)
 
         self.create_context_xml(
+            instance,
             self.context_xml % (subsystem.name, subsystem.name),
             context_xml)
 
@@ -76,12 +75,13 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
         meta_inf = os.path.join(instance.base_dir, 'webapps', 'ROOT', 'META-INF')
         self.backup(meta_inf)
 
-        self.create_meta_inf(meta_inf)
+        self.create_meta_inf(instance, meta_inf)
 
         context_xml = os.path.join(meta_inf, 'context.xml')
         self.backup(context_xml)
 
         self.create_context_xml(
+            instance,
             self.context_xml % ('server', 'ROOT'),
             context_xml)
 
@@ -97,12 +97,13 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
         meta_inf = os.path.join(instance.base_dir, 'webapps', 'pki', 'META-INF')
         self.backup(meta_inf)
 
-        self.create_meta_inf(meta_inf)
+        self.create_meta_inf(instance, meta_inf)
 
         context_xml = os.path.join(meta_inf, 'context.xml')
         self.backup(context_xml)
 
         self.create_context_xml(
+            instance,
             self.context_xml % ('server', 'pki'),
             context_xml)
 
@@ -113,26 +114,20 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
         with open(context_xml, 'w') as f:
             f.write(etree.tostring(document, pretty_print=True))
 
-    def create_meta_inf(self, path):
-
-        uid = pwd.getpwnam('pkiuser').pw_uid
-        gid = grp.getgrnam('pkiuser').gr_gid
+    def create_meta_inf(self, instance, path):
 
         if not os.path.exists(path):
             os.mkdir(path)
 
-        os.chown(path, uid, gid)
+        os.chown(path, instance.uid, instance.gid)
         os.chmod(path, 0770)
 
-    def create_context_xml(self, source, target):
+    def create_context_xml(self, instance, source, target):
 
         if not os.path.exists(target):
             shutil.copyfile(source, target)
 
-        uid = pwd.getpwnam('pkiuser').pw_uid
-        gid = grp.getgrnam('pkiuser').gr_gid
-
-        os.chown(target, uid, gid)
+        os.chown(target, instance.uid, instance.gid)
         os.chmod(target, 0660)
 
     def add_manager(self, document):

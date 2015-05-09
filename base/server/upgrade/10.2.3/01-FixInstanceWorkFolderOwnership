@@ -19,10 +19,7 @@
 # All rights reserved.
 #
 
-import grp
 import os
-import pwd
-import re
 import pki.server.upgrade
 
 
@@ -32,26 +29,6 @@ class FixInstanceWorkFolderOwnership(pki.server.upgrade.PKIServerUpgradeScriptle
         self.message = 'Fix instance work folder ownership'
 
     def upgrade_instance(self, instance):
-        registry_file = os.path.join(
-            pki.server.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
-
-        with open(registry_file, "r") as registry:
-            lines = registry.readlines()
-
-        user = None
-        group = None
-
-        for line in lines:
-            m = re.search('^PKI_USER=(.*)$', line)
-            if m:
-                user = m.group(1)
-            m = re.search('^PKI_GROUP=(.*)$', line)
-            if m:
-                group = m.group(1)
-
-        uid = pwd.getpwnam(user).pw_uid
-        gid = grp.getgrnam(group).gr_gid
 
         dir = os.path.join(instance.base_dir, 'work/Catalina/localhost/pki')
-
-        pki.util.chown(dir, uid, gid)
+        pki.util.chown(dir, instance.uid, instance.gid)
