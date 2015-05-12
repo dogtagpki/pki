@@ -46,6 +46,7 @@ import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 
 public class RenewalProcessor extends CertProcessor {
@@ -59,7 +60,8 @@ public class RenewalProcessor extends CertProcessor {
         String profileId = (this.profileID == null) ? req.getParameter("profileId") : this.profileID;
         IProfile profile = ps.getProfile(profileId);
         if (profile == null) {
-            throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
+            throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
+                    CMSTemplate.escapeJavaScriptStringHTML(profileId)));
         }
 
         CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
@@ -83,7 +85,7 @@ public class RenewalProcessor extends CertProcessor {
             throws EBaseException {
         try {
             if (CMS.debugOn()) {
-                HashMap<String,String> params = data.toParams();
+                HashMap<String, String> params = data.toParams();
                 printParameterValues(params);
             }
             CMS.debug("RenewalSubmitter: isRenewal true");
@@ -98,8 +100,9 @@ public class RenewalProcessor extends CertProcessor {
 
             IProfile renewProfile = ps.getProfile(renewProfileId);
             if (renewProfile == null) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", renewProfileId));
-                throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", renewProfileId));
+                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
+                        CMSTemplate.escapeJavaScriptStringHTML(renewProfileId)));
+                throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(renewProfileId)));
             }
             if (!ps.isProfileEnable(renewProfileId)) {
                 CMS.debug("RenewalSubmitter: Profile " + renewProfileId + " not enabled");
@@ -171,8 +174,8 @@ public class RenewalProcessor extends CertProcessor {
             Integer origSeqNum = origReq.getExtDataInInteger(IEnrollProfile.REQUEST_SEQ_NUM);
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
-                throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
+                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
+                throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             }
             if (!ps.isProfileEnable(profileId)) {
                 CMS.debug("RenewalSubmitter: Profile " + profileId + " not enabled");

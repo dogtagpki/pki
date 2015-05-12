@@ -44,6 +44,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.ServletUtils;
 
 /**
@@ -390,103 +391,13 @@ public class ProfileServlet extends CMSServlet {
         statEvents.remove(event);
     }
 
-    protected String escapeJavaScriptString(String v) {
-        int l = v.length();
-        char in[] = new char[l];
-        char out[] = new char[l * 4];
-        int j = 0;
-
-        v.getChars(0, l, in, 0);
-
-        for (int i = 0; i < l; i++) {
-            char c = in[i];
-
-            /* presumably this gives better performance */
-            if ((c > 0x23) && (c != 0x5c) && (c != 0x3c) && (c != 0x3e)) {
-                out[j++] = c;
-                continue;
-            }
-
-            /* some inputs are coming in as '\' and 'n' */
-            /* see BZ 500736 for details */
-            if ((c == 0x5c) && ((i + 1) < l) && (in[i + 1] == 'n' ||
-                    in[i + 1] == 'r' || in[i + 1] == 'f' || in[i + 1] == 't' ||
-                    in[i + 1] == '<' || in[i + 1] == '>' ||
-                    in[i + 1] == '\"' || in[i + 1] == '\'' || in[i + 1] == '\\')) {
-                if (in[i + 1] == 'x' && ((i + 3) < l) && in[i + 2] == '3' &&
-                        (in[i + 3] == 'c' || in[i + 3] == 'e')) {
-                    out[j++] = '\\';
-                    out[j++] = in[i + 1];
-                    out[j++] = in[i + 2];
-                    out[j++] = in[i + 3];
-                    i += 3;
-                } else {
-                    out[j++] = '\\';
-                    out[j++] = in[i + 1];
-                    i++;
-                }
-                continue;
-            }
-
-            switch (c) {
-            case '\n':
-                out[j++] = '\\';
-                out[j++] = 'n';
-                break;
-
-            case '\\':
-                out[j++] = '\\';
-                out[j++] = '\\';
-                break;
-
-            case '\"':
-                out[j++] = '\\';
-                out[j++] = '\"';
-                break;
-
-            case '\r':
-                out[j++] = '\\';
-                out[j++] = 'r';
-                break;
-
-            case '\f':
-                out[j++] = '\\';
-                out[j++] = 'f';
-                break;
-
-            case '\t':
-                out[j++] = '\\';
-                out[j++] = 't';
-                break;
-
-            case '<':
-                out[j++] = '\\';
-                out[j++] = 'x';
-                out[j++] = '3';
-                out[j++] = 'c';
-                break;
-
-            case '>':
-                out[j++] = '\\';
-                out[j++] = 'x';
-                out[j++] = '3';
-                out[j++] = 'e';
-                break;
-
-            default:
-                out[j++] = c;
-            }
-        }
-        return new String(out, 0, j);
-    }
-
     protected void outputArgString(PrintWriter writer, String name, ArgString str)
             throws IOException {
         String s = str.getValue();
 
         // sub \n with "\n"
         if (s != null) {
-            s = escapeJavaScriptString(s);
+            s = CMSTemplate.escapeJavaScriptStringHTML(s);
         }
         writer.println(name + "=\"" + s + "\";");
     }

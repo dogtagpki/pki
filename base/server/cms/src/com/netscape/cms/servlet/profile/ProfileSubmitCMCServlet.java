@@ -62,6 +62,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -331,7 +332,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             seq.addElement(new INTEGER(0));
             UTF8String s = null;
             try {
-                s = new UTF8String(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
+                s = new UTF8String(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             } catch (Exception ee) {
             }
             template.createFullResponseWithFailedStatus(response, seq,
@@ -347,7 +348,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             seq.addElement(new INTEGER(0));
             UTF8String s = null;
             try {
-                s = new UTF8String(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
+                s = new UTF8String(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             } catch (Exception ee) {
             }
             template.createFullResponseWithFailedStatus(response, seq,

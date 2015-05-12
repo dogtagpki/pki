@@ -279,9 +279,9 @@ public class CheckRequest extends CMSServlet {
         try {
             new BigInteger(requestId);
         } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", requestId));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1",  requestId));
             throw new EBaseException(
-                    CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1", requestId));
+                    CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1",CMSTemplate.escapeJavaScriptStringHTML( requestId)));
         }
 
         IRequest r = mQueue.findRequest(new RequestId(requestId));
@@ -321,7 +321,7 @@ public class CheckRequest extends CMSServlet {
         header.addLongValue(CREATE_ON, r.getCreationTime().getTime() / 1000);
         header.addLongValue(UPDATE_ON, r.getModificationTime().getTime() / 1000);
         if (note != null && note.length() > 0)
-            header.addStringValue("requestNotes", note);
+            header.addStringValue("requestNotes",CMSTemplate.escapeJavaScriptStringHTML(note));
 
         String type = r.getRequestType();
         Integer result = r.getExtDataInInteger(IRequest.RESULT);

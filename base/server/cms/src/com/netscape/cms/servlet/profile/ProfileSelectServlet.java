@@ -46,6 +46,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 
 /**
  * Retrieve detailed information of a particular profile.
@@ -183,7 +184,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         if (profile == null) {
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_NOT_FOUND", profileId));
+                    "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             outputTemplate(request, response, args);
             return;
         }

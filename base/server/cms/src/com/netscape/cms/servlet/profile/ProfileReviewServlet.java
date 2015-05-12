@@ -51,6 +51,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 
 /**
  * This servlet allows reviewing of profile-based request.
@@ -201,7 +202,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         if (req == null) {
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_REQUEST_NOT_FOUND", requestId));
+                    "CMS_REQUEST_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(requestId)));
             outputTemplate(request, response, args);
             return;
         }
@@ -222,7 +223,7 @@ public class ProfileReviewServlet extends ProfileServlet {
         if (profile == null) {
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_NOT_FOUND", profileId));
+                    "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             outputTemplate(request, response, args);
             return;
         }
@@ -287,7 +288,7 @@ public class ProfileReviewServlet extends ProfileServlet {
             args.set(ARG_REQUEST_NOTES, "");
         } else {
             args.set(ARG_REQUEST_NOTES,
-                    req.getExtDataInString("requestNotes"));
+                    CMSTemplate.escapeJavaScriptStringHTML(req.getExtDataInString("requestNotes")));
         }
 
         args.set(ARG_RECORD, list);

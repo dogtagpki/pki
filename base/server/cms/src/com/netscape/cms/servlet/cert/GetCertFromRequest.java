@@ -18,8 +18,8 @@
 package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.math.BigInteger;
+import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -49,6 +49,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
@@ -175,7 +176,7 @@ public class GetCertFromRequest extends CMSServlet {
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_REQ_ID_FORMAT", requestId));
             throw new EBaseException(
-                    CMS.getUserMessage(getLocale(httpReq), "CMS_BASE_INVALID_NUMBER_FORMAT_1", requestId));
+                    CMS.getUserMessage(getLocale(httpReq), "CMS_BASE_INVALID_NUMBER_FORMAT_1", CMSTemplate.escapeJavaScriptStringHTML(requestId)));
         }
 
         IRequest r = mQueue.findRequest(new RequestId(requestId));

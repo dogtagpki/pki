@@ -45,6 +45,7 @@ import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.template.ArgString;
 import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 
 /**
  * This servlet approves profile-based request.
@@ -89,14 +90,14 @@ public class ProfileProcessServlet extends ProfileServlet {
 
         IRequest req = processor.getRequest(requestId);
         if (req == null) {
-            setError(args, CMS.getUserMessage(locale, "CMS_REQUEST_NOT_FOUND", requestId), request, response);
+            setError(args, CMS.getUserMessage(locale, "CMS_REQUEST_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(requestId)), request, response);
             return;
         }
 
         String profileId = req.getExtDataInString("profileId");
         if (profileId == null || profileId.equals("")) {
             CMS.debug("ProfileProcessServlet: Profile Id not found");
-            setError(args, CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND"), request, response);
+            setError(args, CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)), request, response);
             return;
         }
         CMS.debug("ProfileProcessServlet: profileId=" + profileId);

@@ -38,6 +38,7 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -92,8 +93,8 @@ public class EnrollmentProcessor extends CertProcessor {
         IProfile profile = ps.getProfile(profileId);
 
         if (profile == null) {
-            CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
-            throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
+            CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
+            throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
         }
 
         CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
@@ -136,8 +137,8 @@ public class EnrollmentProcessor extends CertProcessor {
 
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
-                throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
+                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
+                throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             }
             if (!ps.isProfileEnable(profileId)) {
                 CMS.debug("EnrollmentSubmitter: Profile " + profileId + " not enabled");
