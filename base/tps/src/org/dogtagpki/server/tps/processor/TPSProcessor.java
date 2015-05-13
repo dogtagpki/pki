@@ -55,8 +55,8 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 //import org.dogtagpki.server.tps.main.ExternalRegCertToDelete;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
-import org.dogtagpki.server.tps.profile.BaseTokenProfileResolver;
-import org.dogtagpki.server.tps.profile.TokenProfileParams;
+import org.dogtagpki.server.tps.mapping.BaseMappingResolver;
+import org.dogtagpki.server.tps.mapping.FilterMappingParams;
 import org.dogtagpki.tps.apdu.APDU;
 import org.dogtagpki.tps.apdu.APDUResponse;
 import org.dogtagpki.tps.apdu.GetDataAPDU;
@@ -2068,32 +2068,32 @@ public class TPSProcessor {
         if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
 
             try {
-                TokenProfileParams pParams = new TokenProfileParams();
-                CMS.debug("In TPSProcessor.resolveTokenProfile : after new TokenProfileParams");
-                pParams.set(TokenProfileParams.PROFILE_PARAM_MAJOR_VERSION,
+                FilterMappingParams pParams = new FilterMappingParams();
+                CMS.debug("In TPSProcessor.resolveTokenProfile : after new MappingFilterParams");
+                pParams.set(FilterMappingParams.FILTER_PARAM_MAJOR_VERSION,
                         String.valueOf(major_version));
-                pParams.set(TokenProfileParams.PROFILE_PARAM_MINOR_VERSION,
+                pParams.set(FilterMappingParams.FILTER_PARAM_MINOR_VERSION,
                         String.valueOf(minor_version));
-                pParams.set(TokenProfileParams.PROFILE_PARAM_CUID, cuid);
-                pParams.set(TokenProfileParams.PROFILE_PARAM_MSN, msn);
+                pParams.set(FilterMappingParams.FILTER_PARAM_CUID, cuid);
+                pParams.set(FilterMappingParams.FILTER_PARAM_MSN, msn);
                 if (beginMsg.getExtensions() != null) {
-                    pParams.set(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_TYPE,
+                    pParams.set(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE,
                             beginMsg.getExtensions().get("tokenType"));
-                    pParams.set(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_ATR,
+                    pParams.set(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR,
                             beginMsg.getExtensions().get("tokenATR"));
                 }
-                CMS.debug("In TPSProcessor.resolveTokenProfile : after setting TokenProfileParams");
+                CMS.debug("In TPSProcessor.resolveTokenProfile : after setting MappingFilterParams");
                 TPSSubsystem subsystem =
                         (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-                BaseTokenProfileResolver resolverInst =
-                        subsystem.getProfileResolverManager().getResolverInstance(resolverInstName);
-                tokenType = resolverInst.getTokenType(pParams);
+                BaseMappingResolver resolverInst =
+                        subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                tokenType = resolverInst.getResolvedMapping(pParams);
                 CMS.debug("In TPSProcessor.resolveTokenProfile : profile resolver result: " + tokenType);
                 setSelectedTokenType(tokenType);
             } catch (EBaseException et) {
                 CMS.debug("In TPSProcessor.resolveTokenProfile exception:" + et);
                 throw new TPSException("TPSProcessor.resolveTokenProfile failed.",
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
         } else {

@@ -1,4 +1,4 @@
-package org.dogtagpki.server.tps.profile;
+package org.dogtagpki.server.tps.mapping;
 
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.main.TPSException;
@@ -9,95 +9,98 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 
 /**
- * MappingTokenProfileResolver is a profile resolver plugin that calculates
- * token type by sorting through a list of filters in mapping
+ * FilterMappingResolver is a mapping resolver plugin that calculates
+ * result by sorting through a list of filters in mapping
+ *
+ * @author cfu
  */
-public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
+public class FilterMappingResolver extends BaseMappingResolver {
 
-    public MappingTokenProfileResolver() {
+    public FilterMappingResolver() {
     }
 
-    public String getTokenType(TokenProfileParams pParam)
+    public String getResolvedMapping(FilterMappingParams mappingParams)
             throws TPSException {
-
+        String method = "FilterMappingResolver.getResolvedMapping: ";
         String tokenType = null;
         String mappingOrder = null;
         int major_version = 0;
         int minor_version = 0;
         String cuid = null;
         // String msn = null;
-        String eTokenType = null;
-        String eTokenATR = null;
+        String extTokenType = null;
+        String extTokenATR = null;
 
-        CMS.debug("MappingTokenProfileResolver.getTokenType: starts");
+        CMS.debug(method + " starts");
 
-        major_version = pParam.getInt(TokenProfileParams.PROFILE_PARAM_MAJOR_VERSION);
-        CMS.debug("MappingTokenProfileResolver: param major_version =" + major_version);
+        major_version = mappingParams.getInt(FilterMappingParams.FILTER_PARAM_MAJOR_VERSION);
+        CMS.debug(method + " param major_version =" + major_version);
 
-        minor_version = pParam.getInt(TokenProfileParams.PROFILE_PARAM_MINOR_VERSION);
-        CMS.debug("MappingTokenProfileResolver: param minor_version =" + minor_version);
+        minor_version = mappingParams.getInt(FilterMappingParams.FILTER_PARAM_MINOR_VERSION);
+        CMS.debug(method + " param minor_version =" + minor_version);
 
-        cuid =  pParam.getString(TokenProfileParams.PROFILE_PARAM_CUID);
-        // msn = (String) pParam.get(TokenProfileParams.PROFILE_PARAM_MSN);
+        cuid =  mappingParams.getString(FilterMappingParams.FILTER_PARAM_CUID);
+        // msn = (String) mappingParams.get(FilterMappingParams.FILTER_PARAM_MSN);
+
         // they don't necessarily have extension
         try {
-            eTokenType = pParam.getString(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_TYPE);
-            eTokenATR =  pParam.getString(TokenProfileParams.PROFILE_PARAM_EXT_TOKEN_ATR);
+            extTokenType = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE);
+            extTokenATR =  mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR);
         } catch (TPSException e) {
-            CMS.debug("MappingTokenProfileResolver: OK to not have extension. Continue.");
+            CMS.debug(method + " OK to not have extension. Continue.");
         }
 
-        CMS.debug("MappingTokenProfileResolver: params retrieved.");
+        CMS.debug(method + " mapping params retrieved.");
 
         String configName = prefix + "." + TPSEngine.CFG_PROFILE_MAPPING_ORDER;
 
         try {
-            CMS.debug("MappingTokenProfileResolver: getting mapping order:" +
+            CMS.debug(method + " getting mapping order:" +
                     configName);
             mappingOrder = configStore.getString(configName);
         } catch (EPropertyNotFound e) {
-            CMS.debug("MappingTokenProfileResolver: exception:" + e);
+            CMS.debug(method + " exception:" + e);
             throw new TPSException(
-                    "MappingTokenProfileResolver.getTokenType: Token Type configuration incorrect! Mising mapping order!",
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                    method + " configuration incorrect! Mising mapping order:" + configName,
+                    TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
 
         } catch (EBaseException e1) {
             //The whole feature won't work if this is wrong.
-            CMS.debug("MappingTokenProfileResolver: exception:" + e1);
+            CMS.debug(method + " exception:" + e1);
             throw new TPSException(
-                    "MappingTokenProfileResolver.getTokenType: Internal error obtaining config value.!",
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                    method + " Internal error obtaining config value:" + configName,
+                    TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
         }
 
         String targetTokenType = null;
 
         for (String mappingId : mappingOrder.split(",")) {
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  mapping: " + mappingId);
+            CMS.debug(method + "  mapping: " + mappingId);
 
             String mappingConfigName = prefix + ".mapping." + mappingId + ".target.tokenType";
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  mappingConfigName: " + mappingConfigName);
+            CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
 
             //We need this to exist.
             try {
                 targetTokenType = configStore.getString(mappingConfigName);
             } catch (EPropertyNotFound e) {
                 throw new TPSException(
-                        "MappingTokenProfileResolver.getTokenType: Token Type configuration incorrect! No target token type config value found! Config: "
+                        method + " Token Type configuration incorrect! No target token type config value found! Config: "
                                 + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
 
             } catch (EBaseException e) {
                 throw new TPSException(
-                        "MappingTokenProfileResolver.getTokenType: Internal error obtaining config value. Config: "
+                        method + " Internal error obtaining config value. Config: "
                                 + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenType";
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  mappingConfigName: " + mappingConfigName);
+            CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
 
             //For this and remaining cases, it is not automatically an error if we don't get anything back
             // from the config.
@@ -105,33 +108,33 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
                 tokenType = configStore.getString(mappingConfigName, null);
             } catch (EBaseException e) {
                 throw new TPSException(
-                        "MappingTokenProfileResolver.getTokenType: Internal error obtaining config value. Config: "
+                        method + " Internal error obtaining config value. Config: "
                                 + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
 
             }
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  targetTokenType: " + targetTokenType);
+            CMS.debug(method + "  targetTokenType: " + targetTokenType);
 
             if (tokenType != null && tokenType.length() > 0) {
 
-                if (eTokenType == null) {
+                if (extTokenType == null) {
                     continue;
                 }
 
-                //String eTokenType = extensions.get("tokenType");
-                //if (eTokenType == null) {
+                //String extTokenType = extensions.get("tokenType");
+                //if (extTokenType == null) {
                 //    continue;
                 //}
 
-                if (!eTokenType.equals(tokenType)) {
+                if (!extTokenType.equals(tokenType)) {
                     continue;
                 }
             }
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenATR";
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  mappingConfigName: " + mappingConfigName);
+            CMS.debug(method + " mappingConfigName: " + mappingConfigName);
 
             String tokenATR = null;
 
@@ -139,25 +142,25 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
                 tokenATR = configStore.getString(mappingConfigName, null);
             } catch (EBaseException e) {
                 throw new TPSException(
-                        "MappingTokenProfileResolver.getTokenType: Internal error obtaining config value. Config: "
+                        method + " Internal error obtaining config value. Config: "
                                 + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  tokenATR: " + tokenATR);
+            CMS.debug(method + " tokenATR: " + tokenATR);
 
             if (tokenATR != null && tokenATR.length() > 0) {
-                if (eTokenATR == null) {
+                if (extTokenATR == null) {
                     continue;
                 }
 
-                //String eTokenATR = extensions.get("tokenATR");
+                //String extTokenATR = extensions.get("tokenATR");
 
-                //if (eTokenATR == null) {
+                //if (extTokenATR == null) {
                 //    continue;
                 //}
 
-                if (!eTokenATR.equals(tokenATR)) {
+                if (!extTokenATR.equals(tokenATR)) {
                     continue;
                 }
 
@@ -165,7 +168,7 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenCUID.start";
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  mappingConfigName: " + mappingConfigName);
+            CMS.debug(method + " mappingConfigName: " + mappingConfigName);
 
             String tokenCUIDStart = null;
 
@@ -174,12 +177,12 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
 
             } catch (EBaseException e) {
                 throw new TPSException(
-                        "MappingTokenProfileResolver.getTokenType: Internal error obtaining config value. Config: "
+                        method + " Internal error obtaining config value. Config: "
                                 + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  tokenCUIDStart: " + tokenCUIDStart);
+            CMS.debug(method + "  tokenCUIDStart: " + tokenCUIDStart);
 
             if (tokenCUIDStart != null && tokenCUIDStart.length() > 0) {
                 if (cuid == null) {
@@ -198,19 +201,19 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenCUID.end";
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  mappingConfigName: " + mappingConfigName);
+            CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
 
             String tokenCUIDEnd = null;
             try {
                 tokenCUIDEnd = configStore.getString(mappingConfigName, null);
             } catch (EBaseException e) {
                 throw new TPSException(
-                        "MappingTokenProfileResolver.getTokenType: Internal error obtaining config value. Config: "
+                        method + " Internal error obtaining config value. Config: "
                                 + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  tokenCUIDEnd: " + tokenCUIDEnd);
+            CMS.debug(method + "  tokenCUIDEnd: " + tokenCUIDEnd);
 
             if (tokenCUIDEnd != null && tokenCUIDEnd.length() > 0) {
                 if (cuid == null) {
@@ -229,7 +232,7 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.appletMajorVersion";
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  mappingConfigName: " + mappingConfigName);
+            CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
 
             String majorVersion = null;
             String minorVersion = null;
@@ -238,12 +241,12 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
                 majorVersion = configStore.getString(mappingConfigName, null);
             } catch (EBaseException e) {
                 throw new TPSException(
-                        "MappingTokenProfileResolver.getTokenType: Internal error obtaining config value. Config: "
+                        method + " Internal error obtaining config value. Config: "
                                 + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  majorVersion: " + majorVersion);
+            CMS.debug(method + "  majorVersion: " + majorVersion);
             if (majorVersion != null && majorVersion.length() > 0) {
 
                 int major = Integer.parseInt(majorVersion);
@@ -255,17 +258,17 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.appletMinorVersion";
 
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  mappingConfigName: " + mappingConfigName);
+            CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
 
             try {
                 minorVersion = configStore.getString(mappingConfigName, null);
             } catch (EBaseException e) {
                 throw new TPSException(
-                        "MappingTokenProfileResolver.getTokenType: Internal error obtaining config value. Config: "
+                        method + " Internal error obtaining config value. Config: "
                                 + mappingConfigName,
-                        TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+                        TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
-            CMS.debug("MappingTokenProfileResolver.getTokenType:  minorVersion " + minorVersion);
+            CMS.debug(method + "  minorVersion " + minorVersion);
 
             if (minorVersion != null && minorVersion.length() > 0) {
 
@@ -277,14 +280,14 @@ public class MappingTokenProfileResolver extends BaseTokenProfileResolver {
             }
 
             //if we make it this far, we have a token type
-            CMS.debug("MappingTokenProfileResolver.getTokenType: Selected Token type: " + targetTokenType);
+            CMS.debug(method + " Selected Token type: " + targetTokenType);
             break;
         }
 
         if (targetTokenType == null) {
-            CMS.debug("MappingTokenProfileResolver.getTokenType: end found: " + targetTokenType);
-            throw new TPSException("MappingTokenProfileResolver.getTokenType: Can't find token type!",
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_NOT_FOUND);
+            CMS.debug(method + " end found: " + targetTokenType);
+            throw new TPSException(method + " Can't find token type!",
+                    TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
         }
 
         return targetTokenType;

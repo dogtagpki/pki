@@ -28,7 +28,7 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.engine.TPSEngine;
-import org.dogtagpki.server.tps.profile.TokenProfileResolverManager;
+import org.dogtagpki.server.tps.mapping.MappingResolverManager;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -69,7 +69,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public TokenDatabase tokenDatabase;
     public ConnectionManager connManager;
     public AuthenticationManager authManager;
-    public TokenProfileResolverManager profileResolverManager;
+    public MappingResolverManager mappingResolverManager;
     public TPSEngine engine;
     public TPSTokendb tdb;
 
@@ -119,8 +119,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         connManager.initConnectors();
         authManager = new AuthenticationManager();
         authManager.initAuthInstances();
-        profileResolverManager = new TokenProfileResolverManager();
-        profileResolverManager.initProfileResolverInstances();
+        mappingResolverManager = new MappingResolverManager();
+        mappingResolverManager.initMappingResolverInstances();
         CMS.debug("TPSSubsystem: startup() ends.");
     }
 
@@ -205,8 +205,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         return authManager;
     }
 
-    public TokenProfileResolverManager getProfileResolverManager() {
-        return profileResolverManager;
+    public MappingResolverManager getMappingResolverManager() {
+        return mappingResolverManager;
     }
 
     public TPSTokendb getTokendb() {

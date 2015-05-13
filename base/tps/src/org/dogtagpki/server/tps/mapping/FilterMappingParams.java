@@ -15,7 +15,7 @@
 // (C) 2014 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package org.dogtagpki.server.tps.profile;
+package org.dogtagpki.server.tps.mapping;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,19 +27,19 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import com.netscape.certsrv.apps.CMS;
 
 /**
- * A class represents profile params information.
+ * A class represents filter mapping params information.
  * <P>
  *
- * @version $Revision$, $Date$
+ * @author cfu
  */
-public class TokenProfileParams {
+public class FilterMappingParams {
 
-    public static final String PROFILE_PARAM_MAJOR_VERSION = "pp_major_version";
-    public static final String PROFILE_PARAM_MINOR_VERSION = "pp_minor_version";
-    public static final String PROFILE_PARAM_CUID = "pp_cuid";
-    public static final String PROFILE_PARAM_MSN = "pp_msn";
-    public static final String PROFILE_PARAM_EXT_TOKEN_TYPE = "pp_ext_tokenType";
-    public static final String PROFILE_PARAM_EXT_TOKEN_ATR = "pp_ext_tokenATR";
+    public static final String FILTER_PARAM_MAJOR_VERSION = "fp_major_version";
+    public static final String FILTER_PARAM_MINOR_VERSION = "fp_minor_version";
+    public static final String FILTER_PARAM_CUID = "fp_cuid";
+    public static final String FILTER_PARAM_MSN = "fp_msn";
+    public static final String FILTER_PARAM_EXT_TOKEN_TYPE = "fp_ext_tokenType";
+    public static final String FILTER_PARAM_EXT_TOKEN_ATR = "fp_ext_tokenATR";
 
     private HashMap<String, String> content = new HashMap<String, String>();
 
@@ -47,7 +47,7 @@ public class TokenProfileParams {
      * Constructs a meta information.
      * <P>
      */
-    public TokenProfileParams() {
+    public FilterMappingParams() {
     }
 
     /**
@@ -78,10 +78,10 @@ public class TokenProfileParams {
            throws TPSException {
         String val = content.get(name);
         if (val == null) {
-            CMS.debug("TokenProfileParams.getString: param null:"+ name);
+            CMS.debug("FilterMappingParams.getString: param null:"+ name);
             throw new TPSException (
-                    "TokenProfileParams.getString: param null:"+ name,
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND);
+                    "FilterMappingParams.getString: param null:"+ name,
+                    TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_PARAMS_NOT_FOUND);
         }
         return val;
     }
@@ -96,18 +96,18 @@ public class TokenProfileParams {
            throws TPSException {
         String val = content.get(name);
         if (val == null) {
-            CMS.debug("TokenProfileParams.getInt: param null:"+ name);
+            CMS.debug("FilterMappingParams.getInt: param null:"+ name);
             throw new TPSException (
-                    "TokenProfileParams.getInt: param null:"+ name,
-                    TPSStatus.STATUS_ERROR_DEFAULT_TOKENTYPE_PARAMS_NOT_FOUND);
+                    "FilterMappingParams.getInt: param null:"+ name,
+                    TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_PARAMS_NOT_FOUND);
         }
         try {
             int intVal = Integer.parseInt(val);
             return intVal;
         } catch (NumberFormatException e) {
-            CMS.debug("TokenProfileParams.getInt: param "+ name + "=" + val + e);
+            CMS.debug("FilterMappingParams.getInt: param "+ name + "=" + val + e);
             throw new TPSException (
-                    "TokenProfileParams.getInt: param major_version:"+ e,
+                    "FilterMappingParams.getInt: param major_version:"+ e,
                     TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
     }

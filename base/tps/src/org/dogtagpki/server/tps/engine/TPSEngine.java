@@ -170,7 +170,7 @@ public class TPSEngine {
     public static final String RENEWAL_OP = "renewal";
 
     public static final String OP_FORMAT_PREFIX = "op." + FORMAT_OP;
-    public static final String CFG_PROFILE_RESOLVER = "tokenProfileResolver";
+    public static final String CFG_PROFILE_RESOLVER = "mappingResolver";
     public static final String CFG_DEF_FORMAT_PROFILE_RESOLVER = "formatMappingResolver";
     public static final String CFG_DEF_ENROLL_PROFILE_RESOLVER = "enrollMappingResolver";
     public static final String CFG_DEF_PIN_RESET_PROFILE_RESOLVER = "pinResetMappingResolver";

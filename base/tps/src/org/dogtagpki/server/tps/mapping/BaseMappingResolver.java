@@ -1,4 +1,4 @@
-package org.dogtagpki.server.tps.profile;
+package org.dogtagpki.server.tps.mapping;
 
 import org.dogtagpki.tps.main.TPSException;
 
@@ -6,21 +6,21 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 
 /**
- * This class implements the base TPS Profile Resolver instance
+ * This class implements the base TPS mapping filter Resolver instance
  *
  * @author cfu
  */
-public abstract class BaseTokenProfileResolver {
+public abstract class BaseMappingResolver {
     protected IConfigStore configStore = null;
     protected String instanceName = "";
     protected String prefix = "";
 
-    public BaseTokenProfileResolver() {
+    public BaseMappingResolver() {
     }
 
     public void init(String instName) {
         instanceName = instName;
-        prefix = TokenProfileResolverManager.TOKEN_PROFILE_RESOLVER_CFG +
+        prefix = MappingResolverManager.MAPPING_RESOLVER_CFG +
                 "." + instanceName;
         configStore = CMS.getConfigStore();
     }
@@ -33,6 +33,6 @@ public abstract class BaseTokenProfileResolver {
         return prefix;
     }
 
-    public abstract String getTokenType(TokenProfileParams pPram)
+    public abstract String getResolvedMapping(FilterMappingParams pPram)
             throws TPSException;
 }
