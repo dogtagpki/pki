@@ -39,18 +39,21 @@ public class KeyCLI extends CLI {
     public KeyCLI(CLI parent) {
         super("key", "Key management commands", parent);
 
-        addModule(new KeyFindCLI(this));
-        addModule(new KeyRequestFindCLI(this));
-        addModule(new KeyShowCLI(this));
-        addModule(new KeyRequestShowCLI(this));
-        addModule(new KeyModifyCLI(this));
         addModule(new KeyTemplateFindCLI(this));
         addModule(new KeyTemplateShowCLI(this));
+
+        addModule(new KeyRequestFindCLI(this));
+        addModule(new KeyRequestShowCLI(this));
+        addModule(new KeyRequestReviewCLI(this));
+
+        addModule(new KeyFindCLI(this));
+        addModule(new KeyShowCLI(this));
+        addModule(new KeyModifyCLI(this));
+
+        addModule(new KeyGenerateCLI(this));
         addModule(new KeyArchiveCLI(this));
         addModule(new KeyRetrieveCLI(this));
-        addModule(new KeyGenerateCLI(this));
         addModule(new KeyRecoverCLI(this));
-        addModule(new KeyRequestReviewCLI(this));
     }
 
     public String getFullName() {

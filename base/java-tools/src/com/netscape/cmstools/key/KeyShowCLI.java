@@ -21,6 +21,7 @@ package com.netscape.cmstools.key;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
@@ -34,10 +35,18 @@ public class KeyShowCLI extends CLI {
     public KeyShowCLI(KeyCLI keyCLI) {
         super("show", "Get key", keyCLI);
         this.keyCLI = keyCLI;
+
+        createOptions();
     }
 
     public void printHelp() {
         formatter.printHelp(getFullName() + " <Key ID> [OPTIONS...]", options);
+    }
+
+    public void createOptions() {
+        Option option = new Option(null, "clientKeyID", true, "Unique client key identifier.");
+        option.setArgName("Client Key Identifier");
+        options.addOption(option);
     }
 
     public void execute(String[] args) {
@@ -60,18 +69,23 @@ public class KeyShowCLI extends CLI {
         }
 
         String[] cmdArgs = cmd.getArgs();
+        String clientKeyId = cmd.getOptionValue("clientKeyID");
+        KeyInfo keyInfo;
 
-        if (cmdArgs.length != 1) {
-            System.err.println("Error: No Key ID specified.");
+        if (cmdArgs.length == 1) {
+            KeyId keyId = new KeyId(cmdArgs[0]);
+            keyInfo = keyCLI.keyClient.getKeyInfo(keyId);
+
+        } else if (clientKeyId != null) {
+            keyInfo = keyCLI.keyClient.getActiveKeyInfo(clientKeyId);
+
+        } else {
+            System.err.println("Error: Missing Key ID or Client Key ID.");
             printHelp();
             System.exit(-1);
+            return;
         }
-
-        KeyId keyId = new KeyId(args[0].trim());
-
-        KeyInfo keyInfo = keyCLI.keyClient.getKeyInfo(keyId);
 
         KeyCLI.printKeyInfo(keyInfo);
     }
-
 }
