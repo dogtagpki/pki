@@ -2727,7 +2727,7 @@ class ServerCertNickConf:
                     else:
                         # use softokn name
                         ssl_server_nickname = self.nickname
-                    fd.write(ssl_server_nickname);
+                    fd.write(ssl_server_nickname)
                     config.pki_log.info(
                         log.PKIHELPER_SERVERCERTNICK_CONF_2,
                         self.servercertnick_conf,
