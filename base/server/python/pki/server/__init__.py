@@ -61,10 +61,10 @@ class PKISubsystem(object):
 
         if self.type >= 10:
             self.base_dir = os.path.join(self.instance.base_dir, self.name)
-            self.conf_dir = os.path.join(self.base_dir, 'conf')
         else:
             self.base_dir = instance.base_dir
-            self.conf_dir = os.path.join(self.base_dir, 'conf')
+
+        self.conf_dir = os.path.join(self.base_dir, 'conf')
 
         self.context_xml_template = os.path.join(
             pki.SHARE_DIR, self.name, 'conf', 'Catalina', 'localhost', self.name + '.xml')
@@ -72,6 +72,7 @@ class PKISubsystem(object):
         self.context_xml = os.path.join(
             instance.conf_dir, 'Catalina', 'localhost', self.name + '.xml')
 
+        # custom subsystem location
         self.doc_base = os.path.join(self.base_dir, 'webapps', self.name)
 
     def is_valid(self):
@@ -87,7 +88,16 @@ class PKISubsystem(object):
         return self.instance.is_deployed(self.name)
 
     def enable(self):
-        self.instance.deploy(self.name, self.context_xml_template, self.doc_base)
+        if os.path.exists(self.doc_base):
+            # deploy custom subsystem if exists
+            doc_base = self.doc_base
+
+        else:
+            # otherwise deploy default subsystem directly from
+            # /usr/share/pki/<subsystem>/webapps/<subsystem>
+            doc_base = None
+
+        self.instance.deploy(self.name, self.context_xml_template, doc_base)
 
     def disable(self):
         self.instance.undeploy(self.name)
