@@ -2696,6 +2696,49 @@ class PK12util:
         return
 
 
+class ServerCertNickConf:
+    """PKI Deployment serverCertNick.conf Class"""
+
+    # In the future, this class will be used exclusively to manage the
+    # creation and modification of the 'serverCertNick.conf' file
+    # replacing the current 'pkispawn' method of copying a template and
+    # using slot-substitution to establish its contents.
+    def __init__(self, deployer):
+        self.mdict = deployer.mdict
+        self.hsm_enable = config.str2bool(self.mdict['pki_hsm_enable'])
+        self.external = config.str2bool(self.mdict['pki_external'])
+        self.nickname = self.mdict['pki_self_signed_nickname']
+        self.servercertnick_conf = self.mdict['pki_target_servercertnick_conf']
+        self.standalone = config.str2bool(self.mdict['pki_standalone'])
+        self.step_two = config.str2bool(self.mdict['pki_external_step_two'])
+        self.token_name = self.mdict['pki_token_name']
+
+    def modify(self):
+        # Modify contents of 'serverCertNick.conf'
+        if self.hsm_enable and (self.external or self.standalone):
+            try:
+                # overwrite value inside 'serverCertNick.conf'
+                with open(self.servercertnick_conf, "w") as fd:
+                    ssl_server_nickname = None
+                    if self.step_two:
+                        # use final HSM name
+                        ssl_server_nickname = (self.token_name + ":" +
+                                               self.nickname)
+                    else:
+                        # use softokn name
+                        ssl_server_nickname = self.nickname
+                    fd.write(ssl_server_nickname);
+                    config.pki_log.info(
+                        log.PKIHELPER_SERVERCERTNICK_CONF_2,
+                        self.servercertnick_conf,
+                        ssl_server_nickname,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+            except OSError as exc:
+                config.pki_log.error(log.PKI_OSERROR_1, exc,
+                                     extra=config.PKI_INDENTATION_LEVEL_2)
+                raise
+
+
 class KRAConnector:
     """PKI Deployment KRA Connector Class"""
 
@@ -4345,6 +4388,7 @@ class PKIDeployer:
         self.pk12util = PK12util(self)
         self.kra_connector = KRAConnector(self)
         self.security_domain = SecurityDomain(self)
+        self.servercertnick_conf = ServerCertNickConf(self)
         self.systemd = Systemd(self)
         self.tps_connector = TPSConnector(self)
         self.config_client = ConfigClient(self)

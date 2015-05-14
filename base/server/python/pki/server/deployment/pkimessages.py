@@ -278,6 +278,7 @@ PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2 = \
     "updateDomainXML SUCCESSFULLY deleted this '%s' entry from "\
     "security domain '%s'"
 PKIHELPER_SELINUX_DISABLED = "Selinux is disabled.  Not checking port contexts"
+PKIHELPER_SERVERCERTNICK_CONF_2 = "Overwriting contents of '%s' with '%s'"
 PKIHELPER_SET_MODE_1 = "setting ownerships, permissions, and acls on '%s'"
 PKIHELPER_SLOT_SUBSTITUTION_2 = "slot substitution: '%s' ==> '%s'"
 PKIHELPER_SSLGET_OUTPUT_1 = '''
