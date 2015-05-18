@@ -42,6 +42,8 @@ import com.netscape.cmsutil.http.HttpResponse;
  */
 public class TKSRemoteRequestHandler extends RemoteRequestHandler
 {
+    private String keySet;
+
     public TKSRemoteRequestHandler(String connID)
             throws EBaseException {
 
@@ -52,6 +54,18 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         connid = connID;
     }
 
+    public TKSRemoteRequestHandler(String connID, String inKeySet)
+            throws EBaseException {
+
+        if (connID == null) {
+            throw new EBaseException("TKSRemoteRequestHandler: TKSRemoteRequestHandler(): connID null.");
+        }
+        connid = connID;
+
+        this.keySet = inKeySet;
+
+    }
+
     /*
      * computeSessionKey
      *
@@ -59,20 +73,24 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      *   TKSRemoteRequestHandler tksReq = new TKSRemoteRequestHandler("tks1");
      *   TKSComputeSessionKeyResponse responseObj =
      *     tksReq.computeSessionKey(
+     *      kdd,
      *      cuid,
      *      keyInfo,
      *      card_challenge,
      *      card_cryptogram,
-     *      host_challenge);
+     *      host_challenge
+     *      tokenType);
      *   - on success return, one can say
      *    TPSBuffer value = responseObj.getSessionKey();
      *      to get response param value session key
      *
+     * @param kdd key derivation data
      * @param cuid token cuid
      * @param keyInfo keyInfo
      * @param card_challenge card challenge
      * @param card_cryptogram card cryptogram
      * @param host_challenge host challenge
+     * @param tokenType
      * @return response TKSComputeSessionKeyResponse class object
      */
     public TKSComputeSessionKeyResponse computeSessionKey(
@@ -97,8 +115,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 conf.getBoolean("op.enroll." +
                         tokenType + ".keyGen.encryption.serverKeygen.enable",
                         false);
-        String keySet =
-                conf.getString("connector." + connid + "keySet", "defKeySet");
+        if (keySet == null)
+            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -214,20 +232,22 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      *   TKSRemoteRequestHandler tksReq = new TKSRemoteRequestHandler("tks1");
      *   TKSComputeSessionKeyResponse responseObj =
      *     tksReq.computeSessionKey(
+     *      kdd,
      *      cuid,
      *      keyInfo,
-     *      card_challenge,
-     *      card_cryptogram,
-     *      host_challenge);
+     *      sequenceCounter,
+     *      derivationConstant,
+     *      String tokenType)
      *   - on success return, one can say
      *    TPSBuffer value = responseObj.getSessionKey();
      *      to get response param value session key
      *
+     * @param kdd key derivation data
      * @param cuid token cuid
      * @param keyInfo keyInfo
-     * @param card_challenge card challenge
-     * @param card_cryptogram card cryptogram
-     * @param host_challenge host challenge
+     * @param sequenceCounter
+     * @param derivationConstant
+     * @param tokenType
      * @return response TKSComputeSessionKeyResponse class object
      */
     public TKSComputeSessionKeyResponse computeSessionKeySCP02(
@@ -252,8 +272,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
                 conf.getBoolean("op.enroll." +
                         tokenType + ".keyGen.encryption.serverKeygen.enable",
                         false);
-        String keySet =
-                conf.getString("connector." + connid + "keySet", "defKeySet");
+        if (keySet == null)
+            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -365,7 +385,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      * @param cuid token cuid
      * @return response TKSCreateKeySetDataResponse class object
      */
-    public TKSCreateKeySetDataResponse createKeySetData(
+    public TKSCreateKeySetDataResponse createKeySetData (
             TPSBuffer NewMasterVer,
             TPSBuffer version,
             TPSBuffer cuid, TPSBuffer kdd, int protocol, TPSBuffer wrappedDekSessionKey)
@@ -376,8 +396,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         }
 
         IConfigStore conf = CMS.getConfigStore();
-        String keySet =
-                conf.getString("connector." + connid + "keySet", "defKeySet");
+        if (keySet == null)
+            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -527,6 +547,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
      *    TPSBuffer value = responseObj.getEncryptedData();
      *      to get response param value encrypted data
      *
+     * @param kdd key derivation data
      * @param cuid token cuid
      * @param version keyInfo
      * @param inData data to be encrypted
@@ -545,8 +566,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         IConfigStore conf = CMS.getConfigStore();
 
-        String keySet =
-                conf.getString("connector." + connid + "keySet", "defKeySet");
+        if (keySet == null)
+            keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);

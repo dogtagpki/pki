@@ -25,6 +25,7 @@ import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.mapping.FilterMappingParams;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
@@ -103,7 +104,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         String tokenType = null;
 
-        tokenType = resolveTokenProfile(resolverInstName, appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+        FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName, appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
                 appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
         CMS.debug(method + ": resolved tokenType: " + tokenType);
 

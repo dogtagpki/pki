@@ -103,12 +103,16 @@ public class MappingResolverManager
                 throw new EBaseException(e.toString());
             }
             resolver.init(prInst);
-            mappingResolvers.put(prInst, resolver);
+            addResolver(prInst, resolver);
             CMS.debug(method + " resolver instance added: " + prInst);
         }
     }
 
     public BaseMappingResolver getResolverInstance(String name) {
         return mappingResolvers.get(name);
+    }
+
+    public void addResolver(String instName, BaseMappingResolver resolver) {
+        mappingResolvers.put(instName, resolver);
     }
 }

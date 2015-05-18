@@ -40,6 +40,8 @@ import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
+import org.dogtagpki.server.tps.mapping.BaseMappingResolver;
+import org.dogtagpki.server.tps.mapping.FilterMappingParams;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
@@ -225,17 +227,62 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
                 }
             }
+
+            CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: about to process keySet resolver");
+            /*
+             * Note: externalReg.mappingResolver=none indicates no resolver
+             *    plugin used
+             */
+            try {
+            String resolverInstName = getKeySetResolverInstanceName();
+
+                if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
+                    FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                            appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                            appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                    TPSSubsystem subsystem =
+                            (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    BaseMappingResolver resolverInst =
+                            subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
+                    setSelectedKeySet(keySet);
+                    CMS.debug(method + " resolved keySet: " + keySet);
+                }
+            } catch (TPSException e) {
+                auditMsg = e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
+
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
         } else {
             CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: OFF");
             /*
-             * Note: op.enroll.tokenProfileResolver=none indicates no resolver
+             * Note: op.enroll.mappingResolver=none indicates no resolver
              *    plugin used (tokenType resolved perhaps via authentication)
              */
+            try {
             String resolverInstName = getResolverInstanceName();
 
-            tokenType = resolveTokenProfile(resolverInstName, appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
-                    appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-            CMS.debug(method + " resolved tokenType: " + tokenType);
+                if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
+                    FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                            appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                            appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                    TPSSubsystem subsystem =
+                            (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    BaseMappingResolver resolverInst =
+                            subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    tokenType = resolverInst.getResolvedMapping(mappingParams);
+                    setSelectedTokenType(tokenType);
+                    CMS.debug(method + " resolved tokenType: " + tokenType);
+                }
+            } catch (TPSException e) {
+                auditMsg = e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
+
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
         }
 
         checkProfileStateOK();

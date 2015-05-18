@@ -118,6 +118,7 @@ public class TPSProcessor {
     protected TPSSession session;
     //protected TokenRecord tokenRecord;
     protected String selectedTokenType;
+    protected String selectedKeySet;
     IAuthToken authToken;
     List<String> ldapStringAttrs;
 
@@ -181,6 +182,22 @@ public class TPSProcessor {
     public String getSelectedTokenType() {
         return selectedTokenType;
     }
+
+    protected void setSelectedKeySet(String theKeySet) {
+
+        if (theKeySet == null) {
+            throw new NullPointerException("TPSProcessor.setSelectedKeySet: Attempt to set invalid null key set!");
+        }
+        CMS.debug("TPS_Processor.setSelectedKeySet: keySet=" +
+                theKeySet);
+        selectedKeySet = theKeySet;
+
+    }
+
+    public String getSelectedKeySet() {
+        return selectedKeySet;
+    }
+
 
     protected TPSBuffer extractTokenMSN(TPSBuffer cplc_data) throws TPSException {
         //Just make sure no one is inputing bogus cplc_data
@@ -369,7 +386,7 @@ public class TPSProcessor {
         TKSEncryptDataResponse data = null;
 
         try {
-            tks = new TKSRemoteRequestHandler(connId);
+            tks = new TKSRemoteRequestHandler(connId, getSelectedKeySet());
             data = tks.encryptData(appletInfo.getKDD(),appletInfo.getCUID(), keyInfo, plaintextChallenge);
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.encryptData: Erorr getting wrapped data from TKS!",
@@ -616,7 +633,7 @@ public class TPSProcessor {
 
             resp = engine.computeSessionKey(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     cardChallenge, hostChallenge, cardCryptogram,
-                    connId, getSelectedTokenType());
+                    connId, getSelectedTokenType(), getSelectedKeySet());
 
             hostCryptogram = resp.getHostCryptogram();
 
@@ -691,7 +708,7 @@ public class TPSProcessor {
             CMS.debug("TPSProcessor.generateSecureChannel Trying secure channel protocol 02");
             respEnc02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.ENCDerivationConstant),
-                    connId, getSelectedTokenType());
+                    connId, getSelectedTokenType(), getSelectedKeySet());
 
             TPSBuffer encSessionKeyWrappedSCP02 = respEnc02.getSessionKey();
             encSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
@@ -705,7 +722,7 @@ public class TPSProcessor {
 
             respCMac02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.C_MACDerivationConstant),
-                    connId, getSelectedTokenType());
+                    connId, getSelectedTokenType(), getSelectedKeySet());
 
             TPSBuffer cmacSessionKeyWrappedSCP02 = respCMac02.getSessionKey();
 
@@ -720,7 +737,7 @@ public class TPSProcessor {
 
             respRMac02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.R_MACDerivationConstant),
-                    connId, getSelectedTokenType());
+                    connId, getSelectedTokenType(), getSelectedKeySet());
 
             TPSBuffer rmacSessionKeyWrappedSCP02 = respRMac02.getSessionKey();
 
@@ -735,7 +752,7 @@ public class TPSProcessor {
 
             respDek02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.DEKDerivationConstant),
-                    connId, getSelectedTokenType());
+                    connId, getSelectedTokenType(), getSelectedKeySet());
 
             CMS.debug("Past engine.computeSessionKeyData: After dek key request.");
 
@@ -1623,7 +1640,8 @@ public class TPSProcessor {
                 erAttrs.addCertToRecover(erCert);
             }
         } else {
-            CMS.debug(method + ": certsToRecover attribute not found");
+            CMS.debug(method + ": certsToRecover attribute " + erAttrs.ldapAttrNameCertsToRecover +
+                    " not found");
         }
 
         /*
@@ -1720,7 +1738,6 @@ public class TPSProcessor {
                 + " app_major_version: " + app_major_version + " app_minor_version: " + app_minor_version);
 
         String tokenType = "tokenType";
-        String resolverInstName = getResolverInstanceName();
 
         IAuthCredentials userCred =
                 new com.netscape.certsrv.authentication.AuthCredentials();
@@ -1816,6 +1833,33 @@ public class TPSProcessor {
                 session.setExternalRegAttrs(erAttrs);
                 setSelectedTokenType(erAttrs.getTokenType());
             }
+            CMS.debug("In TPSProcessor.format: isExternalReg: about to process keySet resolver");
+            /*
+             * Note: externalReg.mappingResolver=none indicates no resolver
+             *    plugin used
+             */
+            try {
+            String resolverInstName = getKeySetResolverInstanceName();
+
+                if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
+                    FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                            appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                            appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                    TPSSubsystem subsystem =
+                            (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    BaseMappingResolver resolverInst =
+                            subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
+                    setSelectedKeySet(keySet);
+                    CMS.debug("In TPSProcessor.format: resolved keySet: " + keySet);
+                }
+            } catch (TPSException e) {
+                auditMsg = e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                        "failure");
+
+                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
         } else {
             CMS.debug("In TPSProcessor.format isExternalReg: OFF");
             /*
@@ -1824,7 +1868,19 @@ public class TPSProcessor {
              */
 
             try {
-                tokenType = resolveTokenProfile(resolverInstName, cuid, msn, major_version, minor_version);
+                String resolverInstName = getResolverInstanceName();
+
+                if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
+                    FilterMappingParams mappingParams  = createFilterMappingParams(resolverInstName, cuid, msn, major_version, minor_version);
+
+                    TPSSubsystem subsystem =
+                            (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    BaseMappingResolver resolverInst =
+                            subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    tokenType = resolverInst.getResolvedMapping(mappingParams);
+                    setSelectedTokenType(tokenType);
+                    CMS.debug("In TPSProcessor.format: resolved tokenType: " + tokenType);
+                }
             } catch (TPSException e) {
                 auditMsg = e.toString();
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
@@ -2033,7 +2089,7 @@ public class TPSProcessor {
         }
 
         String config = opPrefix +
-                "." + TPSEngine.CFG_PROFILE_RESOLVER;
+                "." + TPSEngine.CFG_MAPPING_RESOLVER;
 
         CMS.debug("TPSProcessor.getResolverInstanceName: config: " + config);
         try {
@@ -2048,6 +2104,33 @@ public class TPSProcessor {
         return resolverInstName;
     }
 
+    protected String getKeySetResolverInstanceName() throws TPSException {
+        String method = "TPSProcessor.getKeySetResolverInstanceName: ";
+        CMS.debug(method + " begins");
+        IConfigStore configStore = CMS.getConfigStore();
+        String resolverInstName = null;
+
+        if (!isExternalReg) {
+            CMS.debug(method + "externalReg not enabled; keySet mapping currently only supported in externalReg.");
+            return null;
+        }
+        String config = "externalReg" +
+                "." + TPSEngine.CFG_MAPPING_RESOLVER;
+
+        CMS.debug(method + " config: " + config);
+        try {
+            resolverInstName = configStore.getString(config, "none");
+        } catch (EBaseException e) {
+            throw new TPSException(e.getMessage());
+        }
+        if (resolverInstName.equals(""))
+            resolverInstName = "none";
+
+        CMS.debug(method + " returning: " + resolverInstName);
+
+        return resolverInstName;
+    }
+
     /**
      * @param resolverInstName
      * @param cuid
@@ -2056,52 +2139,44 @@ public class TPSProcessor {
      * @param minor_version
      * @return
      */
-    protected String resolveTokenProfile(
+    protected FilterMappingParams createFilterMappingParams(
             String resolverInstName,
             String cuid,
             String msn,
             byte major_version,
             byte minor_version)
             throws TPSException {
-        String tokenType;
+        String method = "TPSProcessor.createFilterMappingParams: ";
+        FilterMappingParams mappingParams = new FilterMappingParams();
 
-        if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
 
             try {
-                FilterMappingParams pParams = new FilterMappingParams();
-                CMS.debug("In TPSProcessor.resolveTokenProfile : after new MappingFilterParams");
-                pParams.set(FilterMappingParams.FILTER_PARAM_MAJOR_VERSION,
+                mappingParams = new FilterMappingParams();
+                CMS.debug(method + " after new MappingFilterParams");
+                mappingParams.set(FilterMappingParams.FILTER_PARAM_MAJOR_VERSION,
                         String.valueOf(major_version));
-                pParams.set(FilterMappingParams.FILTER_PARAM_MINOR_VERSION,
+                mappingParams.set(FilterMappingParams.FILTER_PARAM_MINOR_VERSION,
                         String.valueOf(minor_version));
-                pParams.set(FilterMappingParams.FILTER_PARAM_CUID, cuid);
-                pParams.set(FilterMappingParams.FILTER_PARAM_MSN, msn);
+                mappingParams.set(FilterMappingParams.FILTER_PARAM_CUID, cuid);
+                mappingParams.set(FilterMappingParams.FILTER_PARAM_MSN, msn);
+                // fill in the extensions from client, if any
                 if (beginMsg.getExtensions() != null) {
-                    pParams.set(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE,
+                    mappingParams.set(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE,
                             beginMsg.getExtensions().get("tokenType"));
-                    pParams.set(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR,
+                    mappingParams.set(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR,
                             beginMsg.getExtensions().get("tokenATR"));
+                    mappingParams.set(FilterMappingParams.FILTER_PARAM_EXT_KEY_SET,
+                            beginMsg.getExtensions().get("keySet"));
                 }
-                CMS.debug("In TPSProcessor.resolveTokenProfile : after setting MappingFilterParams");
-                TPSSubsystem subsystem =
-                        (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-                BaseMappingResolver resolverInst =
-                        subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
-                tokenType = resolverInst.getResolvedMapping(pParams);
-                CMS.debug("In TPSProcessor.resolveTokenProfile : profile resolver result: " + tokenType);
-                setSelectedTokenType(tokenType);
-            } catch (EBaseException et) {
-                CMS.debug("In TPSProcessor.resolveTokenProfile exception:" + et);
-                throw new TPSException("TPSProcessor.resolveTokenProfile failed.",
+                CMS.debug(method + " MappingFilterParams set");
+
+            } catch (Exception et) {
+                CMS.debug(method + " exception:" + et);
+                throw new TPSException(method + " failed.",
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-        } else {
-            //Already have a token type, return it
-            tokenType = getSelectedTokenType();
-        }
-
-        return tokenType;
+        return mappingParams;
     }
 
     protected String getIssuerInfoValue() throws TPSException {
@@ -2821,7 +2896,7 @@ public class TPSProcessor {
                 }
 
                 TPSBuffer keySetData = engine.createKeySetData(newVersion, curKeyInfo, protocol,
-                        appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId);
+                        appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet());
 
                 CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: new keySetData from TKS: " + keySetData.toHexString());
 
@@ -2843,7 +2918,7 @@ public class TPSProcessor {
 
                         byte[] nv_dev = { (byte) 0x1, (byte) 0x1 };
                         TPSBuffer devKeySetData = engine.createKeySetData(new TPSBuffer(nv_dev), curKeyInfo, protocol,
-                              appletInfo.getCUID(),  channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId);
+                              appletInfo.getCUID(),  channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet());
 
                         CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: about to get rid of keyset 0xFF and replace it with keyset 0x1 with developer key set");
                         channel.putKeys((byte) 0x0, (byte) 0x1, devKeySetData);

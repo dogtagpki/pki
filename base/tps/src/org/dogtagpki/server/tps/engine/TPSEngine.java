@@ -170,7 +170,7 @@ public class TPSEngine {
     public static final String RENEWAL_OP = "renewal";
 
     public static final String OP_FORMAT_PREFIX = "op." + FORMAT_OP;
-    public static final String CFG_PROFILE_RESOLVER = "mappingResolver";
+    public static final String CFG_MAPPING_RESOLVER = "mappingResolver";
     public static final String CFG_DEF_FORMAT_PROFILE_RESOLVER = "formatMappingResolver";
     public static final String CFG_DEF_ENROLL_PROFILE_RESOLVER = "enrollMappingResolver";
     public static final String CFG_DEF_PIN_RESET_PROFILE_RESOLVER = "pinResetMappingResolver";
@@ -219,7 +219,7 @@ public class TPSEngine {
             TPSBuffer sequenceCounter,
             TPSBuffer derivationConstant,
             String connId,
-            String tokenType)
+            String tokenType, String inKeySet)
             throws TPSException {
 
         if (cuid == null || kdd == null || keyInfo == null || sequenceCounter == null || derivationConstant == null
@@ -234,7 +234,7 @@ public class TPSEngine {
 
         TKSComputeSessionKeyResponse resp = null;
         try {
-            tks = new TKSRemoteRequestHandler(connId);
+            tks = new TKSRemoteRequestHandler(connId, inKeySet);
             resp = tks.computeSessionKeySCP02(kdd,cuid, keyInfo, sequenceCounter, derivationConstant, tokenType);
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.computeSessionKeySCP02: Error computing session key!" + e,
@@ -258,7 +258,7 @@ public class TPSEngine {
             TPSBuffer host_challenge,
             TPSBuffer card_cryptogram,
             String connId,
-            String tokenType) throws TPSException {
+            String tokenType, String inKeySet) throws TPSException {
 
         if (cuid == null || kdd == null || keyInfo == null || card_challenge == null || host_challenge == null
                 || card_cryptogram == null || connId == null || tokenType == null) {
@@ -274,7 +274,7 @@ public class TPSEngine {
 
         TKSComputeSessionKeyResponse resp = null;
         try {
-            tks = new TKSRemoteRequestHandler(connId);
+            tks = new TKSRemoteRequestHandler(connId, inKeySet);
             resp = tks.computeSessionKey(kdd,cuid, keyInfo, card_challenge, card_cryptogram, host_challenge, tokenType);
         } catch (EBaseException e) {
             throw new TPSException("TPSEngine.computeSessionKey: Error computing session key!" + e,
@@ -378,7 +378,7 @@ public class TPSEngine {
 
     }
 
-    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId)
+    public TPSBuffer createKeySetData(TPSBuffer newMasterVersion, TPSBuffer oldVersion, int protocol, TPSBuffer cuid, TPSBuffer kdd, TPSBuffer wrappedDekSessionKey, String connId, String inKeyset)
             throws TPSException {
         CMS.debug("TPSEngine.createKeySetData. entering...");
 
@@ -392,7 +392,7 @@ public class TPSEngine {
         TKSCreateKeySetDataResponse resp = null;
 
         try {
-            tks = new TKSRemoteRequestHandler(connId);
+            tks = new TKSRemoteRequestHandler(connId, inKeyset);
             resp = tks.createKeySetData(newMasterVersion, oldVersion, cuid, kdd, protocol,wrappedDekSessionKey);
         } catch (EBaseException e) {
 

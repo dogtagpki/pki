@@ -40,6 +40,7 @@ public class FilterMappingParams {
     public static final String FILTER_PARAM_MSN = "fp_msn";
     public static final String FILTER_PARAM_EXT_TOKEN_TYPE = "fp_ext_tokenType";
     public static final String FILTER_PARAM_EXT_TOKEN_ATR = "fp_ext_tokenATR";
+    public static final String FILTER_PARAM_EXT_KEY_SET = "fp_ext_keySet";
 
     private HashMap<String, String> content = new HashMap<String, String>();
 

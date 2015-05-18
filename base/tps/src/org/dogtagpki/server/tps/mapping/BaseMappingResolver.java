@@ -35,4 +35,8 @@ public abstract class BaseMappingResolver {
 
     public abstract String getResolvedMapping(FilterMappingParams pPram)
             throws TPSException;
+
+    public abstract String getResolvedMapping(FilterMappingParams mappingParams, String nameToMap)
+            throws TPSException;
+
 }
