@@ -2498,7 +2498,7 @@ public class ConfigurationUtils {
                     CMS.debug("ConfigurationUtils: injectSAN="+injectSAN);
                     if (certTag.equals("sslserver") &&
                         injectSAN == true) {
-                        sslserver_extension = 
+                        sslserver_extension =
                             CertUtil.buildSANSSLserverURLExtension(config);
                     }
 
@@ -2722,29 +2722,41 @@ public class ConfigurationUtils {
 
     public static int getPortFromSecurityDomain(String domainXML, String host, int port, String csType,
             String givenTag, String wantedTag) throws SAXException, IOException, ParserConfigurationException {
+
+        CMS.debug("ConfigurationUtils: Searching for " + wantedTag + " in " + csType + " hosts");
+
         IConfigStore cs = CMS.getConfigStore();
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
         XMLObject parser = new XMLObject(bis);
         Document doc = parser.getDocument();
+
         NodeList nodeList = doc.getElementsByTagName(csType);
 
         // save domain name in cfg
         cs.putString("securitydomain.name", parser.getValue("Name"));
 
         int len = nodeList.getLength();
-        CMS.debug("len: "+ len);
         for (int i = 0; i < len; i++) {
             Node node = nodeList.item(i);
+
             String v_host = parser.getValuesFromContainer(node, "Host").elementAt(0);
-            CMS.debug("v_host " + v_host);
+            CMS.debug("ConfigurationUtils: host: " + v_host);
+
             String v_given_port = parser.getValuesFromContainer(node, givenTag).elementAt(0);
-            CMS.debug("v_port " + v_given_port);
+            CMS.debug("ConfigurationUtils: " + givenTag + " port: " + v_given_port);
+
             if (!(v_host.equals(host) && v_given_port.equals(port + "")))
                 continue;
+
+            // v_host == host || v_given_port != port
+
             String wanted_port = parser.getValuesFromContainer(node, wantedTag).elementAt(0);
+            CMS.debug("ConfigurationUtils: " + wantedTag + " port found: " + wanted_port);
+
             return Integer.parseInt(wanted_port);
         }
 
+        CMS.debug("ConfigurationUtils: " + wantedTag + " port not found");
         return 0;
     }
 
