@@ -18,6 +18,8 @@
 
 package org.dogtagpki.server.tps.cms;
 
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.util.Hashtable;
 
 import netscape.security.x509.X509CertImpl;
@@ -41,5 +43,31 @@ public class CARetrieveCertResponse extends RemoteResponse
 
     public X509CertImpl getCert() {
         return (X509CertImpl) nameValTable.get(IRemoteRequest.CA_RESPONSE_Certificate_x509);
+    }
+
+    public String getRevocationReason() {
+        return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
+    }
+
+    public boolean isCertRevoked() {
+        String retRevocationReason = getRevocationReason();
+        if (retRevocationReason != null) {
+            return true;
+        }
+        // revocationReason not found means cert not revoked
+        return false;
+    }
+
+    /*
+     * This is checking the validity;  Revocation check should be done by calling isCertRevoked()
+     */
+    public boolean isCertValid() {
+        X509CertImpl cert = getCert();
+        try {
+            cert.checkValidity();
+            return true;
+        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+            return false;
+        }
     }
 }

@@ -38,6 +38,7 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.engine.TPSEngine.ENROLL_MODES;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
+import org.dogtagpki.server.tps.main.ExternalRegCertToRecover.CertStatus;
 import org.dogtagpki.server.tps.main.ObjectSpec;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
 import org.dogtagpki.server.tps.mapping.BaseMappingResolver;
@@ -122,6 +123,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String cuid = appletInfo.getCUIDhexStringPlain();
         session.setTokenRecord(tokenRecord);
         String tokenType = null;
+        ExternalRegAttrs erAttrs = null;
 
         if (isExternalReg) {
             CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: ON");
@@ -163,7 +165,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         TPSStatus.STATUS_ERROR_LOGIN);
             }
 
-            ExternalRegAttrs erAttrs;
             try {
                 erAttrs = processExternalRegAttrs(authId);
             } catch (Exception ee) {
@@ -566,7 +567,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
         CMS.debug(method + " adding certs to token with tdbAddCertificatesForCUID...");
         ArrayList<TPSCertRecord> certRecords = certsInfo.toTPSCertRecords(tokenRecord.getId(), tokenRecord.getUserID());
-        tps.tdb.tdbAddCertificatesForCUID(tokenRecord.getId(), certRecords);
+        if (isExternalReg)
+            tps.tdb.tdbAddCertificatesForCUID(tokenRecord.getId(), certRecords, erAttrs);
+        else
+            tps.tdb.tdbAddCertificatesForCUID(tokenRecord.getId(), certRecords);
         CMS.debug(method + " tokendb updated with certs to the cuid so that it reflects what's on the token");
 
         auditMsg = "appletVersion=" + lastObjVer + "; tokenType =" + selectedTokenType + "; userid =" + userid;
@@ -965,9 +969,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
 
             String retCertB64 = certResp.getCertB64();
+            byte[] cert_bytes;
             if (retCertB64 != null) {
                 CMS.debug(method + "recovered:  retCertB64: " + retCertB64);
-                byte[] cert_bytes = Utils.base64decode(retCertB64);
+                cert_bytes = Utils.base64decode(retCertB64);
 
                 TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
                 CMS.debug(method + "recovered: retCertB64: "
@@ -976,6 +981,27 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 auditMsg = "recovering cert b64 not found";
                 CMS.debug(method + auditMsg);
                 return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
+            }
+
+            if (certResp.isCertRevoked()) {
+                CMS.debug(method + " cert revoked");
+                if (!allowRecoverInvalidCert()) {
+                    auditMsg = "revoked cert not allowed on token per policy;";
+                    CMS.debug(method + auditMsg);
+                    return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
+                }
+                erCert.setCertStatus(CertStatus.REVOKED);
+                CMS.debug(method + " erCert status =" + erCert.getCertStatus());
+            } else {
+                CMS.debug(method + " cert not revoked ");
+                erCert.setCertStatus(CertStatus.ACTIVE);
+
+                // check if expired or not yet valid
+                if (certResp.isCertValid()) {
+                    auditMsg = "cert expired or not yet valid";
+                    CMS.debug(auditMsg);
+                    erCert.setCertStatus(CertStatus.EXPIRED); // it could be not yet valid
+                }
             }
 
             // recover keys
@@ -1013,6 +1039,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
                 }
             }
+
+
 
             CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
 

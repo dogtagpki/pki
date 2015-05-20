@@ -33,7 +33,10 @@ import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.main.ExternalRegAttrs;
+import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.tps.main.TPSException;
+import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -223,11 +226,48 @@ public class TPSTokendb {
 
     /*
      * tdbAddCertificatesForCUID adds certificates issued for the token CUID
+     * - this instance pre-process the cert records to update the cert statuses
      * @param cuid the cuid of the token
      * @param certs an ArrayList of TPSCertRecord
+     * @param erAttrs the ExternalRegAttrs collection
      */
+    public void tdbAddCertificatesForCUID(String cuid, ArrayList<TPSCertRecord> certs, ExternalRegAttrs erAttrs)
+            throws TPSException {
+        String method = "TPSTokendb.tdbAddCertificatesForCUID (with erAttrs): ";
+        String auditMsg = "";
+        CMS.debug(method + "begins");
+        if (cuid == null || certs== null || certs.isEmpty() || erAttrs == null) {
+            auditMsg =  "params cuid, certs and erAttrs cannot be null or empty";
+            CMS.debug(method + auditMsg);
+            throw new TPSException(method + auditMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+        }
+        CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: number of certs to update:"+ certs.size());
+
+        // update cert status first
+        for (TPSCertRecord cert : certs) {
+            ExternalRegCertToRecover.CertStatus status = ExternalRegCertToRecover.CertStatus.UNINITIALIZED;
+            status = erAttrs.getCertStatus(cert.getSerialNumber());
+            if (status == ExternalRegCertToRecover.CertStatus.UNINITIALIZED) {
+                //cert not found in ExternalReg; don't reset status; don't report
+                continue;
+            }
+
+            //cert is one of the ExternalReg recovered certs, update the status
+            CMS.debug(method + "found and set status for:" + cert.getSerialNumber());
+            cert.setStatus(status.toString());
+
+        }
+
+        tdbAddCertificatesForCUID(cuid, certs);
+        CMS.debug(method + "ends");
+
+
+    }
+
     public void tdbAddCertificatesForCUID(String cuid, ArrayList<TPSCertRecord> certs)
             throws TPSException {
+        String method = "TPSTokendb.tdbAddCertificatesForCUID: ";
+        CMS.debug(method + "begins");
         boolean tokenExist = isTokenPresent(cuid);
         if (!tokenExist){
             CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: token not found: "+ cuid);

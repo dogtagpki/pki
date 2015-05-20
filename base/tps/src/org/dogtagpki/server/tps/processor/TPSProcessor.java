@@ -1558,6 +1558,27 @@ public class TPSProcessor {
     }
 
     /*
+     * allow global policy  for externalReg to set in config whether invalid certs are allowed
+     * to be recovered on token
+     * Invalid certs are:
+     *  - revoked certs
+     *  - expired certs
+     *  - certs not yet valid
+     */
+    public boolean allowRecoverInvalidCert() throws TPSException {
+        String method = "TPSProcessor.allowRecoverInvalidCert:";
+        boolean ret = true;
+        IConfigStore configStore = CMS.getConfigStore();
+        String configName = "externalReg.allowRecoverInvalidCert.enable";
+        try {
+            ret = configStore.getBoolean(configName, true);
+        } catch (EBaseException e) {
+            throw new TPSException(method + e.getMessage() , TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+        }
+        return ret;
+    }
+
+    /*
      * processExternalRegAttrs :
      * - retrieve from authToken relevant attributes for externalReg
      * - parse the multi-valued attributes

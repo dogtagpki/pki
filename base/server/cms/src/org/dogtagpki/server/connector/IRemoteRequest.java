@@ -96,6 +96,7 @@ public interface IRemoteRequest {
     public static final String CA_RESPONSE_Certificate_SubjectDN = "SubjectDN";
     public static final String CA_RESPONSE_Certificate_serial = "serialno";
     public static final String CA_RESPONSE_Certificate_chain_b64 = "certChainBase64";
+    public static final String CA_RESPONSE_Certificate_RevocationReason = "revocationReason";
 
     // KRA request params
     public static final String KRA_UserId = "userid";

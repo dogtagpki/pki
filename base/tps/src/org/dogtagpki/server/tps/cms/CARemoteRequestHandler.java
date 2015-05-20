@@ -349,6 +349,16 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                 }
             }
 
+            value = xmlResponse.getValue(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
+            if (value == null) {
+                CMS.debug("CARemoteRequestHandler:: retrieveCertificate(): response missing name-value pair for: " +
+                        IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason);
+            } else {
+                CMS.debug("CARemoteRequestHandler:: retrieveCertificate(): got IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason = "
+                        + value);
+                response.put(IRemoteRequest.CA_RESPONSE_Certificate_RevocationReason, value);
+            }
+
             CMS.debug("CARemoteRequestHandler: retrieveCertificate(): ends.");
             return new CARetrieveCertResponse(response);
         } else {
