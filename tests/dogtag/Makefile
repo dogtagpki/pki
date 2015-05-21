@@ -312,6 +312,33 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/install-tests/ocsp-installer.sh
 	chmod a+x ./acceptance/install-tests/tks-installer.sh
 	chmod a+x ./acceptance/install-tests/tps-installer.sh
+	#pki ca-selftest tests
+	chmod a+x ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-cli.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-cli-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-cli-run.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-cli-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-admin.sh
+	#pki kra-selftest tests
+	chmod a+x ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-cli-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-cli-run.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-cli-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-cli.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-admin.sh
+	#pki ocsp-selftest tests
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-selftest-cli/pki-ocsp-selftest-cli-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-selftest-cli/pki-ocsp-selftest-cli-run.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-selftest-cli/pki-ocsp-selftest-cli-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-selftest-cli/pki-ocsp-selftest-cli.sh
+	#pki tks-selftest tests
+	chmod a+x ./acceptance/cli-tests/pki-tks-selftest-cli/pki-tks-selftest-cli-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-selftest-cli/pki-tks-selftest-cli-run.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-selftest-cli/pki-tks-selftest-cli-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-selftest-cli/pki-tks-selftest-cli.sh
+	#pki tps-selftest tests
+	chmod a+x ./acceptance/cli-tests/pki-tps-selftest-cli/pki-tps-selftest-cli-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-selftest-cli/pki-tps-selftest-cli-run.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-selftest-cli/pki-tps-selftest-cli-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-selftest-cli/pki-tps-selftest-cli.sh
 
 clean:
 	rm -f *~ $(BUILT_FILES)

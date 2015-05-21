@@ -241,6 +241,29 @@
 . ./acceptance/bugzilla/jss-bugs/bug-1133718.sh
 . ./acceptance/bugzilla/jss-bugs/bug-1040640.sh
 . ./acceptance/bugzilla/pki-core-bugs/bug-790924.sh
+. ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-cli.sh
+. ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-cli-find.sh
+. ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-cli-run.sh
+. ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-cli-show.sh
+. ./acceptance/cli-tests/pki-ca-selftest-cli/pki-ca-selftest-admin.sh
+. ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-cli-find.sh
+. ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-cli-run.sh
+. ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-cli-show.sh
+. ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-cli.sh
+. ./acceptance/cli-tests/pki-kra-selftest-cli/pki-kra-selftest-admin.sh
+. ./acceptance/cli-tests/pki-ocsp-selftest-cli/pki-ocsp-selftest-cli-find.sh
+. ./acceptance/cli-tests/pki-ocsp-selftest-cli/pki-ocsp-selftest-cli-run.sh
+. ./acceptance/cli-tests/pki-ocsp-selftest-cli/pki-ocsp-selftest-cli-show.sh
+. ./acceptance/cli-tests/pki-ocsp-selftest-cli/pki-ocsp-selftest-cli.sh
+. ./acceptance/cli-tests/pki-tks-selftest-cli/pki-tks-selftest-cli-find.sh
+. ./acceptance/cli-tests/pki-tks-selftest-cli/pki-tks-selftest-cli-run.sh
+. ./acceptance/cli-tests/pki-tks-selftest-cli/pki-tks-selftest-cli-show.sh
+. ./acceptance/cli-tests/pki-tks-selftest-cli/pki-tks-selftest-cli.sh
+. ./acceptance/cli-tests/pki-tps-selftest-cli/pki-tps-selftest-cli-find.sh
+. ./acceptance/cli-tests/pki-tps-selftest-cli/pki-tps-selftest-cli-run.sh
+. ./acceptance/cli-tests/pki-tps-selftest-cli/pki-tps-selftest-cli-show.sh
+. ./acceptance/cli-tests/pki-tps-selftest-cli/pki-tps-selftest-cli.sh
+
 
 
 # Make sure TESTORDER is initialized or multihost may have issues
@@ -1837,6 +1860,179 @@ rlJournalStart
                   subsystemId=$TPS_INST
                   subsystemType=tps
                   run_rhcs_tps_installer_tests $subsystemId $subsystemType $MYROLE
+        fi
+	PKI_CA_SELFTEST_CONFIG_UPPERCASE=$(echo $PKI_CA_SELFTEST_CONFIG | tr [a-z] [A-Z])
+        if [ "$PKI_CA_SELFTEST_CONFIG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-selftest --help
+                  run_pki-ca-selftest_tests
+        fi
+        PKI_CA_SELFTEST_FIND_UPPERCASE=$(echo $PKI_CA_SELFTEST_FIND | tr [a-z] [A-Z])
+        if [ "$PKI_CA_SELFTEST_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-selftest-find
+                 subsystemType=ca
+                 run_pki-ca-selftest-find_tests $subsystemType $MYROLE
+        fi
+        PKI_CA_SELFTEST_RUN_UPPERCASE=$(echo $PKI_CA_SELFTEST_RUN | tr [a-z] [A-Z])
+        if [ "$PKI_CA_SELFTEST_RUN_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-selftest-run
+                 subsystemType=ca
+                 run_pki-ca-selftest-run_tests $subsystemType $MYROLE
+        fi
+        PKI_CA_SELFTEST_SHOW_UPPERCASE=$(echo $PKI_CA_SELFTEST_SHOW | tr [a-z] [A-Z])
+        if [ "$PKI_CA_SELFTEST_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-selftest-show
+                 subsystemType=ca
+                 run_pki-ca-selftest-show_tests $subsystemType $MYROLE
+        fi
+        PKI_CA_SELFTEST_ADMIN_UPPERCASE=$(echo $PKI_CA_SELFTEST_ADMIN | tr [a-z] [A-Z])
+        if [ "$PKI_CA_SELFTEST_ADMIN_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ca-selftest admin
+                  subsystemType=ca
+                  run_pki-ca-selftest-admin_tests $subsystemType $MYROLE
+        fi
+        PKI_KRA_SELFTEST_FIND_UPPERCASE=$(echo $PKI_KRA_SELFTEST_FIND | tr [a-z] [A-Z])
+        if [ "$PKI_KRA_SELFTEST_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki kra-selftest-find
+                 subsystemType=kra
+                 run_pki-kra-selftest-find_tests $subsystemType $MYROLE
+        fi
+        PKI_KRA_SELFTEST_RUN_UPPERCASE=$(echo $PKI_KRA_SELFTEST_RUN | tr [a-z] [A-Z])
+        if [ "$PKI_KRA_SELFTEST_RUN_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki kra-selftest-run
+                 subsystemType=kra
+                 run_pki-kra-selftest-run_tests $subsystemType $MYROLE
+        fi
+        PKI_KRA_SELFTEST_SHOW_UPPERCASE=$(echo $PKI_KRA_SELFTEST_SHOW | tr [a-z] [A-Z])
+        if [ "$PKI_KRA_SELFTEST_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki kra-selftest-show
+                 subsystemType=kra
+                 run_pki-kra-selftest-show_tests $subsystemType $MYROLE
+        fi
+        PKI_KRA_SELFTEST_CONFIG_UPPERCASE=$(echo $PKI_KRA_SELFTEST_CONFIG | tr [a-z] [A-Z])
+        if [ "$PKI_KRA_SELFTEST_CONFIG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki kra-selftest --help
+                  run_pki-kra-selftest_tests
+        fi
+        PKI_KRA_SELFTEST_ADMIN_UPPERCASE=$(echo $PKI_KRA_SELFTEST_ADMIN | tr [a-z] [A-Z])
+        if [ "$PKI_KRA_SELFTEST_ADMIN_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki kra-selftest admin
+                  subsystemType=kra
+                  run_pki-kra-selftest-admin_tests $subsystemType $MYROLE
+        fi
+	PKI_OCSP_SELFTEST_FIND_UPPERCASE=$(echo $PKI_OCSP_SELFTEST_FIND | tr [a-z] [A-Z])
+        if [ "$PKI_OCSP_SELFTEST_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ocsp-selftest-find
+                 subsystemType=ocsp
+                 run_pki-ocsp-selftest-find_tests $subsystemType $MYROLE
+        fi
+        PKI_OCSP_SELFTEST_RUN_UPPERCASE=$(echo $PKI_OCSP_SELFTEST_RUN | tr [a-z] [A-Z])
+        if [ "$PKI_OCSP_SELFTEST_RUN_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ocsp-selftest-run
+                 subsystemType=ocsp
+                 run_pki-ocsp-selftest-run_tests $subsystemType $MYROLE
+        fi
+        PKI_OCSP_SELFTEST_SHOW_UPPERCASE=$(echo $PKI_OCSP_SELFTEST_SHOW | tr [a-z] [A-Z])
+        if [ "$PKI_OCSP_SELFTEST_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ocsp-selftest-show
+                 subsystemType=ocsp
+
+                 run_pki-ocsp-selftest-show_tests $subsystemType $MYROLE
+        fi
+        PKI_OCSP_SELFTEST_CONFIG_UPPERCASE=$(echo $PKI_OCSP_SELFTEST_CONFIG | tr [a-z] [A-Z])
+        if [ "$PKI_OCSP_SELFTEST_CONFIG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki ocsp-selftest --help
+                  run_pki-ocsp-selftest_tests
+        fi
+        PKI_TKS_SELFTEST_FIND_UPPERCASE=$(echo $PKI_TKS_SELFTEST_FIND | tr [a-z] [A-Z])
+        if [ "$PKI_TKS_SELFTEST_FIND_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki tks-selftest-find
+                 subsystemType=tks
+                 run_pki-tks-selftest-find_tests $subsystemType $MYROLE
+        fi
+        PKI_TKS_SELFTEST_RUN_UPPERCASE=$(echo $PKI_TKS_SELFTEST_RUN | tr [a-z] [A-Z])
+        if [ "$PKI_TKS_SELFTEST_RUN_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki tks-selftest-run
+                 subsystemType=tks
+                 run_pki-tks-selftest-run_tests $subsystemType $MYROLE
+        fi
+        PKI_TKS_SELFTEST_SHOW_UPPERCASE=$(echo $PKI_TKS_SELFTEST_SHOW | tr [a-z] [A-Z])
+        if [ "$PKI_TKS_SELFTEST_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki tks-selftest-show
+                 subsystemType=tks
+                 run_pki-tks-selftest-show_tests $subsystemType $MYROLE
+        fi
+        PKI_TKS_SELFTEST_CONFIG_UPPERCASE=$(echo $PKI_TKS_SELFTEST_CONFIG | tr [a-z] [A-Z])
+        if [ "$PKI_TKS_SELFTEST_CONFIG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki tks-selftest --help
+                  run_pki-tks-selftest_tests
+        fi
+	PKI_TPS_SELFTEST_RUN_UPPERCASE=$(echo $PKI_TPS_SELFTEST_RUN | tr [a-z] [A-Z])
+        if [ "$PKI_TPS_SELFTEST_RUN_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki tps-selftest-run
+                 subsystemType=tps
+                 run_pki-tps-selftest-run_tests $subsystemType $MYROLE
+        fi
+        PKI_TPS_SELFTEST_SHOW_UPPERCASE=$(echo $PKI_TPS_SELFTEST_SHOW | tr [a-z] [A-Z])
+        if [ "$PKI_TPS_SELFTEST_SHOW_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki tps-selftest-show
+                 subsystemType=tps
+                 run_pki-tps-selftest-show_tests $subsystemType $MYROLE
+        fi
+        PKI_TPS_SELFTEST_CONFIG_UPPERCASE=$(echo $PKI_TPS_SELFTEST_CONFIG | tr [a-z] [A-Z])
+        if [ "$PKI_TPS_SELFTEST_CONFIG_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute pki tps-selftest --help
+                  run_pki-tps-selftest_tests
+        fi
+        #############CA Selftests###################
+        PKI_CA_SELFTESTS_UPPERCASE=$(echo $PKI_CA_SELFTESTS | tr [a-z] [A-Z])
+        if [ "$PKI_CA_SELFTESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute all ca selftest cli's
+                subsystemType=ca
+                run_pki-ca-selftest_tests
+                run_pki-ca-selftest-find_tests $subsystemType $MYROLE
+                run_pki-ca-selftest-run_tests $subsystemType $MYROLE
+                run_pki-ca-selftest-show_tests $subsystemType $MYROLE
+        fi
+        #############KRA Selftests###################
+        PKI_KRA_SELFTESTS_UPPERCASE=$(echo $PKI_KRA_SELFTESTS | tr [a-z] [A-Z])
+        if [ "$PKI_KRA_SELFTESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute all kra selftest cli's
+                subsystemType=kra
+                run_pki-kra-selftest_tests
+                run_pki-kra-selftest-find_tests $subsystemType $MYROLE
+                run_pki-kra-selftest-run_tests $subsystemType $MYROLE
+                run_pki-kra-selftest-show_tests $subsystemType $MYROLE
+                run_pki-kra-selftest-admin_tests $subsystemType $MYROLE
+        fi
+        #############OCSP Selftests###################
+        PKI_OCSP_SELFTESTS_UPPERCASE=$(echo $PKI_OCSP_SELFTESTS | tr [a-z] [A-Z])
+        if [ "$PKI_OCSP_SELFTESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute all ocsp selftest cli's
+                subsystemType=ocsp
+                run_pki-ocsp-selftest_tests
+                run_pki-ocsp-selftest-find_tests $subsystemType $MYROLE
+                run_pki-ocsp-selftest-run_tests $subsystemType $MYROLE
+                run_pki-ocsp-selftest-show_tests $subsystemType $MYROLE
+        fi
+        #############TKS Selftests###################
+        PKI_TKS_SELFTESTS_UPPERCASE=$(echo $PKI_TKS_SELFTESTS | tr [a-z] [A-Z])
+        if [ "$PKI_TKS_SELFTESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute all tks selftest cli's
+                subsystemType=tks
+                run_pki-tks-selftest_tests
+                run_pki-tks-selftest-find_tests $subsystemType $MYROLE
+                run_pki-tks-selftest-run_tests $subsystemType $MYROLE
+                run_pki-tks-selftest-show_tests $subsystemType $MYROLE
+        fi
+	#############TPS Selftests###################
+        PKI_TPS_SELFTESTS_UPPERCASE=$(echo $PKI_TPS_SELFTESTS | tr [a-z] [A-Z])
+        if [ "$PKI_TPS_SELFTESTS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ]; then
+                # Execute all tps selftest cli's
+                subsystemType=tps
+                run_pki-tps-selftest_tests
+                run_pki-tps-selftest-find_tests $subsystemType $MYROLE
+                run_pki-tps-selftest-run_tests $subsystemType $MYROLE
+                run_pki-tps-selftest-show_tests $subsystemType $MYROLE
         fi
 	rlPhaseEnd
 	######## DEV UNIT TESTS ############
