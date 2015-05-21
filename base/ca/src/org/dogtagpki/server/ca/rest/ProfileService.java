@@ -80,6 +80,7 @@ import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
+import com.netscape.cmscore.base.SimpleProperties;
 
 /**
  * @author alee
@@ -537,6 +538,8 @@ public class ProfileService extends PKIService implements ProfileResource {
         Map<String, String> auditParams = new LinkedHashMap<String, String>();
         String profileId = null;
         String classId = null;
+        // First read the data into a Properties to process escaped
+        // separator characters (':', '=') in values
         Properties properties = new Properties();
         try {
             // load data and read profileId and classId
@@ -555,9 +558,16 @@ public class ProfileService extends PKIService implements ProfileResource {
         properties.remove("profileId");
         properties.remove("classId");
 
+        // Now copy into SimpleProperties to avoid unwanted escapes
+        // of separator characters in output
+        SimpleProperties simpleProperties = new SimpleProperties();
+        for (String k : properties.stringPropertyNames()) {
+            simpleProperties.setProperty(k, properties.getProperty(k));
+        }
+
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            properties.store(out, null);
+            simpleProperties.store(out, null);
             data = out.toByteArray();  // original data sans profileId, classId
 
             IProfile profile = ps.getProfile(profileId);
@@ -655,6 +665,8 @@ public class ProfileService extends PKIService implements ProfileResource {
             throw new BadRequestException("Cannot change profile data.  Profile must be disabled");
         }
 
+        // First read the data into a Properties to process escaped
+        // separator characters (':', '=') in values
         Properties properties = new Properties();
         try {
             properties.load(new ByteArrayInputStream(data));
@@ -664,6 +676,13 @@ public class ProfileService extends PKIService implements ProfileResource {
         properties.remove("profileId");
         properties.remove("classId");
 
+        // Now copy into SimpleProperties to avoid unwanted escapes
+        // of separator characters in output
+        SimpleProperties simpleProperties = new SimpleProperties();
+        for (String k : properties.stringPropertyNames()) {
+            simpleProperties.setProperty(k, properties.getProperty(k));
+        }
+
         try {
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
@@ -671,7 +690,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            properties.store(out, null);
+            simpleProperties.store(out, null);
             data = out.toByteArray();  // original data sans profileId, classId
 
             profile.getConfigStore().load(new ByteArrayInputStream(data));
