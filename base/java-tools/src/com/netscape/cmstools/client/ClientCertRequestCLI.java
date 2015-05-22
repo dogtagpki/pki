@@ -217,7 +217,7 @@ public class ClientCertRequestCLI extends CLI {
 
             String encoded;
             if (transportCertFilename == null) {
-                SystemCertClient certClient = new SystemCertClient(client, "kra");
+                SystemCertClient certClient = new SystemCertClient(client, "ca");
                 encoded = certClient.getTransportCert().getEncoded();
 
             } else {
@@ -251,13 +251,19 @@ public class ClientCertRequestCLI extends CLI {
 
         CertEnrollmentRequest request = certClient.getEnrollmentTemplate(profileID);
 
-        ProfileInput kg = request.getInput("Key Generation");
+        // Key Generation / Dual Key Generation
+        for (ProfileInput input : request.getInputs()) {
 
-        ProfileAttribute typeAttr = kg.getAttribute("cert_request_type");
-        typeAttr.setValue(requestType);
+            ProfileAttribute typeAttr = input.getAttribute("cert_request_type");
+            if (typeAttr != null) {
+                typeAttr.setValue(requestType);
+            }
 
-        ProfileAttribute csrAttr = kg.getAttribute("cert_request");
-        csrAttr.setValue(csr);
+            ProfileAttribute csrAttr = input.getAttribute("cert_request");
+            if (csrAttr != null) {
+                csrAttr.setValue(csr);
+            }
+        }
 
         ProfileInput sn = request.getInput("Subject Name");
         if (sn != null) {

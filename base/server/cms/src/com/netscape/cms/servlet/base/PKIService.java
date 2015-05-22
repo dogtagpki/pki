@@ -19,14 +19,13 @@ package com.netscape.cms.servlet.base;
 
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.security.Principal;
-import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
@@ -36,11 +35,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.cert.CertData;
-import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 
@@ -65,7 +63,17 @@ public class PKIService {
     public final static int DEFAULT_SIZE = 20;
 
     @Context
-    private HttpHeaders headers;
+    protected UriInfo uriInfo;
+
+    @Context
+    protected HttpHeaders headers;
+
+    @Context
+    protected Request request;
+
+    @Context
+    protected HttpServletRequest servletRequest;
+
 
     public ILogger logger = CMS.getLogger();
     public IAuditor auditor = CMS.getAuditor();
@@ -167,25 +175,6 @@ public class PKIService {
         builder.tag(tag);
         builder.type(getResponseFormat());
         return builder.build();
-    }
-
-    public CertData createCertificateData(org.mozilla.jss.crypto.X509Certificate cert)
-            throws CertificateEncodingException {
-
-        CertData data = new CertData();
-
-        data.setSerialNumber(new CertId(cert.getSerialNumber()));
-
-        Principal issuerDN = cert.getIssuerDN();
-        if (issuerDN != null) data.setIssuerDN(issuerDN.toString());
-
-        Principal subjectDN = cert.getSubjectDN();
-        if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
-
-        String b64 = CertData.HEADER + "\n" + CMS.BtoA(cert.getEncoded()) + CertData.FOOTER;
-        data.setEncoded(b64);
-
-        return data;
     }
 
     public Locale getLocale(HttpHeaders headers) {
