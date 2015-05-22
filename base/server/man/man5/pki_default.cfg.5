@@ -266,9 +266,10 @@ Replicate schema when the replication agreement is set up and the new instance (
 .IP
 The type of security used for the replication data.  This can be set to SSL (using LDAPS), TLS, or None.  Defaults to None.  For SSL and TLS, SSL must be set up for the database instances beforehand.
 .TP
-.B pki_clone_uri
+.B pki_master_hostname, pki_master_https_port, pki_clone_uri
 .IP
-A pointer to the subsystem being cloned.  The format is https://<master_hostname>:<master_https_port>.
+Hostname and port, or URI of the subsystem being cloned.  The URI format is https://<master_hostname>:<master_https_port>
+where the default master hostname and https port are set to be the security domain's hostname and https port.
 
 .SS EXTERNAL CA CERTIFICATE PARAMETERS
 \x'-1'\fBpki_external\fR

@@ -678,7 +678,6 @@ class ConfigurationFile:
             self.confirm_data_exists("pki_clone_pkcs12_path")
             self.confirm_file_exists("pki_clone_pkcs12_path")
             self.confirm_data_exists("pki_clone_replication_security")
-            self.confirm_data_exists("pki_clone_uri")
         elif self.external:
             # External CA
             if not self.external_step_two:
