@@ -1116,6 +1116,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 if (data.getP12Password() == null) {
                     throw new BadRequestException("P12 password not provided");
                 }
+            } else {
+                if (data.getP12File() != null) {
+                    throw new BadRequestException("P12 filename should not be provided since HSM clones must share their HSM master's private keys");
+                }
+
+                if (data.getP12Password() != null) {
+                    throw new BadRequestException("P12 password should not be provided since HSM clones must share their HSM master's private keys");
+                }
             }
         } else {
             data.setClone("false");
@@ -1177,6 +1185,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         if ((data.getBackupKeys() != null) && data.getBackupKeys().equals("true")) {
+            if (! data.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT)) {
+                throw new BadRequestException("HSMs cannot publish private keys to PKCS #12 files");
+            }
+
             if ((data.getBackupFile() == null) || (data.getBackupFile().length()<=0)) {
                 //TODO: also check for valid path, perhaps by touching file there
                 throw new BadRequestException("Invalid key backup file name");

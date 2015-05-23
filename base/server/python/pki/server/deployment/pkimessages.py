@@ -199,6 +199,15 @@ PKIHELPER_GROUP_ADD_2 = "adding GID '%s' for group '%s' . . ."
 PKIHELPER_GROUP_ADD_DEFAULT_2 = "adding default GID '%s' for group '%s' . . ."
 PKIHELPER_GROUP_ADD_GID_KEYERROR_1 = "KeyError:  pki_gid %s"
 PKIHELPER_GROUP_ADD_KEYERROR_1 = "KeyError:  pki_group %s"
+PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS = \
+    "Since clones using Hardware Security Modules (HSMs) must share their "\
+    "master's private keys, the 'pki_clone_pkcs12_path' and "\
+    "'pki_clone_pkcs12_password' variables may not be utilized with HSMs."
+PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES = \
+    "Since Hardware Security Modules (HSMs) do not allow their private keys "\
+    "to be extracted to PKCS #12 files, the 'pki_backup_keys' and "\
+    "'pki_backup_password' variables may not be utilized with HSMs.\n"\
+    "Please contact the HSM vendor regarding their specific backup mechanism."
 PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT = \
     "port %s has invalid selinux context %s"
 PKIHELPER_IS_A_DIRECTORY_1 = "'%s' is a directory"

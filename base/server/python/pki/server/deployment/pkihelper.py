@@ -559,6 +559,16 @@ class ConfigurationFile:
         # Verify existence of Admin Password (except for Clones)
         if not self.clone:
             self.confirm_data_exists("pki_admin_password")
+        # If HSM, verify absence of all PKCS #12 backup parameters
+        if (config.str2bool(self.mdict['pki_hsm_enable']) and
+                (config.str2bool(self.mdict['pki_backup_keys']) or
+                ('pki_backup_password' in self.mdict and
+                len(self.mdict['pki_backup_password'])))):
+            config.pki_log.error(
+                log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            raise Exception(
+                log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES)
         # If required, verify existence of Backup Password
         if config.str2bool(self.mdict['pki_backup_keys']):
             self.confirm_data_exists("pki_backup_password")
@@ -568,9 +578,19 @@ class ConfigurationFile:
             self.confirm_data_exists("pki_client_database_password")
         # Verify existence of Client PKCS #12 Password for Admin Cert
         self.confirm_data_exists("pki_client_pkcs12_password")
-        # Verify existence of PKCS #12 Password (ONLY for Clones)
         if self.clone:
-            self.confirm_data_exists("pki_clone_pkcs12_password")
+            # Verify existence of PKCS #12 Password (ONLY for non-HSM Clones)
+            if not config.str2bool(self.mdict['pki_hsm_enable']):
+                self.confirm_data_exists("pki_clone_pkcs12_password")
+            # Verify absence of all PKCS #12 clone parameters for HSMs
+            elif (os.path.exists(self.mdict['pki_clone_pkcs12_path']) or
+                    ('pki_clone_pkcs12_password' in self.mdict and
+                    len(self.mdict['pki_clone_pkcs12_password']))):
+                config.pki_log.error(
+                    log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(
+                    log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)
         # Verify existence of Security Domain Password
         # (ONLY for PKI KRA, PKI OCSP, PKI TKS, PKI TPS, Clones, or
         #  Subordinate CA that will be automatically configured and
@@ -675,8 +695,10 @@ class ConfigurationFile:
             self.confirm_data_exists("pki_http_port")
             self.confirm_data_exists("pki_https_port")
             self.confirm_data_exists("pki_tomcat_server_port")
-            self.confirm_data_exists("pki_clone_pkcs12_path")
-            self.confirm_file_exists("pki_clone_pkcs12_path")
+            if not config.str2bool(self.mdict['pki_hsm_enable']):
+                # Check clone parameters for non-HSM clone
+                self.confirm_data_exists("pki_clone_pkcs12_path")
+                self.confirm_file_exists("pki_clone_pkcs12_path")
             self.confirm_data_exists("pki_clone_replication_security")
         elif self.external:
             # External CA
@@ -4119,8 +4141,10 @@ class ConfigClient:
     def set_cloning_parameters(self, data):
         data.isClone = "true"
         data.cloneUri = self.mdict['pki_clone_uri']
-        data.p12File = self.mdict['pki_clone_pkcs12_path']
-        data.p12Password = self.mdict['pki_clone_pkcs12_password']
+        if not config.str2bool(self.mdict['pki_hsm_enable']):
+            # Set these clone parameters for non-HSM clones only
+            data.p12File = self.mdict['pki_clone_pkcs12_path']
+            data.p12Password = self.mdict['pki_clone_pkcs12_password']
         if config.str2bool(self.mdict['pki_clone_replicate_schema']):
             data.replicateSchema = "true"
         else:
