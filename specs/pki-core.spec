@@ -792,7 +792,7 @@ systemctl daemon-reload
 %files -n pki-base
 %defattr(-,root,root,-)
 %doc base/common/LICENSE
-%doc base/common/html/
+%doc %{_datadir}/doc/pki-base/html
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
 %{_datadir}/pki/etc/

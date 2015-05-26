@@ -25,14 +25,6 @@ install(
         ${SYSCONF_INSTALL_DIR}/pki/
 )
 
-# install Python libraries
-install(
-    DIRECTORY
-        python/
-    DESTINATION
-        ${PYTHON_SITE_PACKAGES}
-)
-
 # install executables
 install(
     FILES
@@ -105,4 +97,4 @@ install(
 )
 
 add_subdirectory(src)
-add_subdirectory(python/docs)
+add_subdirectory(python)
