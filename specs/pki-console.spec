@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.2.4
-Release:          0.1%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -95,6 +95,9 @@ cd build
 
 
 %changelog
+* Tue May 26 2015 Dogtag Team <pki-devel@redhat.com> 10.2.4-1
+- Update release number for release build
+
 * Thu Apr 23 2015 Dogtag Team <pki-devel@redhat.com> 10.2.4-0.1
 - Updated version number to 10.2.4-0.1
 
