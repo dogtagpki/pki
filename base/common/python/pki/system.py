@@ -111,7 +111,7 @@ class SecurityDomainSubsystem(object):
             subsystem.name = json_value['@id']
 
         hosts = json_value['Host']
-        if type(hosts) is dict:
+        if isinstance(hosts, dict):
             hosts = [ hosts ]
 
         for h in hosts:
@@ -154,7 +154,7 @@ class SecurityDomainInfo(object):
             security_domain.name = domain_info['@id']
 
             subsystems = domain_info['Subsystem']
-            if type(subsystems) is dict:
+            if isinstance(subsystems, dict):
                 subsystems = [ subsystems ]
 
         for s in subsystems:

@@ -36,8 +36,9 @@ class CustomTypeEncoder(json.JSONEncoder):
         for k, v in TYPES.items():
             if isinstance(obj, v):
                 return {k: obj.__dict__}
-        if type(obj) in NOTYPES.itervalues():
-            return self.attr_name_conversion(obj.__dict__, type(obj))
+        for t in NOTYPES.itervalues():
+            if isinstance(obj, t):
+                return self.attr_name_conversion(obj.__dict__, type(obj))
         return json.JSONEncoder.default(self, obj)
 
     @staticmethod
