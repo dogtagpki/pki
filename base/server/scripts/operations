@@ -1098,16 +1098,22 @@ verify_symlinks()
         tomcat_dir="/usr/share/tomcat"
     fi
 
-    # Dogtag 10 Symbolic Link Target Variables
-    java_dir="/usr/share/java"
-    pki_systemd_service="pki-${PKI_WEB_SERVER_TYPE}d@.service"
-    systemd_dir="/lib/systemd/system"
-
     # Dogtag 10 Symbolic Link Variables
+    java_dir="/usr/share/java"
     pki_common_jar_dir="${PKI_INSTANCE_PATH}/common/lib"
     pki_registry_dir="/etc/sysconfig/pki/${PKI_WEB_SERVER_TYPE}/${PKI_INSTANCE_NAME}"
-    pki_systemd_dir="/etc/systemd/system/pki-tomcatd.target.wants"
-    pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_NAME}.service"
+
+    # Dogtag 10 Systemd variables
+    systemd_dir="/lib/systemd/system"
+    if [ "${STARTED_BY_SYSTEMD}" == "1" ]; then
+        pki_systemd_service="pki-${PKI_WEB_SERVER_TYPE}d-nuxwdog@.service"
+        pki_systemd_dir="/etc/systemd/system/pki-tomcatd-nuxwdog.target.wants"
+        pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d-nuxwdog@${PKI_INSTANCE_NAME}.service"
+    else
+        pki_systemd_service="pki-${PKI_WEB_SERVER_TYPE}d@.service"
+        pki_systemd_dir="/etc/systemd/system/pki-tomcatd.target.wants"
+        pki_systemd_link="pki-${PKI_WEB_SERVER_TYPE}d@${PKI_INSTANCE_NAME}.service"
+    fi
 
     # '${PKI_INSTANCE_PATH}' symlinks
     base_symlinks=(
