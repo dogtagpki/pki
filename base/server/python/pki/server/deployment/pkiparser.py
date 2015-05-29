@@ -566,7 +566,7 @@ class PKIConfigParser:
             pin_high = 999999999999
 
             # use user-provided PIN if specified
-            if not self.mdict['pki_pin']:
+            if 'pki_pin' not in self.mdict:
                 # otherwise generate a random password
                 self.mdict['pki_pin'] = \
                     random.randint(pin_low, pin_high)
