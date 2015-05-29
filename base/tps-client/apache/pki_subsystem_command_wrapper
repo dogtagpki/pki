@@ -80,29 +80,10 @@ ARCHITECTURE=""
 if [ "${OS}" = "Linux" ] ; then
 	ARCHITECTURE=`arch`
 	if [ "${ARCHITECTURE}" = "i686" ] ; then
-		LD_LIBRARY_PATH=/usr/lib/java:/usr/lib:/lib
-		LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib/java/dirsec:${LD_LIBRARY_PATH}
-		export LD_LIBRARY_PATH
-
 		PATH=/usr/lib/${PRODUCT}:/bin
 		PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${PATH}
 		export PATH
 	elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
-		LD_LIBRARY_PATH=/usr/lib/java:/usr/lib:/lib
-		LD_LIBRARY_PATH=/usr/lib/${PRODUCT}:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib/dirsec:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib/java/dirsec:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib64/java:/usr/lib64:/lib64:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib64/${PRODUCT}:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib64/${PRODUCT}/${SUBSYSTEM}:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib64/dirsec:${LD_LIBRARY_PATH}
-		LD_LIBRARY_PATH=/usr/lib64/java/dirsec:${LD_LIBRARY_PATH}
-		export LD_LIBRARY_PATH
-
 		PATH=/usr/lib/${PRODUCT}
 		PATH=/usr/lib/${PRODUCT}/${SUBSYSTEM}:${PATH}
 		PATH=/usr/lib64/${PRODUCT}:/bin:${PATH}

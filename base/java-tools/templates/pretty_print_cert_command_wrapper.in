@@ -70,21 +70,6 @@ if [ "${OS}" = "Linux" ] ; then
     ARCHITECTURE=`arch`
     JAVA="java"
     JAVA_OPTIONS=""
-
-    if [ "${ARCHITECTURE}" = "i686" ] ; then
-        LD_LIBRARY_PATH=/usr/lib:/lib
-        LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
-        export LD_LIBRARY_PATH
-    elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
-        LD_LIBRARY_PATH=/usr/lib:/lib
-        LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib64:/lib64:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib64/jss:${LD_LIBRARY_PATH}
-        export LD_LIBRARY_PATH
-    else
-        invalid_architecture "${ARCHITECTURE}"
-        exit 255
-    fi
 elif [ "${OS}" = "SunOS" ] ; then
     ARCHITECTURE=`uname -p`
     if [ "${ARCHITECTURE}" = "sparc" ] &&

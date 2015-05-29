@@ -32,17 +32,7 @@ fi
 OS=`uname -s`
 PLATFORM=""
 
-if [ $OS = "Linux" ]; then
-	PLATFORM=`arch`
-	if [ $PLATFORM = "i686" ]; then
-		# 32-bit Linux
-		LD_LIBRARY_PATH=/usr/lib/dirsec:/usr/lib:$LD_LIBRARY_PATH
-	elif [ $PLATFORM = "x86_64" ]; then
-		# 64-bit Linux
-		LD_LIBRARY_PATH=/usr/lib64/dirsec:/usr/lib64:/usr/lib:$LD_LIBRARY_PATH
-	fi 
-	export LD_LIBRARY_PATH
-elif [ $OS = "SunOS" ]; then
+if [ $OS = "SunOS" ]; then
 	PLATFORM=`uname -p`
 	if	[ "${PLATFORM}" = "sparc" ] &&
 		[ -d "/usr/lib/sparcv9/" ] ; then

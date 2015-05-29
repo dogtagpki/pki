@@ -25,30 +25,6 @@ import sys
 
 def run_java_cli(args):
 
-    # construct libpath based on the architecture
-    arch = subprocess.check_output('arch')
-    arch = arch.strip()
-
-    if arch == 'i686':
-        libpath = [
-            '/usr/lib/jss',
-            '/usr/lib',
-            '/lib'
-        ]
-
-    elif arch == 'x86_64':
-        libpath = [
-            '/usr/lib64/jss',
-            '/usr/lib64',
-            '/lib64',
-            '/usr/lib/jss',
-            '/usr/lib',
-            '/lib'
-        ]
-
-    else:
-        raise Exception('Unsupported architecture: ' + arch)
-
     # read RESTEasy library path
     value = subprocess.check_output(
         '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
@@ -85,18 +61,12 @@ def run_java_cli(args):
         '/usr/share/java/pki/pki-cmsutil.jar',
         '/usr/share/java/pki/pki-certsrv.jar',
         '/usr/share/java/pki/pki-tools.jar',
+        '/usr/lib64/java/jss4.jar',
+        '/usr/lib/java/jss4.jar'
     ]
-
-    if arch == 'i686':
-        classpath.append('/usr/lib/java/jss4.jar')
-
-    elif arch == 'x86_64':
-        classpath.append('/usr/lib64/java/jss4.jar')
-        classpath.append('/usr/lib/java/jss4.jar')
 
     command = [
         'java',
-        '-Djava.library.path=' + (':'.join(libpath)),
         '-cp',
         ':'.join(classpath),
         'com.netscape.cmstools.cli.MainCLI'

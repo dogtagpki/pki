@@ -8,23 +8,13 @@ if [ "${OS}" != "Linux" ] ; then
 	exit 255
 fi
 
-PLATFORM=`uname -p`
-if [ "${PLATFORM}" = "i686" ] ; then
-	ARCHITECTURE="32-bit"
-elif [ "${PLATFORM}" = "x86_64" ] ; then
-	ARCHITECTURE="64-bit"
-else
-	printf "'$0' is ONLY available on 'i686' or 'x86_64' platforms!\n"
-	exit 255
-fi
-
 if [ -f "/etc/redhat-release" ] ; then
 	DISTRIBUTION=`cat /etc/redhat-release | cut -c1-7`
 	DIST_VERSION=`cat /etc/redhat-release | tr -d [:alpha:][:blank:][\(\)]`
 	if [ "${DISTRIBUTION}" = "Fedora " ] ; then
-		MESSAGE="[built for ${ARCHITECTURE} Fedora ${DIST_VERSION}]"
+		MESSAGE="[built for Fedora ${DIST_VERSION}]"
 	elif [ "${DISTRIBUTION}" = "Red Hat" ] ; then
-		MESSAGE="[built for ${ARCHITECTURE} Red Hat ${DIST_VERSION}]"
+		MESSAGE="[built for Red Hat ${DIST_VERSION}]"
 	else
 		printf "'$0' is ONLY available on 'Fedora' or 'Red Hat' "
 		printf "distributions!\n"
