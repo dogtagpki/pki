@@ -286,20 +286,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_instance_log_path'],
                 deployer.mdict['pki_instance_logs_link'])
 
-        if deployer.mdict['pki_subsystem'] == 'TKS':
-            deployer.symlink.create(
-                deployer.mdict['pki_symkey_jar'],
-                deployer.mdict['pki_symkey_jar_link'])
-
         return self.rv
 
     def destroy(self, deployer):
 
         config.pki_log.info(log.INSTANCE_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
-
-        if deployer.mdict['pki_subsystem'] == 'TKS':
-            deployer.symlink.delete(deployer.mdict['pki_symkey_jar_link'])
 
         if len(deployer.instance.tomcat_instance_subsystems()) == 0:
             # remove Tomcat instance base

@@ -686,6 +686,11 @@ for subsystem in ca kra ocsp tks tps; do
     ln -s %{_javadir}/pki/pki-$subsystem.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
 done
 
+# Create symkey symlink for TPS and TKS
+# ...WEB-INF/lib should already have been created
+for subsystem in tks tps; do
+    ln -s %{_jnidir}/symkey.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
+done
 
 %if %{with server}
 
