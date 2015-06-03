@@ -71,21 +71,31 @@ To view available user commands, type \fBpki <subsystem>-user\fP. To view each c
 
 All user commands must be executed as the subsystem administrator.
 
-To list users in CA, use \fBpki ca-user-find\fP.  It is possible to select the page size to limit the size of the results.  To list all users:
+For example, to list users in CA execute the following command:
 
-.B pki <admin authentication> ca-user-find
+.B pki <CA admin authentication> ca-user-find
 
-To view a particular user:
+The results can be paged by specifying the (0-based) index of the first entry to return and the maximum number of entries returned:
 
-.B pki <admin authentication> ca-user-show <user ID>
+.B pki <CA admin authentication> ca-user-find --start 20 --size 10
 
-To add a user:
+The above command will return entries #20 to #29.
 
-.B pki <admin authentication> ca-user-add <user ID> --fullName "<full name>"
+To view the details of a CA user, specify the user ID in the following command:
 
-To delete a user:
+.B pki <CA admin authentication> ca-user-show testuser
 
-.B pki <admin authentication> ca-user-del <user ID>
+To add a new CA user, specify the user ID and at least the full name in the following command:
+
+.B pki <CA admin authentication> ca-user-add testuser --fullName \*(lqTest User\*(rq
+
+To modify a CA user, specify the user ID and the attributes to be changed in the following command:
+
+.B pki <CA admin authentication> ca-user-mod testuser --email testuser@example.com --phone 123-456-7890
+
+To delete a CA user, specify the user ID in the following command:
+
+.B pki <CA admin authentication> ca-user-del testuser
 
 .SH AUTHORS
 Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.
