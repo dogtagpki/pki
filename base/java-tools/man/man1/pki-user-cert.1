@@ -1,0 +1,98 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-user-cert 1 "Jun 3, 2015" "version 10.2" "PKI User Certificate Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-user-cert \- Command-Line Interface for managing Certificate System user certificates.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert\fR
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert-find\fR <user ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert-show\fR <user ID> <cert ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert-add\fR <user ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert-del\fR <user ID> <cert ID> [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-user-cert\fR commands provide command-line interfaces to manage user certificates on the specified subsystem.
+.PP
+Valid subsystems are \fBca\fR, \fBkra\fR, \fBocsp\fR, \fBtks\fR, and \fBtps\fR. If the \fB<subsystem>-\fR prefix is omitted, it will default to \fBca\fR.
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert\fR
+.RS 4
+This command is to list available user certificate commands for the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert-find\fR <user ID> [command options]
+.RS 4
+This command is to list certificates owned by the subsystem user.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert-show\fR <user ID> <cert ID> [command options]
+.RS 4
+This command is to view the details of a certificate owned to the subsystem user.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert-add\fR <user ID> [command options]
+.RS 4
+This command is to add a certificate to the subsystem user.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-cert-del\fR <user ID> <cert ID> [command options]
+.RS 4
+This command is to delete a certificate from the subsystem user.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available user certificate commands, type \fBpki <subsystem>-user-cert\fP. To view each command's usage, type \fB pki <subsystem>-user-cert-<command> \-\-help\fP.
+
+All user certificate commands must be executed as the subsystem administrator.
+
+For example, to list certificates owned by a CA user execute the following command:
+
+.B pki <CA admin authentication> ca-user-cert-find testuser
+
+The results can be paged by specifying the (0-based) index of the first entry to return and the maximum number of entries returned:
+
+.B pki <CA admin authentication> ca-user-cert-find testuser --start 20 --size 10
+
+The above command will return entries #20 to #29.
+
+To view a certificate owned by a CA user, specify the user ID and the certificate ID in the following command:
+
+.B pki <CA admin authentication> ca-user-show testuser \*(lq2;11;CN=CA Signing Certificate,O=EXAMPLE;UID=testuser\*(rq
+
+To add a certificate to a CA user from a file, specify the user ID and the input file:
+
+.B pki <CA admin authentication> ca-user-add testuser --input testuser.crt
+
+To add a certificate to a CA user from the certificate repository, specify the user ID and the serial number:
+
+.B pki <CA admin authentication> ca-user-add testuser --serial 0x80
+
+To delete a certificate from a CA user, specify the user ID and the certificate ID in the following command:
+
+.B pki <CA admin authentication> ca-user-del testuser \*(lq2;11;CN=CA Signing Certificate,O=EXAMPLE;UID=testuser\*(rq
+
+.SH AUTHORS
+Endi S. Dewata <edewata@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
