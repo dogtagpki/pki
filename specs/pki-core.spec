@@ -854,6 +854,7 @@ systemctl daemon-reload
 %{_mandir}/man1/pki-cert.1.gz
 %{_mandir}/man1/pki-client.1.gz
 %{_mandir}/man1/pki-group.1.gz
+%{_mandir}/man1/pki-group-member.1.gz
 %{_mandir}/man1/pki-key.1.gz
 %{_mandir}/man1/pki-securitydomain.1.gz
 %{_mandir}/man1/pki-user.1.gz

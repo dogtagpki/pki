@@ -25,8 +25,6 @@ pki-group \- Command-Line Interface for managing Certificate System groups.
 \fBpki\fR [CLI options] \fB<subsystem>-group-add\fR <group ID> [command options]
 \fBpki\fR [CLI options] \fB<subsystem>-group-mod\fR <group ID> [command options]
 \fBpki\fR [CLI options] \fB<subsystem>-group-del\fR <group ID> [command options]
-\fBpki\fR [CLI options] \fB<subsystem>-group-member-add\fR <group ID> <member ID> [command options]
-\fBpki\fR [CLI options] \fB<subsystem>-group-member-del\fR <group ID> <member ID> [command options]
 .fi
 
 .SH DESCRIPTION
@@ -65,16 +63,6 @@ This command is to modify a group in the subsystem.
 .RS 4
 This command is to delete a group from the subsystem.
 .RE
-.PP
-\fBpki\fR [CLI options] \fB<subsystem>-group-member-add\fR <group ID> <member ID> [command options]
-.RS 4
-This command is to add a member to a group.
-.RE
-.PP
-\fBpki\fR [CLI options] \fB<subsystem>-group-member-del\fR <group ID> <member ID> [command options]
-.RS 4
-This command is to delete a member from a group.
-.RE
 
 .SH OPTIONS
 The CLI options are described in \fBpki\fR(1).
@@ -84,29 +72,38 @@ To view available group commands, type \fBpki <subsystem>-group\fP. To view each
 
 All group commands must be executed as the subsystem administrator.
 
-To list groups in CA, use \fBpki ca-group-find\fP.  It is possible to select the page size to limit the number of entries returned.  To list all groups:
+For example, to list groups in CA execute the following command:
 
-.B pki <admin authentication> ca-group-find
+.B pki <CA admin authentication> ca-group-find
 
-To view a particular group:
+The results can be paged by specifying the (0-based) index of the first entry to return and the maximum number of entries returned:
 
-.B pki <admin authentication> ca-group-show <group ID>
+.B pki <CA admin authentication> ca-group-find --start 20 --size 10
 
-To add a group:
+The above command will return entries #20 to #29.
 
-.B pki <admin authentication> ca-group-add <group ID> --description "description"
+To view a CA group, specify the group ID in the following command:
 
-To delete a group:
+.B pki <CA admin authentication> ca-group-show testgroup
 
-.B pki <admin authentication> ca-group-del <group ID>
+To add a CA group, specify the group ID in the following command:
 
-To add a user to a group:
+.B pki <CA admin authentication> ca-group-add testgroup
 
-.B pki <admin authentication> ca-group-member-add <group ID> <member ID>
+To modify a CA group, specify the group ID and the attributes to be modified in the following command:
 
-To delete a user from a group:
+.B pki <CA admin authentication> ca-group-mod testgroup --description \*(lqTest Group\*(rq
 
-.B pki <admin authentication> ca-group-member-del <group ID> <member ID>
+To delete a CA group, specify the group ID in the following command:
+
+.B pki <CA admin authentication> ca-group-del testgroup
+
+.SH SEE ALSO
+.PP
+\fBpki-group-member\fR(1)
+.RS 4
+Group member management commands
+.RE
 
 .SH AUTHORS
 Ade Lee <alee@redhat.com>, Endi Dewata <edewata@redhat.com>, and Matthew Harmsen <mharmsen@redhat.com>.

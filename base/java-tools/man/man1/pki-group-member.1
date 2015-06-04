@@ -1,0 +1,95 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-group-member 1 "Jun 3, 2015" "version 10.2" "PKI Group Member Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-group-member \- Command-Line Interface for managing Certificate System group members.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fB<subsystem>-group-member\fR
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-find\fR <group ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-show\fR <group ID> <member ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-add\fR <group ID> <member ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-del\fR <group ID> <member ID> [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-group-member\fR commands provide command-line interfaces to manage group members on the specified subsystem.
+.PP
+Valid subsystems are \fBca\fR, \fBkra\fR, \fBocsp\fR, \fBtks\fR, and \fBtps\fR.
+If the \fB<subsystem>-\fR prefix is omitted, it will default to \fBca\fR.
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-member\fR
+.RS 4
+This command is to list available group member commands for the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-find\fR <group ID> [command options]
+.RS 4
+This command is to list group members in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-show\fR <group ID> <member ID> [command options]
+.RS 4
+This command is to view a group member details in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-add\fR <group ID> <member ID> [command options]
+.RS 4
+This command is to add a member to a group in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-group-member-del\fR <group ID> <member ID> [command options]
+.RS 4
+This command is to delete a member from a group in the subsystem.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available group commands, type \fBpki <subsystem>-group-member\fP. To view each command's usage, type \fB pki <subsystem>-group-member-<command> \-\-help\fP.
+
+All group commands must be executed as the subsystem administrator.
+
+For example, to list members of a CA group execute the following command:
+
+.B pki <CA admin authentication> ca-group-member-find testgroup
+
+The results can be paged by specifying the (0-based) index of the first entry to return and the maximum number of entries returned:
+
+.B pki <CA admin authentication> ca-group-member-find --start 20 --size 10
+
+The above command will return entries #20 to #29.
+
+To view a member of a CA group, specify the group ID and the member ID in the following command:
+
+.B pki <CA admin authentication> ca-group-member-show testgroup testuser
+
+To add a member to a CA group, specify the group ID and the member ID in the following command:
+
+.B pki <CA admin authentication> ca-group-member-add testgroup testuser
+
+To delete a member from a CA group, specify the group ID and the member ID in the following command:
+
+.B pki <CA admin authentication> ca-group-member-del testgroup testuser
+
+.SH AUTHORS
+Endi S. Dewata <edewata@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
