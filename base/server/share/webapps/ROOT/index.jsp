@@ -89,9 +89,10 @@ $(function() {
 
 <%
     ServletContext caContext = getServletContext().getContext("/ca");
-    String caName = caContext.getServletContextName();
-    String caPath = caContext.getContextPath();
-    if (!"".equals(caPath)) {
+    if (caContext != null) {
+        String caName = caContext.getServletContextName();
+        String caPath = caContext.getContextPath();
+        if (!"".equals(caPath)) {
 %>
 <p>
 <font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
@@ -107,7 +108,7 @@ $(function() {
     </td>
 </tr>
 <%
-        if (request.isSecure()) {
+            if (request.isSecure()) {
 %>
 <tr valign="TOP">
     <td>
@@ -122,19 +123,21 @@ $(function() {
     </td>
 </tr>
 <%
-        }
+            }
 %>
 </table>
 
 <br>
 
 <%
+        }
     }
 
     ServletContext kraContext = getServletContext().getContext("/kra");
-    String kraName = kraContext.getServletContextName();
-    String kraPath = kraContext.getContextPath();
-    if (!"".equals(kraPath) && request.isSecure()) {
+    if (kraContext != null) {
+        String kraName = kraContext.getServletContextName();
+        String kraPath = kraContext.getContextPath();
+        if (!"".equals(kraPath) && request.isSecure()) {
 %>
 <p>
 <font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
@@ -160,12 +163,14 @@ $(function() {
 <br>
 
 <%
+        }
     }
 
     ServletContext ocspContext = getServletContext().getContext("/ocsp");
-    String ocspName = ocspContext.getServletContextName();
-    String ocspPath = ocspContext.getContextPath();
-    if (!"".equals(ocspPath) && request.isSecure()) {
+    if (ocspContext != null) {
+        String ocspName = ocspContext.getServletContextName();
+        String ocspPath = ocspContext.getContextPath();
+        if (!"".equals(ocspPath) && request.isSecure()) {
 %>
 <p>
 <font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
@@ -191,12 +196,14 @@ $(function() {
 <br>
 
 <%
+        }
     }
 
     ServletContext tksContext = getServletContext().getContext("/tks");
-    String tksName = tksContext.getServletContextName();
-    String tksPath = tksContext.getContextPath();
-    if (!"".equals(tksPath) && request.isSecure()) {
+    if (tksContext != null) {
+        String tksName = tksContext.getServletContextName();
+        String tksPath = tksContext.getContextPath();
+        if (!"".equals(tksPath) && request.isSecure()) {
 %>
 <p>
 <font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
@@ -222,12 +229,14 @@ $(function() {
 <br>
 
 <%
+        }
     }
 
     ServletContext tpsContext = getServletContext().getContext("/tps");
-    String tpsName = tpsContext.getServletContextName();
-    String tpsPath = tpsContext.getContextPath();
-    if (!"".equals(tpsPath) && request.isSecure()) {
+    if (tpsContext != null) {
+        String tpsName = tpsContext.getServletContextName();
+        String tpsPath = tpsContext.getContextPath();
+        if (!"".equals(tpsPath) && request.isSecure()) {
 %>
 <p>
 <font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
@@ -247,6 +256,7 @@ $(function() {
 <br>
 
 <%
+        }
     }
 %>
 
