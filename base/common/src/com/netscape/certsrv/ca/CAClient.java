@@ -26,6 +26,7 @@ import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.user.UserClient;
+import com.netscape.certsrv.authority.AuthorityClient;
 
 public class CAClient extends SubsystemClient {
 
@@ -35,7 +36,7 @@ public class CAClient extends SubsystemClient {
     }
 
     public void init() throws URISyntaxException {
-
+        addClient(new AuthorityClient(client, name));
         addClient(new CertClient(client, name));
         addClient(new GroupClient(client, name));
         addClient(new ProfileClient(client, name));
