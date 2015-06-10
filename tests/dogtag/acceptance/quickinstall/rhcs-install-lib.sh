@@ -189,12 +189,13 @@ rhcs_install_RootCA() {
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/ROOTCA_instance_status.txt 2>&1"
-		exp_result1="$ROOTCA_TOMCAT_INSTANCE_NAME is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$ROOTCA_SECURE_PORT/ca/services"
-		if [ $(grep $exp_result1 /tmp/ROOTCA_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/ROOTCA_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog " ROOTCA instance created successfully"
-			sed -i s/^ROOTCA_INSTANCE_CREATED_STATUS=False/ROOTCA_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$ROOTCA_TOMCAT_INSTANCE_NAME\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$ROOTCA_SECURE_PORT/ca/services"
+                if [ $(grep $exp_result1 /tmp/ROOTCA_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/ROOTCA_instance_status.txt | wc -l) -gt 0 ]; then
+                        rlLog " ROOTCA instance created successfully"
+                        sed -i s/^ROOTCA_INSTANCE_CREATED_STATUS=False/ROOTCA_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export ROOTCA_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 }
 
@@ -215,6 +216,15 @@ rhcs_install_kra() {
         rhcs_install_prep_disableFirewall
 	local SUBSYSTEM_NAME=$(echo KRA${number})
 	local DOMAIN=$(eval echo $master_hostname | cut -d. -f2-)
+	local INSTANCE_NAME=$(eval echo \$KRA${number}_TOMCAT_INSTANCE_NAME)
+        $(check_instance $INSTANCE_NAME)
+        local retval=$?
+        rlLog "retval=$retval"
+        if [[ "${retval}" -eq 0 ]]; then
+                IMPORT_ADMIN_CERT_NONCA=True
+        else
+                IMPORT_ADMIN_CERT_NONCA=False
+        fi
 
 	#Install and configure RHDS instance
         rlLog "Creating LDAP server Instance to configure KRA"
@@ -336,12 +346,13 @@ rhcs_install_kra() {
 		#Update Instance creation status to env.sh
                 rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/KRA${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$KRA${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$KRA${number}_SECURE_PORT)/kra/services"
-		if [ $(grep $exp_result1 /tmp/KRA${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/KRA${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "KRA${number} instance creation successful"
-			sed -i s/^KRA${number}_INSTANCE_CREATED_STATUS=False/KRA${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$KRA${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$KRA${number}_SECURE_PORT)/kra/services"
+                if [ $(grep $exp_result1 /tmp/KRA${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/KRA${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+                        rlLog "KRA${number} instance creation successful"
+                        sed -i s/^KRA${number}_INSTANCE_CREATED_STATUS=False/KRA${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export KRA${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 }
 
@@ -360,6 +371,15 @@ rhcs_install_ocsp() {
         local master_hostname=$2
         local CA=$3
 	local DOMAIN=$(eval echo $master_hostname | cut -d. -f2-)
+	local INSTANCE_NAME=$(eval echo \$OCSP${number}_TOMCAT_INSTANCE_NAME)
+        $(check_instance $INSTANCE_NAME)
+        local retval=$?
+        rlLog "retval=$retval"
+        if [[ "${retval}" -eq 0 ]]; then
+                IMPORT_ADMIN_CERT_NONCA=True
+        else
+                IMPORT_ADMIN_CERT_NONCA=False
+        fi
         local PKI_SECURITY_DOMAIN_PORT=$(eval echo \$${CA}_SECURE_PORT)
         local PKI_SECURITY_DOMAIN_USER=$(eval echo \$${CA}_ADMIN_USER)
 	#Install and configure RHDS instance
@@ -477,12 +497,13 @@ rhcs_install_ocsp() {
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/OCSP${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$OCSP${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$OCSP${number}_SECURE_PORT)/ocsp/services"
-		if [ $(grep $exp_result1 /tmp/OCSP${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/OCSP${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "OCSP${number} instance creation successful"
-			sed -i s/^OCSP${number}_INSTANCE_CREATED_STATUS=False/OCSP${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$OCSP${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$OCSP${number}_SECURE_PORT)/ocsp/services"
+                if [ $(grep $exp_result1 /tmp/OCSP${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/OCSP${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+                        rlLog "OCSP${number} instance creation successful"
+                        sed -i s/^OCSP${number}_INSTANCE_CREATED_STATUS=False/OCSP${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export OCSP${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 }
 ###########################################################
@@ -495,6 +516,15 @@ rhcs_install_tks() {
         local master_hostname=$2
         local CA=$3
         local DOMAIN=$(eval echo $master_hostname | cut -d. -f2-)
+	local INSTANCE_NAME=$(eval echo \$TKS${number}_TOMCAT_INSTANCE_NAME)
+        $(check_instance $INSTANCE_NAME)
+        local retval=$?
+        rlLog "retval=$retval"
+        if [[ "${retval}" -eq 0 ]]; then
+                IMPORT_ADMIN_CERT_NONCA=True
+        else
+                IMPORT_ADMIN_CERT_NONCA=False
+        fi
         local PKI_SECURITY_DOMAIN_USER=$(eval echo \$${CA}_ADMIN_USER)
         local PKI_SECURITY_DOMAIN_PORT=$(eval echo \$${CA}_SECURE_PORT)
         local INSTANCECFG="/tmp/tks_instance.inf"
@@ -609,12 +639,13 @@ rhcs_install_tks() {
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/TKS${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$TKS${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$TKS${number}_SECURE_PORT)/ocsp/services"
-		if [ $(grep $exp_result1 /tmp/TKS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/TKS${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "TKS${number} instance creation successful"
-			sed -i s/^TKS${number}_INSTANCE_CREATED_STATUS=False/TKS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$TKS${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$TKS${number}_SECURE_PORT)/ocsp/services"
+                if [ $(grep $exp_result1 /tmp/TKS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/TKS${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+                        rlLog "TKS${number} instance creation successful"
+                        sed -i s/^TKS${number}_INSTANCE_CREATED_STATUS=False/TKS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export TKS${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 }
 
@@ -635,6 +666,15 @@ rhcs_install_tps() {
         local INSTANCECFG="/tmp/tps_instance.inf"
         local INSTANCE_CREATE_OUT="/tmp/tps_instance_create.out"
         local SUBSYSTEM_NAME=$(echo TPS${number})
+	local INSTANCE_NAME=$(eval echo \$TPS${number}_TOMCAT_INSTANCE_NAME)
+        $(check_instance $INSTANCE_NAME)
+        local retval=$?
+        rlLog "retval=$retval"
+        if [[ "${retval}" -eq 0 ]]; then
+                IMPORT_ADMIN_CERT_NONCA=True
+        else
+                IMPORT_ADMIN_CERT_NONCA=False
+        fi
         rhcs_install_prep_disableFirewall
         #Install and configure RHDS instance
         rlLog "Creating LDAP server Instance to configure TPS"
@@ -742,7 +782,7 @@ rhcs_install_tps() {
                 rlAssertGrep "$exp_message4_2" "$INSTANCE_CREATE_OUT"
                 exp_message5="The URL for the subsystem is:"
                 rlAssertGrep "$exp_message5" "$INSTANCE_CREATE_OUT"
-                exp_message5_1="https://$(hostname):$(eval echo \$TKS${number}_SECURE_PORT)/tps"
+                exp_message5_1="https://$(hostname):$(eval echo \$TPS${number}_SECURE_PORT)/tps"
                 rlAssertGrep "$exp_message5_1" "$INSTANCE_CREATE_OUT"
                # echo "export TKS_SERVER_ROOT=/var/lib/pki/$(eval echo \$TKS${number}_TOMCAT_INSTANCE_NAME)/tks" >> /opt/rhqa_pki/env.sh
                 mkdir -p $CLIENT_PKCS12_DIR
@@ -751,12 +791,13 @@ rhcs_install_tps() {
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/TPS${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$TPS${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$TPS${number}_SECURE_PORT)/services"
-		if [ $(grep $exp_result1 /tmp/TPS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/TPS${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "TPS${number} instance creation successful"
-			sed -i s/^TPS${number}_INSTANCE_CREATED_STATUS=False/TPS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$TPS${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$TPS${number}_SECURE_PORT)/services"
+                if [ $(grep $exp_result1 /tmp/TPS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/TPS${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+                        rlLog "TPS${number} instance creation successful"
+                        sed -i s/^TPS${number}_INSTANCE_CREATED_STATUS=False/TPS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export TPS${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 }
 
@@ -876,12 +917,13 @@ rhcs_install_cloneCA()
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/CLONE_CA${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$CLONE_CA${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$CLONE_CA${number}_SECURE_PORT)/services"
-		if [ $(grep $exp_result1 /tmp/CLONE_CA${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_CA${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "CLONE_CA${number} instance creation successful"
-			sed -i s/^CLONE_CA${number}_INSTANCE_CREATED_STATUS=False/CLONE_CA${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$CLONE_CA${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$CLONE_CA${number}_SECURE_PORT)/services"
+                if [ $(grep $exp_result1 /tmp/CLONE_CA${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_CA${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+                        rlLog "CLONE_CA${number} instance creation successful"
+                        sed -i s/^CLONE_CA${number}_INSTANCE_CREATED_STATUS=False/CLONE_CA${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export CLONE_CA${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 
 }
@@ -1028,12 +1070,13 @@ rhcs_install_SubCA(){
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/SUBCA${number}_instance_status.txt 2>&1"
-		exp_result1="$SUBCA${number}_TOMCAT_INSTANCE_NAME is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$SUBCA${number}_SECURE_PORT/ca/services"
-		if [ $(grep $exp_result1 /tmp/SUBCA${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/SUBCA${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "SUBCA${number} instance created successfully"
-			sed -i s/^SUBCA${number}_INSTANCE_CREATED_STATUS=False/SUBCA${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$SUBCA${number}_TOMCAT_INSTANCE_NAME\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$SUBCA${number}_SECURE_PORT/ca/services"
+                if [ $(grep $exp_result1 /tmp/SUBCA${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/SUBCA${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+                        rlLog "SUBCA${number} instance created successfully"
+                        sed -i s/^SUBCA${number}_INSTANCE_CREATED_STATUS=False/SUBCA${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export SUBCA${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 }
 
@@ -1142,12 +1185,13 @@ rhcs_install_cloneKRA(){
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/CLONE_KRA${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$CLONE_KRA${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$CLONE_KRA${number}_SECURE_PORT)/services"
-		if [ $(grep $exp_result1 /tmp/CLONE_KRA${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_KRA${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "CLONE_KRA${number} instance creation successful"
-			sed -i s/^CLONE_KRA${number}_INSTANCE_CREATED_STATUS=False/CLONE_KRA${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$CLONE_KRA${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$CLONE_KRA${number}_SECURE_PORT)/services"
+                if [ $(grep $exp_result1 /tmp/CLONE_KRA${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_KRA${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+                        rlLog "CLONE_KRA${number} instance creation successful"
+                        sed -i s/^CLONE_KRA${number}_INSTANCE_CREATED_STATUS=False/CLONE_KRA${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export CLONE_KRA${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 }
 
@@ -1259,12 +1303,13 @@ rhcs_install_cloneOCSP(){
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/CLONE_OCSP${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$CLONE_OCSP${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$CLONE_OCSP${number}_SECURE_PORT)/services"
-		if [ $(grep $exp_result1 /tmp/CLONE_OCSP${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_OCSP${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "CLONE_OCSP${number} instance creation successful"
-			sed -i s/^CLONE_OCSP${number}_INSTANCE_CREATED_STATUS=False/CLONE_OCSP${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$CLONE_OCSP${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$CLONE_OCSP${number}_SECURE_PORT)/services"
+                if [ $(grep $exp_result1 /tmp/CLONE_OCSP${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_OCSP${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+                        rlLog "CLONE_OCSP${number} instance creation successful"
+                        sed -i s/^CLONE_OCSP${number}_INSTANCE_CREATED_STATUS=False/CLONE_OCSP${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export CLONE_OCSP${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
      rlPhaseEnd
 
 }
@@ -1372,12 +1417,13 @@ rhcs_install_cloneTKS(){
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/CLONE_TKS${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$CLONE_TKS${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$CLONE_TKS${number}_SECURE_PORT)/services"
-		if [ $(grep $exp_result1 /tmp/CLONE_TKS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_TKS${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "CLONE_TKS${number} instance creation successful"
-			sed -i s/^CLONE_TKS${number}_INSTANCE_CREATED_STATUS=False/CLONE_TKS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$CLONE_TKS${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$CLONE_TKS${number}_SECURE_PORT)/services"
+                if [ $(grep $exp_result1 /tmp/CLONE_TKS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_TKS${number}_instance_status.txt | wc -l) -gt 0 ]; then
+                        rlLog "CLONE_TKS${number} instance creation successful"
+                        sed -i s/^CLONE_TKS${number}_INSTANCE_CREATED_STATUS=False/CLONE_TKS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export CLONE_TKS${number}_INSTANCE_CREATED_STATUS=TRUE"
+                fi
 	rlPhaseEnd
 }
 
@@ -1492,12 +1538,14 @@ rhcs_install_cloneTPS(){
 		#Update Instance creation status to env.sh
 		rlLog "Executing: pkidaemon status tomcat"
 		rlRun "pkidaemon status tomcat >  /tmp/CLONE_TPS${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$CLONE_TPS${number}_TOMCAT_INSTANCE_NAME) is running"
-		exp_result2="Secure Admin URL    = https://$(hostname):$(eval echo \$CLONE_TPS${number}_SECURE_PORT)/services"
-		if [ $(grep $exp_result1 /tmp/CLONE_TPS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_TPS${number}_instance_status.txt | wc -l) -gt 0 ] ; then
-			rlLog "CLONE_TPS${number} instance creation successful"
-			sed -i s/^CLONE_TPS${number}_INSTANCE_CREATED_STATUS=False/CLONE_TPS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
-		fi
+		exp_result1="$(eval echo \$CLONE_TPS${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$CLONE_TPS${number}_SECURE_PORT)/services"
+                if [ $(grep $exp_result1 /tmp/CLONE_TPS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/CLONE_TPS${number}_instance_status.txt | wc -l) -gt 0 ]; then
+                        rlLog "CLONE_TPS${number} instance creation successful"
+                        sed -i s/^CLONE_TPS${number}_INSTANCE_CREATED_STATUS=False/CLONE_TPS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+                        rlRun "export CLONE_TPS${number}_INSTANCE_CREATED_STATUS=TRUE"
+
+                fi
      rlPhaseEnd
 }
 ###########################################################

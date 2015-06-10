@@ -45,7 +45,7 @@ subsystemId=$1
 SUBSYSTEM_TYPE=$2
 MYROLE=$3
 rlLog "subsystemId=$subsystemId, SUBSYSTEM_TYPE=$SUBSYSTEM_TYPE, MYROLE=$MYROLE"
-if [ "$TOPO9" = "TRUE" ] ; then
+if [ "$TOPO9" = "TRUE" ] || [ "$TOPOLOGY" = "TOPO9" ]; then
 	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
 	admin_cert_nickname=$(eval echo \$${subsystemId}_ADMIN_CERT_NICKNAME)
 	CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
@@ -101,6 +101,12 @@ if [ $SUBSYSTEM_TYPE != "tps" ] ; then
 	eval ${subsystemId}_auditV_password=${subsystemId}_auditV_password
 	export ${subsystemId}_auditV_user
 fi
+if [ $SUBSYSTEM_TYPE = "tps" ] ; then
+        eval ${subsystemId}_officerV_user=${subsystemId}_officerV
+        eval ${subsystemId}_officerV_fullName=${subsystemId}_Officer_ValidCert
+        eval ${subsystemId}_officerV_password=${subsystemId}_officerV_password
+        export ${subsystemId}_officerV_user
+fi
 ######################################################################
 
     rlPhaseStartSetup "create-role-user-startup: Create temp directory and import CA agent cert into a nss certificate db and trust CA root cert"
@@ -122,7 +128,7 @@ fi
 
     rlPhaseStartSetup "Creating user and add user to the group"
 	if [ $SUBSYSTEM_TYPE = "tps" ] ; then
-		user=($(eval echo \$${subsystemId}_adminV_user) $(eval echo \$${subsystemId}_adminV_fullName) $(eval echo \$${subsystemId}_adminV_password) $(eval echo \$${subsystemId}_adminR_user) $(eval echo \$${subsystemId}_adminR_fullName) $(eval echo \$${subsystemId}_adminR_password) $(eval echo \$${subsystemId}_adminE_user) $(eval echo \$${subsystemId}_adminE_fullName) $(eval echo \$${subsystemId}_adminE_password) $(eval echo \$${subsystemId}_adminUTCA_user) $(eval echo \$${subsystemId}_adminUTCA_fullName) $(eval echo \$${subsystemId}_adminUTCA_password) $(eval echo \$${subsystemId}_agentV_user) $(eval echo \$${subsystemId}_agentV_fullName) $(eval echo \$${subsystemId}_agentV_password)  $(eval echo \$${subsystemId}_agentR_user) $(eval echo \$${subsystemId}_agentR_fullName) $(eval echo \$${subsystemId}_agentR_password) $(eval echo \$${subsystemId}_agentE_user) $(eval echo \$${subsystemId}_agentE_fullName) $(eval echo \$${subsystemId}_agentE_password) $(eval echo \$${subsystemId}_agentUTCA_user) $(eval echo \$${subsystemId}_agentUTCA_fullName) $(eval echo \$${subsystemId}_agentUTCA_password) $(eval echo \$${subsystemId}_operatorV_user) $(eval echo \$${subsystemId}_operatorV_fullName) $(eval echo \$${subsystemId}_operatorV_password))
+		user=($(eval echo \$${subsystemId}_adminV_user) $(eval echo \$${subsystemId}_adminV_fullName) $(eval echo \$${subsystemId}_adminV_password) $(eval echo \$${subsystemId}_adminR_user) $(eval echo \$${subsystemId}_adminR_fullName) $(eval echo \$${subsystemId}_adminR_password) $(eval echo \$${subsystemId}_adminE_user) $(eval echo \$${subsystemId}_adminE_fullName) $(eval echo \$${subsystemId}_adminE_password) $(eval echo \$${subsystemId}_adminUTCA_user) $(eval echo \$${subsystemId}_adminUTCA_fullName) $(eval echo \$${subsystemId}_adminUTCA_password) $(eval echo \$${subsystemId}_agentV_user) $(eval echo \$${subsystemId}_agentV_fullName) $(eval echo \$${subsystemId}_agentV_password)  $(eval echo \$${subsystemId}_agentR_user) $(eval echo \$${subsystemId}_agentR_fullName) $(eval echo \$${subsystemId}_agentR_password) $(eval echo \$${subsystemId}_agentE_user) $(eval echo \$${subsystemId}_agentE_fullName) $(eval echo \$${subsystemId}_agentE_password) $(eval echo \$${subsystemId}_agentUTCA_user) $(eval echo \$${subsystemId}_agentUTCA_fullName) $(eval echo \$${subsystemId}_agentUTCA_password) $(eval echo \$${subsystemId}_operatorV_user) $(eval echo \$${subsystemId}_operatorV_fullName) $(eval echo \$${subsystemId}_operatorV_password) $(eval echo \$${subsystemId}_officerV_user) $(eval echo \$${subsystemId}_officerV_fullName) $(eval echo \$${subsystemId}_officerV_password))
 	else
 	 	user=($(eval echo \$${subsystemId}_adminV_user) $(eval echo \$${subsystemId}_adminV_fullName) $(eval echo \$${subsystemId}_adminV_password) $(eval echo \$${subsystemId}_adminR_user) $(eval echo \$${subsystemId}_adminR_fullName) $(eval echo \$${subsystemId}_adminR_password) $(eval echo \$${subsystemId}_adminE_user) $(eval echo \$${subsystemId}_adminE_fullName) $(eval echo \$${subsystemId}_adminE_password) $(eval echo \$${subsystemId}_adminUTCA_user) $(eval echo \$${subsystemId}_adminUTCA_fullName) $(eval echo \$${subsystemId}_adminUTCA_password) $(eval echo \$${subsystemId}_agentV_user) $(eval echo \$${subsystemId}_agentV_fullName) $(eval echo \$${subsystemId}_agentV_password)  $(eval echo \$${subsystemId}_agentR_user) $(eval echo \$${subsystemId}_agentR_fullName) $(eval echo \$${subsystemId}_agentR_password) $(eval echo \$${subsystemId}_agentE_user) $(eval echo \$${subsystemId}_agentE_fullName) $(eval echo \$${subsystemId}_agentE_password) $(eval echo \$${subsystemId}_agentUTCA_user) $(eval echo \$${subsystemId}_agentUTCA_fullName) $(eval echo \$${subsystemId}_agentUTCA_password) $(eval echo \$${subsystemId}_auditV_user) $(eval echo \$${subsystemId}_auditV_fullName) $(eval echo \$${subsystemId}_auditV_password) $(eval echo \$${subsystemId}_operatorV_user) $(eval echo \$${subsystemId}_operatorV_fullName) $(eval echo \$${subsystemId}_operatorV_password))
 	fi
@@ -214,30 +220,45 @@ fi
 			    "Add user $userid to $operator_group_name  group"
 			    rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
 			    rlAssertGrep "User: $userid" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
+		elif [ $userid == $(eval echo \$${subsystemId}_officerV_user) ]; then
+                            rlRun "pki -d $CERTDB_DIR \
+                           -n \"$admin_cert_nickname\" \
+                           -c $CERTDB_DIR_PASSWORD \
+                           -h $SUBSYSTEM_HOST \
+                           -t $SUBSYSTEM_TYPE \
+                           -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                            group-member-add \"TPS Officers\"  $userid > $TmpDir/pki-user-add-${subsystemId}-group001$i.out"  \
+                            0 \
+                            "Add user $userid to \"TPS Officers\" group"
+                            rlAssertGrep "Added group member \"$userid\"" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
+                            rlAssertGrep "User: $userid" "$TmpDir/pki-user-add-${subsystemId}-group001$i.out"
                 fi
 		#================#
-	        if [ $userid = $(eval echo \$${subsystemId}_adminV_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminR_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminE_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentV_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentR_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentE_user) ] || [ $userid = $(eval echo \$${subsystemId}_auditV_user) ] || [ $userid = $(eval echo \$${subsystemId}_operatorV_user) ]; then
+	        if [ $userid = $(eval echo \$${subsystemId}_adminV_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminR_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminE_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentV_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentR_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentE_user) ] || [ $userid = $(eval echo \$${subsystemId}_auditV_user) ] || [ $userid = $(eval echo \$${subsystemId}_operatorV_user) ] || [ $userid = $(eval echo \$${subsystemId}_officerV_user) ]; then
 			if [ "$MYROLE" = "MASTER" ]; then
 				get_topo_stack $MYROLE $TmpDir/topo_file
 				if [ $subsystemId = "SUBCA1" ]; then
-					MYCAHOST=$(cat $TmpDir/topo_file | grep MY_SUBCA | cut -d= -f2)
+					MYCA_INST=$(cat $TmpDir/topo_file | grep MY_SUBCA | cut -d= -f2)
 				elif [ $subsystemId = "CLONE_CA1" ]; then
-                                        MYCAHOST=$(cat $TmpDir/topo_file | grep MY_CLONE_CA | cut -d= -f2)
+                                        MYCA_INST=$(cat $TmpDir/topo_file | grep MY_CLONE_CA | cut -d= -f2)
 				else
-		                	MYCAHOST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+		                	MYCA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
 				fi
 			else 
-				MYCAHOST=$MYROLE
+				MYCA_INST=$MYROLE
+				local ca_admin=$(eval echo \$${MYCA_INST}_ADMIN_CERT_NICKNAME)
 			fi
+			# Get CA Admin cert Nickname
+			local CA_ADMIN=$(eval echo \$${MYCA_INST}_ADMIN_CERT_NICKNAME)
 			#Create a cert and add it to the $userid user
 			rlLog "Admin Certificate is located at: ${subsystemId}_ADMIN_CERT_LOCATION"
 			local temp_file="$CERTDB_DIR/certrequest_001$i.xml"
 			rlRun "pki -d $CERTDB_DIR \
-                          -n \"$admin_cert_nickname\" \
+                          -n \"$CA_ADMIN\" \
                           -c $CERTDB_DIR_PASSWORD \
 			  -h $SUBSYSTEM_HOST \
 			  -t ca \
-			  -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) \
+			  -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
                            cert-request-profile-show caUserCert --output $temp_file" \
                            0 \
                            "Enrollment Template for Profile caUserCert"
@@ -257,43 +278,43 @@ fi
 			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_email']/Value\" -v $userid@example.com $temp_file"
 			rlRun "xmlstarlet ed -L -u \"CertEnrollmentRequest/Input/Attribute[@name='requestor_phone']/Value\" -v 123-456-7890 $temp_file"
 
-                if [ $userid = $(eval echo \$${subsystemId}_adminV_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminR_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminE_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentV_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentR_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentE_user) ] || [ $userid = $(eval echo \$${subsystemId}_auditV_user) ] || [ $userid = $(eval echo \$${subsystemId}_operatorV_user) ]; then
+                if [ $userid = $(eval echo \$${subsystemId}_adminV_user) ] || [ $userid = $(eval echo \$${subsystemId}_adminR_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentV_user) ] || [ $userid = $(eval echo \$${subsystemId}_agentR_user) ] || [ $userid = $(eval echo \$${subsystemId}_auditV_user) ] || [ $userid = $(eval echo \$${subsystemId}_operatorV_user) ] || [ $userid = $(eval echo \$${subsystemId}_officerV_user) ]; then
 				#cert-request-submit=====
 				#subsystem can be ca or tps
 				subsystem=ca    
 				rlLog "Executing: pki cert-request-submit  $temp_file"
-				rlRun "pki -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-submit $temp_file > $CERTDB_DIR/certrequest_$i.out" 0 "Executing pki cert-request-submit"
+				rlRun "pki -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-submit $temp_file > $CERTDB_DIR/certrequest_$i.out" 0 "Executing pki cert-request-submit"
 				rlAssertGrep "Submitted certificate request" "$CERTDB_DIR/certrequest_$i.out"
 				rlAssertGrep "Request ID:" "$CERTDB_DIR/certrequest_$i.out"
 				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequest_$i.out"
 				rlAssertGrep "Status: pending" "$CERTDB_DIR/certrequest_$i.out"
 				local request_id=`cat $CERTDB_DIR/certrequest_$i.out | grep "Request ID:" | awk '{print $3}'`
 				rlLog "Request ID=$request_id"
-				rlRun "pki -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-show $request_id > $CERTDB_DIR/certrequestshow_001$i.out" 0 "Executing pki cert-request-show $request_id"
+				rlRun "pki -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-show $request_id > $CERTDB_DIR/certrequestshow_001$i.out" 0 "Executing pki cert-request-show $request_id"
 				rlAssertGrep "Request ID: $request_id" "$CERTDB_DIR/certrequestshow_001$i.out"
 				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequestshow_001$i.out"
 				rlAssertGrep "Status: pending" "$CERTDB_DIR/certrequestshow_001$i.out"
 				rlAssertGrep "Operation Result: success" "$CERTDB_DIR/certrequestshow_001$i.out"
 				 #Agent Approve the certificate after reviewing the cert for the user
 				rlLog "Executing: pki -d $CERTDB_DIR \
-					   -n \"$admin_cert_nickname\" \
+					   -n \"$CA_ADMIN\" \
 					   -c $CERTDB_DIR_PASSWORD \
 					   -h $SUBSYSTEM_HOST \
    		                           -t ca \
-   			                   -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) \
+   			                   -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
 					   cert-request-review $request_id --action=approve"
 
 				rlRun "pki -d $CERTDB_DIR \
-					   -n \"$admin_cert_nickname\" \
+					   -n \"$CA_ADMIN\" \
 					   -c $CERTDB_DIR_PASSWORD \
 					   -h $SUBSYSTEM_HOST \
                  		           -t ca \
-    		                           -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) \
+    		                           -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
 					   cert-request-review $request_id --action=approve > $CERTDB_DIR/certapprove_001$i.out" \
 					    0 \
 					    "CA agent approve the cert"
 				rlAssertGrep "Approved certificate request $request_id" "$CERTDB_DIR/certapprove_001$i.out"
-				rlRun "pki -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-show $request_id > $CERTDB_DIR/certrequestapprovedshow_001$i.out" 0 "Executing pki cert-request-show $request_id"
+				rlRun "pki -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-show $request_id > $CERTDB_DIR/certrequestapprovedshow_001$i.out" 0 "Executing pki cert-request-show $request_id"
 				rlAssertGrep "Request ID: $request_id" "$CERTDB_DIR/certrequestapprovedshow_001$i.out"
 				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequestapprovedshow_001$i.out"
 				rlAssertGrep "Status: complete" "$CERTDB_DIR/certrequestapprovedshow_001$i.out"
@@ -302,7 +323,7 @@ fi
 				rlLog "Cerificate Serial Number=$certificate_serial_number"
 
 				#Verify the certificate is valid
-				rlRun "pki -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
+				rlRun "pki -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
 				rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "$CERTDB_DIR/certificate_show_001$i.out"
 				rlAssertGrep "Status: VALID" "$CERTDB_DIR/certificate_show_001$i.out"
 
@@ -346,19 +367,19 @@ fi
 				rlRun "cat $profile_file"
 				rlRun "sleep 30"
 				rlLog "pki -d $CERTDB_DIR \
-                                  -n \"$admin_cert_nickname\" \
+                                  -n \"$CA_ADMIN\" \
                                   -c $CERTDB_DIR_PASSWORD \
 			          -h $SUBSYSTEM_HOST \
                                   -t ca \
-                                  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                                  -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
                                   cert-request-submit  $temp_file  > $CERTDB_DIR/certrequest_$i.out"
 
 				rlRun "pki -d $CERTDB_DIR \
-	                          -n \"$admin_cert_nickname\" \
+	                          -n \"$CA_ADMIN\" \
 		                  -c $CERTDB_DIR_PASSWORD \
  				  -h $SUBSYSTEM_HOST \
                                   -t ca \
-                                  -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                                  -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
 			          cert-request-submit  $temp_file  > $CERTDB_DIR/certrequest_$i.out" \
 				   0 \
 				 "Certificate request submit"
@@ -369,23 +390,23 @@ fi
 				rlAssertGrep "Status: pending" "$CERTDB_DIR/certrequest_$i.out"
 				local request_id=`cat $CERTDB_DIR/certrequest_$i.out | grep "Request ID:" | awk '{print $3}'`
 				rlLog "Request ID=$request_id"
-				rlRun "pki -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-show $request_id > $CERTDB_DIR/certrequestshow_001$i.out" 0 "Executing pki cert-request-show $request_id"
+				rlRun "pki -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-show $request_id > $CERTDB_DIR/certrequestshow_001$i.out" 0 "Executing pki cert-request-show $request_id"
 				rlAssertGrep "Request ID: $request_id" "$CERTDB_DIR/certrequestshow_001$i.out"
 				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequestshow_001$i.out"
 				rlAssertGrep "Status: pending" "$CERTDB_DIR/certrequestshow_001$i.out"
 				rlAssertGrep "Operation Result: success" "$CERTDB_DIR/certrequestshow_001$i.out"
 				rlRun "pki -d $CERTDB_DIR/ \
-					   -n \"$admin_cert_nickname\" \
+					   -n \"$CA_ADMIN\" \
 					   -c $CERTDB_DIR_PASSWORD \
  					   -h $SUBSYSTEM_HOST \
                                            -t ca \
-                                           -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                                           -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
 					   cert-request-review --action=approve  $request_id > $CERTDB_DIR/certapprove_001$i.out" \
 					    0 \
 					    "CA agent approve the cert"
 				rlLog "cat $CERTDB_DIR/certapprove_001$i.out"
 				rlAssertGrep "Approved certificate request $request_id" "$CERTDB_DIR/certapprove_001$i.out"
-				rlRun "pki -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-show $request_id > $CERTDB_DIR/certrequestapprovedshow_001$i.out" 0 "Executing pki cert-request-show $request_id"
+				rlRun "pki -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-request-show $request_id > $CERTDB_DIR/certrequestapprovedshow_001$i.out" 0 "Executing pki cert-request-show $request_id"
 				rlAssertGrep "Request ID: $request_id" "$CERTDB_DIR/certrequestapprovedshow_001$i.out"
 				rlAssertGrep "Type: enrollment" "$CERTDB_DIR/certrequestapprovedshow_001$i.out"
 				rlAssertGrep "Status: complete" "$CERTDB_DIR/certrequestapprovedshow_001$i.out"
@@ -393,7 +414,7 @@ fi
 				local certificate_serial_number=`cat $CERTDB_DIR/certrequestapprovedshow_001$i.out | grep "Certificate ID:" | awk '{print $3}'`
 				rlLog "Cerificate Serial Number=$certificate_serial_number"
 				#Verify the certificate is expired
-				rlRun "pki -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
+				rlRun "pki -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
                                 rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "$CERTDB_DIR/certificate_show_001$i.out"
                                 rlAssertGrep "Status: VALID" "$CERTDB_DIR/certificate_show_001$i.out"
 				rlRun "sed -n '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/p' $CERTDB_DIR/certificate_show_001$i.out > $CERTDB_DIR/validcert_001$i.pem"
@@ -415,7 +436,7 @@ fi
                                 rlRun "date --set='next day'" 0 "Set System date a day ahead"
 				rlRun "date"
 				rlRun "sleep 30"
-				rlRun "pki -p $(eval echo \$${MYCAHOST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_exp_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
+				rlRun "pki -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) -h $SUBSYSTEM_HOST ${subsystem}-cert-show  $certificate_serial_number --encoded > $CERTDB_DIR/certificate_show_exp_001$i.out" 0 "Executing pki cert-show $certificate_serial_number"
 				rlAssertGrep "Subject: UID=$userid,E=$userid@example.com,CN=$userfullName,OU=Engineering,O=Example,C=US" "$CERTDB_DIR/certificate_show_exp_001$i.out"
 				rlAssertGrep "Status: EXPIRED" "$CERTDB_DIR/certificate_show_exp_001$i.out"
                                 rlRun "date --set='2 days ago'" 0 "Set System back to the present day"
@@ -426,11 +447,11 @@ fi
 	if [ $userid == $(eval echo \$${subsystemId}_adminUTCA_user) ]; then
 		rlRun "certutil -d $UNTRUSTED_CERT_DB_LOCATION -A -n role_user_UTCA -i /opt/rhqa_pki/dummycert1.pem -t ",,""
 		rlLog "pki -d $CERTDB_DIR/ \
-                   -n \"$admin_cert_nickname\" \
+                   -n \"$CA_ADMIN\" \
                    -c $CERTDB_DIR_PASSWORD \
                    -h $SUBSYSTEM_HOST \
                    -t ca \
-                   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                   -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
                    user-cert-add $userid --input /opt/rhqa_pki/dummycert1.pem"
 
 		rlRun "pki -d $CERTDB_DIR/ \
@@ -457,18 +478,18 @@ fi
 	elif [ $userid == $(eval echo \$${subsystemId}_adminR_user) -o $userid == $(eval echo \$${subsystemId}_agentR_user) ] ;then
 			rlLog "$userid"
 			rlLog "pki -d $CERTDB_DIR/ \
-			   -n \"$admin_cert_nickname\" \
+			   -n \"$CA_ADMIN\" \
 			   -c $CERTDB_DIR_PASSWORD \
 			   -h $SUBSYSTEM_HOST \
                            -t ca \
-                           -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                           -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
 			    cert-revoke $certificate_serial_number  --force   --reason = Unspecified  > $CERTDB_DIR/revokecert__001$i.out"
 			rlRun "pki -d $CERTDB_DIR/ \
-			   -n \"$admin_cert_nickname\" \
+			   -n \"$CA_ADMIN\" \
 			   -c $CERTDB_DIR_PASSWORD \
 			   -h $SUBSYSTEM_HOST \
                    	   -t ca \
-                   	   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                   	   -p $(eval echo \$${MYCA_INST}_UNSECURE_PORT) \
 			    cert-revoke $certificate_serial_number  --force   --reason=Unspecified  > $CERTDB_DIR/revokecert__001$i.out" \
 			    0 \
 			    "Certificate of user $userid is revoked"

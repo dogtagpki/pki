@@ -80,7 +80,7 @@ run_rhcs_install_set_vars()
     # Initialize Global TESTCOUNT variable
     # TESTCOUNT=1
     rlPhaseStartSetup "Inside install set vars"
-	rlLog "run_rhcs_install_set_vars saili"
+	rlLog "run_rhcs_install_set_vars"
     	# First let's normalize the data to use <ROLE>_env<NUM> variables:
     	[ -n "$MASTER"  -a -z "$BEAKERMASTER"  ] && export BEAKERMASTER="$MASTER"
     	[ -n "$CLONE1"   -a -z "$BEAKERCLONE1" ] && export BEAKERCLONE1="$CLONE1"
@@ -151,7 +151,7 @@ run_rhcs_install_quickinstall()
         run_install_subsystem_RootCA
         run_install_subsystem_kra $number $BEAKERMASTER $CA
         run_install_subsystem_ocsp $number $BEAKERMASTER $CA
-        run_install_subsystem_tks $TKS_number $BEAKERMASTER $CA
+        run_install_subsystem_tks $TKS_number $BEAKERMASTER $CA $MASTER_KRA
         run_install_subsystem_tps $TPS_number $BEAKERMASTER $CA $MASTER_KRA $MASTER_TKS
         run_install_subsystem_cloneCA $CLONE_number $BEAKERMASTER $CA
         run_install_subsystem_cloneKRA $CLONE_number $BEAKERMASTER $CA $MASTER_KRA
@@ -192,11 +192,12 @@ run_rhcs_install_topo_1()
  	    local number=3
             local CA=ROOTCA
 	    local TKS_number=1
+	    local MASTER_KRA=KRA3
             run_rhcs_install_packages
 	    run_install_subsystem_RootCA
             run_install_subsystem_kra $number $BEAKERMASTER $CA
             run_install_subsystem_ocsp $number $BEAKERMASTER $CA
-	    run_install_subsystem_tks $TKS_number $BEAKERMASTER $CA
+	    run_install_subsystem_tks $TKS_number $BEAKERMASTER $CA $MASTER_KRA
             pushd $CLIENT_PKCS12_DIR
 	    if [ $(python --version 2>&1|awk '{print $2}'|cut -f1 -d.) -eq 2 ]; then
 	        WEBMOD=SimpleHTTPServer;
@@ -747,7 +748,7 @@ run_rhcs_install_topo_9()
         run_install_subsystem_RootCA
         run_install_subsystem_kra $number $BEAKERMASTER $CA
         run_install_subsystem_ocsp $number $BEAKERMASTER $CA
-        run_install_subsystem_tks $TKS_number $BEAKERMASTER $CA
+        run_install_subsystem_tks $TKS_number $BEAKERMASTER $CA $MASTER_KRA
         run_install_subsystem_tps $TPS_number $BEAKERMASTER $CA $MASTER_KRA $MASTER_TKS
         run_install_subsystem_cloneCA $CLONE_number $BEAKERMASTER $CA
         run_install_subsystem_cloneKRA $CLONE_number $BEAKERMASTER $CA $MASTER_KRA
@@ -755,6 +756,11 @@ run_rhcs_install_topo_9()
         run_install_subsystem_cloneTKS $CLONE_number $BEAKERMASTER $CA
         run_install_subsystem_subca $SUBCA_number $BEAKERMASTER $CA
         run_rhcs_add_to_env "ROOTCA_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$ROOTCA_ADMIN_CERT_NICKNAME.p12"
+	run_rhcs_add_to_env "KRA3_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$KRA3_ADMIN_CERT_NICKNAME.p12"
+	run_rhcs_add_to_env "OCSP3_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$OCSP3_ADMIN_CERT_NICKNAME.p12"
+	run_rhcs_add_to_env "TKS1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$TKS1_ADMIN_CERT_NICKNAME.p12"
+	run_rhcs_add_to_env "TPS1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$TPS1_ADMIN_CERT_NICKNAME.p12"
+	run_rhcs_add_to_env "TOPOLOGY" "TOPO9"
         run_rhcs_add_to_env "SUBCA1_ADMIN_CERT_LOCATION" "$CLIENT_DIR/$SUBCA1_ADMIN_CERT_NICKNAME.p12"
     rlPhaseEnd
 }
