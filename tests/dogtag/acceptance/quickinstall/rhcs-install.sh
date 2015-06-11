@@ -45,9 +45,7 @@
 . ./acceptance/quickinstall/rhds-install.sh
 . ./acceptance/quickinstall/rhcs-install-lib.sh
 ##global variables##
-ROOTCA_INSTALLED=TRUE
-SUBCA1_INSTALLED=TRUE
-SUBCA2_INSTALLED=TRUE
+ALT_XMLSTARLET_PATH="https://dl.fedoraproject.org/pub/epel/7/x86_64/x/xmlstarlet-1.6.1-1.el7.x86_64.rpm"
 ####################
 
 run_rhcs_install_packages() {
@@ -55,18 +53,18 @@ run_rhcs_install_packages() {
 	# Initialize Global TESTCOUNT variable
         #TESTCOUNT=1
 
-        COMMON_SERVER_PACKAGES="bind expect pki-console xmlstarlet dos2unix"
-        #RHELRHCS_PACKAGES="symkey mod-nss pki-native-tools redhat-pki-ca-ui redhat-pki-common-ui redhat-pki-console-ui redhat-pki-kra-ui redhat-pki-ocsp-ui redhat-pki-ra-ui redhat-pki-tks-ui redhat-pki-tps-ui"
-        DOGTAG_PACKAGES="pki-tools pki-symkey dogtag-pki dogtag-pki-console-theme dogtag-pki-server-theme"
+        COMMON_SERVER_PACKAGES="bind expect pki-console xmlstarlet dos2unix bc"
 	NTPDATE_PACKAGE="ntpdate"
 	DEPENDENT_PACKAGES="idm-console-framework pki-base pki-ca pki-console pki-kra pki-ocsp pki-server pki-symkey pki-tks pki-tools pki-tps tomcat resteasy-base-jackson-provider resteasy-base-jaxb-provider resteasy-base-jaxrs resteasy-base-jaxrs-api"
-	rlRun "setenforce 0"
+	#rlRun "setenforce 0"
         cat /etc/redhat-release | grep "Fedora"
         if [ $? -eq 0 ] ; then
                FLAVOR="Fedora"
+		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey dogtag-pki dogtag-pki-console-theme dogtag-pki-server-theme 389-ds-base"
                rlLog "Automation is running against Fedora"
-	else 
+	else
 		FLAVOR="RHEL"
+		OS_SPECIFIC_PACKAGES="pki-tools pki-symkey redhat-pki redhat-pki-console-theme redhat-pki-server-theme redhat-ds"
 		rlLog "Automation is running against RHEL"
 	fi
 	
@@ -81,13 +79,20 @@ run_rhcs_install_packages() {
 		rlLog "CA instance will be installed on $HOSTNAME"
 		rlLog "yum -y install $COMMON_SERVER_PACKAGES"
 		yum -y install $COMMON_SERVER_PACKAGES
-		yum -y install $DOGTAG_PACKAGES
+		rlLog "yum -y install $OS_SPECIFIC_PACKAGES"
+		yum -y install $OS_SPECIFIC_PACKAGES
                 rpm -qa | grep xmlstarlet
                 if [ $? -eq 0 ]; then
                         rlLog "xmlstarlet installed"
                 else
                         wget $XMLSTARLET_PATH
-                        rpm -ivh xmlstarlet*
+			RETVAL=$?
+			if (( $RETVAL == 0)); then
+	                        rpm -ivh xmlstarlet*
+			else
+				wget $ALT_XMLSTARLET_PATH
+				rpm -ivh xmlstarlet*
+			fi
                 fi
 		rlLog "yum -y install $NTPDATE_PACKAGE"
                 yum -y install $NTPDATE_PACKAGE
@@ -128,7 +133,7 @@ run_rhcs_install_packages() {
 run_install_subsystem_RootCA()
 {	
 	rlPhaseStartSetup "rhcs_install_subsystem_RootCA: Default install"
-		ALL_PACKAGES="$COMMON_SERVER_PACKAGES $DOGTAG_PACKAGES $DEPENDENT_PACKAGES $NTPDATE_PACKAGE"
+		ALL_PACKAGES="$COMMON_SERVER_PACKAGES $OS_SPECIFIC_PACKAGES $DEPENDENT_PACKAGES $NTPDATE_PACKAGE"
                 for item in $ALL_PACKAGES ; do
                 	rpm -qa | grep $item
                         if [ $? -eq 0 ] ; then
@@ -136,15 +141,11 @@ run_install_subsystem_RootCA()
                         else
                                rlLog "ERROR: $item package is NOT installed"
                                rc=1
-			       ROOTCA_INSTALLED=FALSE
 			       rlDie "$item is not installed"
                         fi
                 done
 		if [ $rc -eq 0 ] ; then
 			rhcs_install_RootCA
-			if [ $? -ne 0 ]; then
-				ROOTCA_INSTALLED=FALSE 
-			fi
 		fi
 	rlPhaseEnd
 }
@@ -158,18 +159,14 @@ run_install_subsystem_kra() {
                 number=$1
                 master_hostname=$2
                 CA=$3
-                KRA="KRA${number}"
-                eval ${KRA}_INSTALLED=TRUE
                 rpm -qa | grep pki-kra
                 if [ $? -eq 0 ] ; then
                         rlLog "pki-kra package is installed"
                 else
                         rlLog "ERROR: $item package is NOT installed"
                         rc=1
-                        eval ${KRA}_INSTALLED=FALSE
                 fi
-
-                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
+                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTANCE_CREATED_STATUS) = "TRUE" ]; then
                         rhcs_install_kra $number $master_hostname $CA
                 fi
         rlPhaseEnd
@@ -190,10 +187,9 @@ run_install_subsystem_ocsp() {
                 else
                         rlLog "ERROR: $item package is NOT installed"
                         rc=1
-                        OCSP3_INSTALLED=FALSE
                 fi
 
-                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
+                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTANCE_CREATED_STATUS) = "TRUE" ]; then
                         rhcs_install_ocsp $number $master_hostname $CA
                 fi
         rlPhaseEnd
@@ -204,9 +200,9 @@ run_install_subsystem_ocsp() {
 #rlLog "RA instance will be installed on $HOSTNAME"
 		#rc=0
                 #yum -y install $COMMON_SERVER_PACKAGES
-                #yum -y install $DOGTAG_PACKAGES
+                #yum -y install $OS_SPECIFIC_PACKAGES
                 #if [ "$FLAVOR" == "Fedora" ] ; then
-			#ALL_PACKAGES="$COMMON_SERVER_PACKAGES $DOGTAG_PACKAGES"
+			#ALL_PACKAGES="$COMMON_SERVER_PACKAGES $OS_SPECIFIC_PACKAGES"
 			#for item in $ALL_PACKAGES ; do
 				#rpm -qa | grep $item
                                 #if [ $? -eq 0 ] ; then
@@ -232,18 +228,15 @@ run_install_subsystem_tks() {
                 number=$1
                 master_hostname=$2
                 CA=$3
-                TKS="TKS${number}"
-                eval ${TKS}_INSTALLED=TRUE
+		KRA=$4
                 rpm -qa | grep pki-tks
                 if [ $? -eq 0 ] ; then
                         rlLog "pki-tks package is installed"
                 else
                         rlLog "ERROR: $item package is NOT installed"
                         rc=1
-                        eval ${TKS}_INSTALLED=FALSE
                 fi
-
-                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ]; then
+                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTANCE_CREATED_STATUS) = "TRUE" ] && [ $(eval echo \$${KRA}_INSTANCE_CREATED_STATUS) = "TRUE" ]; then
                         rlLog "Installing TKS"
                         rhcs_install_tks $number $master_hostname $CA
                 fi
@@ -267,7 +260,7 @@ run_install_subsystem_tps() {
                         rlLog "ERROR: $item package is NOT installed"
                         rc=1
                 fi
-                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTALLED) = "TRUE" ] && [ $(eval echo \$${KRA}_INSTALLED) = "TRUE" ] && [ $(eval echo \$${TKS}_INSTALLED) = "TRUE" ] ; then
+                if [ $rc -eq 0 ] && [ $(eval echo \$${CA}_INSTANCE_CREATED_STATUS) = "TRUE" ] && [ $(eval echo \$${KRA}_INSTANCE_CREATED_STATUS) = "TRUE" ] && [ $(eval echo \$${TKS}_INSTANCE_CREATED_STATUS) = "TRUE" ]; then
                         rlLog "Installing TPS"
                         rhcs_install_tps $number $master_hostname $CA $KRA $TKS
                 fi
@@ -288,9 +281,9 @@ run_install_subsystem_subca(){
                 rlLog "Sub CA instance will be installed on $HOSTNAME"
                 rc=0
                 yum -y install $COMMON_SERVER_PACKAGES
-                yum -y install $DOGTAG_PACKAGES
+                yum -y install $OS_SPECIFIC_PACKAGES
 
-                ALL_PACKAGES="$COMMON_SERVER_PACKAGES $DOGTAG_PACKAGES"
+                ALL_PACKAGES="$COMMON_SERVER_PACKAGES $OS_SPECIFIC_PACKAGES"
                 for item in $ALL_PACKAGES ; do
                 rpm -qa | grep $item
                  	if [ $? -eq 0 ] ; then
@@ -298,16 +291,12 @@ run_install_subsystem_subca(){
                         else
                         	rlLog "ERROR: $item package is NOT installed"
                                 rc=1
-				eval SUBCA${number}_INSTALLED=FALSE
 				break
                         fi
                 done
                 if [ $rc -eq 0 ] ; then
                         rlLog "Installing Sub CA"
                         rhcs_install_SubCA $number $master_hostname $CA
-			if [ $? -ne 0 ]; then
-				eval SUBCA${number}_INSTALLED=FALSE
-                        fi
                 fi
 	rlPhaseEnd 
 }
@@ -327,8 +316,8 @@ run_install_subsystem_cloneCA() {
 		rlLog "Clone CA instance will be installed on $HOSTNAME"
 		rc=0
                 yum -y install $COMMON_SERVER_PACKAGES
-                yum -y install $DOGTAG_PACKAGES
-		ALL_PACKAGES="$COMMON_SERVER_PACKAGES $DOGTAG_PACKAGES"
+                yum -y install $
+		ALL_PACKAGES="$COMMON_SERVER_PACKAGES $OS_SPECIFIC_PACKAGES"
                 for item in $ALL_PACKAGES ; do
 	        	rpm -qa | grep $item
                         if [ $? -eq 0 ] ; then

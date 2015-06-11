@@ -25,6 +25,12 @@
 
 export TEST=/CoreOS/dogtag/PKI_TEST_USER_ID
 export TESTVERSION=1.0.8_RPM_IDENTIFIER
+#TESTBASE=/pki-tests/dogtag
+#export TEST=$(TESTBASE)
+#export TESTVERSION=$(shell echo -n `date +%Y%m%d%H%M%S`; \
+#	[ -n "`git status --porcelain --untracked-files=no`" ] && \
+#	echo .`git rev-parse --short HEAD`)
+
 
 
 BUILT_FILE=
@@ -167,15 +173,15 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-ca-cert-cli/pki-ca-cert-cli-request-find-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-cert-cli/pki-ca-cert-cli-find-ca.sh
 	#group CA
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-add-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-show-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-find-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-mod-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-del-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-add-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-find-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-del-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-show-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-add-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-show-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-find-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-mod-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-del-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-member-add-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-member-find-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-member-del-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ca/pki-group-cli-group-member-show-ca.sh
 	#CA group
 	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-add.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-find.sh
@@ -187,25 +193,85 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-member-find.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-member-del.sh
 	#group KRA
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-add-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-show-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-find-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-mod-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-del-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-add-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-find-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-del-ca.sh
-	chmod a+x ./acceptance/cli-tests/pki-group-cli/pki-group-cli-group-member-show-ca.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-add-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-show-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-find-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-mod-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-del-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-member-add-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-member-find-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-member-del-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/kra/pki-group-cli-group-member-show-kra.sh
 	#KRA group
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-add.sh
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-find.sh
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-mod.sh
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-show.sh
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-del.sh
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-member-add.sh
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-member-show.sh
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-member-find.sh
-	chmod a+x ./acceptance/cli-tests/pki-ca-group-cli/pki-ca-group-cli-ca-group-member-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-member-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-member-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-member-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-kra-group-cli/pki-kra-group-cli-kra-group-member-del.sh
+	#group OCSP
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-add-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-show-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-find-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-mod-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-del-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-member-add-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-member-find-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-member-del-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/ocsp/pki-group-cli-group-member-show-ocsp.sh
+	#OCSP group
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-member-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-member-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-member-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-group-cli/pki-ocsp-group-cli-ocsp-group-member-del.sh
+	#TKS group
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-member-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-member-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-member-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-group-cli/pki-tks-group-cli-tks-group-member-del.sh
+	#group TKS
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-add-tks.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-show-tks.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-find-tks.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-mod-tks.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-del-tks.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-member-add-tks.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-member-find-tks.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-member-del-tks.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tks/pki-group-cli-group-member-show-tks.sh
+	#TPS group
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-member-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-member-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-member-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-group-cli/pki-tps-group-cli-tps-group-member-del.sh
+	#group TPS
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-add-tps.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-show-tps.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-find-tps.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-mod-tps.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-del-tps.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-member-add-tps.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-member-find-tps.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-member-del-tps.sh
+	chmod a+x ./acceptance/cli-tests/pki-group-cli/tps/pki-group-cli-group-member-show-tps.sh
 	#key KRA
 	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-kra.sh
 	chmod a+x ./acceptance/cli-tests/pki-key-cli/pki-key-cli-generate-kra.sh
