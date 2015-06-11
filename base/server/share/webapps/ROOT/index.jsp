@@ -87,6 +87,11 @@ $(function() {
 
 <center>
 
+<br>
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr valign="TOP">
+    <td>
 <%
     ServletContext caContext = getServletContext().getContext("/ca");
     if (caContext != null) {
@@ -94,41 +99,8 @@ $(function() {
         String caPath = caContext.getContextPath();
         if (!"".equals(caPath)) {
 %>
-<p>
-<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
-<%= caName %>
-</font>
-</p>
-
-<table border="0" cellspacing="0" cellpadding="0">
-<tr valign="TOP">
-    <td>
         <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/ca/ee/ca">End Users Services</a></font>
-    </td>
-</tr>
-<%
-            if (request.isSecure()) {
-%>
-<tr valign="TOP">
-    <td>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/ca/agent/ca">Agent Services</a></font>
-    </td>
-</tr>
-<tr valign="TOP">
-    <td>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/ca/services">Admin Services</a></font>
-    </td>
-</tr>
-<%
-            }
-%>
-</table>
-
-<br>
-
+        <a href="/ca"><%= caName %></a></font>
 <%
         }
     }
@@ -139,29 +111,8 @@ $(function() {
         String kraPath = kraContext.getContextPath();
         if (!"".equals(kraPath) && request.isSecure()) {
 %>
-<p>
-<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
-<%= kraName %>
-</font>
-</p>
-
-<table border="0" cellspacing="0" cellpadding="0">
-<tr valign="TOP">
-    <td>
         <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/kra/agent/kra">Agent Services</a></font>
-    </td>
-</tr>
-<tr valign="TOP">
-    <td>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/kra/services">Admin Services</a></font>
-    </td>
-</tr>
-</table>
-
-<br>
-
+        <a href="/kra"><%= kraName %></a></font>
 <%
         }
     }
@@ -172,29 +123,8 @@ $(function() {
         String ocspPath = ocspContext.getContextPath();
         if (!"".equals(ocspPath) && request.isSecure()) {
 %>
-<p>
-<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
-<%= ocspName %>
-</font>
-</p>
-
-<table border="0" cellspacing="0" cellpadding="0">
-<tr valign="TOP">
-    <td>
         <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/ocsp/agent/ocsp">Agent Services</a></font>
-    </td>
-</tr>
-<tr valign="TOP">
-    <td>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/ocsp/services">Admin Services</a></font>
-    </td>
-</tr>
-</table>
-
-<br>
-
+        <a href="/ocsp"><%= ocspName %></a></font>
 <%
         }
     }
@@ -205,29 +135,8 @@ $(function() {
         String tksPath = tksContext.getContextPath();
         if (!"".equals(tksPath) && request.isSecure()) {
 %>
-<p>
-<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
-<%= tksName %>
-</font>
-</p>
-
-<table border="0" cellspacing="0" cellpadding="0">
-<tr valign="TOP">
-    <td>
         <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/tks/agent/tks">Agent Services</a></font>
-    </td>
-</tr>
-<tr valign="TOP">
-    <td>
-        <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/tks/services">Admin Services</a></font>
-    </td>
-</tr>
-</table>
-
-<br>
-
+        <a href="/tks"><%= tksName %></a></font>
 <%
         }
     }
@@ -238,27 +147,15 @@ $(function() {
         String tpsPath = tpsContext.getContextPath();
         if (!"".equals(tpsPath) && request.isSecure()) {
 %>
-<p>
-<font size="+1" face="PrimaSans BT, Verdana, Arial, Helvetica, sans-serif">
-<%= tpsName %>
-</font>
-</p>
-
-<table border="0" cellspacing="0" cellpadding="0">
-<tr valign="TOP">
-    <td>
         <li><font size=4 face="PrimaSans BT, Verdana, sans-serif">
-        <a href="/tps/">Agent and Admin Services</a></font>
-    </td>
-</tr>
-</table>
-
-<br>
-
+        <a href="/tps/"><%= tpsName %></a></font>
 <%
         }
     }
 %>
+    </td>
+</tr>
+</table>
 
 </center>
 

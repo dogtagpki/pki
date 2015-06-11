@@ -639,14 +639,9 @@ def print_install_information(mdict):
             # Stand-alone PKI KRA/OCSP (External CA Step 1)
             print log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem
         else:
-            if (config.pki_subsystem == "TPS"):
-                print log.PKI_ACCESS_TPS_URL % (mdict['pki_hostname'],
-                                                mdict['pki_https_port'],
-                                                config.pki_subsystem.lower())
-            else:
-                print log.PKI_ACCESS_URL % (mdict['pki_hostname'],
-                                            mdict['pki_https_port'],
-                                            config.pki_subsystem.lower())
+            print log.PKI_ACCESS_URL % (mdict['pki_hostname'],
+                                        mdict['pki_https_port'],
+                                        config.pki_subsystem.lower())
             if not config.str2bool(mdict['pki_enable_on_system_boot']):
                 print log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled"
             else:
