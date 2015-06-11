@@ -84,6 +84,14 @@ $(function() {
 
 </div>
 
+<script>
+if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
+} else {
+    document.write('<p> <font color="red"> Warning: This version of Firefox no longer supports the crypto web object used to generate and archive keys from the broswer. Although Certificate System will continue to work, some of the functionality may be no longer supported. </font> </p>');
+    document.write('<br>');
+}
+</script>
+
 
 <center>
 
