@@ -26,6 +26,7 @@ nsIndexAttribute: revokedOn:eq,pres
 nsIndexAttribute: archivedBy:eq,pres
 nsIndexAttribute: ownername:eq,pres,sub
 nsIndexAttribute: subjectname:eq,pres,sub
+nsIndexAttribute: issuername:eq,pres,sub
 nsIndexAttribute: requestsourceid:eq,pres,sub
 nsIndexAttribute: revInfo:eq,pres,sub
 nsIndexAttribute: extension:eq,pres,sub

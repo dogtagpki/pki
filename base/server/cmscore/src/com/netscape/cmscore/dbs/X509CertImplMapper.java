@@ -61,6 +61,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
         v.addElement(CertDBSchema.LDAP_ATTR_DURATION);
         v.addElement(CertDBSchema.LDAP_ATTR_EXTENSION);
         v.addElement(CertDBSchema.LDAP_ATTR_SUBJECT);
+        v.addElement(CertDBSchema.LDAP_ATTR_ISSUER);
         v.addElement(CertDBSchema.LDAP_ATTR_SIGNED_CERT);
         v.addElement(CertDBSchema.LDAP_ATTR_VERSION);
         v.addElement(CertDBSchema.LDAP_ATTR_ALGORITHM);
@@ -90,6 +91,8 @@ public class X509CertImplMapper implements IDBAttrMapper {
                     DBSUtil.longToDB(notAfter.getTime() - notBefore.getTime())));
             attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_SUBJECT,
                     cert.getSubjectDN().getName()));
+            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_ISSUER,
+                    cert.getIssuerDN().getName()));
             attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA, cert.getPublicKey().getEncoded()));
             // make extension searchable
             Set<String> nonCritSet = cert.getNonCriticalExtensionOIDs();
@@ -300,6 +303,8 @@ public class X509CertImplMapper implements IDBAttrMapper {
             }
         } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_SUBJECT)) {
             name = CertDBSchema.LDAP_ATTR_SUBJECT;
+        } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_ISSUER)) {
+            name = CertDBSchema.LDAP_ATTR_ISSUER;
         } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_PUBLIC_KEY_DATA)) {
             name = CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA;
         } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_DURATION)) {

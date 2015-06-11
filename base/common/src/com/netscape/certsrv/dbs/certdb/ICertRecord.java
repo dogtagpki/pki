@@ -69,6 +69,7 @@ public interface ICertRecord extends IDBObj {
     public final static String X509CERT_DURATION = "duration";
     public final static String X509CERT_EXTENSION = "extension";
     public final static String X509CERT_SUBJECT = "subject";
+    public final static String X509CERT_ISSUER = "issuer";
     public final static String X509CERT_PUBLIC_KEY_DATA = "publicKeyData";
     public final static String X509CERT_VERSION = "version";
     public final static String X509CERT_ALGORITHM = "algorithm";
@@ -86,6 +87,8 @@ public interface ICertRecord extends IDBObj {
             ATTR_X509CERT + "." + X509CERT_EXTENSION;
     public final static String ATTR_X509CERT_SUBJECT =
             ATTR_X509CERT + "." + X509CERT_SUBJECT;
+    public final static String ATTR_X509CERT_ISSUER =
+            ATTR_X509CERT + "." + X509CERT_ISSUER;
     public final static String ATTR_X509CERT_VERSION =
             ATTR_X509CERT + "." + X509CERT_VERSION;
     public final static String ATTR_X509CERT_ALGORITHM =
@@ -119,9 +122,9 @@ public interface ICertRecord extends IDBObj {
     public X509CertImpl getCertificate();
 
     /**
-     * Retrieves name of who issued this certificate.
+     * Retrieves name of which user issued this certificate.
      *
-     * @return name of who issued this certificate
+     * @return name of which user issued this certificate
      */
     public String getIssuedBy();
 

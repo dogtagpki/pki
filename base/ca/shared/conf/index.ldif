@@ -161,6 +161,15 @@ nsindexType: sub
 nsSystemindex: false
 cn: ownername
 
+dn: cn=issuername,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsindexType: sub
+nsSystemindex: false
+cn: issuername
+
 dn: cn=subjectname,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
 objectClass: top
 objectClass: nsIndex

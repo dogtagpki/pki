@@ -42,6 +42,7 @@ public class CertDBSchema {
     public static final String LDAP_ATTR_VERSION = "version";
     public static final String LDAP_ATTR_DURATION = "duration";
     public static final String LDAP_ATTR_SUBJECT = "subjectName";
+    public static final String LDAP_ATTR_ISSUER = "issuerName";
     public static final String LDAP_ATTR_ALGORITHM = "algorithmId";
     public static final String LDAP_ATTR_SIGNING_ALGORITHM = "signingAlgorithmId";
     public static final String LDAP_ATTR_REVO_INFO = "revInfo";
