@@ -388,6 +388,11 @@ public class ProfileService extends PKIService implements ProfileResource {
             throw new BadRequestException("Unable to modify profile state: Invalid Profile Id");
         }
 
+        if (action == null) {
+            CMS.debug("modifyProfileState: invalid request. action is null");
+            throw new BadRequestException("Unable to modify profile state: Missing action");
+        }
+
         if (ps == null) {
             CMS.debug("modifyProfileState: ps is null");
             throw new PKIException("Error modifying profile state.  Profile Service not available");
