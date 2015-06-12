@@ -1,0 +1,72 @@
+#!/usr/bin/python
+# Authors:
+#     Christian Heimes <cheimes@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+
+import pki
+import pki.server.upgrade
+
+
+class AddKraAuditEvents(pki.server.upgrade.PKIServerUpgradeScriptlet):
+    property_keys = [
+        'log.instance.SignedAudit._005',
+        'log.instance.SignedAudit.events',
+    ]
+    events = [
+        'ASYMKEY_GENERATION_REQUEST_PROCESSED',
+        'SECURITY_DATA_RETRIEVE_KEY',
+        'KEY_STATUS_CHANGE',
+    ]
+
+    def __init__(self):
+        self.message = 'Add new KRA audit events'
+
+    def upgrade_subsystem(self, instance, subsystem):
+        if subsystem.name == 'kra':
+            self.add_new_events(instance, subsystem)
+
+    def add_new_events(self, instance, subsystem):
+        filename = os.path.join(subsystem.conf_dir, 'CS.cfg')
+        self.backup(filename)
+
+        properties = pki.PropertyFile(filename)
+        properties.read()
+
+        for prop_key in self.property_keys:
+            prop_value = properties.get(prop_key)
+            if prop_value is None:
+                continue
+
+            # comment value start with '## '
+            if prop_value.startswith('## '):
+                values = prop_value[3:]
+            else:
+                values = prop_value
+            values = set(values.split(','))
+
+            add_values = [event for event in self.events
+                          if event not in values]
+            if add_values:
+                add_values.insert(0, '')  # trailing comma
+                prop_value += ','.join(add_values)
+                properties.set(prop_key, prop_value)
+
+        properties.write()
