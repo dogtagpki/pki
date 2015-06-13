@@ -21,12 +21,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -40,6 +37,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.BIT_STRING;
@@ -382,7 +384,7 @@ public class CRMFPopClient {
         }
 
         try {
-            if (verbose) System.out.println("Initializing security database");
+            if (verbose) System.out.println("Initializing security database: " + databaseDir);
             CryptoManager.initialize(databaseDir);
 
             CryptoManager manager = CryptoManager.getInstance();
@@ -717,7 +719,7 @@ public class CRMFPopClient {
             String profileID,
             String requestor) throws Exception {
 
-        String s = "http://" + hostPort + "/ca/ee/ca/profileSubmit"
+        String url = "http://" + hostPort + "/ca/ee/ca/profileSubmit"
                 + "?cert_request_type=crmf"
                 + "&cert_request=" + URLEncoder.encode(request, "UTF-8")
                 + "&renewal=false"
@@ -726,20 +728,37 @@ public class CRMFPopClient {
                 + "&SubId=profile";
 
         if (username != null) {
-            s += "&uid=" + URLEncoder.encode(username, "UTF-8");
-            s += "&sn_uid=" + URLEncoder.encode(username, "UTF-8");
+            url += "&uid=" + URLEncoder.encode(username, "UTF-8");
+            url += "&sn_uid=" + URLEncoder.encode(username, "UTF-8");
         }
 
         if (requestor != null) {
-            s += "&requestor_name=" + URLEncoder.encode(requestor, "UTF-8");
+            url += "&requestor_name=" + URLEncoder.encode(requestor, "UTF-8");
         }
 
-        URL url = new URL(s);
         if (verbose) System.out.println("Opening " + url);
 
-        URLConnection conn = url.openConnection();
-        InputStream is = conn.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpGet method = new HttpGet(url);
+        try {
+            HttpResponse response = client.execute(method);
+
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new Exception("Error: " + response.getStatusLine());
+            }
+
+            processResponse(response);
+
+        } finally {
+            method.releaseConnection();
+        }
+    }
+
+    public void processResponse(HttpResponse response) throws Exception {
+
+        HttpEntity entity = response.getEntity();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
 
         if (verbose) System.out.println("--------------------");
         String line = null;
@@ -794,6 +813,8 @@ public class CRMFPopClient {
         if (reason != null) {
             System.out.println("Reason: " + reason);
         }
+
+        EntityUtils.consume(entity);
     }
 
     public boolean isEncoded(String elementValue) {
