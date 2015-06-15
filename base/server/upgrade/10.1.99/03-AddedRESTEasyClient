@@ -28,7 +28,7 @@ import pki.server.upgrade
 class AddedRESTEasyClient(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(AddedRESTEasyClient, self).__init__()
         self.message = 'Added RESTEasy client'
 
     def upgrade_instance(self, instance):

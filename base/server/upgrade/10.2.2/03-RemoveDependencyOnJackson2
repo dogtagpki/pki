@@ -27,7 +27,7 @@ import pki.server.upgrade
 class RemoveDependencyOnJackson2(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(RemoveDependencyOnJackson2, self).__init__()
         self.message = 'Remove dependency on Jackson 2'
 
     def upgrade_instance(self, instance):

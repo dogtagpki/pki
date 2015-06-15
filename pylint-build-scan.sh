@@ -11,7 +11,9 @@ fi
 
 HOME_DIR=$1
 
-PYLINT_RC_FILE_PATH="`cd $2/.. ; pwd`/dogtag.pylintrc"
+SCRIPTPATH="$( cd $(dirname $0) ; pwd -P )"
+
+PYLINT_RC_FILE_PATH="$SCRIPTPATH/dogtag.pylintrc"
 
 PYTHON_PACKAGE_DIR="$HOME_DIR`python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`"
 
@@ -24,6 +26,8 @@ FILES="$FILES $HOME_DIR/usr/sbin/pkidestroy"
 FILES="$FILES $HOME_DIR/usr/sbin/pki-upgrade"
 FILES="$FILES $HOME_DIR/usr/sbin/pki-server"
 FILES="$FILES $HOME_DIR/usr/sbin/pki-server-upgrade"
+FILES="$FILES $(find $HOME_DIR/usr/share/pki/upgrade -type f)"
+FILES="$FILES $(find $HOME_DIR/usr/share/pki/server/upgrade -type f)"
 
 pylint --rcfile=$PYLINT_RC_FILE_PATH $FILES
 

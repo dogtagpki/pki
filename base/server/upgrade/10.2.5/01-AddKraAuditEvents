@@ -37,13 +37,14 @@ class AddKraAuditEvents(pki.server.upgrade.PKIServerUpgradeScriptlet):
     ]
 
     def __init__(self):
+        super(AddKraAuditEvents, self).__init__()
         self.message = 'Add new KRA audit events'
 
     def upgrade_subsystem(self, instance, subsystem):
         if subsystem.name == 'kra':
             self.add_new_events(instance, subsystem)
 
-    def add_new_events(self, instance, subsystem):
+    def add_new_events(self, instance, subsystem):  # pylint: disable=W0613
         filename = os.path.join(subsystem.conf_dir, 'CS.cfg')
         self.backup(filename)
 

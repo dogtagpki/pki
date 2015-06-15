@@ -26,6 +26,7 @@ import pki.server.upgrade
 class FixLogFileOwnership(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
+        super(FixLogFileOwnership, self).__init__()
         self.message = 'Fix log file ownership'
 
     def upgrade_instance(self, instance):

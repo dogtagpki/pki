@@ -28,7 +28,7 @@ import pki.server.upgrade
 class ReplaceJettisonWithJackson(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(ReplaceJettisonWithJackson, self).__init__()
         self.message = 'Replace Jettison with Jackson'
 
     def upgrade_instance(self, instance):

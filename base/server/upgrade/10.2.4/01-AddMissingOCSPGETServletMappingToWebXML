@@ -20,7 +20,6 @@
 #
 
 import os
-import sys
 from lxml import etree as ET
 
 import pki
@@ -37,8 +36,11 @@ class AddMissingOCSPGETServletMappingToWebXML(pki.server.upgrade.PKIServerUpgrad
        """
 
     def __init__(self):
-
+        super(AddMissingOCSPGETServletMappingToWebXML, self).__init__()
         self.message = 'Add missing OCSP Get Servlet Mapping to upgraded Dogtag 9 instances'
+        self.doc = None
+        self.root = None
+
 
     def upgrade_subsystem(self, instance, subsystem):
         # only affects CA

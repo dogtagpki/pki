@@ -28,9 +28,8 @@ import pki.server.upgrade
 class EnableSessionInAuthenticator(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(EnableSessionInAuthenticator, self).__init__()
         self.message = 'Enable session in authenticator'
-
         self.parser = etree.XMLParser(remove_blank_text=True)
 
     def upgrade_subsystem(self, instance, subsystem):

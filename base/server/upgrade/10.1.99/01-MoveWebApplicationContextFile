@@ -27,7 +27,7 @@ import pki.server.upgrade
 class MoveWebApplicationContextFile(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(MoveWebApplicationContextFile, self).__init__()
         self.message = 'Move web application context file'
 
     def upgrade_instance(self, instance):

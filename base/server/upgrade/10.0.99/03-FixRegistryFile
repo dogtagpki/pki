@@ -28,6 +28,7 @@ import pki.server.upgrade
 class FixRegistryFile(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
+        super(FixRegistryFile, self).__init__()
         self.message = 'Replace PKI_INSTANCE_ID and fix registry file ownership'
 
     def upgrade_instance(self, instance):

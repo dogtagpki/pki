@@ -29,7 +29,7 @@ import pki.server.upgrade
 class AddTLSRangeSupport(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(AddTLSRangeSupport, self).__init__()
         self.message = 'Add TLS Range Support'
 
         self.parser = etree.XMLParser(remove_blank_text=True)

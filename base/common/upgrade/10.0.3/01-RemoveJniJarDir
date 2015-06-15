@@ -28,16 +28,16 @@ import pki.upgrade
 class RemoveJniJarDir(pki.upgrade.PKIUpgradeScriptlet):
 
     def __init__(self):
-
+        super(RemoveJniJarDir, self).__init__()
         self.message = 'Remove JNI_JAR_DIR from /etc/pki/pki.conf'
 
     def upgrade_system(self):
 
-        file = os.path.join(pki.CONF_DIR, 'pki.conf')
-        self.backup(file)
+        filename = os.path.join(pki.CONF_DIR, 'pki.conf')
+        self.backup(filename)
 
         # read pki.conf
-        conf = pki.PropertyFile(file)
+        conf = pki.PropertyFile(filename)
         conf.read()
 
         self.update_system_config(conf)

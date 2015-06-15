@@ -20,7 +20,6 @@
 #
 
 import os
-import sys
 from lxml import etree as ET
 
 import pki
@@ -97,8 +96,10 @@ class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
         </servlet-mapping>"""
 
     def __init__(self):
-
+        super(CloningInterfaceChanges, self).__init__()
         self.message = 'Change interfaces for cloning'
+        self.doc = None
+        self.root = None
 
     def upgrade_subsystem(self, instance, subsystem):
         web_xml = os.path.join(

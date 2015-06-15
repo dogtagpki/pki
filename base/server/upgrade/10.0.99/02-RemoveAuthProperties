@@ -27,6 +27,7 @@ import pki.server.upgrade
 class RemoveAuthProperties(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
+        super(RemoveAuthProperties, self).__init__()
         self.message = 'Remove auth.properties'
 
     def upgrade_subsystem(self, instance, subsystem):

@@ -29,6 +29,7 @@ import pki.server.upgrade
 class FixBindPWPrompt(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
+        super(FixBindPWPrompt, self).__init__()
         self.message = 'Fix bindPWPrompt for internalDB'
 
     def upgrade_subsystem(self, instance, subsystem):

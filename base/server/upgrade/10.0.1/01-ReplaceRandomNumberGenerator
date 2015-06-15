@@ -21,8 +21,6 @@
 
 import os
 import shutil
-import signal
-import sys
 from lxml import etree
 
 import pki
@@ -32,7 +30,7 @@ import pki.server.upgrade
 class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(ReplaceRandomNumberGenerator, self).__init__()
         self.message = 'Replace random number generator'
 
         self.context_xml = '/usr/share/pki/%s/webapps/%s/META-INF/context.xml'

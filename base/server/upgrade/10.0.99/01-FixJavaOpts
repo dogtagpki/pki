@@ -19,7 +19,6 @@
 # All rights reserved.
 #
 
-import os
 import re
 import pki.server.upgrade
 
@@ -27,6 +26,7 @@ import pki.server.upgrade
 class FixJavaOpts(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
+        super(FixJavaOpts, self).__init__()
         self.message = 'Fix JAVA_OPTS in tomcat startup'
 
     def upgrade_instance(self, instance):

@@ -21,8 +21,6 @@
 
 import os
 import shutil
-import signal
-import sys
 from lxml import etree
 
 import pki
@@ -32,7 +30,7 @@ import pki.server.upgrade
 class MoveWebApplicationDeploymentLocations(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(MoveWebApplicationDeploymentLocations, self).__init__()
         self.message = 'Move Web application deployment locations'
 
         self.parser = etree.XMLParser(remove_blank_text=True)
@@ -103,7 +101,7 @@ class MoveWebApplicationDeploymentLocations(pki.server.upgrade.PKIServerUpgradeS
         document = etree.parse(context_xml, self.parser)
 
         context = document.getroot()
-        doc_base = context.get('docBase')
+        # doc_base = context.get('docBase')
 
         context.set('docBase', new_webapp)
 

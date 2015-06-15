@@ -19,7 +19,6 @@
 # All rights reserved.
 #
 
-import os
 import subprocess
 
 import pki.server.upgrade
@@ -27,6 +26,7 @@ import pki.server.upgrade
 
 class FixNuxwdogListenerClass(pki.server.upgrade.PKIServerUpgradeScriptlet):
     def __init__(self):
+        super(FixNuxwdogListenerClass, self).__init__()
         self.message = 'Fix nuxwdog listener class'
 
     def upgrade_instance(self, instance):

@@ -28,7 +28,7 @@ import pki.server.upgrade
 class RemoveConfigPathFromWebXML(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
-
+        super(RemoveConfigPathFromWebXML, self).__init__()
         self.message = 'Remove config path from web.xml'
 
     def upgrade_subsystem(self, instance, subsystem):
