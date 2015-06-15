@@ -170,9 +170,9 @@ public class GroupMemberProcessor extends Processor {
             Enumeration<String> e = group.getMemberNames();
             while (e.hasMoreElements()) {
                 String memberName = e.nextElement();
-                if (!memberName.equals(memberID)) continue;
+                if (!memberName.equalsIgnoreCase(memberID)) continue;
 
-                GroupMemberData groupMemberData = createGroupMemberData(groupID, memberID);
+                GroupMemberData groupMemberData = createGroupMemberData(groupID, memberName);
                 return groupMemberData;
             }
 
