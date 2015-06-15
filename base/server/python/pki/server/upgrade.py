@@ -184,6 +184,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         if self.instanceName and self.instanceType:
             instance = pki.server.PKIInstance(self.instanceName, self.instanceType)
             instance.validate()
+            instance.load()
             return [instance]
 
         instance_list = []
@@ -195,6 +196,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                             self.instanceName == instanceName:
                         instance = pki.server.PKIInstance(instanceName)
                         instance.validate()
+                        instance.load()
                         instance_list.append(instance)
 
         if not self.instanceType or self.instanceType == 9:
@@ -206,6 +208,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                                 self.instanceName == instanceName:
                             instance = pki.server.PKIInstance(instanceName, 9)
                             instance.validate()
+                            instance.load()
                             instance_list.append(instance)
 
         instance_list.sort()
