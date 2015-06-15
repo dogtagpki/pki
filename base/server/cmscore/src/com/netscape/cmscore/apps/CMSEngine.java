@@ -1183,7 +1183,9 @@ public class CMSEngine implements ICMSEngine {
          */
         Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
                 ILogger.LL_INFO, CMS.getLogMessage("SERVER_STARTUP"));
-        System.out.println(Constants.SERVER_STARTUP_MESSAGE);
+
+        String type = mConfig.get("cs.type");
+        System.out.println(type + " is started.");
         isStarted = true;
 
     }

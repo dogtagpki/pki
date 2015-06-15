@@ -553,7 +553,6 @@ public interface Constants {
      *========================================================*/
 
     public final static String SERVER_STARTUP_WARNING_MESSAGE = "CMS Warning: ";
-    public final static String SERVER_STARTUP_MESSAGE = "Server is started.";
     public final static String SERVER_SHUTDOWN_MESSAGE = "Shutting down.";
     public final static String SERVER_SHUTDOWN_ERROR_MESSAGE = "Error Starting CMS: ";
     public final static String SERVER_SHUTDOWN_EXTENDED_ERROR_MESSAGE = "Extended error information: ";
