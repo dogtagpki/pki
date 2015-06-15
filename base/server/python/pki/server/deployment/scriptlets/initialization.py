@@ -42,6 +42,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # ALWAYS establish 'uid' and 'gid'
         deployer.identity.set_uid(deployer.mdict['pki_user'])
         deployer.identity.set_gid(deployer.mdict['pki_group'])
+        # ALWAYS initialize HSMs (when and if present)
+        deployer.hsm.initialize()
         if config.str2bool(deployer.mdict['pki_skip_installation']):
             config.pki_log.info(log.SKIP_INITIALIZATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)

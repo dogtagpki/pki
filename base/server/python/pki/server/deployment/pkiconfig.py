@@ -169,6 +169,12 @@ pki_log_name = None
 pki_log_level = None
 pki_console_log_level = None
 
+# PKI HSM Constants
+PKI_HSM_LUNASA_LIB = "/usr/safenet/lunaclient/lib/libCryptoki2_64.so"
+PKI_HSM_NCIPHER_EXE = "/opt/nfast/sbin/init.d-ncipher"
+PKI_HSM_NCIPHER_LIB = "/opt/nfast/toolkits/pkcs11/libcknfast.so"
+PKI_HSM_NCIPHER_GROUP = "nfast"
+
 # PKI Selinux Constants and parameters
 PKI_INSTANCE_SELINUX_CONTEXT = "pki_tomcat_var_lib_t"
 PKI_LOG_SELINUX_CONTEXT = "pki_tomcat_log_t"
