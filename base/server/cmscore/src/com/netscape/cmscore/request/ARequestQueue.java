@@ -1108,6 +1108,7 @@ class Request implements IRequest {
             try {
                 return new X509CertImpl(data);
             } catch (CertificateException e) {
+                CMS.debug("ARequestQueue: getExtDataInCert(): "+e.toString());
                 return null;
             }
         }
@@ -1139,6 +1140,7 @@ class Request implements IRequest {
             try {
                 certArray[index] = new X509CertImpl(CMS.AtoB(stringArray[index]));
             } catch (CertificateException e) {
+                CMS.debug("ARequestQueue: getExtDataInCertArray(): "+e.toString());
                 return null;
             }
         }
@@ -1162,6 +1164,7 @@ class Request implements IRequest {
             try {
                 return new X509CertInfo(data);
             } catch (CertificateException e) {
+                CMS.debug("ARequestQueue: getExtDataInCertInfo(): "+e.toString());
                 return null;
             }
         }
@@ -1193,6 +1196,7 @@ class Request implements IRequest {
             try {
                 certArray[index] = new X509CertInfo(CMS.AtoB(stringArray[index]));
             } catch (CertificateException e) {
+                CMS.debug("ARequestQueue: getExtDataInCertInfoArray(): "+e.toString());
                 return null;
             }
         }
@@ -1310,8 +1314,10 @@ class Request implements IRequest {
         try {
             data.encode(byteStream);
         } catch (CertificateException e) {
+            CMS.debug("ARequestQueue: setExtData(): "+e.toString());
             return false;
         } catch (IOException e) {
+            CMS.debug("ARequestQueue: setExtData(): "+e.toString());
             return false;
         }
         return setExtData(key, byteStream.toByteArray());

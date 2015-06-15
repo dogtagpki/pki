@@ -67,14 +67,9 @@ public class CertificateExtensions extends Vector<Extension>
             @SuppressWarnings("unchecked")
             Class<CertAttrSet> extClass = (Class<CertAttrSet>) OIDMap.getClass(ext.getExtensionId());
             if (extClass == null) { // Unsupported extension
-                if (ext.isCritical()) {
-                    throw new IOException("Unsupported CRITICAL extension: "
-                            + ext.getExtensionId());
-                } else {
-                    map.put(ext.getExtensionId().toString(), ext);
-                    addElement(ext);
-                    return;
-                }
+                map.put(ext.getExtensionId().toString(), ext);
+                addElement(ext);
+                return;
             }
             Class<?>[] params = { Boolean.class, Object.class };
             Constructor<CertAttrSet> cons = extClass.getConstructor(params);

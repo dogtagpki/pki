@@ -99,6 +99,11 @@ public class GenericExtDefault extends EnrollExtDefault {
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
+        if (info == null) {
+            CMS.debug("GenericExtDefault: setValue() info == null");
+            throw new EPropertyException("GenericExtDefault: setValue() info == null");
+        }
+
         try {
             Extension ext = null;
 
@@ -136,7 +141,11 @@ public class GenericExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (EProfileException e) {
-            CMS.debug("GenericExtDefault: setValue " + e.toString());
+            CMS.debug("GenericExtDefault: setValue() " + e.toString());
+            throw new EPropertyException("GenericExtDefault:"+ e.toString());
+        } catch (Exception e) {
+            // catch all other exceptions
+            CMS.debug("GenericExtDefault: setValue() " + e.toString());
         }
     }
 
@@ -148,6 +157,12 @@ public class GenericExtDefault extends EnrollExtDefault {
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
+        }
+
+        if (info == null) {
+            CMS.debug("GenericExtDefault : getValue(): info == null");
+            throw new EPropertyException(CMS.getUserMessage(
+                        locale, "GenericExtDefault : getValue(): info == null"));
         }
 
         ObjectIdentifier oid = new ObjectIdentifier(getConfig(CONFIG_OID));
