@@ -57,11 +57,54 @@
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-add-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-show-ca.sh
 . ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-delete-ca.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-add-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-show-kra.sh
 . ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-mod-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-find-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-del-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-membership-add-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-membership-find-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-membership-del-kra.sh
 . ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-find-kra.sh
 . ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-add-kra.sh
 . ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-show-kra.sh
 . ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-delete-kra.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-add-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-show-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-mod-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-find-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-del-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-membership-add-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-membership-find-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-membership-del-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-cert-find-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-cert-add-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-cert-show-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-cert-delete-ocsp.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-add-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-show-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-mod-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-find-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-del-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-membership-add-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-membership-find-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-membership-del-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-cert-find-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-cert-add-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-cert-show-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tks/pki-user-cli-user-cert-delete-tks.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-add-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-show-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-mod-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-find-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-del-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-membership-add-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-membership-find-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-membership-del-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-cert-find-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-cert-add-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-cert-show-tps.sh
+. ./acceptance/cli-tests/pki-user-cli/tps/pki-user-cli-user-cert-delete-tps.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh
 . ./acceptance/cli-tests/pki-cert-cli/pki-cert-request-show.sh
@@ -720,13 +763,35 @@ rlJournalStart
                   subsystemId=$KRA_INST
                   subsystemType=kra
 		  caId=$CA_INST
+		  run_pki-user-cli-user-add-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-show-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
                   run_pki-user-cli-user-mod-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+		  run_pki-user-cli-user-del-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-find-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-add-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-find-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-del-kra_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
                   run_pki-user-cli-user-cert-add-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
                   run_pki-user-cli-user-cert-find-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
                   run_pki-user-cli-user-cert-show-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
                   run_pki-user-cli-user-cert-delete-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
         fi
-	
+	USER_ADD_KRA_UPPERCASE=$(echo $USER_ADD_KRA | tr [a-z] [A-Z])
+        if [ "$USER_ADD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  caId=$CA_INST
+                  run_pki-user-cli-user-add-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_SHOW_KRA_UPPERCASE=$(echo $USER_SHOW_KRA | tr [a-z] [A-Z])
+        if [ "$USER_SHOW_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-show-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  caId=$CA_INST
+                  run_pki-user-cli-user-show-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi	
         USER_MOD_KRA_UPPERCASE=$(echo $USER_MOD_KRA | tr [a-z] [A-Z])
         if [ "$USER_MOD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
                 # Execute pki user-mod-kra tests
@@ -734,6 +799,46 @@ rlJournalStart
                   subsystemType=kra
 		  caId=$CA_INST
                   run_pki-user-cli-user-mod-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	USER_DEL_KRA_UPPERCASE=$(echo $USER_DEL_KRA | tr [a-z] [A-Z])
+        if [ "$USER_DEL_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-del-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  caId=$CA_INST
+                  run_pki-user-cli-user-del-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_FIND_KRA_UPPERCASE=$(echo $USER_FIND_KRA | tr [a-z] [A-Z])
+        if [ "$USER_FIND_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-find-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  caId=$CA_INST
+                  run_pki-user-cli-user-find-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_ADD_KRA_UPPERCASE=$(echo $USER_MEMBERSHIP_ADD_KRA | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_ADD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-add-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-add-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_FIND_KRA_UPPERCASE=$(echo $USER_MEMBERSHIP_FIND_KRA | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_FIND_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-find-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-find-kra_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_DEL_KRA_UPPERCASE=$(echo $USER_MEMBERSHIP_DEL_KRA | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_DEL_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-del-kra tests
+                  subsystemId=$KRA_INST
+                  subsystemType=kra
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-del-kra_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
         fi
 	USER_CERT_ADD_KRA_UPPERCASE=$(echo $USER_CERT_ADD_KRA | tr [a-z] [A-Z])
         if [ "$USER_CERT_ADD_KRA_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
@@ -766,6 +871,356 @@ rlJournalStart
                   subsystemType=kra
 		  caId=$CA_INST
                   run_pki-user-cli-user-cert-delete-kra_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	######## PKI USER OCSP TESTS ############
+        PKI_USER_OCSP_UPPERCASE=$(echo $PKI_USER_OCSP | tr [a-z] [A-Z])
+        if [ "$PKI_USER_OCSP_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-add-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-show-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-mod-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-del-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-find-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-add-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-find-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-del-ocsp_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-add-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-find-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-show-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-delete-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_ADD_OCSP_UPPERCASE=$(echo $USER_ADD_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_ADD_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-add-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_SHOW_OCSP_UPPERCASE=$(echo $USER_SHOW_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_SHOW_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-show-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-show-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MOD_OCSP_UPPERCASE=$(echo $USER_MOD_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_MOD_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-mod-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-mod-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	USER_DEL_OCSP_UPPERCASE=$(echo $USER_DEL_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_DEL_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-del-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-del-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_FIND_OCSP_UPPERCASE=$(echo $USER_FIND_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_FIND_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-find-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-find-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_ADD_OCSP_UPPERCASE=$(echo $USER_MEMBERSHIP_ADD_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_ADD_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-add-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-add-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_FIND_OCSP_UPPERCASE=$(echo $USER_MEMBERSHIP_FIND_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_FIND_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-find-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-find-ocsp_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_DEL_OCSP_UPPERCASE=$(echo $USER_MEMBERSHIP_DEL_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_DEL_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-del-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-del-ocsp_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	USER_CERT_ADD_OCSP_UPPERCASE=$(echo $USER_CERT_ADD_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_CERT_ADD_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-add-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-add-ocsp_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_FIND_OCSP_UPPERCASE=$(echo $USER_CERT_FIND_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_CERT_FIND_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-find-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-find-ocsp_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_SHOW_OCSP_UPPERCASE=$(echo $USER_CERT_SHOW_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_CERT_SHOW_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-show-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-show-ocsp_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_DEL_OCSP_UPPERCASE=$(echo $USER_CERT_DEL_OCSP | tr [a-z] [A-Z])
+        if [ "$USER_CERT_DEL_OCSP_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-del-ocsp tests
+                  subsystemId=$OCSP_INST
+                  subsystemType=ocsp
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-delete-ocsp_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	######## PKI USER TKS TESTS ############
+        PKI_USER_TKS_UPPERCASE=$(echo $PKI_USER_TKS | tr [a-z] [A-Z])
+        if [ "$PKI_USER_TKS_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-add-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-show-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-mod-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-del-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-find-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-add-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-find-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-del-tks_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-add-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-find-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-show-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-delete-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+
+        USER_ADD_TKS_UPPERCASE=$(echo $USER_ADD_TKS | tr [a-z] [A-Z])
+        if [ "$USER_ADD_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-add-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_SHOW_TKS_UPPERCASE=$(echo $USER_SHOW_TKS | tr [a-z] [A-Z])
+        if [ "$USER_SHOW_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-show-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-show-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	USER_MOD_TKS_UPPERCASE=$(echo $USER_MOD_TKS | tr [a-z] [A-Z])
+        if [ "$USER_MOD_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-mod-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-mod-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_DEL_TKS_UPPERCASE=$(echo $USER_DEL_TKS | tr [a-z] [A-Z])
+        if [ "$USER_DEL_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-del-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-del-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_FIND_TKS_UPPERCASE=$(echo $USER_FIND_TKS | tr [a-z] [A-Z])
+        if [ "$USER_FIND_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-find-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-find-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_ADD_TKS_UPPERCASE=$(echo $USER_MEMBERSHIP_ADD_TKS | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_ADD_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-add-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-add-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_FIND_TKS_UPPERCASE=$(echo $USER_MEMBERSHIP_FIND_TKS | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_FIND_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-find-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-find-tks_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	USER_MEMBERSHIP_DEL_TKS_UPPERCASE=$(echo $USER_MEMBERSHIP_DEL_TKS | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_DEL_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-del-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-del-tks_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_ADD_TKS_UPPERCASE=$(echo $USER_CERT_ADD_TKS | tr [a-z] [A-Z])
+        if [ "$USER_CERT_ADD_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-add-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-add-tks_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_FIND_TKS_UPPERCASE=$(echo $USER_CERT_FIND_TKS | tr [a-z] [A-Z])
+        if [ "$USER_CERT_FIND_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-find-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-find-tks_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_SHOW_TKS_UPPERCASE=$(echo $USER_CERT_SHOW_TKS | tr [a-z] [A-Z])
+        if [ "$USER_CERT_SHOW_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-show-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-show-tks_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_DEL_TKS_UPPERCASE=$(echo $USER_CERT_DEL_TKS | tr [a-z] [A-Z])
+        if [ "$USER_CERT_DEL_TKS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-del-tks tests
+                  subsystemId=$TKS_INST
+                  subsystemType=tks
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-delete-tks_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	######## PKI USER TPS TESTS ############
+        PKI_USER_TPS_UPPERCASE=$(echo $PKI_USER_TPS | tr [a-z] [A-Z])
+        if [ "$PKI_USER_TPS_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-add-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-show-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-mod-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-del-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-find-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-add-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-find-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-membership-del-tps_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-add-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-find-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-show-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+                  run_pki-user-cli-user-cert-delete-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+
+        USER_ADD_TPS_UPPERCASE=$(echo $USER_ADD_TPS | tr [a-z] [A-Z])
+        if [ "$USER_ADD_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-add-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-add-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_SHOW_TPS_UPPERCASE=$(echo $USER_SHOW_TPS | tr [a-z] [A-Z])
+        if [ "$USER_SHOW_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-show-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-show-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	USER_MOD_TPS_UPPERCASE=$(echo $USER_MOD_TPS | tr [a-z] [A-Z])
+        if [ "$USER_MOD_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-mod-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-mod-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_DEL_TPS_UPPERCASE=$(echo $USER_DEL_TPS | tr [a-z] [A-Z])
+        if [ "$USER_DEL_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-del-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-del-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_FIND_TPS_UPPERCASE=$(echo $USER_FIND_TPS | tr [a-z] [A-Z])
+        if [ "$USER_FIND_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-find-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-find-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_ADD_TPS_UPPERCASE=$(echo $USER_MEMBERSHIP_ADD_TPS | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_ADD_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-add-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-add-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_MEMBERSHIP_FIND_TPS_UPPERCASE=$(echo $USER_MEMBERSHIP_FIND_TPS | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_FIND_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-find-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-find-tps_tests $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+	USER_MEMBERSHIP_DEL_TPS_UPPERCASE=$(echo $USER_MEMBERSHIP_DEL_TPS | tr [a-z] [A-Z])
+        if [ "$USER_MEMBERSHIP_DEL_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-membership-del-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-membership-del-tps_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_ADD_TPS_UPPERCASE=$(echo $USER_CERT_ADD_TPS | tr [a-z] [A-Z])
+        if [ "$USER_CERT_ADD_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-add-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-add-tps_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_FIND_TPS_UPPERCASE=$(echo $USER_CERT_FIND_TPS | tr [a-z] [A-Z])
+        if [ "$USER_CERT_FIND_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-find-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-find-tps_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_SHOW_TPS_UPPERCASE=$(echo $USER_CERT_SHOW_TPS | tr [a-z] [A-Z])
+        if [ "$USER_CERT_SHOW_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-show-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-show-tps_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
+        fi
+        USER_CERT_DEL_TPS_UPPERCASE=$(echo $USER_CERT_DEL_TPS | tr [a-z] [A-Z])
+        if [ "$USER_CERT_DEL_TPS_UPPERCASE" = "TRUE" ] || [ "$TEST_ALL_UPPERCASE" = "TRUE" ] ; then
+                # Execute pki user-cert-del-tps tests
+                  subsystemId=$TPS_INST
+                  subsystemType=tps
+                  caId=$CA_INST
+                  run_pki-user-cli-user-cert-delete-tps_tests  $subsystemId $subsystemType $MYROLE $caId $MASTER
         fi
 	######## PKI CA_USER TESTS ############
 	PKI_CA_USER_UPPERCASE=$(echo $PKI_CA_USER | tr [a-z] [A-Z])

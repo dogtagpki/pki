@@ -46,33 +46,34 @@ run_pki-user-cli-user-add-ca_tests(){
 	SUBSYSTEM_TYPE=$2
 	MYROLE=$3
 	prefix=$subsystemId
-	ca_instance_created="False"
-	if [ "$TOPO9" = "TRUE" ] ; then
-	        prefix=$subsystemId
-		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)	
-	elif [ "$MYROLE" = "MASTER" ] ; then
-        	if [[ $subsystemId == SUBCA* ]]; then
-	                prefix=$subsystemId
-			ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)	
-	        else
-                	prefix=ROOTCA
-			ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
-        	fi
-	else
-	        prefix=$MYROLE
-		ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)	
-	fi
+	rlPhaseStartSetup "pki_user_cli_user_add-ca-startup: Create temporary directory"
+        	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+	        rlRun "pushd $TmpDir"
+	rlPhaseEnd
+ 
+	get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$CA_INST
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
+        else
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        fi
 
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	untrusted_cert_nickname=role_user_UTCA
 
    if [ "$ca_instance_created" = "TRUE" ] ;  then
-
-	lPhaseStartSetup "pki_user_cli_user_add-ca-startup: Create temporary directory"
-        	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-	        rlRun "pushd $TmpDir"
-	rlPhaseEnd
- 
     rlPhaseStartTest "pki_user_cli-configtest: pki user --help configuration test"
        	rlRun "pki user --help > $TmpDir/pki_user_cfg.out 2>&1" \
                0 \
@@ -802,7 +803,7 @@ run_pki-user-cli-user-add-ca_tests(){
                   -t ca \
                    group-member-add \"Certificate Manager Agents\"  $user > $TmpDir/pki-user-add-ca-007_1_1.out"  \
                    0 \
-                   "Add user $user to Administrators group"
+                   "Add user $user to Certificate Manager Agents group"
 
        rlAssertGrep "Added group member \"$user\"" "$TmpDir/pki-user-add-ca-007_1_1.out"
        rlAssertGrep "User: $user" "$TmpDir/pki-user-add-ca-007_1_1.out"
@@ -815,7 +816,7 @@ run_pki-user-cli-user-add-ca_tests(){
                   -t ca \
                    group-member-find \"Certificate Manager Agents\"  > $TmpDir/pki-user-add-ca-007_2.out" \
                    0 \
-                   "Show pki group-member-find Administrators"
+                   "Show pki group-member-find Certificate Manager Agents"
 
        rlAssertGrep "User: $user" "$TmpDir/pki-user-add-ca-007_2.out"
    rlPhaseEnd
@@ -1005,7 +1006,7 @@ run_pki-user-cli-user-add-ca_tests(){
                     "Adding user using ${prefix}_adminV with user id length exceed maximum defined in ldap schema"
         rlAssertGrep "ClientResponseFailure: ldap can't save, exceeds max length" "$TmpDir/pki-user-add-ca-001_50.out"
         rlAssertNotGrep "ClientResponseFailure: Error status 500 Internal Server Error returned" "$TmpDir/pki-user-add-ca-001_50.out"
-        rlAssertNotGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-add-ca-001_50.out"
+        rlAssertGrep "ProcessingException: Unable to invoke request" "$TmpDir/pki-user-add-ca-001_50.out"
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/842"
     rlPhaseEnd
 
@@ -1408,7 +1409,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0  "Adding user using Normal user credential"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting users"
+    rlPhaseStartCleanup "pki_user_cli_user_cleanup: Deleting users"
 
         #===Deleting users created using ${prefix}_adminV cert===#
         i=1

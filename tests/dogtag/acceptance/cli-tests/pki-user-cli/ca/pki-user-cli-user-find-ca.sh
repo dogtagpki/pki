@@ -47,22 +47,29 @@ run_pki-user-cli-user-find-ca_tests(){
 	subsystemId=$1
 	SUBSYSTEM_TYPE=$2
 	MYROLE=$3
-	ca_instance_created="False"
-	if [ "$TOPO9" = "TRUE" ] ; then
-	        prefix=$subsystemId
-		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-	elif [ "$MYROLE" = "MASTER" ] ; then
-        	if [[ $subsystemId == SUBCA* ]]; then
-	                prefix=$subsystemId
-			ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-	        else
-                	prefix=ROOTCA
-			ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
-        	fi
-	else
-	        prefix=$MYROLE
-		ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
-	fi
+	# Creating Temporary Directory
+        rlPhaseStartSetup "pki user-find-ca Temporary Directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+        rlPhaseEnd
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$CA_INST
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
+        else
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        fi
 
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	untrusted_cert_nickname=role_user_UTCA
@@ -77,9 +84,7 @@ if [ "$ca_instance_created" = "TRUE" ] ;  then
 	user6=abc?
 	user7=0
 
-    rlPhaseStartSetup "pki_user_cli_user_find-ca-startup-addusers: Create temporary directory and add users"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
+    rlPhaseStartSetup "pki_user_cli_user_find-ca-startup-addusers: Add users for user_find test"
 	i=1
         while [ $i -lt 25 ] ; do
                rlRun "pki -d $CERTDB_DIR \
@@ -699,7 +704,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlAssertGrep "Full name: Éric Têko" "$TmpDir/pki-user-show-ca-001_32_2.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_cleanup-021: Deleting users"
+    rlPhaseStartCleanup "pki_user_cli_user_cleanup-021: Deleting users"
         #===Deleting users created using ${prefix}_adminV cert===#
         i=1
         while [ $i -lt 27 ] ; do

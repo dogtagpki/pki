@@ -47,22 +47,30 @@ run_pki-user-cli-user-membership-add-ca_tests(){
 	subsystemId=$1
 	SUBSYSTEM_TYPE=$2
 	MYROLE=$3
-	ca_instance_created="False"
-	if [ "$TOPO9" = "TRUE" ] ; then
-	        prefix=$subsystemId
-		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-	elif [ "$MYROLE" = "MASTER" ] ; then
-        	if [[ $subsystemId == SUBCA* ]]; then
-	                prefix=$subsystemId
-			ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-	        else
-                	prefix=ROOTCA
-			ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
-        	fi
-	else
-	        prefix=$MYROLE
-		ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
-	fi
+
+	rlPhaseStartSetup "pki_user_cli_user_membership-add-CA-001: Create temporary directory"
+        	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+	        rlRun "pushd $TmpDir"
+	rlPhaseEnd
+
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$CA_INST
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
+        else
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        fi
 
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	untrusted_cert_nickname=role_user_UTCA
@@ -83,12 +91,6 @@ if [ "$ca_instance_created" = "TRUE" ] ;  then
 	groupid12="Enterprise TKS Administrators"
 	groupid13="Enterprise RA Administrators"
 	groupid14="Enterprise TPS Administrators"
-
-	rlPhaseStartSetup "pki_user_cli_user_membership-add-CA-001: Create temporary directory"
-        	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-	        rlRun "pushd $TmpDir"
-	rlPhaseEnd
-
 	rlPhaseStartTest "pki_user_cli_user_membership-add-CA-002: pki user-membership configuration test"
                 rlRun "pki -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-membership > $TmpDir/pki_user_membership_cfg.out 2>&1" \
                         0 \
@@ -653,7 +655,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
 		rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/1024"
 	rlPhaseEnd
 
-	rlPhaseStartTest "pki_user_cli_user_membership-add-ca-cleanup-001: Deleting the temp directory and users"
+	rlPhaseStartCleanup "pki_user_cli_user_membership-add-ca-cleanup-001: Deleting the temp directory and users"
 		#===Deleting users created using CA_adminV cert===#
 		i=1
 		while [ $i -lt 17 ] ; do

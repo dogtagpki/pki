@@ -47,22 +47,30 @@ run_pki-user-cli-user-membership-find-ca_tests(){
 	SUBSYSTEM_TYPE=$2
 	MYROLE=$3
 	prefix=$subsystemId
-	ca_instance_created="False"
-	if [ "$TOPO9" = "TRUE" ] ; then
-	        prefix=$subsystemId
-		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-	elif [ "$MYROLE" = "MASTER" ] ; then
-        	if [[ $subsystemId == SUBCA* ]]; then
-	                prefix=$subsystemId
-			ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-	        else
-                	prefix=ROOTCA
-			ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
-        	fi
-	else
-	        prefix=$MYROLE
-		ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
-	fi
+
+	rlPhaseStartSetup "pki_user_cli_user_membership-find-CA-001: Create temporary directory"
+                rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+                rlRun "pushd $TmpDir"
+        rlPhaseEnd
+
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$CA_INST
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
+        else
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        fi
 
  if [ "$ca_instance_created" = "TRUE" ] ;  then
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
@@ -84,12 +92,6 @@ run_pki-user-cli-user-membership-find-ca_tests(){
 	groupid12="Enterprise TKS Administrators"
 	groupid13="Enterprise RA Administrators"
 	groupid14="Enterprise TPS Administrators"
-
-	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-001: Create temporary directory"
-                rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-                rlRun "pushd $TmpDir"
-        rlPhaseEnd
-
 	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-002: pki user-membership-find --help configuration test"
                 rlRun "pki user-membership-find --help > $TmpDir/pki_user_membership_find_cfg.out 2>&1" \
                         0 \
@@ -271,6 +273,7 @@ run_pki-user-cli-user-membership-find-ca_tests(){
                             0 \
                             "Checking user-mambership to group "
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-start-002.out"
+		i=1
 		while [ $i -lt 15 ] ; do
 	       		eval gid=\$groupid$i
 			rlAssertGrep "Group: $gid" "$TmpDir/pki-user-membership-find-groupadd-find-ca-start-002.out"
@@ -289,6 +292,7 @@ run_pki-user-cli-user-membership-find-ca_tests(){
                             0 \
                             "Checking user-membership to group"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-start-003.out"
+		i=1
                 while [ $i -lt 15 ] ; do
 	                eval gid=\$groupid$i
                         rlAssertGrep "Group: $gid" "$TmpDir/pki-user-membership-find-groupadd-find-ca-start-003.out"
@@ -365,6 +369,7 @@ run_pki-user-cli-user-membership-find-ca_tests(){
                             user-membership-find userall --size=15 > $TmpDir/pki-user-membership-find-groupadd-find-ca-size-009.out" 0 \
                             "user_membership-find with size parameter as 15"
 		rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-009.out"
+		i=1
                 while [ $i -lt 15 ] ; do
                 	eval gid=\$groupid$i
                         rlAssertGrep "Group: $gid" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-009.out"
@@ -382,6 +387,7 @@ run_pki-user-cli-user-membership-find-ca_tests(){
                             user-membership-find userall --size=100 > $TmpDir/pki-user-membership-find-groupadd-find-ca-size-0010.out"  0 \
                             "user_membership-find with size parameter as 100"
                 rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-0010.out"
+		i=1
                 while [ $i -lt 15 ] ; do
                		eval gid=\$groupid$i
                         rlAssertGrep "Group: $gid" "$TmpDir/pki-user-membership-find-groupadd-find-ca-size-0010.out"
@@ -427,7 +433,7 @@ run_pki-user-cli-user-membership-find-ca_tests(){
 		            0 \
                             "Find user-membership with -t ca option"
 		rlAssertGrep "14 entries matched" "$TmpDir/pki-user-membership-find-ca-018.out"
-		i=0
+		i=1
                 while [ $i -lt 5 ] ; do
                         eval gid=\$groupid$i
                         rlAssertGrep "Group: $gid" "$TmpDir/pki-user-membership-find-ca-018.out"
@@ -628,7 +634,7 @@ run_pki-user-cli-user-membership-find-ca_tests(){
                             0 \
                             "Find user-membership with group \"dadministʁasjɔ̃\""
                 rlAssertGrep "1 entries matched" "$TmpDir/pki-user-membership-find-groupadd-find-ca-031_3.out"
-                rlAssertGrep "Group: dadministʁasjɔ̃" "$TmpDir/pki-user-membership-find-groupadd-find-ca-031_3.out"	
+                rlAssertGrep "Group: dadministʁasjɔ̃" "$TmpDir/pki-user-membership-find-groupadd-find-ca-031_3.out"
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_user_cli_user_membership-find-CA-031: Find user-membership for user fullname with i18n characters"
@@ -696,7 +702,7 @@ run_pki-user-cli-user-membership-find-ca_tests(){
                 rlAssertGrep "0 entries matched" "$TmpDir/pki-user-membership-find-user-find-ca-033_2.out"
         rlPhaseEnd
 
-        rlPhaseStartTest "pki_user_cli_user_membership-find-ca-cleanup-001: Deleting the temp directory and users"
+        rlPhaseStartCleanup "pki_user_cli_user_membership-find-ca-cleanup-001: Deleting the temp directory and users"
 		
                 #===Deleting users created using CA_adminV cert===#
                 i=1

@@ -769,6 +769,7 @@ rhcs_install_tps() {
 
                 rlLog "EXECUTING: pkispawn -s TPS -f $INSTANCECFG -v "
                 rlRun "pkispawn -s TPS -f $INSTANCECFG -v > $INSTANCE_CREATE_OUT  2>&1"
+		tps_pkispawn_retval=$?
                 cat $INSTANCE_CREATE_OUT
                 exp_message1="Administrator's username:             $(eval echo \$TPS${number}_ADMIN_USER)"
 		rlAssertGrep "$exp_message1" "$INSTANCE_CREATE_OUT"
@@ -788,12 +789,20 @@ rhcs_install_tps() {
                 mkdir -p $CLIENT_PKCS12_DIR
                 mv /var/lib/pki/$(eval echo \$TPS${number}_TOMCAT_INSTANCE_NAME)/alias/tps_backup_keys.p12 $CLIENT_PKCS12_DIR
 
-		#Update Instance creation status to env.sh
-		rlLog "Executing: pkidaemon status tomcat"
-		rlRun "pkidaemon status tomcat >  /tmp/TPS${number}_instance_status.txt 2>&1"
-		exp_result1="$(eval echo \$TPS${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
-                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$TPS${number}_SECURE_PORT)/services"
-                if [ $(grep $exp_result1 /tmp/TPS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/TPS${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+#		#Update Instance creation status to env.sh
+#		rlLog "Executing: pkidaemon status tomcat"
+#		rlRun "pkidaemon status tomcat >  /tmp/TPS${number}_instance_status.txt 2>&1"
+#		exp_result1="$(eval echo \$TPS${number}_TOMCAT_INSTANCE_NAME)\sis\srunning"
+#                exp_result2="Secure\sAdmin\sURL\s\s\s\s=\shttps://$(hostname):$(eval echo \$TPS${number}_SECURE_PORT)/services"
+#                if [ $(grep $exp_result1 /tmp/TPS${number}_instance_status.txt | wc -l) -gt 0 ] && [ $(grep $exp_result2 /tmp/TPS${number}_instance_status.txt | wc -l) -gt 0 ] ; then
+#                        rlLog "TPS${number} instance creation successful"
+#                        sed -i s/^TPS${number}_INSTANCE_CREATED_STATUS=False/TPS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
+#                        rlRun "export TPS${number}_INSTANCE_CREATED_STATUS=TRUE"
+#                fi
+		# BZ 1188331 pkidaemon status tomcat does not list TPS subsystem details
+                #Because of this bug above code to Update Instance creation status to env.sh does not give correct results, when BZ is fixed un-comment above lines and remove Temp Workaround.
+                #Temp Workaround is:
+                if [ $tps_pkispawn_retval -eq 0 ] ; then
                         rlLog "TPS${number} instance creation successful"
                         sed -i s/^TPS${number}_INSTANCE_CREATED_STATUS=False/TPS${number}_INSTANCE_CREATED_STATUS=TRUE/g  /opt/rhqa_pki/env.sh
                         rlRun "export TPS${number}_INSTANCE_CREATED_STATUS=TRUE"

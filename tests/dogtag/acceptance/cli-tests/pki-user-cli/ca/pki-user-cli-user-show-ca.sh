@@ -45,6 +45,36 @@
 
 ########################################################################
 run_pki-user-cli-user-show-ca_tests(){
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
+	prefix=$subsystemId
+
+	rlPhaseStartSetup "pki_user_cli_user_show-ca-startup: Create temporary directory"
+		rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+		rlRun "pushd $TmpDir"
+	rlPhaseEnd
+
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$CA_INST
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
+        else
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        fi
+
+  if [ "$ca_instance_created" = "TRUE" ] ;  then
 	#local variables
 	user1=ca_agent2
 	user1fullname="Test ca_agent"
@@ -54,38 +84,8 @@ run_pki-user-cli-user-show-ca_tests(){
 	user5=abc@
 	user6=abc?
 	user7=0
-	subsystemId=$1
-	SUBSYSTEM_TYPE=$2
-	MYROLE=$3
-	prefix=$subsystemId
-
-	if [ "$TOPO9" = "TRUE" ] ; then
-        	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-	        prefix=$subsystemId
-	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-	elif [ "$MYROLE" = "MASTER" ] ; then
-        	if [[ $subsystemId == SUBCA* ]]; then
-                	ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-	                prefix=$subsystemId
-        	        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-	        else
-        	        ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                	prefix=ROOTCA
-	                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        	fi
-	else
-        	ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-	        prefix=$MYROLE
-        	CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-	fi
-
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	untrusted_cert_nickname=role_user_UTCA
-
-    rlPhaseStartSetup "pki_user_cli_user_show-ca-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
 
     rlPhaseStartTest "pki_user_show-configtest: pki user-show configuration test"
         rlRun "pki user-show --help > $TmpDir/pki_user_show_cfg.out 2>&1" \
@@ -697,15 +697,15 @@ run_pki-user-cli-user-show-ca_tests(){
         rlAssertGrep "Type: Registration Manager Agents" "$TmpDir/pki-user-show-ca-001_27.out"
     rlPhaseEnd
 
-    rlPhaseStartTest "pki_user_cli_user_show-CA-025: --type Subsytem Group"
+    rlPhaseStartTest "pki_user_cli_user_show-CA-025: --type Subsystem Group"
 	rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
  		   -h $SUBSYSTEM_HOST \
  		   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                    user-add --fullName=test --type=\"Subsytem Group\"  u18" \
+                    user-add --fullName=test --type=\"Subsystem Group\"  u18" \
 		     0 \
-                    "Adding user using ${prefix}_adminV with --type Subsytem Group"
+                    "Adding user using ${prefix}_adminV with --type Subsystem Group"
         rlRun "pki -d $CERTDB_DIR \
                    -n ${prefix}_adminV \
                    -c $CERTDB_DIR_PASSWORD \
@@ -717,7 +717,7 @@ run_pki-user-cli-user-show-ca_tests(){
         rlAssertGrep "User \"u18\"" "$TmpDir/pki-user-show-ca-001_28.out"
         rlAssertGrep "User ID: u18" "$TmpDir/pki-user-show-ca-001_28.out"
         rlAssertGrep "Full name: test" "$TmpDir/pki-user-show-ca-001_28.out"
-        rlAssertGrep "Type: Subsytem Group" "$TmpDir/pki-user-show-ca-001_28.out"
+        rlAssertGrep "Type: Subsystem Group" "$TmpDir/pki-user-show-ca-001_28.out"
     rlPhaseEnd
 
     rlPhaseStartTest "pki_user_cli_user_show-CA-026: --type Security Domain Administrators"
@@ -1081,7 +1081,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlAssertGrep "Full name: ÉricTêko" "$TmpDir/pki-user-show-ca-001_57_2.out"
     rlPhaseEnd 
 
-    rlPhaseStartTest "pki_user_cli_user_cleanup-046: Deleting the temp directory and users"
+    rlPhaseStartCleanup "pki_user_cli_user_cleanup-046: Deleting the temp directory and users"
 	del_user=(${prefix}_adminV_user ${prefix}_adminR_user ${prefix}_adminE_user role_user_UTCA_user ${prefix}_agentV_user ${prefix}_agentR_user ${prefix}_agentE_user ${prefix}_auditV_user ${prefix}_operatorV_user)
 
         #===Deleting users created using ${prefix}_adminV cert===#
@@ -1118,4 +1118,7 @@ Import CA certificate (Y/n)? \"" >> $expfile
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
+ else
+	rlLog "CA instance is not installed"
+ fi
 }

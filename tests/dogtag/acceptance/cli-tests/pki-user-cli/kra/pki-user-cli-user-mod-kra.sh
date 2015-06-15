@@ -48,48 +48,62 @@
 
 ########################################################################
 run_pki-user-cli-user-mod-kra_tests(){
-
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-caId=$4
-
-KRA_HOST=$(eval echo \$${MYROLE})
-KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
-CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
-    #####Create temporary dir to save the output files #####
-    rlPhaseStartSetup "pki_user_cli_user_mod_kra-startup: Create temporary directory"
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
+	caId=$4
+	# Creating Temporary Directory for pki user-kra
+        rlPhaseStartSetup "pki user-kra Temporary Directory"
         rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
         rlRun "pushd $TmpDir"
-    rlPhaseEnd
+        rlPhaseEnd
 
-user1=kra_user
-user1fullname="Test kra user"
-user2=abcdefghijklmnopqrstuvwxyx12345678
-user3=abc#
-user4=abc$
-user5=abc@
-user6=abc?
-user7=0
-user1_mod_fullname="Test kra user modified"
-user1_mod_email="testkrauser@myemail.com"
-user1_mod_passwd="Secret1234"
-user1_mod_state="NC"
-user1_mod_phone="1234567890"
-randsym=""
-i18nuser=i18nuser
-i18nuserfullname="Örjan Äke"
-i18nuser_mod_fullname="kakskümmend"
-i18nuser_mod_email="kakskümmend@example.com"
-eval ${subsystemId}_adminV_user=${subsystemId}_adminV
-eval ${subsystemId}_adminR_user=${subsystemId}_adminR
-eval ${subsystemId}_adminE_user=${subsystemId}_adminE
-eval ${subsystemId}_adminUTCA_user=${subsystemId}_adminUTCA
-eval ${subsystemId}_agentV_user=${subsystemId}_agentV
-eval ${subsystemId}_agentR_user=${subsystemId}_agentR
-eval ${subsystemId}_agentE_user=${subsystemId}_agentE
-eval ${subsystemId}_auditV_user=${subsystemId}_auditV
-eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
+        # Local Variables
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local KRA_INST=$(cat $TmpDir/topo_file | grep MY_KRA | cut -d= -f2)
+        kra_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$KRA_INST
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                prefix=KRA3
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        else
+                prefix=$MYROLE
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        fi
+
+ if [ "$kra_instance_created" = "TRUE" ] ;  then
+	KRA_HOST=$(eval echo \$${MYROLE})
+	KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
+	CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
+	user1=kra_user
+	user1fullname="Test kra user"
+	user2=abcdefghijklmnopqrstuvwxyx12345678
+	user3=abc#
+	user4=abc$
+	user5=abc@
+	user6=abc?
+	user7=0
+	user1_mod_fullname="Test kra user modified"
+	user1_mod_email="testkrauser@myemail.com"
+	user1_mod_passwd="Secret1234"
+	user1_mod_state="NC"
+	user1_mod_phone="1234567890"
+	randsym=""
+	i18nuser=i18nuser
+	i18nuserfullname="Örjan Äke"
+	i18nuser_mod_fullname="kakskümmend"
+	i18nuser_mod_email="kakskümmend@example.com"
+	eval ${subsystemId}_adminV_user=${subsystemId}_adminV
+	eval ${subsystemId}_adminR_user=${subsystemId}_adminR
+	eval ${subsystemId}_adminE_user=${subsystemId}_adminE
+	eval ${subsystemId}_adminUTCA_user=${subsystemId}_adminUTCA
+	eval ${subsystemId}_agentV_user=${subsystemId}_agentV
+	eval ${subsystemId}_agentR_user=${subsystemId}_agentR
+	eval ${subsystemId}_agentE_user=${subsystemId}_agentE
+	eval ${subsystemId}_auditV_user=${subsystemId}_auditV
+	eval ${subsystemId}_operatorV_user=${subsystemId}_operatorV
 
 	#### Modify a user's full name ####
 
@@ -587,7 +601,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-015:--state as number 0 "
 	#### Modify a user's phone with maximum length and symbols ####
 	
 rlPhaseStartTest "pki_user_cli_user_mod_kra-017:--phone with maximum length and symbols "
-	randsym_b64=$(openssl rand -base64 2048 |  perl -p -e 's/\n//')
+	randsym_b64=$(openssl rand -base64 8193 |  perl -p -e 's/\n//')
         randsym=$(echo $randsym_b64 | tr -d /)
 	rlRun "pki -d $CERTDB_DIR \
                    -n $(eval echo \$${subsystemId}_adminV_user) \
@@ -596,7 +610,8 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-017:--phone with maximum length and 
                    -p $KRA_PORT \
                    -t kra \
                     user-add --fullName=test usr1"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra user-mod --phone='$randsym' usr1"
+	special_symbols="#$@*"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT -t kra user-mod --phone='$randsym$special_symbols' usr1"
 	errmsg="PKIException: LDAP error (21): error result"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user using an admin user with maximum length --phone with character symbols in it"
@@ -1075,7 +1090,7 @@ rlPhaseStartTest "pki_user_cli_user_mod_kra-043: Modify a user's email having i1
     rlPhaseEnd
 
 #===Deleting users===#
-rlPhaseStartTest "pki_user_cli_user_kra_cleanup: Deleting role users"
+rlPhaseStartCleanup "pki_user_cli_user_kra_cleanup: Deleting role users"
 
         i=1
         while [ $i -lt 17 ] ; do
@@ -1138,4 +1153,7 @@ $i18nuser
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
 
     rlPhaseEnd
+ else
+	rlLog "KRA instance not installed"
+ fi
 }

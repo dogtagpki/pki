@@ -49,21 +49,36 @@
 ########################################################################
 
 run_pki-user-cli-user-cert-find-kra_tests(){
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
+	caId=$4
+	CA_HOST=$5
+	# Creating Temporary Directory for pki user-kra
+        rlPhaseStartSetup "pki user-kra Temporary Directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+        rlPhaseEnd
 
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-caId=$4
-CA_HOST=$5
+        # Local Variables
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local KRA_INST=$(cat $TmpDir/topo_file | grep MY_KRA | cut -d= -f2)
+        kra_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$KRA_INST
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                prefix=KRA3
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        else
+                prefix=$MYROLE
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        fi
+
+if [ "$kra_instance_created" = "TRUE" ] ;  then
 KRA_HOST=$(eval echo \$${MYROLE})
 KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
-	#####Create temporary dir to save the output files#####
-    rlPhaseStartSetup "pki_user_cli_user_cert-find-kra-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
-
 user1=testuser1
 user2=testuser2
 user1fullname="Test user1"
@@ -1083,7 +1098,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-find-kra-033: Find the certs of a user 
 rlPhaseEnd
 
 #===Deleting users===#
-rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
+rlPhaseStartCleanup "pki_kra_user_cli_user_cleanup: Deleting role users"
 
         j=1
         while [ $j -lt 4 ] ; do
@@ -1105,4 +1120,7 @@ rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
+else
+	rlLog "KRA instance not created"
+fi
 }

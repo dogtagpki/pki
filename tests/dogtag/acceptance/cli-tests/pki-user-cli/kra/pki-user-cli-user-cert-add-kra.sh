@@ -49,12 +49,33 @@
 ########################################################################
 
 run_pki-user-cli-user-cert-add-kra_tests(){
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
+	caId=$4
+	CA_HOST=$5
+	# Creating Temporary Directory for pki user-kra
+        rlPhaseStartSetup "pki user-kra Temporary Directory"
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+        rlPhaseEnd
 
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-caId=$4
-CA_HOST=$5
+        # Local Variables
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local KRA_INST=$(cat $TmpDir/topo_file | grep MY_KRA | cut -d= -f2)
+        kra_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$KRA_INST
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                prefix=KRA3
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        else
+                prefix=$MYROLE
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        fi
+
+if [ "$kra_instance_created" = "TRUE" ] ;  then
 KRA_HOST=$(eval echo \$${MYROLE})
 KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
@@ -89,7 +110,7 @@ ROOTCA_agent_user=${caId}_agentV
 	
         ##### Add one cert to a user #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-kra-002-tier1: Add one cert to a user should succeed"
+rlPhaseStartTest "pki_user_cli_user_cert-add-kra-002: Add one cert to a user should succeed"
         rlRun "pki -d $CERTDB_DIR \
                            -n $(eval echo \$${subsystemId}_adminV_user) \
                            -c $CERTDB_DIR_PASSWORD \
@@ -404,7 +425,7 @@ rlPhaseEnd
 
         ##### Add one cert to a user - User ID missing #####
 
-rlPhaseStartTest "pki_user_cli_user_cert-add-kra-006-tier1: Add one cert to a user should fail when USER ID is missing"
+rlPhaseStartTest "pki_user_cli_user_cert-add-kra-006: Add one cert to a user should fail when USER ID is missing"
 		
 	rlRun "generate_new_cert tmp_nss_db:$TEMP_NSS_DB tmp_nss_db_pwd:$TEMP_NSS_DB_PASSWD myreq_type:pkcs10 \
         algo:rsa key_size:2048 subject_cn: subject_uid: subject_email: subject_ou: org: country: archive:false \
@@ -437,7 +458,7 @@ rlPhaseEnd
 
         ##### Add one cert to a user - --input parameter missing #####
 
-rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-007-tier1: Add one cert to a user should fail when --input parameter is missing"
+rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-add-007: Add one cert to a user should fail when --input parameter is missing"
         rlRun "pki -d $CERTDB_DIR \
 		   -n $(eval echo \$${subsystemId}_adminV_user) \
                    -c $CERTDB_DIR_PASSWORD \
@@ -2229,7 +2250,7 @@ rlPhaseStartTest "pki_user_cli_user_cert-add-kra-0036: Add one cert to a user wi
                            -t kra \
                            user-del $userid"
 rlPhaseEnd
-#rlPhaseStartTest "pki_ca_user_cli_user_cert-add-0038: client cert authentication using cross certification"
+#rlPhaseStartTest "pki_ca_user_cli_user_cert-add-kra-0038: client cert authentication using cross certification"
 #	local userid="new_adminV"
 #        local username="NEW CA Admin User"
 #        cat /etc/redhat-release | grep "Fedora"
@@ -2345,7 +2366,7 @@ rlPhaseEnd
 #rlPhaseEnd
 
 #===Deleting users===#
-rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
+rlPhaseStartCleanup "pki_kra_user_cli_user_cleanup: Deleting role users"
 
         j=1
         while [ $j -lt 3 ] ; do
@@ -2382,5 +2403,7 @@ rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
+else
+	rlLog "KRA instance not installed"
+fi
 }
-

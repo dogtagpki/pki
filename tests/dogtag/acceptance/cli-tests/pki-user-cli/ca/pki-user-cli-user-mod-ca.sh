@@ -49,38 +49,38 @@
 
 ########################################################################
 run_pki-user-cli-user-mod-ca_tests(){
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-ca_instance_created="False"
-if [ "$TOPO9" = "TRUE" ] ; then
-        prefix=$subsystemId
-	ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                prefix=$subsystemId
-		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
+
+	#####Create temporary dir to save the output files #####
+	rlPhaseStartSetup "pki_user_cli_user_mod-ca-startup: Create temporary directory"
+		rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+		rlRun "pushd $TmpDir"
+	rlPhaseEnd
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$CA_INST
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
         else
-                prefix=ROOTCA
-		ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
         fi
-else
-        prefix=$MYROLE
-	ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
-fi
 
 if [ "$ca_instance_created" = "TRUE" ] ;  then
-	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
-	untrusted_cert_db_location=$UNTRUSTED_CERT_DB_LOCATION
-	untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
-
-
-    #####Create temporary dir to save the output files #####
-    rlPhaseStartSetup "pki_user_cli_user_mod-ca-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
-
+SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
+untrusted_cert_db_location=$UNTRUSTED_CERT_DB_LOCATION
+untrusted_cert_db_password=$UNTRUSTED_CERT_DB_PASSWORD
 user1=ca_agent2
 user1fullname="Test ca agent"
 user2=abcdefghijklmnopqrstuvwxyx12345678
@@ -541,7 +541,9 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-017:--phone with maximum length and s
  		   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
                     user-add --fullName=test usr1"
-	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --phone='$randsym' usr1"
+	special_symbols="*$#"
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-mod --phone='$randsym$special_symbols' usr1"
+	rlLog "Executing: $command"
 	errmsg="PKIException: LDAP error (21): error result"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user using ${prefix}_adminV with maximum length --phone with character symbols in it"
@@ -1017,7 +1019,7 @@ rlPhaseStartTest "pki_user_cli_user_mod-CA-044: Modify a user's email having i18
     rlPhaseEnd
 
 #===Deleting users===#
-rlPhaseStartTest "pki_user_cli_user_cleanup: Deleting role users"
+rlPhaseStartCleanup "pki_user_cli_user_cleanup: Deleting role users"
 
         i=1
         while [ $i -lt 17 ] ; do
