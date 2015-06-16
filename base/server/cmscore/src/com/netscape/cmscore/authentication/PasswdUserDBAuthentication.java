@@ -95,8 +95,8 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
             return;
 
         mBaseDN = dbs.getBaseDN();
-        mConnFactory = new LdapBoundConnFactory(3, 20, ldapinfo, dbs.getLdapAuthInfo());
-        mAnonConnFactory = new LdapAnonConnFactory(3, 20, ldapinfo);
+        mConnFactory = new LdapBoundConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo, dbs.getLdapAuthInfo());
+        mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
 
         log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
     }
@@ -242,6 +242,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         try {
             // disconnect all outstanding connections in the factory
             if (mConnFactory != null) mConnFactory.reset();
+            if (mAnonConnFactory != null) mAnonConnFactory.reset();
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, e.toString());
         }

@@ -343,16 +343,16 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public ILdapConnFactory getLdapBoundConnFactory() throws ELdapException {
+    public ILdapConnFactory getLdapBoundConnFactory(String id) throws ELdapException {
         return null;
     }
 
-    public LDAPConnection getBoundConnection(String host, int port, int version, LDAPSSLSocketFactoryExt fac,
+    public LDAPConnection getBoundConnection(String id, String host, int port, int version, LDAPSSLSocketFactoryExt fac,
             String bindDN, String bindPW) throws LDAPException {
         return null;
     }
 
-    public ILdapConnFactory getLdapAnonConnFactory() throws ELdapException {
+    public ILdapConnFactory getLdapAnonConnFactory(String id) throws ELdapException {
         return null;
     }
 

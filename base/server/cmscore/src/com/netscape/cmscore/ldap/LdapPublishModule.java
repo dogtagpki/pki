@@ -119,7 +119,7 @@ public class LdapPublishModule implements ILdapPublishModule {
         mAuthority = authority;
         mPubProcessor = p;
         mConfig = config;
-        mLdapConnFactory = new LdapBoundConnFactory();
+        mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
         mLdapConnFactory.init(mConfig.getSubStore("ldap"));
 
         // initMappers(config);
@@ -135,7 +135,7 @@ public class LdapPublishModule implements ILdapPublishModule {
 
         mAuthority = authority;
         mConfig = config;
-        mLdapConnFactory = new LdapBoundConnFactory();
+        mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
         mLdapConnFactory.init(mConfig.getSubStore("ldap"));
 
         initMappers(config);

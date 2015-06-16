@@ -186,7 +186,7 @@ public class LdapCaCertPublisher
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);
 
-                altConn = CMS.getBoundConnection(host, portVal,
+                altConn = CMS.getBoundConnection("LdapCaCertPublisher", host, portVal,
                         version,
                         sslSocket, mgr_dn, mgr_pwd);
                 conn = altConn;

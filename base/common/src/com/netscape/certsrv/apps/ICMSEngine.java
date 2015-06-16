@@ -640,9 +640,9 @@ public interface ICMSEngine extends ISubsystem {
      *
      * @return bound LDAP connection pool
      */
-    public ILdapConnFactory getLdapBoundConnFactory() throws ELdapException;
+    public ILdapConnFactory getLdapBoundConnFactory(String id) throws ELdapException;
 
-    public LDAPConnection getBoundConnection(String host, int port,
+    public LDAPConnection getBoundConnection(String id, String host, int port,
                int version, LDAPSSLSocketFactoryExt fac, String bindDN,
                String bindPW) throws LDAPException;
 
@@ -651,7 +651,7 @@ public interface ICMSEngine extends ISubsystem {
      *
      * @return anonymous LDAP connection pool
      */
-    public ILdapConnFactory getLdapAnonConnFactory() throws ELdapException;
+    public ILdapConnFactory getLdapAnonConnFactory(String id) throws ELdapException;
 
     /**
      * Retrieves the password check.

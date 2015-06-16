@@ -50,7 +50,7 @@ public class LDAPSecurityDomainSessionTable
         m_timeToLive = timeToLive;
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore internaldb = cs.getSubStore("internaldb");
-        mLdapConnFactory = CMS.getLdapBoundConnFactory();
+        mLdapConnFactory = CMS.getLdapBoundConnFactory("LDAPSecurityDomainSessionTable");
         mLdapConnFactory.init(internaldb);
     }
 
@@ -299,5 +299,13 @@ public class LDAPSecurityDomainSessionTable
         }
 
         return ret;
+    }
+
+    public void shutdown() {
+        try {
+            mLdapConnFactory.reset();
+        } catch (ELdapException e) {
+            CMS.debug(e);
+        }
     }
 }

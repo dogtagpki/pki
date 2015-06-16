@@ -177,7 +177,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);
 
-                altConn = CMS.getBoundConnection(host, portVal,
+                altConn = CMS.getBoundConnection("LdapCrlPublisher", host, portVal,
                         version,
                         sslSocket, mgr_dn, mgr_pwd);
                 conn = altConn;

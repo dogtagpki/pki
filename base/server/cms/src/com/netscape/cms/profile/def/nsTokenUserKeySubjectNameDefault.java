@@ -287,7 +287,7 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                 return;
 
             mBaseDN = mParamsConfig.getString(CONFIG_LDAP_BASEDN, null);
-            mConnFactory = CMS.getLdapAnonConnFactory();
+            mConnFactory = CMS.getLdapAnonConnFactory("nsTokenUserKeySubjectNameDefault");
             mConnFactory.init(mLdapConfig);
 
             /* initialize dn pattern */

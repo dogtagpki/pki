@@ -118,7 +118,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
             mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
 
-            mLdapConnFactory = new LdapBoundConnFactory();
+            mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
 
             if (mLdapConnFactory != null)
                 mLdapConnFactory.init(ldapConfig);

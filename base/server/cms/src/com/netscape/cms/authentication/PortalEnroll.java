@@ -152,7 +152,7 @@ public class PortalEnroll extends DirBasedAuthentication {
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "objectclass"));
 
         /* Get connect parameter */
-        mLdapFactory = CMS.getLdapBoundConnFactory();
+        mLdapFactory = CMS.getLdapBoundConnFactory("PortalEnroll");
         mLdapFactory.init(mLdapConfig);
         mLdapConn = mLdapFactory.getConn();
 

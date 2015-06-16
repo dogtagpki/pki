@@ -20,10 +20,11 @@ package com.netscape.cmscore.util;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+
+import org.apache.commons.lang.time.FastDateFormat;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -35,21 +36,9 @@ public class Debug
     private static Debug mInstance = new Debug();
     private static boolean mShowCaller = false;
 
-    /* This dateformatter is used to put the date on each
-       debug line. But the DateFormatter is not thread safe,
-       so I create a thread-local DateFormatter for each thread
-     */
+    // FastDateFormat is a thread-safe replacement for SimpleDateFormat
     private static String DATE_PATTERN = "dd/MMM/yyyy:HH:mm:ss";
-    private static ThreadLocal<SimpleDateFormat> mFormatObject = new ThreadLocal<SimpleDateFormat>() {
-        protected synchronized SimpleDateFormat initialValue() {
-            return new SimpleDateFormat(DATE_PATTERN);
-        }
-    };
-
-    /* the dateformatter should be accessed with this function */
-    private static SimpleDateFormat getDateFormatter() {
-        return mFormatObject.get();
-    }
+    private static FastDateFormat df = FastDateFormat.getInstance(DATE_PATTERN);
 
     public static final boolean ON = false;
     public static final int OBNOXIOUS = 1;
@@ -146,9 +135,8 @@ public class Debug
     private static void outputTraceMessage(String t) {
         if (!TRACE_ON)
             return;
-        SimpleDateFormat d = getDateFormatter();
-        if (mOut != null && d != null) {
-            mOut.println("[" + d.format(new Date()) + "][" + Thread.currentThread().getName() + "]: " + t);
+        if (mOut != null) {
+            mOut.println("[" + df.format(new Date()) + "][" + Thread.currentThread().getName() + "]: " + t);
             mOut.flush();
         }
     }

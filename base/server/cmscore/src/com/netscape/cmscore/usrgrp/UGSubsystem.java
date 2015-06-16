@@ -137,7 +137,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
             mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
 
-            mLdapConnFactory = new LdapBoundConnFactory();
+            mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
             mLdapConnFactory.init(ldapConfig);
         } catch (EBaseException e) {
             if (CMS.isPreOpMode())

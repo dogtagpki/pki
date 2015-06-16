@@ -77,7 +77,7 @@ public class LDAPProfileSubsystem
 
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        dbFactory = CMS.getLdapBoundConnFactory();
+        dbFactory = CMS.getLdapBoundConnFactory("LDAPProfileSubsystem");
         dbFactory.init(dbCfg);
 
         mConfig = config;

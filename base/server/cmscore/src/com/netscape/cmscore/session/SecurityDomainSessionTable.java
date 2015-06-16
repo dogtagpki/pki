@@ -102,4 +102,7 @@ public class SecurityDomainSessionTable
     public int getSize() {
         return m_sessions.size();
     }
+
+    public void shutdown() {
+    }
 }

@@ -125,7 +125,7 @@ public class CAInstallerService extends SystemConfigService {
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory();
+        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("CAInstallerService");
         dbFactory.init(dbCfg);
 
         while (st.hasMoreTokens()) {

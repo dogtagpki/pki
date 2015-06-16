@@ -277,7 +277,7 @@ public abstract class DirBasedAuthentication
             mGroupUserIDName = mLdapConfig.getString(PROP_GROUP_USERID_NAME, "cn");
             CMS.debug("DirBasedAuthentication: mGroupUserIDName="+ mGroupUserIDName);
         }
-        mConnFactory = CMS.getLdapAnonConnFactory();
+        mConnFactory = CMS.getLdapAnonConnFactory("DirBasedAuthentication");
         mConnFactory.init(mLdapConfig);
 
         /* initialize dn pattern */

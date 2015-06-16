@@ -64,7 +64,8 @@ public class LogQueue implements ILogQueue {
         if (mListeners == null)
             return;
         for (int i = 0; i < mListeners.size(); i++) {
-            mListeners.elementAt(i).shutdown();
+            ILogEventListener listener = mListeners.elementAt(i);
+            listener.shutdown();
         }
     }
 
@@ -75,8 +76,9 @@ public class LogQueue implements ILogQueue {
      */
     public void addLogEventListener(ILogEventListener listener) {
         //Make sure we don't have duplicated listener
-        if (!mListeners.contains(listener))
+        if (!mListeners.contains(listener)) {
             mListeners.addElement(listener);
+        }
     }
 
     /**
@@ -104,9 +106,6 @@ public class LogQueue implements ILogQueue {
                 //                        incorrect log message.
                 // ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_EVENT_FAILED",
                 //          event.getEventType(), e.toString())));
-
-                // Don't do this again.
-                removeLogEventListener(mListeners.elementAt(i));
             }
         }
     }

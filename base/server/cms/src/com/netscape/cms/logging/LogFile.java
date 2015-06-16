@@ -519,6 +519,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         if (fileName == null)
             throw new ELogException(CMS.getUserMessage("CMS_LOG_INVALID_FILE_NAME", "null"));
 
+        CMS.debug("Creating " + getClass().getSimpleName() + "(" + fileName + ")");
+
         //If we want to reuse the old log files
         //mFileName = fileName + "." + mLogFileDateFormat.format(mDate);
         mFileName = fileName;
@@ -863,9 +865,10 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * </ul>
      */
     public synchronized void shutdown() {
-        String auditMessage = null;
 
-        CMS.debug("LogFile:In log shutdown");
+        CMS.debug("Destroying LogFile(" + mFileName + ")");
+
+        String auditMessage = null;
 
         setFlushInterval(0);
 
@@ -891,10 +894,13 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public synchronized void setFlushInterval(int flushInterval) {
         mFlushInterval = flushInterval * 1000;
 
-        if ((mFlushThread == null) && (mFlushInterval > 0)) {
+        if (mFlushThread == null && mFlushInterval > 0) {
             mFlushThread = new FlushThread();
             mFlushThread.setDaemon(true);
             mFlushThread.start();
+
+        } else if (mFlushThread != null && mFlushInterval == 0) {
+            mFlushThread.interrupt();
         }
 
         this.notify();
@@ -921,9 +927,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                     try {
                         LogFile.this.wait(mFlushInterval);
                     } catch (InterruptedException e) {
-                        // This shouldn't happen very often
-                        ConsoleError.send(new
-                                SystemEvent(CMS.getUserMessage("CMS_LOG_THREAD_INTERRUPT", "flush")));
+                        // shutdown
                     }
                 }
 

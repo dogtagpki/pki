@@ -976,14 +976,14 @@ public class CMSEngine implements ICMSEngine {
         return new LdapAuthInfo();
     }
 
-    public ILdapConnFactory getLdapBoundConnFactory()
+    public ILdapConnFactory getLdapBoundConnFactory(String id)
             throws ELdapException {
-        return new LdapBoundConnFactory();
+        return new LdapBoundConnFactory(id);
     }
 
-    public ILdapConnFactory getLdapAnonConnFactory()
+    public ILdapConnFactory getLdapAnonConnFactory(String id)
             throws ELdapException {
-        return new LdapAnonConnFactory();
+        return new LdapAnonConnFactory(id);
     }
 
     public IRequestEncoder getHttpRequestEncoder() {
@@ -1079,7 +1079,7 @@ public class CMSEngine implements ICMSEngine {
         }
     }
 
-    public LDAPConnection getBoundConnection(String host, int port,
+    public LDAPConnection getBoundConnection(String id, String host, int port,
                int version, LDAPSSLSocketFactoryExt fac, String bindDN,
                String bindPW) throws LDAPException {
         return new LdapBoundConnection(host, port, version, fac,
@@ -1796,6 +1796,14 @@ public class CMSEngine implements ICMSEngine {
         shutdownSubsystems(mFinalSubsystems);
         shutdownSubsystems(mDynSubsystems);
         shutdownSubsystems(mStaticSubsystems);
+
+        if (mSDTimer != null) {
+            mSDTimer.cancel();
+        }
+
+        if (mSecurityDomainSessionTable != null) {
+            mSecurityDomainSessionTable.shutdown();
+        }
     }
 
     /**

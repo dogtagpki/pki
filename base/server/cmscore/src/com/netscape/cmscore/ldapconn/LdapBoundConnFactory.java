@@ -36,6 +36,9 @@ import com.netscape.certsrv.logging.ILogger;
  * be shared by multiple threads and cloned.
  */
 public class LdapBoundConnFactory implements ILdapBoundConnFactory {
+
+    protected String id;
+
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
     protected LdapConnInfo mConnInfo = null;
@@ -71,10 +74,14 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * Constructor for initializing from the config store.
      * must be followed by init(IConfigStore)
      */
-    public LdapBoundConnFactory() {
+    public LdapBoundConnFactory(String id) {
+        CMS.debug("Creating LdapBoundConnFactor(" + id + ")");
+        this.id = id;
     }
 
-    public LdapBoundConnFactory(boolean defErrorIfDown) {
+    public LdapBoundConnFactory(String id, boolean defErrorIfDown) {
+        CMS.debug("Creating LdapBoundConnFactor(" + id + ")");
+        this.id = id;
         mDefErrorIfDown = defErrorIfDown;
     }
 
@@ -98,8 +105,10 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      *            the maximum number of clones of this connection or separate connections one wants to allow.
      * @param serverInfo server connection info - host, port, etc.
      */
-    public LdapBoundConnFactory(int minConns, int maxConns,
+    public LdapBoundConnFactory(String id, int minConns, int maxConns,
             LdapConnInfo connInfo, LdapAuthInfo authInfo) throws ELdapException {
+        CMS.debug("Creating LdapBoundConnFactory(" + id + ")");
+        this.id = id;
         init(minConns, maxConns, connInfo, authInfo);
     }
 
@@ -459,11 +468,13 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      */
     public synchronized void reset()
             throws ELdapException {
+        CMS.debug("Destroying LdapBoundConnFactory(" + id + ")");
         if (mNumConns == mTotal) {
             for (int i = 0; i < mNumConns; i++) {
                 try {
                     mConns[i].disconnect();
                 } catch (LDAPException e) {
+                    e.printStackTrace();
                 }
                 mConns[i] = null;
             }
@@ -472,6 +483,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
                     log(ILogger.LL_INFO, "disconnecting masterConn");
                     mMasterConn.disconnect();
                 } catch (LDAPException e) {
+                    e.printStackTrace();
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSCORE_LDAPCONN_CANNOT_RESET",
                                     e.toString()));

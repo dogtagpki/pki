@@ -92,7 +92,7 @@ public class LdapConnModule implements ILdapConnModule {
 
         CMS.debug("Creating LdapBoundConnFactory for LdapConnModule.");
         mLdapConnFactory =
-                new LdapBoundConnFactory(minConns, maxConns, (LdapConnInfo) connInfo, authInfo);
+                new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, (LdapConnInfo) connInfo, authInfo);
 
         mInited = true;
 

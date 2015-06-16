@@ -45,4 +45,6 @@ public interface ISecurityDomainSessionTable {
     public long getTimeToLive();
 
     public Enumeration<String> getSessionIds();
+
+    public void shutdown();
 }

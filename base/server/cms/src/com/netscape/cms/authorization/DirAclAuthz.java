@@ -143,7 +143,7 @@ public class DirAclAuthz extends AAclAuthz
                 return;
         }
 
-        mLdapConnFactory = CMS.getLdapBoundConnFactory();
+        mLdapConnFactory = CMS.getLdapBoundConnFactory("DirAclAuthz");
         mLdapConnFactory.init(ldapConfig);
 
         // retrieve aclResources from the LDAP server and load

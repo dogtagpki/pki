@@ -257,7 +257,7 @@ public class AttributePresentConstraints extends APolicyRule
 
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
 
-        mConnFactory = CMS.getLdapBoundConnFactory();
+        mConnFactory = CMS.getLdapBoundConnFactory("AttributePresentConstraints");
         mConnFactory.init(mLdapConfig);
         mCheckAttrLdapConnection = mConnFactory.getConn();
 

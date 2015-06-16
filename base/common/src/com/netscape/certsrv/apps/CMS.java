@@ -626,10 +626,10 @@ public final class CMS {
         return _engine.getUserMessage(null /* from session context */, msgID, p1, p2, p3);
     }
 
-    public static LDAPConnection getBoundConnection(String host, int port,
+    public static LDAPConnection getBoundConnection(String id, String host, int port,
                int version, LDAPSSLSocketFactoryExt fac, String bindDN,
                String bindPW) throws LDAPException {
-        return _engine.getBoundConnection(host, port, version, fac,
+        return _engine.getBoundConnection(id, host, port, version, fac,
                          bindDN, bindPW);
     }
 
@@ -1330,9 +1330,9 @@ public final class CMS {
      *
      * @return bound LDAP connection pool
      */
-    public static ILdapConnFactory getLdapBoundConnFactory()
+    public static ILdapConnFactory getLdapBoundConnFactory(String id)
             throws ELdapException {
-        return _engine.getLdapBoundConnFactory();
+        return _engine.getLdapBoundConnFactory(id);
     }
 
     /**
@@ -1340,9 +1340,9 @@ public final class CMS {
      *
      * @return anonymous LDAP connection pool
      */
-    public static ILdapConnFactory getLdapAnonConnFactory()
+    public static ILdapConnFactory getLdapAnonConnFactory(String id)
             throws ELdapException {
-        return _engine.getLdapAnonConnFactory();
+        return _engine.getLdapAnonConnFactory(id);
     }
 
     /**

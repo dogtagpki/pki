@@ -154,7 +154,7 @@ public class SecurityDomainProcessor extends CAProcessor {
             String filter = "objectclass=pkiSecurityGroup";
 
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
-            connFactory = CMS.getLdapBoundConnFactory();
+            connFactory = CMS.getLdapBoundConnFactory("SecurityDomainProcessor");
             connFactory.init(ldapConfig);
             conn = connFactory.getConn();
 

@@ -157,7 +157,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
         if (mRemovePin) {
             removePinLdapConfigStore = config.getSubStore("ldap");
-            removePinLdapFactory = CMS.getLdapBoundConnFactory();
+            removePinLdapFactory = CMS.getLdapBoundConnFactory("UidPwdPinDirAuthentication");
             removePinLdapFactory.init(removePinLdapConfigStore);
             removePinLdapConnection = removePinLdapFactory.getConn();
         }

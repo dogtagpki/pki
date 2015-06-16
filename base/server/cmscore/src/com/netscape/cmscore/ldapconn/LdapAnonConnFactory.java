@@ -35,6 +35,9 @@ import com.netscape.certsrv.logging.ILogger;
  * authentication dn and password.
  */
 public class LdapAnonConnFactory implements ILdapConnFactory {
+
+    protected String id;
+
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
     protected LdapConnInfo mConnInfo = null;
@@ -60,10 +63,14 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * Constructor for initializing from the config store.
      * must be followed by init(IConfigStore)
      */
-    public LdapAnonConnFactory() {
+    public LdapAnonConnFactory(String id) {
+        CMS.debug("Creating LdapAnonConnFactory(" + id + ")");
+        this.id = id;
     }
 
-    public LdapAnonConnFactory(boolean defErrorIfDown) {
+    public LdapAnonConnFactory(String id, boolean defErrorIfDown) {
+        CMS.debug("Creating LdapAnonConnFactory(" + id + ")");
+        this.id = id;
         mDefErrorIfDown = defErrorIfDown;
     }
 
@@ -75,8 +82,10 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      *            the maximum number of clones of this connection one wants to allow.
      * @param serverInfo server connection info - host, port, etc.
      */
-    public LdapAnonConnFactory(int minConns, int maxConns,
+    public LdapAnonConnFactory(String id, int minConns, int maxConns,
             LdapConnInfo connInfo) throws ELdapException {
+        CMS.debug("Creating LdapAnonConnFactory(" + id + ")");
+        this.id = id;
         init(minConns, maxConns, connInfo);
     }
 
@@ -405,6 +414,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
     // ok only if no connections outstanding.
     public synchronized void reset()
             throws ELdapException {
+        CMS.debug("Destroying LdapAnonConnFactory(" + id + ")");
         if (mNumConns == mTotal) {
             for (int i = 0; i < mNumConns; i++) {
                 try {

@@ -139,6 +139,7 @@ public class RollingLogFile extends LogFile {
      * Shutdown this log file.
      */
     public synchronized void shutdown() {
+        CMS.debug("Destroying RollingLogFile(" + mFileName + ")");
         setRolloverTime("0");
         setExpirationTime("0");
         super.shutdown();
@@ -157,6 +158,9 @@ public class RollingLogFile extends LogFile {
             mRolloverThread = new RolloverThread();
             mRolloverThread.setDaemon(true);
             mRolloverThread.start();
+
+        } else if (mRolloverThread != null && mRolloverInterval == 0) {
+            mRolloverThread.interrupt();
         }
 
         this.notify();
@@ -190,6 +194,10 @@ public class RollingLogFile extends LogFile {
                     mExpirationThread.setDaemon(true);
                     mExpirationThread.start();
                 }
+
+            } else if (mExpirationThread != null && mExpirationTime == 0) {
+                mExpirationThread.interrupt();
+
             } else {
                 mExpLock.notify();
             }
@@ -401,9 +409,7 @@ public class RollingLogFile extends LogFile {
                     try {
                         RollingLogFile.this.wait(mRolloverInterval);
                     } catch (InterruptedException e) {
-                        // This shouldn't happen very often
-                        CMS.getLogger().getLogQueue().log(new
-                                SystemEvent(CMS.getUserMessage("CMS_LOG_THREAD_INTERRUPT", "rollover")));
+                        // shutdown
                     }
                 }
 
@@ -475,10 +481,12 @@ public class RollingLogFile extends LogFile {
                         try {
                             mExpLock.wait(sleepTime);
                         } catch (InterruptedException e) {
-                            // This shouldn't happen very often
-                            ConsoleError.send(new
-                                    SystemEvent(CMS.getUserMessage("CMS_LOG_THREAD_INTERRUPT", "expiration")));
+                            // shutdown
                         }
+                    }
+
+                    if (mExpirationTime == 0) {
+                        break;
                     }
                 }
             }

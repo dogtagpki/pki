@@ -264,7 +264,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             mParamsConfig = mInstConfig.getSubStore(PROP_PARAMS);
             mLdapConfig = mParamsConfig.getSubStore(PROP_LDAP);
             mBaseDN = mParamsConfig.getString(CONFIG_LDAP_BASEDN, null);
-            mConnFactory = CMS.getLdapAnonConnFactory();
+            mConnFactory = CMS.getLdapAnonConnFactory("nsNKeySubjectNameDefault");
             mConnFactory.init(mLdapConfig);
 
             /* initialize dn pattern */

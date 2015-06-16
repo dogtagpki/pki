@@ -95,7 +95,7 @@ public class PinRemovalListener implements IRequestListener {
         mConfig = config;
 
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
-        mConnFactory = CMS.getLdapBoundConnFactory();
+        mConnFactory = CMS.getLdapBoundConnFactory("PinRemovalListener");
         mConnFactory.init(mLdapConfig);
         mRemovePinLdapConnection = mConnFactory.getConn();
 

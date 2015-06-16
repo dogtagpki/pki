@@ -636,7 +636,7 @@ public class DBSubsystem implements IDBSubsystem {
 
             // initialize LDAP connection factory
             // by default return error if server is down at startup time.
-            mLdapConnFactory = new LdapBoundConnFactory(true);
+            mLdapConnFactory = new LdapBoundConnFactory("DBSubsystem", true);
             tmpConfig = (IConfigStore) (((PropConfigStore) mConfig).clone());
 
             tmpConfig.putString(PROP_BASEDN, mBaseDN);
