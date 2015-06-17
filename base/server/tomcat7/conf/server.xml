@@ -63,6 +63,12 @@ Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/tks/service
 PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/tks
 Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 -->
+<!-- TPS Status Definitions -->
+<!--
+Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/tps
+Secure URL          = https://[PKI_HOSTNAME]:[PKI_SECURE_PORT]/tps
+Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
+-->
 <!-- DO NOT REMOVE - End PKI Status Definitions -->
 
 <Server port="[TOMCAT_SERVER_PORT]" shutdown="SHUTDOWN">

@@ -189,7 +189,7 @@ get_subsystems()
     PKI_SUBSYSTEMS=""
     case ${PKI_WEB_SERVER_TYPE} in
         tomcat)
-            for SUBSYSTEM in ca kra ocsp tks; do
+            for SUBSYSTEM in ca kra ocsp tks tps; do
                 if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
                     if [ '${PKI_SUBSYSTEMS}' == "" ] ; then
                         PKI_SUBSYSTEMS="${SUBSYSTEM}"
@@ -200,7 +200,7 @@ get_subsystems()
             done
             ;;
         apache)
-            for SUBSYSTEM in ra tps; do
+            for SUBSYSTEM in ra; do
                 if [ -d ${PKI_INSTANCE_PATH}/conf/${SUBSYSTEM} ]; then
                     if [ '${PKI_SUBSYSTEMS}' == "" ] ; then
                         PKI_SUBSYSTEMS="${SUBSYSTEM}"
@@ -471,6 +471,7 @@ get_pki_status_definitions_tomcat()
     begin_kra_status_comment="<!-- KRA Status Definitions -->"
     begin_ocsp_status_comment="<!-- OCSP Status Definitions -->"
     begin_tks_status_comment="<!-- TKS Status Definitions -->"
+    begin_tps_status_comment="<!-- TPS Status Definitions -->"
     end_pki_status_comment="<!-- Begin DO NOT REMOVE - End PKI Status Definitions -->"
     total_ports=0
     unsecure_port_statement="Unsecure Port"
@@ -480,6 +481,7 @@ get_pki_status_definitions_tomcat()
     secure_admin_port_statement="Secure Admin Port"
     pki_console_port_statement="PKI Console Port"
     unsecure_url_statement="Unsecure URL"
+    secure_url_statement="Secure URL"
     secure_agent_url_statement="Secure Agent URL"
     secure_ee_url_statement="Secure EE URL"
     secure_ee_client_auth_url_statement="EE Client Auth URL"
@@ -493,10 +495,12 @@ get_pki_status_definitions_tomcat()
     display_pki_kra_status_banner=0
     display_pki_ocsp_status_banner=0
     display_pki_tks_status_banner=0
+    display_pki_tps_status_banner=0
     process_pki_ca_status=0
     process_pki_kra_status=0
     process_pki_ocsp_status=0
     process_pki_tks_status=0
+    process_pki_tps_status=0
 
     # first check to see that an instance-specific "server.xml" file exists
     if [ ! -f ${PKI_SERVER_XML_CONF} ] ; then
@@ -517,6 +521,9 @@ get_pki_status_definitions_tomcat()
     if [ -e ${PKI_INSTANCE_PATH}/tks ]; then
         display_pki_tks_status_banner=1
     fi
+    if [ -e ${PKI_INSTANCE_PATH}/tps ]; then
+        display_pki_tps_status_banner=1
+    fi
 
     # read this instance-specific "server.xml" file line-by-line
     # to obtain the current PKI Status Definitions
@@ -525,8 +532,8 @@ get_pki_status_definitions_tomcat()
         # first look for the well-known end PKI Status comment
         # (to turn off processing)
         if [ "$line" == "$end_pki_status_comment" ] ; then
-            # always turn off processing TKS status at this point
-            process_pki_tks_status=0
+            # always turn off processing TPS status at this point
+            process_pki_tps_status=0
             pki_status_comment_found=0
             break;
         fi
@@ -579,10 +586,21 @@ get_pki_status_definitions_tomcat()
                      # turn on processing TKS status at this point
                      process_pki_tks_status=1
                  fi
+            elif [ "$line" == "$begin_tps_status_comment" ] ; then
+                 # always turn off processing TKS status at this point
+                 process_pki_tks_status=0
+                 if [ $display_pki_tps_status_banner -eq 1 ] ; then
+                     # print TPS Status Definition banner
+                     echo
+                     echo "    [TPS Status Definitions]"
+                     # turn on processing TPS status at this point
+                     process_pki_tps_status=1
+                 fi
             elif [ $process_pki_ca_status -eq 1 ]    ||
                  [ $process_pki_kra_status -eq 1 ]   ||
                  [ $process_pki_ocsp_status -eq 1 ]  ||
-                 [ $process_pki_tks_status -eq 1 ] ; then
+                 [ $process_pki_tks_status -eq 1 ]   ||
+                 [ $process_pki_tps_status -eq 1 ] ; then
                  # look for a PKI Status Definition and print it
                  if [ "$head" == "$unsecure_port_statement"     ]          ||
                     [ "$head" == "$secure_agent_port_statement" ]          ||
@@ -591,6 +609,7 @@ get_pki_status_definitions_tomcat()
                     [ "$head" == "$secure_ee_client_auth_port_statement" ] ||
                     [ "$head" == "$pki_console_port_statement"  ]          ||
                     [ "$head" == "$unsecure_url_statement"      ]          ||
+                    [ "$head" == "$secure_url_statement"        ]          ||
                     [ "$head" == "$secure_agent_url_statement"  ]          ||
                     [ "$head" == "$secure_ee_url_statement"     ]          ||
                     [ "$head" == "$secure_admin_url_statement"  ]          ||
