@@ -311,14 +311,14 @@ class Identity:
         try:
             _ = getgrnam(pki_group)[1]
             return True
-        except KeyError as exc:
+        except KeyError as _:
             return False
 
     def user_exists(self, pki_user):
         try:
             _ = getpwnam(pki_user)[1]
             return True
-        except KeyError as exc:
+        except KeyError as _:
             return False
 
     def is_user_a_member_of_group(self, pki_user, pki_group):
