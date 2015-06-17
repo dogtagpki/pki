@@ -286,6 +286,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_instance_log_path'],
                 deployer.mdict['pki_instance_logs_link'])
 
+            # create the sym link to symkey regardless of subsystem
+            # as long as pki-symkey is installed on the system
+            if os.path.exists(deployer.mdict['pki_symkey_jar']):
+                if not os.path.exists(deployer.mdict['pki_symkey_jar_link']):
+                    deployer.symlink.create(
+                        deployer.mdict['pki_symkey_jar'],
+                        deployer.mdict['pki_symkey_jar_link'])
         return self.rv
 
     def destroy(self, deployer):
