@@ -260,6 +260,11 @@ PKIHELPER_PK12UTIL_MISSING_OUTFILE = \
 PKIHELPER_PK12UTIL_MISSING_PWFILE = \
     "pk12util missing -w pw-file option!"
 PKIHELPER_REGISTER_SECURITY_MODULE_1 = "executing '%s'"
+PKIHELPER_REGISTERED_SECURITY_MODULE_CHECK_1 = "executing '%s'"
+PKIHELPER_REGISTERED_SECURITY_MODULE_1 = \
+    "security module '%s' is already registered."
+PKIHELPER_UNREGISTERED_SECURITY_MODULE_1 = \
+    "security module '%s' is not registered."
 
 PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2 = \
     "instance '%s' contains '%d' PKI subsystems"
