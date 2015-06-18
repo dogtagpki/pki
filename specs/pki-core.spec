@@ -33,7 +33,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.5
-Release:          0.1%{?dist}
+Release:          0.2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -738,7 +738,6 @@ end
 %endif
 
 %post -n pki-base
-sed -i -e 's/^JNI_JAR_DIR=.*$/JNI_JAR_DIR=\/usr\/lib\/java/' %{_datadir}/pki/etc/pki.conf
 
 if [ $1 -eq 1 ]
 then
@@ -969,6 +968,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Wed Jun 17 2015 Dogtag Team <pki-devel@redhat.com> 10.2.5-0.2
+- Resolves rhbz #1230970 - Errata TPS tests for rpm verification failed
+
 * Tue May 26 2015 Dogtag Team <pki-devel@redhat.com> 10.2.5-0.1
 - Updated version number to 10.2.5-0.1
 
