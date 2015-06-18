@@ -852,6 +852,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 CMS.debug(e);
                 throw new PKIException("Failed to restore certificates from p12 file" + e);
             }
+        } else {
+            CMS.debug("SystemConfigService.getCloningData(): set permissions for certs stored in hardware");
+            try {
+                ConfigurationUtils.importAndSetCertPermissionsFromHSM();
+            } catch (Exception e) {
+                CMS.debug(e);
+                throw new PKIException("Failed to import certs from HSM and set permissions:" + e);
+            }
         }
 
         CMS.debug("SystemConfigService.getCloningData(): verify certs");
