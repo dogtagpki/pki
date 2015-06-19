@@ -488,6 +488,8 @@ def main(argv):
                           config.pki_subsystem.lower() + \
                           "-" + "spawn" + "." + \
                           config.pki_timestamp + "." + "log"
+    print 'Log file: %s/%s' % (config.pki_log_dir, config.pki_log_name)
+
     rv = pkilogging.enable_pki_logger(config.pki_log_dir,
                                       config.pki_log_name,
                                       config.pki_log_level,
