@@ -61,6 +61,11 @@ public class ProxyRealm implements Realm {
     }
 
     @Override
+    public Principal authenticate(String username) {
+        return realm.authenticate(username);
+    }
+
+    @Override
     public Principal authenticate(String username, String password) {
         return realm.authenticate(username, password);
     }
