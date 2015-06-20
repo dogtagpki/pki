@@ -33,7 +33,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.5
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -135,10 +135,6 @@ BuildRequires:    zlib-devel
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/rhel/%{name}-%{version}%{?prerel}.tar.gz
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
-%endif
-
-%if 0%{?rhel}
-ExcludeArch:      ppc ppc64 ppcle ppc64le s390 s390x
 %endif
 
 %global saveFileContext() \
@@ -962,6 +958,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Sat Jun 20 2015 Dogtag Team <pki-devel@redhat.com> 10.2.5-2
+- Remove ExcludeArch directive
+
 * Fri Jun 19 2015 Dogtag Team <pki-devel@redhat.com> 10.2.5-1
 - Update release number for release build
 
