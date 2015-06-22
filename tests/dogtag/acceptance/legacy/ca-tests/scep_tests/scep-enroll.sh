@@ -67,7 +67,7 @@ run_pki-legacy-ca-scep_tests()
 	local search_string="ca.scep.enable=false"
 	local replace_string="ca.scep.enable=true"
 
-	local scep_location="ftp://wiki.idm.lab.bos.redhat.com/dirsec/images-mp1/packages/scep_software/sscep/rhel7-x86_64_modified"
+	local scep_location="ftp://wiki.idmqe.lab.eng.bos.redhat.com/dirsec/images-mp1/packages/scep_software/sscep/rhel7-x86_64_modified"
 	local scep_enroll_pin="netscape"
 	local scep_password="netscape"
 	local scep_host_ip=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1 -d'/')
@@ -242,7 +242,7 @@ ca_file_loc_EOF
 		rlLog "BZ1199692 - https://bugzilla.redhat.com/show_bug.cgi?id=1199692"
 	rlPhaseEnd
 	
-	rlPhaseStartTest "pki_ca_scep_tests_cleanup: delete temporary directory and turn off sscep "
+	rlPhaseStartCleanup "pki_ca_scep_tests_cleanup: delete temporary directory and turn off sscep "
 		#Delete temporary directory
                 rlRun "popd"
                 rlRun "rm -r $TmpDir" 0 "Removing tmp directory"

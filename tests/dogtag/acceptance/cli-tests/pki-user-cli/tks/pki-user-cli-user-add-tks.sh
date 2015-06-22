@@ -1195,7 +1195,7 @@ run_pki-user-cli-user-add-tks_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_add-TKS-058: email address with i18n characters"
 	rlLog "user-add email address negyvenkettő@qetestsdomain.com with i18n characters"
-	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT)-t tks user-add --fullName=test  --email='negyvenkettő@qetestsdomain.com' u31"
+	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -t tks user-add --fullName=test  --email='negyvenkettő@qetestsdomain.com' u31"
         rlLog "Executing $command"
         errmsg="ProcessingException: Unable to invoke request"
         errorcode=255

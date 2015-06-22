@@ -119,18 +119,18 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ca/pki-user-cli-user-cert-delete-ca.sh
 	chmod a+x ./acceptance/cli-tests/pki-tests-setup/cleanup-role-users.sh
 	#user KRA
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-add-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-show-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-mod-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-find-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-del-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-membership-add-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-membership-find-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-membership-del-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-find-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-add-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-show-kra.sh
-	chmod a+x ./acceptance/cli-tests/pki-user-cli/kra/pki-user-cli-user-cert-delete-kra.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-add-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-show-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-mod-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-find-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-del-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-membership-add-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-membership-find-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-membership-del-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-cert-find-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-cert-add-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-cert-show-ocsp.sh
+	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-cert-delete-ocsp.sh
 	#user OCSP
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-add-ocsp.sh
 	chmod a+x ./acceptance/cli-tests/pki-user-cli/ocsp/pki-user-cli-user-show-ocsp.sh
@@ -185,12 +185,61 @@ build: $(BUILT_FILES)
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-cert-show.sh
 	chmod a+x ./acceptance/cli-tests/pki-ca-user-cli/pki-ca-user-cli-ca-user-cert-delete.sh
 	#KRA user
-	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-mod.sh
-	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-add.sh
-	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert.sh
-	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-find.sh
-	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-show.sh
-	chmod a+x ./acceptance/cli-tests/pki-kra-user-cli/pki-kra-user-cli-kra-user-cert-delete.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-membership-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-membership-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-membership-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert-delete.sh
+	#OCSP user
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-membership-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-membership-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-membership-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-ocsp-user-cli/pki-ocsp-user-cli-ocsp-user-cert-delete.sh
+	#TKS user
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-membership-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-membership-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-membership-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-cert-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-cert.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-cert-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-cert-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tks-user-cli/pki-tks-user-cli-tks-user-cert-delete.sh
+	#TPS user
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-mod.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-membership-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-membership-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-membership-del.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-cert-add.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-cert.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-cert-find.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-cert-show.sh
+	chmod a+x ./acceptance/cli-tests/pki-tps-user-cli/pki-tps-user-cli-tps-user-cert-delete.sh
 	#cert CA
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert.sh
 	chmod a+x ./acceptance/cli-tests/pki-cert-cli/pki-cert-show.sh

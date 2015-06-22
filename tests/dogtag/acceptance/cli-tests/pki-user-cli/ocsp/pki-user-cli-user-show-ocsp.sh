@@ -968,7 +968,7 @@ run_pki-user-cli-user-show-ocsp_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-OCSP-036: Should not be able to show user using a OCSP_agentR user"
 	rlLog "To test error message consistency for the request pki_user_cli_user_show-OCSP-034"
-	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT)-t ocsp user-show u23"
+	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -t ocsp user-show u23"
         rlLog "Executing $command"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255

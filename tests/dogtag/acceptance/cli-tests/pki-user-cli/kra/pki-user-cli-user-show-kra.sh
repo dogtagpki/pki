@@ -967,7 +967,7 @@ run_pki-user-cli-user-show-kra_tests(){
 
     rlPhaseStartTest "pki_user_cli_user_show-KRA-036: Should not be able to show user using a KRA_agentR user"
 	rlLog "To test error message consistency for the request pki_user_cli_user_show-KRA-034"
-	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT)-t kra user-show u23"
+	command="pki -d $CERTDB_DIR -n ${prefix}_agentR -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) -t kra user-show u23"
         rlLog "Executing $command"
         errmsg="ForbiddenException: Authorization Error"
         errorcode=255

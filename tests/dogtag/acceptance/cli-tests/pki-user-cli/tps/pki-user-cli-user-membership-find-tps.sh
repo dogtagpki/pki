@@ -422,7 +422,7 @@ run_pki-user-cli-user-membership-find-tps_tests(){
  			   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
 		  	   -t tps \
-                            user-membership-find userall --start=6 --size=5"
+                            user-membership-find userall --start=2 --size=5"
                 rlRun "pki -d $CERTDB_DIR \
                            -n ${prefix}_adminV \
                            -c $CERTDB_DIR_PASSWORD \
@@ -432,7 +432,7 @@ run_pki-user-cli-user-membership-find-tps_tests(){
                             user-membership-find userall --start=2 --size=5 > $TmpDir/pki-user-membership-find-tps-019.out" \
                             0 \
                             "Find user-membership with page start and page size option"
-                rlAssertGrep "2 entries matched" "$TmpDir/pki-user-membership-find-tps-019.out"
+                rlAssertGrep "4 entries matched" "$TmpDir/pki-user-membership-find-tps-019.out"
 		i=3
                 while [ $i -lt 5 ] ; do
                         eval gid=\$groupid$i
@@ -630,7 +630,7 @@ run_pki-user-cli-user-membership-find-tps_tests(){
 	rlPhaseEnd
 
 	rlPhaseStartTest "pki_user_cli_user_membership-find-TPS-030: Find user-membership for user fullname with i18n characters"
-		user6="u6"
+		user6="u5"
 		rlLog "user-add user fullname ÖrjanÄke with i18n characters"
         	rlRun "pki -d $CERTDB_DIR \
                 	   -n ${prefix}_adminV \
@@ -705,7 +705,7 @@ run_pki-user-cli-user-membership-find-tps_tests(){
 		
                 #===Deleting users created using TPS_adminV cert===#
                 i=1
-                while [ $i -lt 7 ] ; do
+                while [ $i -lt 6 ] ; do
                        rlRun "pki -d $CERTDB_DIR \
                                   -n ${prefix}_adminV \
                                   -c $CERTDB_DIR_PASSWORD \
