@@ -185,29 +185,22 @@ public class SystemCertsVerification
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
-        String logMessage = null;
-        boolean rc = false;
+    public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        rc = CMS.verifySystemCerts();
-        if (rc == true) {
-            logMessage = CMS.getLogMessage("SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_SUCCESS",
-                                                getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                        logMessage);
-        } else {
-            logMessage = CMS.getLogMessage("SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_FAILURE",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
-            throw new ESelfTestException(logMessage);
+        boolean status = CMS.verifySystemCerts();
+        if (!status) {
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_FAILURE",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
         }
 
-        return;
+        String logMessage = CMS.getLogMessage(
+                "SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_SUCCESS",
+                getSelfTestName());
+        mSelfTestSubsystem.log(logger, logMessage);
     }
 }

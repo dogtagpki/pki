@@ -192,89 +192,66 @@ public class OCSPPresence
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
-        String logMessage = null;
-        IOCSPAuthority ocsp = null;
-        ISigningUnit ocspSigningUnit = null;
-        X509CertImpl ocspCert = null;
-        X509Key ocspPubKey = null;
+    public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        ocsp = (IOCSPAuthority) CMS.getSubsystem(mOcspSubId);
-
+        IOCSPAuthority ocsp = (IOCSPAuthority) CMS.getSubsystem(mOcspSubId);
         if (ocsp == null) {
             // log that the OCSP is not installed
-            logMessage = CMS.getLogMessage("SELFTESTS_OCSP_IS_NOT_PRESENT",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
-
-            throw new ESelfTestException(logMessage);
-        } else {
-            // Retrieve the OCSP signing unit
-            ocspSigningUnit = ocsp.getSigningUnit();
-
-            if (ocspSigningUnit == null) {
-                // log that the OCSP is not yet initialized
-                logMessage = CMS.getLogMessage(
-                             "SELFTESTS_OCSP_IS_NOT_INITIALIZED",
-                             getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // Retrieve the OCSP certificate
-            ocspCert = ocspSigningUnit.getCertImpl();
-
-            if (ocspCert == null) {
-                // log that the OCSP is not yet initialized
-                logMessage = CMS.getLogMessage(
-                             "SELFTESTS_OCSP_IS_NOT_INITIALIZED",
-                             getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // Retrieve the OCSP certificate public key
-            try {
-                ocspPubKey = (X509Key)
-                             ocspCert.get(X509CertImpl.PUBLIC_KEY);
-
-                if (ocspPubKey == null) {
-                    // log that something is seriously wrong with the OCSP
-                    logMessage = CMS.getLogMessage("SELFTESTS_OCSP_IS_CORRUPT",
-                                                    getSelfTestName());
-
-                    mSelfTestSubsystem.log(logger,
-                                            logMessage);
-
-                    throw new ESelfTestException(logMessage);
-                }
-            } catch (CertificateParsingException e) {
-                // log that something is seriously wrong with the OCSP
-                mSelfTestSubsystem.log(logger,
-                                        e.toString());
-
-                throw new ESelfTestException(e.toString());
-            }
-
-            // log that the OCSP is present
-            logMessage = CMS.getLogMessage("SELFTESTS_OCSP_IS_PRESENT",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_NOT_PRESENT",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
         }
 
-        return;
+        // Retrieve the OCSP signing unit
+        ISigningUnit ocspSigningUnit = ocsp.getSigningUnit();
+        if (ocspSigningUnit == null) {
+            // log that the OCSP is not yet initialized
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_NOT_INITIALIZED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // Retrieve the OCSP certificate
+        X509CertImpl ocspCert = ocspSigningUnit.getCertImpl();
+        if (ocspCert == null) {
+            // log that the OCSP is not yet initialized
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_NOT_INITIALIZED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // Retrieve the OCSP certificate public key
+        X509Key ocspPubKey;
+        try {
+            ocspPubKey = (X509Key)ocspCert.get(X509CertImpl.PUBLIC_KEY);
+
+        } catch (CertificateParsingException e) {
+            // log that something is seriously wrong with the OCSP
+            mSelfTestSubsystem.log(logger, e.toString());
+            throw e;
+        }
+
+        if (ocspPubKey == null) {
+            // log that something is seriously wrong with the OCSP
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_CORRUPT",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // log that the OCSP is present
+        String logMessage = CMS.getLogMessage(
+                "SELFTESTS_OCSP_IS_PRESENT",
+                getSelfTestName());
+        mSelfTestSubsystem.log(logger, logMessage);
     }
 }

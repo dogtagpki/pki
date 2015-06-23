@@ -3248,7 +3248,11 @@ public final class CMSAdminServlet extends AdminServlet {
 
                         // store this information for console notification
                         content += "COMPLETED SUCCESSFULLY\n";
-                    } catch (ESelfTestException e) {
+
+                    } catch (Exception e) {
+
+                        CMS.debug(e);
+
                         // Check to see if the self test was critical:
                         if (mSelfTestSubsystem.isSelfTestCriticalOnDemand(
                                 instanceName)) {

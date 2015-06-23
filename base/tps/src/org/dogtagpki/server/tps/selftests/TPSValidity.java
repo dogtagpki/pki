@@ -144,54 +144,59 @@ public class TPSValidity extends ASelfTest {
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
-        String logMessage = null;
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(tpsSubId);
+    public void runSelfTest(ILogEventListener logger) throws Exception {
 
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(tpsSubId);
         if (tps == null) {
             // log that the TPS is not installed
-            logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_NOT_PRESENT", getSelfTestName());
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TPS_IS_NOT_PRESENT",
+                    getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
+            throw new Exception(logMessage);
         }
 
         // Retrieve the TPS subsystem certificate
-        X509CertImpl tpsCert = null;
+        X509CertImpl tpsCert;
         try {
             tpsCert = new X509CertImpl(tps.getSubsystemCert().getEncoded());
         } catch (Exception e) {
             // certificate is not present or has not been configured
-            // tpsCert will remain null
-        }
-
-        if (tpsCert == null) {
             // log that the TPS is not yet initialized
-            logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_NOT_INITIALIZED",
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TPS_IS_NOT_INITIALIZED",
                     getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
+            throw e;
         }
 
         // Check the TPS validity period
         try {
             tpsCert.checkValidity();
+
         } catch (CertificateNotYetValidException e) {
             // log that the TPS is not yet valid
-            logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_NOT_YET_VALID", getSelfTestName());
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TPS_IS_NOT_YET_VALID",
+                    getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
+            throw e;
+
         } catch (CertificateExpiredException e) {
             // log that the TPS is expired
-            logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_EXPIRED", getSelfTestName());
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TPS_IS_EXPIRED",
+                    getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
+            throw e;
         }
 
         // log that the TPS is valid
-        logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_VALID", getSelfTestName());
+        String logMessage = CMS.getLogMessage(
+                "SELFTESTS_TPS_IS_VALID",
+                getSelfTestName());
         mSelfTestSubsystem.log(logger, logMessage);
     }
 }

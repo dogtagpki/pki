@@ -188,64 +188,46 @@ public class KRAPresence
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
-        String logMessage = null;
-        IKeyRecoveryAuthority kra = null;
-        org.mozilla.jss.crypto.X509Certificate kraCert = null;
-        PublicKey kraPubKey = null;
+    public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        kra = (IKeyRecoveryAuthority) CMS.getSubsystem(mSubId);
-
+        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem(mSubId);
         if (kra == null) {
             // log that the KRA is not installed
-            logMessage = CMS.getLogMessage("SELFTESTS_KRA_IS_NOT_PRESENT",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
-
-            throw new ESelfTestException(logMessage);
-        } else {
-            // Retrieve the KRA certificate
-            kraCert = kra.getTransportCert();
-
-            if (kraCert == null) {
-                // log that the RA is not yet initialized
-                logMessage = CMS.getLogMessage(
-                             "SELFTESTS_KRA_IS_NOT_INITIALIZED",
-                             getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // Retrieve the KRA certificate public key
-            kraPubKey = kraCert.getPublicKey();
-
-            if (kraPubKey == null) {
-                // log that something is seriously wrong with the KRA
-                logMessage = CMS.getLogMessage("SELFTESTS_KRA_IS_CORRUPT",
-                                                getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // log that the KRA is present
-            logMessage = CMS.getLogMessage("SELFTESTS_KRA_IS_PRESENT",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_KRA_IS_NOT_PRESENT",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
         }
 
-        return;
+        // Retrieve the KRA certificate
+        org.mozilla.jss.crypto.X509Certificate kraCert = kra.getTransportCert();
+        if (kraCert == null) {
+            // log that the RA is not yet initialized
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_KRA_IS_NOT_INITIALIZED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // Retrieve the KRA certificate public key
+        PublicKey kraPubKey = kraCert.getPublicKey();
+        if (kraPubKey == null) {
+            // log that something is seriously wrong with the KRA
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_KRA_IS_CORRUPT",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // log that the KRA is present
+        String logMessage = CMS.getLogMessage(
+                "SELFTESTS_KRA_IS_PRESENT",
+                getSelfTestName());
+        mSelfTestSubsystem.log(logger, logMessage);
     }
 }

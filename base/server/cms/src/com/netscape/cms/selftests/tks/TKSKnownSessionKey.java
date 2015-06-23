@@ -104,7 +104,7 @@ public class TKSKnownSessionKey
         mMacKey = getConfigByteArray("macKey", 16);
         mUseSoftToken = getConfigString("useSoftToken");
 
-        // AC: KDF SPEC CHANGE 
+        // AC: KDF SPEC CHANGE
         // read CUID for the KDD field
         mKDD = getConfigByteArray("CUID", 10);
         //
@@ -143,7 +143,7 @@ public class TKSKnownSessionKey
                     getSelfTestName(), mPrefix + ".nistSP800-108KdfUseCuidAsKdd"));
                 throw new EMissingSelfTestException("nistSP800-108KdfUseCuidAsKdd");
         }
-        
+
         String defKeySetMacKey = null;
         tks = CMS.getSubsystem(mTksSubId);
         if (tks != null) {
@@ -175,7 +175,7 @@ public class TKSKnownSessionKey
             if (mSessionKey == null) {
                 mSessionKey = SessionKey.ComputeSessionKey(mToken, mKeyName,
                                                             mCardChallenge, mHostChallenge,
-                                                            mKeyInfo, 
+                                                            mKeyInfo,
                                                             mNistSP800_108KdfOnKeyVersion,   // AC: KDF SPEC CHANGE - pass in configuration self-test value
                                                             mNistSP800_108KdfUseCuidAsKdd,   // AC: KDF SPEC CHANGE - pass in configuration self-test value
                                                             mCUID,
@@ -320,13 +320,12 @@ public class TKSKnownSessionKey
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
-        IConfigStore cs = CMS.getConfigStore();
-        String sharedSecretName;
+    public void runSelfTest(ILogEventListener logger) throws Exception {
+
         try {
+            IConfigStore cs = CMS.getConfigStore();
             boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);
             if (useNewNames) {
                 String tpsList = cs.getString("tps.list", "");
@@ -336,29 +335,39 @@ public class TKSKnownSessionKey
                 }
 
                 for (String tpsID : tpsList.split(",")) {
-                    sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
+                    String sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
                     if (!sharedSecretName.isEmpty()) {
                         CMS.debug("TKSKnownSessionKey: testing with key " + sharedSecretName);
-                        generateSessionKey(logger, sharedSecretName);
+                        generateSessionKey(sharedSecretName);
                     }
                 }
+
             } else {
                 // legacy systems
-                sharedSecretName = cs.getString("tks.tksSharedSymKeyName", "sharedSecret");
-                generateSessionKey(logger, sharedSecretName);
+                String sharedSecretName = cs.getString("tks.tksSharedSymKeyName", "sharedSecret");
+                generateSessionKey(sharedSecretName);
             }
-        } catch (EBaseException e) {
-            e.printStackTrace();
-            CMS.debug("TKSKnownSessionKey: failed to read config file to set up test");
-            String logMessage = CMS.getLogMessage("SELFTESTS_TKS_FAILED", getSelfTestName(), getSelfTestName());
+
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TKS_SUCCEEDED",
+                    getSelfTestName(),
+                    getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
+            CMS.debug("TKSKnownSessionKey self test SUCCEEDED");
+
+        } catch (Exception e) {
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TKS_FAILED",
+                    getSelfTestName(),
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw e;
         }
+
         return;
     }
 
-    private void generateSessionKey(ILogEventListener logger, String sharedSecretName) throws ESelfTestException {
-        String logMessage;
+    private void generateSessionKey(String sharedSecretName) throws Exception {
         String keySet = "defKeySet";
 
         byte[] sessionKey = SessionKey.ComputeSessionKey(
@@ -374,14 +383,7 @@ public class TKSKnownSessionKey
         // For FIPS compliance, the routine now returns a wrapped key, which can't be extracted and compared.
         if (sessionKey == null) {
             CMS.debug("TKSKnownSessionKey: generated no session key");
-            CMS.debug("TKSKnownSessionKey self test FAILED");
-            logMessage = CMS.getLogMessage("SELFTESTS_TKS_FAILED", getSelfTestName(), getSelfTestName());
-            mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
-        } else {
-            logMessage = CMS.getLogMessage("SELFTESTS_TKS_SUCCEEDED", getSelfTestName(), getSelfTestName());
-            mSelfTestSubsystem.log(logger, logMessage);
-            CMS.debug("TKSKnownSessionKey self test SUCCEEDED");
+            throw new Exception("No session key generated");
         }
     }
 }

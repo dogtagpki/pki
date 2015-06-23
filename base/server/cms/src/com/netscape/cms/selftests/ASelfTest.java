@@ -186,8 +186,7 @@ public abstract class ASelfTest
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public abstract void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException;
+    public abstract void runSelfTest(ILogEventListener logger) throws Exception;
 }

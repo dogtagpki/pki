@@ -191,72 +191,55 @@ public class CAPresence
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
-        String logMessage = null;
-        ICertificateAuthority ca = null;
-        X509CertImpl caCert = null;
-        X509Key caPubKey = null;
+    public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        ca = (ICertificateAuthority) CMS.getSubsystem(mCaSubId);
-
+        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(mCaSubId);
         if (ca == null) {
             // log that the CA is not installed
-            logMessage = CMS.getLogMessage("SELFTESTS_CA_IS_NOT_PRESENT",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
-
-            throw new ESelfTestException(logMessage);
-        } else {
-            // Retrieve the CA certificate
-            caCert = ca.getCACert();
-
-            if (caCert == null) {
-                // log that the CA is not yet initialized
-                logMessage = CMS.getLogMessage(
-                             "SELFTESTS_CA_IS_NOT_INITIALIZED",
-                             getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // Retrieve the CA certificate public key
-            try {
-                caPubKey = (X509Key) caCert.get(X509CertImpl.PUBLIC_KEY);
-
-                if (caPubKey == null) {
-                    // log that something is seriously wrong with the CA
-                    logMessage = CMS.getLogMessage("SELFTESTS_CA_IS_CORRUPT",
-                                                    getSelfTestName());
-
-                    mSelfTestSubsystem.log(logger,
-                                            logMessage);
-
-                    throw new ESelfTestException(logMessage);
-                }
-            } catch (CertificateParsingException e) {
-                // log that something is seriously wrong with the CA
-                mSelfTestSubsystem.log(logger,
-                                        e.toString());
-
-                throw new ESelfTestException(e.toString());
-            }
-
-            // log that the CA is present
-            logMessage = CMS.getLogMessage("SELFTESTS_CA_IS_PRESENT",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_CA_IS_NOT_PRESENT",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
         }
 
-        return;
+        // Retrieve the CA certificate
+        X509CertImpl caCert = ca.getCACert();
+        if (caCert == null) {
+            // log that the CA is not yet initialized
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_CA_IS_NOT_INITIALIZED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // Retrieve the CA certificate public key
+        X509Key caPubKey;
+        try {
+            caPubKey = (X509Key) caCert.get(X509CertImpl.PUBLIC_KEY);
+
+        } catch (CertificateParsingException e) {
+            // log that something is seriously wrong with the CA
+            mSelfTestSubsystem.log(logger, e.toString());
+            throw e;
+        }
+
+        if (caPubKey == null) {
+            // log that something is seriously wrong with the CA
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_CA_IS_CORRUPT",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // log that the CA is present
+        String logMessage = CMS.getLogMessage(
+                "SELFTESTS_CA_IS_PRESENT",
+                getSelfTestName());
+        mSelfTestSubsystem.log(logger, logMessage);
     }
 }

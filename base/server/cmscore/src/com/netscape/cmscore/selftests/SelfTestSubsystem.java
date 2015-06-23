@@ -530,7 +530,11 @@ public class SelfTestSubsystem
                     }
 
                     test.runSelfTest(mLogger);
-                } catch (ESelfTestException e) {
+
+                } catch (Exception e) {
+
+                    CMS.debug(e);
+
                     // Check to see if the self test was critical:
                     if (isSelfTestCriticalOnDemand(instanceName)) {
                         log(mLogger,
@@ -810,146 +814,76 @@ public class SelfTestSubsystem
      * </ul>
      *
      * @exception EMissingSelfTestException subsystem has missing name
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTestsAtStartup()
-            throws EMissingSelfTestException, ESelfTestException {
-        String auditMessage = null;
+    public void runSelfTestsAtStartup() throws Exception {
 
-        // ensure that any low-level exceptions are reported
-        // to the signed audit log and stored as failures
-        try {
-            if (CMS.debugOn()) {
-                CMS.debug("SelfTestSubsystem::runSelfTestsAtStartup():"
-                        + "  ENTERING . . .");
+        // log that execution of startup self tests has begun
+        log(mLogger,
+                CMS.getLogMessage(
+                        "CMSCORE_SELFTESTS_RUN_AT_STARTUP"));
+
+        // loop through all self test plugin instances
+        // specified to be executed at server startup
+        Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
+
+        while (instances.hasMoreElements()) {
+            SelfTestOrderedInstance instance = instances.nextElement();
+
+            String instanceFullName = null;
+            String instanceName = instance.getSelfTestName();
+
+            if (instanceName == null) {
+                log(mLogger,
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+
+                throw new EMissingSelfTestException();
             }
 
-            // loop through all self test plugin instances
-            // specified to be executed at server startup
-            Enumeration<SelfTestOrderedInstance> instances = mStartupOrder.elements();
+            instanceName = instanceName.trim();
+            instanceFullName = getFullName(mPrefix, instanceName);
 
-            while (instances.hasMoreElements()) {
-                SelfTestOrderedInstance instance = instances.nextElement();
+            if (!mSelfTestInstances.containsKey(instanceName)) {
+                // self test plugin instance property name is not present
+                log(mLogger,
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                                instanceFullName));
 
-                String instanceFullName = null;
-                String instanceName = instance.getSelfTestName();
+                throw new EMissingSelfTestException(instanceFullName);
+            }
 
-                if (instanceName != null) {
-                    instanceName = instanceName.trim();
-                    instanceFullName = getFullName(mPrefix,
-                                instanceName);
-                } else {
-                    log(mLogger,
-                            CMS.getLogMessage(
-                                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+            ISelfTest test = mSelfTestInstances.get(instanceName);
 
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
-                                ILogger.SYSTEM_UID,
-                                ILogger.FAILURE);
+            try {
+                CMS.debug("SelfTestSubsystem: running " + test.getSelfTestName());
+                test.runSelfTest(mLogger);
 
-                    audit(auditMessage);
+            } catch (Exception e) {
 
-                    throw new EMissingSelfTestException();
+                CMS.debug(e);
+
+                // Check to see if the self test was critical:
+                if (!isSelfTestCriticalAtStartup(instanceName)) {
+                    continue;
                 }
 
-                if (mSelfTestInstances.containsKey(instanceName)) {
-                    ISelfTest test = mSelfTestInstances.get(instanceName);
+                log(mLogger,
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_RUN_AT_STARTUP_FAILED",
+                                instanceFullName));
 
-                    try {
-                        if (CMS.debugOn()) {
-                            CMS.debug("SelfTestSubsystem::runSelfTestsAtStartup():"
-                                    + "    running \""
-                                    + test.getSelfTestName()
-                                    + "\"");
-                        }
-
-                        test.runSelfTest(mLogger);
-                    } catch (ESelfTestException e) {
-                        // Check to see if the self test was critical:
-                        if (isSelfTestCriticalAtStartup(instanceName)) {
-                            log(mLogger,
-                                    CMS.getLogMessage(
-                                            "CMSCORE_SELFTESTS_RUN_AT_STARTUP_FAILED",
-                                            instanceFullName));
-
-                            // store a message in the signed audit log file
-                            auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
-                                        ILogger.SYSTEM_UID,
-                                        ILogger.FAILURE);
-
-                            audit(auditMessage);
-
-                            // shutdown the system gracefully
-                            CMS.shutdown();
-
-                            IConfigStore cs = CMS.getConfigStore();
-                            String instanceID = cs.get("instanceId");
-                            String subsystemID = cs.get("cs.type").toLowerCase();
-
-                            System.out.println("SelfTestSubsystem: Disabling \"" + subsystemID + "\" subsystem due to selftest failure.");
-
-                            try {
-                                ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceID, subsystemID);
-                                Process process = pb.inheritIO().start();
-                                int rc = process.waitFor();
-
-                                if (rc != 0) {
-                                    System.out.println("SelfTestSubsystem: Unable to disable \"" + subsystemID + "\". RC: " + rc);
-                                }
-
-                            } catch (Exception e2) {
-                                e.printStackTrace();
-                            }
-
-                            return;
-                        }
-                    }
-                } else {
-                    // self test plugin instance property name is not present
-                    log(mLogger,
-                            CMS.getLogMessage(
-                                    "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                                    instanceFullName));
-
-                    // store a message in the signed audit log file
-                    auditMessage = CMS.getLogMessage(
-                                LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
-                                ILogger.SYSTEM_UID,
-                                ILogger.FAILURE);
-
-                    audit(auditMessage);
-
-                    throw new EMissingSelfTestException(instanceFullName);
-                }
+                throw e;
             }
-
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
-                        ILogger.SYSTEM_UID,
-                        ILogger.SUCCESS);
-
-            audit(auditMessage);
-
-            if (CMS.debugOn()) {
-                CMS.debug("SelfTestSubsystem::runSelfTestsAtStartup():"
-                        + "  EXITING.");
-            }
-        } catch (EMissingSelfTestException eAudit1) {
-            // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
-                        ILogger.SYSTEM_UID,
-                        ILogger.FAILURE);
-
-            audit(auditMessage);
-
-            // rethrow the specific exception to be handled later
-            throw eAudit1;
         }
+
+        // log that execution of all "critical" startup self tests
+        // has completed "successfully"
+        log(mLogger,
+                CMS.getLogMessage(
+                        "CMSCORE_SELFTESTS_RUN_AT_STARTUP_SUCCEEDED"));
+
     }
 
     public void log(int level, String msg) {
@@ -1831,39 +1765,88 @@ public class SelfTestSubsystem
      *
      * @exception EBaseException base CMS exception
      */
-    public void startup()
-            throws EBaseException {
+    public void startup() throws EBaseException {
+
         // loop through all self test plugin instances
         Enumeration<ISelfTest> instances = mSelfTestInstances.elements();
 
         while (instances.hasMoreElements()) {
             ISelfTest instance = instances.nextElement();
-
             instance.startupSelfTest();
         }
 
-        if (!CMS.isPreOpMode()) {
-            // run all self test plugin instances (designated at startup)
-            Enumeration<SelfTestOrderedInstance> selftests = mStartupOrder.elements();
+        if (CMS.isPreOpMode()) {
+            // do not run selftests in pre-op mode
+            return;
+        }
 
-            if (selftests.hasMoreElements()) {
-                // log that execution of startup self tests has begun
-                log(mLogger,
-                        CMS.getLogMessage(
-                                "CMSCORE_SELFTESTS_RUN_AT_STARTUP"));
+        // run all self test plugin instances (designated at startup)
+        Enumeration<SelfTestOrderedInstance> selftests = mStartupOrder.elements();
 
-                // execute all startup self tests
-                runSelfTestsAtStartup();
+        if (!selftests.hasMoreElements()) {
+            log(mLogger,
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_NOT_RUN_AT_STARTUP"));
+            return;
+        }
 
-                // log that execution of all "critical" startup self tests
-                // has completed "successfully"
-                log(mLogger,
-                        CMS.getLogMessage(
-                                "CMSCORE_SELFTESTS_RUN_AT_STARTUP_SUCCEEDED"));
-            } else {
-                log(mLogger,
-                        CMS.getLogMessage(
-                                "CMSCORE_SELFTESTS_NOT_RUN_AT_STARTUP"));
+        // ensure that any low-level exceptions are reported
+        // to the signed audit log and stored as failures
+        try {
+            // execute all startup self tests
+            runSelfTestsAtStartup();
+
+            // store a message in the signed audit log file
+            String auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        ILogger.SYSTEM_UID,
+                        ILogger.SUCCESS);
+
+            audit(auditMessage);
+
+        } catch (EMissingSelfTestException e) {
+
+            // store a message in the signed audit log file
+            String auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        ILogger.SYSTEM_UID,
+                        ILogger.FAILURE);
+
+            audit(auditMessage);
+
+            // rethrow the specific exception to be handled later
+            throw e;
+
+        } catch (Exception e) {
+
+            // store a message in the signed audit log file
+            String auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION,
+                        ILogger.SYSTEM_UID,
+                        ILogger.FAILURE);
+
+            audit(auditMessage);
+
+            // shutdown the system gracefully
+            CMS.shutdown();
+
+            IConfigStore cs = CMS.getConfigStore();
+            String instanceID = cs.get("instanceId");
+            String subsystemID = cs.get("cs.type").toLowerCase();
+
+            System.out.println("SelfTestSubsystem: Disabling \"" + subsystemID + "\" subsystem due to selftest failure.");
+
+            try {
+                ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceID, subsystemID);
+                Process process = pb.inheritIO().start();
+                int rc = process.waitFor();
+
+                if (rc != 0) {
+                    System.out.println("SelfTestSubsystem: Unable to disable \"" + subsystemID + "\". RC: " + rc);
+                }
+
+            } catch (Exception e2) {
+                e.printStackTrace();
             }
         }
     }

@@ -140,48 +140,60 @@ public class TPSPresence extends ASelfTest {
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
-        String logMessage = null;
+    public void runSelfTest(ILogEventListener logger) throws Exception {
+
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(tpsSubId);
         if (tps == null) {
             // log that the TPS is not installed
-            logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_NOT_PRESENT", getSelfTestName());
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TPS_IS_NOT_PRESENT",
+                    getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
+            throw new Exception(logMessage);
         }
 
         // Retrieve the TPS certificate
-        org.mozilla.jss.crypto.X509Certificate tpsCert = null;
+        org.mozilla.jss.crypto.X509Certificate tpsCert;
         try {
             tpsCert = tps.getSubsystemCert();
+
         } catch (Exception e) {
-            e.printStackTrace();
             // cert does not exist or is not yet configured
             // tpsCert will remain null
+            // log that the TPS is not yet initialized
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TPS_IS_NOT_INITIALIZED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw e;
         }
 
         if (tpsCert == null) {
             // log that the TPS is not yet initialized
-            logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_NOT_INITIALIZED",
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TPS_IS_NOT_INITIALIZED",
                     getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
+            throw new Exception(logMessage);
         }
 
         // Retrieve the TPS certificate public key
         PublicKey tpsPubKey = tpsCert.getPublicKey();
         if (tpsPubKey == null) {
             // log that something is seriously wrong with the TPS
-            logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_CORRUPT", getSelfTestName());
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_TPS_IS_CORRUPT",
+                    getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
+            throw new Exception(logMessage);
         }
 
         // log that the TPS is present
-        logMessage = CMS.getLogMessage("SELFTESTS_TPS_IS_PRESENT", getSelfTestName());
+        String logMessage = CMS.getLogMessage(
+                "SELFTESTS_TPS_IS_PRESENT",
+                getSelfTestName());
         mSelfTestSubsystem.log(logger, logMessage);
     }
 }

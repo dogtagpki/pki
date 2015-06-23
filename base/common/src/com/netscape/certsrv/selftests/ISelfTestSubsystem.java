@@ -206,10 +206,9 @@ public interface ISelfTestSubsystem
      * <P>
      *
      * @exception EMissingSelfTestException subsystem has missing name
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTestsAtStartup()
-            throws EMissingSelfTestException, ESelfTestException;
+    public void runSelfTestsAtStartup() throws Exception;
 
     //
     // methods associated with the list of self test instances

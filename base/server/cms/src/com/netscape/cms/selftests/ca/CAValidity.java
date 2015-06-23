@@ -191,72 +191,56 @@ public class CAValidity
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
-        String logMessage = null;
-        ICertificateAuthority ca = null;
-        X509CertImpl caCert = null;
+    public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        ca = (ICertificateAuthority) CMS.getSubsystem(mCaSubId);
-
+        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(mCaSubId);
         if (ca == null) {
             // log that the CA is not installed
-            logMessage = CMS.getLogMessage("SELFTESTS_CA_IS_NOT_PRESENT",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
-
-            throw new ESelfTestException(logMessage);
-        } else {
-            // Retrieve the CA certificate
-            caCert = ca.getCACert();
-
-            if (caCert == null) {
-                // log that the CA is not yet initialized
-                logMessage = CMS.getLogMessage(
-                             "SELFTESTS_CA_IS_NOT_INITIALIZED",
-                             getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // Retrieve the CA validity period
-            try {
-                caCert.checkValidity();
-            } catch (CertificateNotYetValidException e) {
-                // log that the CA is not yet valid
-                logMessage = CMS.getLogMessage("SELFTESTS_CA_IS_NOT_YET_VALID",
-                                                getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            } catch (CertificateExpiredException e) {
-                // log that the CA is expired
-                logMessage = CMS.getLogMessage("SELFTESTS_CA_IS_EXPIRED",
-                                                getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // log that the CA is valid
-            logMessage = CMS.getLogMessage("SELFTESTS_CA_IS_VALID",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_CA_IS_NOT_PRESENT",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
         }
 
-        return;
+        // Retrieve the CA certificate
+        X509CertImpl caCert = ca.getCACert();
+        if (caCert == null) {
+            // log that the CA is not yet initialized
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_CA_IS_NOT_INITIALIZED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // Retrieve the CA validity period
+        try {
+            caCert.checkValidity();
+
+        } catch (CertificateNotYetValidException e) {
+            // log that the CA is not yet valid
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_CA_IS_NOT_YET_VALID",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw e;
+
+        } catch (CertificateExpiredException e) {
+            // log that the CA is expired
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_CA_IS_EXPIRED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw e;
+        }
+
+        // log that the CA is valid
+        String logMessage = CMS.getLogMessage(
+                "SELFTESTS_CA_IS_VALID",
+                getSelfTestName());
+        mSelfTestSubsystem.log(logger, logMessage);
     }
 }

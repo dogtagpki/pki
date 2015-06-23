@@ -192,89 +192,68 @@ public class OCSPValidity
      * <P>
      *
      * @param logger specifies logging subsystem
-     * @exception ESelfTestException self test exception
+     * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger)
-            throws ESelfTestException {
+    public void runSelfTest(ILogEventListener logger) throws Exception {
         String logMessage = null;
-        IOCSPAuthority ocsp = null;
-        ISigningUnit ocspSigningUnit = null;
-        X509CertImpl ocspCert = null;
 
-        ocsp = (IOCSPAuthority) CMS.getSubsystem(mOcspSubId);
-
+        IOCSPAuthority ocsp = (IOCSPAuthority) CMS.getSubsystem(mOcspSubId);
         if (ocsp == null) {
             // log that the OCSP is not installed
-            logMessage = CMS.getLogMessage("SELFTESTS_OCSP_IS_NOT_PRESENT",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
-
-            throw new ESelfTestException(logMessage);
-        } else {
-            // Retrieve the OCSP signing unit
-            ocspSigningUnit = ocsp.getSigningUnit();
-
-            if (ocspSigningUnit == null) {
-                // log that the OCSP is not yet initialized
-                logMessage = CMS.getLogMessage(
-                             "SELFTESTS_OCSP_IS_NOT_INITIALIZED",
-                             getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // Retrieve the OCSP certificate
-            ocspCert = ocspSigningUnit.getCertImpl();
-
-            if (ocspCert == null) {
-                // log that the OCSP is not yet initialized
-                logMessage = CMS.getLogMessage(
-                             "SELFTESTS_OCSP_IS_NOT_INITIALIZED",
-                             getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // Retrieve the OCSP validity period
-            try {
-                ocspCert.checkValidity();
-            } catch (CertificateNotYetValidException e) {
-                // log that the OCSP is not yet valid
-                logMessage = CMS.getLogMessage(
-                                 "SELFTESTS_OCSP_IS_NOT_YET_VALID",
-                                 getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            } catch (CertificateExpiredException e) {
-                // log that the OCSP is expired
-                logMessage = CMS.getLogMessage("SELFTESTS_OCSP_IS_EXPIRED",
-                                                getSelfTestName());
-
-                mSelfTestSubsystem.log(logger,
-                                        logMessage);
-
-                throw new ESelfTestException(logMessage);
-            }
-
-            // log that the OCSP is valid
-            logMessage = CMS.getLogMessage("SELFTESTS_OCSP_IS_VALID",
-                                            getSelfTestName());
-
-            mSelfTestSubsystem.log(logger,
-                                    logMessage);
+            logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_NOT_PRESENT",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
         }
 
-        return;
+        // Retrieve the OCSP signing unit
+        ISigningUnit ocspSigningUnit = ocsp.getSigningUnit();
+        if (ocspSigningUnit == null) {
+            // log that the OCSP is not yet initialized
+            logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_NOT_INITIALIZED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // Retrieve the OCSP certificate
+        X509CertImpl ocspCert = ocspSigningUnit.getCertImpl();
+        if (ocspCert == null) {
+            // log that the OCSP is not yet initialized
+            logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_NOT_INITIALIZED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw new Exception(logMessage);
+        }
+
+        // Retrieve the OCSP validity period
+        try {
+            ocspCert.checkValidity();
+
+        } catch (CertificateNotYetValidException e) {
+            // log that the OCSP is not yet valid
+            logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_NOT_YET_VALID",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw e;
+
+        } catch (CertificateExpiredException e) {
+            // log that the OCSP is expired
+            logMessage = CMS.getLogMessage(
+                    "SELFTESTS_OCSP_IS_EXPIRED",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+            throw e;
+        }
+
+        // log that the OCSP is valid
+        logMessage = CMS.getLogMessage(
+                "SELFTESTS_OCSP_IS_VALID",
+                getSelfTestName());
+        mSelfTestSubsystem.log(logger, logMessage);
     }
 }
