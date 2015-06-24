@@ -2688,56 +2688,56 @@ class Modutil:
     def __init__(self, deployer):
         self.mdict = deployer.mdict
 
-    def is_security_module_registered(self, path, modulename,
-                                      prefix=None, critical_failure=True):
-        status = False
-        try:
-            # Compose this "modutil" command
-            command = ["modutil"]
-            #   Provide a path to the NSS security databases
-            if path:
-                command.extend(["-dbdir", path])
-            else:
-                config.pki_log.error(
-                    log.PKIHELPER_MODUTIL_MISSING_PATH,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_MODUTIL_MISSING_PATH)
-            #   Add optional security database prefix
-            if prefix is not None:
-                command.extend(["--dbprefix", prefix])
-            #   Append '-nocertdb' switch
-            command.extend(["-nocertdb"])
-            #   Specify a 'modulename'
-            if modulename:
-                command.extend(["-list", modulename])
-            else:
-                config.pki_log.error(
-                    log.PKIHELPER_MODUTIL_MISSING_MODULENAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_MODUTIL_MISSING_MODULENAME)
-            # Display this "modutil" command
-            config.pki_log.info(
-                log.PKIHELPER_REGISTERED_SECURITY_MODULE_CHECK_1,
-                ' '.join(command),
+    def is_security_module_registered(self, path, modulename, prefix=None):
+
+        if not path:
+            config.pki_log.error(
+                log.PKIHELPER_MODUTIL_MISSING_PATH,
                 extra=config.PKI_INDENTATION_LEVEL_2)
-            # Execute this "modutil" command
-            subprocess.check_call(command)
-            # 'modulename' is already registered
-            status = True
-            config.pki_log.info(
-                log.PKIHELPER_REGISTERED_SECURITY_MODULE_1, modulename,
+            raise Exception(log.PKIHELPER_MODUTIL_MISSING_PATH)
+
+        if not modulename:
+            config.pki_log.error(
+                log.PKIHELPER_MODUTIL_MISSING_MODULENAME,
                 extra=config.PKI_INDENTATION_LEVEL_2)
-        except subprocess.CalledProcessError as exc:
-            # 'modulename' is not registered
+            raise Exception(log.PKIHELPER_MODUTIL_MISSING_MODULENAME)
+
+        command = [
+            'modutil',
+            '-list',
+            '-dbdir', path,
+            '-nocertdb']
+
+        if prefix:
+            command.extend(['--dbprefix', prefix])
+
+        config.pki_log.info(
+            log.PKIHELPER_REGISTERED_SECURITY_MODULE_CHECK_1,
+            ' '.join(command),
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
+        # execute command
+        p = subprocess.Popen(command, stdout=subprocess.PIPE)
+        output = p.communicate()[0]
+
+        p.wait()
+        # ignore return code due to issues with HSM
+        # https://fedorahosted.org/pki/ticket/1444
+
+        # find modules from lines such as '1. NSS Internal PKCS #11 Module'
+        modules = re.findall(r'^ +\d+\. +(.*)$', output, re.MULTILINE)
+
+        if modulename not in modules:
             config.pki_log.info(
                 log.PKIHELPER_UNREGISTERED_SECURITY_MODULE_1, modulename,
                 extra=config.PKI_INDENTATION_LEVEL_2)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure:
-                raise
-        return status
+            return False
+
+        config.pki_log.info(
+            log.PKIHELPER_REGISTERED_SECURITY_MODULE_1, modulename,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+        return True
+
 
     def register_security_module(self, path, modulename, libfile,
                                  prefix=None, critical_failure=True):
