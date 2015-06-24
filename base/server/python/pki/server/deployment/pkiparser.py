@@ -71,7 +71,7 @@ class PKIConfigParser:
             nargs=1, choices=config.PKI_SUBSYSTEMS,
             metavar='<subsystem>',
             help='where <subsystem> is '
-            'CA, KRA, OCSP, RA, TKS, or TPS')
+            'CA, KRA, OCSP, TKS, or TPS')
         self.optional.add_argument(
             '-h', '--help',
             dest='help', action='help',
@@ -1178,7 +1178,7 @@ class PKIConfigParser:
             elif (config.pki_subsystem != "CA" or\
                     config.str2bool(self.mdict['pki_clone']) or\
                     config.str2bool(self.mdict['pki_subordinate'])):
-                # PKI KRA, PKI OCSP, PKI RA, PKI TKS, PKI TPS,
+                # PKI KRA, PKI OCSP, PKI TKS, PKI TPS,
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone
                 # Subordinate CA
                 self.mdict['pki_security_domain_type'] = "existing"

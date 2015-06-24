@@ -21,7 +21,8 @@ pkispawn \- Sets up an instance of Certificate Server.
 pkispawn \-s <subsystem> \-f <config_file> [\-h] [\-v] [\-p <prefix>]
 
 .SH DESCRIPTION
-Sets up an instance of Certificate Server.  This utility creates any of the Java-based Certificate Server subsystems (CA, KRA, OCSP, and TKS). 
+Sets up a Certificate Server subsystem (CA, KRA, OCSP, TKS, or TPS) in a
+Tomcat instance.
 .TP
 \fBNote:\fP 
 A 389 Directory Server instance must be configured and running before this script can be run. Certificate Server requires an internal directory database. The default configuration assumes a Directory Server instance running on the same machine on port 389.  For more information on creating a Directory Server instance, see
@@ -35,7 +36,14 @@ respectively.
 .PP
 The instances are created based on values for configuration parameters in the default configuration (/etc/pki/default.cfg) and the user-provided configuration file.  The user-provided configuration file is read after the default configuration file, so any parameters defined in that file will override parameters in the default configuration file.  In general, most users will store only those parameters which are different from the default configuration in their user-provided configuration file.
 .PP
-This configuration file contains directives that are divided into sections for different subsystem types (such as [DEFAULT], [CA], and [KRA]).  These sections are stacked, so that parameters read in earlier sections can be overwritten by parameters in later sections.  For the Java subsystems (CA, KRA, OCSP and TKS), the sections read are [DEFAULT], [Tomcat] and the subsystem-type section ([CA], [KRA], [OCSP], or [TKS]), in that order.  This allows the ability to specify parameters to be shared by all subsystems in [DEFAULT] or [Tomcat], and system-specific upgrades in the [CA], [KRA], and other sections.
+This configuration file contains parameters that are grouped into sections.
+These sections are stacked, so that parameters defined in earlier sections can
+be overwritten by parameters defined in later sections. The sections are read
+in the following order: [DEFAULT], [Tomcat], and the subsystem section ([CA],
+[KRA], [OCSP], [TKS], or [TPS]). This allows the ability to specify parameters
+to be shared by all subsystems in [DEFAULT] or [Tomcat], and system-specific
+customization.
+
 .TP
 \fBNote:\fP
 Any non-password related parameter values in the configuration file that needs to contain a \fB%\fP character must be properly escaped.  For example, a value of \fBfoo%bar\fP would be specified as \fBfoo%%bar\fP in the configuration file.
@@ -68,7 +76,7 @@ Previously, as an alternative to using \fBpkisilent\fP to perform a non-interact
 .SH OPTIONS
 .TP
 .B -s <subsystem>
-Specifies the subsystem to be installed and configured, where <subsystem> is CA, KRA, OCSP, or TKS.
+Specifies the subsystem to be installed and configured, where <subsystem> is CA, KRA, OCSP, TKS, or TPS.
 .TP
 .B -f <config_file>
 Specifies the path to the user-defined configuration file.  This file contains differences between the default configuration and the custom configuration.
@@ -83,10 +91,16 @@ for details.
 
 .SH INTERACTIVE MODE
 .PP
-If no options are specified, pkispawn will provide an interactive menu to collect the parameters needed to install
-the Certificate Server instance.  Note that only the most basic installation options are provided.  This includes root CAs,
-KRAs, OCSPs and TKS, connecting to the LDAP port of a directory server.  More complicated setups such as: cloned subsystems, subordinate or externally signed CAs, subsystems that connect to the directory server using LDAPS, and subsystems that are customized beyond the options described below -  require the use of a configuration file with the
-\-f option.
+If no options are specified, pkispawn will provide an interactive menu to
+collect the parameters needed to install the Certificate Server instance.
+Note that only the most basic installation options are provided. This
+includes root CA, KRA, OCSP, TKS, and TPS connecting to an existing
+directory server. More advanced setups such as cloned subsystems,
+subordinate or externally signed CA, subsystems that connect to the
+directory server using LDAPS, and subsystems that are customized beyond
+the options described below require the use of a configuration file with
+the \-f option.
+
 .PP
 The interactive option is most useful for those users getting familiar with Certificate Server.  The parameters collected are
 written to the installation file of the subsystem, which can be found at \fB/etc/sysconfig/pki/tomcat/<instance name>/<subsystem>/deployment.cfg.\fP
@@ -95,7 +109,7 @@ The following parameters are queried interactively during the installation proce
 .PP
 \fBSubsystem Type\fP
 .TP
-\fISubsystem (CA/KRA/OCSP/TKS):\fP
+\fISubsystem (CA/KRA/OCSP/TKS/TPS):\fP
 the type of subsystem to be installed. Prompted when the \-s option is not specified.  The default value chosen is CA.
 .PP
 \fBInstance Specific Parameters\fP
@@ -103,7 +117,7 @@ the type of subsystem to be installed. Prompted when the \-s option is not speci
 \fIInstance name:\fP
 the name of the tomcat instance in which the subsystem is to be installed. The default value is pki-tomcat.
 .br
-\fBNote:\fP Only one subsystem of a given type (CA, KRA, OCSP, TKS) can exist within a given instance.
+\fBNote:\fP Only one subsystem of a given type (CA, KRA, OCSP, TKS, TPS) can exist within a given instance.
 .TP
 \fIHTTP port:\fP
 the HTTP port of the Tomcat instance. The default value is 8080.
@@ -122,7 +136,7 @@ the management port of the Tomcat instance. The default value is 8005.
 \fBAdministrative User Parameters\fP
 .TP
 \fIUsername:\fP
-the username of the administrator of this subsystem. The default value is <ca/kra/tks/ocsp>admin.
+the username of the administrator of this subsystem. The default value is <ca/kra/ocsp/tks/tps>admin.
 .TP
 \fIPassword:\fP
 password for the administrator user.
@@ -131,7 +145,7 @@ password for the administrator user.
 An optional parameter that can be used to import an already available CA admin certificate into this instance.
 .TP
 \fIExport certificate:\fP
-setup the path where the admin certificate of this <subsystem> should be stored. The default value is $HOME/.dogtag/pki-tomcat/<ca/kra/ocsp/tks>_admin.cert.
+setup the path where the admin certificate of this <subsystem> should be stored. The default value is $HOME/.dogtag/pki-tomcat/<ca/kra/ocsp/tks/tps>_admin.cert.
 .PP
 \fBDirectory Server Parameters\fP
 .TP
@@ -281,17 +295,18 @@ Additionally, for a CA subsystem, both the CA and OCSP Signing key algorithm, ke
 \fBNote:\fP
 For all PKI subsystems including the CA, ECC is not supported for the corresponding Audit Signing parameters.  Similarly, for KRA subsystems, ECC is not supported for either of the corresponding Storage or Transport parameters.
 
-.SS Installing a KRA, OCSP, or TKS in a shared instance
+.SS Installing a KRA, OCSP, TKS, or TPS in a shared instance
 .BR
 .PP
-To install a KRA, OCSP, or TKS in the same instance used by the CA execute
+To install a KRA, OCSP, TKS, or TPS in the same instance used by the CA execute
+
 the following command:
 
 .IP
 \x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
 
 .PP
-where subsystem is KRA, OCSP, or TKS and \fImyconfig.txt\fP contains the
+where subsystem is KRA, OCSP, TKS, or TPS, and \fImyconfig.txt\fP contains the
 following text:
 
 .IP
@@ -314,17 +329,49 @@ with a single administrator certificate. To access the new subsystem's
 functionality, simply point the browser to https://<hostname>:8443 and click
 the relevant top-level links.
 
-.SS Installing a KRA, OCSP, or TKS in a separate instance
+.PP
+To install TPS in a shared instance the following section must be added to
+\fImyconfig.txt\fP:
+
+.IP
+.nf
+[TPS]
+pki_authdb_basedn=\fIdc=example,dc=com\fP
+.fi
+
+.PP
+TPS requires an authentication database. The \fBpki_authdb_basedn\fP
+specifies the base DN of the authentication database.
+
+.PP
+TPS also requires that a CA and a TKS subsystems are already installed
+in the same instance. Since they are in the same instance, a shared
+secret key will automatically be generated in TKS and imported into TPS.
+
+.PP
+Optionally, server-side key generation can be enabled in TPS by adding the
+following parameter in [TPS]:
+
+.IP
+.nf
+pki_enable_server_side_keygen=\fITrue\fP
+.fi
+
+.PP
+Enabling server-side key generation requires that a KRA subsystem is already
+installed in the same instance.
+
+.SS Installing a KRA, OCSP, TKS, or TPS in a separate instance
 .BR
 .PP
-To install a KRA, OCSP, or TKS with a remote a CA execute the following
+To install a KRA, OCSP, TKS, or TPS with a remote a CA execute the following
 command:
 
 .IP
 \x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
 
 .PP
-where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP contains the
+where subsystem is KRA, OCSP, TKS, or TPS, and \fImyconfig.txt\fP contains the
 following text:
 
 .IP
@@ -340,7 +387,7 @@ pki_security_domain_https_port=<ca_https_port>
 pki_security_domain_user=caadmin
 pki_issuing_ca=https://<ca_hostname>:<ca_https_port>
 
-[KRA/OCSP/TKS]
+[KRA/OCSP/TKS/TPS]
 pki_import_admin_cert=False
 .fi
 
@@ -352,13 +399,65 @@ and the information about the security domain (the trusted collection of
 subsystems within an instance).
 
 .PP
-The subsystem section is [KRA], [OCSP], or [TKS].  This example assumes
+The subsystem section is [KRA], [OCSP], [TKS], or [TPS].  This example assumes
 that the specified CA hosts the security domain.  The CA must be running and
 accessible.
 
 .PP 
 A new administrator certificate is generated for the new subsystem and stored
 in a PKCS #12 file in \fI$HOME/.dogtag/pki-tomcat\fP.
+
+.PP
+As in a shared instance, to install TPS in a separate instance the
+authentication database must be specified in the [TPS] section, and optionally
+the server-side key generation can be enabled. If the CA, KRA, or TKS
+subsystems required by TPS are running on a remote instance the following
+parameters must be added into the [TPS] section to specify their locations:
+
+.IP
+.nf
+pki_ca_uri=\fIhttps://<ca_hostname>:<ca_https_port>\fP
+pki_kra_uri=\fIhttps://<kra_hostname>:<kra_https_port>\fP
+pki_tks_uri=\fIhttps://<tks_hostname>:<tks_https_port>\fP
+.fi
+
+.PP
+If TPS and TKS are installed on separate instances the shared secret key needs
+to be generated manually in TKS, then manually imported into TPS.
+
+Generate the shared secret key in TKS with the following command:
+
+.IP
+tkstool -T -d /var/lib/pki/pki-tomcat/alias -n sharedSecret
+
+.PP
+Verify the shared secret key in TKS with the following command:
+
+.IP
+tkstool -L -d /var/lib/pki/pki-tomcat/alias
+
+.PP
+Once TPS is installed, shutdown TPS instance, then import the shared secret
+key into TPS with the following command:
+
+.IP
+tkstool -I -d /var/lib/pki/pki-tomcat/alias -n sharedSecret
+
+.PP
+Verify the shared secret key in TPS with the following command:
+
+.IP
+tkstool -L -d /var/lib/pki/pki-tomcat/alias
+
+.PP
+The shared secret key nickname should be stored in the following property
+in the TPS's CS.cfg:
+
+.IP
+conn.tks1.tksSharedSymKeyName=sharedSecret
+
+.PP
+Finally, restart the TPS instance.
 
 .SS Installing a CA clone
 .BR
