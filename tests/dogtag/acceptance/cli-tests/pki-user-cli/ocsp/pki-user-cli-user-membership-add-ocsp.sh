@@ -708,12 +708,12 @@ Import CA certificate (Y/n)? \"" >> $expfile
 
 		#Trying to perform List CAs using $user3's cert should fail
                 local request_header_out="$TmpDir/request_header_out"
-                rlRun "export SSL_DIR=$TmpDir"
-                command="curl --cacert $CERTDB_DIR/ca_cert.pem --dump-header $request_header_out -E $user3:$TEMP_NSS_DB_PASSWORD -k \"https://$SUBSYSTEM_HOST:$(eval echo \$${subsystemId}_UNSECURE_PORT)/ocsp/agent/ocsp/listCAs\""
+		rlRun "export SSL_DIR=$TEMP_NSS_DB"
+                command="curl --cacert $CERTDB_DIR/ca_cert.pem --dump-header $request_header_out -E $user3:$TEMP_NSS_DB_PASSWORD -k \"https://$SUBSYSTEM_HOST:$(eval echo \$${subsystemId}_SECURE_PORT)/ocsp/agent/ocsp/listCAs\" > $TmpDir/pki-user-membership-add-groupadd-find-ocsp-usertest3-020_12.out"
+                errmsg="You are not authorized for this operation."
                 rlLog "Executing: $command"
-                errmsg="ForbiddenException: Authorization Error"
-                errorcode=255
-                rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Trying to perform List CAs using $user3's cert should fail"
+                rlRun "$command" 0 "Should not be able to list CAs using a non Agent user"
+                rlAssertGrep "$errmsg" "$TmpDir/pki-user-membership-add-groupadd-find-ocsp-usertest3-020_12.out"
 
 		#Add user $user3 to Certificate Manager Agents group
 		rlRun "pki -d $CERTDB_DIR \
@@ -740,8 +740,8 @@ Import CA certificate (Y/n)? \"" >> $expfile
                 rlAssertGrep "Group: $groupid1" "$TmpDir/pki-user-membership-add-groupadd-find-ocsp-usertest3-020_4.out"          
 
 		#Trying to perform List CAs using $user3's cert should succeed
-		rlLog "curl --cacert $CERTDB_DIR/ca_cert.pem --dump-header $request_header_out -E $user3:$TEMP_NSS_DB_PASSWORD -k \"https://$SUBSYSTEM_HOST:$(eval echo \$${subsystemId}_UNSECURE_PORT)/ocsp/agent/ocsp/listCAs\" > $TmpDir/list_ca.out" 
-		rlRun "curl --cacert $CERTDB_DIR/ca_cert.pem --dump-header $request_header_out -E $user3:$TEMP_NSS_DB_PASSWORD -k \"https://$SUBSYSTEM_HOST:$(eval echo \$${subsystemId}_UNSECURE_PORT)/ocsp/agent/ocsp/listCAs\" > $TmpDir/list_ca.out" 0 "List existing CAs"
+		rlLog "curl --cacert $CERTDB_DIR/ca_cert.pem --dump-header $request_header_out -E $user3:$TEMP_NSS_DB_PASSWORD -k \"https://$SUBSYSTEM_HOST:$(eval echo \$${subsystemId}_SECURE_PORT)/ocsp/agent/ocsp/listCAs\" > $TmpDir/list_ca.out"
+                rlRun "curl --cacert $CERTDB_DIR/ca_cert.pem --dump-header $request_header_out -E $user3:$TEMP_NSS_DB_PASSWORD -k \"https://$SUBSYSTEM_HOST:$(eval echo \$${subsystemId}_SECURE_PORT)/ocsp/agent/ocsp/listCAs\" > $TmpDir/list_ca.out" 0 "List existing CAs"
        		rlAssertGrep "HTTP/1.1 200 OK" "$request_header_out"
         	rlAssertGrep "record.Id=\"CN=PKI $CA_INST Signing Cert,O=redhat\"" "$TmpDir/list_ca.out"
 	rlPhaseEnd

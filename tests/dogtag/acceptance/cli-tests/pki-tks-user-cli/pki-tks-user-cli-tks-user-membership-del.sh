@@ -560,7 +560,7 @@ run_pki-tks-user-cli-tks-user-membership-del_tests(){
                            -c $CERTDB_DIR_PASSWORD \
  			   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            group-member-find  Administrators > $TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_4.out" \
+                            tks-group-member-find  Administrators > $TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_4.out" \
                             0 \
                             "List members of Administrators group"
                 rlAssertGrep "User: u12" "$TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_4.out"
@@ -569,7 +569,7 @@ run_pki-tks-user-cli-tks-user-membership-del_tests(){
                            -c $CERTDB_DIR_PASSWORD \
  			   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            group-member-find \"$groupid1\" > $TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_5.out" \
+                            tks-group-member-find \"$groupid1\" > $TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_5.out" \
                             0 \
                             "List members of $groupid1 group"
                 rlAssertGrep "User: u12" "$TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_5.out"
@@ -587,7 +587,7 @@ run_pki-tks-user-cli-tks-user-membership-del_tests(){
                            -c $CERTDB_DIR_PASSWORD \
  		    	   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            group-member-find $groupid4 > $TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_7.out" \
+                            tks-group-member-find $groupid4 > $TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_7.out" \
                             0 \
                             "List members of $groupid4 group"
                 rlAssertNotGrep "User: u12" "$TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_7.out"
@@ -596,7 +596,7 @@ run_pki-tks-user-cli-tks-user-membership-del_tests(){
                            -c $CERTDB_DIR_PASSWORD \
  			   -h $SUBSYSTEM_HOST \
  			   -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
-                            group-member-find \"$groupid1\" > $TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_8.out" \
+                            tks-group-member-find \"$groupid1\" > $TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_8.out" \
                             0 \
                             "List members of $groupid1 group"
                 rlAssertNotGrep "User: u12" "$TmpDir/pki-tks-user-del-tks-user-membership-find-tks-user-del-20_8.out"

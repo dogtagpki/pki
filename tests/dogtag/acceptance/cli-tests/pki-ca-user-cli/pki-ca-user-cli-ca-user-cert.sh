@@ -41,32 +41,34 @@
 # pki ca-user-cert ran without any options should show all the command line options of pki cert
 run_pki-ca-user-cert()
 {
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-ca_instance_created="False"
-if [ "$TOPO9" = "TRUE" ] ; then
-        prefix=$subsystemId
-	ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                prefix=$subsystemId
-		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
+	subsystemId=$1
+        SUBSYSTEM_TYPE=$2
+        MYROLE=$3
+        rlPhaseStartSetup "Create Temporary Directory "
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+        rlPhaseEnd
+
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+        prefix=$CA_INST
+        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
         else
-                prefix=ROOTCA
-		ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
         fi
-else
-        prefix=$MYROLE
-	ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
-fi
 if [ "$ca_instance_created" = "TRUE" ] ;  then
 SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
-
-	rlPhaseStartSetup "Create Temporary Directory "
-	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-	rlRun "pushd $TmpDir"
-	rlPhaseEnd
 
 	rlPhaseStartTest "pki_ca_user_cli_ca_user_cert-001: pki ca-user-cert help option"
 	local temp_out="$TmpDir/pki_user-cert"

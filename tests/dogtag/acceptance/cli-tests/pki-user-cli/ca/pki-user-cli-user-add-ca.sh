@@ -1157,7 +1157,7 @@ run_pki-user-cli-user-add-ca_tests(){
 	rlLog "user-add email address negyvenkettő@qetestsdomain.com with i18n characters"
 	command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-add --fullName=test  --email='negyvenkettő@qetestsdomain.com' u31"
         rlLog "Executing $command"
-        errmsg="IncorrectPasswordException: Incorrect client security database password."
+        errmsg="Unsupported e-mail address characters"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding email negyvenkettő@qetestsdomain.com with i18n characters"
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"
@@ -1167,7 +1167,7 @@ run_pki-user-cli-user-add-ca_tests(){
 	rlLog "user-add email address četrdesmitdivi@qetestsdomain.com with i18n characters"
         command="pki -d $CERTDB_DIR -n ${prefix}_adminV  -c $CERTDB_DIR_PASSWORD -h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) user-add --fullName=test --email='četrdesmitdivi@qetestsdomain.com' u32"
         rlLog "Executing $command"
-        errmsg="IncorrectPasswordException: Incorrect client security database password."
+        errmsg="Unsupported e-mail address characters"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding email četrdesmitdivi@qetestsdomain.com with i18n characters"
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"

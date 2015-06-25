@@ -49,21 +49,35 @@
 ########################################################################
 
 run_pki-kra-user-cli-user-cert-add_tests(){
+	subsystemId=$1
+        SUBSYSTEM_TYPE=$2
+        MYROLE=$3
+        caId=$4
+        CA_HOST=$5
+        ##### Create a temporary directory to save output files  and initializing host/port variables #####
+        rlPhaseStartSetup "pki_user_cli_user_cert-add-kra-startup: Create temporary directory and initializing host/port variables"
+                rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+                rlRun "pushd $TmpDir"
+        rlPhaseEnd
+        # Local Variables
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local KRA_INST=$(cat $TmpDir/topo_file | grep MY_KRA | cut -d= -f2)
+        kra_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$KRA_INST
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                prefix=KRA3
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        else
+                prefix=$MYROLE
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        fi
 
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-caId=$4
-CA_HOST=$5
-
+if [ "$kra_instance_created" = "TRUE" ] ;  then
 KRA_HOST=$(eval echo \$${MYROLE})
 KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
-	##### Create a temporary directory to save output files  and initializing host/port variables #####
-   rlPhaseStartSetup "pki_user_cli_user_cert-add-kra-startup: Create temporary directory and initializing host/port variables"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
 
 local cert_info="$TmpDir/cert_info"
 user1=testuser1
@@ -2276,5 +2290,8 @@ rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
+else
+        rlLog "KRA instance not installed"
+fi
 }
 

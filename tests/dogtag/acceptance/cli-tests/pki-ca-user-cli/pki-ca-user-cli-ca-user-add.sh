@@ -47,33 +47,33 @@ run_pki-ca-user-cli-ca-user-add_tests(){
 	subsystemId=$1
 	SUBSYSTEM_TYPE=$2
 	MYROLE=$3
-	prefix=$subsystemId
-	ca_instance_created="False"
-	if [ "$TOPO9" = "TRUE" ] ; then
-	        prefix=$subsystemId
-		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-	elif [ "$MYROLE" = "MASTER" ] ; then
-        	if [[ $subsystemId == SUBCA* ]]; then
-	                prefix=$subsystemId
-			ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-	        else
-                	prefix=ROOTCA
-			ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
-        	fi
-	else
-	        prefix=$MYROLE
-		ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
-	fi
+	rlPhaseStartSetup "pki_ca_user_cli_ca_user_add-startup: Create temporary directory"
+                rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+                rlRun "pushd $TmpDir"
+        rlPhaseEnd
 
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$CA_INST
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
+        else
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        fi
   if [ "$ca_instance_created" = "TRUE" ] ;  then
 	SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	untrusted_cert_nickname=role_user_UTCA
 
-     rlPhaseStartSetup "pki_ca_user_cli_ca_user_add-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-     rlPhaseEnd
- 
      rlPhaseStartTest "pki_ca_user_cli-configtest: pki ca-user --help configuration test"
         rlRun "pki ca-user --help > $TmpDir/pki_ca_user_cfg.out 2>&1" \
                0 \
@@ -1133,7 +1133,7 @@ run_pki-ca-user-cli-ca-user-add_tests(){
 	rlLog "ca-user-add email address negyvenkettő@qetestsdomain.com with i18n characters"
         command="pki -d $CERTDB_DIR -n ${prefix}_adminV -c $CERTDB_DIR_PASSWORD--h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-user-add --fullName=test  --email='negyvenkettő@qetestsdomain.com' u31"
         rlLog "Executing $command"
-        errmsg="IncorrectPasswordException: Incorrect client security database password."
+        errmsg="Unsupported e-mail address characters"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding email negyvenkettő@qetestsdomain.com with i18n characters"
         rlLog "PKI Ticket::  https://fedorahosted.org/pki/ticket/860"
@@ -1143,7 +1143,7 @@ run_pki-ca-user-cli-ca-user-add_tests(){
 	rlLog "ca-user-add email address četrdesmitdivi@qetestsdomain.com with i18n characters"
         command="pki -d $CERTDB_DIR -n ${prefix}_adminV  -c $CERTDB_DIR_PASSWORD-h $SUBSYSTEM_HOST -p $(eval echo \$${subsystemId}_UNSECURE_PORT) ca-user-add --fullName=test --email='četrdesmitdivi@qetestsdomain.com' u32"
         rlLog "Executing $command"
-        errmsg="IncorrectPasswordException: Incorrect client security database password."
+        errmsg="Unsupported e-mail address characters"
         errorcode=255
         rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Adding email četrdesmitdivi@qetestsdomain.com with i18n characters"
     rlPhaseEnd

@@ -48,20 +48,32 @@
 
 ########################################################################
 run_pki-kra-user-cli-kra-user-mod_tests(){
-
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-caId=$4
-
+	subsystemId=$1
+        SUBSYSTEM_TYPE=$2
+        MYROLE=$3
+        caId=$4
+        #####Create temporary dir to save the output files #####
+        rlPhaseStartSetup "pki_kra_user_cli_kra_user_mod-startup: Create temporary directory"
+                rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+                rlRun "pushd $TmpDir"
+        rlPhaseEnd
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local KRA_INST=$(cat $TmpDir/topo_file | grep MY_KRA | cut -d= -f2)
+        kra_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$KRA_INST
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                prefix=KRA3
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        else
+                prefix=$MYROLE
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        fi
+if [ "$kra_instance_created" = "TRUE" ] ;  then
 KRA_HOST=$(eval echo \$${MYROLE})
 KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
-    #####Create temporary dir to save the output files #####
-    rlPhaseStartSetup "pki_kra_user_cli_kra_user_mod-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
 
 user1=kra_user
 user1fullname="Test kra user"
@@ -568,7 +580,8 @@ rlPhaseStartTest "pki_kra_user_cli_kra_user_mod-017:--phone with maximum length 
                    -h $KRA_HOST \
                    -p $KRA_PORT \
                     kra-user-add --fullName=test usr1"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-mod --phone='$randsym' usr1"
+	special_symbols="#$@*"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $KRA_HOST -p $KRA_PORT kra-user-mod --phone='$randsym$special_symbols' usr1"
 	errmsg="PKIException: LDAP error (21): error result"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user using an admin user with maximum length --phone with character symbols in it"
@@ -1076,6 +1089,8 @@ $i18nuser
 	#Delete temporary directory
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
-
     rlPhaseEnd
+else
+        rlLog "KRA instance not created"
+fi
 }

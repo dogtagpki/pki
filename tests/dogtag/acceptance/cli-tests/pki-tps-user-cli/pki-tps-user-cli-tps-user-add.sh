@@ -1398,6 +1398,19 @@ Import CA certificate (Y/n)? \"" >> $expfile
 
         #===Deleting users created using ${prefix}_adminV cert===#
         i=1
+	while [ $i -lt 22 ] ; do
+               rlRun "pki -d $CERTDB_DIR \
+                          -n ${prefix}_adminV \
+                          -c $CERTDB_DIR_PASSWORD \
+                          -h $SUBSYSTEM_HOST \
+                          -p $(eval echo \$${subsystemId}_UNSECURE_PORT) \
+                           tps-user-del  u$i > $TmpDir/pki-tps-user-del-tps-user-00$i.out" \
+                           0 \
+                           "Deleted user  u$i"
+                rlAssertGrep "Deleted user \"u$i\"" "$TmpDir/pki-tps-user-del-tps-user-00$i.out"
+                let i=$i+1
+        done
+        i=23
         while [ $i -lt 37 ] ; do
                rlRun "pki -d $CERTDB_DIR \
                           -n ${prefix}_adminV \

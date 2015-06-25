@@ -49,22 +49,34 @@
 ########################################################################
 
 run_pki-kra-user-cli-kra-user-cert-find_tests(){
+	subsystemId=$1
+        SUBSYSTEM_TYPE=$2
+        MYROLE=$3
+        caId=$4
+        CA_HOST=$5
+        #####Create temporary dir to save the output files#####
+        rlPhaseStartSetup "pki_kra_user_cli_kra_user_cert-find-startup: Create temporary directory"
+                rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+                rlRun "pushd $TmpDir"
+        rlPhaseEnd
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local KRA_INST=$(cat $TmpDir/topo_file | grep MY_KRA | cut -d= -f2)
+        kra_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$KRA_INST
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                prefix=KRA3
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        else
+                prefix=$MYROLE
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        fi
 
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-caId=$4
-CA_HOST=$5
-
+if [ "$kra_instance_created" = "TRUE" ] ;  then
 KRA_HOST=$(eval echo \$${MYROLE})
 KRA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
 CA_PORT=$(eval echo \$${caId}_UNSECURE_PORT)
-	#####Create temporary dir to save the output files#####
-    rlPhaseStartSetup "pki_kra_user_cli_kra_user_cert-find-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
-
 user1=testuser1
 user2=testuser2
 user1fullname="Test user1"
@@ -1062,4 +1074,7 @@ rlPhaseStartTest "pki_kra_user_cli_user_cleanup: Deleting role users"
         rlRun "popd"
         rlRun "rm -r $TmpDir" 0 "Removing tmp directory"
     rlPhaseEnd
+else
+        rlLog "KRA instance not installed"
+fi
 }

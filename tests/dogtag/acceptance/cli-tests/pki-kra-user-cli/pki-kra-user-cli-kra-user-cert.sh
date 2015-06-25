@@ -41,36 +41,29 @@
 # pki kra-user-cert ran without any options should show all the command line options of pki cert
 run_pki-kra-user-cert()
 {
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-
-if [ "$TOPO9" = "TRUE" ] ; then
-        ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-        prefix=$subsystemId
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                ADMIN_CERT_LOCATION=$(eval echo \$${subsystemId}_ADMIN_CERT_LOCATION)
-                prefix=$subsystemId
-                CLIENT_PKCS12_PASSWORD=$(eval echo \$${subsystemId}_CLIENT_PKCS12_PASSWORD)
-        else
-                ADMIN_CERT_LOCATION=$ROOTCA_ADMIN_CERT_LOCATION
-                prefix=ROOTCA
-                CLIENT_PKCS12_PASSWORD=$ROOTCA_CLIENT_PKCS12_PASSWORD
-        fi
-else
-        ADMIN_CERT_LOCATION=$(eval echo \$${MYROLE}_ADMIN_CERT_LOCATION)
-        prefix=$MYROLE
-        CLIENT_PKCS12_PASSWORD=$(eval echo \$${MYROLE}_CLIENT_PKCS12_PASSWORD)
-fi
-
-SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
-
+	subsystemId=$1
+	SUBSYSTEM_TYPE=$2
+	MYROLE=$3
 	rlPhaseStartSetup "Create Temporary Directory "
-	rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-	rlRun "pushd $TmpDir"
-	rlPhaseEnd
+        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+        rlRun "pushd $TmpDir"
+        rlPhaseEnd
+
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local KRA_INST=$(cat $TmpDir/topo_file | grep MY_KRA | cut -d= -f2)
+        kra_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+                prefix=$KRA_INST
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                prefix=KRA3
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        else
+                prefix=$MYROLE
+                kra_instance_created=$(eval echo \$${KRA_INST}_INSTANCE_CREATED_STATUS)
+        fi
+if [ "$kra_instance_created" = "TRUE" ] ;  then
+SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 
 	rlPhaseStartTest "pki_kra_user_cli_kra_user_cert-001: pki kra-user-cert help option"
 	local temp_out="$TmpDir/pki_user-cert"
@@ -94,4 +87,7 @@ SUBSYSTEM_HOST=$(eval echo \$${MYROLE})
 	rlPhaseStartCleanup "pki user-cert cleanup: Delete temp dir"
 	rlRun "popd"
 	rlPhaseEnd
+else
+        rlLog "KRA instance not created"
+fi
 }

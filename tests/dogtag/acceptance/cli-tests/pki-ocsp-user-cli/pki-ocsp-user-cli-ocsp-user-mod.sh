@@ -1031,7 +1031,7 @@ rlPhaseStartCleanup "pki_ocsp_user_cli_user_ocsp_cleanup: Deleting role users"
                 let i=$i+1
         done
 
-	i=1
+	i=2
         while [ $i -lt 5 ] ; do
                rlRun "pki -d $CERTDB_DIR \
                           -n $(eval echo \$${subsystemId}_adminV_user) \

@@ -602,9 +602,16 @@ rlPhaseStartTest "pki_user_cli_user_mod_ocsp-015:--state as number 0 "
 	#### Modify a user's phone with maximum length and symbols ####
 	
 rlPhaseStartTest "pki_user_cli_user_mod_ocsp-017:--phone with maximum length and symbols "
+	rlRun "pki -d $CERTDB_DIR \
+                   -n $(eval echo \$${subsystemId}_adminV_user) \
+                   -c $CERTDB_DIR_PASSWORD \
+                   -h $OCSP_HOST \
+                   -p $OCSP_PORT \
+                   -t ocsp \
+                    user-add --fullName=\"user 1\" usr1"
 	randsym_b64=$(openssl rand -base64 90000 |  perl -p -e 's/\n//')
         randsym=$(echo $randsym_b64 | tr -d /)
-	special_symbols="#$@*"
+	special_symbols="##@@$@*"
 	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $OCSP_HOST -p $OCSP_PORT -t ocsp user-mod --phone='$randsym$special_symbols' usr1"
 	errmsg="PKIException: LDAP error (21): error result"
 	errorcode=255

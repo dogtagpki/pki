@@ -48,36 +48,36 @@
 
 ########################################################################
 run_pki-ca-user-cli-ca-user-mod_tests(){
+	subsystemId=$1
+        SUBSYSTEM_TYPE=$2
+        MYROLE=$3
 
-subsystemId=$1
-SUBSYSTEM_TYPE=$2
-MYROLE=$3
-ca_instance_created="False"
-
-if [ "$TOPO9" = "TRUE" ] ; then
-        prefix=$subsystemId
-	ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
-elif [ "$MYROLE" = "MASTER" ] ; then
-        if [[ $subsystemId == SUBCA* ]]; then
-                prefix=$subsystemId
-		ca_instance_created=$(eval echo \$${subsystemId}_INSTANCE_CREATED_STATUS)
+        #####Create temporary dir to save the output files #####
+        rlPhaseStartSetup "pki_ca_user_cli_ca_user_mod-startup: Create temporary directory"
+                rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
+                rlRun "pushd $TmpDir"
+        rlPhaseEnd
+        get_topo_stack $MYROLE $TmpDir/topo_file
+        local CA_INST=$(cat $TmpDir/topo_file | grep MY_CA | cut -d= -f2)
+        ca_instance_created="False"
+        if [ "$TOPO9" = "TRUE" ] ; then
+        prefix=$CA_INST
+        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+        elif [ "$MYROLE" = "MASTER" ] ; then
+                if [[ $CA_INST == SUBCA* ]]; then
+                        prefix=$CA_INST
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                else
+                        prefix=ROOTCA
+                        ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
+                fi
         else
-                prefix=ROOTCA
-		ca_instance_created=$ROOTCA_INSTANCE_CREATED_STATUS
+                prefix=$MYROLE
+                ca_instance_created=$(eval echo \$${CA_INST}_INSTANCE_CREATED_STATUS)
         fi
-else
-        prefix=$MYROLE
-	ca_instance_created=$(eval echo \$${MYROLE}_INSTANCE_CREATED_STATUS)
-fi
   if [ "$ca_instance_created" = "TRUE" ] ;  then
 	CA_HOST=$(eval echo \$${MYROLE})
 	CA_PORT=$(eval echo \$${subsystemId}_UNSECURE_PORT)
-
-    #####Create temporary dir to save the output files #####
-    rlPhaseStartSetup "pki_ca_user_cli_ca_user_mod-startup: Create temporary directory"
-        rlRun "TmpDir=\`mktemp -d\`" 0 "Creating tmp directory"
-        rlRun "pushd $TmpDir"
-    rlPhaseEnd
 
 user1=ca_agent2
 user1fullname="Test ca agent"
@@ -580,7 +580,8 @@ rlPhaseStartTest "pki_ca_user_cli_ca_user_mod-017:--phone with maximum length an
                    -h $CA_HOST \
                    -p $CA_PORT \
                     ca-user-add --fullName=test usr1"
-	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-user-mod --phone='$randsym' usr1"
+	special_symbols="*$#"
+	command="pki -d $CERTDB_DIR -n $(eval echo \$${subsystemId}_adminV_user) -c $CERTDB_DIR_PASSWORD -h $CA_HOST -p $CA_PORT ca-user-mod --phone='$randsym$special_symbols' usr1"
 	errmsg="PKIException: LDAP error (21): error result"
 	errorcode=255
 	rlRun "verifyErrorMsg \"$command\" \"$errmsg\" \"$errorcode\"" 0 "Verify expected error message - Cannot modify user using CA_adminV with maximum length --phone with character symbols in it"
