@@ -354,6 +354,8 @@ public class TPSProcessor {
 
         CMS.debug("In TPSProcessor.getAppletVersion");
 
+        selectCoolKeyApplet();
+
         GetVersionAPDU get_version_apdu = new GetVersionAPDU();
 
         APDUResponse respApdu = handleAPDURequest(get_version_apdu);

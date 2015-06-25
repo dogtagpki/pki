@@ -21,32 +21,18 @@
 This directory contains a list of CoolKey applets
 that can be used by the TPS for applet upgrade.
 
-
-Applet Information:
 ------------------
 
-File Name     Creation Date    Applet Ver Major Ver Minor Ver Remark
-============  ================ ========== ========= ========= ==========
-427BDDB8.ijc  2005/05/06  14:12 427BDDB8   1         3         Official Applet
+Beta applet:
 
-Token Information:
------------------
+RSA / Key Recovery, GP211/SCP02:
 
-Type                      CUID (Token ID)     ATR       Remark
-======================== ==================== =======  ==================
-Old "E" and ealier cards 40900062ff00ssssssss 
-(Acquired From WebSite)
-"F" cards                40900062ff00ssssssss
-(Acquired From WebSite)
-"G" & later (Oct/Nov)    409000620103ssssssss 
-(Acquired From WebSite)
-Fortezza cards           409000620103ssssssss     
-(Acquired From WebSite)
-Developement Keyed cards 409000620101ssssssss 3B76940000FF6276010000
+1.5.558cdcff.ijc
 
-where ssssssss is the serial number. 
+Additional applets:
 
 
-Remark
-======
-1.3.45787308.ijc - this is the unofficial jForte applet with hacks
+330J/RSA / Key Recovery:
+
+1.4.54de790f.ijc
+
