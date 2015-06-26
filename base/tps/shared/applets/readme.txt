@@ -32,7 +32,7 @@ RSA / Key Recovery, GP211/SCP02:
 Additional applets:
 
 
-330J/RSA / Key Recovery:
+330J/RSA / Key Recovery, GP201, also works with SCP02:
 
 1.4.54de790f.ijc
 

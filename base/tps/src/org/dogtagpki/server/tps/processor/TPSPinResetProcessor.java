@@ -25,6 +25,7 @@ import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.mapping.BaseMappingResolver;
 import org.dogtagpki.server.tps.mapping.FilterMappingParams;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOpMsg;
@@ -82,31 +83,50 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         tokenRecord = isTokenRecordPresent(appletInfo);
 
-        if(tokenRecord == null) {
+        if (tokenRecord == null) {
             //We can't reset the pin of a token that does not exist.
 
             CMS.debug(method + ": Token does not exist!");
-            throw new TPSException(method + " Can't reset pin of token that does not exist ",TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+            throw new TPSException(method + " Can't reset pin of token that does not exist ",
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
         TokenStatus status = tokenRecord.getTokenStatus();
 
         CMS.debug(method + ": Token status: " + status);
 
-        if(!status.equals(TokenStatus.ACTIVE)) {
-            throw new TPSException(method + " Attempt to reset pin of token not currently active!",TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+        if (!status.equals(TokenStatus.ACTIVE)) {
+            throw new TPSException(method + " Attempt to reset pin of token not currently active!",
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
 
         }
 
         session.setTokenRecord(tokenRecord);
 
-        String resolverInstName = getResolverInstanceName();
-
         String tokenType = null;
 
-        FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName, appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
-                appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-        CMS.debug(method + ": resolved tokenType: " + tokenType);
+        try {
+            String resolverInstName = getResolverInstanceName();
+
+            if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
+                FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                        appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                        appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                TPSSubsystem subsystem =
+                        (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                BaseMappingResolver resolverInst =
+                        subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                tokenType = resolverInst.getResolvedMapping(mappingParams);
+                setSelectedTokenType(tokenType);
+                CMS.debug(method + " resolved tokenType: " + tokenType);
+            }
+        } catch (TPSException e) {
+            auditMsg = e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), auditMsg,
+                    "failure");
+
+            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
 
         statusUpdate(15, "PROGRESS_PIN_RESET_RESOLVE_PROFILE");
 
@@ -117,10 +137,9 @@ public class TPSPinResetProcessor extends TPSProcessor {
         checkAndUpgradeApplet(appletInfo);
         appletInfo = getAppletInfo();
 
-
         //Check and upgrade keys if called for
 
-        SecureChannel channel = checkAndUpgradeSymKeys(appletInfo,tokenRecord);
+        SecureChannel channel = checkAndUpgradeSymKeys(appletInfo, tokenRecord);
         channel.externalAuthenticate();
 
         checkAndHandlePinReset(channel);
@@ -128,7 +147,6 @@ public class TPSPinResetProcessor extends TPSProcessor {
         statusUpdate(100, "PROGRESS_PIN_RESET_COMPLETE");
 
         CMS.debug(method + ": Token Pin successfully reset!");
-
 
     }
 
