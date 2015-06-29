@@ -799,7 +799,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void getCloningData(ConfigurationRequest data, Collection<String> certList, String token, String domainXML) {
+    private void configureClone(ConfigurationRequest data, Collection<String> certList, String token, String domainXML) throws Exception {
         for (String tag : certList) {
             if (tag.equals("sslserver")) {
                 cs.putBoolean("preop.cert." + tag + ".enable", true);
@@ -809,73 +809,45 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         String cloneUri = data.getCloneUri();
-        URL url = null;
-        try {
-            url = new URL(cloneUri);
-        } catch (MalformedURLException e) {
-            // should not reach here as this check is done in validate()
-        }
+        URL url = new URL(cloneUri);
         String masterHost = url.getHost();
         int masterPort = url.getPort();
 
-        // check and store cloneURI information
-        boolean validCloneUri;
-        try {
-            validCloneUri = ConfigurationUtils.isValidCloneURI(domainXML, masterHost, masterPort);
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Error in determining whether clone URI is valid");
-        }
+        CMS.debug("SystemConfigService: validate clone URI: " + url);
+        boolean validCloneUri = ConfigurationUtils.isValidCloneURI(domainXML, masterHost, masterPort);
 
         if (!validCloneUri) {
             throw new BadRequestException(
-                    "Invalid clone URI provided.  Does not match the available subsystems in the security domain");
+                    "Clone URI does not match available subsystems: " + url);
         }
 
         if (csType.equals("CA")) {
-            try {
-                int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
-                        masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
-                ConfigurationUtils.importCertChain(masterHost, masterAdminPort, "/ca/admin/ca/getCertChain",
-                        "clone");
-            } catch (Exception e) {
-                CMS.debug(e);
-                throw new PKIException("Failed to import certificate chain from master" + e);
-            }
+            CMS.debug("SystemConfigService: import certificate chain from master");
+            int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
+                    masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
+            ConfigurationUtils.importCertChain(masterHost, masterAdminPort,
+                    "/ca/admin/ca/getCertChain", "clone");
         }
 
-        try {
-            CMS.debug("SystemConfigService.getCloningData(): get config entries");
-            ConfigurationUtils.getConfigEntriesFromMaster();
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Failed to obtain configuration entries from the master for cloning " + e);
-        }
+        CMS.debug("SystemConfigService: get configuration entries from master");
+        ConfigurationUtils.getConfigEntriesFromMaster();
 
         if (token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
-            CMS.debug("SystemConfigService.getCloningData(): restore certs from P12 file");
+            CMS.debug("SystemConfigService: restore certificates from P12 file");
             String p12File = data.getP12File();
             String p12Pass = data.getP12Password();
-            try {
-                ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
-            } catch (Exception e) {
-                CMS.debug(e);
-                throw new PKIException("Failed to restore certificates from p12 file" + e);
-            }
+            ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
+
         } else {
-            CMS.debug("SystemConfigService.getCloningData(): set permissions for certs stored in hardware");
-            try {
-                ConfigurationUtils.importAndSetCertPermissionsFromHSM();
-            } catch (Exception e) {
-                CMS.debug(e);
-                throw new PKIException("Failed to import certs from HSM and set permissions:" + e);
-            }
+            CMS.debug("SystemConfigService: import certificates from HSM and set permission");
+            ConfigurationUtils.importAndSetCertPermissionsFromHSM();
         }
 
-        CMS.debug("SystemConfigService.getCloningData(): verify certs");
+        CMS.debug("SystemConfigService: verify certificates");
         boolean cloneReady = ConfigurationUtils.isCertdbCloned();
+
         if (!cloneReady) {
-            CMS.debug("clone does not have all the certificates.");
+            CMS.debug("SystemConfigService: clone does not have all the certificates.");
             throw new PKIException("Clone does not have all the required certificates");
         }
     }
@@ -992,7 +964,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void configureSubsystem(ConfigurationRequest request,
-            Collection<String> certList, String token, String domainXML) {
+            Collection<String> certList, String token, String domainXML) throws Exception {
 
         cs.putString("preop.subsystem.name", request.getSubsystemName());
 
@@ -1004,7 +976,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } else {
             cs.putString("preop.subsystem.select", "clone");
             cs.putString("subsystem.select", "Clone");
-            getCloningData(request, certList, token, domainXML);
+            configureClone(request, certList, token, domainXML);
         }
     }
 

@@ -44,7 +44,7 @@ public class TPSInstallerService extends SystemConfigService  {
 
     @Override
     public void configureSubsystem(ConfigurationRequest request,
-            Collection<String> certList, String token, String domainXML) {
+            Collection<String> certList, String token, String domainXML) throws Exception {
 
         super.configureSubsystem(request, certList, token, domainXML);
 
