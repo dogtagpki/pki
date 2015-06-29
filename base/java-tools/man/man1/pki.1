@@ -220,6 +220,31 @@ Client-side password files generally store a password in an equals-sign-delimite
 .B foobar
    where:  token="internal" (default), password="foobar"
 
+.SS Results Paging
+
+Some commands (e.g. cert-find) may return multiple results. Since the number
+of results may be large, the results are split into multiple pages. By default
+the command will return only the first page (e.g. the first 20 results). To
+retrieve results from another page, additional paging parameters can be
+specified:
+
+.nf
+* start: index of the first result to return (default: 0)
+* size: number of results to return (default: 20)
+.fi
+
+For example, to retrieve the first page (index #0-#19):
+
+.B pki cert-find --start 0 --size 20
+
+To retrieve the second page (index #20-#39):
+
+.B pki cert-find --start 20 --size 20
+
+To retrieve the third page (index #40-#59):
+
+.B pki cert-find --start 40 --size 20
+
 .SH FILES
 .I /usr/bin/pki
 
