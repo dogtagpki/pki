@@ -105,6 +105,73 @@ It is also possible to search for and list specific certificates by adding a sea
 
 .B pki ca-cert-find --issuedOnFrom 2012-06-15
 
+To list certificates with search constraints defined in a file:
+
+.B pki ca-cert-find --input <filename>
+
+where the file is in the following format:
+
+.IP
+.nf
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CertSearchRequest>
+
+    <serialNumberRangeInUse>true</serialNumberRangeInUse>
+    <serialFrom></serialFrom>
+    <serialTo></serialTo>
+
+    <subjectInUse>false</subjectInUse>
+    <eMail></eMail>
+    <commonName></commonName>
+    <userID></userID>
+    <orgUnit></orgUnit>
+    <org></org>
+    <locality></locality>
+    <state></state>
+    <country></country>
+
+    <matchExactly>false</matchExactly>
+
+    <status></status>
+
+    <revokedByInUse>false</revokedByInUse>
+    <revokedBy></revokedBy>
+
+    <revokedOnFrom>false</revokedOnFrom>
+    <revokedOnTo></revokedOnTo>
+
+    <revocationReasonInUse>false</revocationReasonInUse>
+    <revocationReason></revocationReason>
+
+    <issuedByInUse>false</issuedByInUse>
+    <issuedBy></issuedBy>
+
+    <issuedOnInUse>false</issuedOnInUse>
+    <issuedOnFrom></issuedOnFrom>
+    <issuedOnTo></issuedOnTo>
+
+    <validNotBeforeInUse>false</validNotBeforeInUse>
+    <validNotBeforeFrom></validNotBeforeFrom>
+    <validNotBeforeTo></validNotBeforeTo>
+
+    <validNotAfterInUse>false</validNotAfterInUse>
+    <validNotAfterFrom></validNotAfterFrom>
+    <validNotAfterTo></validNotAfterTo>
+
+    <validityLengthInUse>false</validityLengthInUse>
+    <validityOperation></validityOperation>
+    <validityCount></validityCount>
+    <validityUnit></validityUnit>
+
+    <certTypeInUse>false</certTypeInUse>
+    <certTypeSubEmailCA></certTypeSubEmailCA>
+    <certTypeSubSSLCA></certTypeSubSSLCA>
+    <certTypeSecureEmail></certTypeSecureEmail>
+
+</CertSearchRequest>
+.fi
+
+.PP
 To view a particular certificate:
 
 .B pki ca-cert-show <certificate ID>
