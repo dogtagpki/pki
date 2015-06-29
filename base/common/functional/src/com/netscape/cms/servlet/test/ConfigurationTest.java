@@ -76,7 +76,7 @@ public class ConfigurationTest {
         System.exit(1);
     }
 
-    public static void main(String args[]) throws NoSuchAlgorithmException, TokenException, IOException, InvalidBERException {
+    public static void main(String args[]) throws Exception {
         String host = null;
         String port = null;
         String cstype = null;

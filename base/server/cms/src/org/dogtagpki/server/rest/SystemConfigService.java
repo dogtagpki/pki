@@ -111,28 +111,38 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
      * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(com.netscape.cms.servlet.csadmin.data.ConfigurationData)
      */
     @Override
-    public ConfigurationResponse configure(ConfigurationRequest request) {
+    public ConfigurationResponse configure(ConfigurationRequest request) throws Exception {
+
+        CMS.debug("SystemConfigService: configure()");
+
         try {
             ConfigurationResponse response = new ConfigurationResponse();
             configure(request, response);
             return response;
 
-        } catch (Throwable t) {
-            CMS.debug(t);
-            throw t;
+        } catch (PKIException e) { // normal responses
+            CMS.debug(e.getMessage()); // log the response
+            throw e;
+
+        } catch (Exception e) { // unexpected exceptions
+            CMS.debug(e); // show stack trace for troubleshooting
+            throw e;
+
+        } catch (Error e) { // system errors
+            CMS.debug(e); // show stack trace for troubleshooting
+            throw e;
         }
     }
 
-    public void configure(ConfigurationRequest data, ConfigurationResponse response) {
+    public void configure(ConfigurationRequest data, ConfigurationResponse response) throws Exception {
+
 
         if (csState.equals("1")) {
             throw new BadRequestException("System is already configured");
         }
 
-        CMS.debug("SystemConfigService(): configure() called");
-        CMS.debug(data.toString());
-
-        validateData(data);
+        CMS.debug("SystemConfigService: request: " + data);
+        validateRequest(data);
 
         Collection<String> certList = getCertList(data);
 
@@ -1020,22 +1030,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void validateData(ConfigurationRequest data) {
-        // get required info from CS.cfg
-        String preopPin;
-        try {
-            preopPin = cs.getString("preop.pin");
-        } catch (Exception e) {
-            CMS.debug("validateData: Failed to get required config form CS.cfg");
-            e.printStackTrace();
-            throw new PKIException("Unable to retrieve required configuration from configuration files");
-        }
+    private void validateRequest(ConfigurationRequest data) throws Exception {
 
-        // get the preop pin and validate it
+        // validate installation pin
         String pin = data.getPin();
         if (pin == null) {
             throw new BadRequestException("No preop pin provided");
         }
+
+        String preopPin = cs.getString("preop.pin");
         if (!preopPin.equals(pin)) {
             throw new BadRequestException("Incorrect pin provided");
         }
@@ -1067,6 +1070,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (data.getSecurityDomainName() == null) {
                 throw new BadRequestException("Security Domain Name is not provided");
             }
+
         } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN) ||
                    domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
             if (data.getStandAlone()) {
@@ -1079,11 +1083,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             try {
-                @SuppressWarnings("unused")
-                URL admin_u = new URL(domainURI);  // check for invalid URL
+                new URL(domainURI);
             } catch (MalformedURLException e) {
-                throw new BadRequestException("Invalid security domain URI");
+                throw new BadRequestException("Invalid security domain URI: " + domainURI, e);
             }
+
             if ((data.getSecurityDomainUser() == null) || (data.getSecurityDomainPassword() == null)) {
                 throw new BadRequestException("Security domain user or password not provided");
             }
@@ -1109,11 +1113,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Clone selected, but no clone URI provided");
             }
             try {
-                @SuppressWarnings("unused")
-                URL url = new URL(cloneUri); // check for invalid URL
+                URL url = new URL(cloneUri);
                 // confirm protocol is https
+                if (!"https".equals(url.getProtocol())) {
+                    throw new BadRequestException("Clone URI must use HTTPS protocol: " + cloneUri);
+                }
             } catch (MalformedURLException e) {
-                throw new BadRequestException("Invalid clone URI");
+                throw new BadRequestException("Invalid clone URI: " + cloneUri, e);
             }
 
             if (data.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT)) {
@@ -1133,6 +1139,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     throw new BadRequestException("P12 password should not be provided since HSM clones must share their HSM master's private keys");
                 }
             }
+
         } else {
             data.setClone("false");
         }
@@ -1145,7 +1152,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             Integer.parseInt(data.getDsPort());  // check for errors
         } catch (NumberFormatException e) {
-            throw new BadRequestException("Internal database port is invalid");
+            throw new BadRequestException("Internal database port is invalid: " + data.getDsPort(), e);
         }
 
         String basedn = data.getBaseDN();
@@ -1173,7 +1180,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             try {
                 Integer.parseInt(masterReplicationPort); // check for errors
             } catch (NumberFormatException e) {
-                throw new BadRequestException("Master replication port is invalid");
+                throw new BadRequestException("Master replication port is invalid: " + masterReplicationPort, e);
             }
         }
 
@@ -1181,8 +1188,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if (cloneReplicationPort != null && cloneReplicationPort.length() > 0) {
             try {
                 Integer.parseInt(cloneReplicationPort); // check for errors
-            } catch (Exception e) {
-                throw new BadRequestException("Clone replication port is invalid");
+            } catch (NumberFormatException e) {
+                throw new BadRequestException("Clone replication port is invalid: " + cloneReplicationPort, e);
             }
         }
 
@@ -1293,7 +1300,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             try {
                 Integer.parseInt(data.getAuthdbPort()); // check for errors
             } catch (NumberFormatException e) {
-                throw new BadRequestException("Authdb port is invalid");
+                throw new BadRequestException("Authentication Database port is invalid: " + data.getAuthdbPort(), e);
             }
 
             // TODO check connection with authdb

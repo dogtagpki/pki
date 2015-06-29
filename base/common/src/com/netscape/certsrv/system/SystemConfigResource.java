@@ -29,5 +29,5 @@ public interface SystemConfigResource {
 
     @POST
     @Path("configure")
-    public ConfigurationResponse configure(ConfigurationRequest data);
+    public ConfigurationResponse configure(ConfigurationRequest data) throws Exception;
 }
