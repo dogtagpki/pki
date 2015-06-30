@@ -102,7 +102,9 @@ Alternatively, the connection parameters can be specified as a URI:
 where the URI is of the format \fI<protocol>://<hostname>:<port>\fP.
 
 .SS Authentication
-Some commands require authentication.  These are commands that are restricted to particular sets of users (such as agents or admins) or those operations involving certificate profiles that require authentication.
+Some commands require authentication. These are commands that are restricted
+to particular sets of users (such as agents or admins) or those operations
+involving certificate profiles that require authentication.
 
 To execute a command without authentication:
 
@@ -133,7 +135,11 @@ To authenticate with a username by interactively prompting for a password:
 Prompting for a user password is not suitable for automated batch processing.
 
 .SS Client Authentication Setup
-A client certificate associated with the desired PKI server must be used for client authentication. This can be done by importing the client certificate into an NSS security database and passing the values to the relevant options provided by the \fBpki\fP CLI framework.
+
+A client certificate associated with the desired PKI server must be used for
+client authentication. This can be done by importing the client certificate
+into an NSS security database and passing the values to the relevant options
+provided by the \fBpki\fP CLI framework.
 
 To achieve this, execute the following commands to set up an NSS security database for use by the \fBpki\fP client, import the client certificate into the NSS database, and list information (including the nickname of the client certificate) stored in the NSS database:
 

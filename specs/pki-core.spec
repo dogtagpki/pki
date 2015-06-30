@@ -858,6 +858,7 @@ systemctl daemon-reload
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
 %{_mandir}/man1/pki.1.gz
+%{_mandir}/man1/pki-audit.1.gz
 %{_mandir}/man1/pki-cert.1.gz
 %{_mandir}/man1/pki-client.1.gz
 %{_mandir}/man1/pki-group.1.gz

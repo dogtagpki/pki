@@ -1,0 +1,104 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-audit 1 "Jun 30, 2015" "version 10.2" "PKI Audit Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-audit \- Command-Line Interface for managing Certificate System audit configuration.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fB<subsystem>-audit\fR
+\fBpki\fR [CLI options] \fB<subsystem>-audit-show\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-audit-mod --action <action>\fR [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-audit-mod --input <input file>\fR [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-audit\fR commands provide command-line interfaces to manage audit
+configuration in the specified subsystem. Currently the only supported
+subsystem is \fBtps\fR.
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-audit\fR
+.RS 4
+This command is to list the available audit commands for the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-audit-show\fR [command options]
+.RS 4
+This command is to show the audit configuration in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-audit-mod --action <action>\fR [command options]
+.RS 4
+This command is to change the audit (enabled/disabled) status in the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-audit-mod --input <input file>\fR [command options]
+.RS 4
+This command is to modify the audit configuration in the subsystem.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available audit commands, type \fBpki <subsystem>-audit\fP. To view
+each command's usage, type \fB pki <subsystem>-audit-<command> \-\-help\fP.
+
+All audit commands must be executed with the subsystem's admin authentication
+(the user must be in the Administrators group). See also the Authentication
+section in \fBpki\fP(1).
+
+.SS Viewing audit configuration
+
+To view the audit configuration in TPS execute the following command:
+
+.B pki <TPS admin authentication> tps-audit-show
+
+To download the audit configuration from TPS into a file execute the following
+command:
+
+.B pki <TPS admin authentication> tps-audit-show --output <output file>
+
+.SS Changing audit status
+
+To enable/disable audit in TPS, execute the following command:
+
+.B pki <TPS admin authentication> tps-audit-mod --action <action>
+
+where action is enable or disable.
+
+.SS Modifying audit configuration
+
+To modify the audit configuration in TPS, download the current configuration
+using the above \fBtps-audit-show\fP command, edit the file, then execute the
+following command:
+
+.B pki <TPS admin authentication> tps-audit-mod --input <input file>
+
+Optionally, a --output <output file> option may be specified to download the
+effective configuration after the modification.
+
+.SH AUTHORS
+Endi S. Dewata <edewata@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public
+License, version 2 (GPLv2). A copy of this license is available at
+http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pki(1)
