@@ -1,3 +1,6 @@
 .metadata/
 build/
 tests/dogtag/dev_java_tests/bin/
+.tox
+dist
+MANIFEST
