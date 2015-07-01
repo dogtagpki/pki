@@ -336,9 +336,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         }
 
         if (! profile.isVisible()) {
-            CMS.debug("getEnrollmentTemplate(): attempt to get enrollment template for non-visible profile");
-            throw new BadRequestException("Cannot provide enrollment template for profile `" + profileId +
-                        "`.  Profile not marked as visible");
+            CMS.debug("getEnrollmentTemplate(): attempt to get enrollment template for non-visible profile. This is ok since command line enrollments should be able to use enabled but non visible profiles.");
+
         }
 
         CertEnrollmentRequest request = new CertEnrollmentRequest();
