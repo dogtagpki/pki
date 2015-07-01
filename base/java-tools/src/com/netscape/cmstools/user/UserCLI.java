@@ -57,6 +57,11 @@ public class UserCLI extends CLI {
         }
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-user";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

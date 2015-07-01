@@ -41,6 +41,11 @@ public class AuditCLI extends CLI {
         addModule(new AuditShowCLI(this));
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-audit";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

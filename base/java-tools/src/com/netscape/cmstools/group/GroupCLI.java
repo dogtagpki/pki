@@ -54,6 +54,11 @@ public class GroupCLI extends CLI {
         }
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-group";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

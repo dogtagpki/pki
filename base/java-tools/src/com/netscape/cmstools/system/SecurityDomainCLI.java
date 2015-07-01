@@ -47,6 +47,11 @@ public class SecurityDomainCLI extends CLI {
         }
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-securitydomain";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

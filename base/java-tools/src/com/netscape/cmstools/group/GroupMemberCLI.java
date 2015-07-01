@@ -40,6 +40,11 @@ public class GroupMemberCLI extends CLI {
         addModule(new GroupMemberRemoveCLI(this));
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-group-member";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

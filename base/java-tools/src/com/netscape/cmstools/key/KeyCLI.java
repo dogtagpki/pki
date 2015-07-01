@@ -65,6 +65,11 @@ public class KeyCLI extends CLI {
         }
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-key";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

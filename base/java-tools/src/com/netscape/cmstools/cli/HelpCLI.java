@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.cli;
 
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 
 /**
@@ -51,19 +53,32 @@ public class HelpCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        String command;
+        String manPage = null;
         if (cmdArgs.length == 0) {
-            command = "pki";
+            // no command specified, show the pki man page
+            manPage = parent.getManPage();
 
         } else {
-            command = "pki-" + cmdArgs[0];
+            // find all modules handling the specified command
+            List<CLI> modules = parent.findModules(cmdArgs[0]);
+
+            // find the module that has a man page starting from the last one
+            for (int i = modules.size() - 1; i >= 0; i--) {
+                CLI module = modules.get(i);
+                manPage = module.getManPage();
+                if (manPage != null) break;
+            }
+
+            // if no module has a man page, show the pki man page
+            if (manPage == null)
+                manPage = parent.getManPage();
         }
 
         while (true) {
             // display man page for the command
             ProcessBuilder pb = new ProcessBuilder(
                     "/bin/man",
-                    command);
+                    manPage);
 
             pb.inheritIO();
             Process p = pb.start();
@@ -71,10 +86,10 @@ public class HelpCLI extends CLI {
 
             if (rc == 16) {
                 // man page not found, find the parent command
-                int i = command.lastIndexOf('-');
+                int i = manPage.lastIndexOf('-');
                 if (i >= 0) {
                     // parent command exists, try again
-                    command = command.substring(0, i);
+                    manPage = manPage.substring(0, i);
                     continue;
 
                 } else {

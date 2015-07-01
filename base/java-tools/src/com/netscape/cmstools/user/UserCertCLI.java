@@ -40,6 +40,11 @@ public class UserCertCLI extends CLI {
         addModule(new UserCertRemoveCLI(this));
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-user-cert";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

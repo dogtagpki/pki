@@ -67,6 +67,11 @@ public class CertCLI extends CLI {
         }
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-cert";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

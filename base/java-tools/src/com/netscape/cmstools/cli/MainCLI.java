@@ -89,6 +89,11 @@ public class MainCLI extends CLI {
         return moduleName;
     }
 
+    @Override
+    public String getManPage() {
+        return "pki";
+    }
+
     public void printVersion() {
         Package pkg = MainCLI.class.getPackage();
         System.out.println("PKI Command-Line Interface "+pkg.getImplementationVersion());

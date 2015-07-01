@@ -51,6 +51,11 @@ public class ProfileCLI extends CLI {
         }
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-ca-profile";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

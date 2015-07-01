@@ -50,6 +50,11 @@ public class ClientCLI extends CLI {
         }
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-client";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

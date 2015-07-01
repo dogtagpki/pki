@@ -21,6 +21,7 @@ package com.netscape.cmstools.cli;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLineParser;
@@ -113,6 +114,75 @@ public class CLI {
         return modules.remove(name);
     }
 
+    /**
+     * Find the list of modules that handle the specified command.
+     */
+    public List<CLI> findModules(String command) throws Exception {
+
+        List<CLI> results = new ArrayList<CLI>();
+
+        // split command into list of names:
+        // <names[0]>-<names[1]>-<names[2]>-...-<names[n-1]>
+        String[] names = command.split("-");
+
+        CLI current = this;
+        int i = 0;
+
+        // translate all names into modules starting from the beginning
+        while (i < names.length) {
+
+            String moduleName = null;
+            CLI module = null;
+            int j = i;
+
+            // find module that matches the shortest sequence of names
+            while (j < names.length) {
+
+                // construct module name
+                if (moduleName == null) {
+                    moduleName = names[j];
+                } else {
+                    moduleName = moduleName + "-" + names[j];
+                }
+
+                // find module with name <names[i]>-...-<names[j]>
+                module = current.getModule(moduleName);
+
+                if (module != null) {
+                    // module found, stop
+                    break;
+                }
+
+                // try again with longer sequence
+                j++;
+            }
+
+            if (module == null)
+                throw new Error("Invalid module \"" + moduleName + "\".");
+
+            // module found
+            results.add(module);
+
+            // repeat for the remaining parts
+            current = module;
+            i = j + 1;
+        }
+
+        return results;
+    }
+
+    /**
+     * Find the last module that handles the specified command.
+     */
+    public CLI findModule(String command) throws Exception {
+        List<CLI> modules = findModules(command);
+        return modules.get(modules.size() - 1);
+    }
+
+    public String getManPage() {
+        return null;
+    }
+
     public PKIClient getClient() {
         return client;
     }
@@ -181,6 +251,8 @@ public class CLI {
             printHelp();
             System.exit(0);
         }
+
+        // TODO: Rewrite using findModules().
 
         // A command consists of parts joined by dashes: <part 1>-<part 2>-...-<part N>.
         // For example: cert-request-find
