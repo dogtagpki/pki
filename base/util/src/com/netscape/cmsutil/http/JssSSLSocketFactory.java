@@ -48,13 +48,14 @@ public class JssSSLSocketFactory implements ISocketFactory {
 
     public Socket makeSocket(String host, int port)
             throws IOException, UnknownHostException {
-        return makeSocket(host, port, null, null);
+        return makeSocket(host, port, null, null, 0);
     }
 
     public Socket makeSocket(String host, int port,
             SSLCertificateApprovalCallback certApprovalCallback,
-            SSLClientCertificateSelectionCallback clientCertCallback)
-            throws IOException, UnknownHostException {
+            SSLClientCertificateSelectionCallback clientCertCallback,
+            int timeout // milliseconds
+            ) throws IOException, UnknownHostException {
 
         try {
             /*
@@ -63,6 +64,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
                     clientCertCallback);
             s.setUseClientMode(true);
+            s.setSoTimeout(timeout);
 
             SSLHandshakeCompletedListener listener = null;
 
@@ -79,27 +81,34 @@ public class JssSSLSocketFactory implements ISocketFactory {
                 s.setClientCertNickname(mClientAuthCertNickname);
             }
             s.forceHandshake();
+
         } catch (org.mozilla.jss.crypto.ObjectNotFoundException e) {
-            throw new IOException(e.toString());
+            throw new IOException(e.toString(), e);
+
         } catch (org.mozilla.jss.crypto.TokenException e) {
-            throw new IOException(e.toString());
+            throw new IOException(e.toString(), e);
+
         } catch (UnknownHostException e) {
             throw e;
+
         } catch (IOException e) {
             throw e;
+
         } catch (Exception e) {
-            throw new IOException(e.toString());
+            throw new IOException(e.toString(), e);
         }
+
         return s;
     }
 
-    public Socket makeSocket(String host, int port, int timeout)
-            throws IOException, UnknownHostException {
+    public Socket makeSocket(String host, int port,
+            int timeout // milliseconds
+            ) throws IOException, UnknownHostException {
         Thread t = new ConnectAsync(this, host, port);
 
         t.start();
         try {
-            t.join(1000 * timeout);
+            t.join(timeout);
         } catch (InterruptedException e) {
         }
 

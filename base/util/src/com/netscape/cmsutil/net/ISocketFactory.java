@@ -28,11 +28,13 @@ public interface ISocketFactory {
     Socket makeSocket(String host, int port)
             throws IOException, UnknownHostException;
 
-    Socket makeSocket(String host, int port, int timeout)
-            throws IOException, UnknownHostException;
+    Socket makeSocket(String host, int port,
+            int timeout // milliseconds
+            ) throws IOException, UnknownHostException;
 
     Socket makeSocket(String host, int port,
             SSLCertificateApprovalCallback certApprovalCallback,
-            SSLClientCertificateSelectionCallback clientCertCallback)
-            throws IOException, UnknownHostException;
+            SSLClientCertificateSelectionCallback clientCertCallback,
+            int timeout // milliseconds
+            ) throws IOException, UnknownHostException;
 }

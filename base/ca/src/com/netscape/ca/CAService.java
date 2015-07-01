@@ -435,9 +435,8 @@ public class CAService implements ICAService, IService {
             // send request to KRA first
             if (type.equals(IRequest.ENROLLMENT_REQUEST) &&
                     isPKIArchiveOptionPresent(request) && mKRAConnector != null) {
-                if (Debug.ON) {
-                    Debug.trace("*** Sending enrollment request to KRA");
-                }
+
+                CMS.debug("CAService: Sending enrollment request to KRA");
                 boolean sendStatus = mKRAConnector.send(request);
 
                 if (mArchivalRequired == true) {

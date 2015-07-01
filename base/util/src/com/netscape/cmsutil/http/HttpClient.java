@@ -59,22 +59,24 @@ public class HttpClient {
         mCertApprovalCallback = certApprovalCallback;
     }
 
-    public void connect(String host, int port)
-            throws IOException {
+    public void connect(String host, int port,
+            int timeout // milliseconds
+            ) throws IOException {
+
         if (mFactory != null) {
             if (mCertApprovalCallback == null) {
-                mSocket = mFactory.makeSocket(host, port);
+                mSocket = mFactory.makeSocket(host, port, timeout);
             } else {
-                mSocket = mFactory.makeSocket(host, port, mCertApprovalCallback, null);
+                mSocket = mFactory.makeSocket(host, port, mCertApprovalCallback, null, timeout);
             }
+
         } else {
             mSocket = new Socket(host, port);
+            mSocket.setSoTimeout(timeout);
         }
 
         if (mSocket == null) {
-            IOException e = new IOException("Couldn't make connection");
-
-            throw e;
+            throw new IOException("Couldn't make connection");
         }
 
         mInputStream = mSocket.getInputStream();
@@ -85,30 +87,10 @@ public class HttpClient {
         mConnected = true;
     }
 
-    // Inserted by beomsuk
-    public void connect(String host, int port, int timeout)
-            throws IOException {
-        if (mFactory != null) {
-            mSocket = mFactory.makeSocket(host, port, timeout);
-        } else {
-            mSocket = new Socket(host, port);
-        }
-
-        if (mSocket == null) {
-            IOException e = new IOException("Couldn't make connection");
-
-            throw e;
-        }
-
-        mInputStream = mSocket.getInputStream();
-        mOutputStream = mSocket.getOutputStream();
-        mInputStreamReader = new InputStreamReader(mInputStream, "UTF8");
-        mBufferedReader = new BufferedReader(mInputStreamReader);
-        mOutputStreamWriter = new OutputStreamWriter(mOutputStream, "UTF8");
-        mConnected = true;
+    public void connect(String host, int port) throws IOException {
+        connect(host, port, 0);
     }
 
-    // Insert end
     public boolean connected() {
         return mConnected;
     }

@@ -18,7 +18,9 @@
 package com.netscape.cmscore.connector;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -33,50 +35,32 @@ import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.net.ISocketFactory;
 
 public class HttpConnection implements IHttpConnection {
+
     protected IRemoteAuthority mDest = null;
     protected HttpRequest mHttpreq = new HttpRequest();
     protected IRequestEncoder mReqEncoder = null;
     protected HttpClient mHttpClient = null;
 
-    protected boolean Connect(String host, HttpClient client) {
-        StringTokenizer st = new StringTokenizer(host, " ");
-        while (st.hasMoreTokens()) {
-            String hp = st.nextToken(); // host:port
-            StringTokenizer st1 = new StringTokenizer(hp, ":");
-            try {
-                String h = st1.nextToken();
-                int p = Integer.parseInt(st1.nextToken());
-                client.connect(h, p);
-                return true;
-            } catch (Exception e) {
-                // may want to log the failure
-            }
-            try {
-                Thread.sleep(5000); // 5 seconds
-            } catch (Exception e) {
-            }
+    int timeout = 0;
+    List<InetSocketAddress> targets;
 
-        }
-        return false;
-    }
+    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory,
+            int timeout // seconds
+            ) {
 
-    public void setRequestURI(String uri)
-            throws EBaseException {
-        mHttpreq.setURI(uri);
-    }
+        CMS.debug("HttpConnection: Creating HttpConnection with timeout=" + timeout);
 
-    public String getRequestURI() {
-        return mHttpreq.getURI();
-    }
-
-    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory) {
         mDest = dest;
         mReqEncoder = new HttpRequestEncoder();
         mHttpClient = new HttpClient(factory);
-        if (Debug.ON)
-            Debug.trace("Created HttpClient");
+
+        this.timeout = timeout;
+
+        targets = parseTarget(dest.getHost(), dest.getPort());
+
         try {
             mHttpreq.setMethod("POST");
+
             // in case of multi-uri, uri will be set right before send
             //   by calling setRequestURI(uri)
             if (mDest.getURI() != null)
@@ -89,62 +73,85 @@ public class HttpConnection implements IHttpConnection {
             }
 
             mHttpreq.setHeader("Connection", "Keep-Alive");
-            CMS.debug("HttpConnection: connecting to " + dest.getHost() + ":" + dest.getPort());
-            String host = dest.getHost();
-            // we could have a list of host names in the host parameters
-            // the format is, for example,
-            // "directory.knowledge.com:1050 people.catalog.com 199.254.1.2"
-            if (host != null && host.indexOf(' ') != -1) {
-                // try to do client-side failover
-                boolean connected = false;
-                do {
-                    connected = Connect(host, mHttpClient);
-                } while (!connected);
-            } else {
-                mHttpClient.connect(host, dest.getPort());
-            }
-            CMS.debug("HttpConnection: connected to " + dest.getHost() + ":" + dest.getPort());
+
+            connect();
+
         } catch (IOException e) {
             // server's probably down. that's fine. try later.
-            //System.out.println(
-            //"Can't connect to server in connection creation");
+            CMS.debug("HttpConnection: Unable to create connection: " + e);
         }
     }
 
-    /*
-     * @param op operation to determine the receiving servlet (multi-uri support)
-     */
-    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory, int timeout) {
-        mDest = dest;
-        mReqEncoder = new HttpRequestEncoder();
-        mHttpClient = new HttpClient(factory);
-        CMS.debug("HttpConn:Created HttpConnection: factory " + factory + "client " + mHttpClient);
-        try {
-            mHttpreq.setMethod("POST");
-            // in case of multi-uri, uri will be set right before send
-            //   by calling setRequestURI(op)
-            if (mDest.getURI() != null)
-                mHttpreq.setURI(mDest.getURI());
-
-            String contentType = dest.getContentType();
-            if (contentType != null) {
-                CMS.debug("HttpConnection: setting Content-Type");
-                mHttpreq.setHeader("Content-Type", contentType );
-            }
-
-            mHttpreq.setHeader("Connection", "Keep-Alive");
-            CMS.debug("HttpConnection: connecting to " + dest.getHost() + ":" + dest.getPort() + " timeout:" + timeout);
-            mHttpClient.connect(dest.getHost(), dest.getPort(), timeout);
-            CMS.debug("HttpConnection: connected to " + dest.getHost() + ":" + dest.getPort() + " timeout:" + timeout);
-        } catch (IOException e) {
-            // server's probably down. that's fine. try later.
-            //System.out.println(
-            //"Can't connect to server in connection creation");
-            CMS.debug("CMSConn:IOException in creating HttpConnection " + e.toString());
-        }
+    public HttpConnection(IRemoteAuthority dest, ISocketFactory factory) {
+        this(dest, factory, 0);
     }
 
-    // Insert end
+    List<InetSocketAddress> parseTarget(String target, int port) {
+
+        List<InetSocketAddress> results = new ArrayList<InetSocketAddress>();
+
+        if (target == null || target.indexOf(' ') < 0) {
+            // target is a single hostname
+
+            // add hostname and the global port to the results
+            results.add(new InetSocketAddress(target, port));
+            return results;
+        }
+
+        // target is a list of hostname:port, for example:
+        // "server1.example.com:8443 server2.example.com:8443"
+
+        for (String hostnamePort : target.split(" ")) {
+
+            // parse hostname and port, and ignore the global port
+            String[] parts = hostnamePort.split(":");
+            String hostname = parts[0];
+            port = Integer.parseInt(parts[1]);
+
+            // add hostname and port to the results
+            results.add(new InetSocketAddress(hostname, port));
+        }
+
+        return results;
+    }
+
+    void connect() throws IOException {
+
+        IOException exception = null;
+
+        // try all targets
+        for (InetSocketAddress target : targets) {
+
+            String hostname = target.getHostString();
+            int port = target.getPort();
+
+            try {
+                CMS.debug("HttpConnection: Connecting to " + hostname + ":" + port + " with timeout " + timeout + "s");
+
+                mHttpClient.connect(hostname, port, timeout * 1000);
+
+                CMS.debug("HttpConnection: Connected to " + hostname + ":" + port);
+                return;
+
+            } catch (IOException e) {
+                exception = e;
+                CMS.debug("HttpConnection: Unable to connect to " + hostname + ":" + port + ": " + e);
+                // try the next target immediately
+            }
+        }
+
+        // throw the last exception
+        throw exception;
+    }
+
+    public void setRequestURI(String uri)
+            throws EBaseException {
+        mHttpreq.setURI(uri);
+    }
+
+    public String getRequestURI() {
+        return mHttpreq.getURI();
+    }
     /**
      * sends a request to remote RA/CA, returning the result.
      *
@@ -207,16 +214,17 @@ public class HttpConnection implements IHttpConnection {
             CMS.debug("HttpConnection.send: with String content: null or empty");
             throw new EBaseException("HttpConnection.send: with String content: null or empty");
         }
-        // CMS.debug("HttpConnection.send: with String content: " + content);
+
+        CMS.debug("HttpConnection.send: with String content: " + content);
 
         resp = doSend(content);
         return resp;
     }
 
-    private HttpResponse doSend(String content)
-            throws EBaseException {
+    private HttpResponse doSend(String content) throws EBaseException {
+
         HttpResponse resp = null;
-        boolean reconnect = false;
+        boolean reconnected = false;
 
         if (getRequestURI() == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "URI not set in HttpRequest"));
@@ -229,18 +237,21 @@ public class HttpConnection implements IHttpConnection {
 
         try {
             if (!mHttpClient.connected()) {
-                mHttpClient.connect(mDest.getHost(), mDest.getPort());
-                CMS.debug("HttpConnection.doSend: reconnected to " + mDest.getHost() + ":" + mDest.getPort());
-                reconnect = true;
+                connect();
+                reconnected = true;
             }
+
         } catch (IOException e) {
+
+            CMS.debug(e);
+
             if (e.getMessage().indexOf("Peer's certificate issuer has been marked as not trusted") != -1) {
                 throw new EBaseException(
                         CMS.getUserMessage(
                                 "CMS_BASE_CONN_FAILED",
                                 "(This local authority cannot connect to the remote authority. The local authority's signing certificate must chain to a CA certificate trusted for client authentication in the certificate database. Use the certificate manager, or command line tool such as certutil to verify that the trust permissions of the local authority's issuer cert have 'CT' setting in the SSL client auth field.)"));
             }
-            CMS.debug("HttpConn:Couldn't reconnect " + e);
+
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "Couldn't reconnect " + e));
         }
 
@@ -249,28 +260,35 @@ public class HttpConnection implements IHttpConnection {
             try {
                 CMS.debug("HttpConnection.doSend: sending request");
                 resp = mHttpClient.send(mHttpreq);
+
             } catch (IOException e) {
-                CMS.debug("HttpConn: mHttpClient.send failed " + e.toString());
-                if (reconnect) {
-                    CMS.debug("HttpConnection.doSend:resend failed again. " + e);
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "resend failed again. " + e));
+
+                CMS.debug(e);
+
+                if (reconnected) {
+                    CMS.debug("HttpConnection.doSend: resend failed again.");
+                    throw new EBaseException(
+                            CMS.getUserMessage("CMS_BASE_CONN_FAILED", "resend failed again: " + e), e);
                 }
+
                 try {
                     CMS.debug("HttpConnection.doSend: trying a reconnect ");
-                    mHttpClient.connect(mDest.getHost(), mDest.getPort());
+                    connect();
+
                 } catch (IOException ex) {
                     CMS.debug("HttpConnection.doSend: reconnect for resend failed. " + ex);
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "reconnect for resend failed."
-                            + ex));
+                    throw new EBaseException(
+                            CMS.getUserMessage("CMS_BASE_CONN_FAILED", "reconnect for resend failed: " + ex), e);
                 }
-                reconnect = true;
+
+                reconnected = true;
             }
         } //while
 
         // got reply; check status
         String statusStr = resp.getStatusCode();
 
-        CMS.debug("HttpConnection.doSend:server returned status " + statusStr);
+        CMS.debug("HttpConnection.doSend: server returned status " + statusStr);
         int statuscode = -1;
 
         try {
@@ -287,16 +305,18 @@ public class HttpConnection implements IHttpConnection {
                 // XXX what to do here.
                 String msg = "request no good " + statuscode + " " + resp.getReasonPhrase();
 
-                CMS.debug(msg);
+                CMS.debug("HttpConnection: " + msg);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_AUTHENTICATE_FAILED", msg));
+
             } else {
                 // XXX what to do here.
-                String msg = "HttpConn:request no good " + statuscode + " " + resp.getReasonPhrase();
+                String msg = "HttpConnection: request no good " + statuscode + " " + resp.getReasonPhrase();
 
                 CMS.debug(msg);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", msg));
             }
         }
+
         return resp;
     }
 }
