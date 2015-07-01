@@ -345,6 +345,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     throw new BadRequestException("No data for '" + tag + "' was found!");
                 }
 
+                String tokenName = certData.getToken() != null ? certData.getToken() : token;
                 if (request.getStandAlone() && request.getStepTwo()) {
                     // Stand-alone PKI (Step 2)
                     if (tag.equals("external_signing")) {
@@ -355,7 +356,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
                             if (request.getIssuingCA().equals("External CA")) {
                                 String nickname = certData.getNickname() != null ? certData.getNickname() : "caSigningCert External CA";
-                                String tokenName = certData.getToken() != null ? certData.getToken() : token;
                                 Cert cert = new Cert(tokenName, nickname, tag);
                                 ConfigurationUtils.setExternalCACert(b64, csSubsystem, cs, cert);
 
@@ -387,7 +387,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     updateConfiguration(request, certData, "subsystem");
 
                     // get parameters needed for cloning
-                    updateCloneConfiguration(certData, "subsystem");
+                    updateCloneConfiguration(certData, "subsystem", tokenName);
                     continue;
                 }
 
@@ -439,7 +439,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     CMS.debug("configure(): step two selected.  keys will not be generated for '" + tag + "'");
                 }
 
-                String tokenName = certData.getToken() != null ? certData.getToken() : token;
                 Cert cert = new Cert(tokenName, nickname, tag);
                 cert.setDN(dn);
                 cert.setSubsystem(cs.getString("preop.cert." + tag + ".subsystem"));
@@ -529,11 +528,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void updateCloneConfiguration(SystemCertData cdata, String tag) throws NotInitializedException,
+    private void updateCloneConfiguration(SystemCertData cdata, String tag, String tokenName) throws NotInitializedException,
             ObjectNotFoundException, TokenException {
         // TODO - some of these parameters may only be valid for RSA
         CryptoManager cryptoManager = CryptoManager.getInstance();
-        X509Certificate cert = cryptoManager.findCertByNickname(cdata.getNickname());
+        if (!tokenName.isEmpty())
+            CMS.debug("SystemConfigService:updateCloneConfiguration: tokenName=" + tokenName);
+        else
+            CMS.debug("SystemConfigService:updateCloneConfiguration: tokenName empty; using internal");
+
+        X509Certificate cert = cryptoManager.findCertByNickname(!tokenName.isEmpty()? tokenName + ":" + cdata.getNickname() :  cdata.getNickname());
         PublicKey pubk = cert.getPublicKey();
         byte[] exponent = CryptoUtil.getPublicExponent(pubk);
         byte[] modulus = CryptoUtil.getModulus(pubk);
