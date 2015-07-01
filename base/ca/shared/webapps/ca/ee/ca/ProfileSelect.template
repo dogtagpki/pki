@@ -47,6 +47,71 @@ var key = new Object();
 key.type = "EC";
 keyList[1] = key;
 
+function getKeyStrengthTableForKeyGen() {
+
+  document.writeln("<table border='1'> <caption> KeyGen Key Strength Info </caption> <tr> <th> Key Type </th> <th> High Grade </th> <th> Medium Grade </th> </tr>");
+  document.writeln("<td> RSA </td> <td> 2048 </td> <td> 1024 </tr> </td>");
+  document.writeln("<td> ECC </td> <td> nistp384 </td> <td> nistp256 </td>");
+  document.writeln("</table>");
+
+}
+
+function getKeyTypesOptionsForKeyGen() {
+    var keyTypesDef = "RSA";
+    var keyTypes = null;
+    for (var i = 0; i < policySetListSet.length; i++) {
+      for (var j = 0; j < policySetListSet[i].policySet.length; j++) {
+        if (typeof(policySetListSet[i].policySet[j].constraintSet) != "undefined") {
+          for (var k = 0; k < policySetListSet[i].policySet[j].constraintSet.length; k++) {
+            if (policySetListSet[i].policySet[j].constraintSet[k].name == "keyType") {
+              if (policySetListSet[i].policySet[j].constraintSet[k].value == "-") {
+                  keyTypes = "RSA,EC";
+              } else {
+                 keyTypes = policySetListSet[i].policySet[j].constraintSet[k].value;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if(keyTypes == null) {
+      keyTypes = keyTypesDef;
+    }
+
+    var keyTypesRet = keyTypes.split(",");
+    var options = "";
+    var optionLabel = "";
+    var selected = "";
+    for(types= 0 ; types < keyTypesRet.length ; types ++) {
+      if(keyTypesRet[types] == "EC") {
+        optionLabel = "ECC"; 
+      } else {
+        optionLabel = keyTypesRet[types];
+      }
+
+      if( types == 0 ) {
+          selected = "SELECTED";
+      } else {
+          selected = "";
+      }
+ 
+      options += '<OPTION value=' + '\"' + keyTypesRet[types] + '\" ' + selected + ' > ' + optionLabel + ' </OPTION> ';
+    }
+
+    return options;
+}
+
+function keyGenKeyTypeSelected(keygenObj,keyTypeSelectObj) {
+
+    if(keygenObj == null || keyTypeSelectObj == null)
+        return;
+
+    var selectedValue = keyTypeSelectObj.options[keyTypeSelectObj.selectedIndex].value;
+
+     keygenObj.setAttribute("keytype", selectedValue);
+}
+
 function keyTypeOptions (keyPurpose)
 {
   var keyType = "RSA";
@@ -682,7 +747,21 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
         }
         document.writeln('<input type=hidden name=cert_request value="">');
       } else {
-        document.writeln('<KEYGEN name=' + inputListSet[n].inputId + '>');
+
+        getKeyStrengthTableForKeyGen();
+
+        var keyTypesOptions = getKeyTypesOptionsForKeyGen();
+
+        var keygendata = '<KEYGEN id=\"keygentag\" ' + ' name= ' + '\"' + inputListSet[n].inputId + '\" ' + ' KEYTYPE=\"EC\" KEYPARAMS=\"none\"   > '  ;
+        document.writeln(keygendata);
+
+        var keygenObj = document.getElementById("keygentag");
+        var selectKeyTypeData = '<SELECT id=\"keyTypeSelectedId\" name=\"selectKeyType\"  onChange=\"keyGenKeyTypeSelected(keygenObj,this);\"   > '   + keyTypesOptions + '</SELECT> ' ;
+
+        document.writeln(selectKeyTypeData);
+
+        var selectKeyTypeObject = document.getElementById("keyTypeSelectedId");
+        keyGenKeyTypeSelected(keygenObj,selectKeyTypeObject);
       }
     } else if (inputListSet[n].inputSyntax == 'dual_keygen_request_type') {
       keygen_request = 'true';
