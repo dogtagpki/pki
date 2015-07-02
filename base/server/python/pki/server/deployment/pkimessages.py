@@ -146,6 +146,25 @@ REMINDER:
     Finally, if an optional '-p <prefix>' is defined, this value WILL NOT
     be prepended in front of the mandatory '-f <configuration_file>'.
 """ + PKI_VERBOSITY
+PKISPAWN_INTERACTIVE_INSTALLATION='''
+IMPORTANT:
+
+    Interactive installation currently only exists for very basic deployments!
+
+    For example, deployments intent upon using advanced features such as:
+
+        * Cloning,
+        * Elliptic Curve Cryptography (ECC),
+        * External CA,
+        * Hardware Security Module (HSM),
+        * Subordinate CA,
+        * etc.,
+
+    must provide the necessary override parameters in a separate
+    configuration file.
+
+    Run 'man pkispawn' for details.
+'''
 
 
 # PKI Deployment "Helper" Messages

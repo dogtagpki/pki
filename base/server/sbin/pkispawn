@@ -125,8 +125,12 @@ def main(argv):
     parser.validate()
     interactive = False
 
-    while True:
+    if config.user_deployment_cfg is None:
+        interactive = True
+        parser.indent = 0
+        print log.PKISPAWN_INTERACTIVE_INSTALLATION
 
+    while True:
         # -s <subsystem>
         if args.pki_subsystem is None:
             interactive = True
@@ -215,38 +219,38 @@ def main(argv):
                              config.pki_subsystem,
                              'pki_client_admin_cert')
 
-            if parser.mdict['pki_hsm_enable'] == 'True':
-                use_hsm = 'Y'
-            else:
-                use_hsm = 'N'
+            # if parser.mdict['pki_hsm_enable'] == 'True':
+            #     use_hsm = 'Y'
+            # else:
+            #     use_hsm = 'N'
 
-            use_hsm = parser.read_text(
-                'Using hardware security module (HSM) (Yes/No)',
-                default=use_hsm, options=['Yes', 'Y', 'No', 'N'],
-                sign='?', case_sensitive=False).lower()
+            # use_hsm = parser.read_text(
+            #     'Using hardware security module (HSM) (Yes/No)',
+            #     default=use_hsm, options=['Yes', 'Y', 'No', 'N'],
+            #     sign='?', case_sensitive=False).lower()
 
-            if use_hsm == 'y' or use_hsm == 'yes':
-                # XXX:  Suppress interactive HSM installation
-                print "Interactive HSM installation is currently unsupported."
-                sys.exit(0)
+            # if use_hsm == 'y' or use_hsm == 'yes':
+            #     # XXX:  Suppress interactive HSM installation
+            #     print "Interactive HSM installation is currently unsupported."
+            #     sys.exit(0)
 
-                # TBD:  Interactive HSM installation
-                # parser.set_property(config.pki_subsystem,
-                #                     'pki_hsm_enable',
-                #                     'True')
-                # modulename = parser.read_text(
-                #     'HSM Module Name (e. g. - nethsm)', allow_empty=False)
-                # parser.set_property(config.pki_subsystem,
-                #                     'pki_hsm_modulename',
-                #                     modulename)
-                # libfile = parser.read_text(
-                #     'HSM Lib File ' +
-                #     '(e. g. - /opt/nfast/toolkits/pkcs11/libcknfast.so)',
-                #     allow_empty=False)
-                # parser.set_property(config.pki_subsystem,
-                #                     'pki_hsm_libfile',
-                #                     libfile)
-            print
+                  # TBD:  Interactive HSM installation
+                  # parser.set_property(config.pki_subsystem,
+                  #                     'pki_hsm_enable',
+                  #                     'True')
+                  # modulename = parser.read_text(
+                  #     'HSM Module Name (e. g. - nethsm)', allow_empty=False)
+                  # parser.set_property(config.pki_subsystem,
+                  #                     'pki_hsm_modulename',
+                  #                     modulename)
+                  # libfile = parser.read_text(
+                  #     'HSM Lib File ' +
+                  #     '(e. g. - /opt/nfast/toolkits/pkcs11/libcknfast.so)',
+                  #     allow_empty=False)
+                  # parser.set_property(config.pki_subsystem,
+                  #                     'pki_hsm_libfile',
+                  #                     libfile)
+            # print
 
             print "Directory Server:"
             while True:
