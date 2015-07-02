@@ -330,9 +330,14 @@ public class MainCLI extends CLI {
             }
         }
 
-        // store security database path
-        if (certDatabase != null)
+        if (certDatabase != null) {
+            // store user-provided security database location
             config.setCertDatabase(new File(certDatabase).getAbsolutePath());
+        } else {
+            // store default security database location
+            config.setCertDatabase(System.getProperty("user.home") +
+                    File.separator + ".dogtag" + File.separator + "nssdb");
+        }
 
         // store token name
         config.setTokenName(tokenName);
@@ -395,17 +400,7 @@ public class MainCLI extends CLI {
         list = cmd.getOptionValue("ignore-cert-status");
         convertCertStatusList(list, ignoredCertStatuses);
 
-        if (config.getCertDatabase() == null) {
-            // Use default client security database
-            this.certDatabase = new File(
-                    System.getProperty("user.home") + File.separator +
-                    ".dogtag" + File.separator + "nssdb");
-
-        } else {
-            // Use existing client security database
-            this.certDatabase = new File(config.getCertDatabase());
-        }
-
+        this.certDatabase = new File(config.getCertDatabase());
         if (verbose) System.out.println("Client security database: "+this.certDatabase.getAbsolutePath());
 
         String messageFormat = cmd.getOptionValue("message-format");

@@ -81,14 +81,20 @@ public class KeyCLI extends CLI {
 
         // create new key client
         keyClient = new KeyClient(client, subsystem);
-        if (client.getConfig().getCertDatabase() != null && client.getConfig().getCertPassword() != null) {
+
+        // if security database password is specified,
+        // prepare key client for archival/retrieval
+        if (client.getConfig().getCertPassword() != null) {
+            // create crypto provider for key client
             keyClient.setCrypto(new NSSCryptoProvider(client.getConfig()));
 
-            // Set the transport cert for crypto operations
+            // download transport cert
             systemCertClient = new SystemCertClient(client, subsystem);
             String transportCert = systemCertClient.getTransportCert().getEncoded();
             transportCert = transportCert.substring(CertData.HEADER.length(),
                     transportCert.indexOf(CertData.FOOTER));
+
+            // set transport cert for key client
             keyClient.setTransportCert(transportCert);
         }
 
