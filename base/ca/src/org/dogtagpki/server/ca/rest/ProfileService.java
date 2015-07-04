@@ -81,6 +81,7 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cmscore.base.SimpleProperties;
+import com.netscape.cmscore.base.PropConfigStore;
 
 /**
  * @author alee
@@ -583,8 +584,27 @@ public class ProfileService extends PKIService implements ProfileResource {
             auditParams.put("class_id", classId);
 
             IPluginInfo info = registry.getPluginInfo("profile", classId);
+            String className = info.getClassName();
 
-            profile = ps.createProfile(profileId, classId, info.getClassName());
+            // create temporary profile to verify profile configuration
+            IProfile tempProfile;
+            try {
+                tempProfile = (IProfile) Class.forName(className).newInstance();
+            } catch (Exception e) {
+                throw new PKIException(
+                    "Error instantiating profile class: " + className);
+            }
+            tempProfile.setId(profileId);
+            try {
+                PropConfigStore tempConfig = new PropConfigStore(null);
+                tempConfig.load(new ByteArrayInputStream(data));
+                tempProfile.init(ps, tempConfig);
+            } catch (Exception e) {
+                throw new BadRequestException("Invalid profile data", e);
+            }
+
+            // no error thrown, proceed with profile creation
+            profile = ps.createProfile(profileId, classId, className);
             profile.getConfigStore().commit(false);
             profile.getConfigStore().load(new ByteArrayInputStream(data));
             ps.disableProfile(profileId);
@@ -698,6 +718,27 @@ public class ProfileService extends PKIService implements ProfileResource {
             simpleProperties.store(out, null);
             data = out.toByteArray();  // original data sans profileId, classId
 
+            // create temporary profile to verify profile configuration
+            String classId = ps.getProfileClassId(profileId);
+            String className =
+                registry.getPluginInfo("profile", classId).getClassName();
+            IProfile tempProfile;
+            try {
+                tempProfile = (IProfile) Class.forName(className).newInstance();
+            } catch (Exception e) {
+                throw new PKIException(
+                    "Error instantiating profile class: " + className);
+            }
+            tempProfile.setId(profileId);
+            try {
+                PropConfigStore tempConfig = new PropConfigStore(null);
+                tempConfig.load(new ByteArrayInputStream(data));
+                tempProfile.init(ps, tempConfig);
+            } catch (Exception e) {
+                throw new BadRequestException("Invalid profile data", e);
+            }
+
+            // no error thrown, so commit updated profile config
             profile.getConfigStore().load(new ByteArrayInputStream(data));
             ps.disableProfile(profileId);
             profile.getConfigStore().commit(false);
