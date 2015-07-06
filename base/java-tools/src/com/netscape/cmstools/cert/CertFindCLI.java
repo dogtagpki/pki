@@ -254,7 +254,6 @@ public class CertFindCLI extends CLI {
 
         } else {
             searchData = new CertSearchRequest();
-            searchData.setSerialNumberRangeInUse(true);
         }
 
         String s = cmd.getOptionValue("start");

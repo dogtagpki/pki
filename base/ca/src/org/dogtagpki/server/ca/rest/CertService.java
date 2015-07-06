@@ -367,15 +367,13 @@ public class CertService extends PKIService implements CertResource {
     }
 
     private String createSearchFilter(String status) {
-        String filter = "";
+        String filter;
 
-        if ((status == null)) {
-            filter = "(serialno=*)";
-            return filter;
-        }
+        if (status == null) {
+            filter = "(certstatus=*)"; // allCerts VLV
 
-        if (status != null) {
-            filter += "(certStatus=" + LDAPUtil.escapeFilter(status) + ")";
+        } else  {
+            filter = "(certStatus=" + LDAPUtil.escapeFilter(status) + ")";
         }
 
         return filter;
@@ -398,7 +396,7 @@ public class CertService extends PKIService implements CertResource {
         size       = size == null ? DEFAULT_SIZE : size;
 
         String filter = createSearchFilter(status);
-        CMS.debug("listCerts: filter is " + filter);
+        CMS.debug("CertService.listCerts: filter: " + filter);
 
         CertDataInfos infos = new CertDataInfos();
         try {
@@ -450,7 +448,9 @@ public class CertService extends PKIService implements CertResource {
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
+
         String filter = createSearchFilter(data);
+        CMS.debug("CertService.searchCerts: filter: " + filter);
 
         CertDataInfos infos = new CertDataInfos();
         try {

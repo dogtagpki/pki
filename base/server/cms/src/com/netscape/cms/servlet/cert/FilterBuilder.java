@@ -18,7 +18,9 @@
 
 package com.netscape.cms.servlet.cert;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import com.netscape.certsrv.cert.CertSearchRequest;
@@ -30,210 +32,214 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  *
  */
 public class FilterBuilder {
-    private final static String MATCH_EXACTLY = "exact";
-    private String searchFilter = null;
-    private CertSearchRequest request = null;
+
+    private List<String> filters = new ArrayList<String>();
+    private CertSearchRequest request;
 
     public FilterBuilder(CertSearchRequest request) {
         this.request = request;
     }
 
     public String buildFilter() {
-        StringBuffer filter = new StringBuffer();
-        buildSerialNumberRangeFilter(filter);
-        buildSubjectFilter(filter);
-        buildStatusFilter(filter);
-        buildRevokedByFilter(filter);
-        buildRevokedOnFilter(filter);
-        buildRevocationReasonFilter(filter);
-        buildIssuedByFilter(filter);
-        buildIssuedOnFilter(filter);
-        buildValidNotBeforeFilter(filter);
-        buildValidNotAfterFilter(filter);
-        buildValidityLengthFilter(filter);
-        buildCertTypeFilter(filter);
 
-        searchFilter = filter.toString();
+        buildSerialNumberRangeFilter();
+        buildSubjectFilter();
+        buildStatusFilter();
+        buildRevokedByFilter();
+        buildRevokedOnFilter();
+        buildRevocationReasonFilter();
+        buildIssuedByFilter();
+        buildIssuedOnFilter();
+        buildValidNotBeforeFilter();
+        buildValidNotAfterFilter();
+        buildValidityLengthFilter();
+        buildCertTypeFilter();
 
-        if (searchFilter != null && !searchFilter.equals("")) {
-            searchFilter = "(&" + searchFilter + ")";
+        if (filters.size() == 0) {
+            return "(certstatus=*)"; // allCerts VLV
+
+        } else if (filters.size() == 1) {
+            return filters.get(0);
+
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (String filter : filters) {
+                sb.append(filter);
+            }
+            return "(&" + sb + ")";
         }
-
-        return searchFilter;
     }
 
-    private void buildSerialNumberRangeFilter(StringBuffer filter) {
+    private void buildSerialNumberRangeFilter() {
 
-        if (!request.getSerialNumberRangeInUse()) {
-            return;
-        }
-        boolean changed = false;
         String serialFrom = request.getSerialFrom();
         if (serialFrom != null && !serialFrom.equals("")) {
-            filter.append("(certRecordId>=" + LDAPUtil.escapeFilter(serialFrom) + ")");
-            changed = true;
+            filters.add("(certRecordId>=" + LDAPUtil.escapeFilter(serialFrom) + ")");
         }
+
         String serialTo = request.getSerialTo();
         if (serialTo != null && !serialTo.equals("")) {
-            filter.append("(certRecordId<=" + LDAPUtil.escapeFilter(serialTo) + ")");
-            changed = true;
+            filters.add("(certRecordId<=" + LDAPUtil.escapeFilter(serialTo) + ")");
         }
-        if (!changed) {
-            filter.append("(certRecordId=*)");
-        }
-
     }
 
-    private void buildSubjectFilter(StringBuffer filter) {
+    private void buildSubjectFilter() {
+
         if (!request.getSubjectInUse()) {
             return;
         }
-        StringBuffer lf = new StringBuffer();
 
-        String matchStr = null;
+        StringBuffer lf = new StringBuffer();
         boolean match = request.getMatchExactly();
 
-        if (match == true) {
-            matchStr = MATCH_EXACTLY;
-        }
-
-        buildAVAFilter(request.getEmail(), "E", lf, matchStr);
-        buildAVAFilter(request.getCommonName(), "CN", lf, matchStr);
-        buildAVAFilter(request.getUserID(), "UID", lf, matchStr);
-        buildAVAFilter(request.getOrgUnit(), "OU", lf, matchStr);
-        buildAVAFilter(request.getOrg(), "O", lf, matchStr);
-        buildAVAFilter(request.getLocality(), "L", lf, matchStr);
-        buildAVAFilter(request.getState(), "ST", lf, matchStr);
-        buildAVAFilter(request.getCountry(), "C", lf, matchStr);
+        buildAVAFilter(request.getEmail(), "E", lf, match);
+        buildAVAFilter(request.getCommonName(), "CN", lf, match);
+        buildAVAFilter(request.getUserID(), "UID", lf, match);
+        buildAVAFilter(request.getOrgUnit(), "OU", lf, match);
+        buildAVAFilter(request.getOrg(), "O", lf, match);
+        buildAVAFilter(request.getLocality(), "L", lf, match);
+        buildAVAFilter(request.getState(), "ST", lf, match);
+        buildAVAFilter(request.getCountry(), "C", lf, match);
 
         if (lf.length() == 0) {
-            filter.append("("+ICertRecord.ATTR_X509CERT_SUBJECT+"=*)");
-            return;
-        }
-        if (matchStr != null && matchStr.equals(MATCH_EXACTLY)) {
-            filter.append("(&");
-            filter.append(lf);
-            filter.append(")");
+            filters.add("(" + ICertRecord.ATTR_X509CERT_SUBJECT + "=*)");
+
+        } else if (match) {
+            filters.add("(&" + lf + ")");
+
         } else {
-            filter.append("(|");
-            filter.append(lf);
-            filter.append(")");
+            filters.add("(|" + lf + ")");
         }
     }
 
-    private void buildStatusFilter(StringBuffer filter) {
+    private void buildStatusFilter() {
+
         String status = request.getStatus();
         if (status == null || status.equals("")) {
             return;
         }
-        filter.append("(certStatus=");
-        filter.append(LDAPUtil.escapeFilter(status));
-        filter.append(")");
+
+        filters.add("(certStatus=" + LDAPUtil.escapeFilter(status) + ")");
     }
 
-    private void buildRevokedByFilter(StringBuffer filter) {
+    private void buildRevokedByFilter() {
+
         if (!request.getRevokedByInUse()) {
             return;
         }
 
         String revokedBy = request.getRevokedBy();
         if (revokedBy == null || revokedBy.equals("")) {
-            filter.append("(certRevokedBy=*)");
+            filters.add("(certRevokedBy=*)");
+
         } else {
-            filter.append("(certRevokedBy=");
-            filter.append(LDAPUtil.escapeFilter(revokedBy));
-            filter.append(")");
+            filters.add("(certRevokedBy=" + LDAPUtil.escapeFilter(revokedBy) + ")");
         }
     }
 
     private void buildDateFilter(String prefix,
-            String outStr, long adjustment,
-            StringBuffer filter) {
+            String outStr, long adjustment) {
+
         if (prefix == null || prefix.length() == 0) return;
+
         long epoch = Long.parseLong(prefix);
         Calendar from = Calendar.getInstance();
         from.setTimeInMillis(epoch);
+
+        StringBuilder filter = new StringBuilder();
         filter.append("(");
         filter.append(LDAPUtil.escapeFilter(outStr));
         filter.append(Long.toString(from.getTimeInMillis() + adjustment));
         filter.append(")");
+
+        filters.add(filter.toString());
     }
 
-    private void buildRevokedOnFilter(StringBuffer filter) {
+    private void buildRevokedOnFilter() {
+
         if (!request.getRevokedOnInUse()) {
             return;
         }
-        buildDateFilter(request.getRevokedOnFrom(), "certRevokedOn>=", 0, filter);
-        buildDateFilter(request.getRevokedOnTo(), "certRevokedOn<=", 86399999, filter);
+
+        buildDateFilter(request.getRevokedOnFrom(), "certRevokedOn>=", 0);
+        buildDateFilter(request.getRevokedOnTo(), "certRevokedOn<=", 86399999);
     }
 
-    private void buildRevocationReasonFilter(StringBuffer filter) {
+    private void buildRevocationReasonFilter() {
+
         if (!request.getRevocationReasonInUse()) {
             return;
         }
+
         String reasons = request.getRevocationReason();
         if (reasons == null) {
             return;
         }
-        String queryCertFilter = null;
+
+        StringBuilder filter = new StringBuilder();
         StringTokenizer st = new StringTokenizer(reasons, ",");
         int count = st.countTokens();
         if (st.hasMoreTokens()) {
-            if (count >=2) filter.append("(|");
+            if (count >= 2) filter.append("(|");
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
-                if (queryCertFilter == null) {
-                    queryCertFilter = "";
-                }
                 filter.append("(x509cert.certRevoInfo=");
                 filter.append(LDAPUtil.escapeFilter(token));
                 filter.append(")");
             }
             if (count >= 2) filter.append(")");
         }
+
+        filters.add(filter.toString());
     }
 
-    private void buildIssuedByFilter(StringBuffer filter) {
+    private void buildIssuedByFilter() {
+
         if (!request.getIssuedByInUse()) {
             return;
         }
+
         String issuedBy = request.getIssuedBy();
         if (issuedBy == null || issuedBy.equals("")) {
-            filter.append("(certIssuedBy=*)");
+            filters.add("(certIssuedBy=*)");
         } else {
-            filter.append("(certIssuedBy=");
-            filter.append(LDAPUtil.escapeFilter(issuedBy));
-            filter.append(")");
+            filters.add("(certIssuedBy=" + LDAPUtil.escapeFilter(issuedBy) + ")");
         }
     }
 
-    private void buildIssuedOnFilter(StringBuffer filter) {
+    private void buildIssuedOnFilter() {
+
         if (!request.getIssuedOnInUse()) {
             return;
         }
-        buildDateFilter(request.getIssuedOnFrom(), "certCreateTime>=", 0, filter);
-        buildDateFilter(request.getIssuedOnTo(), "certCreateTime<=", 86399999, filter);
+
+        buildDateFilter(request.getIssuedOnFrom(), "certCreateTime>=", 0);
+        buildDateFilter(request.getIssuedOnTo(), "certCreateTime<=", 86399999);
     }
 
-    private void buildValidNotBeforeFilter(StringBuffer filter) {
+    private void buildValidNotBeforeFilter() {
+
         if (!request.getValidNotBeforeInUse()) {
             return;
         }
-        buildDateFilter(request.getValidNotBeforeFrom(), ICertRecord.ATTR_X509CERT_NOT_BEFORE+">=", 0, filter);
-        buildDateFilter(request.getValidNotBeforeTo(), ICertRecord.ATTR_X509CERT_NOT_BEFORE+"<=", 86399999, filter);
+
+        buildDateFilter(request.getValidNotBeforeFrom(), ICertRecord.ATTR_X509CERT_NOT_BEFORE+">=", 0);
+        buildDateFilter(request.getValidNotBeforeTo(), ICertRecord.ATTR_X509CERT_NOT_BEFORE+"<=", 86399999);
 
     }
 
-    private void buildValidNotAfterFilter(StringBuffer filter) {
+    private void buildValidNotAfterFilter() {
+
         if (!request.getValidNotAfterInUse()) {
             return;
         }
-        buildDateFilter(request.getValidNotAfterFrom(), ICertRecord.ATTR_X509CERT_NOT_AFTER+">=", 0, filter);
-        buildDateFilter(request.getValidNotAfterTo(), ICertRecord.ATTR_X509CERT_NOT_AFTER+"<=", 86399999, filter);
+
+        buildDateFilter(request.getValidNotAfterFrom(), ICertRecord.ATTR_X509CERT_NOT_AFTER+">=", 0);
+        buildDateFilter(request.getValidNotAfterTo(), ICertRecord.ATTR_X509CERT_NOT_AFTER+"<=", 86399999);
 
     }
 
-    private void buildValidityLengthFilter(StringBuffer filter) {
+    private void buildValidityLengthFilter() {
         if (!request.getValidityLengthInUse()) {
             return;
         }
@@ -242,70 +248,72 @@ public class FilterBuilder {
         Integer count = request.getValidityCount();
         Long unit = request.getValidityUnit();
 
+        StringBuilder filter = new StringBuilder();
         filter.append("(");
         filter.append(ICertRecord.ATTR_X509CERT_DURATION);
         filter.append(LDAPUtil.escapeFilter(op));
         filter.append(count * unit);
         filter.append(")");
+
+        filters.add(filter.toString());
     }
 
-    private void buildCertTypeFilter(StringBuffer filter) {
+    private void buildCertTypeFilter() {
+
         if (!request.getCertTypeInUse()) {
             return;
         }
+
         if (isOn(request.getCertTypeSSLClient())) {
-            filter.append("(x509cert.nsExtension.SSLClient=on)");
+            filters.add("(x509cert.nsExtension.SSLClient=on)");
         } else if (isOff(request.getCertTypeSSLClient())) {
-            filter.append("(x509cert.nsExtension.SSLClient=off)");
+            filters.add("(x509cert.nsExtension.SSLClient=off)");
         }
+
         if (isOn(request.getCertTypeSSLServer())) {
-            filter.append("(x509cert.nsExtension.SSLServer=on)");
+            filters.add("(x509cert.nsExtension.SSLServer=on)");
         } else if (isOff(request.getCertTypeSSLServer())) {
-            filter.append("(x509cert.nsExtension.SSLServer=off)");
+            filters.add("(x509cert.nsExtension.SSLServer=off)");
         }
+
         if (isOn(request.getCertTypeSecureEmail())) {
-            filter.append("(x509cert.nsExtension.SecureEmail=on)");
+            filters.add("(x509cert.nsExtension.SecureEmail=on)");
         } else if (isOff(request.getCertTypeSecureEmail())) {
-            filter.append("(x509cert.nsExtension.SecureEmail=off)");
+            filters.add("(x509cert.nsExtension.SecureEmail=off)");
         }
+
         if (isOn(request.getCertTypeSubSSLCA())) {
-            filter.append("(x509cert.nsExtension.SubordinateSSLCA=on)");
+            filters.add("(x509cert.nsExtension.SubordinateSSLCA=on)");
         } else if (isOff(request.getCertTypeSubSSLCA())) {
-            filter.append("(x509cert.nsExtension.SubordinateSSLCA=off)");
+            filters.add("(x509cert.nsExtension.SubordinateSSLCA=off)");
         }
+
         if (isOn(request.getCertTypeSubEmailCA())) {
-            filter.append("(x509cert.nsExtension.SubordinateEmailCA=on)");
+            filters.add("(x509cert.nsExtension.SubordinateEmailCA=on)");
         } else if (isOff(request.getCertTypeSubEmailCA())) {
-            filter.append("(x509cert.nsExtension.SubordinateEmailCA=off)");
+            filters.add("(x509cert.nsExtension.SubordinateEmailCA=off)");
         }
     }
 
     private boolean isOn(String value) {
-        String inUse = value;
-        if (inUse == null) {
-            return false;
-        }
-        if (inUse.equals("on")) {
+        if (value != null && value.equals("on")) {
             return true;
         }
         return false;
     }
 
     private boolean isOff(String value) {
-        String inUse = value;
-        if (inUse == null) {
-            return false;
-        }
-        if (inUse.equals("off")) {
+        if (value != null && value.equals("off")) {
             return true;
         }
         return false;
     }
 
     private void buildAVAFilter(String param,
-            String avaName, StringBuffer lf, String match) {
+            String avaName, StringBuffer lf, boolean match) {
+
         if (param != null && !param.equals("")) {
-            if (match != null && match.equals(MATCH_EXACTLY)) {
+            if (match) {
                 lf.append("(|");
                 lf.append("("+ICertRecord.ATTR_X509CERT_SUBJECT+"=*");
                 lf.append(avaName);
@@ -318,6 +326,7 @@ public class FilterBuilder {
                 lf.append(LDAPUtil.escapeFilter(LDAPUtil.escapeRDNValue(param)));
                 lf.append(")");
                 lf.append(")");
+
             } else {
                 lf.append("("+ICertRecord.ATTR_X509CERT_SUBJECT+"=*");
                 lf.append(avaName);
@@ -327,6 +336,5 @@ public class FilterBuilder {
                 lf.append("*)");
             }
         }
-
     }
 }
