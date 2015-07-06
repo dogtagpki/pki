@@ -25,6 +25,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.io.FileUtils;
 
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.dbs.certdb.CertId;
@@ -114,8 +115,8 @@ public class UserCertAddCLI extends CLI {
                 System.out.println("Downloading certificate " + serialNumber + ".");
             }
 
-            client = parent.getClient();
-            CertClient certClient = new CertClient(client, "ca");
+            CAClient caClient = MainCLI.createCAClient(parent.getClient());
+            CertClient certClient = new CertClient(caClient);
 
             CertData certData = certClient.getCert(new CertId(serialNumber));
             encoded = certData.getEncoded();

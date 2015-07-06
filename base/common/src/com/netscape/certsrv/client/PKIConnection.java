@@ -1,15 +1,29 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2015 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+
 package com.netscape.certsrv.client;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -18,9 +32,6 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.ws.rs.client.Entity;
@@ -67,7 +78,6 @@ import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 
@@ -76,16 +86,12 @@ import com.netscape.certsrv.base.PKIException;
 
 public class PKIConnection {
 
-    PKIClient client;
+    boolean verbose;
+
     ClientConfig config;
 
-    Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
-    Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
-
-    // List to prevent displaying the same warnings/errors again.
-    Collection<Integer> statuses = new HashSet<Integer>();
-
     DefaultHttpClient httpClient = new DefaultHttpClient();
+    SSLCertificateApprovalCallback callback;
 
     ApacheHttpClient4Engine engine;
     ResteasyClient resteasyClient;
@@ -96,11 +102,9 @@ public class PKIConnection {
 
     File output;
 
-    public PKIConnection(final PKIClient client) {
+    public PKIConnection(ClientConfig config) {
 
-        this.client = client;
-
-        config = client.getConfig();
+        this.config = config;
 
         // Register https scheme.
         Scheme scheme = new Scheme("https", 443, new JSSProtocolSocketFactory());
@@ -125,7 +129,7 @@ public class PKIConnection {
 
                 requestCounter++;
 
-                if (client.verbose) {
+                if (verbose) {
                     System.out.println("HTTP request: "+request.getRequestLine());
                     for (Header header : request.getAllHeaders()) {
                         System.out.println("  "+header.getName()+": "+header.getValue());
@@ -153,7 +157,7 @@ public class PKIConnection {
 
                 responseCounter++;
 
-                if (client.verbose) {
+                if (verbose) {
                     System.out.println("HTTP response: "+response.getStatusLine());
                     for (Header header : response.getAllHeaders()) {
                         System.out.println("  "+header.getName()+": "+header.getValue());
@@ -175,7 +179,7 @@ public class PKIConnection {
                 HttpUriRequest uriRequest = super.getRedirect(request, response, context);
 
                 URI uri = uriRequest.getURI();
-                if (client.verbose) System.out.println("HTTP redirect: "+uri);
+                if (verbose) System.out.println("HTTP redirect: "+uri);
 
                 // Redirect the original request to the new URI.
                 RequestWrapper wrapper;
@@ -201,6 +205,18 @@ public class PKIConnection {
 
         engine = new ApacheHttpClient4Engine(httpClient);
         resteasyClient = new ResteasyClientBuilder().httpEngine(engine).build();
+    }
+
+    public boolean isVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+
+    }
+    public void setCallback(SSLCertificateApprovalCallback callback) {
+        this.callback = callback;
     }
 
     public void storeRequest(File file, HttpRequest request) throws IOException {
@@ -273,169 +289,6 @@ public class PKIConnection {
         }
     }
 
-    private class ServerCertApprovalCB implements SSLCertificateApprovalCallback {
-
-        // NOTE:  The following helper method defined as
-        //        'public String displayReason(int reason)'
-        //        should be moved into the JSS class called
-        //        'org.mozilla.jss.ssl.SSLCertificateApprovalCallback'
-        //        under its nested subclass called 'ValidityStatus'.
-
-        // While all reason values should be unique, this method has been
-        // written to return the name of the first defined reason that is
-        // encountered which contains the requested value, or null if no
-        // reason containing the requested value is encountered.
-        public String displayReason(int reason) {
-            Class<SSLCertificateApprovalCallback.ValidityStatus> c =
-                SSLCertificateApprovalCallback.ValidityStatus.class;
-            for (Field f : c.getDeclaredFields()) {
-                int mod = f.getModifiers();
-                if (Modifier.isStatic(mod) &&
-                    Modifier.isPublic(mod) &&
-                    Modifier.isFinal(mod)) {
-                    try {
-                        int value = f.getInt(null);
-                        if (value == reason) {
-                            return f.getName();
-                        }
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public String getMessage(X509Certificate serverCert, int reason) {
-
-            if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
-
-                return "BAD_CERT_DOMAIN encountered on '"+serverCert.getSubjectDN()+"' indicates a common-name mismatch";
-            }
-
-            if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
-                return "UNTRUSTED ISSUER encountered on '" +
-                        serverCert.getSubjectDN() + "' indicates a non-trusted CA cert '" +
-                        serverCert.getIssuerDN() + "'";
-            }
-
-            if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
-                return "CA_CERT_INVALID encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!";
-            }
-
-            String reasonName = displayReason(reason);
-            if (reasonName != null) {
-                return reasonName+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!";
-            }
-
-            return "Unknown/undefined reason "+reason+" encountered on '"+serverCert.getSubjectDN()+"' results in a denied SSL server cert!";
-        }
-
-        public boolean handleUntrustedIssuer(X509Certificate serverCert) {
-            try {
-                System.out.print("Import CA certificate (Y/n)? ");
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                String line = reader.readLine().trim();
-
-                if (!line.equals("") && !line.equalsIgnoreCase("Y"))
-                    return false;
-
-                String caServerURI = "http://" + config.getServerURI().getHost() + ":8080/ca";
-
-                System.out.print("CA server URI [" + caServerURI + "]: ");
-                System.out.flush();
-
-                line = reader.readLine().trim();
-                if (!line.equals("")) {
-                    caServerURI = line;
-                }
-
-                if (client.verbose) System.out.println("Downloading CA certificate chain from " + caServerURI + ".");
-                byte[] bytes = client.downloadCACertChain(caServerURI);
-
-                if (client.verbose) System.out.println("Importing CA certificate chain.");
-                client.importCACertPackage(bytes);
-
-                if (client.verbose) System.out.println("Imported CA certificate.");
-                return true;
-
-            } catch (Exception e) {
-                System.err.println("ERROR: "+e);
-                return false;
-            }
-        }
-
-        // Callback to approve or deny returned SSL server cert.
-        // Right now, simply approve the cert.
-        public boolean approve(X509Certificate serverCert,
-                SSLCertificateApprovalCallback.ValidityStatus status) {
-
-            boolean approval = true;
-
-            if (client.verbose) System.out.println("Server certificate: "+serverCert.getSubjectDN());
-
-            SSLCertificateApprovalCallback.ValidityItem item;
-
-            // If there are no items in the Enumeration returned by
-            // getReasons(), you can assume that the certificate is
-            // trustworthy, and return true to allow the connection to
-            // continue, or you can continue to make further tests of
-            // your own to determine trustworthiness.
-            Enumeration<?> errors = status.getReasons();
-            while (errors.hasMoreElements()) {
-                item = (SSLCertificateApprovalCallback.ValidityItem) errors.nextElement();
-                int reason = item.getReason();
-
-                if (isRejected(reason)) {
-                    if (!statuses.contains(reason))
-                        System.err.println("ERROR: " + getMessage(serverCert, reason));
-                    approval = false;
-
-                } else if (isIgnored(reason)) {
-                    // Ignore validity status
-
-                } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER) {
-                    // Issue a WARNING, but allow this process
-                    // to continue since we haven't installed a trusted CA
-                    // cert for this operation.
-                    if (!statuses.contains(reason)) {
-                        System.err.println("WARNING: " + getMessage(serverCert, reason));
-                        handleUntrustedIssuer(serverCert);
-                    }
-
-                } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
-                    // Issue a WARNING, but allow this process to continue on
-                    // common-name mismatches.
-                    if (!statuses.contains(reason))
-                        System.err.println("WARNING: " + getMessage(serverCert, reason));
-
-                } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
-                    // Set approval false to deny this
-                    // certificate so that the connection is terminated.
-                    // (Expect an IOException on the outstanding
-                    //  read()/write() on the socket).
-                    if (!statuses.contains(reason))
-                        System.err.println("ERROR: " + getMessage(serverCert, reason));
-                    approval = false;
-
-                } else {
-                    // Set approval false to deny this certificate so that
-                    // the connection is terminated. (Expect an IOException
-                    // on the outstanding read()/write() on the socket).
-                    if (!statuses.contains(reason))
-                        System.err.println("ERROR: " + getMessage(serverCert, reason));
-                    approval = false;
-                }
-
-                statuses.add(reason);
-            }
-
-            return approval;
-        }
-    }
-
     private class JSSProtocolSocketFactory implements SchemeSocketFactory, SchemeLayeredSocketFactory {
 
         @Override
@@ -499,18 +352,18 @@ public class PKIConnection {
                         port,
                         localAddr,
                         localPort,
-                        new ServerCertApprovalCB(),
+                        callback,
                         null);
 
             } else {
-                socket = new SSLSocket(sock, hostName, new ServerCertApprovalCB(), null);
+                socket = new SSLSocket(sock, hostName, callback, null);
             }
 // setSSLVersionRange needs to be exposed in jss
 //            socket.setSSLVersionRange(org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0, org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
 
             String certNickname = config.getCertNickname();
             if (certNickname != null) {
-                if (client.verbose) System.out.println("Client certificate: "+certNickname);
+                if (verbose) System.out.println("Client certificate: "+certNickname);
                 socket.setClientCertNickname(certNickname);
             }
 
@@ -590,34 +443,6 @@ public class PKIConnection {
     public String post(MultivaluedMap<String, String> form) throws Exception {
         ResteasyWebTarget target = resteasyClient.target(config.getServerURI());
         return target.request().post(Entity.form(form), String.class);
-    }
-
-    public void addRejectedCertStatus(Integer rejectedCertStatus) {
-        rejectedCertStatuses.add(rejectedCertStatus);
-    }
-
-    public void setRejectedCertStatuses(Collection<Integer> rejectedCertStatuses) {
-        this.rejectedCertStatuses.clear();
-        if (rejectedCertStatuses == null) return;
-        this.rejectedCertStatuses.addAll(rejectedCertStatuses);
-    }
-
-    public boolean isRejected(Integer certStatus) {
-        return rejectedCertStatuses.contains(certStatus);
-    }
-
-    public void addIgnoredCertStatus(Integer ignoredCertStatus) {
-        ignoredCertStatuses.add(ignoredCertStatus);
-    }
-
-    public void setIgnoredCertStatuses(Collection<Integer> ignoredCertStatuses) {
-        this.ignoredCertStatuses.clear();
-        if (ignoredCertStatuses == null) return;
-        this.ignoredCertStatuses.addAll(ignoredCertStatuses);
-    }
-
-    public boolean isIgnored(Integer certStatus) {
-        return ignoredCertStatuses.contains(certStatus);
     }
 
     public File getOutput() {

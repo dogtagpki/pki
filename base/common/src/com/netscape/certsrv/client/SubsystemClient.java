@@ -17,7 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.client;
 
+import java.net.URI;
 import java.net.URISyntaxException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.netscape.certsrv.account.AccountClient;
 
@@ -42,6 +47,41 @@ public class SubsystemClient extends Client {
      */
     public void login() {
         accountClient.login();
+    }
+
+    public boolean exists() throws Exception {
+
+        ClientConfig config = client.getConfig();
+        URI serverURI = config.getServerURI();
+
+        URI subsystemURI = new URI(
+                serverURI.getScheme(),
+                null,
+                serverURI.getHost(),
+                serverURI.getPort(),
+                "/" + name,
+                null,
+                null);
+
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpGet method = new HttpGet(subsystemURI);
+        try {
+            HttpResponse response = client.execute(method);
+            int code = response.getStatusLine().getStatusCode();
+
+            if (code == 200) {
+                return true;
+
+            } else if (code == 404) {
+                return false;
+
+            } else {
+                throw new Exception("Error: " + response.getStatusLine());
+            }
+
+        } finally {
+            method.releaseConnection();
+        }
     }
 
     /**

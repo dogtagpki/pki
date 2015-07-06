@@ -48,17 +48,15 @@ public class SubsystemCLI extends CLI {
 
         init();
 
-        try {
-            // login if username or nickname is specified
-            ClientConfig config = getClient().getConfig();
-            if (config.getUsername() != null || config.getCertNickname() != null) {
-                login();
-            }
-
-            super.execute(args);
-
-        } finally {
-            logout();
+        // login if username or nickname is specified
+        ClientConfig config = getClient().getConfig();
+        if (config.getUsername() != null || config.getCertNickname() != null) {
+            login();
         }
+
+        super.execute(args);
+
+        // logout if there is no failures
+        logout();
     }
 }

@@ -23,8 +23,10 @@ import java.io.Console;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,6 +41,7 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
@@ -269,6 +272,36 @@ public class MainCLI extends CLI {
         return promptForPassword("Enter Password: ");
     }
 
+    public static CAClient createCAClient(PKIClient client) throws Exception {
+
+        ClientConfig config = client.getConfig();
+        CAClient caClient = new CAClient(client);
+
+        while (!caClient.exists()) {
+            System.err.println("ERROR: CA subsystem not available");
+
+            URI serverURI = config.getServerURI();
+            String uri = serverURI.getScheme() + "://" + serverURI.getHost() + ":" + serverURI.getPort();
+
+            System.out.print("CA server URI [" + uri + "]: ");
+            System.out.flush();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            String line = reader.readLine().trim();
+            if (!line.equals("")) {
+                uri = line;
+            }
+
+            config = new ClientConfig(client.getConfig());
+            config.setServerURI(uri);
+
+            client = new PKIClient(config);
+            caClient = new CAClient(client);
+        }
+
+        return caClient;
+    }
+
     public void parseOptions(CommandLine cmd) throws Exception {
 
         verbose = cmd.hasOption("v");
@@ -465,13 +498,14 @@ public class MainCLI extends CLI {
         client = new PKIClient(config, null);
         client.setVerbose(verbose);
 
-        PKIConnection connection = client.getConnection();
-        connection.setRejectedCertStatuses(rejectedCertStatuses);
-        connection.setIgnoredCertStatuses(ignoredCertStatuses);
+        client.setRejectedCertStatuses(rejectedCertStatuses);
+        client.setIgnoredCertStatuses(ignoredCertStatuses);
 
         if (output != null) {
             File file = new File(output);
             file.mkdirs();
+
+            PKIConnection connection = client.getConnection();
             connection.setOutput(file);
         }
     }

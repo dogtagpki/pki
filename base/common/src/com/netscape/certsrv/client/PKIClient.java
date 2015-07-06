@@ -1,3 +1,21 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2015 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+
 package com.netscape.certsrv.client;
 
 import java.io.IOException;
@@ -5,6 +23,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.cert.CertificateEncodingException;
+import java.util.Collection;
+import java.util.HashSet;
 
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
@@ -42,10 +62,22 @@ public class PKIClient {
 
     public boolean verbose;
 
+    Collection<Integer> rejectedCertStatuses = new HashSet<Integer>();
+    Collection<Integer> ignoredCertStatuses = new HashSet<Integer>();
+
+    // List to prevent displaying the same warnings/errors again.
+    Collection<Integer> statuses = new HashSet<Integer>();
+
+    public PKIClient(ClientConfig config) {
+        this(config, null);
+    }
+
     public PKIClient(ClientConfig config, CryptoProvider crypto) {
         this.config = config;
         this.crypto = crypto;
-        connection = new PKIConnection(this);
+
+        connection = new PKIConnection(config);
+        connection.setCallback(new PKICertificateApprovalCallback(this));
     }
 
     public <T> T createProxy(String subsystem, Class<T> clazz) throws URISyntaxException {
@@ -102,6 +134,7 @@ public class PKIClient {
 
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
+        connection.setVerbose(verbose);
     }
 
     public X509Certificate getCert(String nickname)
@@ -182,5 +215,33 @@ public class PKIClient {
         }
 
         cryptoToken.getCryptoStore().deleteCert(cert);
+    }
+
+    public void addRejectedCertStatus(Integer rejectedCertStatus) {
+        rejectedCertStatuses.add(rejectedCertStatus);
+    }
+
+    public void setRejectedCertStatuses(Collection<Integer> rejectedCertStatuses) {
+        this.rejectedCertStatuses.clear();
+        if (rejectedCertStatuses == null) return;
+        this.rejectedCertStatuses.addAll(rejectedCertStatuses);
+    }
+
+    public boolean isRejected(Integer certStatus) {
+        return rejectedCertStatuses.contains(certStatus);
+    }
+
+    public void addIgnoredCertStatus(Integer ignoredCertStatus) {
+        ignoredCertStatuses.add(ignoredCertStatus);
+    }
+
+    public void setIgnoredCertStatuses(Collection<Integer> ignoredCertStatuses) {
+        this.ignoredCertStatuses.clear();
+        if (ignoredCertStatuses == null) return;
+        this.ignoredCertStatuses.addAll(ignoredCertStatuses);
+    }
+
+    public boolean isIgnored(Integer certStatus) {
+        return ignoredCertStatuses.contains(certStatus);
     }
 }

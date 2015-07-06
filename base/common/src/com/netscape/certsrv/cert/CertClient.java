@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.request.RequestId;
@@ -34,6 +35,10 @@ public class CertClient extends Client {
 
     public CertResource certClient;
     public CertRequestResource certRequestClient;
+
+    public CertClient(SubsystemClient subsystemClient) throws URISyntaxException {
+        this(subsystemClient.client, subsystemClient.getName());
+    }
 
     public CertClient(PKIClient client, String subsystem) throws URISyntaxException {
         super(client, subsystem, "cert");
