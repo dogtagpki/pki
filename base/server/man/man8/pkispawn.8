@@ -277,10 +277,10 @@ A cloned CA is a CA which uses the same signing, OCSP signing, and audit signing
 .PP
 Before the clone can be generated, the Directory Server must be created that is separate from the master CA's Directory Server.  The example assumes that the master CA and cloned CA are on different machines, and that their Directory Servers are on port 389.  In addition, the master's system certs and keys have been stored in a PKCS #12 file that is copied over to the clone subsystem in the location specified in <path_to_pkcs12_file>.  This file is created when the master CA is installed; it can also be generated using \fBPKCS12Export\fP.  The file needs to be readable by the user the Certificate Server runs as (by default, pkiuser) and be given the SELinux context pki_tomcat_cert_t.
 .PP
-.SS Installing a KRA, OCSP, or TKS clone
+.SS Installing a KRA or TKS clone (OCSP unsupported as of now)
 \x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
 .PP
-where subsystem is KRA, OCSP, or TKS, and \fImyconfig.txt\fP contains the following text:
+where subsystem is KRA or TKS and \fImyconfig.txt\fP contains the following text:
 .IP
 .nf
 [DEFAULT]
@@ -302,9 +302,9 @@ pki_clone_uri=https://<master_kra_host>:<master_kra_https_port>
 pki_issuing_ca=https://<ca_hostname>:<ca_https_port>
 .fi
 .PP
-As with a CA clone, a KRA, OCSP, or TKS clone uses the same certificates and basic configuration as the original subsystem. The configuration points to the original subsystem to copy its configuration. This example also assumes that the CA is on a remote machine and specifies the CA and security domain information. 
+As with a CA clone, a KRA or TKS clone uses the same certificates and basic configuration as the original subsystem. The configuration points to the original subsystem to copy its configuration. This example also assumes that the CA is on a remote machine and specifies the CA and security domain information.
 .PP
-The subsystem section is [KRA], [OCSP], or [TKS].
+The subsystem section is [KRA] or [TKS].
 .SS Installing a subordinate CA
 \x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
 .PP
