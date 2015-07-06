@@ -152,6 +152,9 @@ Set to True to back up the subsystem certificates and keys to a PKCS #12 file.  
 .B pki_client_dir
 .IP
 This is the location where all client data used during the installation is stored.  At the end of the invocation of \fBpkispawn\fP, the administrative user's certificate and keys are stored in a PKCS #12 file in this location.
+.IP
+\fBNote:\fP
+When using an HSM, it is currently recommended to NOT specify a value for \fBpki_client_dir\fP that is different from the default value.
 .TP
 .B pki_client_database_dir,  pki_client_database_password
 .IP
