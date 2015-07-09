@@ -55,24 +55,24 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
      * variables
      *==========================================================*/
 
-	/* static variables */
-	static CryptoManager cryptoManager;
-	static CertificateFactory cf;
-	static SelectCertDialog selectCertDialog = null;
-        static PromptForTrustDialog promptForTrustDialog = null;
+    /* static variables */
+    static CryptoManager cryptoManager;
+    static CertificateFactory cf;
+    static SelectCertDialog selectCertDialog = null;
+    static PromptForTrustDialog promptForTrustDialog = null;
 
-	/* private valiable */
-	private InputStream httpIn;
-	private OutputStream httpOut;
-	private byte[] body;
-	private int bodyLen;
-	private String header;
-	private int available;
-	private int totalRead;
-	private boolean endOfHeader = false;
+    /* private valiable */
+    private InputStream httpIn;
+    private OutputStream httpOut;
+    private byte[] body;
+    private int bodyLen;
+    private String header;
+    private int available;
+    private int totalRead;
+    private boolean endOfHeader = false;
 
-	private static int HTTP_OK_RESPONSE = 200;
-	private static final String PANELNAME = "SSLCLIENT";
+    private static int HTTP_OK_RESPONSE = 200;
+    private static final String PANELNAME = "SSLCLIENT";
     private boolean abort = false;;
     private boolean mClientAuth = false;
     private boolean mCertAccepted = true;
@@ -81,46 +81,46 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
     private boolean mTokenPasswordInit = true;
     private boolean mTokenPasswdSame = true;
 
-	protected SSLSocket s = null;
+    protected SSLSocket s = null;
 
-	/*==========================================================
-	* constructors
-	*==========================================================*/
-	public JSSConnection(String host, int port)
-	    throws IOException, UnknownHostException {
+    /*==========================================================
+    * constructors
+    *==========================================================*/
+    public JSSConnection(String host, int port)
+        throws IOException, UnknownHostException {
 
-		UtilConsoleGlobals.initJSS();
-		cf = UtilConsoleGlobals.getX509CertificateFactory();
+        UtilConsoleGlobals.initJSS();
+        cf = UtilConsoleGlobals.getX509CertificateFactory();
         try {
             cryptoManager = CryptoManager.getInstance();
         } catch (Exception e) {
         }
 
-                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange stream_range =
-                    new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
-                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0,
-                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
+        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange stream_range =
+            new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
+                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0,
+                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
 
-                SSLSocket.setSSLVersionRangeDefault(
-                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.STREAM,
-                    stream_range);
+        SSLSocket.setSSLVersionRangeDefault(
+            org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.STREAM,
+            stream_range);
 
-                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange datagram_range =
-                    new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
-                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_1,
-                        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
+        org.mozilla.jss.ssl.SSLSocket.SSLVersionRange datagram_range =
+            new org.mozilla.jss.ssl.SSLSocket.SSLVersionRange(
+                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_1,
+                org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);
 
-                SSLSocket.setSSLVersionRangeDefault(
-                    org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
-                    datagram_range);
-		s = new SSLSocket(host, port, null, 0, this, this);
+        SSLSocket.setSSLVersionRangeDefault(
+            org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
+            datagram_range);
+        s = new SSLSocket(host, port, null, 0, this, this);
 
-		// Initialze Http Input and Output Streams
-		httpIn = s.getInputStream();
-		httpOut = s.getOutputStream();
+        // Initialze Http Input and Output Streams
+        httpIn = s.getInputStream();
+        httpOut = s.getOutputStream();
         cryptoManager.setPasswordCallback(new pwcb());
         Debug.println("JSSConnection Debug: end of JSSConnection constructor");
-	}
+    }
 
     public boolean approve(org.mozilla.jss.crypto.X509Certificate serverCert,
        ValidityStatus status)
