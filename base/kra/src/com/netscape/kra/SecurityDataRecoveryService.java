@@ -117,6 +117,8 @@ public class SecurityDataRecoveryService implements IService {
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
 
+        CMS.debug("SecurityDataRecoveryService.serviceRequest()");
+
         //Pave the way for allowing generated IV vector
         byte iv[]= null;
         byte iv_default[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
@@ -130,28 +132,34 @@ public class SecurityDataRecoveryService implements IService {
         BigInteger serialno = request.getExtDataInBigInteger(ATTR_SERIALNO);
         request.setExtData(ATTR_KEY_RECORD, serialno);
         RequestId requestID = request.getRequestId();
+
         if (params == null) {
-            CMS.debug("Can't get volatile params.");
+            CMS.debug("SecurityDataRecoveryService: Can't get volatile params.");
             auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                     "cannot get volatile params");
             throw new EBaseException("Can't obtain volatile params!");
         }
-        byte[] wrappedPassPhrase = null;
-        byte[] wrappedSessKey = null;
+
         String transWrappedSessKeyStr = (String) params.get(IRequest.SECURITY_DATA_TRANS_SESS_KEY);
+        byte[] wrappedSessKey = null;
         if (transWrappedSessKeyStr != null) {
             wrappedSessKey = Utils.base64decode(transWrappedSessKeyStr);
         }
+
         String sessWrappedPassPhraseStr = (String) params.get(IRequest.SECURITY_DATA_SESS_PASS_PHRASE);
+        byte[] wrappedPassPhrase = null;
         if (sessWrappedPassPhraseStr != null) {
             wrappedPassPhrase = Utils.base64decode(sessWrappedPassPhraseStr);
         }
+
         String ivInStr = (String) params.get(IRequest.SECURITY_DATA_IV_STRING_IN);
         if (ivInStr != null) {
             iv_in = Utils.base64decode(ivInStr);
         }
+
         if (transWrappedSessKeyStr == null && sessWrappedPassPhraseStr == null) {
             //We may be in recovery case where no params were initially submitted.
+            CMS.debug("SecurityDataRecoveryService: No params provided.");
             return false;
         }
 
@@ -168,35 +176,43 @@ public class SecurityDataRecoveryService implements IService {
 
         KeyRecord keyRecord = (KeyRecord) mStorage.readKeyRecord(serialno);
 
-        SymmetricKey unwrappedSess = null;
         String dataType = (String) keyRecord.get(IKeyRecord.ATTR_DATA_TYPE);
+        if (dataType == null) dataType = KeyRequestResource.ASYMMETRIC_KEY_TYPE;
+
+        SymmetricKey unwrappedSess = null;
         SymmetricKey symKey = null;
         byte[] unwrappedSecData = null;
         PrivateKey privateKey = null;
+
         if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
             symKey = recoverSymKey(keyRecord);
 
         } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
             unwrappedSecData = recoverSecurityData(keyRecord);
+
         } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
             try {
                 privateKey = mStorageUnit.unwrap(keyRecord.getPrivateKeyData(),
                         X509Key.parsePublicKey(new DerValue(keyRecord.getPublicKeyData())));
+
             } catch (IOException e) {
-                e.printStackTrace();
-                CMS.debug("Cannot unwrap stored private key.");
-                throw new EBaseException("Cannot fetch the private key from the database.");
+                throw new EBaseException("Cannot fetch the private key from the database.", e);
             }
+
         } else {
             throw new EBaseException("Invalid data type stored in the database.");
         }
+
         CryptoToken ct = mTransportUnit.getToken();
 
         byte[] key_data = null;
         String pbeWrappedData = null;
-        if (sessWrappedPassPhraseStr != null) { //We have a trans wrapped pass phrase, we will be doing PBE packaging
+
+        if (sessWrappedPassPhraseStr != null) {
+            CMS.debug("SecurityDataRecoveryService: secure retrieved data with tranport passphrase");
             byte[] unwrappedPass = null;
             Password pass = null;
+
             try {
                 unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.DECRYPT);
                 Cipher decryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
@@ -207,12 +223,15 @@ public class SecurityDataRecoveryService implements IService {
                 passStr = null;
 
                 if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
+                    CMS.debug("SecurityDataRecoveryService: wrap stored symmetric key with transport passphrase");
                     pbeWrappedData = createEncryptedContentInfo(ct, symKey, null, null,
                             pass);
                 } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)){
+                    CMS.debug("SecurityDataRecoveryService: encrypt stored passphrase with transport passphrase");
                     pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null,
                             pass);
                 } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
+                    CMS.debug("SecurityDataRecoveryService: wrap stored private key with transport passphrase");
                     pbeWrappedData = createEncryptedContentInfo(ct, null, null, privateKey,
                             pass);
                 }
@@ -222,73 +241,81 @@ public class SecurityDataRecoveryService implements IService {
             } catch (Exception e) {
                 auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                         "Cannot unwrap passphrase");
-                throw new EBaseException("Can't unwrap pass phase! " + e.toString());
+                throw new EBaseException("Cannot unwrap passphrase: " + e, e);
+
             } finally {
-                if ( pass != null) {
+                if (pass != null) {
                     pass.clear();
                 }
 
-                if ( unwrappedPass != null) {
+                if (unwrappedPass != null) {
                     java.util.Arrays.fill(unwrappedPass, (byte) 0);
                 }
             }
 
-        } else { // No trans wrapped pass phrase, return session wrapped data.
+        } else {
+            CMS.debug("SecurityDataRecoveryService: secure retrieved data with session key");
+
             if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
-                //wrap the key with session key
+                CMS.debug("SecurityDataRecoveryService: wrap stored symmetric key with session key");
                 try {
                     unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.WRAP);
                     KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
                     wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
                     key_data = wrapper.wrap(symKey);
+
                 } catch (Exception e) {
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                             "Cannot wrap symmetric key");
-                    throw new EBaseException("Can't wrap symmetric key! " + e.toString());
+                    throw new EBaseException("Cannot wrap symmetric key: " + e, e);
                 }
 
             } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
+                CMS.debug("SecurityDataRecoveryService: encrypt stored passphrase with session key");
                 try {
                     unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.ENCRYPT);
                     Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
                     if (encryptor != null) {
                         encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
                         key_data = encryptor.doFinal(unwrappedSecData);
+
                     } else {
                         auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
                                 serialno.toString(), "Failed to create cipher");
                         throw new IOException("Failed to create cipher");
                     }
+
                 } catch (Exception e) {
-                    e.printStackTrace();
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
-                            serialno.toString(), "Cannot wrap pass phrase");
-                    throw new EBaseException("Can't wrap pass phrase!");
+                            serialno.toString(), "Cannot encrypt passphrase");
+                    throw new EBaseException("Cannot encrypt passphrase: " + e, e);
                 }
 
             } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
-                CMS.debug("Wrapping the private key with the session key");
+                CMS.debug("SecurityDataRecoveryService: wrap stored private key with session key");
                 try {
                     unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.WRAP);
                     KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
                     wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
                     key_data = wrapper.wrap(privateKey);
+
                 } catch (Exception e) {
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
                             "Cannot wrap private key");
-                    throw new EBaseException("Cannot wrap private key - " + e.toString());
+                    throw new EBaseException("Cannot wrap private key: " + e, e);
                 }
             }
 
             String wrappedKeyData = Utils.base64encode(key_data);
             params.put(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA, wrappedKeyData);
             params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
-
         }
+
         auditRecoveryRequestProcessed(auditSubjectID, ILogger.SUCCESS, requestID, serialno.toString(),
                 "None");
         request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
         mKRA.getRequestQueue().updateRequest(request);
+
         return false; //return true ? TODO
     }
 

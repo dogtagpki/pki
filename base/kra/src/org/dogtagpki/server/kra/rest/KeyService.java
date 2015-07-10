@@ -117,53 +117,66 @@ public class KeyService extends PKIService implements KeyResource {
      */
     @Override
     public Response retrieveKey(KeyRecoveryRequest data) {
-        String method = "KeyService.retrieveKey: ";
+
+        CMS.debug("KeyService.retrieveKey()");
         String auditInfo = "KeyService.retrieveKey";
-        CMS.debug(method + "begins.");
+
         if (data == null) {
-            String msg = "Invalid request: data is null";
-            CMS.debug(msg);
-            auditRetrieveKey(ILogger.FAILURE, "None", "None", auditInfo + ";" + msg);
-            throw new BadRequestException(method + msg);
+            String message = "Missing key recovery request";
+            CMS.debug(message);
+            auditRetrieveKey(ILogger.FAILURE, "None", "None", auditInfo + ";" + message);
+            throw new BadRequestException(message);
         }
-        // auth and authz
+
         RequestId requestID = data.getRequestId();
-        IRequest request;
-        KeyId keyId = data.getKeyId();
+        CMS.debug("KeyService: request ID: " + requestID);
 
         if (requestID != null)
             auditInfo = auditInfo + ": requestID=" + requestID.toString();
 
+        KeyId keyId = data.getKeyId();
+        CMS.debug("KeyService: key ID: " + keyId);
         if (keyId != null)
             auditInfo = auditInfo + "; keyID=" + keyId.toString();
 
+        IRequest request;
         try {
             request = queue.findRequest(requestID);
+
         } catch (EBaseException e) {
-            e.printStackTrace();
+            CMS.debug(e);
             auditRetrieveKey(ILogger.FAILURE, requestID, null, auditInfo + ";" + e.getMessage());
             throw new PKIException(e.getMessage());
         }
+
         String type = request.getRequestType();
+        CMS.debug("KeyService: request type: " + type);
         auditInfo = auditInfo + "; request type:" + type;
+
         KeyData keyData;
         try {
             if (IRequest.KEYRECOVERY_REQUEST.equals(type)) {
                 keyData = recoverKey(data);
+
             } else {
                 keyId = validateRequest(data);
                 keyData = getKey(keyId, data);
             }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             auditRetrieveKey(ILogger.FAILURE, requestID, keyId, auditInfo + ";" + e.getMessage());
             throw new PKIException(e.getMessage());
         }
+
         if (keyData == null) {
-            // no key record
+            CMS.debug("KeyService: No key record");
             auditRetrieveKey(ILogger.FAILURE, requestID, keyId, auditInfo + "; No key record");
             throw new HTTPGoneException("No key record.");
         }
+
+        CMS.debug("KeyService: key retrieved");
+
         auditRetrieveKey(ILogger.SUCCESS, requestID, keyId, auditInfo);
 
         return createOKResponse(keyData);
