@@ -34,6 +34,8 @@ import org.mozilla.jss.pkcs11.*;
 import javax.swing.*;
 import java.awt.*;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 /**
  * JSSConnection deals with establishing a connection to
  * a server, sending requests and reading responses.
@@ -113,6 +115,9 @@ public class JSSConnection implements IConnection, SSLCertificateApprovalCallbac
         SSLSocket.setSSLVersionRangeDefault(
             org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
             datagram_range);
+
+        CryptoUtil.setClientCiphers();
+
         s = new SSLSocket(host, port, null, 0, this, this);
 
         // Initialze Http Input and Output Streams

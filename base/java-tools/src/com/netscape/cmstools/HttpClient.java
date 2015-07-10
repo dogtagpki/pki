@@ -40,6 +40,7 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -49,6 +50,7 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class HttpClient {
     public static final String PR_INTERNAL_TOKEN_NAME = "internal";
+
     private String _host = null;
     private int _port = 0;
     private boolean _secure = false;
@@ -144,6 +146,9 @@ public class HttpClient {
                 SSLSocket.setSSLVersionRangeDefault(
                     org.mozilla.jss.ssl.SSLSocket.SSLProtocolVariant.DATA_GRAM,
                     datagram_range);
+
+                CryptoUtil.setClientCiphers();
+
                 sslSocket = new SSLSocket(_host, _port);
                 // setSSLVersionRange needs to be exposed in jss
                 // sslSocket.setSSLVersionRange(org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_0, org.mozilla.jss.ssl.SSLSocket.SSLVersionRange.tls1_2);

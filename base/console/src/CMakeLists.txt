@@ -17,6 +17,14 @@ find_file(PKI_CERTSRV_JAR
         /usr/share/java/pki
 )
 
+find_file(PKI_CMSUTIL_JAR
+    NAMES
+        pki-cmsutil.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java/pki
+)
+
 
 # '/usr/share/java' jars
 find_file(BASE_JAR
@@ -92,7 +100,7 @@ javac(pki-console-classes
         ${CMAKE_BINARY_DIR}/classes
         ${BASE_JAR} ${LDAPJDK_JAR} ${MMC_JAR}
         ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
-        ${PKI_NSUTIL_JAR} ${PKI_CERTSRV_JAR}
+        ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR} ${PKI_CERTSRV_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes

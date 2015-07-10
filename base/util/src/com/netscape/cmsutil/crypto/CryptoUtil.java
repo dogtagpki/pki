@@ -24,6 +24,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.net.SocketException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -36,9 +37,12 @@ import java.security.cert.CertificateException;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -122,6 +126,7 @@ import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
+import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
@@ -135,6 +140,17 @@ public class CryptoUtil {
     public static final int LINE_COUNT = 76;
     public static final String CERT_BEGIN_HEADING = "-----BEGIN CERTIFICATE-----";
     public static final String CERT_END_HEADING = "-----END CERTIFICATE-----";
+
+    static public final Integer[] clientECCiphers = {
+        SSLSocket.TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+        SSLSocket.TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
+        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+        SSLSocket.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+        SSLSocket.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+    };
+    static public List<Integer> clientECCipherList = new ArrayList<Integer>(Arrays.asList(clientECCiphers));
 
     private static final String[] ecCurves = {
             "nistp256", "nistp384", "nistp521", "sect163k1", "nistk163", "sect163r1", "sect163r2",
@@ -674,6 +690,34 @@ public class CryptoUtil {
         KeyPair pair = keygen.genKeyPair();
 
         return pair;
+    }
+
+    public static void setClientCiphers()
+            throws SocketException {
+        int ciphers[] = SSLSocket.getImplementedCipherSuites();
+        for (int j = 0; ciphers != null && j < ciphers.length; j++) {
+            boolean enabled = SSLSocket.getCipherPreferenceDefault(ciphers[j]);
+            //System.out.println("CryptoUtil: cipher '0x" +
+            //    Integer.toHexString(ciphers[j]) + "'" + " enabled? " +
+            //    enabled);
+            // make sure SSLv2 ciphers are not enabled
+            if ((ciphers[j] & 0xfff0) ==0xff00) {
+                if (enabled) {
+                    //System.out.println("CryptoUtil: disabling SSL2 NSS Cipher '0x" +
+                    //    Integer.toHexString(ciphers[j]) + "'");
+                    SSLSocket.setCipherPreferenceDefault(ciphers[j], false);
+                }
+            } else {
+                /*
+                 * unlike RSA ciphers, ECC ciphers are not enabled by default
+                 */
+                if ((!enabled) && clientECCipherList.contains(ciphers[j])) {
+                  //System.out.println("CryptoUtil: enabling ECC NSS Cipher '0x" +
+                  //    Integer.toHexString(ciphers[j]) + "'");
+                  SSLSocket.setCipherPreferenceDefault(ciphers[j], true);
+                }
+            }
+        }
     }
 
     public static byte[] getModulus(PublicKey pubk) {
