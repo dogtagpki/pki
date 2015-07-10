@@ -850,7 +850,6 @@ systemctl daemon-reload
 %{_mandir}/man1/pki-user-cert.1.gz
 %{_mandir}/man1/pki-ca-profile.1.gz
 
-
 %if %{with server}
 
 %files -n pki-server
@@ -943,6 +942,7 @@ systemctl daemon-reload
 %{_datadir}/pki/tps/webapps/
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
+%{_mandir}/man1/tpsclient.1.gz
 # files for native 'tpsclient'
 # REMINDER:  Remove this comment once 'tpsclient' is rewritten as a Java app
 %{_bindir}/tpsclient
