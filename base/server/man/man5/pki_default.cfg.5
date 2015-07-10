@@ -257,11 +257,15 @@ Installs a clone, rather than original, subsystem.
 .IP
 Location and password of the PKCS #12 file containing the system certificates for the master subsystem being cloned.  This file should be readable by the user that the Certificate Server is running as (default of pkiuser), and have the correct selinux context (pki_tomcat_cert_t).  This can be achieved by placing the file in \fI/var/lib/pki/<instance_name>/alias\fP.
 .TP
+.B pki_clone_setup_replication
+.IP
+Defaults to True.  If set to False, the installer does not set up replication agreements from the master to the clone as part of the subsystem configuration.  In this case, it is expected that the top level suffix already exists, and that the data has already been replicated.  This option is useful if you want to use other tools to create and manage your replication topology, or if the baseDN is already replicated as part of a top-level suffix.
+.TP
 .B pki_clone_replication_master_port, pki_clone_replication_clone_port
 .IP
 Ports on which replication occurs.  These are the ports on the master and clone databases respectively.  Defaults to the internal database port. 
 .TP
-.B pki_clone_repicate_schema
+.B pki_clone_replicate_schema
 .IP
 Replicate schema when the replication agreement is set up and the new instance (consumer) is initialized.  Otherwise, the schema must be installed in the clone as a separate step beforehand.  This does not usually have to be changed.  Defaults to True.
 .TP
