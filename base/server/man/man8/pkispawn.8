@@ -309,7 +309,22 @@ pki_clone_uri=https://<master_ca_hostname>:<master_ca_https_port>
 .PP
 A cloned CA is a CA which uses the same signing, OCSP signing, and audit signing certificates as the master CA, but issues certificates within a different serial number range.  It has its own internal database -- separate from the master CA database -- but using the same base DN, that keeps in sync with the master CA through replication agreements between the databases.  This is very useful for load sharing and disaster recovery. To create a clone, the \fImyconfig.txt\fP uses pki_clone-* parameters in its [CA] section which identify the original CA to use as a master template. Additionally, it connects to the master CA as a remote CA and uses its security domain.
 .PP
-Before the clone can be generated, the Directory Server must be created that is separate from the master CA's Directory Server.  The example assumes that the master CA and cloned CA are on different machines, and that their Directory Servers are on port 389.  In addition, the master's system certs and keys have been stored in a PKCS #12 file that is copied over to the clone subsystem in the location specified in <path_to_pkcs12_file>.  This file is created when the master CA is installed; it can also be generated using \fBPKCS12Export\fP.  The file needs to be readable by the user the Certificate Server runs as (by default, pkiuser) and be given the SELinux context pki_tomcat_cert_t.
+Before the clone can be generated, the Directory Server must be created that is separate from the master CA's Directory Server.  The example assumes that the master CA and cloned CA are on different machines, and that their Directory Servers are on port 389.
+.PP
+In addition, the master's system certs and keys have been stored in a PKCS #12 file that is copied over to the clone subsystem in the location specified in <path_to_pkcs12_file>.   This file needs to be readable by the user the Certificate Server runs as (by default, pkiuser) and be given the SELinux context pki_tomcat_cert_t.
+.PP
+The master's system certificates can be exported to a PKCS#12 file when the master is installed if the parameter \fBpki_backup_keys\fP is set to \fBTrue\fP and the \fBpki_backup_password\fP is set.  The PKCS#12 file is then found under \fB/var/lib/pki/<instance_name>/alias\fP.  Alternatively, the PKCS#12 file can be generated at any time post-installation using \fBPKCS12Export\fP.
+.PP
+An example invocation showing the export of the system certificates and keys, copying the keys to the replica subsystem, and setting the relevant SELinux and file permissions is shown below.  \fBpwfile\fP is a text file containing the password for the master NSS DB (found in \fB/etc/pki/<instance_name>/password.conf\fP).  \fB pkcs12_password_file\fP is a text file containing the password selected for the generated PKCS12 file.
+.IP
+.nf
+\fBmaster# PKCS12Export -d /etc/pki/pki-tomcat/alias -p pwfile \\
+        -w pkcs12_password_file -o backup_keys.p12
+master# scp backup_keys.p12 clone:/backup_keys.p12
+
+clone# chown pkiuser: /backup_keys.p12
+clone# semanage -a -t pki_tomcat_cert_t /root/backup_keys.p12\fP
+.fi
 .PP
 .SS Installing a KRA or TKS clone (OCSP unsupported as of now)
 \x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
