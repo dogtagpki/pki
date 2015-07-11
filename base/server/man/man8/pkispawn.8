@@ -208,6 +208,40 @@ The instance name (defined by pki_instance_name) is pki-tomcat, and it is locate
 A PKCS #12 file containing the administrator certificate is created in \fI$HOME/.dogtag/pki-tomcat\fP.  This PKCS #12 file uses the password designated by pki_client_pkcs12_password in the configuration file.
 .PP
 To access the agent pages, first import the CA certificate by accessing the CA End Entity Pages and clicking on the Retrieval Tab.  Be sure to trust the CA certificate.  Then, import the administrator certificate in the PKCS #12 file.
+.SS CA using ECC default configuration
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=\fIpassword123\fP
+pki_client_pkcs12_password=\fIpassword123\fP
+pki_ds_password=\fIpassword123\fP
+pki_ssl_server_key_algorithm=SHA256withEC
+pki_ssl_server_key_size=nistp256
+pki_ssl_server_key_type=ecc
+pki_subsystem_key_algorithm=SHA256withEC
+pki_subsystem_key_size=nistp256
+pki_subsystem_key_type=ecc
+
+[CA]
+pki_ca_signing_key_algorithm=SHA256withEC
+pki_ca_signing_key_size=nistp256
+pki_ca_signing_key_type=ecc
+pki_ca_signing_signing_algorithm=SHA256withEC
+pki_ocsp_signing_key_algorithm=SHA256withEC
+pki_ocsp_signing_key_size=nistp256
+pki_ocsp_signing_key_type=ecc
+pki_ocsp_signing_signing_algorithm=SHA256withEC
+.fi
+.PP
+In order to utilize ECC, the SSL Server and Subsystem key algorithm, key size, and key type should be changed from SHA256withRSA --> SHA256withEC, 2048 --> nistp256, and rsa --> ecc, respectively.
+.PP
+Additionally, for a CA subsystem, both the CA and OCSP Signing key algorithm, key size, key type, and signing algorithm should be changed from SHA256withRSA --> SHA256withEC, 2048 --> nistp256, rsa --> ecc, and SHA256withRSA --> SHA256withEC,respectively.
+.TP
+\fBNote:\fP
+For all PKI subsystems including the CA, ECC is not supported for the corresponding Audit Signing parameters.  Similarly, for KRA subsystems, ECC is not supported for either of the corresponding Storage or Transport parameters.
 .SS KRA, OCSP, or TKS using default configuration
 \x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
 .PP
