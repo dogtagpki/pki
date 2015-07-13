@@ -161,7 +161,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 external_ca_cert_chain_nickname = deployer.mdict['pki_external_ca_cert_chain_nickname']
                 external_ca_cert_chain_file = deployer.mdict['pki_external_ca_cert_chain_path']
                 if external_ca_cert_chain_file:
-                    cert_chain = nssdb.import_cert_chain(
+                    cert_chain, _nicks = nssdb.import_cert_chain(
                         nickname=external_ca_cert_chain_nickname,
                         cert_chain_file=external_ca_cert_chain_file,
                         trust_attributes='CT,C,C')

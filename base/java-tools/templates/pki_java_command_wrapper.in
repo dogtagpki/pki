@@ -124,12 +124,17 @@ CP=/usr/share/java/${PRODUCT}/pki-cmsutil.jar:${CP}
 CP=/usr/share/java/${PRODUCT}/pki-tools.jar:${CP}
 export CP
 
+LOGGING_CONFIG=`source /usr/share/pki/etc/pki.conf && source /etc/pki/pki.conf && echo $LOGGING_CONFIG`
 
 ###############################################################################
 ##  (6) Execute the java command specified by this java command wrapper      ##
 ##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
 ###############################################################################
 
-${JAVA} ${JAVA_OPTIONS} -cp ${CP} com.netscape.cmstools.${COMMAND} "$@"
+${JAVA} ${JAVA_OPTIONS} \
+  -cp ${CP} \
+  -Djava.util.logging.config.file=${LOGGING_CONFIG} \
+  com.netscape.cmstools.${COMMAND} "$@"
+
 exit $?
 

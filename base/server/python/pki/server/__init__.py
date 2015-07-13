@@ -20,6 +20,7 @@
 #
 
 from lxml import etree
+import functools
 import getpass
 import grp
 import io
@@ -58,15 +59,15 @@ class PKIServer(object):
         return instances
 
 
+@functools.total_ordering
 class PKISubsystem(object):
 
     def __init__(self, instance, subsystem_name):
 
         self.instance = instance
-        self.name = subsystem_name
-        self.type = instance.type
+        self.name = subsystem_name  # e.g. ca, kra
 
-        if self.type >= 10:
+        if instance.type >= 10:
             self.base_dir = os.path.join(self.instance.base_dir, self.name)
         else:
             self.base_dir = instance.base_dir
@@ -81,11 +82,34 @@ class PKISubsystem(object):
             instance.conf_dir, 'Catalina', 'localhost', self.name + '.xml')
 
         self.config = {}
-        self.type = None
-        self.prefix = None
+        self.type = None    # e.g. CA, KRA
+        self.prefix = None  # e.g. ca, kra
 
         # custom subsystem location
         self.doc_base = os.path.join(self.base_dir, 'webapps', self.name)
+
+    def __eq__(self, other):
+        if not isinstance(other, PKISubsystem):
+            return NotImplemented
+        return (self.name == other.name and
+                self.instance == other.instance and
+                self.type == other.type)
+
+    def __ne__(self, other):
+        if not isinstance(other, PKISubsystem):
+            return NotImplemented
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if not isinstance(other, PKISubsystem):
+            return NotImplemented
+        self_type = self.type if self.type is not None else ''
+        other_type = other.type if other.type is not None else ''
+        return (self.name < other.name or
+                self.instance < other.instance or
+                self_type < other_type)
+
+    __hash__ = None
 
     def load(self):
         self.config.clear()
@@ -101,7 +125,7 @@ class PKISubsystem(object):
         self.type = self.config['cs.type']
         self.prefix = self.type.lower()
 
-    def find_subsystem_certs(self):
+    def find_system_certs(self):
         certs = []
 
         cert_ids = self.config['%s.cert.list' % self.name].split(',')
@@ -129,6 +153,116 @@ class PKISubsystem(object):
         self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token', None)
         self.config['%s.%s.cert' % (self.name, cert_id)] = cert.get('data', None)
         self.config['%s.%s.certreq' % (self.name, cert_id)] = cert.get('request', None)
+
+    def export_system_cert(
+            self,
+            cert_id,
+            pkcs12_file,
+            pkcs12_password_file,
+            new_file=False):
+
+        cert = self.get_subsystem_cert(cert_id)
+        nickname = cert['nickname']
+        token = cert['token']
+        if token == 'Internal Key Storage Token':
+            token = 'internal'
+        nssdb_password = self.instance.get_password(token)
+
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            nssdb_password_file = os.path.join(tmpdir, 'password.txt')
+            with open(nssdb_password_file, 'w') as f:
+                f.write(nssdb_password)
+
+            # add the certificate, key, and chain
+            cmd = [
+                'pki',
+                '-d', self.instance.nssdb_dir,
+                '-C', nssdb_password_file
+            ]
+
+            if token and token != 'internal':
+                cmd.extend(['--token', token])
+
+            cmd.extend([
+                'pkcs12-cert-add',
+                '--pkcs12-file', pkcs12_file,
+                '--pkcs12-password-file', pkcs12_password_file,
+            ])
+
+            if new_file:
+                cmd.extend(['--new-file'])
+
+            cmd.extend([
+                nickname
+            ])
+
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def export_cert_chain(
+            self,
+            pkcs12_file,
+            pkcs12_password_file):
+
+        # use subsystem certificate to get certificate chain
+        cert = self.get_subsystem_cert('subsystem')
+        nickname = cert['nickname']
+        token = cert['token']
+        if token == 'Internal Key Storage Token':
+            token = 'internal'
+        nssdb_password = self.instance.get_password(token)
+
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            nssdb_password_file = os.path.join(tmpdir, 'password.txt')
+            with open(nssdb_password_file, 'w') as f:
+                f.write(nssdb_password)
+
+            # export the certificate, key, and chain
+            cmd = [
+                'pki',
+                '-d', self.instance.nssdb_dir,
+                '-C', nssdb_password_file
+            ]
+
+            if token and token != 'internal':
+                cmd.extend(['--token', token])
+
+            cmd.extend([
+                'pkcs12-export',
+                '--pkcs12-file', pkcs12_file,
+                '--pkcs12-password-file', pkcs12_password_file,
+                nickname
+            ])
+
+            subprocess.check_call(cmd)
+
+            # remove the certificate and key, but keep the chain
+            cmd = [
+                'pki',
+                '-d', self.instance.nssdb_dir,
+                '-C', nssdb_password_file
+            ]
+
+            if token and token != 'internal':
+                cmd.extend(['--token', token])
+
+            cmd.extend([
+                'pkcs12-cert-del',
+                '--pkcs12-file', pkcs12_file,
+                '--pkcs12-password-file', pkcs12_password_file,
+                nickname
+            ])
+
+            subprocess.check_call(cmd)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
     def save(self):
         sorted_config = sorted(self.config.items(), key=operator.itemgetter(0))
@@ -239,6 +373,25 @@ class PKIInstance(object):
         self.passwords = {}
 
         self.subsystems = []
+
+    def __eq__(self, other):
+        if not isinstance(other, PKIInstance):
+            return NotImplemented
+        return (self.name == other.name and
+                self.type == other.type)
+
+    def __ne__(self, other):
+        if not isinstance(other, PKIInstance):
+            return NotImplemented
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if not isinstance(other, PKIInstance):
+            return NotImplemented
+        return (self.name < other.name or
+                self.type < other.type)
+
+    __hash__ = None
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)
