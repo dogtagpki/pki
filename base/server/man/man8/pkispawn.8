@@ -299,7 +299,7 @@ pki_security_domain_hostname=<master_ca_hostname>
 pki_security_domain_https_port=<master_ca_https_port>
 pki_security_domain_user=caadmin
 
-[CA]
+[Tomcat]
 pki_clone=True
 pki_clone_pkcs12_password=\fIpassword123\fP
 pki_clone_pkcs12_path=<path_to_pkcs12_file>
@@ -307,11 +307,11 @@ pki_clone_replicate_schema=True
 pki_clone_uri=https://<master_ca_hostname>:<master_ca_https_port>
 .fi
 .PP
-A cloned CA is a CA which uses the same signing, OCSP signing, and audit signing certificates as the master CA, but issues certificates within a different serial number range.  It has its own internal database -- separate from the master CA database -- but using the same base DN, that keeps in sync with the master CA through replication agreements between the databases.  This is very useful for load sharing and disaster recovery. To create a clone, the \fImyconfig.txt\fP uses pki_clone-* parameters in its [CA] section which identify the original CA to use as a master template. Additionally, it connects to the master CA as a remote CA and uses its security domain.
+A cloned CA is a CA which uses the same signing, OCSP signing, and audit signing certificates as the master CA, but issues certificates within a different serial number range.  It has its own internal database -- separate from the master CA database -- but using the same base DN, that keeps in sync with the master CA through replication agreements between the databases.  This is very useful for load sharing and disaster recovery. To create a clone, the \fImyconfig.txt\fP uses pki_clone-* parameters in its [Tomcat] section which identify the original CA to use as a master template. Additionally, it connects to the master CA as a remote CA and uses its security domain.
 .PP
 Before the clone can be generated, the Directory Server must be created that is separate from the master CA's Directory Server.  The example assumes that the master CA and cloned CA are on different machines, and that their Directory Servers are on port 389.
 .PP
-In addition, the master's system certs and keys have been stored in a PKCS #12 file that is copied over to the clone subsystem in the location specified in <path_to_pkcs12_file>.   This file needs to be readable by the user the Certificate Server runs as (by default, pkiuser) and be given the SELinux context pki_tomcat_cert_t.
+In addition, since this example does not utilize an HSM, the master's system certs and keys have been stored in a PKCS #12 file that is copied over to the clone subsystem in the location specified in <path_to_pkcs12_file>.   This file needs to be readable by the user the Certificate Server runs as (by default, pkiuser) and be given the SELinux context pki_tomcat_cert_t.
 .PP
 The master's system certificates can be exported to a PKCS#12 file when the master is installed if the parameter \fBpki_backup_keys\fP is set to \fBTrue\fP and the \fBpki_backup_password\fP is set.  The PKCS#12 file is then found under \fB/var/lib/pki/<instance_name>/alias\fP.  Alternatively, the PKCS#12 file can be generated at any time post-installation using \fBPKCS12Export\fP.
 .PP
@@ -326,7 +326,7 @@ clone# chown pkiuser: /backup_keys.p12
 clone# semanage -a -t pki_tomcat_cert_t /root/backup_keys.p12\fP
 .fi
 .PP
-.SS Installing a KRA or TKS clone (OCSP unsupported as of now)
+.SS Installing a KRA or TKS clone (OCSP and TPS unsupported as of now)
 \x'-1'\fBpkispawn \-s <subsystem> \-f myconfig.txt\fR
 .PP
 where subsystem is KRA or TKS and \fImyconfig.txt\fP contains the following text:
@@ -342,7 +342,7 @@ pki_security_domain_hostname=<master_ca_hostname>
 pki_security_domain_https_port=<master_ca_https_port>
 pki_security_domain_user=caadmin
 
-[KRA]
+[Tomcat]
 pki_clone=True
 pki_clone_pkcs12_password=\fIpassword123\fP
 pki_clone_pkcs12_path=<path_to_pkcs12_file>
@@ -353,7 +353,42 @@ pki_issuing_ca=https://<ca_hostname>:<ca_https_port>
 .PP
 As with a CA clone, a KRA or TKS clone uses the same certificates and basic configuration as the original subsystem. The configuration points to the original subsystem to copy its configuration. This example also assumes that the CA is on a remote machine and specifies the CA and security domain information.
 .PP
-The subsystem section is [KRA] or [TKS].
+The parameter \fBpki_clone_uri\fP should be modified to point to the required master (DRM or TKS).
+.SS Installing a clone CA on the same server (for testing)
+\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
+.PP
+where \fImyconfig.txt\fP contains the following text:
+.IP
+.nf
+[DEFAULT]
+pki_admin_password=password123
+pki_client_database_password=password123
+pki_client_pkcs12_password=password123
+pki_ds_password=password123
+pki_ds_ldap_port=<unique port different from master>
+pki_ds_ldaps_port=<unique port different from master>
+pki_http_port=<unique port different from master>
+pki_https_port=<unique port different from master>
+pki_instance_name=<unique name different from master>
+pki_security_domain_hostname=<master_ca_hostname>
+pki_security_domain_https_port=<master_ca_https_port>
+pki_security_domain_password=password123
+
+[Tomcat]
+pki_ajp_port=<unique port different from master>
+pki_clone=True
+pki_clone_pkcs12_password=password123
+pki_clone_pkcs12_path=<path_to_pkcs12_file>
+pki_clone_uri=https://<master_ca_hostname>:<master_ca_https_port>
+pki_tomcat_server_port=<unique port different from master>
+
+[CA]
+pki_ds_base_dn=<identical value as master>
+pki_ds_database=<identical value as master>
+.fi
+.PP
+For testing purposes, it is useful to configure cloned CAs which exist (with their internal databases) on the same host.  In this case, because both CA Tomcat instances are on the same host, they must have distinct ports.  Similarly, each CA must use a distinct directory server instance for its internal database.  Like the Tomcat instances, these are distinguished by distinct ports.  The suffix being replicated (\fBpki_ds_base\fP), however, must be the same for both master and clone.
+
 .SS Installing a subordinate CA
 \x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
 .PP
