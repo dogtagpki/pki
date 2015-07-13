@@ -865,6 +865,8 @@ public class ConfigurationUtils {
             BadPaddingException, NotInitializedException, NicknameConflictException, UserCertConflictException,
             NoSuchItemOnTokenException, InvalidBERException, IOException {
 
+        // TODO: refactor into a PKCS #12 utility class
+
         byte b[] = new byte[1000000];
         FileInputStream fis = new FileInputStream(p12File);
         while (fis.available() > 0)
@@ -886,7 +888,7 @@ public class ConfigurationUtils {
         Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
         Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
 
-        CMS.debug("PKCS #12:");
+        CMS.debug("Importing PKCS #12 data");
 
         for (int i = 0; i < safes.getSize(); i++) {
 
