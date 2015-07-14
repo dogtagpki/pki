@@ -50,7 +50,7 @@ public class ProfileModifyCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "action", true, "Action: update (default), approve, reject, enable, disable.");
+        Option option = new Option(null, "action", true, "Action: update (default), submit, cancel, approve, reject, enable, disable.");
         option.setArgName("action");
         options.addOption(option);
 

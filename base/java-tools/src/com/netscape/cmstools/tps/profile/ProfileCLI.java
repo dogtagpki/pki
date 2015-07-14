@@ -46,6 +46,11 @@ public class ProfileCLI extends CLI {
         addModule(new ProfileMappingCLI(this));
     }
 
+    @Override
+    public String getManPage() {
+        return "pki-tps-profile";
+    }
+
     public void execute(String[] args) throws Exception {
 
         client = parent.getClient();

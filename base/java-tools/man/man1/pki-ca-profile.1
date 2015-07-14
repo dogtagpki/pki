@@ -1,7 +1,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH pki-profile 1 "Sep 30, 2014" "version 10.2" "PKI Profile Management Commands" Dogtag Team
+.TH pki-ca-profile 1 "Sep 30, 2014" "version 10.2" "PKI CA Profile Management Commands" Dogtag Team
 .\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
@@ -15,18 +15,18 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for man page specific macros, see man(7)
 .SH NAME
-pki-profile \- Command-Line Interface for managing Certificate System profiles.
+pki-profile \- Command-Line Interface for managing Certificate System CA profiles.
 
 .SH SYNOPSIS
 .nf
 \fBpki\fR [CLI options] \fBca-profile\fR
 \fBpki\fR [CLI options] \fBca-profile-find\fR [command options]
-\fBpki\fR [CLI options] \fBca-profile-show <Profile ID> \fR [command options]
-\fBpki\fR [CLI options] \fBca-profile-add <Input file path> \fR [command options]
-\fBpki\fR [CLI options] \fBca-profile-mod <Input file path> \fR [command options]
-\fBpki\fR [CLI options] \fBca-profile-del <Profile ID> \fR [command options]
-\fBpki\fR [CLI options] \fBca-profile-enable <Profile ID> \fR [command options]
-\fBpki\fR [CLI options] \fBca-profile-disable <Profile ID> \fR  [command options]
+\fBpki\fR [CLI options] \fBca-profile-show <profile ID>\fR [command options]
+\fBpki\fR [CLI options] \fBca-profile-add <input file path>\fR [command options]
+\fBpki\fR [CLI options] \fBca-profile-mod <input file path>\fR [command options]
+\fBpki\fR [CLI options] \fBca-profile-del <profile ID>\fR [command options]
+\fBpki\fR [CLI options] \fBca-profile-enable <profile ID>\fR [command options]
+\fBpki\fR [CLI options] \fBca-profile-disable <profile ID>\fR [command options]
 .fi
 
 .SH DESCRIPTION
@@ -39,35 +39,36 @@ The \fBpki ca-profile\fR commands provide command-line interfaces to manage prof
 This command is to list the profiles.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBca-profile-show <Profile ID>\fR [command options]
+\fBpki\fR [CLI options] \fBca-profile-show <profile ID>\fR [command options]
 .RS 4
 This command is to view the details of a profile.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBca-profile-add\fR <Input file path> [command options]
+\fBpki\fR [CLI options] \fBca-profile-add <input file path>\fR [command options]
 .RS 4
 This command is to create a new profile.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBca-profile-mod <Input file path> \fR [command options]
+\fBpki\fR [CLI options] \fBca-profile-mod <input file path>\fR [command options]
 .RS 4
 This command is to modify an existing profile.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBca-profile-del\fR <Profile ID> [command options]
+\fBpki\fR [CLI options] \fBca-profile-del <profile ID>\fR [command options]
 .RS 4
 This command is to delete a profile.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBca-profile-enable\fR <Profile ID> [command options]
+\fBpki\fR [CLI options] \fBca-profile-enable <profile ID>\fR [command options]
 .RS 4
 This command is to enable a profile.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBca-profile-disable\fR <Profile ID> [command options]
+\fBpki\fR [CLI options] \fBca-profile-disable <profile ID>\fR [command options]
 .RS 4
 This command is to disable a profile.
 .RE
+
 .SH OPTIONS
 The CLI options are described in \fBpki\fR(1).
 
@@ -75,24 +76,24 @@ The CLI options are described in \fBpki\fR(1).
 
 To view available profile commands, type \fBpki ca-profile\fP. To view each command's usage, type \fB pki ca-profile-<command> \-\-help\fP.
 
-All the ca-profile commands require agent authentication.
+All the ca-profile commands require CA agent authentication.
 
 .SS Viewing the profiles
 
-.B pki <agent authentication> ca-profile-find
+.B pki <CA agent authentication> ca-profile-find
 
-The \fBstart\fR and \fBsize\fR options can be used to specify the beginning and the size of the list.
+The results can be paged using the \fB--start\fR and \fB--size\fR options described in \fBpki\fR(1).
 
 To view the contents of a profile:
 
 A set of profile inputs, profile outputs, authenticators, policies and constraints are defined in a profile.
 These contents can be viewed using the following command:
 
-.B pki <agent authentication> ca-profile-show <Profile ID>
+.B pki <CA agent authentication> ca-profile-show <profile ID>
 
 To store the output of the above operation, the output option must be specified.
 
-.B pki <agent authentication> ca-profile-show <Profile ID> --output <FILE_PATH>
+.B pki <CA agent authentication> ca-profile-show <profile ID> --output <file path>
 
 This output file can be used for modifying the profile.
 It can be used as a template for certificate enrollment as well but, a more suitable template can be fetched using the \fBpki cert-request-profile-show\fR command.
@@ -100,35 +101,35 @@ The \fBpki cert-request-profile-show\fR command does not require an agent/admini
 
 .SS Add/Modify/Delete a profile
 
-.B pki <admin authentication> ca-profile-add <Input file path>
+.B pki <CA admin authentication> ca-profile-add <input file path>
 
-The contents of the input file must be in an XML format returned by the profile-show command.
+The contents of the input file must be in an XML format returned by the ca-profile-show command.
 This data will be marshaled by the CLI client to create a new profile in the CA.
 The profile must be disabled before it is modified. It must be enabled after modification to be used for
 certificate enrollment.
 
 To modify an existing profile:
 
-.B pki <admin authentication> ca-profile-mod <Input file path>
+.B pki <CA admin authentication> ca-profile-mod <input file path>
 
-The profile data can be retrieved using the profile-show command and after editing the file,
+The profile data can be retrieved using the ca-profile-show command and after editing the file,
 it can be provided to the profile-mod command to modify an existing profile.
 
 To delete a profile in the CA:
 
-.B pki <admin authentication> ca-profile-del <Profile ID>
+.B pki <CA admin authentication> ca-profile-del <profile ID>
 
 .SS Enabling/Disabling a profile in the CA
 
 To enable a profile in the CA:
 
-.B pki <agent authenticaton> ca-profile-enable <Profile ID>
+.B pki <CA agent authenticaton> ca-profile-enable <profile ID>
 
 A profile must be enabled before it can be used.
 
 To disable a profile in the CA:
 
-.B pki <agent authentication> ca-profile-disable <Profile ID>
+.B pki <CA agent authentication> ca-profile-disable <profile ID>
 
 A profile must be disabled before it can be modified.
 
@@ -144,5 +145,4 @@ Abhishek Koneru <akoneru@redhat.com>.
 Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
 .SH SEE ALSO
-.BR pkispawn(8),
 .BR pki(1)

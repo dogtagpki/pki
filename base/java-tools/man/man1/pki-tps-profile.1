@@ -1,0 +1,152 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-tps-profile 1 "Jul 14, 2015" "version 10.2" "PKI TPS Profile Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-tps-profile \- Command-Line Interface for managing Certificate System TPS profiles.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fBtps-profile\fR
+\fBpki\fR [CLI options] \fBtps-profile-find\fR [command options]
+\fBpki\fR [CLI options] \fBtps-profile-show <profile ID>\fR [command options]
+\fBpki\fR [CLI options] \fBtps-profile-add --input <file path>\fR [command options]
+\fBpki\fR [CLI options] \fBtps-profile-mod <profile ID>\ --action <action>\fR [command options]
+\fBpki\fR [CLI options] \fBtps-profile-mod <profile ID>\ --input <file path>\fR [command options]
+\fBpki\fR [CLI options] \fBtps-profile-del <profile ID>\fR [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki tps-profile\fR commands provide command-line interfaces to manage profiles on the TPS.
+
+.PP
+\fBpki\fR [CLI options] \fBtps-profile-find\fR [command options]
+.RS 4
+This command is to list the profiles.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBtps-profile-show <profile ID>\fR [command options]
+.RS 4
+This command is to view the details of a profile.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBtps-profile-add --input <file path>\fR [command options]
+.RS 4
+This command is to create a new profile.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBtps-profile-mod <profile ID>\ --action <action>\fR [command options]
+.RS 4
+This command is to change the status of a profile.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBtps-profile-mod <profile ID>\ --input <file path>\fR [command options]
+.RS 4
+This command is to modify an existing profile.
+.RE
+.PP
+\fBpki\fR [CLI options] \fBtps-profile-del <profile ID>\fR [command options]
+.RS 4
+This command is to delete a profile.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+
+To view available profile commands, type \fBpki tps-profile\fP. To view each command's usage, type \fB pki tps-profile-<command> \-\-help\fP.
+
+All the tps-profile commands require TPS admin or agent authentication.
+
+.SS Listing profiles
+
+To list all profile:
+
+.B pki <TPS admin/agent authentication> tps-profile-find
+
+The results can be paged using the \fB--start\fR and \fB--size\fR options described in \fBpki\fR(1).
+
+.SS Viewing a profile
+
+To view the status and properties of a profile:
+
+.B pki <TPS admin/agent authentication> tps-profile-show <profile ID>
+
+To store the output of the above operation into a file:
+
+.B pki <TPS admin/agent authentication> tps-profile-show <profile ID> --output <file path>
+
+.SS Adding a profile
+
+To add a new profile, prepare an input file specifying the
+profile properties in the following format:
+
+.IP
+.nf
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Profile id="..." xmlns:ns2="http://www.w3.org/2005/Atom">
+    <Properties>
+        <Property name="...">...</Property>
+        ...
+    </Properties>
+</Profile>
+.fi
+
+.PP
+The profile properties are described in \fBpki-tps-profile\fR(5).
+Then execute the following command:
+
+.B pki <TPS admin authentication> tps-profile-add --input <file path>
+
+.SS Changing profile status
+
+To change the profile status execute the following command:
+
+.B pki <TPS admin/agent authentication> tps-profile-mod <profile ID> --action <action>
+
+Available actions for admins: submit, cancel.
+Available actions for agents: approve, reject.
+Available actions for users with both admin and agent rights: enable, disable.
+
+.SS Modifying a profile
+
+To modify a profile, first disable the profile using the \fBtps-profile-mod
+--action disable\fP command. Then download the current profile properties
+using the \fBtps-profile-show --output\fP command. Make the modifications in
+the file, then upload the updated file using the following command:
+
+.B pki <TPS admin authentication> tps-profile-mod <profile ID> --input <file path>
+
+Finally, the profile should be re-enabled using the \fBtps-profile-mod
+--action enable\fP command.
+
+.SS Deleting a profile
+
+To delete a profile, first disable the profile using the \fBtps-profile-mod
+--action disable\fP command, then execute:
+
+.B pki <TPS admin authentication> tps-profile-del <profile ID>
+
+.SH AUTHORS
+Endi S. Dewata <edewata@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+
+.SH SEE ALSO
+.BR pki(1),
+.BR pki-tps-profile(5)

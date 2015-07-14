@@ -868,6 +868,7 @@ systemctl daemon-reload
 %{_mandir}/man1/pki-user.1.gz
 %{_mandir}/man1/pki-user-cert.1.gz
 %{_mandir}/man1/pki-ca-profile.1.gz
+%{_mandir}/man1/pki-tps-profile.1.gz
 
 %if %{with server}
 
