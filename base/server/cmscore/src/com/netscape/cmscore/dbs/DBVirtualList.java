@@ -343,7 +343,11 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      * since you'd better check if the index is out of bound first.
      */
     public int getSize() {
+
+        CMS.debug("DBVirtualList.getSize()");
+
         if (!mInitialized) {
+
             mInitialized = true;
             // Do an initial search to get the virtual list size
             // Keep one page before and one page after the start
@@ -361,10 +365,13 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             LDAPVirtualListControl cont = null;
 
             if (mJumpTo == null) {
+                CMS.debug("DBVirtualList: searching for entry A");
                 cont = new LDAPVirtualListControl("A",
                             mBeforeCount,
                             mAfterCount);
+
             } else {
+                CMS.debug("DBVirtualList: searching for entry " + mJumpTo);
 
                 if (mPageSize < 0) {
                     mBeforeCount = mPageSize * -1;
@@ -374,11 +381,12 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                             mBeforeCount,
                             mAfterCount);
             }
+
             mPageControls[1] = cont;
             getJumpToPage();
         }
 
-        CMS.debug("Getting Virtual List size: " + mSize);
+        CMS.debug("DBVirtualList: size: " + mSize);
         return mSize;
     }
 
@@ -412,6 +420,9 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
     }
 
     private synchronized boolean getEntries() {
+
+        CMS.debug("DBVirtualList.getEntries()");
+
         // Specify necessary controls for vlist
         // LDAPSearchConstraints cons = mConn.getSearchConstraints();
         LDAPSearchConstraints cons = new LDAPSearchConstraints();
@@ -501,7 +512,8 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
         //System.out.println( "Returning " + mEntries.size() +
         //       " entries" );
 
-        CMS.debug("getEntries returning " + mEntries.size());
+        CMS.debug("DBVirtualList: entries: " + mEntries.size());
+
         return true;
     }
 
@@ -532,7 +544,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                 mSelectedIndex = nextCont.getFirstPosition() - 1;
                 mTop = Math.max(0, mSelectedIndex - mBeforeCount);
 
-                CMS.debug("mTop " + mTop);
+                CMS.debug("DBVirtualList: top: " + mTop);
                 if (mJumpTo != null) {
                     mJumpToInitialIndex = mTop;
                 }
@@ -564,7 +576,9 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      * @param first the index of the first entry of the page you want to fetch
      */
     public boolean getPage(int first) {
-        CMS.debug("getPage " + first);
+
+        CMS.debug("DBVirtualList.getPage(" + first + ")");
+
         if (!mInitialized) {
             LDAPVirtualListControl cont = new LDAPVirtualListControl(0,
                     mBeforeCount,
@@ -658,14 +672,15 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
          * the caller should really check the index is within bound before this
          * but I'll take care of this just in case they are too irresponsible
          */
-        if (!mInitialized)
+        if (!mInitialized) {
             mSize = getSize();
+        }
 
-        CMS.debug("getElementAt: " + index + " mTop " + mTop);
+        CMS.debug("DBVirtualList: retrieving entry #" + index);
 
         //System.out.println( "need entry " + index );
         if ((index < 0) || (index >= mSize)) {
-            CMS.debug("returning null");
+            CMS.debug("DBVirtualList: returning null");
             return null;
         }
 

@@ -70,6 +70,7 @@ import com.netscape.certsrv.cert.CertSearchRequest;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
@@ -442,47 +443,44 @@ public class CertService extends PKIService implements CertResource {
     @Override
     public Response searchCerts(CertSearchRequest data, Integer start, Integer size) {
 
+        CMS.debug("CertService.searchCerts()");
+
         if (data == null) {
-            throw new BadRequestException("Search request is null.");
+            throw new BadRequestException("Search request is null");
         }
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
         String filter = createSearchFilter(data);
-        CMS.debug("CertService.searchCerts: filter: " + filter);
+        CMS.debug("CertService: filter: " + filter);
 
         CertDataInfos infos = new CertDataInfos();
         try {
-            Enumeration<ICertRecord> e = repo.findCertRecords(filter);
-            if (e == null) {
-                throw new EBaseException("search results are null");
+            ICertRecordList list = repo.findCertRecordsInList(filter, null, "serialno", size);
+            int total = list.getSize();
+            CMS.debug("CertService: total: " + total);
+
+            // return entries in the requested page
+            for (int i = start; i < start + size && i < total; i++) {
+                ICertRecord record = list.getCertRecord(i);
+
+                if (record == null) {
+                    CMS.debug("CertService: Certificate record not found");
+                    throw new PKIException("Certificate record not found");
+                }
+
+                infos.addEntry(createCertDataInfo(record));
             }
 
-            int i = 0;
-
-            // skip to the start of the page
-            for (; i < start && e.hasMoreElements(); i++)
-                e.nextElement();
-
-            // return entries up to the page size
-            for (; i < start + size && e.hasMoreElements(); i++) {
-                ICertRecord user = e.nextElement();
-                infos.addEntry(createCertDataInfo(user));
-            }
-
-            // count the total entries
-            for (; e.hasMoreElements(); i++)
-                e.nextElement();
-
-            infos.setTotal(i);
+            infos.setTotal(total);
 
             if (start > 0) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 infos.addLink(new Link("prev", uri));
             }
 
-            if (start + size < i) {
+            if (start + size < total) {
                 URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 infos.addLink(new Link("next", uri));
             }

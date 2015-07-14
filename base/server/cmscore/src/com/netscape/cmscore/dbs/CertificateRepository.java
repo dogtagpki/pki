@@ -24,8 +24,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -42,9 +42,9 @@ import netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
@@ -192,7 +192,7 @@ public class CertificateRepository extends Repository
         randomNumber = (randomNumber.multiply(mRangeSize)).shiftRight(mBitLength);
         CMS.debug("CertificateRepository: getRandomNumber  randomNumber="+randomNumber);
 
-        return randomNumber; 
+        return randomNumber;
     }
 
     private BigInteger getRandomSerialNumber(BigInteger randomNumber) throws EBaseException {
@@ -201,7 +201,7 @@ public class CertificateRepository extends Repository
         nextSerialNumber = randomNumber.add(mMinSerialNo);
         CMS.debug("CertificateRepository: getRandomSerialNumber  nextSerialNumber="+nextSerialNumber);
 
-        return nextSerialNumber; 
+        return nextSerialNumber;
     }
 
     private BigInteger checkSerialNumbers(BigInteger randomNumber, BigInteger serialNumber) throws EBaseException {
@@ -247,7 +247,7 @@ public class CertificateRepository extends Repository
             }
         } while (nextSerialNumber == null && i < n);
 
-        return nextSerialNumber; 
+        return nextSerialNumber;
     }
 
     private Object nextSerialNumberMonitor = new Object();
@@ -295,7 +295,7 @@ public class CertificateRepository extends Repository
             }
         }
 
-        return nextSerialNumber; 
+        return nextSerialNumber;
     }
 
     private void updateCounter() {
@@ -363,7 +363,7 @@ public class CertificateRepository extends Repository
         }
         CMS.debug("CertificateRepository: getInRangeCount  count=" + count);
 
-        return count; 
+        return count;
     }
 
     private BigInteger getInRangeCounter(BigInteger  minSerialNo, BigInteger maxSerialNo)
@@ -412,7 +412,7 @@ public class CertificateRepository extends Repository
         }
         CMS.debug("CertificateRepository: getInRangeCounter:  counter=" + counter);
 
-        return counter; 
+        return counter;
     }
 
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
@@ -455,7 +455,7 @@ public class CertificateRepository extends Repository
                 mEnableRandomSerialNumbers = !mEnableRandomSerialNumbers;
                 mDBConfig.putBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, mEnableRandomSerialNumbers);
             }
-        }  
+        }
         if (mEnableRandomSerialNumbers && mCounter == null) {
             mCounter = getInRangeCounter(serial_low_bound, serial_upper_bound);
         } else {
@@ -484,7 +484,7 @@ public class CertificateRepository extends Repository
 
             BigInteger ret = new BigInteger(serial_low_bound.toString(10));
 
-            ret = ret.subtract(BigInteger.ONE); 
+            ret = ret.subtract(BigInteger.ONE);
             CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
             return ret;
         }
@@ -523,7 +523,7 @@ public class CertificateRepository extends Repository
 
         BigInteger ret = new BigInteger(serial_low_bound.toString(10));
 
-        ret = ret.subtract(BigInteger.ONE); 
+        ret = ret.subtract(BigInteger.ONE);
 
         CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
         if (modeChange && mEnableRandomSerialNumbers) {
@@ -1027,7 +1027,7 @@ public class CertificateRepository extends Repository
         } catch (Exception e) {
             throw new EBaseException(e.getMessage());
         } finally {
-            if (s != null) 
+            if (s != null)
                 s.close();
         }
         return exists;
@@ -1278,21 +1278,25 @@ public class CertificateRepository extends Repository
     public ICertRecordList findCertRecordsInList(String filter,
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
 
-        CMS.debug("In findCertRecordsInList");
-        CertRecordList list = null;
+        CMS.debug("CertificateRepository.findCertRecordsInList()");
+
+        IDBSSession session = mDBService.createSession();
 
         try {
-            IDBVirtualList<ICertRecord> vlist = s.<ICertRecord>createVirtualList(getDN(), filter, attrs,
-                    sortKey, pageSize);
+            IDBVirtualList<ICertRecord> list = session.<ICertRecord>createVirtualList(
+                    getDN(),
+                    filter,
+                    attrs,
+                    sortKey,
+                    pageSize);
 
-            list = new CertRecordList(vlist);
+            return new CertRecordList(list);
+
         } finally {
-            if (s != null)
-                s.close();
+            if (session != null)
+                session.close();
         }
-        return list;
     }
 
     public ICertRecordList findCertRecordsInList(String filter,
