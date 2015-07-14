@@ -64,6 +64,8 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 <!--
 Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/tps
 Secure URL          = https://[PKI_HOSTNAME]:[PKI_SECURE_PORT]/tps
+Unsecure PHONE HOME = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/tps/phoneHome
+Secure PHONE HOME   = https://[PKI_HOSTNAME]:[PKI_SECURE_PORT]/tps/phoneHome
 Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 -->
 <!-- DO NOT REMOVE - End PKI Status Definitions -->

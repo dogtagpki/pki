@@ -488,6 +488,8 @@ get_pki_status_definitions_tomcat()
     secure_admin_url_statement="Secure Admin URL"
     pki_console_command_statement="PKI Console Command"
     tomcat_port_statement="Tomcat Port"
+    unsecure_phone_home_statement="Unsecure PHONE HOME"
+    secure_phone_home_statement="Secure PHONE HOME"
 
     # initialize looping variables
     pki_status_comment_found=0
@@ -615,6 +617,8 @@ get_pki_status_definitions_tomcat()
                     [ "$head" == "$secure_admin_url_statement"  ]          ||
                     [ "$head" == "$secure_ee_client_auth_url_statement" ]  ||
                     [ "$head" == "$pki_console_command_statement"  ]       ||
+                    [ "$head" == "$unsecure_phone_home_statement"  ]       ||
+                    [ "$head" == "$secure_phone_home_statement"    ]       ||
                     [ "$head" == "$tomcat_port_statement"       ] ; then
                      echo "    $line"
                      total_ports=`expr ${total_ports} + 1`

@@ -1,0 +1,112 @@
+#!/usr/bin/python
+# Authors:
+# Matthew Harmsen <mharmsen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2015 Red Hat, Inc.
+# All rights reserved.
+#
+
+import os
+
+import pki.server.upgrade
+
+
+class AddPhoneHomeURLsToTPSsServerXML(
+    pki.server.upgrade.PKIServerUpgradeScriptlet):
+    def __init__(self):
+        super(AddPhoneHomeURLsToTPSsServerXML, self).__init__()
+        self.message = 'Add Phone Home URLs to TPS section of server.xml.'
+
+    def upgrade_instance(self, instance):
+        server_xml = os.path.join(instance.conf_dir, 'server.xml')
+        # Backup
+        self.backup(server_xml)
+
+        # Simply read in the document by lines
+
+        with open(server_xml) as f:
+            content = f.readlines()
+            f.close()
+
+        tps_statuses_pattern = "<!-- TPS Status Definitions -->"
+        tps_end_statuses_pattern = "-->"
+        tps_unsecure_phone_home_pattern = "Unsecure PHONE HOME"
+        tps_secure_phone_home_pattern = "Secure PHONE HOME"
+        tps_secure_url_pattern = "Secure URL"
+        tps_unsecure_url_pattern = "Unsecure URL"
+        tps_phone_home_path = "phoneHome"
+
+        tps_secure_url = None
+        tps_unsecure_url = None
+
+        found_tps_statuses = -1
+        # loop through file, looking for TPS settings
+
+        rewrite_server_xml = False
+        final_content = []
+        for index, line in enumerate(content):
+
+            if found_tps_statuses == -1:
+                found_tps_statuses = line.find(tps_statuses_pattern)
+            else:
+                if line.find(tps_unsecure_phone_home_pattern) != -1:
+                    # already upgraded, abort
+                    break
+                if line.find(tps_secure_phone_home_pattern) != -1:
+                    # already upgraded, abort
+                    break
+
+                if line.find(tps_unsecure_url_pattern) != -1:
+                    splits = line.split("=")
+                    if len(splits) == 2:
+                        tps_unsecure_url = splits[1].strip()
+
+                if line.find(tps_secure_url_pattern) != -1:
+                    splits = line.split("=")
+                    if len(splits) == 2:
+                        tps_secure_url = splits[1].strip()
+
+                if line.find(tps_end_statuses_pattern) != -1:
+                    if tps_unsecure_url and tps_secure_url:
+                        # Create the added lines we need
+                        # Phone home url is simply a super set of the base url
+                        unsec_phone_home_url = tps_unsecure_phone_home_pattern + \
+                            ' = ' + tps_unsecure_url + \
+                            '/' + tps_phone_home_path + '\n'
+                        sec_phone_home_url = tps_secure_phone_home_pattern + \
+                            '   = ' + tps_secure_url + \
+                            '/' + tps_phone_home_path + '\n'
+                        # Spot to add the URLs
+                        final_content.append(unsec_phone_home_url)
+                        final_content.append(sec_phone_home_url)
+                        # Just write the rest of the original to the copy
+                        final_content.extend(content[index:])
+                        # Indicate that we want to update the server.xml
+                        rewrite_server_xml = True
+                        # Done
+                        break
+                    else:
+                        # Just give up
+                        break
+
+            final_content.append(line)
+
+        # Rewrite the file if needed
+        if rewrite_server_xml:
+            with open(server_xml, 'w') as fout:
+                for line_out in final_content:
+                    fout.write(line_out)
+            fout.close()
