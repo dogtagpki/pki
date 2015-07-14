@@ -30,7 +30,7 @@ class RemoveInaccessableURLsFromServerXML(
         super(RemoveInaccessableURLsFromServerXML, self).__init__()
         self.message = 'Remove inaccessable URLs from server.xml'
 
-    # pylint: disable-msg=W1401
+    # pylint: disable=W1401
     def upgrade_instance(self, instance):
         subprocess.check_call([
             'sed', '-i',
