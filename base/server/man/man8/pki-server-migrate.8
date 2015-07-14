@@ -1,0 +1,46 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-migrate 8 "July 15, 2015" "version 10.2" "PKI Migration Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server migrate \- Command-Line Interface to run migration scripts on CS instances.
+
+.SH SYNOPSIS
+.nf
+\fBpki-server [CLI options] migrate --tomcat \fR[7|8]
+.fi
+
+.SH DESCRIPTION
+.PP
+Apache Tomcat instances are configured differently in Tomcat 7 and 8.  \fBpki-server migrate\fR
+makes the necessary changes in the instance configuration files and symbolic links
+so that the instance will work with the target Tomcat version.
+.PP
+This command will migrate all instances to the target Apache Tomcat version.  To
+migrate a specific instance only, use \fBpki-server instance-migrate\FR.
+.PP
+
+.SH OPTIONS
+The CLI options are described in \fBpki-server\fR(8).
+
+.SH OPERATIONS
+
+All \fBpki-server\fP commands must be executed as the system administrator.
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

@@ -1,0 +1,104 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-instance 8 "July 15, 2015" "version 10.2" "PKI Instance Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server instance \- Command-Line Interface for managing Certificate System instances.
+
+.SH SYNOPSIS
+.nf
+\fBpki-server [CLI options] instance\fR
+\fBpki-server [CLI options] instance-find\fR
+\fBpki-server [CLI options] instance-show\fR <instance ID>
+\fBpki-server [CLI options] instance-start\fR <instance ID>
+\fBpki-server [CLI options] instance-stop\fR <instance ID>
+\fBpki-server [CLI options] instance-migrate\fR --tomcat <version> <instance ID>
+\fBpki-server [CLI options] instance-nuxwdog-enable\fR <instance ID>
+\fBpki-server [CLI options] instance-nuxwdog-disable\fR <instance ID>
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-server instance\fR commands provide command-line interfaces to manage
+Certificate Server (CS) instances.  A Certificate Server instance consists of a
+single Apache Tomcat instance that contains one or more CS subsystems.
+.PP
+Operations that are available include: listing and showing details about local
+instances; starting and stopping instances; performing instance migrations; and
+enabling or disabling password prompted instance startup using \fBnuxwdog\fR.
+.PP
+\fBpki-server [CLI options] instance\fR
+.RS 4
+This command is to list available instance commands.
+.RE
+.PP
+\fBpki-server [CLI options] instance-find\fR
+.RS 4
+This command is to list local CS instances.
+.RE
+.PP
+\fBpki-server [CLI options] instance-show\fR <instance ID>
+.RS 4
+This command is to view a details about a particular instance.
+.RE
+.PP
+\fBpki-server [CLI options] instance-start\fR <instance ID>
+.RS 4
+This command is to start a CS instance.  Note that currently this command
+cannot be used to start \fBnuxwdog\fR-enabled instances.
+.RE
+.PP
+\fBpki-server [CLI options] instance-stop\fR <instance ID>
+.RS 4
+This command is to stop a CS instance. Note that currently this command
+cannot be used to stop \fBnuxwdog\fR-enabled instances.
+.RE
+.PP
+\fBpki-server [CLI options] instance-migrate\fR --tomcat <version> <instance_ID>
+.RS 4
+There are differences in configuration between Apache Tomcat 7 and Apache Tomcat
+8.  This command reconfigures a CS instance to match the specified Tomcat version.
+This command can be used to migrate initially created under Tomcat 7 when
+Tomcat is upgraded..  See \fBpki-server migrate\fR(8) for further details.
+.RE
+.PP
+\fBpki-server [CLI options] instance-nuxwdog-enable\fR <instance ID>
+.RS 4
+This command is to convert a CS instance to start without access to a
+password file, using the \fBnuxwdog\fR daemon.  See \fBpki-server nuxwdog\fR(8)
+for further details.
+.RE
+.PP
+\fBpki-server [CLI options] instance-nuxwdog-disable\fR <instance ID>
+.RS 4
+This command is to convert a CS instance to start with access to a
+password file, rather than using the \fBnuxwdog\fR daemon.  See \fBpki-server nuxwdog\fR(8)
+for further details.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki-server\fR(8).
+
+.SH OPERATIONS
+To view available instance management commands, type \fBpki-server instance\fP.
+To view each command's usage, type \fB pki-server instance-<command> \-\-help\fP.
+
+All pki-server commands must be executed as the system administrator.
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

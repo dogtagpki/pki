@@ -906,6 +906,11 @@ systemctl daemon-reload
 %{_mandir}/man8/pki-server-upgrade.8.gz
 %{_mandir}/man8/pkidestroy.8.gz
 %{_mandir}/man8/pkispawn.8.gz
+%{_mandir}/man8/pki-server.8.gz
+%{_mandir}/man8/pki-server-instance.8.gz
+%{_mandir}/man8/pki-server-subsystem.8.gz
+%{_mandir}/man8/pki-server-nuxwdog.8.gz
+%{_mandir}/man8/pki-server-migrate.8.gz
 
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/

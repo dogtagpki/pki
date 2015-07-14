@@ -1,0 +1,95 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-subsystem 8 "July 15, 2015" "version 10.2" "PKI Subsystem Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server subsystem \- Command-Line Interface for managing Certificate System subsystems.
+
+.SH SYNOPSIS
+.nf
+\fBpki-server [CLI options] subsystem\fR
+\fBpki-server [CLI options] subsystem-find\fR -i <instance ID>
+\fBpki-server [CLI options] subsystem-show\fR -i <instance ID> <subsystem ID>
+\fBpki-server [CLI options] subsystem-enable\fR -i <instance ID> <subsystem ID>
+\fBpki-server [CLI options] subsystem-disable\fR -i <instance ID> <subsystem ID>
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-server subsystem\fR commands provide command-line interfaces to manage
+Certificate Server (CS) subsystems.  A Certificate Server instance consists of a single
+Apache Tomcat instance that contains one or more CS subsystems.  Valid subsystem
+identifiers are '\fBca\fR', '\fBkra\fR', '\fBtks\fR', '\fBocsp\fR' and '\fBtps\fR'.
+No instance may have more than one of each type of subsystem.
+.PP
+\fBpki-server subsystem\fR commands perform operations on a specific subsystem within
+a CS instance.  Consequently, all \fBpki-server subsystem\fR commands require specification
+of the instance ID to completely identify the target subsystem.
+.PP
+Operations that are available include: listing subsystems in an instance;
+showing details about a subsystem; and enabling and disabling subsystems.
+.PP
+\fBpki-server [CLI options] subsystem\fR
+.RS 4
+This command is to list available subsystem commands.
+.RE
+.PP
+\fBpki-server [CLI options] subsystem-find\fR -i <instance ID>
+.RS 4
+This command is to list subsystems within a specific instance.
+.RE
+.PP
+\fBpki-server [CLI options] subsystem-show\fR -i <instance ID> <subsystem ID>
+.RS 4
+This command is to view a details about a particular subsystem.
+.RE
+.PP
+\fBpki-server [CLI options] subsystem-enable\fR -i <instance ID> <subsystem ID>
+.RS 4
+This command is to enable a particular subsystem.  Each subsystem consists of
+a web application within the Apache Tomcat instance.  Enabling a subsystem means
+deploying the web application so that the application initializes and is
+accessible via the HTTP and HTTPS ports for the Apache Tomcat instance.
+.PP
+\fBNote:\fR Each subsystem runs a set of self-tests on startup.  If these self-tests
+fail, the subsystem will be disabled by undeploying the web application.  The
+deployment status (enabled/disabled) of the subsystem can be determined from the
+output of \fBpki-server subsystem-show\fR.  Once the underlying problem is fixed,
+the subsystem should be re-enabled using \fBpki-server subsystem-enable\fR.
+.RE
+.PP
+\fBpki-server [CLI options] subsystem-disable\fR -i <instance ID> <subsystem ID>
+.RS 4
+This command is to disable a subsystem by undeploying the web application
+corresponding to the subsystem.  The subsystem will no longer be accessible
+through the web interfaces.  This is useful when specific subsystems need to be
+made inaccessible for maintenance as Apache Tomcat allows web applications to be
+deployed/undeployed while the instance is still running (hot deployment).
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki-server\fR(8).
+
+.SH OPERATIONS
+To view available subsystem management commands, type \fBpki-server subsystem\fP.
+To view each command's usage, type \fB pki-server subsystem-<command> \-\-help\fP.
+
+All pki-server commands must be executed as the system administrator.
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

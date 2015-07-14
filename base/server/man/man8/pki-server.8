@@ -1,0 +1,82 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server 8 "July 15, 2015" "version 10.2" "PKI Administrative Command-Line Interface (CLI)" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server \- Command-Line Interface for performing administrative tasks on Certificate System subsystems.
+
+.SH SYNOPSIS
+\fBpki-server\fR [CLI options] <command> [command arguments]
+
+.SH DESCRIPTION
+.PP
+The \fBpki-server\fR command provides a command-line interface allowing administrators
+to perform various administrative operations on the Certificate System instances.
+These services include starting/stopping instances, enabling/disabling subsystems,
+performing certain migrations and enabling/disabling startup using \fBnuxwdog\fR.
+.PP
+Operations are performed using file system utilities, and can only be performed
+by an administrative user on the local host.  This utility does not connect to any
+of the subsystem's WEB or REST interfaces.
+
+.SH CLI OPTIONS
+.B --help
+Prints additional help information.
+.TP
+.B -d
+Displays debug information.
+.TP
+.B -v
+Displays verbose information.
+
+.SH OPERATIONS
+To view available commands and options, simply type \fBpki-server\fP.
+.PP
+Some commands have sub-commands.  To view the sub-commands, type \fBpki-server <command>\fP.
+To view each command's usage, type \fB pki-server <command> \-\-help\fP.
+
+.SH FILES
+.I /usr/sbin/pki-server
+
+.SH SEE ALSO
+.PP
+\fBpki-server-instance\fR(1)
+.RS 4
+Certificate Server instance management commands
+.RE
+
+.PP
+\fBpki-server-subsystem\fR(1)
+.RS 4
+Certificate Server subsystem management commands
+.RE
+
+.PP
+\fBpki-server-migrate\fR(1)
+.RS 4
+Certificate server migration script management commands
+.RE
+
+.PP
+\fBpki-server-nuxwdog\fR(1)
+.RS 4
+Commands to enable/disable startup using \fBnuxwdog\fP.
+.RE
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

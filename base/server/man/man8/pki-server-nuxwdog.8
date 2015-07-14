@@ -1,0 +1,102 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-server-nuxwdog 8 "July 15, 2015" "version 10.2" "PKI Nuxwdog Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-server nuxwdog \- Command-Line Interface for enabling CS instances to start using \fBnuxwdog\fR.
+
+.SH SYNOPSIS
+.nf
+\fBpki-server [CLI options] nuxwdog\fR
+\fBpki-server [CLI options] nuxwdog-enable\fR
+\fBpki-server [CLI options] nuxwdog-disable\fR
+.fi
+
+.SH DESCRIPTION
+.PP
+When a Certificate System (CS) instance starts, it reads a plain text configuration
+file (\fB /etc/pki/<instance_name>/password.conf\fR) to obtain passwords needed to
+initialize the server.  This could include passwords needed to access server keys
+in hardware or software cryptographic modules, or passwords to establish database
+connections.
+.PP
+While this file is protected by file and SELinux permissions, it is even more secure
+to remove this file entirely, and have the server prompt for these passwords on
+startup.  This means of course that it will not be possible to start the CS
+instance unattended, including on server reboots.
+.PP
+\fBnuxwdog\fR is a daemon that will launch the CS instance and prompt the administrator
+for the relevant passwords.  These passwords will be cached securely in the kernel
+keyring.  If the CS instance crashes unexpectedly, \fBnuxwdog\fR will attempt to restart
+the instance using the cached passwords.
+.PP
+CS instances need to be reconfigured to use \fBnuxwdog\fR to start.  Not only are changes
+required in instance configuration files, but instances need to use a different
+systemd unit file to start.  See details in the \fBOperations\fR section.
+
+\fBpki-server nuxwdog\fR commands provide a mechanism to reconfigure instances
+to either start or not start with \fBnuxwdog\fR.
+.PP
+\fBpki-server [CLI options] nuxwdog\fR
+.RS 4
+This command is to list available \fBnuxwdog\fR commands.
+.RE
+.PP
+\fBpki-server [CLI options] nuxwdog-enable\fR
+.RS 4
+This command is to reconfigure ALL local CS instances to start using \fBnuxwdog\fP.
+To reconfigure a particular CS instance only, use \fBpki-server instance-nuxwdog-enable\fR.
+.RE
+.PP
+\fBpki-server [CLI options] nuxwdog-disable\fR
+.RS 4
+This command is to reconfigure ALL local CS instances to start without using
+\fBnuxwdog\fP.  To reconfigure a particular CS instance only, use
+\fBpki-server instance-nuxwdog-disable\fR.  Once this operation is complete,
+instances will need to read a  \fBpassword.conf\fR file in order to start up.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki-server\fR(8).
+
+.SH OPERATIONS
+Configuring a CS instance to start using \fBnuxwdog\fR requires changes to instance
+configuration files such as \fBserver.xml\fP.  These changes are performed by
+\fBpki-server\fR.
+.PP
+Once a subsystem has been converted to using \fBnuxwdog\fR, the \fBpassword.conf\fR
+file is no longer needed.  It can be removed from the filesystem.  Be sure, of course,
+to note all passwords contained therein - some of which may be randomly generated
+during the install.
+.PP
+An instance that is started by \fBnuxwdog\fR is started by a different systemd unit
+file (\fBpki-tomcatd-nuxwdog\fR).  Therefore, to start/stop/restart an instance using
+the following:
+.PP
+\fBsystemctl start/stop/restart pki-tomcatd-nuxwdog@<instance_id>.service\fR
+.PP
+If the CS instance is converted back to not using \fBnuxwdog\fP to start, then the
+usual systemd unit scripts can be invoked:
+.PP
+\fBsystemctl start/stop/restart pki-tomcatd@<instance_id>.service\fR
+.PP
+
+All \fBpki-server\fP commands must be executed as the system administrator.
+
+.SH AUTHORS
+Ade Lee <alee@redhat.com>
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
