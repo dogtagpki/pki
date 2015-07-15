@@ -95,7 +95,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                 if verbose:
                     traceback.print_exc()
                 else:
-                    print 'ERROR: ' + e.message
+                    print 'ERROR: %s' % e
 
                 message = 'Failed upgrading ' + str(instance) + ' instance.'
                 if self.upgrader.silent:
@@ -109,8 +109,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                         continue
 
                 raise pki.server.PKIServerException(
-                    'Upgrade failed in ' + str(instance) + ': ' + e.message,
-                    e, instance)
+                    'Upgrade failed in %s: %s' % (instance, e), e, instance)
 
     def upgrade_subsystems(self, instance):
 
@@ -132,7 +131,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                 if verbose:
                     traceback.print_exc()
                 else:
-                    print 'ERROR: ' + e.message
+                    print 'ERROR: %s' % e
 
                 message = 'Failed upgrading ' + str(subsystem) + ' subsystem.'
                 if self.upgrader.silent:
@@ -146,7 +145,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                         continue
 
                 raise pki.server.PKIServerException(
-                    'Upgrade failed in ' + str(subsystem) + ': ' + e.message,
+                    'Upgrade failed in %s: %s' % (subsystem, e),
                     e, instance, subsystem)
 
     def upgrade_subsystem(self, instance, subsystem):

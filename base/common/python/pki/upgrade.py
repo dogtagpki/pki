@@ -307,7 +307,7 @@ class PKIUpgradeScriptlet(object):
             if verbose:
                 traceback.print_exc()
             else:
-                print 'ERROR: ' + e.message
+                print 'ERROR: %s' % e
 
             message = 'Failed upgrading system.'
             if self.upgrader.silent:
@@ -320,7 +320,7 @@ class PKIUpgradeScriptlet(object):
                 if result == 'y':
                     return
 
-            raise pki.PKIException('Upgrade failed: ' + e.message, e)
+            raise pki.PKIException('Upgrade failed: %s' % e, e)
 
     def revert(self):
 
@@ -631,7 +631,7 @@ class PKIUpgrader(object):
                 if verbose:
                     traceback.print_exc()
                 else:
-                    print e.message
+                    print e
 
                 print
 
@@ -693,12 +693,12 @@ class PKIUpgrader(object):
 
                 print
 
-                message = 'Revert failed: ' + e.message
+                message = 'Revert failed: %s' % e
 
                 if verbose:
                     traceback.print_exc()
                 else:
-                    print e.message
+                    print e
 
                 print
 
