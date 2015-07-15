@@ -30,6 +30,13 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 # REMINDER:  Remove this '%%define' once 'tpsclient' is rewritten as a Java app
 %define _unpackaged_files_terminate_build 0
 
+# pkiuser and group. The uid and gid are preallocated
+# see /usr/share/doc/setup/uidgid
+%define pki_username pkiuser
+%define pki_uid 17
+%define pki_groupname pkiuser
+%define pki_gid 17
+%define pki_homedir /usr/share/pki
 
 Name:             pki-core
 Version:          10.2.6
@@ -395,6 +402,7 @@ Requires:         velocity
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
+Requires(pre):    shadow-utils
 
 %if 0%{?rhel}
 Requires:    tomcatjss >= 7.1.0-6
@@ -726,6 +734,17 @@ if (test("/etc/sysconfig/pki/ca") or
    error(msg)
 end
 %endif
+
+%pre -n pki-server
+getent group %{pki_groupname} >/dev/null || groupadd -f -g %{pki_gid} -r %{pki_groupname}
+if ! getent passwd %{pki_username} >/dev/null ; then
+    if ! getent passwd %{pki_uid} >/dev/null ; then
+      useradd -r -u %{pki_uid} -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
+    else
+      useradd -r -g %{pki_groupname} -d %{pki_homedir} -s /sbin/nologin -c "Certificate System" %{pki_username}
+    fi
+fi
+exit 0
 
 %post -n pki-base
 
