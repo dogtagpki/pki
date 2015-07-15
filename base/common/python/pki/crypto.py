@@ -22,7 +22,6 @@
 Module containing crypto classes.
 """
 import abc
-import exceptions
 import nss.nss as nss
 import os
 import shutil
@@ -106,7 +105,7 @@ class NSSCryptoProvider(CryptoProvider):
         """ Create an NSS database """
         if os.path.exists(db_dir):
             if not over_write:
-                raise exceptions.IOError("Directory already exists.")
+                raise IOError("Directory already exists.")
             if os.path.isdir(db_dir):
                 shutil.rmtree(db_dir)
             else:
