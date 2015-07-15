@@ -69,7 +69,7 @@ class KeyData(object):
     def from_json(cls, attr_list):
         """ Return a KeyData object from a JSON dict """
         key_data = cls()
-        for k, v in attr_list.items():
+        for k, v in attr_list.iteritems():
             if k in KeyData.json_attribute_names:
                 setattr(key_data, KeyData.json_attribute_names[k], v)
             else:
@@ -123,7 +123,7 @@ class KeyInfo(object):
     def from_json(cls, attr_list):
         """ Return KeyInfo from JSON dict """
         key_info = cls()
-        for k, v in attr_list.items():
+        for k, v in attr_list.iteritems():
             if k in KeyInfo.json_attribute_names:
                 setattr(key_info, KeyInfo.json_attribute_names[k], v)
             else:
@@ -188,7 +188,7 @@ class KeyRequestInfo(object):
     def from_json(cls, attr_list):
         """ Return a KeyRequestInfo object from a JSON dict. """
         key_request_info = cls()
-        for k, v in attr_list.items():
+        for k, v in attr_list.iteritems():
             if k in KeyRequestInfo.json_attribute_names:
                 setattr(key_request_info,
                         KeyRequestInfo.json_attribute_names[k], v)

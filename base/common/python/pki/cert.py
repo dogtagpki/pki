@@ -74,7 +74,7 @@ class CertData(object):
         """ Return CertData object from JSON dict """
         cert_data = cls()
 
-        for k, v in attr_list.items():
+        for k, v in attr_list.iteritems():
             if k not in ['Link']:
                 if k in CertData.json_attribute_names:
                     setattr(cert_data, CertData.json_attribute_names[k], v)
@@ -130,7 +130,7 @@ class CertDataInfo(object):
     def from_json(cls, attr_list):
         """ Return CertDataInfo object from JSON dict """
         cert_data_info = cls()
-        for k, v in attr_list.items():
+        for k, v in attr_list.iteritems():
             if k not in ['Link']:
                 if k in CertDataInfo.json_attribute_names:
                     setattr(cert_data_info,
@@ -220,7 +220,7 @@ class CertRequestInfo(object):
     def from_json(cls, attr_list):
         cert_request_info = cls()
 
-        for k, v in attr_list.items():
+        for k, v in attr_list.iteritems():
             if k not in ['Link']:
                 if k in CertRequestInfo.json_attribute_names:
                     setattr(cert_request_info,
@@ -497,7 +497,7 @@ class CertEnrollmentRequest(object):
 
         enroll_request = cls()
 
-        for k, v in attr_list.items():
+        for k, v in attr_list.iteritems():
             if k not in ['Input', 'Output']:
                 if k in CertEnrollmentRequest.json_attribute_names:
                     setattr(enroll_request,
@@ -531,23 +531,21 @@ class CertReviewResponse(CertEnrollmentRequest):
     reviewing a certificate enrollment request.
     It contains a nonce required to perform action on the request.
     """
-
-    json_attribute_names = dict(
-        CertEnrollmentRequest.json_attribute_names.items() + {
-            'requestId': 'request_id', 'requestType': 'request_type',
-            'requestStatus': 'request_status', 'requestOwner': 'request_owner',
-            'requestCreationTime': 'request_creation_time',
-            'requestNotes': 'request_notes',
-            'requestModificationTime': 'request_modification_time',
-            'profileApprovedBy': 'profile_approved_by',
-            'profileSetId': 'profile_set_id', 'profileName': 'profile_name',
-            'profileIsVisible': 'profile_is_visible',
-            'profileDescription': 'profile_description',
-            'profileRemoteHost': 'profile_remote_host',
-            'profileRemoteAddr': 'profile_remote_address',
-            'ProfilePolicySet': 'policy_sets'
-        }.items()
-    )
+    json_attribute_names = CertEnrollmentRequest.json_attribute_names.copy()
+    json_attribute_names.update({
+        'requestId': 'request_id', 'requestType': 'request_type',
+        'requestStatus': 'request_status', 'requestOwner': 'request_owner',
+        'requestCreationTime': 'request_creation_time',
+        'requestNotes': 'request_notes',
+        'requestModificationTime': 'request_modification_time',
+        'profileApprovedBy': 'profile_approved_by',
+        'profileSetId': 'profile_set_id', 'profileName': 'profile_name',
+        'profileIsVisible': 'profile_is_visible',
+        'profileDescription': 'profile_description',
+        'profileRemoteHost': 'profile_remote_host',
+        'profileRemoteAddr': 'profile_remote_address',
+        'ProfilePolicySet': 'policy_sets'
+    })
 
     def __init__(self, profile_id=None, renewal=False, serial_number=None,
                  remote_host=None, remote_address=None, inputs=None,
@@ -591,7 +589,7 @@ class CertReviewResponse(CertEnrollmentRequest):
         #First read the values for attributes defined in CertEnrollmentRequest
         review_response = super(CertReviewResponse, cls).from_json(attr_list)
 
-        for k, v in attr_list.items():
+        for k, v in attr_list.iteritems():
             if k not in ['ProfilePolicySet'] and k not in \
                     CertEnrollmentRequest.json_attribute_names:
                 if k in CertReviewResponse.json_attribute_names:

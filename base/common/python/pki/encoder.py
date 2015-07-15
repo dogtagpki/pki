@@ -33,7 +33,7 @@ class CustomTypeEncoder(json.JSONEncoder):
     """
     # pylint: disable=E0202
     def default(self, obj):
-        for k, v in TYPES.items():
+        for k, v in TYPES.iteritems():
             if isinstance(obj, v):
                 return {k: obj.__dict__}
         for t in NOTYPES.itervalues():
@@ -48,7 +48,7 @@ class CustomTypeEncoder(json.JSONEncoder):
         reverse_dict = {v: k for k, v in
                         object_class.json_attribute_names.iteritems()}
         new_dict = dict()
-        for k, v in attr_dict.items():
+        for k, v in attr_dict.iteritems():
             if k in reverse_dict:
                 new_dict[reverse_dict[k]] = v
             else:
