@@ -714,7 +714,7 @@ done
 
 %if ! 0%{?rhel}
 # Scanning the python code with pylint.
-sh ../pylint-build-scan.sh %{buildroot} `pwd`
+python2 ../pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
     echo "pylint failed. RC: $?"
     exit 1
