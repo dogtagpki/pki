@@ -1460,14 +1460,12 @@ class Directory:
                               dir_perms, file_perms, symlink_perms,
                               dir_acls, file_acls, symlink_acls,
                               recursive_flag, critical_failure)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure:
-                raise
-        except shutil.Error as exc:
-            config.pki_log.error(log.PKI_SHUTIL_ERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
+        except (shutil.Error, OSError) as exc:
+            if isinstance(exc, shutil.Error):
+                msg = log.PKI_SHUTIL_ERROR_1
+            else:
+                msg = log.PKI_OSERROR_1
+            config.pki_log.error(msg, exc, extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
         return
@@ -1665,14 +1663,12 @@ class File:
                 record.permissions = perms
                 record.acls = acls
                 self.manifest_db.append(record)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure:
-                raise
-        except shutil.Error as exc:
-            config.pki_log.error(log.PKI_SHUTIL_ERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
+        except (shutil.Error, OSError) as exc:
+            if isinstance(exc, shutil.Error):
+                msg = log.PKI_SHUTIL_ERROR_1
+            else:
+                msg = log.PKI_OSERROR_1
+            config.pki_log.error(msg, exc, extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
         return
@@ -1725,14 +1721,12 @@ class File:
             record.permissions = perms
             record.acls = acls
             self.manifest_db.append(record)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure:
-                raise
-        except shutil.Error as exc:
-            config.pki_log.error(log.PKI_SHUTIL_ERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
+        except (shutil.Error, OSError) as exc:
+            if isinstance(exc, shutil.Error):
+                msg = log.PKI_SHUTIL_ERROR_1
+            else:
+                msg = log.PKI_OSERROR_1
+            config.pki_log.error(msg, exc, extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
         return
@@ -1797,14 +1791,12 @@ class File:
                 record.permissions = perms
                 record.acls = acls
                 self.manifest_db.append(record)
-        except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            if critical_failure:
-                raise
-        except shutil.Error as exc:
-            config.pki_log.error(log.PKI_SHUTIL_ERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
+        except (shutil.Error, OSError) as exc:
+            if isinstance(exc, shutil.Error):
+                msg = log.PKI_SHUTIL_ERROR_1
+            else:
+                msg = log.PKI_OSERROR_1
+            config.pki_log.error(msg, exc, extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
         return
