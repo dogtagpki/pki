@@ -26,7 +26,6 @@ KeyRequestClient REST API on a DRM
 """
 import base64
 import json
-import types
 import urllib
 
 import pki
@@ -157,7 +156,7 @@ class KeyInfoCollection(object):
         """ Return a KeyInfoCollection object from its JSON representation """
         ret = cls()
         infos = json_value['entries']
-        if not isinstance(infos, types.ListType):
+        if not isinstance(infos, list):
             ret.key_infos.append(KeyInfo.from_json(infos))
         else:
             for info in infos:
@@ -232,7 +231,7 @@ class KeyRequestInfoCollection(object):
         """
         ret = cls()
         infos = json_value['entries']
-        if not isinstance(infos, types.ListType):
+        if not isinstance(infos, list):
             ret.key_requests.append(KeyRequestInfo.from_json(infos))
         else:
             for info in infos:

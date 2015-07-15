@@ -22,7 +22,6 @@
 
 import copy
 import json
-import types
 
 import pki
 import pki.client as client
@@ -164,7 +163,7 @@ class CertDataInfoCollection(object):
         """ Populate object from JSON input """
         ret = cls()
         cert_infos = json_value['entries']
-        if not isinstance(cert_infos, types.ListType):
+        if not isinstance(cert_infos, list):
             ret.cert_data_info_list.append(CertDataInfo.from_json(cert_infos))
         else:
             for cert_info in cert_infos:
@@ -172,7 +171,7 @@ class CertDataInfoCollection(object):
                     CertDataInfo.from_json(cert_info))
 
         links = json_value['Link']
-        if not isinstance(links, types.ListType):
+        if not isinstance(links, list):
             ret.links.append(pki.Link.from_json(links))
         else:
             for link in links:
@@ -281,7 +280,7 @@ class CertRequestInfoCollection(object):
         """ Populate object from JSON input """
         ret = cls()
         cert_req_infos = json_value['entries']
-        if not isinstance(cert_req_infos, types.ListType):
+        if not isinstance(cert_req_infos, list):
             ret.cert_request_info_list.append(
                 CertRequestInfo.from_json(cert_req_infos))
         else:
@@ -290,7 +289,7 @@ class CertRequestInfoCollection(object):
                     CertRequestInfo.from_json(cert_info))
 
         links = json_value['Link']
-        if not isinstance(links, types.ListType):
+        if not isinstance(links, list):
             ret.links.append(pki.Link.from_json(links))
         else:
             for link in links:
@@ -506,7 +505,7 @@ class CertEnrollmentRequest(object):
                     setattr(enroll_request, k, v)
 
         inputs = attr_list['Input']
-        if not isinstance(inputs, types.ListType):
+        if not isinstance(inputs, list):
             enroll_request.inputs.append(profile.ProfileInput.from_json(inputs))
         else:
             for profile_input in inputs:
@@ -514,7 +513,7 @@ class CertEnrollmentRequest(object):
                     profile.ProfileInput.from_json(profile_input))
 
         outputs = attr_list['Output']
-        if not isinstance(outputs, types.ListType):
+        if not isinstance(outputs, list):
             enroll_request.outputs.append(
                 profile.ProfileOutput.from_json(outputs))
         else:
@@ -599,7 +598,7 @@ class CertReviewResponse(CertEnrollmentRequest):
                     setattr(review_response, k, v)
 
         profile_policy_sets = attr_list['ProfilePolicySet']
-        if not isinstance(profile_policy_sets, types.ListType):
+        if not isinstance(profile_policy_sets, list):
             review_response.policy_sets.append(
                 profile.ProfilePolicySet.from_json(profile_policy_sets))
         else:

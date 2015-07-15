@@ -19,7 +19,6 @@
 
 import json
 import os
-import types
 
 
 import pki
@@ -86,7 +85,7 @@ class ProfileDataInfoCollection(object):
     def from_json(cls, attr_list):
         ret = cls()
         profile_data_infos = attr_list['entries']
-        if not isinstance(profile_data_infos, types.ListType):
+        if not isinstance(profile_data_infos, list):
             ret.profile_data_list.append(
                 ProfileDataInfo.from_json(profile_data_infos))
         else:
@@ -95,7 +94,7 @@ class ProfileDataInfoCollection(object):
                     ProfileDataInfo.from_json(profile_info))
 
         links = attr_list['Link']
-        if not isinstance(links, types.ListType):
+        if not isinstance(links, list):
             ret.links.append(pki.Link.from_json(links))
         else:
             for link in links:
@@ -269,7 +268,7 @@ class ProfileInput(object):
                     setattr(profile_input, k, v)
 
         attributes = attr_list['Attribute']
-        if not isinstance(attributes, types.ListType):
+        if not isinstance(attributes, list):
             profile_input.attributes.append(
                 ProfileAttribute.from_json(attributes))
         else:
@@ -278,7 +277,7 @@ class ProfileInput(object):
                     ProfileAttribute.from_json(profile_info))
 
         config_attributes = attr_list['ConfigAttribute']
-        if not isinstance(config_attributes, types.ListType):
+        if not isinstance(config_attributes, list):
             profile_input.config_attributes.append(
                 ProfileAttribute.from_json(config_attributes))
         else:
@@ -354,7 +353,7 @@ class ProfileOutput(object):
                     setattr(profile_output, k, v)
 
         attributes = attr_list['attributes']
-        if not isinstance(attributes, types.ListType):
+        if not isinstance(attributes, list):
             profile_output.attributes.append(
                 ProfileAttribute.from_json(attributes))
         else:
@@ -477,7 +476,7 @@ class PolicyDefault(object):
 
         if 'policyAttribute' in attr_list:
             attributes = attr_list['policyAttribute']
-            if not isinstance(attributes, types.ListType):
+            if not isinstance(attributes, list):
                 policy_def.policy_attributes.append(
                     ProfileAttribute.from_json(attributes))
             else:
@@ -487,7 +486,7 @@ class PolicyDefault(object):
 
         if 'params' in attr_list:
             params = attr_list['params']
-            if not isinstance(params, types.ListType):
+            if not isinstance(params, list):
                 policy_def.policy_params.append(
                     ProfileParameter.from_json(params))
             else:
@@ -595,7 +594,7 @@ class PolicyConstraint(object):
 
         if 'constraint' in attr_list:
             constraints = attr_list['constraint']
-            if not isinstance(constraints, types.ListType):
+            if not isinstance(constraints, list):
                 policy_constraint.add_constraint_value(
                     PolicyConstraintValue.from_json(constraints))
             else:
@@ -657,7 +656,7 @@ class ProfilePolicySet(object):
         policy_set = cls()
 
         policies = attr_list['policies']
-        if not isinstance(policies, types.ListType):
+        if not isinstance(policies, list):
             policy_set.policies.append(ProfilePolicy.from_json(policies))
         else:
             for policy in policies:
@@ -718,7 +717,7 @@ class PolicySet(object):
 
         policy_set.name = attr_list['id']
         policies = attr_list['value']
-        if not isinstance(policies, types.ListType):
+        if not isinstance(policies, list):
             policy_set.policy_list.append(ProfilePolicy.from_json(policies))
         else:
             for policy in policies:
@@ -783,7 +782,7 @@ class PolicySetList(object):
 
         policy_set_list = cls()
         policy_sets = attr_list['PolicySet']
-        if not isinstance(policy_sets, types.ListType):
+        if not isinstance(policy_sets, list):
             policy_set_list.policy_sets.append(PolicySet.from_json(policy_sets))
         else:
             for policy_set in policy_sets:
@@ -926,7 +925,7 @@ class Profile(object):
                     setattr(profile_data, k, v)
 
         profile_inputs = attr_list['Input']
-        if not isinstance(profile_inputs, types.ListType):
+        if not isinstance(profile_inputs, list):
             profile_data.inputs.append(ProfileInput.from_json(profile_inputs))
         else:
             for profile_input in profile_inputs:
@@ -934,7 +933,7 @@ class Profile(object):
                     ProfileInput.from_json(profile_input))
 
         profile_outputs = attr_list['Output']
-        if not isinstance(profile_outputs, types.ListType):
+        if not isinstance(profile_outputs, list):
             profile_data.outputs.append(
                 ProfileOutput.from_json(profile_outputs))
         else:
