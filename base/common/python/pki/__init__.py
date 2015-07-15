@@ -24,6 +24,7 @@ This module contains top-level classes and functions used by the Dogtag project.
 from functools import wraps
 import os
 import re
+import sys
 import requests
 
 
@@ -205,10 +206,12 @@ class PKIException(Exception, ResourceMessage):
         :type json_value: str
         :return: pki.PKIException
         """
-        ret = cls(json_value['Message'], json_value['Code'],
-                  json_value['ClassName'])
+        ret = cls(
+            message=json_value['Message'],
+            code=json_value['Code'],
+            class_name=json_value['ClassName']
+        )
         for attr in json_value['Attributes']['Attribute']:
-            print str(attr)
             ret.add_attribute(attr["name"], attr["value"])
         return ret
 
@@ -293,15 +296,25 @@ def handle_exceptions():
             """ Decorator to catch and re-throw PKIExceptions."""
             try:
                 return fn_call(inst, *args, **kwargs)
-            except requests.exceptions.HTTPError as exc:
-                clazz = exc.response.json()['ClassName']
-                if clazz in EXCEPTION_MAPPINGS:
-                    exception_class = EXCEPTION_MAPPINGS[clazz]
-                    pki_exception = exception_class.from_json(
-                        exc.response.json())
-                    raise pki_exception
+            except requests.exceptions.HTTPError:
+                # store exception information. json may raise another
+                # exception. We want to re-raise the HTTPError.
+                exc_type, exc_val, exc_tb = sys.exc_info()
+                try:
+                    json = exc_val.response.json()
+                except ValueError:
+                    # json raises ValueError. simplejson raises
+                    # JSONDecodeError, which is a subclass of ValueError.
+                    # re-raise original exception
+                    raise exc_type, exc_val, exc_tb
                 else:
-                    raise exc
+                    # clear reference cycle
+                    exc_type = exc_val = exc_tb = None
+                    clazz = json.get('ClassName')
+                    if clazz and clazz in EXCEPTION_MAPPINGS:
+                        exception_class = EXCEPTION_MAPPINGS[clazz]
+                        pki_exception = exception_class.from_json(json)
+                        raise pki_exception
 
         return handler
 
