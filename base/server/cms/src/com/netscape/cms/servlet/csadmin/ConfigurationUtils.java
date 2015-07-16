@@ -89,7 +89,6 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 
 import org.apache.velocity.context.Context;
-import org.jboss.resteasy.client.ClientResponseFailure;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -152,6 +151,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.client.ClientConfig;
@@ -372,17 +372,14 @@ public class ConfigurationUtils {
             InstallToken token = sdClient.getInstallToken(sdhost, csType);
             accountClient.logout();
             return token.getToken();
-
-        } catch (ClientResponseFailure e) {
-
-            if (e.getResponse().getResponseStatus() == Response.Status.NOT_FOUND) {
+        } catch (PKIException e) {
+            if (e.getCode() == Response.Status.NOT_FOUND.getStatusCode()) {
                 // try the old servlet
                 CMS.debug("Getting old cookie");
                 String tokenString = getOldCookie(sdhost, sdport, user, passwd);
                 CMS.debug("Token: " + tokenString);
                 return tokenString;
             }
-
             throw e;
         }
     }
