@@ -131,7 +131,7 @@ password for the administrator user.
 An optional parameter that can be used to import an already available CA admin certificate into this instance.
 .TP
 \fIExport certificate:\fP
-setup the path where the admin certificate of this <subsystem> should be stored. The default value is /root/.dogtag/pki-tomcat/<ca/kra/tks/ocsp>_admin.cert.
+setup the path where the admin certificate of this <subsystem> should be stored. The default value is $HOME/.dogtag/pki-tomcat/<ca/kra/ocsp/tks>_admin.cert.
 .PP
 \fBDirectory Server Parameters\fP
 .TP
@@ -145,7 +145,7 @@ Answering yes to this question will cause prompts for \fISecure LDAPS Port:\fP a
 Secure LDAPS port for the directory server instance. The default value is 636.
 .TP
 \fIDirectory Server CA certificate pem file:\fP
-The fully-qualified path including the filename of the file which contains an exported copy of the Directory Server's CA certificate (e. g. - /root/dscacert.pem).  This file must exist prior to \fBpkispawn\fP being able to utilize it.  For details on creation of this file see the
+The fully-qualified path including the filename of the file which contains an exported copy of the Directory Server's CA certificate (e. g. - $HOME/dscacert.pem).  This file must exist prior to \fBpkispawn\fP being able to utilize it.  For details on creation of this file see the
 .B EXAMPLES
 section below entitled
 .B Installing a CA connecting securely to a Directory Server via LDAPS.
@@ -437,7 +437,7 @@ the generated PKCS12 file.
 master# scp backup_keys.p12 clone:/backup_keys.p12
 
 clone# chown pkiuser: /backup_keys.p12
-clone# semanage -a -t pki_tomcat_cert_t /root/backup_keys.p12\fP
+clone# semanage -a -t pki_tomcat_cert_t /backup_keys.p12\fP
 .fi
 
 .PP
@@ -699,7 +699,8 @@ pki_client_database_password=\fIpassword123\fP
 pki_client_pkcs12_password=\fIpassword123\fP
 pki_ds_password=\fIpassword123\fP
 pki_ds_secure_connection=True
-pki_ds_secure_connection_ca_pem_file=\fI/root/dscacert.pem\fP
+pki_ds_secure_connection_ca_pem_file=\fI$HOME/dscacert.pem\fP
+.fi
 
 [CA]
 pki_base_dn=\fIdc=example, dc=com\fP
@@ -726,7 +727,7 @@ The \fBsetupssl2.sh\fP script may be downloaded from \fBhttps://github.com/richm
 \fBNote:\fP
 The \fBmozldap ldapsearch\fP utility may be downloaded via running \fByum install mozldap-tools\fP.
 .IP
-* \fBcertutil -L -d /etc/dirsrv/\fIslapd-pki\fP -n "CA certificate" -a > \fI/root/dscacert.pem\fP
+* \fBcertutil -L -d /etc/dirsrv/\fIslapd-pki\fP -n "CA certificate" -a > \fI$HOME/dscacert.pem\fP
 .PP
 It should be noted that there are basically three scenarios in which a PKI subsystem (e. g. - a CA) needs to communicate securely via LDAPS with a directory server:
 .IP
