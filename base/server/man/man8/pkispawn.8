@@ -704,55 +704,96 @@ Then, the \fBpkispawn\fP command is run again:
 
 .IP
 .B pkispawn -s CA -f myconfig.txt
-.SS Installing a CA connecting securely to a Directory Server via LDAPS
-\x'-1'\fBpkispawn \-s CA \-f myconfig.txt\fR
+
+.SS Installing a PKI subsystem with a secure LDAP connection
+.BR
 .PP
-where \fImyconfig.txt\fP contains the following text:
+There are three scenarios in which a PKI subsystem (e.g. a CA) needs to
+communicate securely via LDAPS with a directory server:
+
+.IP
+* A directory server exists which is already running LDAPS using a CA
+certificate that has been issued by some other CA. For this scenario, the CA
+certificate must be made available via a PEM file (e.g. $HOME/dscacert.pem)
+prior to running \fBpkispawn\fP such that the new CA may be installed and
+configured to communicate with this directory server using LDAPS.
+
+.IP
+* A directory server exists which is currently running LDAP. Once a CA has
+been created, there is a desire to use its CA certificate to issue an SSL
+certificate for this directory server so that this CA and this directory
+server can communicate via LDAPS.  For this scenario, since there is no need
+to communicate securely during the \fBpkispawn\fP installation/configuration,
+simply use \fBpkispawn\fP to install and configure the CA using the LDAP port
+of the directory server, issue an SSL certificate from this CA for the
+directory server, and then reconfigure the CA and directory server to
+communicate with each other via LDAPS.
+
+.IP
+* Similar to the previous scenario, a directory server exists which is
+currently running LDAP, and the desire is to create a CA and use it to
+establish LDAPS communications between this CA and this directory server.
+However, for this scenario, there is a need for the CA and the directory
+server to communicate securely during \fBpkispawn\fP installation and
+configuration. For this to succeed, the directory server must generate a
+temporary self-signed certificate which then must be made available via
+a PEM file (e.g. $HOME/dscacert.pem) prior to running \fBpkispawn\fP. Once
+the CA has been created, swap things out to reconfigure the CA and directory
+server to utilize LDAPS through the desired certificates.
+
+.PP
+The following example demonstrates the steps to generate a temporary
+self-signed certificate in the Directory Server which requires an Admin Server.
+Directory Server and Admin Server instances can be created with the following
+command:
+
+.IP
+\fBsetup-ds-admin.pl\fP
+
+.PP
+Enable LDAPS in the Directory Server with the following command:
+
+.IP
+\fB/usr/sbin/setupssl2.sh /etc/dirsrv/\fIslapd-pki\fP 389 636 \fISecret123\fP
+
+.PP
+\fBNote:\fP
+The \fBsetupssl2.sh\fP script may be downloaded from \fBhttps://raw.githubusercontent.com/richm/scripts/master/setupssl2.sh\fP.
+
+Restart the Directory Server with the following command:
+
+.IP
+\fBsystemctl restart dirsrv.target\fP
+
+.PP
+Verify that a client can connect securely over LDAPS with the following
+command:
+
+.IP
+\fB/usr/lib64/mozldap/ldapsearch -Z -h \fIpki.example.com\fP -p 636 -D 'cn=Directory Manager' -w \fISecret123\fP -b \fI"dc=example, dc=com"\fP "objectclass=*"\fP
+
+.PP
+\fBNote:\fP
+The \fBmozldap ldapsearch\fP utility is available from the \fBmozldap-tools\fP package.
+
+.PP
+Export the self-signed CA certificate with the following command:
+
+.IP
+\fBcertutil -L -d /etc/dirsrv/\fIslapd-pki\fP -n "CA certificate" -a > \fI$HOME/dscacert.pem\fP
+
+.PP
+Once the self-signed CA certificate is obtained, add the following parameters
+into the [DEFAULT] section in \fImyconfig.txt\fP:
+
 .IP
 .nf
-[DEFAULT]
-pki_admin_password=\fIpassword123\fP
-pki_client_database_password=\fIpassword123\fP
-pki_client_pkcs12_password=\fIpassword123\fP
-pki_ds_password=\fIpassword123\fP
 pki_ds_secure_connection=True
 pki_ds_secure_connection_ca_pem_file=\fI$HOME/dscacert.pem\fP
 .fi
 
-[CA]
-pki_base_dn=\fIdc=example, dc=com\fP
-.fi
-.TP
-\fBImportant:\fP
-Although this example is specifically for a CA, the \fB[CA]\fP section may be replaced by the appropriate PKI subsystem (i. e. - \fb[KRA]\fP, \fb[OCSP]\fP, \fb[TKS]\fP, or \fb[TPS]\fP) being installed.  Additionally, if a KRA, OCSP, TKS, or TPS subsystem is being installed, they must also include the name/value pair \fBpki_security_domain_password=\fIpassword123\fP in the \fB[DEFAULT]\fP section.
 .PP
-Prior to running this command, a Directory Server instance must be configured to run securely over LDAPS using a self-signed certificate, and its self-signed CA certificate exported to a file so that it may be utilized by a PKI instance:
-.IP
-* \fBsetup-ds.pl\fP or \fBsetup-ds-admin.pl\fP
-.IP
-* \fB/usr/sbin/setupssl2.sh /etc/dirsrv/\fIslapd-pki\fP 389 636 \fIpassword123\fP
-.TP
-\fBNote:\fP
-The \fBsetupssl2.sh\fP script may be downloaded from \fBhttps://github.com/richm/scripts/blob/master/setupssl2.sh\fP.
-.IP
-* \fBsystemctl restart dirsrv.target\fP
-.IP
-* \fBcd /etc/dirsrv/\fIslapd-pki\fP
-.IP
-* \fB/usr/lib64/mozldap/ldapsearch -Z -h \fIpki.example.com\fP -p 636 -D 'cn=Directory Manager' -w \fIpassword123\fP -b \fI"dc=example, dc=com"\fP "objectclass=*"\fP
-.TP
-\fBNote:\fP
-The \fBmozldap ldapsearch\fP utility may be downloaded via running \fByum install mozldap-tools\fP.
-.IP
-* \fBcertutil -L -d /etc/dirsrv/\fIslapd-pki\fP -n "CA certificate" -a > \fI$HOME/dscacert.pem\fP
-.PP
-It should be noted that there are basically three scenarios in which a PKI subsystem (e. g. - a CA) needs to communicate securely via LDAPS with a directory server:
-.IP
-* A directory server exists which is already running LDAPS using a CA certificate that has been issued by some other CA.  For this scenario, the CA certificate must be made available via a PEM file during \fBpkispawn\fP installation/configuration such that the CA may be installed and configured to communicate with this directory server using LDAPS.
-.IP
-* A directory server exists which is currently running LDAP.  Once a CA has been created, there is a desire to use its CA certificate to issue an SSL certificate for this directory server so that this CA and this directory server can communicate via LDAPS.  For this scenario, since there is no need to communicate securely during the \fBpkispawn\fP installation/configuration, simply use \fBpkispawn\fP to install and configure the CA using the LDAP port of the directory server, issue an SSL certificate from this CA for the directory server, and then reconfigure the CA and directory server to communicate with each other via LDAPS.
-.IP
-* Similar to the previous scenario, a directory server exists which is currently running LDAP, and the desire is to create a CA and use it to establish LDAPS communications between this CA and this directory server.  However, for this scenario, there is a need for the CA and the directory server to communicate securely during \fBpkispawn\fP installation/configuration.  For this to succeed, the directory server must generate a temporary self-signed certificate for use during \fBpkispawn\fP installation/creation.  Once the CA has been created, swap things out to reconfigure the CA and directory server to utilize LDAPS through the desired certificates.  This example demonstrates the \fBpkispawn\fP portion of this particular scenario.
+Then execute \fBpkispawn\fP to create the CA subsystem.
 
 .SS Managing PKI instance
 .BR
