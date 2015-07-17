@@ -45,7 +45,7 @@ if [ "$WITHOUT_JAVADOC" = "" ]; then
 fi
 
 if [ "$WITHOUT_SERVER" = "" ]; then
-    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps setup"
+    PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST server ca kra ocsp tks tps"
     # required for native 'tpsclient' utility
     PKI_COMPONENT_LIST="$PKI_COMPONENT_LIST tps-client"
 fi

@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          0.2%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -368,7 +368,6 @@ Requires:    nuxwdog-client-java >= 1.0.1-11
 Requires:    nuxwdog-client-java >= 1.0.3
 %endif
 
-Requires:         perl(File::Slurp)
 Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
@@ -882,13 +881,11 @@ systemctl daemon-reload
 %{_sbindir}/pki-server
 %{_sbindir}/pki-server-nuxwdog
 %{_sbindir}/pki-server-upgrade
-#%{_bindir}/pki-setup-proxy
 %{python_sitelib}/pki/server/
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
 %dir %{_datadir}/pki/scripts
 %{_datadir}/pki/scripts/operations
-%{_datadir}/pki/scripts/pkicommon.pm
 %{_bindir}/pkidaemon
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %{_unitdir}/pki-tomcatd@.service
@@ -901,7 +898,6 @@ systemctl daemon-reload
 %{_javadir}/pki/pki-cmscore.jar
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_sharedstatedir}/pki
-%{_bindir}/pki-setup-proxy
 %{_mandir}/man5/pki_default.cfg.5.gz
 %{_mandir}/man8/pki-server-upgrade.8.gz
 %{_mandir}/man8/pkidestroy.8.gz
@@ -982,6 +978,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Fri Jul 17 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-0.3
+- Remove setup directory and remaining Perl dependencies
+
 * Sat Jun 20 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-0.2
 - Remove ExcludeArch directive
 
