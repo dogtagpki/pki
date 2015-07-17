@@ -439,8 +439,25 @@ master# scp backup_keys.p12 clone:/backup_keys.p12
 clone# chown pkiuser: /backup_keys.p12
 clone# semanage -a -t pki_tomcat_cert_t /backup_keys.p12\fP
 .fi
-
 .PP
+.nf
+Note: One current cloning anomaly to mention is the following scenario:
+
+1. Create a clone of a CA or of any other subsystem.
+2. Remove that just created clone.
+3. Immediately attempt the exact same clone again, in place of
+   the recently destroyed instance. Before recreating this clone,
+   make sure the "pki_ds_remove_data=True" is used in the clone's
+   deployment config file. This will remove the old data from the previous
+   clone.
+
+Here the Director Server instance may have worked itself in into a state
+where it no longer accepts connections, aborting the clone configuration quickly.
+
+The fix to this is to simply restart the Directory Server instance before
+creating the clone for the second time. After restarting the Directory Server
+it should be possible to create the mentioned clone instance.
+.fi
 .SS Installing a KRA or TKS clone
 .BR
 .PP
