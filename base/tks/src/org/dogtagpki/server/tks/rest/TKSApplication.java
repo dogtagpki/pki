@@ -7,7 +7,6 @@ import javax.ws.rs.core.Application;
 
 import org.dogtagpki.server.rest.ACLInterceptor;
 import org.dogtagpki.server.rest.AccountService;
-import org.dogtagpki.server.rest.AuditService;
 import org.dogtagpki.server.rest.AuthMethodInterceptor;
 import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
@@ -26,9 +25,6 @@ public class TKSApplication extends Application {
 
         // account
         classes.add(AccountService.class);
-
-        // audit
-        classes.add(AuditService.class);
 
         // installer
         classes.add(TKSInstallerService.class);

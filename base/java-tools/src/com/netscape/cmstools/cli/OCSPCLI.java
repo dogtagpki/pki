@@ -21,7 +21,6 @@ package com.netscape.cmstools.cli;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.ocsp.OCSPClient;
 import com.netscape.cmstools.group.GroupCLI;
-import com.netscape.cmstools.logging.AuditCLI;
 import com.netscape.cmstools.selftests.SelfTestCLI;
 import com.netscape.cmstools.user.UserCLI;
 
@@ -35,7 +34,6 @@ public class OCSPCLI extends SubsystemCLI {
     public OCSPCLI(CLI parent) {
         super("ocsp", "OCSP management commands", parent);
 
-        addModule(new AuditCLI(this));
         addModule(new GroupCLI(this));
         addModule(new SelfTestCLI(this));
         addModule(new UserCLI(this));

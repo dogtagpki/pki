@@ -18,13 +18,12 @@
 
 package com.netscape.cmstools.logging;
 
-import java.util.Arrays;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -52,7 +51,7 @@ public class AuditModifyCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "action", true, "Action: update (default), enable, disable.");
+        Option option = new Option(null, "action", true, "Action: enable, disable.");
         option.setArgName("action");
         options.addOption(option);
 
@@ -92,16 +91,16 @@ public class AuditModifyCLI extends CLI {
             System.exit(-1);
         }
 
-        String action = cmd.getOptionValue("action", "update");
+        String action = cmd.getOptionValue("action");
         String input = cmd.getOptionValue("input");
         String output = cmd.getOptionValue("output");
 
         AuditConfig auditConfig;
 
-        if (action.equals("update")) {
+        if (action == null) { // modify audit configuration
 
             if (input == null) {
-                System.err.println("Error: Input file is required.");
+                System.err.println("Error: Missing action or input file.");
                 printHelp();
                 System.exit(-1);
             }
@@ -120,7 +119,14 @@ public class AuditModifyCLI extends CLI {
 
             auditConfig = auditCLI.auditClient.updateAuditConfig(auditConfig);
 
-        } else { // other actions
+        } else { // change audit status
+
+            if (input != null) {
+                System.err.println("Error: Action and input file are mutually exclusive.");
+                printHelp();
+                System.exit(-1);
+            }
+
             auditConfig = auditCLI.auditClient.changeAuditStatus(action);
         }
 
