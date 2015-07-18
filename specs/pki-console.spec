@@ -1,6 +1,6 @@
 Name:             pki-console
 Version:          10.2.6
-Release:          0.2%{?dist}
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -91,6 +91,9 @@ cd build
 
 
 %changelog
+* Sat Jul 18 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-1
+- Update release number for release build
+
 * Sat Jun 20 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-0.2
 - Remove ExcludeArch directive
 

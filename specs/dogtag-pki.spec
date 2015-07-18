@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          10.2.6
-Release:          0.2%{?dist}
+Release:          1%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -94,6 +94,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Sat Jul 18 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-1
+- Update release number for release build
+
 * Sat Jun 20 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-0.2
 - Remove ExcludeArch directive
 
