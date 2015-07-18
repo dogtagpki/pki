@@ -899,6 +899,7 @@ systemctl daemon-reload
 %{_javadir}/pki/pki-cmscore.jar
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_sharedstatedir}/pki
+%{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
 %{_mandir}/man8/pki-server-upgrade.8.gz
 %{_mandir}/man8/pkidestroy.8.gz
