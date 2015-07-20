@@ -224,17 +224,17 @@ public class PKCS12Export {
         for (int i = 0; i < certs.length; i++) {
             String nickname = certs[i].getNickname();
             debug(" * Certificate: " + nickname);
-            org.mozilla.jss.crypto.PrivateKey prikey = cm.findPrivKeyByCert(certs[i]);
+            try {
+                org.mozilla.jss.crypto.PrivateKey prikey = cm.findPrivKeyByCert(certs[i]);
 
-            if (prikey == null) {
-                debug("   Private key does not exist");
-                addCertBag(certs[i], null, safeContents);
-
-            } else {
                 debug("   Private key exists");
                 byte localKeyId[] =
                         addCertBag(certs[i], nickname, safeContents);
                 addKeyBag(prikey, certs[i], password, localKeyId, encSafeContents);
+
+            } catch (org.mozilla.jss.crypto.ObjectNotFoundException e) {
+                debug("   Private key does not exist");
+                addCertBag(certs[i], null, safeContents);
             }
         }
 
