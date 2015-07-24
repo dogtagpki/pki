@@ -713,7 +713,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             passwordFile = cs.getString("passwordFile");
             psStore = CMS.createFileConfigStore(passwordFile);
             psStore.putString("internaldb", data.getBindpwd());
-            if (data.getSetupReplication()) {
+            if (StringUtils.isEmpty(psStore.getString("replicationdb", null))) {
                 psStore.putString("replicationdb", replicationPassword);
             }
             psStore.commit(false);
