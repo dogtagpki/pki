@@ -108,10 +108,9 @@ BuildRequires:    pylint
 BuildRequires:    python-nss
 BuildRequires:    python-requests
 BuildRequires:    libselinux-python
+BuildRequires:    policycoreutils-python
 %if 0%{?fedora} >= 23
 BuildRequires:    policycoreutils-python-utils
-%else
-BuildRequires:    policycoreutils-python
 %endif
 BuildRequires:    python-ldap
 BuildRequires:    junit
@@ -378,10 +377,9 @@ Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
+Requires:         policycoreutils-python
 %if 0%{?fedora} >= 23
 Requires:         policycoreutils-python-utils
-%else
-Requires:         policycoreutils-python
 %endif
 
 %if 0%{?fedora} >= 21
