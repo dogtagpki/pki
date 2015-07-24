@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -108,7 +108,11 @@ BuildRequires:    pylint
 BuildRequires:    python-nss
 BuildRequires:    python-requests
 BuildRequires:    libselinux-python
+%if 0%{?fedora} >= 23
+BuildRequires:    policycoreutils-python-utils
+%else
 BuildRequires:    policycoreutils-python
+%endif
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
@@ -374,7 +378,11 @@ Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
+%if 0%{?fedora} >= 23
+Requires:         policycoreutils-python-utils
+%else
 Requires:         policycoreutils-python
+%endif
 
 %if 0%{?fedora} >= 21
 Requires:         selinux-policy-targeted >= 3.13.1-9
@@ -984,6 +992,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Fri Jul 24 2015 Tomas Radej <tradej@redhat.com> - 10.2.6-3
+- Updated dep on policycoreutils-python-utils [Fedora 23 and later]
+
 * Tue Jul 21 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-2
 - PKI TRAC Ticket #1506 - PKCS12Export tool returns error
 
