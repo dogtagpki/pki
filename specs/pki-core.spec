@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -143,6 +143,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
+
+#Patch1:           pki-core-Fixed-ObjectNotFoundException-in-PKCS12Export.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -633,6 +635,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+#%patch1 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -981,6 +984,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Tue Jul 21 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-2
+- PKI TRAC Ticket #1506 - PKCS12Export tool returns error
+
 * Sat Jul 18 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-1
 - Update release number for release build
 
