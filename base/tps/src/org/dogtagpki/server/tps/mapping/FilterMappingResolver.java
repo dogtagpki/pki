@@ -42,6 +42,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
         String extKeySet = null;
 
         String targetMappedName = null;
+        String selectedMappedName = null;
 
         CMS.debug(method + " starts");
 
@@ -52,6 +53,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
         CMS.debug(method + " param minor_version =" + minor_version);
 
         cuid =  mappingParams.getString(FilterMappingParams.FILTER_PARAM_CUID);
+        CMS.debug(method + " param cuid =" + cuid);
         // msn = (String) mappingParams.get(FilterMappingParams.FILTER_PARAM_MSN);
 
         // they don't necessarily have extension
@@ -225,7 +227,8 @@ public class FilterMappingResolver extends BaseMappingResolver {
                     continue;
                 }
 
-                if (cuid.compareTo(tokenCUIDStart) < 0) {
+                if (cuid.compareToIgnoreCase(tokenCUIDStart) < 0) {
+                    CMS.debug(method + " cuid < tokenCUIDStart ... out of range");
                     continue;
                 }
 
@@ -255,7 +258,8 @@ public class FilterMappingResolver extends BaseMappingResolver {
                     continue;
                 }
 
-                if (cuid.compareTo(tokenCUIDEnd) > 0) {
+                if (cuid.compareToIgnoreCase(tokenCUIDEnd) > 0) {
+                    CMS.debug(method + " cuid > tokenCUIDEnd ... out of range");
                     continue;
                 }
 
@@ -309,17 +313,18 @@ public class FilterMappingResolver extends BaseMappingResolver {
             }
 
             //if we make it this far, we have a mapped name
-            CMS.debug(method + " Selected Token type: " + targetMappedName);
+            selectedMappedName = targetMappedName;
+            CMS.debug(method + " Selected mapped name: " + selectedMappedName);
             break;
         }
 
-        if (targetMappedName == null) {
-            CMS.debug(method + " ends, found: " + targetMappedName);
+        if (selectedMappedName == null) {
+            CMS.debug(method + " ends, found: " + selectedMappedName);
             throw new TPSException(method + " Can't map to target name!",
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
         }
 
-        return targetMappedName;
+        return selectedMappedName;
 
     }
 
