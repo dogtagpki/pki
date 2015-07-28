@@ -144,7 +144,22 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         checkAndHandlePinReset(channel);
 
+        try {
+            tps.tdb.tdbUpdateTokenEntry(tokenRecord);
+            CMS.debug(method + ": token record updated!");
+        } catch (Exception e) {
+            String failMsg = "update token failure";
+            auditMsg = failMsg + ":" + e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), auditMsg,
+                    "failure");
+            throw new TPSException(auditMsg);
+        }
+
         statusUpdate(100, "PROGRESS_PIN_RESET_COMPLETE");
+
+        auditMsg = "pin reset operation completed successfully";
+        tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), auditMsg,
+                "success");
 
         CMS.debug(method + ": Token Pin successfully reset!");
 
