@@ -25,12 +25,10 @@ import errno
 import sys
 import os
 import fileinput
-import random
 import re
 import requests.exceptions
 import shutil
 from shutil import Error, WindowsError
-import string
 import subprocess
 import time
 import types
@@ -1809,63 +1807,6 @@ class File:
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise
-        return
-
-    def generate_noise_file(
-            self, name, random_bytes, uid=None, gid=None,
-            perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
-            acls=None, critical_failure=True):
-        try:
-            if not os.path.exists(name):
-                # generating noise file called <name> and
-                # filling it with <random_bytes> random bytes
-                config.pki_log.info(
-                    log.PKIHELPER_NOISE_FILE_2, name, random_bytes,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                open(name, "w").close()
-                with open(name, "w") as FILE:
-                    noise = ''.join(random.choice(string.ascii_letters +\
-                                    string.digits) for x in range(random_bytes))
-                    FILE.write(noise)
-                # chmod <perms> <name>
-                config.pki_log.debug(log.PKIHELPER_CHMOD_2, perms, name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                os.chmod(name, perms)
-                # chown <uid>:<gid> <name>
-                if uid is None:
-                    uid = self.identity.get_uid()
-                if gid is None:
-                    gid = self.identity.get_gid()
-                config.pki_log.debug(log.PKIHELPER_CHOWN_3,
-                                     uid, gid, name,
-                                     extra=config.PKI_INDENTATION_LEVEL_3)
-                os.chown(name, uid, gid)
-                # Store record in installation manifest
-                record = manifest.Record()
-                record.name = name
-                record.type = manifest.RECORD_TYPE_FILE
-                record.user = self.mdict['pki_user']
-                record.group = self.mdict['pki_group']
-                record.uid = uid
-                record.gid = gid
-                record.permissions = perms
-                record.acls = acls
-                self.manifest_db.append(record)
-            elif not os.path.isfile(name):
-                config.pki_log.error(
-                    log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                if critical_failure:
-                    raise Exception(
-                        log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 % name)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST:
-                pass
-            else:
-                config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                     extra=config.PKI_INDENTATION_LEVEL_2)
-                if critical_failure:
-                    raise
         return
 
 
@@ -4417,8 +4358,14 @@ class ConfigClient:
                 output_file = os.path.join(
                     self.mdict['pki_client_database_dir'], "admin_pkcs10.bin")
 
-                self.deployer.file.generate_noise_file(
-                    noise_file, int(self.mdict['pki_admin_keysize']))
+                # note: in the function below, certutil is used to generate
+                # the request for the admin cert.  The keys are generated
+                # by NSS, which does not actually use the data in the noise
+                # file, so it does not matter what is in this file.  Certutil
+                # still requires it though, otherwise it waits for keyboard
+                # input.
+                with open(noise_file, 'w') as f:
+                    f.write("not_so_random_data")
 
                 self.deployer.certutil.generate_certificate_request(
                     self.mdict['pki_admin_subject_dn'],
@@ -4428,6 +4375,8 @@ class ConfigClient:
                     output_file,
                     self.mdict['pki_client_database_dir'],
                     None, None, True)
+
+                self.deployer.file.delete(noise_file)
 
                 # convert output to ascii
                 command = ["BtoA", output_file, output_file + ".asc"]

@@ -91,9 +91,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_self_signed_nickname'],
                 password_file=deployer.mdict['pki_shared_pfile'])
             if not rv:
-                deployer.file.generate_noise_file(
-                    deployer.mdict['pki_self_signed_noise_file'],
-                    deployer.mdict['pki_self_signed_noise_bytes'])
+                # note: in the function below, certutil is used to generate
+                # the request for the self signed cert.  The keys are generated
+                # by NSS, which does not actually use the data in the noise
+                # file, so it does not matter what is in this file.  Certutil
+                # still requires it though, otherwise it waits for keyboard
+                # input
+                with open(
+                        deployer.mdict['pki_self_signed_noise_file'], 'w') as f:
+                    f.write("not_so_random_data")
                 deployer.certutil.generate_self_signed_certificate(
                     deployer.mdict['pki_database_path'],
                     deployer.mdict['pki_cert_database'],
