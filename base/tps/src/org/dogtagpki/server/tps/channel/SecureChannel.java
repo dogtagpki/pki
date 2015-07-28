@@ -393,7 +393,7 @@ public class SecureChannel {
 
             if (!response.checkResult()) {
                 throw new TPSException(
-                        "SecureChannel.eternalAuthenticate SCP01. Failed to external authenticate to token.",
+                        "SecureChannel.externalAuthenticate SCP01. Failed to external authenticate to token.",
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
