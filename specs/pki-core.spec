@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -148,6 +148,12 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %endif
 
 #Patch1:           pki-core-Fixed-ObjectNotFoundException-in-PKCS12Export.patch
+#Patch2:           pki-core-Do-Not-Create-Replication-Agreements.patch
+#Patch3:           pki-core-Remove-Noise-File-Generation.patch
+#Patch4:           pki-core-Fix-Pin-Reset-Operation.patch
+#Patch5:           pki-core-Externalreg-Support-Multiple-KeySets.patch
+#Patch6:           pki-core-Add-Externalreg-revokeCert-Parameter.patch
+#Patch7:           pki-core-Fix-ECC-Admin-Cert-Creation.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -642,6 +648,12 @@ This package is a part of the PKI Core used by the Certificate System.
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
 #%patch1 -p1
+#%patch2 -p1
+#%patch3 -p1
+#%patch4 -p1
+#%patch5 -p1
+#%patch6 -p1
+#%patch7 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -990,6 +1002,20 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Tue Jul 28 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-4
+- PKI TRAC Ticket #1414 - add option to pkispawn to NOT create replication
+  agreements when cloning [alee]
+- PKI TRAC Ticket #1504 - Unable to create Admin cert with ECC during
+  subsystem installation using pkispawn - remove noise file generation [alee]
+- PKI TRAC Ticket #1515 - TPS UI: After successful key upgrade during pin
+  reset operation the token db still shows old key [jmagne]
+- PKI TRAC Ticket #1307 - [RFE] Support multiple keySets for different cards
+  for ExternalReg [cfu]
+- PKI TRAC Ticket #1511 - op.format.externalRegAddToToken.revokeCert parameter
+  missing in TPS CS.cfg [jmagne]
+- PKI TRAC Ticket #1524 - pkispawn: certutil options incorrect for creating
+  ecc admin certificate [mharmsen]
+
 * Fri Jul 24 2015 Tomas Radej <tradej@redhat.com> - 10.2.6-3
 - Updated dep on policycoreutils-python-utils [Fedora 23 and later]
 
