@@ -171,10 +171,14 @@ IMPORTANT:
 PKIHELPER_APPLY_SLOT_SUBSTITUTION_1 = \
     "applying in-place slot substitutions on '%s'"
 PKIHELPER_CERTUTIL_GENERATE_CSR_1 = "executing '%s'"
+PKIHELPER_CERTUTIL_INVALID_KEY_TYPE_1 = \
+    "certutil:  Invalid key type '%s'; valid types are 'ecc' or 'rsa'!"
 PKIHELPER_CERTUTIL_MISSING_INPUT_FILE = \
-    "certutil: Missing '-i input-file' option!"
+    "certutil:  Missing '-i input-file' option!"
 PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME = \
     "certutil:  Missing '-c issuer-name' option!"
+PKIHELPER_CERTUTIL_MISSING_KEY_TYPE = \
+    "certutil:  Missing '-k key-type-or-id' option (must be 'ecc' or 'rsa')!"
 PKIHELPER_CERTUTIL_MISSING_NICKNAME = \
     "certutil:  Missing '-n nickname' option!"
 PKIHELPER_CERTUTIL_MISSING_NOISE_FILE = \
