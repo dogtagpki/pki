@@ -770,6 +770,7 @@ op.format.externalRegAddToToken.update.applet.encryption=true
 op.format.externalRegAddToToken.update.applet.requiredVersion=1.4.54de790f
 op.format.externalRegAddToToken.update.symmetricKeys.enable=false
 op.format.externalRegAddToToken.update.symmetricKeys.requiredVersion=1
+op.format.externalRegAddToToken.revokeCert=false
 op.enroll.allowUnknownToken=true
 op.enroll.mappingResolver=enrollProfileMappingResolver
 op.enroll.soKey.cuidMustMatchKDD=false
