@@ -4264,6 +4264,7 @@ class ConfigClient:
             data.cloneReplicationPort = \
                 self.mdict['pki_clone_replication_clone_port']
         data.setupReplication = self.mdict['pki_clone_setup_replication']
+        data.reindexData = self.mdict['pki_clone_reindex_data']
 
     def set_hierarchy_parameters(self, data):
         if self.subsystem == "CA":

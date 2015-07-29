@@ -267,6 +267,14 @@ Location and password of the PKCS #12 file containing the system certificates fo
 .IP
 Defaults to True.  If set to False, the installer does not set up replication agreements from the master to the clone as part of the subsystem configuration.  In this case, it is expected that the top level suffix already exists, and that the data has already been replicated.  This option is useful if you want to use other tools to create and manage your replication topology, or if the baseDN is already replicated as part of a top-level suffix.
 .TP
+.B pki_clone_reindex_data
+.IP
+Defaults to False.  This parameter is only relevant when \fBpki_clone_setup_replication\fP is
+set to False.  In this case, it is expected that the database has been prepared and replicated
+as noted above.  Part of that preparation could involve adding indexes and indexing the data.
+If you would like the Dogtag installer to add the indexes and reindex the data instead, set
+\fBpki_clone_reindex_data\fP to True.
+.TP
 .B pki_clone_replication_master_port, pki_clone_replication_clone_port
 .IP
 Ports on which replication occurs.  These are the ports on the master and clone databases respectively.  Defaults to the internal database port. 

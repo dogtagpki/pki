@@ -88,6 +88,7 @@ import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NicknameConflictException;
@@ -1346,6 +1347,7 @@ public class ConfigurationUtils {
         boolean remove = cs.getBoolean("preop.database.removeData", false);
         boolean createNewDB = cs.getBoolean("preop.database.createNewDB", true);
         boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
+        boolean reindexData = cs.getBoolean("preop.database.reindexData", false);
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
@@ -1419,6 +1421,9 @@ public class ConfigurationUtils {
                     // On the other hand, if we are not setting up replication, then we
                     // are assuming that replication is already taken care of, and schema
                     // has already been replicated.  No need to add.
+
+                    // Also, data will be replicated from master to clone
+                    // so clone does not need the data
                     boolean replicateSchema = cs.getBoolean("preop.internaldb.replicateSchema", true);
                     if (!replicateSchema || !setupReplication) {
                         importLDIFS("preop.internaldb.schema.ldif", conn);
@@ -1427,9 +1432,15 @@ public class ConfigurationUtils {
 
                     // add the index before replication, add VLV indexes afterwards
                     importLDIFS("preop.internaldb.index_ldif", conn);
+
+                    if (!setupReplication && reindexData) {
+                        // data has already been replicated but not yet indexed -
+                        // re-index here
+                        populateIndexes(conn);
+                    }
                 } else {
-                    // data will be replicated from the master to the clone
-                    // so clone does not need the data
+                    // this is the normal non-clone case
+                    // import schema, database, initial data and indexes
                     importLDIFS("preop.internaldb.schema.ldif", conn);
                     importLDIFS("preop.internaldb.ldif", conn);
                     importLDIFS("preop.internaldb.data_ldif", conn);
@@ -1442,6 +1453,51 @@ public class ConfigurationUtils {
         } finally {
             releaseConnection(conn);
         }
+    }
+
+    private static void populateIndexes(LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
+        CMS.debug("populateIndexes(): start");
+        IConfigStore cs = CMS.getConfigStore();
+
+        importLDIFS("preop.internaldb.index_task_ldif", conn, false);
+
+        /* For populating indexes, we need to check if the task has completed.
+           Presence of nsTaskExitCode means task is complete
+         */
+        String wait_dn = cs.getString("preop.internaldb.index_wait_dn", "");
+        if (!StringUtils.isEmpty(wait_dn)) {
+            wait_for_task(conn, wait_dn);
+        }
+    }
+
+    private static void wait_for_task(LDAPConnection conn, String wait_dn) {
+        LDAPEntry task = null;
+        boolean taskComplete = false;
+        CMS.debug("Checking wait_dn " + wait_dn);
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // restore the interrupted status
+                Thread.currentThread().interrupt();
+            }
+
+            try {
+                task = conn.read(wait_dn, (String[]) null);
+                if (task != null) {
+                    LDAPAttribute attr = task.getAttribute("nsTaskExitCode");
+                    if (attr != null) {
+                        taskComplete = true;
+                        String val = (String) attr.getStringValues().nextElement();
+                        if (val.compareTo("0") != 0) {
+                            CMS.debug("Error in populating indexes: nsTaskExitCode=" + val);
+                        }
+                    }
+                }
+            } catch (Exception le) {
+                CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + le.toString() + ")");
+            }
+        } while (!taskComplete);
     }
 
     private static void createBaseEntry(String baseDN, LDAPConnection conn) throws EBaseException {
@@ -1624,7 +1680,11 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void importLDIFS(String param, LDAPConnection conn) throws IOException, EPropertyNotFound,
+    public static void importLDIFS(String param, LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
+        importLDIFS(param, conn, true);
+    }
+
+    public static void importLDIFS(String param, LDAPConnection conn, boolean suppressErrors) throws IOException, EPropertyNotFound,
             EBaseException {
         IConfigStore cs = CMS.getConfigStore();
 
@@ -1705,6 +1765,9 @@ public class ConfigurationUtils {
                 CMS.debug("importLDIFS(): LDAP Errors in importing " + filename);
                 for (String error : errors) {
                     CMS.debug(error);
+                }
+                if (!suppressErrors) {
+                    throw new EBaseException("LDAP Errors in importing " + filename);
                 }
             }
         }
@@ -1836,33 +1899,7 @@ public class ConfigurationUtils {
              */
             String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
             if (!wait_dn.equals("")) {
-                LDAPEntry task = null;
-                boolean taskComplete = false;
-                CMS.debug("Checking wait_dn " + wait_dn);
-                do {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        // restore the interrupted status
-                        Thread.currentThread().interrupt();
-                    }
-
-                    try {
-                        task = conn.read(wait_dn, (String[]) null);
-                        if (task != null) {
-                            LDAPAttribute attr = task.getAttribute("nsTaskExitCode");
-                            if (attr != null) {
-                                taskComplete = true;
-                                String val = (String) attr.getStringValues().nextElement();
-                                if (val.compareTo("0") != 0) {
-                                    CMS.debug("Error in populating local VLV indexes: nsTaskExitCode=" + val);
-                                }
-                            }
-                        }
-                    } catch (Exception le) {
-                        CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + le.toString() + ")");
-                    }
-                } while (!taskComplete);
+                wait_for_task(conn, wait_dn);
             }
         } catch (Exception e) {
             CMS.debug("populateVLVIndexes(): Exception thrown: " + e);

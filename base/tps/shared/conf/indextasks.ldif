@@ -1,0 +1,14 @@
+dn: cn=index1160589774, cn=index, cn=tasks, cn=config
+objectclass: top
+objectclass: extensibleObject
+cn: index1160589774
+ttl: 10
+nsinstance: {database}
+nsIndexAttribute: tokenUserID:eq,pres,sub
+nsIndexAttribute: tokenID:eq,pres,sub
+nsIndexAttribute: dateOfCreate:eq,pres,sub
+nsIndexAttribute: dateOfModify:eq,pres,sub
+nsIndexAttribute: userCertificate:eq
+nsIndexAttribute: tokenSerial:eq
+nsIndexAttribute: tokenKeyType:eq
+nsIndexAttribute: description:eq,pres

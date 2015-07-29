@@ -649,6 +649,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("preop.database.removeData", data.getRemoveData());
         cs.putBoolean("preop.database.createNewDB", data.getCreateNewDB());
         cs.putBoolean("preop.database.setupReplication", data.getSetupReplication());
+        cs.putBoolean("preop.database.reindexData", data.getReindexData());
     }
 
     public void initializeDatabase(ConfigurationRequest data) {
