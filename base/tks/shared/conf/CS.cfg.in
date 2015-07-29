@@ -187,6 +187,8 @@ preop.internaldb.index_ldif=/usr/share/pki/tks/conf/index.ldif
 preop.internaldb.manager_ldif=/usr/share/pki/server/conf/manager.ldif
 preop.internaldb.post_ldif=
 preop.internaldb.wait_dn=
+preop.internaldb.index_task_ldif=/usr/share/pki/tks/conf/indextasks.ldif
+preop.internaldb.index_wait_dn=cn=index1160589773,cn=index,cn=tasks,cn=config
 internaldb.multipleSuffix.enable=false
 jss._000=##
 jss._001=## JSS

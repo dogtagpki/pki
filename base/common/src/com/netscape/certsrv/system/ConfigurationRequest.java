@@ -130,6 +130,9 @@ public class ConfigurationRequest {
     protected String setupReplication;
 
     @XmlElement
+    protected String reindexData;
+
+    @XmlElement
     protected List<SystemCertData> systemCerts;
 
     @XmlElement
@@ -523,6 +526,18 @@ public class ConfigurationRequest {
 
     public void setSetupReplication(String setupReplication) {
         this.setupReplication = setupReplication;
+    }
+
+    public boolean getReindexData() {
+        // default to false
+        if (reindexData == null) {
+            return false;
+        }
+        return reindexData.equalsIgnoreCase("true");
+    }
+
+    public void setReindexData(String reindexData) {
+        this.reindexData = reindexData;
     }
 
     /**
@@ -946,7 +961,8 @@ public class ConfigurationRequest {
                ", sharedDBUserDN=" + sharedDBUserDN +
                ", createNewDB=" + createNewDB +
                ", setupReplication=" + setupReplication +
-               ", subordinateSecurityDomainName" + subordinateSecurityDomainName +
+               ", subordinateSecurityDomainName=" + subordinateSecurityDomainName +
+               ", reindexData=" + reindexData +
                "]";
     }
 
@@ -960,5 +976,4 @@ public class ConfigurationRequest {
             return uri == null ? null : new URI(uri);
         }
     }
-
 }
