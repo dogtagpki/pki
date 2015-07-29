@@ -265,6 +265,8 @@ where \fImyconfig.txt\fP contains the following text:
 .nf
 [DEFAULT]
 pki_admin_password=\fISecret123\fP
+pki_admin_keysize=nistp256
+pki_admin_key_type=ecc
 pki_client_pkcs12_password=\fISecret123\fP
 pki_ds_password=\fISecret123\fP
 pki_ssl_server_key_algorithm=SHA256withEC
@@ -286,7 +288,7 @@ pki_ocsp_signing_signing_algorithm=SHA256withEC
 .fi
 
 .PP
-In order to utilize ECC, the SSL Server and Subsystem key algorithm, key size, and key type should be changed from SHA256withRSA --> SHA256withEC, 2048 --> nistp256, and rsa --> ecc, respectively.
+In order to utilize ECC, the SSL Server and Subsystem key algorithm, key size, and key type should be changed from SHA256withRSA --> SHA256withEC, 2048 --> nistp256, and rsa --> ecc, respectively.  To use an ECC admin key size and key type, the values should also be changed from 2048 --> nistp256, and rsa --> ecc.
 
 .PP
 Additionally, for a CA subsystem, both the CA and OCSP Signing key algorithm, key size, key type, and signing algorithm should be changed from SHA256withRSA --> SHA256withEC, 2048 --> nistp256, rsa --> ecc, and SHA256withRSA --> SHA256withEC,respectively.

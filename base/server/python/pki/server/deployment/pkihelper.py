@@ -2539,7 +2539,7 @@ class Certutil:
                 raise
         return
 
-    def generate_certificate_request(self, subject, key_size,
+    def generate_certificate_request(self, subject, key_type, key_size,
                                      password_file, noise_file,
                                      output_file=None, path=None,
                                      ascii_format=None, token=None,
@@ -2562,8 +2562,33 @@ class Certutil:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
 
+            if key_type:
+                if key_type == "ecc":
+                    command.extend(["-k", "ec"])
+                    if not key_size:
+                        # supply a default curve for an 'ecc' key type
+                        command.extend(["-q", "nistp256"])
+                elif key_type == "rsa":
+                    command.extend(["-k", str(key_type)])
+                else:
+                    config.pki_log.error(
+                        log.PKIHELPER_CERTUTIL_INVALID_KEY_TYPE_1,
+                        key_type,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    raise Exception(
+                        log.PKIHELPER_CERTUTIL_INVALID_KEY_TYPE_1 % key_type)
+            else:
+                config.pki_log.error(
+                    log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE,
+                    extra=config.PKI_INDENTATION_LEVEL_2)
+                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE)
+
             if key_size:
-                command.extend(["-g", str(key_size)])
+                if key_type == "ecc":
+                    # For ECC, the key_size will actually contain the key curve
+                    command.extend(["-q", str(key_size)])
+                else:
+                    command.extend(["-g", str(key_size)])
 
             if noise_file:
                 command.extend(["-z", noise_file])
@@ -4369,6 +4394,7 @@ class ConfigClient:
 
                 self.deployer.certutil.generate_certificate_request(
                     self.mdict['pki_admin_subject_dn'],
+                    self.mdict['pki_admin_key_type'],
                     self.mdict['pki_admin_keysize'],
                     self.mdict['pki_client_password_conf'],
                     noise_file,
