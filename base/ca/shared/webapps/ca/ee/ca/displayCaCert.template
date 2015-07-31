@@ -43,9 +43,9 @@ if (result.header.displayFormat == "chain") {
     document.writeln('<center><b>' + result.header.subjectdn);
     document.writeln('</b></center><p></font><br>');
     document.writeln('<pre>');
-    document.writeln('-----BEGIN CERTIFICATE-----');
-    document.writeln(result.header.chainBase64);
-    document.writeln('-----END CERTIFICATE-----');
+    document.writeln('-----BEGIN CERTIFICATE CHAIN-----');
+    document.write(result.header.chainBase64);
+    document.writeln('-----END CERTIFICATE CHAIN-----');
     document.writeln('</pre>');
 } else if (result.header.displayFormat == "individual") {
     if (result.recordSet.length == 0) {
@@ -86,7 +86,7 @@ function displayCertificate(cert,i)
     document.writeln('');
     document.writeln('<pre>');
     document.writeln('-----BEGIN CERTIFICATE-----');
-    document.writeln(cert.base64);
+    document.write(cert.base64);
     document.writeln('-----END CERTIFICATE-----');
     document.writeln('</pre>');
     document.writeln('<table border="0" cellspacing="2" cellpadding="2" width="100%">');
