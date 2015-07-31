@@ -56,6 +56,11 @@ function getKeyStrengthTableForKeyGen() {
 
 }
 
+function getNoCryptoWarning() {
+     document.write('<p> <font color="red"> Warning: This version of Firefox no longer supports the crypto web object used to generate and archive keys from the browser.  As a result expect limited functionality in this area. </font> </p>');
+     document.write('<br>');
+}
+
 function getKeyTypesOptionsForKeyGen() {
     var keyTypesDef = "RSA";
     var keyTypes = null;
@@ -748,6 +753,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
         document.writeln('<input type=hidden name=cert_request value="">');
       } else {
 
+        getNoCryptoWarning();
         getKeyStrengthTableForKeyGen();
 
         var keyTypesOptions = getKeyTypesOptionsForKeyGen();
@@ -770,6 +776,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
       } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">crmf</FONT><input type=hidden name=' + inputListSet[n].inputId + ' value=crmf>');
       } else {
+        getNoCryptoWarning();
         document.writeln('Not Supported<input type=hidden name=' + inputListSet[n].inputId + ' value=>');
       }
     } else if ((inputListSet[n].inputSyntax == 'keygen_request_type') ||

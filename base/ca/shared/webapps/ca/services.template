@@ -101,12 +101,6 @@ Certificate System CA Services Page
 </tr>
 <script language=javascript>
 
-if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
-} else {
-    document.write('<p> <font color="red"> Warning: This version of Firefox no longer supports the crypto web object used to generate and archive keys from the browser. Although Certificate System will continue to work, some of the functionality may no longer be supported. </font> </p>');
-    document.write('<br>');
-}
-
 for (var i=0; i<result.recordSet.length; ++i) {
     document.write('<tr valign="TOP">');
     document.write('<td>');
