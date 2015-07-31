@@ -92,11 +92,11 @@ The following format can be used to install this certificate into a server.
 Base 64 encoded certificate
 </font>
 <p><pre>
------BEGIN CERTIFICATE-----
 <SCRIPT LANGUAUGE="JavaScript">
+document.writeln('-----BEGIN CERTIFICATE-----');
 document.write(result.header.certChainBase64);
+document.writeln('-----END CERTIFICATE-----');
 </SCRIPT>
------END CERTIFICATE-----
 </pre>
 
 <br><p>

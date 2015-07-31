@@ -104,11 +104,11 @@ The following format can be used to install this certificate into a server.
 Base 64 encoded certificate
 </font>
 <p><pre>
------BEGIN CERTIFICATE-----
 <SCRIPT LANGUAUGE="JavaScript">
+document.writeln('-----BEGIN CERTIFICATE-----');
 document.write(result.header.certChainBase64);
+document.writeln('-----END CERTIFICATE-----');
 </SCRIPT>
------END CERTIFICATE-----
 </pre>
 
 <font size=-1 face="PrimaSans BT, Verdana, sans-serif">
@@ -116,11 +116,11 @@ document.write(result.header.certChainBase64);
 Base 64 encoded certificate with CA certificate chain in pkcs7 format
 </font>
 <p><pre>
------BEGIN CERTIFICATE-----
 <SCRIPT LANGUAUGE="JavaScript">
+document.writeln('-----BEGIN CERTIFICATE CHAIN-----');
 document.write(result.header.pkcs7ChainBase64);
+document.writeln('-----END CERTIFICATE CHAIN-----');
 </SCRIPT>
------END CERTIFICATE-----
 </pre>
 
 <br><p>
