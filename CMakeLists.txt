@@ -6,6 +6,9 @@ cmake_minimum_required(VERSION 2.6.0)
 # global needed variables
 set(APPLICATION_NAME ${PROJECT_NAME})
 
+# Un-comment the following line to add 'javac' options (e. g. - "-g" debugging)
+#set(CMAKE_JAVA_COMPILE_FLAGS "-g")
+
 if (NOT DEFINED VERSION)
     set(VERSION "10.0.0")
 endif(NOT DEFINED VERSION)
