@@ -134,10 +134,22 @@ public class UdnPwdDirAuthentication extends DirBasedAuthentication {
 
             return userdn;
         } catch (ELdapException e) {
+            CMS.debug("Authenticating: closing bad connection");
+            try {
+                conn.disconnect();
+            } catch (Exception f) {
+                CMS.debug("Authenticating: conn.disconnect() exception =" + f.toString());
+            }
             log(ILogger.LL_FAILURE,
                     "Couldn't get ldap connection. Error: " + e.toString());
             throw e;
         } catch (LDAPException e) {
+            CMS.debug("Authenticating: closing bad connection");
+            try {
+                conn.disconnect();
+            } catch (Exception f) {
+                CMS.debug("Authenticating: conn.disconnect() exception =" + f.toString());
+            }
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
             case LDAPException.LDAP_PARTIAL_RESULTS:

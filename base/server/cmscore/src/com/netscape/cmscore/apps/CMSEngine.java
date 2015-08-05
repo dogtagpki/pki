@@ -331,6 +331,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void initializePasswordStore(IConfigStore config) throws EBaseException, IOException {
+        System.out.println("CMSEngine.initializePasswordStore() begins");
         // create and initialize mPasswordStore
         getPasswordStore();
 
@@ -345,6 +346,7 @@ public class CMSEngine implements ICMSEngine {
             String binddn;
             String authType;
             LdapConnInfo connInfo = null;
+            System.out.println("CMSEngine.initializePasswordStore(): tag=" + tag);
 
             if (tag.equals("internaldb")) {
                 authType = config.getString("internaldb.ldapauth.authtype", "BasicAuth");
@@ -382,8 +384,43 @@ public class CMSEngine implements ICMSEngine {
                 binddn = config.getString("ca.publish.ldappublish.ldap.ldapauth.bindDN");
 
             } else {
-                // ignore any others for now
-                continue;
+                /*
+                 * This section assumes a generic format of
+                 * <authPrefix>.ldap.xxx
+                 * where <authPrefix> is specified under the tag substore
+                 *
+                 * e.g.  if tag = "externalLDAP"
+                 *   cms.passwordlist=...,externalLDAP
+                 *   externalLDAP.authPrefix=auths.instance.UserDirEnrollment
+                 *
+                 *   auths.instance.UserDirEnrollment.ldap.ldapauth.authtype=BasicAuth
+                 *   auths.instance.UserDirEnrollment.ldap.ldapauth.bindDN=cn=Corporate Directory Manager
+                 *   auths.instance.UserDirEnrollment.ldap.ldapauth.bindPWPrompt=externalLDAP
+                 *   auths.instance.UserDirEnrollment.ldap.ldapconn.host=host.example.com
+                 *   auths.instance.UserDirEnrollment.ldap.ldapconn.port=389
+                 *   auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn=false
+                 */
+                String authPrefix = config.getString(tag + ".authPrefix", null);
+                if (authPrefix ==  null) {
+                    System.out.println("CMSEngine.initializePasswordStore(): authPrefix not found...skipping");
+                    continue;
+                }
+                System.out.println("CMSEngine.initializePasswordStore(): authPrefix=" + authPrefix);
+                authType = config.getString(authPrefix +".ldap.ldapauth.authtype", "BasicAuth");
+                System.out.println("CMSEngine.initializePasswordStore(): authType " + authType);
+                if (!authType.equals("BasicAuth"))
+                    continue;
+
+                connInfo = new LdapConnInfo(
+                        config.getString(authPrefix + ".ldap.ldapconn.host"),
+                        config.getInteger(authPrefix + ".ldap.ldapconn.port"),
+                        config.getBoolean(authPrefix + ".ldap.ldapconn.secureConn"));
+
+                binddn = config.getString(authPrefix + ".ldap.ldapauth.bindDN", null);
+                if (binddn == null) {
+                    System.out.println("CMSEngine.initializePasswordStore(): binddn not found...skipping");
+                    continue;
+                }
             }
 
             do {
