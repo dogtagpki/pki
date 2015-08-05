@@ -127,13 +127,13 @@ public class EnrollmentProcessor extends CertProcessor {
                 printParameterValues(params);
             }
 
-            CMS.debug("EnrollmentSubmitter: isRenewal false");
+            CMS.debug("EnrollmentProcessor: isRenewal false");
             startTiming("enrollment");
 
             // if we did not configure profileId in xml file,
             // then accept the user-provided one
             String profileId = (this.profileID == null) ? data.getProfileId() : this.profileID;
-            CMS.debug("EnrollmentSubmitter: profileId " + profileId);
+            CMS.debug("EnrollmentProcessor: profileId " + profileId);
 
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
@@ -141,17 +141,17 @@ public class EnrollmentProcessor extends CertProcessor {
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             }
             if (!ps.isProfileEnable(profileId)) {
-                CMS.debug("EnrollmentSubmitter: Profile " + profileId + " not enabled");
+                CMS.debug("EnrollmentProcessor: Profile " + profileId + " not enabled");
                 throw new BadRequestDataException("Profile " + profileId + " not enabled");
             }
 
             IProfileContext ctx = profile.createContext();
-            CMS.debug("EnrollmentSubmitter: set Inputs into profile Context");
+            CMS.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);
 
             IProfileAuthenticator authenticator = profile.getAuthenticator();
             if (authenticator != null) {
-                CMS.debug("EnrollmentSubmitter: authenticator " + authenticator.getName() + " found");
+                CMS.debug("EnrollmentProcessor: authenticator " + authenticator.getName() + " found");
                 setCredentialsIntoContext(request, authenticator, ctx);
             }
 
@@ -160,7 +160,7 @@ public class EnrollmentProcessor extends CertProcessor {
             SessionContext context = SessionContext.getContext();
             context.put("profileContext", ctx);
             context.put("sslClientCertProvider", new SSLClientCertProvider(request));
-            CMS.debug("EnrollmentSubmitter: set sslClientCertProvider");
+            CMS.debug("EnrollmentProcessor: set sslClientCertProvider");
 
             // before creating the request, authenticate the request
             IAuthToken authToken = authenticate(request, null, authenticator, context, false);

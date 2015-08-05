@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -113,13 +112,6 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         return createOKResponse(info);
     }
 
-    // Enrollment - used to test integration with a browser
-    @Override
-    public Response enrollCert(MultivaluedMap<String, String> form) {
-        CertEnrollmentRequest data = new CertEnrollmentRequest(form);
-        return enrollCert(data);
-    }
-
     @Override
     public Response enrollCert(CertEnrollmentRequest data) {
 
@@ -127,6 +119,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             CMS.debug("enrollCert: data is null");
             throw new BadRequestException("Unable to create enrollment reequest: Invalid input data");
         }
+
+        data.setRemoteHost(servletRequest.getRemoteHost());
+        data.setRemoteAddr(servletRequest.getRemoteAddr());
 
         CertRequestDAO dao = new CertRequestDAO();
 
@@ -143,10 +138,10 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             CMS.debug("enrollCert: bad request data: " + e);
             throw new BadRequestException(e.toString());
         } catch (EBaseException e) {
-            throw new PKIException(e.toString());
+            throw new PKIException(e);
         } catch (Exception e) {
             CMS.debug(e);
-            throw new PKIException(e.toString());
+            throw new PKIException(e);
         }
 
         // this will return an error code of 200, instead of 201

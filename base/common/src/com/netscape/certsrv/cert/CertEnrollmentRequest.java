@@ -275,6 +275,14 @@ public class CertEnrollmentRequest {
         return sw.toString();
     }
 
+    public String toString() {
+        try {
+            return toXML();
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;

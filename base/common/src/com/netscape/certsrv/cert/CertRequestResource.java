@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.annotations.ClientResponseType;
@@ -36,13 +33,6 @@ import com.netscape.certsrv.request.RequestId;
 
 @Path("")
 public interface CertRequestResource {
-
-    // Enrollment - used to test integration with a browser
-    @POST
-    @Path("certrequests")
-    @ClientResponseType(entityType=CertRequestInfos.class)
-    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED })
-    public Response enrollCert(MultivaluedMap<String, String> form);
 
     @POST
     @Path("certrequests")

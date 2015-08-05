@@ -20,6 +20,8 @@ package com.netscape.cms.servlet.cert;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.EProfileException;
@@ -35,18 +37,22 @@ public class CertEnrollmentRequestFactory {
             throws EProfileException {
         IArgBlock params = cmsReq.getHttpParams();
 
-        CertEnrollmentRequest ret = new CertEnrollmentRequest();
-        ret.setProfileId(profile.getId());
+        CertEnrollmentRequest request = new CertEnrollmentRequest();
+        request.setProfileId(profile.getId());
 
         // populate profile inputs
         Enumeration<String> inputIds = profile.getProfileInputIds();
         while (inputIds.hasMoreElements()) {
             IProfileInput input = profile.getProfileInput(inputIds.nextElement());
             ProfileInput addInput = ProfileInputFactory.create(input, params, locale);
-            ret.addInput(addInput);
+            request.addInput(addInput);
         }
 
-        return ret;
+        HttpServletRequest httpRequest = cmsReq.getHttpReq();
+        request.setRemoteHost(httpRequest.getRemoteHost());
+        request.setRemoteAddr(httpRequest.getRemoteAddr());
+
+        return request;
     }
 
 }
