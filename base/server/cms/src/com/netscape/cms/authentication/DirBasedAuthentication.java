@@ -84,6 +84,8 @@ public abstract class DirBasedAuthentication
     protected static final String PROP_DNPATTERN = "dnpattern";
     protected static final String PROP_LDAPSTRINGATTRS = "ldapStringAttributes";
     protected static final String PROP_LDAPBYTEATTRS = "ldapByteAttributes";
+    protected static final String PROP_LDAP_BOUND_CONN = "ldapBoundConn";
+    protected static final String PROP_LDAP_BOUND_TAG = "ldapauth.bindPWPrompt";
 
     // members
 
@@ -110,6 +112,7 @@ public abstract class DirBasedAuthentication
     /* whether to search for member=<userDN> or member=<mGroupUserIdName>=<uid> */
     protected boolean mSearchGroupUserByUserdn = true;
 
+    protected boolean mBoundConnEnable = false;
     /* factory of anonymous ldap connections */
     protected ILdapConnFactory mConnFactory = null;
 
@@ -129,6 +132,9 @@ public abstract class DirBasedAuthentication
 
     /* the combined list of LDAP attriubutes to retrieve*/
     protected String[] mLdapAttrs = null;
+
+    /* the password prompt (tag) for the userdn of a bound connection */
+    protected String mTag;
 
     /* default dn pattern if left blank or not set in the config */
     protected static String DEFAULT_DNPATTERN =
@@ -255,6 +261,7 @@ public abstract class DirBasedAuthentication
         mName = name;
         mImplName = implName;
         mConfig = config;
+        String method = "DirBasedAuthentication: init: ";
 
         /* initialize ldap server configuration */
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
@@ -263,22 +270,31 @@ public abstract class DirBasedAuthentication
             if (mBaseDN == null || mBaseDN.trim().equals(""))
                 throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "basedn"));
             mGroupsEnable = mLdapConfig.getBoolean(PROP_GROUPS_ENABLE, false);
-            CMS.debug("DirBasedAuthentication: mGroupsEnable=" + (mGroupsEnable ? "true" : "false"));
+            CMS.debug(method + " mGroupsEnable=" + (mGroupsEnable ? "true" : "false"));
             mGroupsBaseDN = mLdapConfig.getString(PROP_GROUPS_BASEDN, mBaseDN);
-            CMS.debug("DirBasedAuthentication: mGroupsBaseDN="+ mGroupsBaseDN);
+            CMS.debug(method + " mGroupsBaseDN="+ mGroupsBaseDN);
             mGroups= mLdapConfig.getString(PROP_GROUPS, "ou=groups");
-            CMS.debug("DirBasedAuthentication: mGroups="+ mGroups);
+            CMS.debug(method + " mGroups="+ mGroups);
             mGroupObjectClass = mLdapConfig.getString(PROP_GROUP_OBJECT_CLASS, "groupofuniquenames");
-            CMS.debug("DirBasedAuthentication: mGroupObjectClass="+ mGroupObjectClass);
+            CMS.debug(method + " mGroupObjectClass="+ mGroupObjectClass);
             mUserIDName = mLdapConfig.getString(PROP_USERID_NAME, "uid");
-            CMS.debug("DirBasedAuthentication: mUserIDName="+ mUserIDName);
+            CMS.debug(method + " mUserIDName="+ mUserIDName);
             mSearchGroupUserByUserdn = mLdapConfig.getBoolean(PROP_SEARCH_GROUP_USER_BY_USERDN, true);
-            CMS.debug("DirBasedAuthentication: mSearchGroupUserByUserdn="+ mSearchGroupUserByUserdn);
+            CMS.debug(method + " mSearchGroupUserByUserdn="+ mSearchGroupUserByUserdn);
             mGroupUserIDName = mLdapConfig.getString(PROP_GROUP_USERID_NAME, "cn");
-            CMS.debug("DirBasedAuthentication: mGroupUserIDName="+ mGroupUserIDName);
+            CMS.debug(method + " mGroupUserIDName="+ mGroupUserIDName);
         }
-        mConnFactory = CMS.getLdapAnonConnFactory("DirBasedAuthentication");
-        mConnFactory.init(mLdapConfig);
+        mBoundConnEnable = mLdapConfig.getBoolean(PROP_LDAP_BOUND_CONN, false);
+        CMS.debug(method +" mBoundConnEnable =" + (mBoundConnEnable ? "true" : "false"));
+        if (mBoundConnEnable) {
+            mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
+            CMS.debug(method + " getting ldap bound conn factory using id= " + mTag);
+            mConnFactory = CMS.getLdapBoundConnFactory(mTag);
+        } else {
+            mConnFactory = CMS.getLdapAnonConnFactory("DirBasedAuthentication");
+        }
+        if (mConnFactory != null) // else can try again later when needed
+            mConnFactory.init(mLdapConfig);
 
         /* initialize dn pattern */
         String pattern = mConfig.getString(PROP_DNPATTERN, null);
@@ -372,16 +388,34 @@ public abstract class DirBasedAuthentication
         String userdn = null;
         LDAPConnection conn = null;
         AuthToken authToken = new AuthToken(this);
+        String method = "DirBasedAuthentication: authenticate:";
 
+        CMS.debug(method + " begins...mBoundConnEnable=" + mBoundConnEnable);
         try {
             if (mConnFactory == null) {
-                conn = null;
+                CMS.debug(method + " mConnFactory null, getting conn factory");
+                if (mBoundConnEnable) {
+                    mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
+                    CMS.debug(method + " getting ldap bound conn factory using id= " + mTag);
+                    mConnFactory = CMS.getLdapBoundConnFactory(mTag);
+                } else {
+                    mConnFactory = CMS.getLdapAnonConnFactory("DirBasedAuthentication");
+                }
+                if (mConnFactory != null) {
+                    mConnFactory.init(mLdapConfig);
+                    CMS.debug(method + " mConnFactory gotten, calling getConn");
+                    conn = mConnFactory.getConn();
+                }
             } else {
+                CMS.debug(method + " mConnFactory class name = " + mConnFactory.getClass().getName());
+                CMS.debug(method + " mConnFactory not null, calling getConn");
                 conn = mConnFactory.getConn();
             }
 
             // authenticate the user and get a user entry.
+            CMS.debug(method + " before authenticate() call");
             userdn = authenticate(conn, authCred, authToken);
+            CMS.debug(method + " after authenticate() call");
             authToken.set(USER_DN, userdn);
 
             // formulate the cert info.
