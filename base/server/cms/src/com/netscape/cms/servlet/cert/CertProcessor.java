@@ -172,13 +172,14 @@ public class CertProcessor extends CAProcessor {
                 auditRequesterID = auditRequesterID(req);
 
                 // print request debug
+                CMS.debug("CertProcessor: Request:");
                 if (req != null) {
                     Enumeration<String> reqKeys = req.getExtDataKeys();
                     while (reqKeys.hasMoreElements()) {
                         String reqKey = reqKeys.nextElement();
                         String reqVal = req.getExtDataInString(reqKey);
                         if (reqVal != null) {
-                            CMS.debug("CertRequestSubmitter: key=$request." + reqKey + "$ value=" + reqVal);
+                            CMS.debug("CertProcessor: - " + reqKey + ": " + reqVal);
                         }
                     }
                 }
@@ -213,7 +214,7 @@ public class CertProcessor extends CAProcessor {
                     notify.notify(req);
                 }
 
-                CMS.debug("CertRequestSubmitter: submit " + e.toString());
+                CMS.debug("CertProcessor: submit " + e);
                 errorCode = "2";
                 errorReason = CMS.getUserMessage(locale, "CMS_PROFILE_DEFERRED", e.toString());
 
@@ -223,7 +224,7 @@ public class CertProcessor extends CAProcessor {
             } catch (ERejectException e) {
                 // return error to the user
                 req.setRequestStatus(RequestStatus.REJECTED);
-                CMS.debug("CertRequestSubmitter: submit " + e.toString());
+                CMS.debug("CertProcessor: submit " + e);
                 errorCode = "3";
                 errorReason = CMS.getUserMessage(locale, "CMS_PROFILE_REJECTED", e.toString());
 
@@ -239,8 +240,8 @@ public class CertProcessor extends CAProcessor {
                 audit(auditMessage);
             } catch (Throwable e) {
                 // return error to the user
-                e.printStackTrace();
-                CMS.debug("CertRequestSubmitter: submit " + e.toString());
+                CMS.debug(e);
+                CMS.debug("CertProcessor: submit " + e);
                 errorCode = "1";
                 errorReason = CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR");
                 auditMessage = CMS.getLogMessage(
@@ -261,8 +262,8 @@ public class CertProcessor extends CAProcessor {
                     profile.getRequestQueue().updateRequest(req);
                 }
             } catch (EBaseException e) {
-                e.printStackTrace();
-                CMS.debug("CertRequestSubmitter: updateRequest " + e.toString());
+                CMS.debug(e);
+                CMS.debug("CertProcessor: updateRequest " + e);
             }
         }
         return errorCode;
@@ -312,7 +313,7 @@ public class CertProcessor extends CAProcessor {
             }
 
             if (fromRA) {
-                CMS.debug("CertRequestSubmitter: request from RA: " + uid);
+                CMS.debug("CertProcessor: request from RA: " + uid);
                 req.setExtData(ARG_REQUEST_OWNER, uid);
             }
 
@@ -326,18 +327,18 @@ public class CertProcessor extends CAProcessor {
 
             if (setId == null) {
                 // no profile set found
-                CMS.debug("CertRequestSubmitter: no profile policy set found");
+                CMS.debug("CertProcessor: no profile policy set found");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_NO_POLICY_SET_FOUND"));
             }
 
-            CMS.debug("CertRequestSubmitter profileSetid=" + setId);
+            CMS.debug("CertProcessor: profileSetid=" + setId);
             req.setExtData(ARG_PROFILE_SET_ID, setId);
             req.setExtData(ARG_PROFILE_REMOTE_HOST, data.getRemoteHost());
             req.setExtData(ARG_PROFILE_REMOTE_ADDR, data.getRemoteAddr());
 
-            CMS.debug("CertRequestSubmitter: request " + req.getRequestId().toString());
+            CMS.debug("CertProcessor: request " + req.getRequestId());
 
-            CMS.debug("CertRequestSubmitter: populating request inputs");
+            CMS.debug("CertProcessor: populating request inputs");
             // give authenticator a chance to populate the request
             if (authenticator != null) {
                 authenticator.populate(authToken, req);

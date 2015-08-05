@@ -257,7 +257,8 @@ public class CAProcessor extends Processor {
     }
 
     protected void printParameterValues(HashMap<String, String> data) {
-        CMS.debug("Start of CertProcessor Input Parameters");
+
+        CMS.debug("CAProcessor: Input Parameters:");
 
         for (Entry<String, String> entry : data.entrySet()) {
             String paramName = entry.getKey();
@@ -280,13 +281,11 @@ public class CAProcessor extends Processor {
                     paramName.equalsIgnoreCase("pwd") ||
                     paramName.equalsIgnoreCase("pwdagain") ||
                     paramName.equalsIgnoreCase("uPasswd")) {
-                CMS.debug("CertProcessor Input Parameter " + paramName + "='(sensitive)'");
+                CMS.debug("CAProcessor: - " + paramName + ": (sensitive)");
             } else {
-                CMS.debug("CertProcessor Input Parameter " + paramName + "='" + entry.getValue() + "'");
+                CMS.debug("CAProcessor: - " + paramName + ": " + entry.getValue());
             }
         }
-
-        CMS.debug("End of CertProcessor Input Parameters");
     }
 
     /**
