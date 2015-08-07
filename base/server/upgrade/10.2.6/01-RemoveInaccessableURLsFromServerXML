@@ -35,7 +35,9 @@ class RemoveInaccessableURLsFromServerXML(
         subprocess.check_call([
             'sed', '-i',
             '-e', '\|^.*EE Client Auth URL.*ca/eeca/ca.*$|d',
+            '-e', '\|^.*Unsecure URL.*kra/ee/kra.*$|d',
             '-e', '\|^.*Secure EE URL.*kra/ee/kra.*$|d',
+            '-e', '\|^.*Unsecure URL.*tks/ee/tks.*$|d',
             '-e', '\|^.*Secure EE URL.*tks/ee/tks.*$|d',
             '/etc/pki/{0}/server.xml'.format(instance.name)
         ])
