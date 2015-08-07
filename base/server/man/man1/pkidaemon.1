@@ -39,6 +39,8 @@ As stated above, the only optional argument to \fBpkidaemon\fR is \fB[instance-n
 
 For the following examples, two instances were installed.  The first contained a CA, KRA, OCSP, TKS and TPS in a shared PKI instance named 'pki-tomcat', while the second simply contained a CA running on different ports and named 'pki-tomcat-2'.
 
+For the OCSP 'Unsecure URL' and the OCSP 'Secure EE URL' which both specify a static string of '<ocsp request blob>', the intention is for the user to replace this static string with an actual OCSP request blob relevant to their particular deployment.
+
 .SS Listing the status of all local PKI instances on this machine:
 .BR
 .PP
@@ -57,22 +59,20 @@ Status for pki-tomcat: pki-tomcat is running ..
     Tomcat Port         = 8005 (for shutdown)
 
     [DRM Status Definitions]
-    Unsecure URL        = http://pki.example.com:8080/kra/ee/kra
     Secure Agent URL    = https://pki.example.com:8443/kra/agent/kra
     Secure Admin URL    = https://pki.example.com:8443/kra/services
     PKI Console Command = pkiconsole https://pki.example.com:8443/kra
     Tomcat Port         = 8005 (for shutdown)
 
     [OCSP Status Definitions]
-    Unsecure URL        = http://pki.example.com:8080/ocsp/ee/ocsp
+    Unsecure URL        = http://pki.example.com:8080/ocsp/ee/ocsp/<ocsp request blob>
     Secure Agent URL    = https://pki.example.com:8443/ocsp/agent/ocsp
-    Secure EE URL       = https://pki.example.com:8443/ocsp/ee/ocsp
+    Secure EE URL       = https://pki.example.com:8443/ocsp/ee/ocsp/<ocsp request blob>
     Secure Admin URL    = https://pki.example.com:8443/ocsp/services
     PKI Console Command = pkiconsole https://pki.example.com:8443/ocsp
     Tomcat Port         = 8005 (for shutdown)
 
     [TKS Status Definitions]
-    Unsecure URL        = http://pki.example.com:8080/tks/ee/tks
     Secure Agent URL    = https://pki.example.com:8443/tks/agent/tks
     Secure Admin URL    = https://pki.example.com:8443/tks/services
     PKI Console Command = pkiconsole https://pki.example.com:8443/tks
@@ -179,22 +179,20 @@ Status for pki-tomcat: pki-tomcat is running ..
     Tomcat Port         = 8005 (for shutdown)
 
     [DRM Status Definitions]
-    Unsecure URL        = http://pki.example.com:8080/kra/ee/kra
     Secure Agent URL    = https://pki.example.com:8443/kra/agent/kra
     Secure Admin URL    = https://pki.example.com:8443/kra/services
     PKI Console Command = pkiconsole https://pki.example.com:8443/kra
     Tomcat Port         = 8005 (for shutdown)
 
     [OCSP Status Definitions]
-    Unsecure URL        = http://pki.example.com:8080/ocsp/ee/ocsp
+    Unsecure URL        = http://pki.example.com:8080/ocsp/ee/ocsp/<ocsp request blob>
     Secure Agent URL    = https://pki.example.com:8443/ocsp/agent/ocsp
-    Secure EE URL       = https://pki.example.com:8443/ocsp/ee/ocsp
+    Secure EE URL       = https://pki.example.com:8443/ocsp/ee/ocsp/<ocsp request blob>
     Secure Admin URL    = https://pki.example.com:8443/ocsp/services
     PKI Console Command = pkiconsole https://pki.example.com:8443/ocsp
     Tomcat Port         = 8005 (for shutdown)
 
     [TKS Status Definitions]
-    Unsecure URL        = http://pki.example.com:8080/tks/ee/tks
     Secure Agent URL    = https://pki.example.com:8443/tks/agent/tks
     Secure Admin URL    = https://pki.example.com:8443/tks/services
     PKI Console Command = pkiconsole https://pki.example.com:8443/tks

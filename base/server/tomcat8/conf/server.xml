@@ -37,7 +37,6 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 -->
 <!-- KRA Status Definitions -->
 <!--
-Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/kra/ee/kra
 Secure Agent URL    = https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/kra/agent/kra
 Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/kra/services
 PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/kra
@@ -45,16 +44,15 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 -->
 <!-- OCSP Status Definitions -->
 <!--
-Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/ocsp/ee/ocsp
+Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/ocsp/ee/ocsp/<ocsp request blob>
 Secure Agent URL    = https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/ocsp/agent/ocsp
-Secure EE URL       = https://[PKI_HOSTNAME]:[PKI_EE_SECURE_PORT]/ocsp/ee/ocsp
+Secure EE URL       = https://[PKI_HOSTNAME]:[PKI_EE_SECURE_PORT]/ocsp/ee/ocsp/<ocsp request blob>
 Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/ocsp/services
 PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/ocsp
 Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
 -->
 <!-- TKS Status Definitions -->
 <!--
-Unsecure URL        = http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/tks/ee/tks
 Secure Agent URL    = https://[PKI_HOSTNAME]:[PKI_AGENT_SECURE_PORT]/tks/agent/tks
 Secure Admin URL    = https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/tks/services
 PKI Console Command = pkiconsole https://[PKI_HOSTNAME]:[PKI_ADMIN_SECURE_PORT]/tks
