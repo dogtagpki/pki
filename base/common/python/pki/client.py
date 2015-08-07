@@ -19,7 +19,27 @@
 # All rights reserved.
 #
 
+import functools
+import warnings
+
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+
+def catch_insecure_warning(func):
+    """Temporary silence InsecureRequestWarning
+
+    PKIConnection is not able to verify HTTPS connections yet. This decorator
+    catches the warning.
+
+    :see: https://fedorahosted.org/pki/ticket/1253
+    """
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', InsecureRequestWarning)
+            return func(self, *args, **kwargs)
+    return wrapper
 
 
 class PKIConnection:
@@ -91,6 +111,7 @@ class PKIConnection:
             raise Exception("No path for the certificate specified.")
         self.session.cert = pem_cert_path
 
+    @catch_insecure_warning
     def get(self, path, headers=None, params=None, payload=None):
         """
         Uses python-requests to issue a GET request to the server.
@@ -116,6 +137,7 @@ class PKIConnection:
         r.raise_for_status()
         return r
 
+    @catch_insecure_warning
     def post(self, path, payload, headers=None, params=None):
         """
         Uses python-requests to issue a POST request to the server.
@@ -141,6 +163,7 @@ class PKIConnection:
         r.raise_for_status()
         return r
 
+    @catch_insecure_warning
     def put(self, path, payload, headers=None):
         """
         Uses python-requests to issue a PUT request to the server.
@@ -159,6 +182,7 @@ class PKIConnection:
         r.raise_for_status()
         return r
 
+    @catch_insecure_warning
     def delete(self, path, headers=None):
         """
         Uses python-requests to issue a DEL request to the server.
