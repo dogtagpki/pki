@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.7
-Release:          0.2%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -121,7 +121,11 @@ BuildRequires:    systemd-units
 %if 0%{?rhel}
 BuildRequires:    tomcatjss >= 7.1.0-6
 %else
+%if 0%{?fedora} >= 23
+BuildRequires:    tomcatjss >= 7.1.3
+%else
 BuildRequires:    tomcatjss >= 7.1.2
+%endif
 %endif
 
 
@@ -336,6 +340,13 @@ Requires:         nss-tools
 Requires:         java-headless >= 1:1.7.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
+%if 0%{?fedora} >= 23
+Requires:         tomcat-servlet-3.1-api
+%else
+%if 0%{?fedora} >= 22
+Requires:         tomcat-servlet-3.0-api
+%endif
+%endif
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -410,9 +421,13 @@ Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 
 %if 0%{?rhel}
-Requires:    tomcatjss >= 7.1.0-6
+Requires:         tomcatjss >= 7.1.0-6
 %else
-Requires:    tomcatjss >= 7.1.2
+%if 0%{?fedora} >= 23
+Requires:         tomcatjss >= 7.1.3
+%else
+Requires:         tomcatjss >= 7.1.2
+%endif
 %endif
 
 %description -n   pki-server
@@ -987,6 +1002,11 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Fri Aug  7 2015 Dogtag Team <pki-devel@redhat.com> 10.2.7-0.3
+- Added dep on tomcat-servlet-3.1-api [Fedora 23 and later] or dep on
+  tomcat-servlet-3.0-api [Fedora 22 and later] to pki-tools
+- Updated dep on tomcatjss [Fedora 23 and later]
+
 * Fri Jul 24 2015 Tomas Radej <tradej@redhat.com> - 10.2.7-0.2
 - Updated dep on policycoreutils-python-utils [Fedora 23 and later]
 
