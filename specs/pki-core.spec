@@ -39,8 +39,8 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.2.7
-Release:          0.3%{?dist}
+Version:          10.3.0
+Release:          0.1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1002,6 +1002,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Sat Aug  8 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.1
+- Updated version number to 10.3.0-0.1
+
 * Fri Aug  7 2015 Dogtag Team <pki-devel@redhat.com> 10.2.7-0.3
 - Added dep on tomcat-servlet-3.1-api [Fedora 23 and later] or dep on
   tomcat-servlet-3.0-api [Fedora 22 and later] to pki-tools
