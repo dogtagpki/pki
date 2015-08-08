@@ -121,7 +121,11 @@ BuildRequires:    systemd-units
 %if 0%{?rhel}
 BuildRequires:    tomcatjss >= 7.1.0-6
 %else
+%if 0%{?fedora} >= 23
+BuildRequires:    tomcatjss >= 7.1.3
+%else
 BuildRequires:    tomcatjss >= 7.1.2
+%endif
 %endif
 
 
@@ -344,6 +348,13 @@ Requires:         nss-tools
 Requires:         java-headless >= 1:1.7.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
+%if 0%{?fedora} >= 23
+Requires:         tomcat-servlet-3.1-api
+%else
+%if 0%{?fedora} >= 22
+Requires:         tomcat-servlet-3.0-api
+%endif
+%endif
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -418,9 +429,13 @@ Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 
 %if 0%{?rhel}
-Requires:    tomcatjss >= 7.1.0-6
+Requires:         tomcatjss >= 7.1.0-6
 %else
-Requires:    tomcatjss >= 7.1.2
+%if 0%{?fedora} >= 23
+Requires:         tomcatjss >= 7.1.3
+%else
+Requires:         tomcatjss >= 7.1.2
+%endif
 %endif
 
 %description -n   pki-server
