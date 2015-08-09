@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          4%{?dist}
+Release:          5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -158,6 +158,13 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch5:           pki-core-Externalreg-Support-Multiple-KeySets.patch
 #Patch6:           pki-core-Add-Externalreg-revokeCert-Parameter.patch
 #Patch7:           pki-core-Fix-ECC-Admin-Cert-Creation.patch
+#Patch8:           pki-core-Fix-Firefox-Warning.patch
+#Patch9:           pki-core-Add-Reindex-Data-During-Cloning-No-Replication.patch
+#Patch10:          pki-core-Fix-Base-64-Encoded-Cert-Displays.patch
+#Patch11:          pki-core-Fix-Missing-Cert-Request-Hostname-Address.patch
+#Patch12:          pki-core-Add-Bound-Bind-Connection-To-Dirauth-Plugin.patch
+#Patch13:          pki-core-Remove-Inaccessible-URLs-From-Pkidaemon.patch
+#Patch14:          pki-core-Temporarily-Silence-InsecureRequestWarning.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -669,6 +676,13 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch5 -p1
 #%patch6 -p1
 #%patch7 -p1
+#%patch8 -p1
+#%patch9 -p1
+#%patch10 -p1
+#%patch11 -p1
+#%patch12 -p1
+#%patch13 -p1
+#%patch14 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1017,6 +1031,26 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Sat Aug  8 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-5
+- PKI TRAC Ticket #1523 - Firefox warning [jmagne]
+- PKI TRAC Ticket #1414 - Add code to reindex data during cloning without
+  replication [alee]
+- PKI TRAC Ticket #1522 - CA UI adds extra space in Base 64 encoded
+  certificate display [mharmsen]
+- PKI TRAC Ticket #1535 - Fixed missing cert request hostname and address.
+  [edewata]
+- PKI TRAC Ticket #1531 - Directory auth plugin requires LDAP anonymous binds
+  [cfu]
+- PKI TRAC Ticket #1443 - pkidaemon status tomcat list URLs under PKI
+  subsystems which are not accessible [mharmsen]
+- PKI TRAC Ticket #1518 - OCSP ee url returned by pkidaemon status tomcat
+  shows an error page [mharmsen]
+- PKI TRAC Ticket #1253 - Temporary silence InsecureRequestWarning [cheimes]
+- PKI TRAC Ticket #1530 - Client pki-tools missing tomcat-servlet dependency
+  [mharmsen]
+- PKI TRAC Ticket #1542 - Update tomcatjss dependency on Fedora 23 and later
+  [mharmsen]
+
 * Tue Jul 28 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-4
 - PKI TRAC Ticket #1414 - add option to pkispawn to NOT create replication
   agreements when cloning [alee]
