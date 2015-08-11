@@ -23,16 +23,18 @@ from __future__ import print_function, unicode_literals
 
 import argparse
 import os
-import fnmatch
 import pprint
+import re
 import subprocess
 import sys
 
 from distutils.sysconfig import get_python_lib  # pylint: disable=F0401
 
+
 SCRIPTPATH = os.path.dirname(os.path.abspath(__file__))
+PYLINTRC = os.path.join(SCRIPTPATH, 'dogtag.pylintrc')
 FILENAMES = [
-    '{scriptpath}/pylint-build-scan.py',
+    os.path.abspath(__file__),
     '{sitepackages}/pki',
     '{bin}/pki',
     '{sbin}/pkispawn',
@@ -41,13 +43,13 @@ FILENAMES = [
     '{sbin}/pki-server',
     '{sbin}/pki-server-upgrade',
 ]
+UPGRADE_SCRIPT = re.compile('^[0-9]+-.*')
 
 
 def tox_env(args):
     """Paths for tox environment"""
     prefix = args.prefix
     env = {
-        'scriptpath': SCRIPTPATH,
         'bin': os.path.join(prefix, 'bin'),
         'sbin': os.path.join(prefix, 'bin'),
         'sharepki': os.path.join(prefix, 'share', 'pki'),
@@ -61,7 +63,6 @@ def rpm_env(args):
     prefix = args.prefix
     relative = get_python_lib().lstrip(os.sep)
     env = {
-        'scriptpath': SCRIPTPATH,
         'bin': os.path.join(prefix, 'usr', 'bin'),
         'sbin': os.path.join(prefix, 'usr', 'sbin'),
         'sharepki': os.path.join(prefix, 'usr', 'share', 'pki'),
@@ -74,7 +75,7 @@ def find_upgrades(root):
     """Find upgrade scripts"""
     for dirpath, _, filenames in os.walk(root):
         for filename in filenames:
-            if fnmatch.fnmatch(filename, '[0-9][0-9]-*'):
+            if UPGRADE_SCRIPT.match(filename):
                 yield os.path.join(dirpath, filename)
 
 
@@ -113,9 +114,12 @@ def main():
     else:
         extra_args = args.pylint_args
 
+    if not os.path.isfile(PYLINTRC):
+        raise IOError('{} not found'.format(PYLINTRC))
+
     pylint = [
         'pylint',
-        '--rcfile={scriptpath}/dogtag.pylintrc'.format(**env)
+        '--rcfile={}'.format(PYLINTRC)
     ]
     pylint.extend(extra_args)
     pylint.extend(filename.format(**env) for filename in FILENAMES)

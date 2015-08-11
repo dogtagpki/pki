@@ -19,15 +19,17 @@
 #
 
 import os
-from fnmatch import fnmatch
+import re
 from distutils.core import setup
 
+
+UPGRADE_SCRIPT = re.compile('^[0-9]+-.*')
 
 def find_upgrade(origroot, destroot):
     upgrades = {}
     for dirpath, dirnames, filenames in os.walk(origroot):
         for filename in filenames:
-            if fnmatch(filename, '[0-9][0-9]-*'):
+            if UPGRADE_SCRIPT.match(filename):
                 version = os.path.basename(dirpath)
                 orig = os.path.join(dirpath, filename)
                 dest = os.path.join(destroot, version)
