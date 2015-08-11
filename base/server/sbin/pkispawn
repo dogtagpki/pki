@@ -48,7 +48,7 @@ There was a problem importing one of the required Python modules. The
 error was:
 
     %s
-""" % sys.exc_value
+""" % sys.exc_info()[1]
     sys.exit(1)
 
 
@@ -116,7 +116,8 @@ def main(argv):
 
     # -f <user deployment config>
     if args.user_deployment_cfg is not None:
-        config.user_deployment_cfg = str(args.user_deployment_cfg).strip('[\']')
+        config.user_deployment_cfg = str(
+            args.user_deployment_cfg).strip('[\']')
 
     parser.validate()
     interactive = False
@@ -234,22 +235,22 @@ def main(argv):
             #     print "Interactive HSM installation is currently unsupported."
             #     sys.exit(0)
 
-                  # TBD:  Interactive HSM installation
-                  # parser.set_property(config.pki_subsystem,
-                  #                     'pki_hsm_enable',
-                  #                     'True')
-                  # modulename = parser.read_text(
-                  #     'HSM Module Name (e. g. - nethsm)', allow_empty=False)
-                  # parser.set_property(config.pki_subsystem,
-                  #                     'pki_hsm_modulename',
-                  #                     modulename)
-                  # libfile = parser.read_text(
-                  #     'HSM Lib File ' +
-                  #     '(e. g. - /opt/nfast/toolkits/pkcs11/libcknfast.so)',
-                  #     allow_empty=False)
-                  # parser.set_property(config.pki_subsystem,
-                  #                     'pki_hsm_libfile',
-                  #                     libfile)
+            # TBD:  Interactive HSM installation
+            # parser.set_property(config.pki_subsystem,
+            #                     'pki_hsm_enable',
+            #                     'True')
+            # modulename = parser.read_text(
+            #     'HSM Module Name (e. g. - nethsm)', allow_empty=False)
+            # parser.set_property(config.pki_subsystem,
+            #                     'pki_hsm_modulename',
+            #                     modulename)
+            # libfile = parser.read_text(
+            #     'HSM Lib File ' +
+            #     '(e. g. - /opt/nfast/toolkits/pkcs11/libcknfast.so)',
+            #     allow_empty=False)
+            # parser.set_property(config.pki_subsystem,
+            #                     'pki_hsm_libfile',
+            #                     libfile)
             # print
 
             print "Directory Server:"
@@ -415,7 +416,7 @@ def main(argv):
                         parser.set_property(config.pki_subsystem,
                                             'pki_enable_server_side_keygen',
                                             'True')
- 
+
                         parser.read_text('KRA URL',
                                          config.pki_subsystem,
                                          'pki_kra_uri')
@@ -487,7 +488,8 @@ def main(argv):
         sys.exit(1)
 
     # Enable 'pkispawn' logging.
-    config.pki_log_dir = config.pki_root_prefix + config.PKI_DEPLOYMENT_LOG_ROOT
+    config.pki_log_dir = config.pki_root_prefix + \
+        config.PKI_DEPLOYMENT_LOG_ROOT
     config.pki_log_name = "pki" + "-" + \
                           config.pki_subsystem.lower() + \
                           "-" + "spawn" + "." + \
@@ -533,7 +535,7 @@ def main(argv):
             not config.str2bool(parser.mdict['pki_skip_configuration']):
         try:
             # Verify existence of Directory Server Password
-            if not 'pki_ds_password' in parser.mdict or\
+            if 'pki_ds_password' not in parser.mdict or\
                not len(parser.mdict['pki_ds_password']):
                 config.pki_log.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
@@ -557,7 +559,7 @@ def main(argv):
         if parser.mdict['pki_security_domain_type'] != "new":
             try:
                 # Verify existence of Security Domain Password
-                if not 'pki_security_domain_password' in parser.mdict or\
+                if 'pki_security_domain_password' not in parser.mdict or\
                    not len(parser.mdict['pki_security_domain_password']):
                     config.pki_log.error(
                         log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
@@ -643,10 +645,10 @@ def print_install_information(mdict):
                   % mdict['pki_client_database_dir']
         print log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name']
         print log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name']
-        if (((config.pki_subsystem == "KRA" or\
-              config.pki_subsystem == "OCSP") and\
-            config.str2bool(mdict['pki_standalone'])) and\
-            not config.str2bool(mdict['pki_external_step_two'])):
+        if (((config.pki_subsystem == "KRA" or
+              config.pki_subsystem == "OCSP") and
+             config.str2bool(mdict['pki_standalone'])) and
+                not config.str2bool(mdict['pki_external_step_two'])):
             # Stand-alone PKI KRA/OCSP (External CA Step 1)
             print log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem
         else:

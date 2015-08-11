@@ -46,7 +46,6 @@ class MigrateCLI(pki.cli.CLI):
         print
 
     def execute(self, argv):
-
         try:
             opts, _ = getopt.getopt(argv, 'i:v', [
                 'tomcat=', 'verbose', 'debug', 'help'])
@@ -91,25 +90,30 @@ class MigrateCLI(pki.cli.CLI):
         self.print_message('System migrated')
 
     def migrate(self, instance, tomcat_version):
-
         self.migrate_instance(instance, tomcat_version)
         self.migrate_subsystems(instance, tomcat_version)
 
     def migrate_instance(self, instance, tomcat_version):
-
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
         self.migrate_server_xml(server_xml, tomcat_version)
 
-        root_context_xml = os.path.join(instance.conf_dir, 'Catalina', 'localhost', 'ROOT.xml')
+        root_context_xml = os.path.join(
+            instance.conf_dir,
+            'Catalina',
+            'localhost',
+            'ROOT.xml')
         self.migrate_context_xml(root_context_xml, tomcat_version)
 
-        pki_context_xml = os.path.join(instance.conf_dir, 'Catalina', 'localhost', 'pki.xml')
+        pki_context_xml = os.path.join(
+            instance.conf_dir,
+            'Catalina',
+            'localhost',
+            'pki.xml')
         self.migrate_context_xml(pki_context_xml, tomcat_version)
 
         self.migrate_tomcat_libraries(instance)
 
     def migrate_server_xml(self, filename, tomcat_version):
-
         if self.verbose:
             print 'Migrating %s' % filename
 
@@ -130,61 +134,60 @@ class MigrateCLI(pki.cli.CLI):
             f.write(etree.tostring(document, pretty_print=True))
 
     def migrate_server_xml_to_tomcat7(self, document):
-
         server = document.getroot()
 
-        jasper_comment = etree.Comment('Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html ')
+        jasper_comment = etree.Comment(
+            'Initialize Jasper prior to webapps are loaded. Documentation '
+            'at /docs/jasper-howto.html ')
 
         jasper_listener = etree.Element('Listener')
-        jasper_listener.set('className', 'org.apache.catalina.core.JasperListener')
+        jasper_listener.set(
+            'className',
+            'org.apache.catalina.core.JasperListener')
 
-        jmx_support_comment = etree.Comment(' JMX Support for the Tomcat server. Documentation at /docs/non-existent.html ')
+        jmx_support_comment = etree.Comment(
+            ' JMX Support for the Tomcat server. Documentation at '
+            '/docs/non-existent.html ')
 
-        excluded_comment1 = etree.Comment(' The following class has been commented out because it ')
-        excluded_comment2 = etree.Comment(' has been EXCLUDED from the Tomcat 7 \'tomcat-lib\' RPM! ')
+        excluded_comment1 = etree.Comment(
+            ' The following class has been commented out because it ')
+        excluded_comment2 = etree.Comment(
+            ' has been EXCLUDED from the Tomcat 7 \'tomcat-lib\' RPM! ')
 
-        server_lifecycle_comment = etree.Comment(' Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" ')
+        server_lifecycle_comment = etree.Comment(
+            ' Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" ')
 
         global_resources_lifecycle_listener = None
 
         children = list(server)
         for child in children:
-
-            if isinstance(child, etree._Comment): # pylint: disable=protected-access
-
+            if isinstance(child, etree._Comment):  # pylint: disable=protected-access
                 if 'org.apache.catalina.security.SecurityListener' in child.text:
                     server.remove(child)
-
                 elif 'Initialize Jasper prior to webapps are loaded.' in child.text:
                     jasper_comment = None
-
                 elif 'JMX Support for the Tomcat server.' in child.text:
                     jmx_support_comment = None
-
                 elif 'The following class has been commented out because it' in child.text:
                     excluded_comment1 = None
-
                 elif 'has been EXCLUDED from the Tomcat 7 \'tomcat-lib\' RPM!' in child.text:
                     excluded_comment2 = None
-
                 elif 'org.apache.catalina.mbeans.ServerLifecycleListener' in child.text:
                     server_lifecycle_comment = None
-
                 if 'Prevent memory leaks due to use of particular java/javax APIs' in child.text:
                     server.remove(child)
 
             elif child.tag == 'Listener':
                 class_name = child.get('className')
 
-                if class_name == 'org.apache.catalina.startup.VersionLoggerListener'\
-                    or class_name == 'org.apache.catalina.security.SecurityListener'\
-                    or class_name == 'org.apache.catalina.mbeans.ServerLifecycleListener'\
-                    or class_name == 'org.apache.catalina.core.JreMemoryLeakPreventionListener'\
-                    or class_name == 'org.apache.catalina.core.ThreadLocalLeakPreventionListener':
-
+                if class_name in {
+                        'org.apache.catalina.startup.VersionLoggerListener',
+                        'org.apache.catalina.security.SecurityListener',
+                        'org.apache.catalina.mbeans.ServerLifecycleListener',
+                        'org.apache.catalina.core.JreMemoryLeakPreventionListener',
+                        'org.apache.catalina.core.ThreadLocalLeakPreventionListener'}:
                     if self.debug:
                         print '* removing %s' % class_name
-
                     server.remove(child)
 
                 elif class_name == 'org.apache.catalina.core.JasperListener':
@@ -231,7 +234,6 @@ class MigrateCLI(pki.cli.CLI):
 
         connectors = server.findall('Service/Connector')
         for connector in connectors:
-
             if connector.get('secure') == 'true':
                 connector.set('protocol', 'HTTP/1.1')
 
@@ -240,78 +242,68 @@ class MigrateCLI(pki.cli.CLI):
 
         valves = server.findall('Service/Engine/Host/Valve')
         for valve in valves:
-
             if valve.get('className') == 'org.apache.catalina.valves.AccessLogValve':
                 valve.set('prefix', 'localhost_access_log.')
 
     def migrate_server_xml_to_tomcat8(self, document):
-
         server = document.getroot()
 
         version_logger_listener = etree.Element('Listener')
-        version_logger_listener.set('className', 'org.apache.catalina.startup.VersionLoggerListener')
+        version_logger_listener.set(
+            'className',
+            'org.apache.catalina.startup.VersionLoggerListener')
 
         security_listener_comment = etree.Comment(''' Security listener. Documentation at /docs/config/listeners.html
   <Listener className="org.apache.catalina.security.SecurityListener" />
   ''')
 
         jre_memory_leak_prevention_listener = etree.Element('Listener')
-        jre_memory_leak_prevention_listener.set('className', 'org.apache.catalina.core.JreMemoryLeakPreventionListener')
+        jre_memory_leak_prevention_listener.set(
+            'className',
+            'org.apache.catalina.core.JreMemoryLeakPreventionListener')
 
         global_resources_lifecycle_listener = None
 
         thread_local_leak_prevention_listener = etree.Element('Listener')
-        thread_local_leak_prevention_listener.set('className', 'org.apache.catalina.core.ThreadLocalLeakPreventionListener')
+        thread_local_leak_prevention_listener.set(
+            'className',
+            'org.apache.catalina.core.ThreadLocalLeakPreventionListener')
 
-        prevent_comment = etree.Comment(' Prevent memory leaks due to use of particular java/javax APIs')
+        prevent_comment = etree.Comment(
+            ' Prevent memory leaks due to use of particular java/javax APIs')
 
         children = list(server)
         for child in children:
-
-            if isinstance(child, etree._Comment): # pylint: disable=protected-access
-
+            if isinstance(child, etree._Comment):  # pylint: disable=protected-access
                 if 'org.apache.catalina.security.SecurityListener' in child.text:
                     security_listener_comment = None
-
                 elif 'Initialize Jasper prior to webapps are loaded.' in child.text:
                     server.remove(child)
-
                 elif 'JMX Support for the Tomcat server.' in child.text:
                     server.remove(child)
-
                 elif 'The following class has been commented out because it' in child.text:
                     server.remove(child)
-
                 elif 'has been EXCLUDED from the Tomcat 7 \'tomcat-lib\' RPM!' in child.text:
                     server.remove(child)
-
                 elif 'org.apache.catalina.mbeans.ServerLifecycleListener' in child.text:
                     server.remove(child)
-
                 elif 'Prevent memory leaks due to use of particular java/javax APIs' in child.text:
                     prevent_comment = None
 
             elif child.tag == 'Listener':
-
                 class_name = child.get('className')
 
                 if class_name == 'org.apache.catalina.core.JasperListener'\
-                    or class_name == 'org.apache.catalina.mbeans.ServerLifecycleListener':
-
+                        or class_name == 'org.apache.catalina.mbeans.ServerLifecycleListener':
                     if self.debug:
                         print '* removing %s' % class_name
-
                     server.remove(child)
-
                 elif class_name == 'org.apache.catalina.startup.VersionLoggerListener':
                     version_logger_listener = None
-
                 elif class_name == 'org.apache.catalina.core.JreMemoryLeakPreventionListener':
                     jre_memory_leak_prevention_listener = None
-
                 elif class_name == 'org.apache.catalina.mbeans.GlobalResourcesLifecycleListener':
                     global_resources_lifecycle_listener = child
-
                 elif class_name == 'org.apache.catalina.core.ThreadLocalLeakPreventionListener':
                     thread_local_leak_prevention_listener = None
 
@@ -359,7 +351,9 @@ class MigrateCLI(pki.cli.CLI):
         for connector in connectors:
 
             if connector.get('secure') == 'true':
-                connector.set('protocol', 'org.apache.coyote.http11.Http11Protocol')
+                connector.set(
+                    'protocol',
+                    'org.apache.coyote.http11.Http11Protocol')
 
         if self.debug:
             print '* updating AccessLogValve'
@@ -367,20 +361,18 @@ class MigrateCLI(pki.cli.CLI):
         valves = server.findall('Service/Engine/Host/Valve')
         for valve in valves:
 
-            if valve.get('className') == 'org.apache.catalina.valves.AccessLogValve':
+            if valve.get(
+                    'className') == 'org.apache.catalina.valves.AccessLogValve':
                 valve.set('prefix', 'localhost_access_log')
 
     def migrate_subsystems(self, instance, tomcat_version):
-
         for subsystem in instance.subsystems:
             self.migrate_subsystem(subsystem, tomcat_version)
 
     def migrate_subsystem(self, subsystem, tomcat_version):
-
         self.migrate_context_xml(subsystem.context_xml, tomcat_version)
 
     def migrate_context_xml(self, filename, tomcat_version):
-
         if not os.path.exists(filename):
             return
 
@@ -404,7 +396,6 @@ class MigrateCLI(pki.cli.CLI):
             f.write(etree.tostring(document, pretty_print=True))
 
     def migrate_context_xml_to_tomcat7(self, document):
-
         context = document.getroot()
         context.set('allowLinking', 'true')
 
@@ -418,9 +409,8 @@ class MigrateCLI(pki.cli.CLI):
             context.remove(resources)
 
     def migrate_context_xml_to_tomcat8(self, document):
-
         context = document.getroot()
-        if context.attrib.has_key('allowLinking'):
+        if 'allowLinking' in context.attrib:
             context.attrib.pop('allowLinking')
 
         resources = context.find('Resources')
@@ -436,7 +426,6 @@ class MigrateCLI(pki.cli.CLI):
         resources.set('allowLinking', 'true')
 
     def migrate_tomcat_libraries(self, instance):
-
         # remove old links
         for filename in os.listdir(instance.lib_dir):
 

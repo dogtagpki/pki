@@ -25,7 +25,9 @@ from lxml import etree as ET
 import pki
 import pki.server.upgrade
 
-class ReplaceRESTEasyApplicationClass(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+class ReplaceRESTEasyApplicationClass(
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
         super(ReplaceRESTEasyApplicationClass, self).__init__()
@@ -58,15 +60,20 @@ class ReplaceRESTEasyApplicationClass(pki.server.upgrade.PKIServerUpgradeScriptl
         if servlet is None:
             raise Exception('Resteasy servlet not found in ' + web_xml)
 
-        param = servlet.find('init-param[param-name="javax.ws.rs.Application"]')
+        param = servlet.find(
+            'init-param[param-name="javax.ws.rs.Application"]')
 
         if param is None:
-            raise Exception('Resteasy application parameter not found in ' + web_xml)
+            raise Exception(
+                'Resteasy application parameter not found in ' +
+                web_xml)
 
         value = param.find('param-value')
 
         if value is None:
-            raise Exception('Resteasy application value not found in ' + web_xml)
+            raise Exception(
+                'Resteasy application value not found in ' +
+                web_xml)
 
         value.text = self.class_names[subsystem.name]
 

@@ -112,7 +112,7 @@ class SecurityDomainSubsystem(object):
 
         hosts = json_value['Host']
         if isinstance(hosts, dict):
-            hosts = [ hosts ]
+            hosts = [hosts]
 
         for h in hosts:
             host = SecurityDomainHost.from_json(h)
@@ -155,7 +155,7 @@ class SecurityDomainInfo(object):
 
             subsystems = domain_info['Subsystem']
             if isinstance(subsystems, dict):
-                subsystems = [ subsystems ]
+                subsystems = [subsystems]
 
         for s in subsystems:
             subsystem = SecurityDomainSubsystem.from_json(s)
@@ -211,6 +211,7 @@ class ConfigurationRequest(object):
     This class is the python equivalent of the Java class:
     com.netscape.certsrv.system.ConfigurationRequest
     """
+
     def __init__(self):
         self.token = "Internal Key Storage Token"
         self.isClone = "false"
@@ -227,6 +228,7 @@ class ConfigurationResponse(object):
     This class is the python equivalent of the Java class:
     com.netscape.certsrv.system.ConfigurationRequest
     """
+
     def __init__(self):
         pass
 
@@ -240,6 +242,7 @@ class SystemCertData(object):
     This class is the python equivalent of the Java class:
     com.netscape.certsrv.system.SystemCertData
     """
+
     def __init__(self):
         pass
 
@@ -252,6 +255,7 @@ class SystemConfigClient(object):
     The connection details for the system being configured are passed in
     the PKIConnection object used when constructing this object.
     """
+
     def __init__(self, connection):
         self.connection = connection
 
@@ -276,6 +280,7 @@ class SystemStatusClient(object):
     """
     Client used to check the status of a Dogtag subsystem.
     """
+
     def __init__(self, connection):
         self.connection = connection
 

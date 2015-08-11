@@ -23,6 +23,7 @@ import shlex
 import subprocess
 import sys
 
+
 def run_java_cli(args):
 
     # read RESTEasy library path

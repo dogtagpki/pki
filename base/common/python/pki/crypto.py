@@ -62,7 +62,8 @@ class CryptoProvider(object):
         pass
 
     @abc.abstractmethod
-    def symmetric_wrap(self, data, wrapping_key, mechanism=None, nonce_iv=None):
+    def symmetric_wrap(self, data, wrapping_key, mechanism=None,
+                       nonce_iv=None):
         """ encrypt data using a symmetric key (wrapping key)"""
         pass
 
@@ -86,7 +87,7 @@ class CryptoProvider(object):
         """
         pass
 
-    #abc.abstractmethod
+    # abc.abstractmethod
     def get_cert(self, cert_nick):
         """ Get the certificate for the specified cert_nick. """
         pass
@@ -101,7 +102,8 @@ class NSSCryptoProvider(CryptoProvider):
     """
 
     @staticmethod
-    def setup_database(db_dir, password=None, over_write=False, password_file=None):
+    def setup_database(
+            db_dir, password=None, over_write=False, password_file=None):
         """ Create an NSS database """
         if os.path.exists(db_dir):
             if not over_write:
@@ -188,7 +190,8 @@ class NSSCryptoProvider(CryptoProvider):
                                    None,
                                    slot.get_best_key_length(mechanism))
 
-        # If initialization vector was supplied use it, otherwise set it to None
+        # If initialization vector was supplied use it, otherwise set it to
+        # None
         if nonce_iv:
             iv_si = nss.SecItem(nonce_iv)
             iv_param = nss.param_from_iv(mechanism, iv_si)

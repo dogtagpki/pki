@@ -45,11 +45,11 @@ There was a problem importing one of the required Python modules. The
 error was:
 
     %s
-""" % sys.exc_value
+""" % sys.exc_info()[1]
     sys.exit(1)
 
 
-#Handle the Keyboard Interrupt
+# Handle the Keyboard Interrupt
 # pylint: disable=W0613
 def interrupt_handler(event, frame):
     print
@@ -114,7 +114,7 @@ def main(argv):
         action='store',
         nargs=1, metavar='<security domain user>',
         help='security domain user')
-    
+
     parser.optional.add_argument(
         '-W',
         dest='pki_secdomain_pass_file',

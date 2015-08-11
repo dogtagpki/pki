@@ -108,7 +108,7 @@ class PKISubsystem(object):
 
 class PKIInstance(object):
 
-    def __init__(self, name, instanceType=10):
+    def __init__(self, name, instanceType=10):  # nopep8
 
         self.name = name
         self.type = instanceType
@@ -121,7 +121,10 @@ class PKIInstance(object):
         self.conf_dir = os.path.join(self.base_dir, 'conf')
         self.lib_dir = os.path.join(self.base_dir, 'lib')
 
-        self.registry_dir = os.path.join(pki.server.REGISTRY_DIR, 'tomcat', self.name)
+        self.registry_dir = os.path.join(
+            pki.server.REGISTRY_DIR,
+            'tomcat',
+            self.name)
         self.registry_file = os.path.join(self.registry_dir, self.name)
 
         self.service_name = 'pki-tomcatd@%s.service' % self.name
@@ -149,7 +152,8 @@ class PKIInstance(object):
         subprocess.check_call(['systemctl', 'stop', self.service_name])
 
     def is_active(self):
-        rc = subprocess.call(['systemctl', '--quiet', 'is-active', self.service_name])
+        rc = subprocess.call(
+            ['systemctl', '--quiet', 'is-active', self.service_name])
         return rc == 0
 
     def load(self):
@@ -215,7 +219,7 @@ class PKIInstance(object):
 
         # set deployment descriptor ownership and permission
         os.chown(context_xml, self.uid, self.gid)
-        os.chmod(context_xml, 00660)
+        os.chmod(context_xml, 0o0660)
 
     def undeploy(self, webapp_name):
         context_xml = os.path.join(

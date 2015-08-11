@@ -146,7 +146,7 @@ REMINDER:
     Finally, if an optional '-p <prefix>' is defined, this value WILL NOT
     be prepended in front of the mandatory '-f <configuration_file>'.
 """ + PKI_VERBOSITY
-PKISPAWN_INTERACTIVE_INSTALLATION='''
+PKISPAWN_INTERACTIVE_INSTALLATION = '''
 IMPORTANT:
 
     Interactive installation currently only exists for very basic deployments!

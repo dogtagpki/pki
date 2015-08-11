@@ -38,14 +38,12 @@ SUBSYSTEM_TRACKER = '%s/CS.cfg'
 class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
     def __init__(self):
-
         super(PKIServerUpgradeScriptlet, self).__init__()
 
     def get_backup_dir(self):
         return BACKUP_DIR + '/' + str(self.version) + '/' + str(self.index)
 
     def can_upgrade_server(self, instance, subsystem=None):
-
         # A scriptlet can run if the version matches the tracker and
         # the index is the next to be executed.
 
@@ -55,7 +53,6 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
             self.index == tracker.get_index() + 1
 
     def update_server_tracker(self, instance, subsystem=None):
-
         # Increment the index in the tracker. If it's the last scriptlet
         # in this version, update the tracker version.
 
@@ -70,7 +67,6 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
             tracker.set_version(self.version.next)
 
     def upgrade(self):
-
         for instance in self.upgrader.instances():
 
             self.upgrade_subsystems(instance)
@@ -112,7 +108,6 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                     'Upgrade failed in %s: %s' % (instance, e), e, instance)
 
     def upgrade_subsystems(self, instance):
-
         for subsystem in self.upgrader.subsystems(instance):
 
             if not self.can_upgrade_server(instance, subsystem):
@@ -159,10 +154,9 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
 class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
-    def __init__(
-            self, instanceName=None, instanceType=None, subsystemName=None,
-            upgrade_dir=UPGRADE_DIR, version=None, index=None, silent=False):
-
+    def __init__(self, instanceName=None, instanceType=None,  # nopep8
+                 subsystemName=None, upgrade_dir=UPGRADE_DIR,  # nopep8
+                 version=None, index=None, silent=False):
         super(PKIServerUpgrader, self).__init__(
             upgrade_dir, version, index, silent)
 
@@ -179,9 +173,10 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         self.subsystem_trackers = {}
 
     def instances(self):
-
         if self.instanceName and self.instanceType:
-            instance = pki.server.PKIInstance(self.instanceName, self.instanceType)
+            instance = pki.server.PKIInstance(
+                self.instanceName,
+                self.instanceType)
             instance.validate()
             instance.load()
             return [instance]
@@ -215,7 +210,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         return instance_list
 
     def subsystems(self, instance):
-
         if self.subsystemName:
             subsystem = pki.server.PKISubsystem(instance, self.subsystemName)
             subsystem.validate()
@@ -229,7 +223,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 instance.name)
             for subsystemName in os.listdir(registry_dir):
                 if subsystemName in pki.server.SUBSYSTEM_TYPES:
-                    subsystem = pki.server.PKISubsystem(instance, subsystemName)
+                    subsystem = pki.server.PKISubsystem(
+                        instance,
+                        subsystemName)
                     subsystem.validate()
                     subsystem_list.append(subsystem)
         else:
@@ -239,7 +235,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                     subsystemName,
                     instance.name)
                 if os.path.exists(registry_dir):
-                    subsystem = pki.server.PKISubsystem(instance, subsystemName)
+                    subsystem = pki.server.PKISubsystem(
+                        instance,
+                        subsystemName)
                     subsystem.validate()
                     subsystem_list.append(subsystem)
 
@@ -248,7 +246,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         return subsystem_list
 
     def get_server_tracker(self, instance, subsystem=None):
-
         if subsystem:
             name = str(subsystem)
             try:
@@ -275,7 +272,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         return tracker
 
     def get_current_version(self):
-
         current_version = None
 
         for instance in self.instances():
@@ -306,7 +302,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         return current_version
 
     def show_tracker(self):
-
         for instance in self.instances():
 
             if not self.subsystemName:
@@ -319,7 +314,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 tracker.show()
 
     def set_tracker(self, version):
-
         for instance in self.instances():
 
             if not self.subsystemName:
@@ -334,7 +328,6 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         print 'Tracker has been set to version ' + str(version) + '.'
 
     def remove_tracker(self):
-
         for instance in self.instances():
 
             if not self.subsystemName:

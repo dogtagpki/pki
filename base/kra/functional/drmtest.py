@@ -34,7 +34,6 @@ See drmtest.readme.txt.
 
 import base64
 import getopt
-import os
 import random
 import shutil
 import string
@@ -84,14 +83,15 @@ def print_key_data(key_data):
         print "Private Data: " + base64.encodestring(key_data.data)
 
 
-def run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password):
+def run_test(protocol, hostname, port, client_cert, certdb_dir,
+             certdb_password):
     """ test code execution """
 
     # set up the connection to the DRM, including authentication credentials
     connection = PKIConnection(protocol, hostname, port, 'kra')
     connection.set_authentication_cert(client_cert)
 
-    #create kraclient
+    # create kraclient
     crypto = pki.crypto.NSSCryptoProvider(certdb_dir, certdb_password)
     kraclient = KRAClient(connection, crypto)
     keyclient = kraclient.keys
@@ -207,7 +207,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password)
         print "KeyNotFoundException thrown - Code:" + exc.code + \
               " Message: " + exc.message
 
-    #Test 13 = getKeyInfo
+    # Test 13 = getKeyInfo
     print "Get key info for existing key"
     key_info = keyclient.get_key_info(key_id)
     print_key_info(key_info)
@@ -217,7 +217,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password)
     key_info = keyclient.get_active_key_info(client_key_id)
     print_key_info(key_info)
 
-    #Test 15: change the key status
+    # Test 15: change the key status
     print "Change the key status"
     keyclient.modify_key_status(key_id, keyclient.KEY_STATUS_INACTIVE)
     print_key_info(keyclient.get_key_info(key_id))
@@ -239,7 +239,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password)
         print "ResourceNotFoundException thrown - Code: " + exc.code +\
               "Message: " + exc.message
 
-    #Test 18: Generate a symmetric key with default parameters
+    # Test 18: Generate a symmetric key with default parameters
     client_key_id = "Vek #3" + time.strftime('%c')
     response = keyclient.generate_symmetric_key(client_key_id)
     print_key_request(response.request_info)
@@ -270,7 +270,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password)
         print "Error: archived and recovered keys do not match"
     print
 
-    #Test 20: Generating asymmetric keys
+    # Test 20: Generating asymmetric keys
     print "Generating asymmetric keys"
     try:
         response = keyclient.generate_asymmetric_key(
@@ -284,7 +284,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password)
         print "BadRequestException thrown - Code:" + exc.code +\
               " Message: " + exc.message
 
-    #Test 21: Get key information of the newly generated asymmetric keys
+    # Test 21: Get key information of the newly generated asymmetric keys
     print "Retrieving key information"
     key_info = keyclient.get_key_info(response.request_info.get_key_id())
     print_key_info(key_info)
@@ -296,7 +296,7 @@ def usage():
     print '  -P <protocol>                  KRA server protocol (default: https).'
     print '  -h <hostname>                  KRA server hostname (default: localhost).'
     print '  -p <port>                      KRA server port (default: 8443).'
-    print '  -n <path>                      KRA agent certificate and private key (default: kraagent.pem).'
+    print '  -n <path>                      KRA agent certificate and private key (default: kraagent.pem).'  # nopep8
     print
     print '  --help                         Show this help message.'
 
@@ -310,9 +310,9 @@ def main(argv):
         usage()
         sys.exit(1)
 
-    protocol    = 'https'
-    hostname    = 'localhost'
-    port        = '8443'
+    protocol = 'https'
+    hostname = 'localhost'
+    port = '8443'
     client_cert = 'kraagent.pem'
 
     for o, a in opts:
@@ -340,11 +340,20 @@ def main(argv):
     certdb_dir = tempfile.mkdtemp(prefix='pki-kra-test-')
     print "NSS database dir: %s" % certdb_dir
 
-    certdb_password = ''.join(random.choice(string.ascii_letters + string.digits) for i in range(8))
+    certdb_password = ''.join(
+        random.choice(
+            string.ascii_letters +
+            string.digits) for i in range(8))
     print "NSS database password: %s" % certdb_password
 
     try:
-        run_test(protocol, hostname, port, client_cert, certdb_dir, certdb_password)
+        run_test(
+            protocol,
+            hostname,
+            port,
+            client_cert,
+            certdb_dir,
+            certdb_password)
     finally:
         shutil.rmtree(certdb_dir)
 

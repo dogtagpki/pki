@@ -25,7 +25,7 @@ import pki.server.upgrade
 
 
 class RemoveInaccessableURLsFromServerXML(
-    pki.server.upgrade.PKIServerUpgradeScriptlet):
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
     def __init__(self):
         super(RemoveInaccessableURLsFromServerXML, self).__init__()
         self.message = 'Remove inaccessable URLs from server.xml'

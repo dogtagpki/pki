@@ -34,21 +34,20 @@ class AddTLSRangeSupport(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
         self.parser = etree.XMLParser(remove_blank_text=True)
 
-
     def upgrade_instance(self, instance):
 
-        server_xml = os.path.join(instance.conf_dir, 'server.xml') 
-        #Backup the file before modify
+        server_xml = os.path.join(instance.conf_dir, 'server.xml')
+        # Backup the file before modify
         self.backup(server_xml)
-        #Parse the server.xml into an XML object
+        # Parse the server.xml into an XML object
         document = etree.parse(server_xml, self.parser)
-        #perform the upgrade in memory
+        # perform the upgrade in memory
         self.add_tls_range(document)
-        #Once all changes are made, write the XML back into the same server.xml
-        #This way we're preserving any other customization that has been done
+        # Once all changes are made, write the XML back into the same server.xml
+        # This way we're preserving any other customization that has been done
         # to the server.xml
         with open(server_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True)) 
+            f.write(etree.tostring(document, pretty_print=True))
 
     def add_tls_range(self, document):
 
@@ -57,7 +56,7 @@ class AddTLSRangeSupport(pki.server.upgrade.PKIServerUpgradeScriptlet):
         connectors = server.findall('.//Connector')
 
         for connector in connectors:
- 
+
             secure = connector.get('secure')
             if secure == 'true':
                 # Update Connector's attributes
@@ -65,38 +64,37 @@ class AddTLSRangeSupport(pki.server.upgrade.PKIServerUpgradeScriptlet):
                 connector.set('sslVersionRangeStream', 'tls1_0:tls1_2')
                 connector.set('sslVersionRangeDatagram', 'tls1_1:tls1_2')
                 connector.set('sslRangeCiphers',
-                    '-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,' \
-                    '-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,' \
-                    '+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA,' \
-                    '+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,' \
-                    '+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,' \
-                    '-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,' \
-                    '+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,' \
-                    '+TLS_RSA_WITH_3DES_EDE_CBC_SHA,' \
-                    '+TLS_RSA_WITH_AES_128_CBC_SHA,' \
-                    '+TLS_RSA_WITH_AES_256_CBC_SHA,' \
-                    '+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,' \
-                    '+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,' \
-                    '-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,' \
-                    '-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,' \
-                    '-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,' \
-                    '+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,' \
-                    '+TLS_DHE_DSS_WITH_AES_128_CBC_SHA,' \
-                    '+TLS_DHE_DSS_WITH_AES_256_CBC_SHA,' \
-                    '+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,' \
-                    '+TLS_DHE_RSA_WITH_AES_128_CBC_SHA,' \
-                    '+TLS_DHE_RSA_WITH_AES_256_CBC_SHA,' \
-                    '+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,' \
-                    '+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,' \
-                    '+TLS_RSA_WITH_AES_128_CBC_SHA256,' \
-                    '+TLS_RSA_WITH_AES_256_CBC_SHA256,' \
-                    '+TLS_RSA_WITH_AES_128_GCM_SHA256,' \
-                    '+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,' \
-                    '+TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,' \
-                    '+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,' \
-                    '+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,' \
-                    '+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,' \
-                    '+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,' \
-                    '+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,' \
-                    '+TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256')
-
+                              '-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,'
+                              '-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,'
+                              '+TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA,'
+                              '+TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,'
+                              '+TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,'
+                              '-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,'
+                              '+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,'
+                              '+TLS_RSA_WITH_3DES_EDE_CBC_SHA,'
+                              '+TLS_RSA_WITH_AES_128_CBC_SHA,'
+                              '+TLS_RSA_WITH_AES_256_CBC_SHA,'
+                              '+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,'
+                              '+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,'
+                              '-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,'
+                              '-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,'
+                              '-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,'
+                              '+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,'
+                              '+TLS_DHE_DSS_WITH_AES_128_CBC_SHA,'
+                              '+TLS_DHE_DSS_WITH_AES_256_CBC_SHA,'
+                              '+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,'
+                              '+TLS_DHE_RSA_WITH_AES_128_CBC_SHA,'
+                              '+TLS_DHE_RSA_WITH_AES_256_CBC_SHA,'
+                              '+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,'
+                              '+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,'
+                              '+TLS_RSA_WITH_AES_128_CBC_SHA256,'
+                              '+TLS_RSA_WITH_AES_256_CBC_SHA256,'
+                              '+TLS_RSA_WITH_AES_128_GCM_SHA256,'
+                              '+TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,'
+                              '+TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,'
+                              '+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,'
+                              '+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,'
+                              '+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,'
+                              '+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,'
+                              '+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,'
+                              '+TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256')

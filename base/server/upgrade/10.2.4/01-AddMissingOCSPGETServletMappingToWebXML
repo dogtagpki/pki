@@ -25,7 +25,9 @@ from lxml import etree as ET
 import pki
 import pki.server.upgrade
 
-class AddMissingOCSPGETServletMappingToWebXML(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+class AddMissingOCSPGETServletMappingToWebXML(
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     OCSPGETServletMappingData = """
         <servlet-mapping>
@@ -40,7 +42,6 @@ class AddMissingOCSPGETServletMappingToWebXML(pki.server.upgrade.PKIServerUpgrad
         self.message = 'Add missing OCSP Get Servlet Mapping to upgraded Dogtag 9 instances'
         self.doc = None
         self.root = None
-
 
     def upgrade_subsystem(self, instance, subsystem):
         # only affects CA
@@ -64,7 +65,7 @@ class AddMissingOCSPGETServletMappingToWebXML(pki.server.upgrade.PKIServerUpgrad
         self.doc.write(web_xml)
 
     def add_ocsp_get_servlet_mapping(self):
-        #add missing OCSP Get servlet mapping
+        # add missing OCSP Get servlet mapping
         mappingFound = False
         urlPattern = ""
         index = 0

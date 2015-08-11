@@ -322,7 +322,9 @@ class InstanceMigrateCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
 
-        module.migrate(instance, tomcat_version)  # pylint: disable=no-member,maybe-no-member
+        module.migrate(  # pylint: disable=no-member,maybe-no-member
+            instance,
+            tomcat_version)
 
         self.print_message('%s instance migrated' % instance_name)
 
@@ -369,14 +371,15 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        #module = self.top.find_module('nuxwdog-enable')
+        # module = self.top.find_module('nuxwdog-enable')
         module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
         module.set_verbose(self.verbose)
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
 
-        module.enable_nuxwdog(instance)  # pylint: disable=no-member,maybe-no-member
+        module.enable_nuxwdog(  # pylint: disable=no-member,maybe-no-member
+            instance)
 
         self.print_message('Nuxwdog enabled for instance %s.' % instance_name)
 
@@ -430,6 +433,7 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
 
-        module.disable_nuxwdog(instance)  # pylint: disable=no-member,maybe-no-member
+        module.disable_nuxwdog(
+            instance)  # pylint: disable=no-member,maybe-no-member
 
         self.print_message('Nuxwdog disabled for instance %s.' % instance_name)

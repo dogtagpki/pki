@@ -99,7 +99,8 @@ class CLI(object):
         sub_command = None
 
         # Search the module by incrementally adding parts into module name.
-        # Repeat until it finds the module or until there is no more parts to add.
+        # Repeat until it finds the module or until there is no more parts to
+        # add.
         module = None
         position = 0
 
@@ -110,7 +111,7 @@ class CLI(object):
             if i >= 0:
                 # Dash found. Split command into module name and sub command.
                 module_name = command[0:i]
-                sub_command = command[i+1:]
+                sub_command = command[i + 1:]
             else:
                 # Dash not found. Use the whole command.
                 module_name = command
@@ -127,7 +128,8 @@ class CLI(object):
                     module = m
                     break
 
-                # There is a sub command. It must be processed by module's children.
+                # There is a sub command. It must be processed by module's
+                # children.
                 if len(m.modules) > 0:
                     # Module has children. Use this module.
                     module = m
@@ -153,7 +155,8 @@ class CLI(object):
 
         # Prepare module arguments.
         if sub_command:
-            # If module command exists, include it as arguments: <module command> <args>...
+            # If module command exists, include it as arguments:
+            # <module command> <args>...
             module_args = [sub_command] + args[1:]
 
         else:

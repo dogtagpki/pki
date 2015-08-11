@@ -51,8 +51,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         else:
             config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
-            if (deployer.mdict['pki_subsystem'] == "CA" or \
-                        config.str2bool(deployer.mdict['pki_standalone'])) and \
+            if (deployer.mdict['pki_subsystem'] == "CA" or
+                config.str2bool(deployer.mdict['pki_standalone'])) and \
                     config.str2bool(deployer.mdict['pki_external_step_two']):
                 # verify that this External CA (Step 2), or Stand-alone PKI
                 # (Step 2) currently EXISTS for this "instance"

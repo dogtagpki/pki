@@ -32,8 +32,8 @@ import pki
 import pki.encoder as encoder
 
 
-#should be moved to request.py
-#pylint: disable=R0903
+# should be moved to request.py
+# pylint: disable=R0903
 class RequestId(object):
     """
     Class representing a Request ID
@@ -44,7 +44,7 @@ class RequestId(object):
         self.value = req_id
 
 
-#pylint: disable=R0903
+# pylint: disable=R0903
 class KeyData(object):
     """
     This is the object that contains the encoded wrapped secret
@@ -85,7 +85,8 @@ class Key(object):
 
     def __init__(self, key_data):
         """ Constructor """
-        self.encrypted_data = base64.decodestring(key_data.wrapped_private_data)
+        self.encrypted_data = base64.decodestring(
+            key_data.wrapped_private_data)
         self.nonce_data = base64.decodestring(key_data.nonce_data)
         self.algorithm = key_data.algorithm
         self.size = key_data.size
@@ -139,7 +140,7 @@ class KeyInfo(object):
         return None
 
 
-#pylint: disable=R0903
+# pylint: disable=R0903
 class KeyInfoCollection(object):
     """
     This class represents data returned when searching the DRM archived
@@ -211,7 +212,7 @@ class KeyRequestInfo(object):
         return None
 
 
-#pylint: disable=R0903
+# pylint: disable=R0903
 class KeyRequestInfoCollection(object):
     """
     This class represents the data returned when searching the key
@@ -419,7 +420,7 @@ class KeyClient(object):
     RSA_ALGORITHM = "RSA"
     DSA_ALGORITHM = "DSA"
 
-    #default session key wrapping algorithm
+    # default session key wrapping algorithm
     DES_EDE3_CBC_OID = "{1 2 840 113549 3 7}"
 
     def __init__(self, connection, crypto, transport_cert_nick=None):
@@ -440,7 +441,8 @@ class KeyClient(object):
     def set_transport_cert(self, transport_cert_nick):
         """ Set the transport certificate for crypto operations """
         if transport_cert_nick is None:
-            raise TypeError("Transport certificate nickname must be specified.")
+            raise TypeError(
+                "Transport certificate nickname must be specified.")
         self.transport_cert = self.crypto.get_cert(transport_cert_nick)
 
     @pki.handle_exceptions()
@@ -626,7 +628,7 @@ class KeyClient(object):
         if algorithm == self.RSA_ALGORITHM:
             if key_size < 256:
                 raise ValueError("Invalid key size specified.")
-            if ((key_size-256) % 16) != 0:
+            if ((key_size - 256) % 16) != 0:
                 raise ValueError("Invalid key size specified.")
         if algorithm == self.DSA_ALGORITHM:
             if key_size not in [512, 768, 1024]:
@@ -686,7 +688,9 @@ class KeyClient(object):
         nonce_iv = self.crypto.generate_nonce_iv()
         session_key = self.crypto.generate_session_key()
 
-        wrapped_session_key = self.crypto.asymmetric_wrap(session_key, self.transport_cert)
+        wrapped_session_key = self.crypto.asymmetric_wrap(
+            session_key,
+            self.transport_cert)
 
         encrypted_data = self.crypto.symmetric_wrap(
             private_data,
@@ -704,15 +708,15 @@ class KeyClient(object):
             key_size=key_size)
 
     @pki.handle_exceptions()
-    def archive_encrypted_data(self,\
-            client_key_id,\
-            data_type,\
-            encrypted_data,\
-            wrapped_session_key,\
-            algorithm_oid=None,\
-            nonce_iv=None,\
-            key_algorithm=None,\
-            key_size=None):
+    def archive_encrypted_data(self,
+                               client_key_id,
+                               data_type,
+                               encrypted_data,
+                               wrapped_session_key,
+                               algorithm_oid=None,
+                               nonce_iv=None,
+                               key_algorithm=None,
+                               key_size=None):
         """
         Archive a secret (symmetric key or passphrase) on the DRM.
 

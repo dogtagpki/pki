@@ -27,7 +27,8 @@ import pki
 import pki.server.upgrade
 
 
-class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet):
+class ReplaceRandomNumberGenerator(
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
         super(ReplaceRandomNumberGenerator, self).__init__()
@@ -38,7 +39,11 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
 
     def upgrade_subsystem(self, instance, subsystem):
 
-        meta_inf = os.path.join(instance.base_dir, 'webapps', subsystem.name, 'META-INF')
+        meta_inf = os.path.join(
+            instance.base_dir,
+            'webapps',
+            subsystem.name,
+            'META-INF')
         self.backup(meta_inf)
 
         self.create_meta_inf(instance, meta_inf)
@@ -54,7 +59,7 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
         document = etree.parse(context_xml, self.parser)
 
         self.add_manager(document)
-        if subsystem.type >=10:
+        if subsystem.type >= 10:
             self.update_authenticator(document)
         else:
             self.remove_authenticator(document)
@@ -70,7 +75,11 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
 
     def update_root_context_xml(self, instance):
 
-        meta_inf = os.path.join(instance.base_dir, 'webapps', 'ROOT', 'META-INF')
+        meta_inf = os.path.join(
+            instance.base_dir,
+            'webapps',
+            'ROOT',
+            'META-INF')
         self.backup(meta_inf)
 
         self.create_meta_inf(instance, meta_inf)
@@ -92,7 +101,11 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
 
     def update_pki_context_xml(self, instance):
 
-        meta_inf = os.path.join(instance.base_dir, 'webapps', 'pki', 'META-INF')
+        meta_inf = os.path.join(
+            instance.base_dir,
+            'webapps',
+            'pki',
+            'META-INF')
         self.backup(meta_inf)
 
         self.create_meta_inf(instance, meta_inf)
@@ -118,7 +131,7 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
             os.mkdir(path)
 
         os.chown(path, instance.uid, instance.gid)
-        os.chmod(path, 0770)
+        os.chmod(path, 0o770)
 
     def create_context_xml(self, instance, source, target):
 
@@ -126,7 +139,7 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
             shutil.copyfile(source, target)
 
         os.chown(target, instance.uid, instance.gid)
-        os.chmod(target, 0660)
+        os.chmod(target, 0o660)
 
     def add_manager(self, document):
 
@@ -164,7 +177,7 @@ class ReplaceRandomNumberGenerator(pki.server.upgrade.PKIServerUpgradeScriptlet)
             # Create new authenticator'
             authenticator = etree.SubElement(authenticator, 'Valve')
             authenticator.set('className',
-                'com.netscape.cms.tomcat.SSLAuthenticatorWithFallback')
+                              'com.netscape.cms.tomcat.SSLAuthenticatorWithFallback')
 
         # Update authenticator's attributes
         authenticator.set('secureRandomProvider', 'Mozilla-JSS')

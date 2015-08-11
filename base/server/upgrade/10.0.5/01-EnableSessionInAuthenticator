@@ -25,7 +25,8 @@ from lxml import etree
 import pki.server.upgrade
 
 
-class EnableSessionInAuthenticator(pki.server.upgrade.PKIServerUpgradeScriptlet):
+class EnableSessionInAuthenticator(
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
         super(EnableSessionInAuthenticator, self).__init__()

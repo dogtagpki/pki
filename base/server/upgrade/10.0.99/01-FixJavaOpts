@@ -36,4 +36,3 @@ class FixJavaOpts(pki.server.upgrade.PKIServerUpgradeScriptlet):
         with open(fname, "w") as outfile:
             for line in lines:
                 outfile.write(re.sub(r'\$JAVA_OPTS *', '', line))
-

@@ -35,7 +35,7 @@ class SystemCertClient(object):
 
     def __init__(self, connection):
         """ Constructor """
-        #super(PKIResource, self).__init__(connection)
+        # super(PKIResource, self).__init__(connection)
         self.connection = connection
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}

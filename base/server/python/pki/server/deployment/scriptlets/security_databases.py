@@ -138,7 +138,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     # Import the directory server CA certificate
                     rv = deployer.certutil.import_cert(
                         deployer.mdict['pki_ds_secure_connection_ca_nickname'],
-                        deployer.mdict['pki_ds_secure_connection_ca_trustargs'],
+                        deployer.mdict[
+                            'pki_ds_secure_connection_ca_trustargs'],
                         deployer.mdict['pki_ds_secure_connection_ca_pem_file'],
                         password_file=deployer.mdict['pki_shared_pfile'],
                         path=deployer.mdict['pki_database_path'],

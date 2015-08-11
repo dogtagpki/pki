@@ -25,6 +25,7 @@ from lxml import etree as ET
 import pki
 import pki.server.upgrade
 
+
 class AddRestServlet(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     restServicesServletData = """
@@ -63,7 +64,7 @@ class AddRestServlet(pki.server.upgrade.PKIServerUpgradeScriptlet):
         self.doc.write(web_xml)
 
     def add_rest_services_servlet(self):
-        #add rest-services servlet and mapping
+        # add rest-services servlet and mapping
         found = False
         for servlet in self.doc.findall('.//servlet'):
             name = servlet.find('servlet-name').text.strip()

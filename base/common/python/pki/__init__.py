@@ -118,7 +118,7 @@ def implementation_version():
     raise Exception('Missing implementation version.')
 
 
-#pylint: disable=R0903
+# pylint: disable=R0903
 class Attribute(object):
     """
     Class representing a key/value pair.
@@ -132,7 +132,7 @@ class Attribute(object):
         self.value = value
 
 
-#pylint: disable=R0903
+# pylint: disable=R0903
 class AttributeList(object):
     """
     Class representing a list of attributes.

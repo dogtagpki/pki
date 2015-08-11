@@ -25,6 +25,7 @@ from distutils.core import setup
 
 UPGRADE_SCRIPT = re.compile('^[0-9]+-.*')
 
+
 def find_upgrade(origroot, destroot):
     upgrades = {}
     for dirpath, dirnames, filenames in os.walk(origroot):

@@ -27,6 +27,8 @@ import pki
 import pki.upgrade
 
 # pylint: disable=W0613
+
+
 def interrupt_handler(event, frame):
     print
     print

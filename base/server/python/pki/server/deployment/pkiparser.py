@@ -52,7 +52,7 @@ class PKIConfigParser:
     def __init__(self, description, epilog):
         self.pki_config = None
 
-        #Read and process command-line options
+        # Read and process command-line options
         self.arg_parser = argparse.ArgumentParser(
             description=description,
             add_help=False,
@@ -64,7 +64,8 @@ class PKIConfigParser:
             'mandatory arguments')
 
         # Establish 'Optional' command-line options
-        self.optional = self.arg_parser.add_argument_group('optional arguments')
+        self.optional = self.arg_parser.add_argument_group(
+            'optional arguments')
         self.optional.add_argument(
             '-s',
             dest='pki_subsystem', action='store',
@@ -239,17 +240,17 @@ class PKIConfigParser:
         self.pki_config.set(section, key, value)
         self.flatten_master_dict()
 
-        if section != "DEFAULT" and not config.user_config.has_section(section):
+        if section != "DEFAULT" and not config.user_config.has_section(
+                section):
             config.user_config.add_section(section)
         config.user_config.set(section, key, value)
 
     def print_text(self, message):
         print ' ' * self.indent + message
 
-    def read_text(
-            self, message,
-            section=None, key=None, default=None,
-            options=None, sign=':', allow_empty=True, case_sensitive=True):
+    def read_text(self, message, section=None, key=None, default=None,
+                  options=None, sign=':', allow_empty=True,
+                  case_sensitive=True):
 
         if default is None and key is not None:
             default = self.mdict[key]
@@ -289,12 +290,11 @@ class PKIConfigParser:
 
         return value
 
-    def read_password(
-            self, message, section=None, key=None,
-            verifyMessage=None):
+    def read_password(self, message, section=None, key=None,  # nopep8
+                      verifyMessage=None):
         message = ' ' * self.indent + message + ': '
-        if verifyMessage is not None:
-            verifyMessage = ' ' * self.indent + verifyMessage + ': '
+        if verifyMessage is not None:  # nopep8
+            verifyMessage = ' ' * self.indent + verifyMessage + ': '  # nopep8
 
         while True:
             password = ''
@@ -370,7 +370,7 @@ class PKIConfigParser:
                                         section, key, val.replace("%", "%%"))
                             except ConfigParser.NoOptionError:
                                 continue
-        except ConfigParser.ParsingError, err:
+        except ConfigParser.ParsingError as err:
             print err
             rv = err
         return rv
@@ -578,25 +578,25 @@ class PKIConfigParser:
                 self.mdict['sensitive_parameters'].split()
 
             # Always create "false" values for these missing "boolean" keys
-            if not 'pki_enable_access_log' in self.mdict or\
+            if 'pki_enable_access_log' not in self.mdict or\
                not len(self.mdict['pki_enable_access_log']):
                 self.mdict['pki_enable_access_log'] = "false"
-            if not 'pki_external' in self.mdict or\
+            if 'pki_external' not in self.mdict or\
                not len(self.mdict['pki_external']):
                 self.mdict['pki_external'] = "false"
-            if not 'pki_req_ext_add' in self.mdict or\
+            if 'pki_req_ext_add' not in self.mdict or\
                not len(self.mdict['pki_req_ext_add']):
                 self.mdict['pki_req_ext_add'] = "false"
-            if not 'pki_external_step_two' in self.mdict or\
+            if 'pki_external_step_two' not in self.mdict or\
                not len(self.mdict['pki_external_step_two']):
                 self.mdict['pki_external_step_two'] = "false"
-            if not 'pki_standalone' in self.mdict or\
+            if 'pki_standalone' not in self.mdict or\
                not len(self.mdict['pki_standalone']):
                 self.mdict['pki_standalone'] = "false"
-            if not 'pki_subordinate' in self.mdict or\
+            if 'pki_subordinate' not in self.mdict or\
                not len(self.mdict['pki_subordinate']):
                 self.mdict['pki_subordinate'] = "false"
-            if not 'pki_san_inject' in self.mdict or\
+            if 'pki_san_inject' not in self.mdict or\
                not len(self.mdict['pki_san_inject']):
                 self.mdict['pki_san_inject'] = "false"
 
@@ -636,8 +636,8 @@ class PKIConfigParser:
                 # and add this to the "sensitive" key value pairs read in from
                 # the configuration file
                 self.mdict['pki_one_time_pin'] = \
-                    ''.join(random.choice(string.ascii_letters + string.digits)\
-                    for x in range(20))
+                    ''.join(random.choice(string.ascii_letters + string.digits)
+                            for x in range(20))
 
             self.mdict['pki_target_catalina_properties'] = \
                 os.path.join(
@@ -789,11 +789,9 @@ class PKIConfigParser:
                 self.mdict['pki_ds_secure_connection'].lower()
             self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_SLOT'] = \
                 self.mdict['pki_https_port']
-            self.mdict\
-                ['PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT'] = \
+            self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_CONNECTOR_NAME_SLOT'] = \
                 "Unused"
-            self.mdict\
-                ['PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT_SLOT'] = \
+            self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_SERVER_COMMENT_SLOT'] = \
                 ""
             self.mdict['PKI_EE_SECURE_CLIENT_AUTH_PORT_UI_SLOT'] = \
                 self.mdict['pki_https_port']
@@ -1175,8 +1173,8 @@ class PKIConfigParser:
                 # Stand-alone PKI
                 self.mdict['pki_security_domain_type'] = "new"
                 self.mdict['pki_issuing_ca'] = "External CA"
-            elif (config.pki_subsystem != "CA" or\
-                    config.str2bool(self.mdict['pki_clone']) or\
+            elif (config.pki_subsystem != "CA" or
+                    config.str2bool(self.mdict['pki_clone']) or
                     config.str2bool(self.mdict['pki_subordinate'])):
                 # PKI KRA, PKI OCSP, PKI TKS, PKI TPS,
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone
@@ -1229,7 +1227,7 @@ class PKIConfigParser:
 
             self.mdict['pki_admin_profile_id'] = "caAdminCert"
 
-            if not 'pki_import_admin_cert' in self.mdict:
+            if 'pki_import_admin_cert' not in self.mdict:
                 self.mdict['pki_import_admin_cert'] = 'false'
             elif not config.str2bool(self.mdict['pki_skip_configuration']) and \
                     (config.str2bool(self.mdict['pki_standalone'])):
@@ -1303,7 +1301,7 @@ class PKIConfigParser:
             parser.read(config.PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE)
             # Slots configuration file name/value pairs
             self.slots_dict = dict(parser.items('Tomcat'))
-        except ConfigParser.ParsingError, err:
+        except ConfigParser.ParsingError as err:
             rv = err
         return rv
 
@@ -1324,5 +1322,3 @@ class PKIConfigParser:
                 break
 
         return data
-
-

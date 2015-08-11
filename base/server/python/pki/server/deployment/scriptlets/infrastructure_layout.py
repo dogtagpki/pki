@@ -55,7 +55,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.directory.create(
             deployer.mdict['pki_instance_type_registry_path'])
         deployer.directory.create(deployer.mdict['pki_instance_registry_path'])
-        deployer.directory.create(deployer.mdict['pki_subsystem_registry_path'])
+        deployer.directory.create(
+            deployer.mdict['pki_subsystem_registry_path'])
         deployer.file.copy(
             deployer.mdict['pki_default_deployment_cfg'],
             deployer.mdict['pki_default_deployment_cfg_replica'])

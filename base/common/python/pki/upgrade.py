@@ -283,7 +283,7 @@ class PKIUpgradeScriptlet(object):
         backup_dir = self.get_backup_dir()
 
         if os.path.exists(backup_dir):
-           # remove old backup dir
+            # remove old backup dir
             shutil.rmtree(backup_dir)
 
         # create backup dir
@@ -334,7 +334,7 @@ class PKIUpgradeScriptlet(object):
 
             # restore all backed up files
             for sourcepath, _, filenames in os.walk(oldfiles):
-                #unused item _ for dirnames
+                # unused item _ for dirnames
 
                 destpath = sourcepath[len(oldfiles):]
                 if destpath == '':
@@ -525,7 +525,9 @@ class PKIUpgrader(object):
             try:
                 i = filename.index('-')
             except ValueError as e:
-                raise pki.PKIException('Invalid scriptlet name: ' + filename, e)
+                raise pki.PKIException(
+                    'Invalid scriptlet name: ' + filename,
+                    e)
 
             index = int(filename[0:i])
             classname = filename[i + 1:]
@@ -622,7 +624,7 @@ class PKIUpgrader(object):
             except pki.PKIException:
                 raise
 
-            except Exception as e: # pylint: disable=W0703
+            except Exception as e:  # pylint: disable=W0703
 
                 print
 
@@ -689,7 +691,7 @@ class PKIUpgrader(object):
             except pki.PKIException:
                 raise
 
-            except Exception as e: # pylint: disable=W0703
+            except Exception as e:  # pylint: disable=W0703
 
                 print
 

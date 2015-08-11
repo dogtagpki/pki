@@ -248,7 +248,9 @@ class SubsystemEnableCLI(pki.cli.CLI):
 class SubsystemDisableCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SubsystemDisableCLI, self).__init__('disable', 'Disable subsystem')
+        super(SubsystemDisableCLI, self).__init__(
+            'disable',
+            'Disable subsystem')
 
     def usage(self):
         print 'Usage: pki-server subsystem-disable [OPTIONS] <subsystem ID>'

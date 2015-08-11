@@ -32,8 +32,9 @@ import pki.server.cli.nuxwdog
 class PKIServerCLI(pki.cli.CLI):
 
     def __init__(self):
-
-        super(PKIServerCLI, self).__init__('pki-server', 'PKI server command-line interface')
+        super(PKIServerCLI, self).__init__(
+            'pki-server',
+            'PKI server command-line interface')
 
         self.add_module(pki.server.cli.instance.InstanceCLI())
         self.add_module(pki.server.cli.subsystem.SubsystemCLI())
@@ -44,7 +45,6 @@ class PKIServerCLI(pki.cli.CLI):
         return module_name
 
     def print_help(self):
-
         print 'Usage: pki-server [OPTIONS]'
         print
         print '  -v, --verbose                Run in verbose mode.'
@@ -55,7 +55,6 @@ class PKIServerCLI(pki.cli.CLI):
         super(PKIServerCLI, self).print_help()
 
     def execute(self, argv):
-
         try:
             opts, args = getopt.getopt(argv[1:], 'v', [
                 'verbose', 'debug', 'help'])

@@ -25,7 +25,7 @@ import pki.server.upgrade
 
 
 class AddPhoneHomeURLsToTPSsServerXML(
-    pki.server.upgrade.PKIServerUpgradeScriptlet):
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
     def __init__(self):
         super(AddPhoneHomeURLsToTPSsServerXML, self).__init__()
         self.message = 'Add Phone Home URLs to TPS section of server.xml.'

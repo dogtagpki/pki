@@ -101,4 +101,3 @@ class File:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_1)
             raise
-

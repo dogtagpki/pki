@@ -32,6 +32,7 @@ class CustomTypeEncoder(json.JSONEncoder):
         when-instance-variable-name-is-same-as-method-name
     """
     # pylint: disable=E0202
+
     def default(self, obj):
         for k, v in TYPES.iteritems():
             if isinstance(obj, v):
@@ -56,7 +57,7 @@ class CustomTypeEncoder(json.JSONEncoder):
         return new_dict
 
 
-def CustomTypeDecoder(dct):
+def CustomTypeDecoder(dct):  # nopep8
     if len(dct) == 1:
         type_name, value = dct.items()[0]
         if type_name in TYPES:

@@ -24,7 +24,8 @@ import os
 import pki.server.upgrade
 
 
-class MoveWebApplicationContextFile(pki.server.upgrade.PKIServerUpgradeScriptlet):
+class MoveWebApplicationContextFile(
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
         super(MoveWebApplicationContextFile, self).__init__()
@@ -41,7 +42,11 @@ class MoveWebApplicationContextFile(pki.server.upgrade.PKIServerUpgradeScriptlet
 
     def upgrade_webapp(self, instance, webapp):
 
-        metainf_dir = os.path.join(instance.base_dir, 'webapps', webapp, 'META-INF')
+        metainf_dir = os.path.join(
+            instance.base_dir,
+            'webapps',
+            webapp,
+            'META-INF')
         if not os.path.exists(metainf_dir):
             # upgrade already done
             return

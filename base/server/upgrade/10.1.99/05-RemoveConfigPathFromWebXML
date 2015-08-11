@@ -33,8 +33,17 @@ class RemoveConfigPathFromWebXML(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_subsystem(self, instance, subsystem):
 
-        default_cs_cfg = os.path.join(instance.base_dir, 'conf', subsystem.name, 'CS.cfg')
-        web_xml = os.path.join(instance.base_dir, 'webapps', subsystem.name, 'WEB-INF', 'web.xml')
+        default_cs_cfg = os.path.join(
+            instance.base_dir,
+            'conf',
+            subsystem.name,
+            'CS.cfg')
+        web_xml = os.path.join(
+            instance.base_dir,
+            'webapps',
+            subsystem.name,
+            'WEB-INF',
+            'web.xml')
 
         if not os.path.exists(web_xml):
             return

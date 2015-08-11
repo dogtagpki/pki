@@ -335,16 +335,16 @@ class CertSearchRequest(object):
             setattr(self, 'serialNumberRangeInUse', True)
 
         for param, value in cert_search_params.viewitems():
-            if not param in CertSearchRequest.search_params:
+            if param not in CertSearchRequest.search_params:
                 raise ValueError('Invalid search parameter: ' + param)
 
             if param in {'serial_to', 'serial_from'}:
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'serialNumberRangeInUse', True)
 
-            if param in {\
-                'email', 'common_name', 'user_id', 'org_unit', 'org',\
-                'locality', 'state', 'country', 'match_exactly'\
+            if param in {
+                'email', 'common_name', 'user_id', 'org_unit', 'org',
+                'locality', 'state', 'country', 'match_exactly'
             }:
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'subjectInUse', True)
@@ -380,16 +380,16 @@ class CertSearchRequest(object):
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'validNotAfterInUse', True)
 
-            if param in {\
-                'validity_operation', 'validity_count', 'validity_unit'\
+            if param in {
+                'validity_operation', 'validity_count', 'validity_unit'
             }:
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'validityLengthInUse', True)
 
-            if param in {\
-                'cert_type_sub_email_ca', 'cert_type_sub_ssl_ca',\
-                'cert_type_secure_email', 'cert_type_ssl_client',\
-                'cert_type_ssl_server'\
+            if param in {
+                'cert_type_sub_email_ca', 'cert_type_sub_ssl_ca',
+                'cert_type_secure_email', 'cert_type_ssl_client',
+                'cert_type_ssl_server'
             }:
                 setattr(self, CertSearchRequest.search_params[param], value)
                 setattr(self, 'certTypeInUse', True)
@@ -411,7 +411,8 @@ class CertRevokeRequest(object):
                'Certificate_Hold', 'Remove_from_CRL', 'Privilege_Withdrawn',
                'AA_Compromise']
 
-    def __init__(self, nonce, reason=None, invalidity_date=None, comments=None):
+    def __init__(self, nonce, reason=None, invalidity_date=None,
+                 comments=None):
         """ Constructor """
 
         setattr(self, "Nonce", nonce)
@@ -506,7 +507,8 @@ class CertEnrollmentRequest(object):
 
         inputs = attr_list['Input']
         if not isinstance(inputs, list):
-            enroll_request.inputs.append(profile.ProfileInput.from_json(inputs))
+            enroll_request.inputs.append(
+                profile.ProfileInput.from_json(inputs))
         else:
             for profile_input in inputs:
                 enroll_request.inputs.append(
@@ -585,7 +587,7 @@ class CertReviewResponse(CertEnrollmentRequest):
     @classmethod
     def from_json(cls, attr_list):
 
-        #First read the values for attributes defined in CertEnrollmentRequest
+        # First read the values for attributes defined in CertEnrollmentRequest
         review_response = super(CertReviewResponse, cls).from_json(attr_list)
 
         for k, v in attr_list.iteritems():
@@ -634,7 +636,7 @@ class CertClient(object):
 
         url = self.cert_url + '/' + str(cert_serial_number)
         r = self.connection.get(url, self.headers)
-        #print r.json()
+        # print r.json()
         return CertData.from_json(r.json())
 
     @pki.handle_exceptions()
@@ -716,7 +718,8 @@ class CertClient(object):
             This method requires an agent's authentication cert in the
             connection object.
         """
-        url = self.agent_cert_url + '/' + str(cert_serial_number) + '/revoke-ca'
+        url = self.agent_cert_url + '/' + str(cert_serial_number) + \
+            '/revoke-ca'
         return self._submit_revoke_request(url, cert_serial_number,
                                            revocation_reason, invalidity_date,
                                            comments, nonce)
@@ -812,7 +815,7 @@ class CertClient(object):
         review_response = json.dumps(cert_review_response,
                                      cls=encoder.CustomTypeEncoder,
                                      sort_keys=True)
-        #print review_response
+        # print review_response
         r = self.connection.post(url, review_response, headers=self.headers)
         return r
 
@@ -823,7 +826,8 @@ class CertClient(object):
         to fetch the CertReviewResponse object.
         Requires as agent level authentication.
         """
-        return self._perform_action(request_id, cert_review_response, 'approve')
+        return self._perform_action(
+            request_id, cert_review_response, 'approve')
 
     def cancel_request(self, request_id, cert_review_response=None):
         """
@@ -914,8 +918,8 @@ class CertClient(object):
             return copy.deepcopy(self.enrollment_templates[profile_id])
         url = self.cert_requests_url + '/profiles/' + str(profile_id)
         r = self.connection.get(url, self.headers)
-        #print r.json()
-        #Caching the enrollment template object in-memory for future use.
+        # print r.json()
+        # Caching the enrollment template object in-memory for future use.
         enrollment_template = CertEnrollmentRequest.from_json(r.json())
         self.enrollment_templates[profile_id] = enrollment_template
 
@@ -951,7 +955,7 @@ class CertClient(object):
         request_object = json.dumps(enrollment_request,
                                     cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
-        #print request_object
+        # print request_object
         r = self.connection.post(self.cert_requests_url, request_object,
                                  self.headers)
         return CertRequestInfoCollection.from_json(r.json())
@@ -1035,12 +1039,12 @@ def main():
     # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
     connection.set_authentication_cert("/tmp/auth.pem")
 
-    #Instantiate the CertClient
+    # Instantiate the CertClient
     cert_client = CertClient(connection)
 
     cert_client.get_enrollment_template('caUserCert')
 
-    #Enrolling an user certificate
+    # Enrolling an user certificate
     print 'Enrolling an user certificate'
     print '-----------------------------'
 
@@ -1130,8 +1134,8 @@ def main():
         print "Status: " + cert_data_info.status
     print
 
-    #Trying to get a non-existing cert
-    #Assuming that there is no certificate with serial number = 100
+    # Trying to get a non-existing cert
+    # Assuming that there is no certificate with serial number = 100
     try:
         cert_data = cert_client.get_cert(100)
         print 'Serial Number: ' + cert_data.serial_number
@@ -1146,7 +1150,7 @@ def main():
     # Following examples use the serial number of the user certificate enrolled
     #  before.
 
-    #Get certificate data
+    # Get certificate data
     print 'Getting information of a certificate'
     print '------------------------------------'
 
@@ -1176,7 +1180,7 @@ def main():
     print 'Nonce: ' + str(cert_data.nonce)
     print
 
-    #Revoke a certificate
+    # Revoke a certificate
     print 'Revoking a certificate'
     print '----------------------'
 
@@ -1187,7 +1191,7 @@ def main():
     print 'Request Status: ' + cert_request_info.request_status
     print
 
-    #Un-revoke a certificate
+    # Un-revoke a certificate
     print 'Un-revoking a certificate'
     print '-------------------------'
 

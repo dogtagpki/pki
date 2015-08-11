@@ -161,7 +161,8 @@ class ProfileAttribute(object):
         if 'Value' in attr_list:
             attribute.value = attr_list['Value']
         if 'Descriptor' in attr_list:
-            attribute.descriptor = Descriptor.from_json(attr_list['Descriptor'])
+            attribute.descriptor = Descriptor.from_json(
+                attr_list['Descriptor'])
 
         return attribute
 
@@ -501,6 +502,7 @@ class PolicyConstraintValue(object):
     """
     Represents a PolicyConstraintValue
     """
+
     def __init__(self, name=None, value=None, descriptor=None):
         self.name = name
         self.value = value
@@ -783,7 +785,8 @@ class PolicySetList(object):
         policy_set_list = cls()
         policy_sets = attr_list['PolicySet']
         if not isinstance(policy_sets, list):
-            policy_set_list.policy_sets.append(PolicySet.from_json(policy_sets))
+            policy_set_list.policy_sets.append(
+                PolicySet.from_json(policy_sets))
         else:
             for policy_set in policy_sets:
                 policy_set_list.policy_sets.append(
@@ -1157,7 +1160,7 @@ def main():
     # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
     connection.set_authentication_cert("/tmp/auth.pem")
 
-    #Initialize the ProfileClient class
+    # Initialize the ProfileClient class
     profile_client = ProfileClient(connection)
 
     # Folder to store the files generated during test
@@ -1165,7 +1168,7 @@ def main():
     if not os.path.exists(file_path):
         os.makedirs(file_path)
 
-    #Fetching a list of profiles
+    # Fetching a list of profiles
     profile_data_infos = profile_client.list_profiles()
     print 'List of profiles:'
     print '-----------------'
@@ -1203,7 +1206,7 @@ def main():
     print '  Profile ID: ' + profile_data.profile_id
     print '  Is profile enabled? ' + str(profile.enabled)
     print
-    #profile_client.delete_profile('MySampleProfile')
+    # profile_client.delete_profile('MySampleProfile')
     # Create a new sample profile
     print 'Creating a new profile:'
     print '-----------------------'
@@ -1271,7 +1274,9 @@ def main():
                                    "Validity to the request. The default "
                                    "values are Range=180 in days")
     attr_descriptor = Descriptor(syntax="string", description="Not Before")
-    policy_attribute = ProfileAttribute("notBefore", descriptor=attr_descriptor)
+    policy_attribute = ProfileAttribute(
+        "notBefore",
+        descriptor=attr_descriptor)
     policy_default.add_attribute(policy_attribute)
 
     attr_descriptor = Descriptor(syntax="string", description="Not After")
@@ -1283,7 +1288,7 @@ def main():
     policy_default.add_parameter(profile_param)
     policy_default.add_parameter(profile_param2)
 
-    #Defining the policy constraint
+    # Defining the policy constraint
     policy_constraint = PolicyConstraint("Validity Constraint",
                                          "This constraint rejects the validity "
                                          "that is not between 365 days.",
@@ -1316,7 +1321,7 @@ def main():
     profile_data.add_policy_set(policy_set)
 
     # Write the profile data object to a file for testing a file input
-    with open(file_path+'/original.json', 'w') as output_file:
+    with open(file_path + '/original.json', 'w') as output_file:
         output_file.write(json.dumps(profile_data,
                                      cls=encoder.CustomTypeEncoder,
                                      sort_keys=True, indent=4))
@@ -1368,7 +1373,7 @@ def main():
     fetch.name += " (Modified)"
     modified_profile = profile_client.modify_profile(fetch)
 
-    with open(file_path+'modified.json', 'w') as output_file:
+    with open(file_path + 'modified.json', 'w') as output_file:
         output_file.write(json.dumps(fetch, cls=encoder.CustomTypeEncoder,
                                      sort_keys=True, indent=4))
 
@@ -1410,8 +1415,8 @@ def main():
 
     # Test clean up
     profile_client.delete_profile('MySampleProfile')
-    os.remove(file_path+'original.json')
-    os.remove(file_path+'modified.json')
+    os.remove(file_path + 'original.json')
+    os.remove(file_path + 'modified.json')
     os.removedirs(file_path)
 
 

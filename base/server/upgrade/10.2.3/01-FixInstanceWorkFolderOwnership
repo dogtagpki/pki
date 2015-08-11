@@ -23,7 +23,8 @@ import os
 import pki.server.upgrade
 
 
-class FixInstanceWorkFolderOwnership(pki.server.upgrade.PKIServerUpgradeScriptlet):
+class FixInstanceWorkFolderOwnership(
+        pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):
         super(FixInstanceWorkFolderOwnership, self).__init__()
@@ -31,6 +32,8 @@ class FixInstanceWorkFolderOwnership(pki.server.upgrade.PKIServerUpgradeScriptle
 
     def upgrade_instance(self, instance):
 
-        directory = os.path.join(instance.base_dir, 'work/Catalina/localhost/pki')
+        directory = os.path.join(
+            instance.base_dir,
+            'work/Catalina/localhost/pki')
         if os.path.exists(directory):
             pki.util.chown(directory, instance.uid, instance.gid)

@@ -25,6 +25,7 @@ from lxml import etree as ET
 import pki
 import pki.server.upgrade
 
+
 class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     updateDomainServletData = """
@@ -151,7 +152,7 @@ class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
                 self.root.remove(mapping)
 
     def modify_update_domain_xml(self):
-        #add caUpdateDomainXML-admin servlet and mapping
+        # add caUpdateDomainXML-admin servlet and mapping
         found = False
         for servlet in self.doc.findall('.//servlet'):
             name = servlet.find('servlet-name').text.strip()
@@ -174,9 +175,8 @@ class CloningInterfaceChanges(pki.server.upgrade.PKIServerUpgradeScriptlet):
             mapping = ET.fromstring(self.updateDomainMappingData)
             self.root.insert(index, mapping)
 
-
     def modify_token_authenticate(self):
-        #add caTokenAuthenticate-admin servlet and mapping
+        # add caTokenAuthenticate-admin servlet and mapping
         found = False
         for servlet in self.doc.findall('.//servlet'):
             name = servlet.find('servlet-name').text.strip()

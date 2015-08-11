@@ -55,7 +55,9 @@ class ReplaceJettisonWithJackson(pki.server.upgrade.PKIServerUpgradeScriptlet):
         link = os.path.join(common_lib, 'jackson-annotations.jar')
         self.create_link(instance, source, link)
 
-        source = os.path.join('/usr/share/java/jackson', 'jackson-core-asl.jar')
+        source = os.path.join(
+            '/usr/share/java/jackson',
+            'jackson-core-asl.jar')
         link = os.path.join(common_lib, 'jackson-core-asl.jar')
         self.create_link(instance, source, link)
 
@@ -67,7 +69,9 @@ class ReplaceJettisonWithJackson(pki.server.upgrade.PKIServerUpgradeScriptlet):
         link = os.path.join(common_lib, 'jackson-databind.jar')
         self.create_link(instance, source, link)
 
-        source = os.path.join('/usr/share/java/jackson-jaxrs-providers', 'jackson-jaxrs-base.jar')
+        source = os.path.join(
+            '/usr/share/java/jackson-jaxrs-providers',
+            'jackson-jaxrs-base.jar')
         link = os.path.join(common_lib, 'jackson-jaxrs-base.jar')
         self.create_link(instance, source, link)
 
@@ -75,15 +79,21 @@ class ReplaceJettisonWithJackson(pki.server.upgrade.PKIServerUpgradeScriptlet):
         link = os.path.join(common_lib, 'jackson-jaxrs.jar')
         self.create_link(instance, source, link)
 
-        source = os.path.join('/usr/share/java/jackson-jaxrs-providers', 'jackson-jaxrs-json-provider.jar')
+        source = os.path.join(
+            '/usr/share/java/jackson-jaxrs-providers',
+            'jackson-jaxrs-json-provider.jar')
         link = os.path.join(common_lib, 'jackson-jaxrs-json-provider.jar')
         self.create_link(instance, source, link)
 
-        source = os.path.join('/usr/share/java/jackson', 'jackson-mapper-asl.jar')
+        source = os.path.join(
+            '/usr/share/java/jackson',
+            'jackson-mapper-asl.jar')
         link = os.path.join(common_lib, 'jackson-mapper-asl.jar')
         self.create_link(instance, source, link)
 
-        source = os.path.join('/usr/share/java', 'jackson-module-jaxb-annotations.jar')
+        source = os.path.join(
+            '/usr/share/java',
+            'jackson-module-jaxb-annotations.jar')
         link = os.path.join(common_lib, 'jackson-module-jaxb-annotations.jar')
         self.create_link(instance, source, link)
 
