@@ -630,8 +630,8 @@ public class CertificateRepository extends Repository
             serialNumberUpdateTask.stop();
         }
 
-        if (interval == 0) {
-            CMS.debug("In setSerialNumberUpdateInterval interval = 0");
+        if (interval <= 0) {
+            CMS.debug("In setSerialNumberUpdateInterval interval <= 0");
             return;
         }
 
