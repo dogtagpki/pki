@@ -51,7 +51,7 @@ char *valid_args[] = {
   "case",     "Restrict case of pins 'case=upperonly'",
   "objectclass", "Objectclass of LDAP entry to operate on    (default pinPerson)",
   "attribute","Which LDAP attribute to write to           (default pin)",
-  "hash",     "Hash algorithm used to store pin: 'none', 'md5' or 'sha1' (default)",
+  "hash",     "Hash algorithm used to store pin: 'none',  or 'sha256' (default) warning: 'none' is in the clear",
   "saltattribute", "Which attribute to use for salt            (default: dn)",
   "input",    "File to use for restricting DN's, or providing your own pins",
   "output",   "Redirect stdout to a file",
@@ -96,7 +96,7 @@ void setDefaultOptions() {
  o_gen=      "RNG-alphanum";
  o_case=     NULL;
  o_attribute="pin";
- o_hash=     "sha1";
+ o_hash=     "sha256";
  o_objectclass="pinPerson";
  o_output=   NULL;
  o_retry=    "5";
@@ -270,8 +270,7 @@ void validateOptions() {
   }
 
   if (!
-      (equals(o_hash,"sha1") ||
-       equals(o_hash,"md5") ||
+      (equals(o_hash,"sha256") ||
        equals(o_hash,"none"))
       ) {
     snprintf(errbuf, ERR_BUF_LENGTH, "invalid hash: %s",o_hash);
