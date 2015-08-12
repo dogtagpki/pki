@@ -110,6 +110,7 @@ public class CertificateRepository extends Repository
 
     public CertStatusUpdateTask certStatusUpdateTask;
     public RetrieveModificationsTask retrieveModificationsTask;
+    public SerialNumberUpdateTask serialNumberUpdateTask;
 
     /**
      * Constructs a certificate repository.
@@ -298,7 +299,7 @@ public class CertificateRepository extends Repository
         return nextSerialNumber;
     }
 
-    private void updateCounter() {
+    public void updateCounter() {
         CMS.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+
                   mEnableRandomSerialNumbers+"  mCounter="+mCounter);
         try {
@@ -616,6 +617,29 @@ public class CertificateRepository extends Repository
         certStatusUpdateTask.start();
     }
 
+    /**
+     * interval value: (in seconds)
+     * 0 - disable
+     * >0 - enable
+     */
+    public void setSerialNumberUpdateInterval(IRepository requestRepository, int interval) {
+        CMS.debug("In setCertStatusUpdateInterval " + interval);
+
+        // stop running tasks
+        if (serialNumberUpdateTask != null) {
+            serialNumberUpdateTask.stop();
+        }
+
+        if (interval == 0) {
+            CMS.debug("In setSerialNumberUpdateInterval interval = 0");
+            return;
+        }
+
+        CMS.debug("In setSerialNumberUpdateInterval scheduling serial number update every " + interval + " seconds.");
+        serialNumberUpdateTask = new SerialNumberUpdateTask(this, requestRepository, interval);
+        serialNumberUpdateTask.start();
+    }
+
     public void updateCertStatus() throws EBaseException {
 
         CMS.debug("In updateCertStatus()");
@@ -637,7 +661,6 @@ public class CertificateRepository extends Repository
         transitRevokedExpiredCertificates();
         CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
-        updateCounter();
     }
 
     /**
@@ -2265,6 +2288,10 @@ public class CertificateRepository extends Repository
         if (retrieveModificationsTask != null) {
             retrieveModificationsTask.stop();
         }
+
+        if (serialNumberUpdateTask != null) {
+            serialNumberUpdateTask.stop();
+        }
     }
 }
 
@@ -2307,14 +2334,59 @@ class CertStatusUpdateTask implements Runnable {
         CMS.debug("Starting updateCertStatus (entered lock)");
         repository.updateCertStatus();
         CMS.debug("updateCertStatus done");
+    }
+
+    public void stop() {
+        // shutdown executorService without interrupting running task
+        if (executorService != null) executorService.shutdown();
+    }
+}
+
+class SerialNumberUpdateTask implements Runnable {
+
+    CertificateRepository repository;
+    IRepository requestRepository;
+
+    int interval;
+
+    ScheduledExecutorService executorService;
+
+    public SerialNumberUpdateTask(CertificateRepository repository, IRepository requestRepository, int interval) {
+        this.repository = repository;
+        this.requestRepository = requestRepository;
+        this.interval = interval;
+    }
+
+    public void start() {
+        // schedule task to run immediately and repeat after specified interval
+        executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "SerialNumberUpdateTask");
+            }
+        });
+        executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
+    }
+
+    public void run() {
+        try {
+            CMS.debug("About to start updateSerialNumbers");
+            updateSerialNumbers();
+
+        } catch (EBaseException e) {
+            CMS.debug(e);
+        }
+    }
+
+    public synchronized void updateSerialNumbers() throws EBaseException {
+        CMS.debug("Starting updateSerialNumbers (entered lock)");
+        repository.updateCounter();
 
         CMS.debug("Starting cert checkRanges");
         repository.checkRanges();
-        CMS.debug("cert checkRanges done");
 
         CMS.debug("Starting request checkRanges");
         requestRepository.checkRanges();
-        CMS.debug("request checkRanges done");
+        CMS.debug("updateSerialNumbers done");
     }
 
     public void stop() {

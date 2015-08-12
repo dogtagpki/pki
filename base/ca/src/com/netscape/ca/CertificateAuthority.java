@@ -371,6 +371,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             mCertRepot.setSkipIfInConsistent(
                     mConfig.getBoolean("SkipIfInConsistent", false));
 
+            // set serial number update task to run every 10 minutes
+            mCertRepot.setSerialNumberUpdateInterval(
+                    mRequestQueue.getRequestRepository(),
+                    mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
+
             mService.init(config.getSubStore("connector"));
 
             initMiscellaneousListeners();
