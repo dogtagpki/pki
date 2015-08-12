@@ -87,7 +87,7 @@ void testpingen();
 void do_setup();
 
 
-char *sha1_pw_enc( char *pwd );
+char *sha256_pw_enc( char *pwd );
 
 int errcode=0;
 
@@ -375,7 +375,7 @@ void do_setup() {
     doLDAPBind();
     
     if (o_schemachange) {   
-        sprintf(x_values[0],"( %s-oid NAME '%s' DESC 'User Defined Attribute' SYNTAX '1.3.6.1.4.1.1466.115.121.1.5' SINGLE-VALUE )",
+        sprintf(x_values[0],"( %s-oid NAME '%s' DESC 'User Defined Attribute' SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 SINGLE-VALUE X-ORIGIN 'custom for setpin' )",
             o_attribute,
             o_attribute);
 
@@ -398,8 +398,8 @@ void do_setup() {
             }
         }
 
-        sprintf(x_values[0],"( %s-oid NAME '%s' DESC 'User Defined ObjectClass' SUP 'top' MUST ( objectclass ) MAY ( aci $ %s )",
-           o_objectclass,o_objectclass,
+        sprintf(x_values[0],"( 2.16.840.1.117370.999.1.2.10 NAME '%s' DESC 'User Defined ObjectClass' SUP top MAY ( aci $ %s ) )",
+           o_objectclass,
            o_attribute);
 
         fprintf(stderr,"Adding objectclass: %s\n",x_values[0]);
@@ -433,7 +433,7 @@ void do_setup() {
             exitError("missing basedn argument");
         }
             
-        password = sha1_pw_enc( o_pinmanagerpwd );
+        password = sha256_pw_enc( o_pinmanagerpwd );
         
         fprintf(stderr,"Adding user: %s\n",o_pinmanager);
 
@@ -533,23 +533,23 @@ int ldif_base64_encode(
 /*
  * Number of bytes each hash algorithm produces
  */
-#define SHA1_LENGTH     20
-
+#define SHA256_LENGTH   32
 
 char *
-sha1_pw_enc( char *pwd )
+sha256_pw_enc( char *pwd )
 {
-    unsigned char   hash[ SHA1_LENGTH ];
+
+    unsigned char   hash[ SHA256_LENGTH ];
     char        *enc;
 
-    /* SHA1 hash the user's key */
-    PK11_HashBuf(SEC_OID_SHA1,hash,pwd,strlen(pwd));
+    /* SHA246 hash the user's key */
+    PK11_HashBuf(SEC_OID_SHA256,hash,pwd,strlen(pwd));
     enc = malloc(256);
 
-    sprintf( enc, "{SHA}");
+    sprintf( enc, "{SHA256}");
 
     (void)ldif_base64_encode( hash, enc + 5,
-        SHA1_LENGTH, -1 );
+        SHA256_LENGTH, -1 );
 
     return( enc );
 }
@@ -871,24 +871,17 @@ void processSearchResults(LDAPMessage *r) {
 
 #define SENTINEL_SHA1 0
 #define SENTINEL_MD5  1
+#define SENTINEL_SHA256 2
 #define SENTINEL_NONE '-' 
 
-            if ((!strcmp(o_hash,"SHA1")) || (!strcmp(o_hash,"sha1")) ) {
-                status = PK11_HashBuf(SEC_OID_SHA1,
+            if ((!strcmp(o_hash,"SHA256")) || (!strcmp(o_hash,"sha256")) ) {
+                status = PK11_HashBuf(SEC_OID_SHA256,
                                   (unsigned char *)hashbuf_dest+1,
                                   (unsigned char *)hashbuf_source,
                                   strlen(hashbuf_source)
                                   );
-                hashbuf_dest[0] = SENTINEL_SHA1;
-                pindatasize = SHA1_LENGTH + 1;
-            } else if ((!strcmp(o_hash,"MD5")) || (!strcmp(o_hash,"md5")) ) {
-                status = PK11_HashBuf(SEC_OID_MD5,
-                                  (unsigned char *)hashbuf_dest+1,
-                                  (unsigned char *)hashbuf_source,
-                                  strlen(hashbuf_source)
-                                  );
-                hashbuf_dest[0] = SENTINEL_MD5;
-                pindatasize = MD5_LENGTH + 1;
+                hashbuf_dest[0] = SENTINEL_SHA256;
+                pindatasize = SHA256_LENGTH + 1;
             } else if ((!strcmp(o_hash,"NONE")) || (!strcmp(o_hash,"none")) ) {
                 hashbuf_dest[0] = SENTINEL_NONE;
                 status = SECSuccess;
@@ -897,7 +890,7 @@ void processSearchResults(LDAPMessage *r) {
                        strlen(hashbuf_source)
                       );
             } else {
-                sprintf(errbuf,"Unsupported hash type '%s'. Must be one of 'sha1', 'md5' or 'none",o_hash);
+                sprintf(errbuf,"Unsupported hash type '%s'. Must be one of 'sha256', or 'none",o_hash);
                 errcode = 7;
                 exitError(errbuf);
             }
@@ -907,16 +900,20 @@ void processSearchResults(LDAPMessage *r) {
                 errcode = 9;
                 exitError(errbuf);
             }
-      
-            pindata = hashbuf_dest;
+      pindata = hashbuf_dest;
 
             if (hashbuf_source != NULL) {
                 free(hashbuf_source);
                 hashbuf_source = NULL;
             }
         } else {
-            pindata = generatedPassword;
-            pindatasize = strlen(generatedPassword);
+            /* Do last resort no hash version */
+            hashbuf_dest[0] = SENTINEL_NONE;
+            memcpy(hashbuf_dest + 1, dn, strlen(dn));
+            memcpy(hashbuf_dest + 1 + strlen(dn) ,generatedPassword, strlen(generatedPassword));
+
+            pindata = hashbuf_dest;
+            pindatasize = strlen(generatedPassword) + 1 + strlen(dn);
         }
     
         bval.bv_len = pindatasize;
