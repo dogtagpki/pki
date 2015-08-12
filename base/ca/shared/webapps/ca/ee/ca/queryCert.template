@@ -445,6 +445,10 @@ document.write(
 result.header.totalRecordCount+ "'>\n"+
 "<INPUT TYPE=hidden NAME=queryCertFilter VALUE='"+
 result.header.queryCertFilter+ "'>\n"+
+"<INPUT TYPE=hidden NAME=skipRevoked VALUE='"+
+(result.header.skipRevoked ? result.header.skipRevoked : "") + "'>\n"+
+"<INPUT TYPE=hidden NAME=skipNonValid VALUE='"+
+(result.header.skipNonValid ? result.header.skipNonValid : "") + "'>\n"+
 "<INPUT TYPE=hidden NAME=querySentinelDown VALUE='"+
 result.header.querySentinelDown+ "'>\n"+
 "<INPUT TYPE=hidden NAME=querySentinelUp VALUE='"+
