@@ -198,6 +198,9 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
         ocspMinCacheEntryDuration - sets minimum seconds to next fetch attempt
         ocspMaxCacheEntryDuration - sets maximum seconds to next fetch attempt
         ocspTimeout -sets OCSP timeout in seconds
+
+        See <instance dir>/conf/ciphers.info
+            About the TLS range related parameters
     -->
     <Connector name="[PKI_SECURE_PORT_CONNECTOR_NAME]"
            port="[PKI_SECURE_PORT]"
