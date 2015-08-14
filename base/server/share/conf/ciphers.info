@@ -1,0 +1,66 @@
+##
+# BEGIN COPYRIGHT BLOCK
+# Copyright (C) 2015 Red Hat, Inc.
+# All rights reserved.
+# END COPYRIGHT BLOCK
+#
+# This file contains the default sslRangeCiphers that come with this version of
+# the PKI software in its <instance>/conf/server.xml file.
+# Depending on which kind of SSL server you have, you want to reference the
+# corresponding cipher suite for making adjustments to your instance server.xml.
+#
+#
+#        About the TLS range related parameters:
+#              'sslVersionRangeStream'
+#              'sslVersionRangeDatagram'
+#              'sslRangeCiphers'
+#        The sslVersionRangeStream and sslVersionRangeDatagram by default
+#        contains values that are supported by the native NSS. Changes can
+#        be made to restrict or relax the support.
+#        The sslRangeCiphers by default conatins a list of ciphers best
+#        for the type of the server installed. Changes can be made to suit
+#        each site's needs.
+#        Although TLS1.2 ciphers (SHA256)  are preferred, many older clients
+#        do not support them.  For example,
+#        the following "preferred modern" ciphers are on by default, and by
+#        simply limiting the sslVersionRange* parameters, they can be turned off.
+#            TLS_RSA_WITH_AES_128_CBC_SHA256,
+#            TLS_RSA_WITH_AES_256_CBC_SHA256,
+#            TLS_RSA_WITH_AES_128_GCM_SHA256,
+#            TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+#            TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+#            TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+#            TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+#        The following  ciphers are supported in rhel7.2 or greater, and they
+#        are off by default, and can be turned on by sites running rhel7.2 or
+#        greater:
+#            TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,
+#            TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
+#            TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
+#            TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,
+#            TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,
+#            TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+#        Although the following (somewhat weaker ciphers, in CBC mode), though
+#        adaquate for the CS operations, they can be turned off if needed:
+#            TLS_RSA_WITH_3DES_EDE_CBC_SHA,
+#            TLS_RSA_WITH_AES_128_CBC_SHA,
+#            TLS_RSA_WITH_AES_256_CBC_SHA,
+#            TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
+#        Note: In an EC CS server setup, you will see by default that the
+#           following RSA ciphers are left on.  Those are used for installation
+#           where the actual systems certs have not yet been crated, and a
+#           temporary RSA ssl server cert is at play.
+#           Those can be turned off manually by sites.
+#               TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+#               TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+#               TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+#           These ciphers might be removed by the installation script in some
+#           future release.
+#
+##
+# For RSA servers:
+           sslRangeCiphers="-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,-TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA,-TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,-TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,-TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,-TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,-TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,+TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,-TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,-TLS_DHE_DSS_WITH_AES_128_CBC_SHA,-TLS_DHE_DSS_WITH_AES_256_CBC_SHA,-TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,-TLS_DHE_RSA_WITH_AES_128_CBC_SHA,-TLS_DHE_RSA_WITH_AES_256_CBC_SHA,-TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,-TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,-TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,-TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,-TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,-TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,-TLS_RSA_WITH_AES_128_CBC_SHA256,-TLS_RSA_WITH_AES_256_CBC_SHA256,-TLS_RSA_WITH_AES_128_GCM_SHA256,+TLS_RSA_WITH_3DES_EDE_CBC_SHA,+TLS_RSA_WITH_AES_128_CBC_SHA,+TLS_RSA_WITH_AES_256_CBC_SHA"
+#
+#
+# For ECC servers:
+           sslRangeCiphers="-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,-TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA,-TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA,-TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,-TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_RSA_WITH_3DES_EDE_CBC_SHA,-TLS_RSA_WITH_AES_128_CBC_SHA,-TLS_RSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA,+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,-TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,-TLS_DHE_DSS_WITH_AES_128_CBC_SHA,-TLS_DHE_DSS_WITH_AES_256_CBC_SHA,-TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,-TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,-TLS_DHE_RSA_WITH_AES_128_CBC_SHA,-TLS_DHE_RSA_WITH_AES_256_CBC_SHA,-TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,-TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,-TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,-TLS_RSA_WITH_AES_128_CBC_SHA256,-TLS_RSA_WITH_AES_256_CBC_SHA256,-TLS_RSA_WITH_AES_128_GCM_SHA256,+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
