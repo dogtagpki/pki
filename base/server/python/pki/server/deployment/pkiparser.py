@@ -85,7 +85,7 @@ class PKIConfigParser:
             help='show this help message and exit')
         self.optional.add_argument(
             '-v',
-            dest='pki_verbosity', action='count',
+            dest='pki_verbosity', action='count', default=0,
             help='display verbose information (details below)')
 
         # Establish 'Test' command-line options
