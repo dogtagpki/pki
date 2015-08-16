@@ -46,6 +46,7 @@ from urllib import urlencode, quote_plus
 from datetime import datetime
 import logging
 import base64
+import six
 
 CERT_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----"
 CERT_FOOTER = "-----END NEW CERTIFICATE REQUEST-----"
@@ -83,25 +84,25 @@ def parse_key_request_info_xml(doc):
     request_type = doc.xpath('requestType')
     if len(request_type) == 1:
         request_type = etree.tostring(request_type[0], method='text',
-                                      encoding=unicode).strip()
+                                      encoding=six.text_type).strip()
         response['request_type'] = request_type
 
     request_status = doc.xpath('requestStatus')
     if len(request_status) == 1:
         request_status = etree.tostring(request_status[0], method='text',
-                                        encoding=unicode).strip()
+                                        encoding=six.text_type).strip()
         response['request_status'] = request_status
 
     request_url = doc.xpath('requestURL')
     if len(request_url) == 1:
         request_url = etree.tostring(request_url[0], method='text',
-                                     encoding=unicode).strip()
+                                     encoding=six.text_type).strip()
         response['request_id'] = request_url.rsplit('/', 1)[1]
 
     key_url = doc.xpath('keyURL')
     if len(key_url) == 1:
         key_url = etree.tostring(key_url[0], method='text',
-                                 encoding=unicode).strip()
+                                 encoding=six.text_type).strip()
         response['key_id'] = key_url.rsplit('/', 1)[1]
 
     return response
@@ -139,14 +140,14 @@ def parse_key_request_infos_xml(doc):
     next_link = doc.xpath('//Link[@rel="next"]/href')
     if len(next_link) == 1:
         next_link = etree.tostring(next_link[0], method='text',
-                                   encoding=unicode).strip()
+                                   encoding=six.text_type).strip()
         next_link = next_link.rsplit('/', 1)[1]
         response['next_id'] = next_link
 
     prev_link = doc.xpath('//Link[@rel="previous"]/href')
     if len(prev_link) == 1:
         prev_link = etree.tostring(prev_link[0], method='text',
-                                   encoding=unicode).strip()
+                                   encoding=six.text_type).strip()
         prev_link = prev_link.rsplit('/', 1)[1]
         response['prev_id'] = prev_link
 
@@ -182,13 +183,13 @@ def parse_key_data_info_xml(doc):
     client_id = doc.xpath('clientID')
     if len(client_id) == 1:
         client_id = etree.tostring(client_id[0], method='text',
-                                   encoding=unicode).strip()
+                                   encoding=six.text_type).strip()
         response['client_id'] = client_id
 
     key_url = doc.xpath('keyURL')
     if len(key_url) == 1:
         key_url = etree.tostring(key_url[0], method='text',
-                                 encoding=unicode).strip()
+                                 encoding=six.text_type).strip()
         response['key_url'] = key_url
 
     return response
@@ -227,14 +228,14 @@ def parse_key_data_infos_xml(doc):
     next_link = doc.xpath('//Link[@rel="next"]/href')
     if len(next_link) == 1:
         next_link = etree.tostring(next_link[0], method='text',
-                                   encoding=unicode).strip()
+                                   encoding=six.text_type).strip()
         next_link = next_link.rsplit('/', 1)[1]
         response['next_id'] = next_link
 
     prev_link = doc.xpath('//Link[@rel="previous"]/href')
     if len(prev_link) == 1:
         prev_link = etree.tostring(prev_link[0], method='text',
-                                   encoding=unicode).strip()
+                                   encoding=six.text_type).strip()
         prev_link = prev_link.rsplit('/', 1)[1]
         response['prev_id'] = prev_link
 
@@ -268,13 +269,13 @@ def parse_key_data_xml(doc):
     wrapped_data = doc.xpath('wrappedPrivateData')
     if len(wrapped_data) == 1:
         wrapped_data = etree.tostring(wrapped_data[0], method='text',
-                                      encoding=unicode).strip()
+                                      encoding=six.text_type).strip()
         response['wrapped_data'] = wrapped_data
 
     nonce_data = doc.xpath('nonceData')
     if len(nonce_data) == 1:
         nonce_data = etree.tostring(nonce_data[0], method='text',
-                                    encoding=unicode).strip()
+                                    encoding=six.text_type).strip()
         response['nonce_data'] = nonce_data
 
     return response
@@ -301,7 +302,7 @@ def parse_certificate_data_xml(doc):
     b64 = doc.xpath('b64')
     if len(b64) == 1:
         b64 = etree.tostring(b64[0], method='text',
-                             encoding=unicode).strip()
+                             encoding=six.text_type).strip()
         b64 = b64.replace(CERT_HEADER, "").replace(CERT_FOOTER, "")
         response['cert'] = b64
 
@@ -320,7 +321,7 @@ def https_request(
 
     Perform a client authenticated HTTPS request
     """
-    if isinstance(host, unicode):
+    if isinstance(host, six.text_type):
         host = host.encode('utf-8')
     uri = 'https://%s%s' % (ipautil.format_netloc(host, port), url)
     logging.info('sslget %r', uri)
@@ -351,7 +352,7 @@ def https_request(
         res = conn.getresponse()
 
         http_status = res.status
-        http_reason_phrase = unicode(res.reason, 'utf-8')
+        http_reason_phrase = six.text_type(res.reason, 'utf-8')
         http_headers = res.msg.dict
         http_body = res.read()
     except Exception as e:
@@ -373,7 +374,7 @@ def http_request(host, port, url, operation, args):
 
     Perform an HTTP request.
     """
-    if isinstance(host, unicode):
+    if isinstance(host, six.text_type):
         host = host.encode('utf-8')
     uri = 'http://%s%s' % (ipautil.format_netloc(host, port), url)
     logging.info('request %r', uri)
@@ -396,7 +397,7 @@ def http_request(host, port, url, operation, args):
         res = conn.getresponse()
 
         http_status = res.status
-        http_reason_phrase = unicode(res.reason, 'utf-8')
+        http_reason_phrase = six.text_type(res.reason, 'utf-8')
         http_headers = res.msg.dict
         http_body = res.read()
     except NSPRError as e:
