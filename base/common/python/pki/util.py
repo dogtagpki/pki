@@ -23,6 +23,7 @@ Module containing utility functions and classes for the Dogtag python code
 """
 
 
+from __future__ import absolute_import
 import os
 import shutil
 

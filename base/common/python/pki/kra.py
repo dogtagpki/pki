@@ -25,6 +25,7 @@ to interact with the DRM to expose the functionality of the KeyClient and
 KeyRequestResource REST APIs.
 """
 
+from __future__ import absolute_import
 import pki.key as key
 
 from pki.systemcert import SystemCertClient

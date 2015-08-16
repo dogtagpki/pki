@@ -19,6 +19,7 @@
 # All rights reserved.
 #
 
+from __future__ import absolute_import
 import pki.encoder as encoder
 import xml.etree.ElementTree as ETree
 import os
