@@ -128,5 +128,5 @@ class MoveWebApplicationDeploymentLocations(
 
         context.set('docBase', new_webapp)
 
-        with open(context_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(context_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')

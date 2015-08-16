@@ -44,8 +44,8 @@ class EnableSessionInAuthenticator(
 
         self.enable_session(document)
 
-        with open(context_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(context_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def enable_session(self, document):
 

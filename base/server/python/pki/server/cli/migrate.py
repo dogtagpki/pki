@@ -132,8 +132,9 @@ class MigrateCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        with open(filename, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(filename, 'wb') as f:
+            # xml as UTF-8 encoded bytes
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def migrate_server_xml_to_tomcat7(self, document):
         server = document.getroot()
@@ -395,7 +396,7 @@ class MigrateCLI(pki.cli.CLI):
             sys.exit(1)
 
         with open(filename, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def migrate_context_xml_to_tomcat7(self, document):
         context = document.getroot()

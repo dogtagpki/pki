@@ -4599,8 +4599,9 @@ class PKIDeployer:
         context = document.getroot()
         context.set('docBase', doc_base)
 
-        with open(new_descriptor, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(new_descriptor, 'wb') as f:
+            # xml as UTF-8 encoded bytes
+            document.write(f, pretty_print=True, encoding='utf-8')
 
         os.chown(new_descriptor, self.mdict['pki_uid'], self.mdict['pki_gid'])
         os.chmod(

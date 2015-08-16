@@ -215,8 +215,9 @@ class PKIInstance(object):
             context.set('docBase', doc_base)
 
         # write deployment descriptor
-        with open(context_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(context_xml, 'wb') as f:
+            # xml as UTF-8 encoded bytes
+            document.write(f, pretty_print=True, encoding='utf-8')
 
         # set deployment descriptor ownership and permission
         os.chown(context_xml, self.uid, self.gid)

@@ -211,8 +211,9 @@ class NuxwdogEnableCLI(pki.cli.CLI):
                 connector.set('passwordClass', self.nuxwdog_pwstore_class)
                 connector.set('passwordFile', conf_file)
 
-        with open(filename, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(filename, 'wb') as f:
+            # xml as UTF-8 encoded bytes
+            document.write(f, pretty_print=True, encoding='utf-8')
 
         os.chown(filename, instance.uid, instance.gid)
 
@@ -366,8 +367,9 @@ class NuxwdogDisableCLI(pki.cli.CLI):
                 connector.set('passwordClass', self.plain_pwstore_class)
                 connector.set('passwordFile', pw_conf)
 
-        with open(filename, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(filename, 'wb') as f:
+            # xml as UTF-8 encoded bytes
+            document.write(f, pretty_print=True, encoding='utf-8')
 
         os.chown(filename, instance.uid, instance.gid)
 

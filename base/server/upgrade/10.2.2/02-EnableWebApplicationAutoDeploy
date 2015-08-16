@@ -49,5 +49,5 @@ class EnableWebApplicationAutoDeploy(
         for host in hosts:
             host.set('autoDeploy', 'true')
 
-        with open(server_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(server_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')

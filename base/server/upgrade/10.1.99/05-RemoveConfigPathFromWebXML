@@ -54,8 +54,8 @@ class RemoveConfigPathFromWebXML(pki.server.upgrade.PKIServerUpgradeScriptlet):
         document = etree.parse(web_xml)
         self.remove_config_path(document, default_cs_cfg)
 
-        with open(web_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(web_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def remove_config_path(self, document, default_cs_cfg):
 

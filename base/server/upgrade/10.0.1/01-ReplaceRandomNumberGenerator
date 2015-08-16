@@ -66,8 +66,8 @@ class ReplaceRandomNumberGenerator(
             self.remove_authenticator(document)
             self.remove_realm(document)
 
-        with open(context_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(context_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def upgrade_instance(self, instance):
 
@@ -97,8 +97,8 @@ class ReplaceRandomNumberGenerator(
 
         self.add_manager(document)
 
-        with open(context_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(context_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def update_pki_context_xml(self, instance):
 
@@ -123,8 +123,8 @@ class ReplaceRandomNumberGenerator(
 
         self.add_manager(document)
 
-        with open(context_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(context_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def create_meta_inf(self, instance, path):
 

@@ -47,8 +47,8 @@ class AddTLSRangeSupport(pki.server.upgrade.PKIServerUpgradeScriptlet):
         # Once all changes are made, write the XML back into the same server.xml
         # This way we're preserving any other customization that has been done
         # to the server.xml
-        with open(server_xml, 'w') as f:
-            f.write(etree.tostring(document, pretty_print=True))
+        with open(server_xml, 'wb') as f:
+            document.write(f, pretty_print=True, encoding='utf-8')
 
     def add_tls_range(self, document):
 
