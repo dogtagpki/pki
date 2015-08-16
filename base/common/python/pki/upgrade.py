@@ -633,7 +633,7 @@ class PKIUpgrader(object):
 
                 print()
 
-                message = 'Upgrade failed: ' + e.message
+                message = 'Upgrade failed: %s' % e
 
                 if verbose:
                     traceback.print_exc()

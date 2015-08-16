@@ -28,9 +28,9 @@ from __future__ import absolute_import
 from __future__ import print_function
 import base64
 import json
-import urllib
 
 from six import iteritems
+from six.moves.urllib.parse import quote  # pylint: disable=F0401
 
 import pki
 import pki.encoder as encoder
@@ -509,7 +509,7 @@ class KeyClient(object):
         if client_key_id is None:
             raise TypeError("Client Key ID must be specified")
 
-        url = self.key_url + '/active/' + urllib.quote(client_key_id)
+        url = self.key_url + '/active/' + quote(client_key_id)
         response = self.connection.get(url, headers=self.headers)
         return KeyInfo.from_json(response.json())
 

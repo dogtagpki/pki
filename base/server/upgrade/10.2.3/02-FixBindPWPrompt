@@ -20,10 +20,11 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
+
 import fileinput
 import os
 import re
-import sys
 import pki.server.upgrade
 
 
@@ -47,6 +48,6 @@ class FixBindPWPrompt(pki.server.upgrade.PKIServerUpgradeScriptlet):
             line = re.sub(r"^internaldb.ldapauth.bindPWPrompt=.*",
                           "internaldb.ldapauth.bindPWPrompt=internaldb",
                           line)
-            sys.stdout.write(line)
+            print(line, end='')
 
         os.chown(cs_cfg, instance.uid, instance.gid)

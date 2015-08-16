@@ -30,7 +30,8 @@ import re
 import sys
 
 import requests
-from six.moves import input   # pylint: disable=W0622
+from six.moves import input   # pylint: disable=W0622,F0401
+import six
 
 
 CONF_DIR = '/etc/pki'
@@ -311,7 +312,7 @@ def handle_exceptions():
                     # json raises ValueError. simplejson raises
                     # JSONDecodeError, which is a subclass of ValueError.
                     # re-raise original exception
-                    raise exc_type, exc_val, exc_tb
+                    six.reraise(exc_type, exc_val, exc_tb)
                 else:
                     # clear reference cycle
                     exc_type = exc_val = exc_tb = None

@@ -119,7 +119,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
     def add_nuxwdog_link(self, instance):
         nuxwdog_jar_path = '/usr/lib/java/nuxwdog.jar'
         if not os.path.exists(nuxwdog_jar_path):
-            print (
+            print(
                 "Error: nuxwdog jar file does not exist.  "
                 "Is nuxwdog installed?"
             )
@@ -158,7 +158,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
                 line = "USE_NUXWDOG=\"true\"\n"
                 got_use_nuxwdog = True
 
-            sys.stdout.write(line)
+            print(line, end='')
 
         if not got_use_nuxwdog:
             with open(sysconfig_file, 'a') as f:
@@ -247,7 +247,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
                 match = re.search("^passwordClass=(.*)", line)
                 if match:
                     line = "passwordClass=" + pclass + "\n"
-                sys.stdout.write(line)
+                print(line, end='')
             os.chown(cs_cfg, instance.uid, instance.gid)
 
 
@@ -336,7 +336,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
             if match:
                 line = "USE_NUXWDOG=\"false\"\n"
 
-            sys.stdout.write(line)
+            print(line, end='')
 
         os.chown(sysconfig_file, instance.uid, instance.gid)
 
@@ -402,5 +402,5 @@ class NuxwdogDisableCLI(pki.cli.CLI):
                 match = re.search("^passwordClass=(.*)", line)
                 if match:
                     line = "passwordClass=" + pclass + "\n"
-                sys.stdout.write(line)
+                print(line, end='')
                 os.chown(cs_cfg, instance.uid, instance.gid)

@@ -38,7 +38,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 from lxml import etree
 import nss.nss as nss
-import httplib
 from ipapython import nsslib, ipautil
 from nss.error import NSPRError
 from ipalib.errors import NetworkError, CertificateOperationError
@@ -47,6 +46,7 @@ from datetime import datetime
 import logging
 import base64
 import six
+from six.moves import http_client  # pylint: disable=F0401
 
 CERT_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----"
 CERT_FOOTER = "-----END NEW CERTIFICATE REQUEST-----"
@@ -385,7 +385,7 @@ def http_request(host, port, url, operation, args):
             post = args
         else:
             post = ""
-    conn = httplib.HTTPConnection(host, port)
+    conn = http_client.HTTPConnection(host, port)
     try:
         if operation == "GET":
             if args is not None:

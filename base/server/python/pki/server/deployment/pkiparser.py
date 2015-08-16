@@ -22,7 +22,6 @@
 # System Imports
 from __future__ import absolute_import
 from __future__ import print_function
-import ConfigParser
 import argparse
 import getpass
 import ldap
@@ -33,9 +32,11 @@ import requests.exceptions
 import string
 import subprocess
 import xml.etree.ElementTree as ET
-from urlparse import urlparse
 
-from six.moves import input, range  # pylint: disable=W0622
+from six.moves import input, range  # pylint: disable=W0622,F0401
+from six.moves import configparser  # pylint: disable=F0401
+from six.moves.urllib.parse import urlparse  # pylint: disable=F0401
+
 
 # PKI Imports
 import pki
@@ -191,7 +192,7 @@ class PKIConfigParser:
         application_version = str(pki.upgrade.Version(
             pki.implementation_version()))
 
-        self.pki_config = ConfigParser.SafeConfigParser({
+        self.pki_config = configparser.SafeConfigParser({
             'application_version': application_version,
             'pki_instance_name': default_instance_name,
             'pki_http_port': default_http_port,
@@ -208,7 +209,7 @@ class PKIConfigParser:
         # Make keys case-sensitive!
         self.pki_config.optionxform = str
 
-        config.user_config = ConfigParser.SafeConfigParser()
+        config.user_config = configparser.SafeConfigParser()
         config.user_config.optionxform = str
 
         with open(config.default_deployment_cfg) as f:
@@ -263,6 +264,7 @@ class PKIConfigParser:
         message = ' ' * self.indent + message + sign + ' '
 
         done = False
+        value = ''
         while not done:
             value = input(message)
             value = value.strip()
@@ -355,10 +357,11 @@ class PKIConfigParser:
                             try:
                                 val = self.pki_config.get(
                                     section, key, raw=True)
+                                val = val.replace("%", "%%")  # pylint: disable=E1101
                                 if val:
                                     self.pki_config.set(
-                                        section, key, val.replace("%", "%%"))
-                            except ConfigParser.NoOptionError:
+                                        section, key, val)
+                            except configparser.NoOptionError:
                                 continue
 
                 sections = config.user_config.sections()
@@ -369,12 +372,13 @@ class PKIConfigParser:
                             try:
                                 val = config.user_config.get(
                                     section, key, raw=True)
+                                val = val.replace("%", "%%")  # pylint: disable=E1101
                                 if val:
                                     config.user_config.set(
-                                        section, key, val.replace("%", "%%"))
-                            except ConfigParser.NoOptionError:
+                                        section, key, val)
+                            except configparser.NoOptionError:
                                 continue
-        except ConfigParser.ParsingError as err:
+        except configparser.ParsingError as err:
             print(err)
             rv = err
         return rv
@@ -1290,7 +1294,7 @@ class PKIConfigParser:
             config.pki_log.error(log.PKIHELPER_DICTIONARY_MASTER_MISSING_KEY_1,
                                  err, extra=config.PKI_INDENTATION_LEVEL_2)
             raise
-        except ConfigParser.InterpolationSyntaxError as err:
+        except configparser.InterpolationSyntaxError as err:
             config.pki_log.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_1,
                                  extra=config.PKI_INDENTATION_LEVEL_2)
             config.pki_log.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_2, err,
@@ -1303,13 +1307,13 @@ class PKIConfigParser:
            the appropriate PKI slots dictionary"""
         rv = 0
         try:
-            parser = ConfigParser.ConfigParser()
+            parser = configparser.ConfigParser()
             # Make keys case-sensitive!
             parser.optionxform = str
             parser.read(config.PKI_DEPLOYMENT_SLOTS_CONFIGURATION_FILE)
             # Slots configuration file name/value pairs
             self.slots_dict = dict(parser.items('Tomcat'))
-        except ConfigParser.ParsingError as err:
+        except configparser.ParsingError as err:
             rv = err
         return rv
 

@@ -22,7 +22,7 @@
 # PKI Deployment Constants
 from __future__ import print_function
 from __future__ import absolute_import
-from six.moves import input  # pylint: disable=W0622
+from six.moves import input  # pylint: disable=W0622,F0401
 
 PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS = 0o0755
 PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS = 0o0770

@@ -43,7 +43,7 @@ import sys
 import tempfile
 import time
 
-from six.moves import range  # pylint: disable=W0622
+from six.moves import range  # pylint: disable=W0622,F0401
 
 import pki
 import pki.crypto

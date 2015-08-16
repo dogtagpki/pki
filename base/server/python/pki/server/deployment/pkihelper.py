@@ -30,10 +30,13 @@ import fileinput
 import re
 import requests.exceptions
 import shutil
-from shutil import Error, WindowsError
+from shutil import Error
+try:
+    from shutil import WindowsError  # pylint: disable=E0611
+except ImportError:
+    WindowsError = None
 import subprocess
 import time
-import types
 from datetime import datetime
 from grp import getgrgid
 from grp import getgrnam
@@ -1722,7 +1725,7 @@ class File:
                             self.slots[slot], self.mdict[slot],
                             extra=config.PKI_INDENTATION_LEVEL_3)
                         line = line.replace(self.slots[slot], self.mdict[slot])
-                sys.stdout.write(line)
+                print(line, end='')
             if uid is None:
                 uid = self.identity.get_uid()
             if gid is None:
@@ -3805,7 +3808,7 @@ class ConfigClient:
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 certs = []
 
-            if not isinstance(certs, types.ListType):
+            if not isinstance(certs, list):
                 certs = [certs]
             for cdata in certs:
                 if (self.subsystem == "CA" and self.external and
@@ -3897,11 +3900,12 @@ class ConfigClient:
                 extra=config.PKI_INDENTATION_LEVEL_2)
 
             if hasattr(e, 'response'):
+                text = e.response.text  # pylint: disable=E1101
                 try:
-                    root = ET.fromstring(e.response.text)
+                    root = ET.fromstring(text)
                 except ET.ParseError as pe:
                     config.pki_log.error(
-                        "ParseError: %s: %s " % (pe, e.response.text),
+                        "ParseError: %s: %s " % (pe, text),
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     raise
 

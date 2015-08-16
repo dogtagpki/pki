@@ -309,7 +309,7 @@ def main(argv):
                     parser.ds_verify_configuration()
 
                 except ldap.LDAPError as e:
-                    parser.print_text('ERROR: ' + e.message['desc'])
+                    parser.print_text('ERROR: ' + e.args[0]['desc'])
                     continue
 
                 parser.read_text('Base DN',
@@ -320,7 +320,7 @@ def main(argv):
                         break
 
                 except ldap.LDAPError as e:
-                    parser.print_text('ERROR: ' + e.message['desc'])
+                    parser.print_text('ERROR: ' + e.args[0]['desc'])
                     continue
 
                 remove = parser.read_text(
@@ -460,7 +460,7 @@ def main(argv):
                             parser.print_text('ERROR: base DN does not exist')
 
                     except ldap.LDAPError as e:
-                        parser.print_text('ERROR: ' + e.message['desc'])
+                        parser.print_text('ERROR: ' + e.args[0]['desc'])
 
                 print()
 
@@ -555,7 +555,7 @@ def main(argv):
 
         except ldap.LDAPError as e:
             print('ERROR:  Unable to access directory server: ' +
-                  e.message['desc'])
+                  e.args[0]['desc'])
             sys.exit(1)
 
         if parser.mdict['pki_security_domain_type'] != "new":
@@ -665,7 +665,6 @@ def print_install_information(mdict):
 
 
 def log_error_details():
-
     e_type, e_value, e_stacktrace = sys.exc_info()
     config.pki_log.debug(
         "Error Type: " + e_type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
@@ -676,7 +675,7 @@ def log_error_details():
     for l in stacktrace_list:
         e_stacktrace += l
     config.pki_log.debug(e_stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
-    sys.exc_clear()
+    del e_type, e_value, e_stacktrace
 
 # PKI Deployment Entry Point
 if __name__ == "__main__":
