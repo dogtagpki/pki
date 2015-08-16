@@ -23,11 +23,14 @@ This module contains top-level classes and functions used by the Dogtag project.
 """
 from __future__ import absolute_import
 from __future__ import print_function
+
 from functools import wraps
 import os
 import re
 import sys
+
 import requests
+from six.moves import input   # pylint: disable=W0622
 
 
 CONF_DIR = '/etc/pki'
@@ -68,7 +71,7 @@ def read_text(message,
     done = False
     value = None
     while not done:
-        value = raw_input(message)
+        value = input(message)
         value = value.strip()
 
         if len(value) == 0:  # empty value

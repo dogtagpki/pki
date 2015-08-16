@@ -21,6 +21,9 @@
 
 # PKI Deployment Constants
 from __future__ import print_function
+from __future__ import absolute_import
+from six.moves import input  # pylint: disable=W0622
+
 PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS = 0o0755
 PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS = 0o0770
 PKI_DEPLOYMENT_DEFAULT_EXE_PERMISSIONS = 0o0770
@@ -139,8 +142,8 @@ def prepare_for_an_external_java_debugger(instance):
     print("              \"address=8000,server=y,suspend=n \"")
     print("              \"-Djava.awt.headless=true -Xmx128M\"")
     print()
-    raw_input("Enable external java debugger 'JAVA_OPTS' "
-              "and press return to continue  . . . ")
+    input("Enable external java debugger 'JAVA_OPTS' "
+          "and press return to continue  . . . ")
     print()
     print(PKI_DEPLOYMENT_INTERRUPT_BANNER)
     print()
@@ -155,8 +158,8 @@ def wait_to_attach_an_external_java_debugger():
     print("the 'address' selected by 'JAVA_OPTS' (e. g. - port 8000) and")
     print("set any desired breakpoints")
     print()
-    raw_input("Please attach an external java debugger "
-              "and press return to continue  . . . ")
+    input("Please attach an external java debugger "
+          "and press return to continue  . . . ")
     print()
     print(PKI_DEPLOYMENT_INTERRUPT_BANNER)
     print()

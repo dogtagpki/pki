@@ -35,6 +35,8 @@ import subprocess
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
 
+from six.moves import input  # pylint: disable=W0622
+
 # PKI Imports
 import pki
 import pki.upgrade
@@ -262,7 +264,7 @@ class PKIConfigParser:
 
         done = False
         while not done:
-            value = raw_input(message)
+            value = input(message)
             value = value.strip()
 
             if len(value) == 0:  # empty value

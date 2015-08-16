@@ -107,6 +107,7 @@ BuildRequires:    pylint
 
 BuildRequires:    python-nss
 BuildRequires:    python-requests
+BuildRequires:    python-six
 BuildRequires:    libselinux-python
 BuildRequires:    policycoreutils-python
 %if 0%{?fedora} >= 23
@@ -286,6 +287,7 @@ Requires:         ldapjdk
 Requires:         python-ldap
 Requires:         python-lxml
 Requires:         python-requests >= 1.1.0-3
+Requires:         python-six
 
 %if 0%{?rhel}
 # 'resteasy-base' is a subset of the complete set of
