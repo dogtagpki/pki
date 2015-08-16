@@ -21,6 +21,7 @@
 """
 Module containing crypto classes.
 """
+from __future__ import absolute_import
 import abc
 import exceptions
 import nss.nss as nss

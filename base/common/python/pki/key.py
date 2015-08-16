@@ -24,6 +24,7 @@
 Module containing the Python client classes for the KeyClient and
 KeyRequestClient REST API on a DRM
 """
+from __future__ import absolute_import
 import base64
 import json
 import types
