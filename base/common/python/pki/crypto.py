@@ -25,16 +25,16 @@ from __future__ import absolute_import
 import abc
 import nss.nss as nss
 import os
+import six
 import shutil
 import subprocess
 import tempfile
 
 
-class CryptoProvider(object):
+class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class containing methods to do cryptographic operations.
     """
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         """ Constructor """

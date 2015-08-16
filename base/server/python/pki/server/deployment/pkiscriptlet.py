@@ -22,13 +22,11 @@
 # System Imports
 from __future__ import absolute_import
 import abc
+import six
 
 
 # PKI Deployment Abstract Base PKI Scriptlet
-class AbstractBasePkiScriptlet(object):
-    __metaclass__ = abc.ABCMeta
-
-    # pylint: disable=W0613
+class AbstractBasePkiScriptlet(six.with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def spawn(self, deployer):
         """Retrieve data from the specified PKI dictionary and
