@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Authors:
 #     Christian Heimes <cheimes@redhat.com>
 #
@@ -30,6 +31,7 @@ class TestHTTPError(requests.exceptions.HTTPError):
         super(TestHTTPError, self).__init__()
         self.response = requests.Response()
         self.response._content = body
+        self.response.encoding = 'utf-8'
 
 class PKITests(unittest.TestCase):
     def test_handle_exceptions(self):
@@ -45,7 +47,7 @@ class PKITests(unittest.TestCase):
             'Attributes': {
                 'Attribute': [],
             },
-        })
+        }).encode('utf-8')
 
         with self.assertRaises(pki.BadRequestException) as e:
             raiser(body)
@@ -57,8 +59,28 @@ class PKITests(unittest.TestCase):
             'com.netscape.certsrv.base.BadRequestException'
         )
 
+        body = json.dumps({
+            'Message': u'messag€ with non-äscii',
+            'Code': 42,
+            'ClassName': 'com.netscape.certsrv.base.BadRequestException',
+            'Attributes': {
+                'Attribute': [],
+            },
+        }).encode('utf-8')
+
+        with self.assertRaises(pki.BadRequestException) as e:
+            raiser(body)
+
+        self.assertEqual(e.exception.message, u'messag€ with non-äscii')
+        self.assertEqual(e.exception.code, 42)
+        self.assertEqual(
+            e.exception.ClassName,
+            'com.netscape.certsrv.base.BadRequestException'
+        )
+
+
         with self.assertRaises(TestHTTPError) as e:
-            raiser('no json body')
+            raiser(b'no json body')
 
 
 if __name__ == '__main__':
