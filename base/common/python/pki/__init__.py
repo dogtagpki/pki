@@ -21,6 +21,7 @@
 """
 This module contains top-level classes and functions used by the Dogtag project.
 """
+from __future__ import absolute_import
 from functools import wraps
 import os
 import re

@@ -21,6 +21,7 @@
 """
 Module containing the Python client classes for the SystemCert REST API
 """
+from __future__ import absolute_import
 import base64
 import pki
 from pki.cert import CertData

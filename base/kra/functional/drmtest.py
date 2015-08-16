@@ -32,6 +32,7 @@ Some setup is required to run the tests here successfully.
 See drmtest.readme.txt.
 """
 
+from __future__ import absolute_import
 import base64
 import getopt
 import random

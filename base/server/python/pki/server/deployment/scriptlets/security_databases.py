@@ -19,6 +19,8 @@
 # All rights reserved.
 #
 
+from __future__ import absolute_import
+
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkimessages as log

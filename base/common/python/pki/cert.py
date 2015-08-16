@@ -20,6 +20,7 @@
 #     Abhishek Koneru <akoneru@redhat.com>
 #     Ade Lee <alee@redhat.com>
 
+from __future__ import absolute_import
 import copy
 import json
 

@@ -19,6 +19,7 @@
 # All rights reserved.
 #
 
+from __future__ import absolute_import
 import getopt
 import fileinput
 import os

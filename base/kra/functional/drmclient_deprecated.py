@@ -34,6 +34,7 @@ key, this data can be stored in and retrieved from the KRA.
 A sample test execution is provided at the end of the file.
 '''
 
+from __future__ import absolute_import
 from lxml import etree
 import nss.nss as nss
 import httplib

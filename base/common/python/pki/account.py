@@ -18,6 +18,7 @@
 # Copyright (C) 2013 Red Hat, Inc.
 # All rights reserved.
 #
+from __future__ import absolute_import
 import pki
 
 

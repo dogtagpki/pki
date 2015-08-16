@@ -19,6 +19,7 @@
 # All rights reserved.
 #
 
+from __future__ import absolute_import
 import selinux
 import time
 if selinux.is_selinux_enabled():
