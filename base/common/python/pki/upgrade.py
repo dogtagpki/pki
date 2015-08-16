@@ -95,6 +95,9 @@ class Version(object):
 
         return False
 
+    # not hashable
+    __hash__ = None
+
     def __repr__(self):
         return self.version
 
@@ -444,6 +447,9 @@ class PKIUpgradeScriptlet(object):
             return True
 
         return self.version == other.version and self.index < other.index
+
+    # not hashable
+    __hash__ = None
 
 
 class PKIUpgrader(object):
