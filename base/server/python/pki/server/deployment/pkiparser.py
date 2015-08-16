@@ -35,7 +35,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
 
-from six.moves import input  # pylint: disable=W0622
+from six.moves import input, range  # pylint: disable=W0622
 
 # PKI Imports
 import pki

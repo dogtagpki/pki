@@ -43,6 +43,8 @@ import sys
 import tempfile
 import time
 
+from six.moves import range  # pylint: disable=W0622
+
 import pki
 import pki.crypto
 import pki.key as key
