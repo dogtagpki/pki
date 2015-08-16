@@ -20,6 +20,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 import getopt
 import signal
 import sys
@@ -31,34 +32,34 @@ import pki.upgrade
 
 
 def interrupt_handler(event, frame):
-    print
-    print
-    print 'Upgrade canceled.'
+    print()
+    print()
+    print('Upgrade canceled.')
     sys.exit(1)
 
 
 def usage():
-    print 'Usage: pki-upgrade [OPTIONS]'
-    print
-    print '  --silent                       Upgrade in silent mode.'
-    print '  --status                       Show upgrade status only. Do not perform upgrade.'
-    print '  --revert                       Revert the last version.'
-    print
-    print '  -X                             Show advanced options.'
-    print '  -v, --verbose                  Run in verbose mode.'
-    print '  -h, --help                     Show this help message.'
+    print('Usage: pki-upgrade [OPTIONS]')
+    print()
+    print('  --silent                       Upgrade in silent mode.')
+    print('  --status                       Show upgrade status only. Do not perform upgrade.')
+    print('  --revert                       Revert the last version.')
+    print()
+    print('  -X                             Show advanced options.')
+    print('  -v, --verbose                  Run in verbose mode.')
+    print('  -h, --help                     Show this help message.')
 
 
 def advancedOptions():
-    print
-    print 'WARNING: These options may render the system unusable.'
-    print
-    print '  --scriptlet-version <version>  Run scriptlets for a specific version only.'
-    print '  --scriptlet-index <index>      Run a specific scriptlet only.'
-    print
-    print '  --remove-tracker               Remove tracker.'
-    print '  --reset-tracker                Reset tracker to match package version.'
-    print '  --set-tracker <version>        Set tracker to a specific version.'
+    print()
+    print('WARNING: These options may render the system unusable.')
+    print()
+    print('  --scriptlet-version <version>  Run scriptlets for a specific version only.')
+    print('  --scriptlet-index <index>      Run a specific scriptlet only.')
+    print()
+    print('  --remove-tracker               Remove tracker.')
+    print('  --reset-tracker                Reset tracker to match package version.')
+    print('  --set-tracker <version>        Set tracker to a specific version.')
 
 
 def main(argv):
@@ -73,7 +74,7 @@ def main(argv):
             'verbose', 'help'])
 
     except getopt.GetoptError as e:
-        print 'ERROR: ' + str(e)
+        print('ERROR: ' + str(e))
         usage()
         sys.exit(1)
 
@@ -127,12 +128,12 @@ def main(argv):
             sys.exit()
 
         else:
-            print 'ERROR: unknown option ' + o
+            print('ERROR: unknown option ' + o)
             usage()
             sys.exit(1)
 
     if scriptlet_index and not scriptlet_version:
-        print 'ERROR: --scriptlet-index requires --scriptlet-version'
+        print('ERROR: --scriptlet-index requires --scriptlet-version')
         usage()
         sys.exit(1)
 
@@ -161,7 +162,7 @@ def main(argv):
             upgrader.upgrade()
 
     except pki.PKIException as e:
-        print e.message
+        print(e.message)
 
 
 if __name__ == '__main__':

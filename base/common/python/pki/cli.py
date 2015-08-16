@@ -20,6 +20,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 import collections
 import getopt
 import sys
@@ -66,17 +67,17 @@ class CLI(object):
         return self.modules.get(name)
 
     def print_message(self, message):
-        print '-' * len(message)
-        print message
-        print '-' * len(message)
+        print('-' * len(message))
+        print(message)
+        print('-' * len(message))
 
     def print_help(self):
 
-        print 'Commands:'
+        print('Commands:')
 
         for module in self.modules.itervalues():
             full_name = module.get_full_name()
-            print ' {:30}{:30}'.format(full_name, module.description)
+            print(' {:30}{:30}'.format(full_name, module.description))
 
     def find_module(self, command):
 
@@ -119,7 +120,7 @@ class CLI(object):
                 sub_command = None
 
             if self.debug:
-                print 'Module: %s' % module_name
+                print('Module: %s' % module_name)
 
             m = self.get_module(module_name)
             if m:
@@ -173,7 +174,7 @@ class CLI(object):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
@@ -190,7 +191,7 @@ class CLI(object):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option %s' % o
+                print('ERROR: unknown option %s' % o)
                 self.print_help()
                 sys.exit(1)
 

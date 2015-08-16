@@ -25,6 +25,7 @@ Module containing the Python client classes for the KeyClient and
 KeyRequestClient REST API on a DRM
 """
 from __future__ import absolute_import
+from __future__ import print_function
 import base64
 import json
 import urllib
@@ -1009,23 +1010,23 @@ encoder.NOTYPES['AsymKeyGenerationRequest'] = AsymKeyGenerationRequest
 
 def main():
     """ Some unit tests - basically printing different types of requests """
-    print "printing symkey generation request"
+    print("printing symkey generation request")
     client_key_id = "vek 123"
     usages = [SymKeyGenerationRequest.DECRYPT_USAGE,
               SymKeyGenerationRequest.ENCRYPT_USAGE]
     gen_request = SymKeyGenerationRequest(client_key_id, 128, "AES", usages)
-    print json.dumps(gen_request, cls=encoder.CustomTypeEncoder, sort_keys=True)
+    print(json.dumps(gen_request, cls=encoder.CustomTypeEncoder, sort_keys=True))
 
-    print "printing key recovery request"
+    print("printing key recovery request")
     key_request = KeyRecoveryRequest("25", "MX12345BBBAAA", None,
                                      "1234ABC", None, None)
-    print json.dumps(key_request, cls=encoder.CustomTypeEncoder, sort_keys=True)
+    print(json.dumps(key_request, cls=encoder.CustomTypeEncoder, sort_keys=True))
 
-    print "printing key archival request"
+    print("printing key archival request")
     archival_request = KeyArchivalRequest(client_key_id, "symmetricKey",
                                           "MX123AABBCD", "AES", 128)
-    print json.dumps(archival_request, cls=encoder.CustomTypeEncoder,
-                     sort_keys=True)
+    print(json.dumps(archival_request, cls=encoder.CustomTypeEncoder,
+                     sort_keys=True))
 
 
 if __name__ == '__main__':

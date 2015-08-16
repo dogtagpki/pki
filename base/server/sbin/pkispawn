@@ -21,12 +21,13 @@
 
 # System Imports
 from __future__ import absolute_import
+from __future__ import print_function
 import sys
 import signal
 
 if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
-    print "Python version %s.%s.%s is too old." % sys.version_info[:3]
-    print "Please upgrade to at least Python 2.7.0."
+    print("Python version %s.%s.%s is too old." % sys.version_info[:3])
+    print("Please upgrade to at least Python 2.7.0.")
     sys.exit(1)
 try:
     import ldap
@@ -44,20 +45,20 @@ try:
     from pki.server.deployment import pkimessages as log
     import pki.server.deployment.pkihelper as util
 except ImportError:
-    print >> sys.stderr, """\
+    print("""\
 There was a problem importing one of the required Python modules. The
 error was:
 
     %s
-""" % sys.exc_info()[1]
+""" % sys.exc_info()[1], file=sys.stderr)
     sys.exit(1)
 
 
 # Handle the Keyboard Interrupt
 # pylint: disable=W0613
 def interrupt_handler(event, frame):
-    print
-    print '\nInstallation canceled.'
+    print()
+    print('\nInstallation canceled.')
     sys.exit(1)
 
 
@@ -92,10 +93,10 @@ def main(argv):
         # workaround for pylint error E1103
         config.pki_dns_domainname = str(dnsdomainname).rstrip('\n')
         if not len(config.pki_dns_domainname):
-            print log.PKI_DNS_DOMAIN_NOT_SET
+            print(log.PKI_DNS_DOMAIN_NOT_SET)
             sys.exit(1)
     except subprocess.CalledProcessError as exc:
-        print log.PKI_SUBPROCESS_ERROR_1 % exc
+        print(log.PKI_SUBPROCESS_ERROR_1 % exc)
         sys.exit(1)
 
     # Read and process command-line arguments.
@@ -126,7 +127,7 @@ def main(argv):
     if config.user_deployment_cfg is None:
         interactive = True
         parser.indent = 0
-        print log.PKISPAWN_INTERACTIVE_INSTALLATION
+        print(log.PKISPAWN_INTERACTIVE_INSTALLATION)
 
     # Only run this program as "root".
     if not os.geteuid() == 0:
@@ -142,7 +143,7 @@ def main(argv):
                 'Subsystem (CA/KRA/OCSP/TKS/TPS)',
                 options=['CA', 'KRA', 'OCSP', 'TKS', 'TPS'],
                 default='CA', case_sensitive=False).upper()
-            print
+            print()
         else:
             config.pki_subsystem = str(args.pki_subsystem).strip('[\']')
 
@@ -152,7 +153,7 @@ def main(argv):
             interactive = True
             parser.indent = 2
 
-            print "Tomcat:"
+            print("Tomcat:")
             instance_name = parser.read_text(
                 'Instance', 'DEFAULT', 'pki_instance_name')
             existing_data = parser.read_existing_deployment_data(instance_name)
@@ -177,9 +178,9 @@ def main(argv):
                      'Management port',
                      existing_data)
 
-            print
+            print()
 
-            print "Administrator:"
+            print("Administrator:")
             parser.read_text('Username', config.pki_subsystem, 'pki_admin_uid')
 
             admin_password = parser.read_password(
@@ -254,7 +255,7 @@ def main(argv):
             #                     libfile)
             # print
 
-            print "Directory Server:"
+            print("Directory Server:")
             while True:
                 parser.read_text('Hostname',
                                  config.pki_subsystem,
@@ -272,7 +273,7 @@ def main(argv):
                     sign='?', case_sensitive=False).lower()
 
                 if secure == 'q' or secure == 'quit':
-                    print "Installation canceled."
+                    print("Installation canceled.")
                     sys.exit(0)
 
                 if secure == 'y' or secure == 'yes':
@@ -328,15 +329,15 @@ def main(argv):
                     sign='?', allow_empty=False, case_sensitive=False).lower()
 
                 if remove == 'q' or remove == 'quit':
-                    print "Installation canceled."
+                    print("Installation canceled.")
                     sys.exit(0)
 
                 if remove == 'y' or remove == 'yes':
                     break
 
-            print
+            print()
 
-            print "Security Domain:"
+            print("Security Domain:")
 
             if config.pki_subsystem == "CA":
                 parser.read_text('Name',
@@ -378,10 +379,10 @@ def main(argv):
                     except requests.exceptions.HTTPError as e:
                         parser.print_text('ERROR: ' + str(e))
 
-            print
+            print()
 
             if config.pki_subsystem == "TPS":
-                print "External Servers:"
+                print("External Servers:")
 
                 while True:
                     parser.read_text('CA URL',
@@ -435,9 +436,9 @@ def main(argv):
                                             'False')
                         break
 
-                print
+                print()
 
-                print "Authentication Database:"
+                print("Authentication Database:")
 
                 while True:
                     parser.read_text('Hostname',
@@ -461,7 +462,7 @@ def main(argv):
                     except ldap.LDAPError as e:
                         parser.print_text('ERROR: ' + e.message['desc'])
 
-                print
+                print()
 
         if interactive:
             parser.indent = 0
@@ -470,10 +471,10 @@ def main(argv):
                 'Begin installation (Yes/No/Quit)',
                 options=['Yes', 'Y', 'No', 'N', 'Quit', 'Q'],
                 sign='?', allow_empty=False, case_sensitive=False).lower()
-            print
+            print()
 
             if begin == 'q' or begin == 'quit':
-                print "Installation canceled."
+                print("Installation canceled.")
                 sys.exit(0)
 
             if begin == 'y' or begin == 'yes':
@@ -484,8 +485,8 @@ def main(argv):
 
     if not os.path.exists(config.PKI_DEPLOYMENT_SOURCE_ROOT +
                           "/" + config.pki_subsystem.lower()):
-        print "ERROR:  " + log.PKI_SUBSYSTEM_NOT_INSTALLED_1 % \
-            config.pki_subsystem.lower()
+        print("ERROR:  " + log.PKI_SUBSYSTEM_NOT_INSTALLED_1 %
+              config.pki_subsystem.lower())
         sys.exit(1)
 
     # Enable 'pkispawn' logging.
@@ -495,7 +496,7 @@ def main(argv):
                           config.pki_subsystem.lower() + \
                           "-" + "spawn" + "." + \
                           config.pki_timestamp + "." + "log"
-    print 'Log file: %s/%s' % (config.pki_log_dir, config.pki_log_name)
+    print('Log file: %s/%s' % (config.pki_log_dir, config.pki_log_name))
 
     rv = pkilogging.enable_pki_logger(config.pki_log_dir,
                                       config.pki_log_name,
@@ -505,7 +506,7 @@ def main(argv):
     if rv != OSError:
         config.pki_log = rv
     else:
-        print log.PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 % config.pki_log_dir
+        print(log.PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 % config.pki_log_dir)
         sys.exit(1)
 
     # Read the specified PKI configuration file.
@@ -549,12 +550,12 @@ def main(argv):
 
             if parser.ds_base_dn_exists() and\
                     not config.str2bool(parser.mdict['pki_ds_remove_data']):
-                print 'ERROR:  Base DN already exists.'
+                print('ERROR:  Base DN already exists.')
                 sys.exit(1)
 
         except ldap.LDAPError as e:
-            print 'ERROR:  Unable to access directory server: ' + \
-                  e.message['desc']
+            print('ERROR:  Unable to access directory server: ' +
+                  e.message['desc'])
             sys.exit(1)
 
         if parser.mdict['pki_security_domain_type'] != "new":
@@ -577,15 +578,15 @@ def main(argv):
                 parser.sd_authenticate()
 
             except requests.exceptions.ConnectionError as e:
-                print('ERROR:  Unable to access security domain: ' + str(e))
+                print(('ERROR:  Unable to access security domain: ' + str(e)))
                 sys.exit(1)
 
             except requests.exceptions.HTTPError as e:
-                print('ERROR:  Unable to access security domain: ' + str(e))
+                print(('ERROR:  Unable to access security domain: ' + str(e)))
                 sys.exit(1)
 
-    print "Installing " + config.pki_subsystem + " into " + \
-          parser.mdict['pki_instance_path'] + "."
+    print("Installing " + config.pki_subsystem + " into " +
+          parser.mdict['pki_instance_path'] + ".")
 
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
@@ -601,13 +602,13 @@ def main(argv):
         # pylint: disable=W0703
         except Exception:
             log_error_details()
-            print
-            print "Installation failed."
-            print
+            print()
+            print("Installation failed.")
+            print()
             sys.exit(1)
         if rv != 0:
-            print "Nothing here!!!"
-            print "Installation failed."
+            print("Nothing here!!!")
+            print("Installation failed.")
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
@@ -627,40 +628,40 @@ def set_port(parser, tag, prompt, existing_data):
 def print_install_information(mdict):
 
     skip_configuration = config.str2bool(mdict['pki_skip_configuration'])
-    print log.PKI_SPAWN_INFORMATION_HEADER
+    print(log.PKI_SPAWN_INFORMATION_HEADER)
     if skip_configuration:
-        print "      The %s subsystem of the '%s' instance\n" \
-              "      must still be configured!" % \
-              (config.pki_subsystem, mdict['pki_instance_name'])
+        print("      The %s subsystem of the '%s' instance\n"
+              "      must still be configured!" %
+              (config.pki_subsystem, mdict['pki_instance_name']))
     else:
-        print "      Administrator's username:             %s" % \
-              mdict['pki_admin_uid']
+        print("      Administrator's username:             %s" %
+              mdict['pki_admin_uid'])
         if os.path.isfile(mdict['pki_client_admin_cert_p12']):
-            print "      Administrator's PKCS #12 file:\n            %s" % \
-                  mdict['pki_client_admin_cert_p12']
+            print("      Administrator's PKCS #12 file:\n            %s" %
+                  mdict['pki_client_admin_cert_p12'])
         if not config.str2bool(mdict['pki_client_database_purge']):
-            print
-            print "      Administrator's certificate nickname:\n            %s"\
-                  % mdict['pki_admin_nickname']
-            print "      Administrator's certificate database:\n            %s"\
-                  % mdict['pki_client_database_dir']
-        print log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name']
-        print log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name']
+            print()
+            print("      Administrator's certificate nickname:\n            %s"
+                  % mdict['pki_admin_nickname'])
+            print("      Administrator's certificate database:\n            %s"
+                  % mdict['pki_client_database_dir'])
+        print(log.PKI_CHECK_STATUS_MESSAGE % mdict['pki_instance_name'])
+        print(log.PKI_INSTANCE_RESTART_MESSAGE % mdict['pki_instance_name'])
         if (((config.pki_subsystem == "KRA" or
               config.pki_subsystem == "OCSP") and
              config.str2bool(mdict['pki_standalone'])) and
                 not config.str2bool(mdict['pki_external_step_two'])):
             # Stand-alone PKI KRA/OCSP (External CA Step 1)
-            print log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem
+            print(log.PKI_CONFIGURATION_STANDALONE_1 % config.pki_subsystem)
         else:
-            print log.PKI_ACCESS_URL % (mdict['pki_hostname'],
+            print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
                                         mdict['pki_https_port'],
-                                        config.pki_subsystem.lower())
+                                        config.pki_subsystem.lower()))
             if not config.str2bool(mdict['pki_enable_on_system_boot']):
-                print log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled"
+                print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "disabled")
             else:
-                print log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "enabled"
-    print log.PKI_SPAWN_INFORMATION_FOOTER
+                print(log.PKI_SYSTEM_BOOT_STATUS_MESSAGE % "enabled")
+    print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 
 def log_error_details():

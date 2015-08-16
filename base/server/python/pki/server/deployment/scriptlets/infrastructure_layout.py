@@ -22,6 +22,7 @@
 from __future__ import absolute_import
 
 # PKI Deployment Imports
+from __future__ import print_function
 from .. import pkiconfig as config
 from .. import pkimessages as log
 from .. import pkiscriptlet
@@ -63,8 +64,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_default_deployment_cfg'],
             deployer.mdict['pki_default_deployment_cfg_replica'])
 
-        print "Storing deployment configuration into " + \
-              deployer.mdict['pki_user_deployment_cfg_replica'] + "."
+        print("Storing deployment configuration into " +
+              deployer.mdict['pki_user_deployment_cfg_replica'] + ".")
 
         # Archive the user deployment configuration excluding the sensitive
         # parameters

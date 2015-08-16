@@ -20,6 +20,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 import getopt
 import os
 import sys
@@ -45,8 +46,8 @@ class InstanceCLI(pki.cli.CLI):
 
     @staticmethod
     def print_instance(instance):
-        print '  Instance ID: %s' % instance.name
-        print '  Active: %s' % instance.is_active()
+        print('  Instance ID: %s' % instance.name)
+        print('  Active: %s' % instance.is_active())
 
 
 class InstanceFindCLI(pki.cli.CLI):
@@ -55,11 +56,11 @@ class InstanceFindCLI(pki.cli.CLI):
         super(InstanceFindCLI, self).__init__('find', 'Find instances')
 
     def print_help(self):
-        print 'Usage: pki-server instance-find [OPTIONS]'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server instance-find [OPTIONS]')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
 
@@ -68,7 +69,7 @@ class InstanceFindCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
@@ -81,7 +82,7 @@ class InstanceFindCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
@@ -101,7 +102,7 @@ class InstanceFindCLI(pki.cli.CLI):
             if first:
                 first = False
             else:
-                print
+                print()
 
             instance = pki.server.PKIInstance(instance_name)
             instance.load()
@@ -115,11 +116,11 @@ class InstanceShowCLI(pki.cli.CLI):
         super(InstanceShowCLI, self).__init__('show', 'Show instance')
 
     def print_help(self):
-        print 'Usage: pki-server instance-show [OPTIONS] <instance ID>'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server instance-show [OPTIONS] <instance ID>')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
 
@@ -128,12 +129,12 @@ class InstanceShowCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.print_help()
             sys.exit(1)
 
@@ -148,7 +149,7 @@ class InstanceShowCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
@@ -164,11 +165,11 @@ class InstanceStartCLI(pki.cli.CLI):
         super(InstanceStartCLI, self).__init__('start', 'Start instance')
 
     def print_help(self):
-        print 'Usage: pki-server instance-start [OPTIONS] <instance ID>'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server instance-start [OPTIONS] <instance ID>')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
 
@@ -177,12 +178,12 @@ class InstanceStartCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.print_help()
             sys.exit(1)
 
@@ -197,7 +198,7 @@ class InstanceStartCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
@@ -214,11 +215,11 @@ class InstanceStopCLI(pki.cli.CLI):
         super(InstanceStopCLI, self).__init__('stop', 'Stop instance')
 
     def print_help(self):
-        print 'Usage: pki-server instance-stop [OPTIONS] <instance ID>'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server instance-stop [OPTIONS] <instance ID>')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
 
@@ -227,12 +228,12 @@ class InstanceStopCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.print_help()
             sys.exit(1)
 
@@ -247,7 +248,7 @@ class InstanceStopCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
@@ -264,13 +265,13 @@ class InstanceMigrateCLI(pki.cli.CLI):
         super(InstanceMigrateCLI, self).__init__('migrate', 'Migrate instance')
 
     def print_help(self):
-        print 'Usage: pki-server instance-migrate [OPTIONS] <instance ID>'
-        print
-        print '      --tomcat <version>       Use the specified Tomcat version.'
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --debug                  Show debug messages.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server instance-migrate [OPTIONS] <instance ID>')
+        print()
+        print('      --tomcat <version>       Use the specified Tomcat version.')
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --debug                  Show debug messages.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
 
@@ -279,12 +280,12 @@ class InstanceMigrateCLI(pki.cli.CLI):
                 'tomcat=', 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.print_help()
             sys.exit(1)
 
@@ -307,12 +308,12 @@ class InstanceMigrateCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
         if not tomcat_version:
-            print 'ERROR: missing Tomcat version'
+            print('ERROR: missing Tomcat version')
             self.print_help()
             sys.exit(1)
 
@@ -338,11 +339,11 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
             'Instance enable nuxwdog')
 
     def print_help(self):
-        print 'Usage: pki-server instance-nuxwdog-enable [OPTIONS] <instance ID>'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server instance-nuxwdog-enable [OPTIONS] <instance ID>')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
         try:
@@ -350,12 +351,12 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.print_help()
             sys.exit(1)
 
@@ -368,7 +369,7 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit()
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
@@ -393,11 +394,11 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
             'Instance disable nuxwdog')
 
     def print_help(self):
-        print 'Usage: pki-server instance-nuxwdog-disable [OPTIONS] <instance ID>'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server instance-nuxwdog-disable [OPTIONS] <instance ID>')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
         try:
@@ -405,12 +406,12 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.print_help()
             sys.exit(1)
 
@@ -423,7 +424,7 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit()
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 

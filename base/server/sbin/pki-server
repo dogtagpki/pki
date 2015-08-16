@@ -20,6 +20,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 import getopt
 import sys
 
@@ -46,12 +47,12 @@ class PKIServerCLI(pki.cli.CLI):
         return module_name
 
     def print_help(self):
-        print 'Usage: pki-server [OPTIONS]'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --debug                  Show debug messages.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server [OPTIONS]')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --debug                  Show debug messages.')
+        print('      --help                   Show help message.')
+        print()
 
         super(PKIServerCLI, self).print_help()
 
@@ -61,7 +62,7 @@ class PKIServerCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
@@ -78,12 +79,12 @@ class PKIServerCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
         if self.verbose:
-            print 'Command: %s' % ' '.join(args)
+            print('Command: %s' % ' '.join(args))
 
         super(PKIServerCLI, self).execute(args)
 

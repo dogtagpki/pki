@@ -21,6 +21,7 @@
 
 # System Imports
 from __future__ import absolute_import
+from __future__ import print_function
 import csv
 
 # PKI Deployment Imports
@@ -97,7 +98,7 @@ class File:
             with open(self.filename, "r") as fd:
                 cr = csv.reader(fd)
                 for row in cr:
-                    print tuple(row)
+                    print(tuple(row))
         except IOError as exc:
             config.pki_log.error(log.PKI_IOERROR_1, exc,
                                  extra=config.PKI_INDENTATION_LEVEL_1)

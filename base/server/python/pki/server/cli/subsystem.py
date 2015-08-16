@@ -20,6 +20,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 import getopt
 import os
 import sys
@@ -41,9 +42,9 @@ class SubsystemCLI(pki.cli.CLI):
 
     @staticmethod
     def print_subsystem(subsystem):
-        print '  Subsystem ID: %s' % subsystem.name
-        print '  Instance ID: %s' % subsystem.instance.name
-        print '  Enabled: %s' % subsystem.is_enabled()
+        print('  Subsystem ID: %s' % subsystem.name)
+        print('  Instance ID: %s' % subsystem.instance.name)
+        print('  Enabled: %s' % subsystem.is_enabled())
 
 
 class SubsystemFindCLI(pki.cli.CLI):
@@ -52,12 +53,12 @@ class SubsystemFindCLI(pki.cli.CLI):
         super(SubsystemFindCLI, self).__init__('find', 'Find subsystems')
 
     def usage(self):
-        print 'Usage: pki-server subsystem-find [OPTIONS]'
-        print
-        print '  -i, --instance <instance ID>    Instance ID.'
-        print '  -v, --verbose                   Run in verbose mode.'
-        print '      --help                      Show help message.'
-        print
+        print('Usage: pki-server subsystem-find [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --help                      Show help message.')
+        print()
 
     def execute(self, args):
 
@@ -67,7 +68,7 @@ class SubsystemFindCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.usage()
             sys.exit(1)
 
@@ -85,12 +86,12 @@ class SubsystemFindCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
 
         if not instance_name:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.usage()
             sys.exit(1)
 
@@ -114,7 +115,7 @@ class SubsystemFindCLI(pki.cli.CLI):
             if first:
                 first = False
             else:
-                print
+                print()
 
             SubsystemCLI.print_subsystem(subsystem)
 
@@ -125,12 +126,12 @@ class SubsystemShowCLI(pki.cli.CLI):
         super(SubsystemShowCLI, self).__init__('show', 'Show subsystem')
 
     def usage(self):
-        print 'Usage: pki-server subsystem-show [OPTIONS] <subsystem ID>'
-        print
-        print '  -i, --instance <instance ID>    Instance ID.'
-        print '  -v, --verbose                   Run in verbose mode.'
-        print '      --help                      Show help message.'
-        print
+        print('Usage: pki-server subsystem-show [OPTIONS] <subsystem ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --help                      Show help message.')
+        print()
 
     def execute(self, argv):
 
@@ -140,12 +141,12 @@ class SubsystemShowCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.usage()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing subsystem ID'
+            print('ERROR: missing subsystem ID')
             self.usage()
             sys.exit(1)
 
@@ -164,12 +165,12 @@ class SubsystemShowCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
 
         if not instance_name:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.usage()
             sys.exit(1)
 
@@ -187,12 +188,12 @@ class SubsystemEnableCLI(pki.cli.CLI):
         super(SubsystemEnableCLI, self).__init__('enable', 'Enable subsystem')
 
     def usage(self):
-        print 'Usage: pki-server subsystem-enable [OPTIONS] <subsystem ID>'
-        print
-        print '  -i, --instance <instance ID>    Instance ID.'
-        print '  -v, --verbose                   Run in verbose mode.'
-        print '      --help                      Show help message.'
-        print
+        print('Usage: pki-server subsystem-enable [OPTIONS] <subsystem ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --help                      Show help message.')
+        print()
 
     def execute(self, argv):
 
@@ -202,12 +203,12 @@ class SubsystemEnableCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.usage()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing subsystem ID'
+            print('ERROR: missing subsystem ID')
             self.usage()
             sys.exit(1)
 
@@ -226,12 +227,12 @@ class SubsystemEnableCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
 
         if not instance_name:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.usage()
             sys.exit(1)
 
@@ -254,12 +255,12 @@ class SubsystemDisableCLI(pki.cli.CLI):
             'Disable subsystem')
 
     def usage(self):
-        print 'Usage: pki-server subsystem-disable [OPTIONS] <subsystem ID>'
-        print
-        print '  -i, --instance <instance ID>    Instance ID.'
-        print '  -v, --verbose                   Run in verbose mode.'
-        print '      --help                      Show help message.'
-        print
+        print('Usage: pki-server subsystem-disable [OPTIONS] <subsystem ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --help                      Show help message.')
+        print()
 
     def execute(self, argv):
 
@@ -269,12 +270,12 @@ class SubsystemDisableCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.usage()
             sys.exit(1)
 
         if len(args) != 1:
-            print 'ERROR: missing subsystem ID'
+            print('ERROR: missing subsystem ID')
             self.usage()
             sys.exit(1)
 
@@ -293,12 +294,12 @@ class SubsystemDisableCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
 
         if not instance_name:
-            print 'ERROR: missing instance ID'
+            print('ERROR: missing instance ID')
             self.usage()
             sys.exit(1)
 

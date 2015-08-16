@@ -35,6 +35,7 @@ A sample test execution is provided at the end of the file.
 '''
 
 from __future__ import absolute_import
+from __future__ import print_function
 from lxml import etree
 import nss.nss as nss
 import httplib
@@ -486,7 +487,7 @@ class KRA:
         return encoding_ctx, decoding_ctx
 
     def debug(self, message, *args):
-        print message % args
+        print(message % args)
 
     def _request(self, url, port, operation, args):
         """
@@ -1044,11 +1045,11 @@ test_kra = KRA(work_dir, kra_host, kra_port, kra_nickname)
 
 # list requests
 requests = test_kra.list_key_requests()
-print requests
+print(requests)
 
 # get transport cert
 transport_cert = test_kra.get_transport_cert()
-print transport_cert
+print(transport_cert)
 
 # archive symmetric key
 f = open(work_dir + "/" + options_file)
@@ -1058,44 +1059,44 @@ response = test_kra.archive_security_data(
     client_id,
     wrapped_key,
     "symmetricKey")
-print response
+print(response)
 
 # list keys with client_id
 response = test_kra.list_security_data(client_id, "active")
-print response
+print(response)
 
 # create recovery request
 key_id = response.keys()[0]
-print key_id
+print(key_id)
 response = test_kra.submit_recovery_request(key_id)
-print response
+print(response)
 
 # approve recovery request
 request_id = response['request_id']
 test_kra.approve_recovery_request(request_id)
 
 # test invalid request
-print "Testing invalid request ID"
+print("Testing invalid request ID")
 try:
     response = test_kra.retrieve_security_data("INVALID")
-    print "Failure: No exception thrown"
+    print("Failure: No exception thrown")
 except CertificateOperationError as e:
     if 'Error in retrieving security data (Bad Request)' == e.error:
-        print "Success: " + e.error
+        print("Success: " + e.error)
     else:
-        print "Failure: Wrong error message: " + e.error
+        print("Failure: Wrong error message: " + e.error)
 
 # retrieve key
 response = test_kra.retrieve_security_data(request_id)
-print response
-print "retrieved data is " + base64.encodestring(response['data'])
+print(response)
+print("retrieved data is " + base64.encodestring(response['data']))
 
 # read original symkey from file
 f = open(work_dir + "/" + symkey_file)
 orig_key = f.read()
-print "orig key is " + orig_key
+print("orig key is " + orig_key)
 
 if orig_key.strip() == base64.encodestring(response['data']).strip():
-    print "Success: the keys match"
+    print("Success: the keys match")
 else:
-    print "Failure: keys do not match"
+    print("Failure: keys do not match")

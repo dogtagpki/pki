@@ -18,6 +18,7 @@
 # @author: Abhishek Koneru <akoneru@redhat.com>
 
 from __future__ import absolute_import
+from __future__ import print_function
 import json
 import os
 
@@ -1171,46 +1172,46 @@ def main():
 
     # Fetching a list of profiles
     profile_data_infos = profile_client.list_profiles()
-    print 'List of profiles:'
-    print '-----------------'
+    print('List of profiles:')
+    print('-----------------')
     for profile_data_info in profile_data_infos:
-        print '  Profile ID: ' + profile_data_info.profile_id
-        print '  Profile Name: ' + profile_data_info.profile_name
-        print '  Profile Description: ' + profile_data_info.profile_description
-    print
+        print('  Profile ID: ' + profile_data_info.profile_id)
+        print('  Profile Name: ' + profile_data_info.profile_name)
+        print('  Profile Description: ' + profile_data_info.profile_description)
+    print()
 
     # Get a specific profile
     profile_data = profile_client.get_profile('caUserCert')
-    print 'Profile Data for caUserCert:'
-    print '----------------------------'
-    print '  Profile ID: ' + profile_data.profile_id
-    print '  Profile Name: ' + profile_data.name
-    print '  Profile Description: ' + profile_data.description
-    print '  Is profile enabled? ' + str(profile_data.enabled)
-    print '  Is profile visible? ' + str(profile_data.visible)
-    print
+    print('Profile Data for caUserCert:')
+    print('----------------------------')
+    print('  Profile ID: ' + profile_data.profile_id)
+    print('  Profile Name: ' + profile_data.name)
+    print('  Profile Description: ' + profile_data.description)
+    print('  Is profile enabled? ' + str(profile_data.enabled))
+    print('  Is profile visible? ' + str(profile_data.visible))
+    print()
 
     # Disabling a profile
-    print 'Disabling a profile:'
-    print '--------------------'
+    print('Disabling a profile:')
+    print('--------------------')
     profile_client.disable_profile('caUserCert')
     profile = profile_client.get_profile('caUserCert')
-    print '  Profile ID: ' + profile.profile_id
-    print '  Is profile enabled? ' + str(profile.enabled)
-    print
+    print('  Profile ID: ' + profile.profile_id)
+    print('  Is profile enabled? ' + str(profile.enabled))
+    print()
 
     # Disabling a profile
-    print 'Enabling a profile:'
-    print '-------------------'
+    print('Enabling a profile:')
+    print('-------------------')
     profile_client.enable_profile('caUserCert')
     profile = profile_client.get_profile('caUserCert')
-    print '  Profile ID: ' + profile_data.profile_id
-    print '  Is profile enabled? ' + str(profile.enabled)
-    print
+    print('  Profile ID: ' + profile_data.profile_id)
+    print('  Is profile enabled? ' + str(profile.enabled))
+    print()
     # profile_client.delete_profile('MySampleProfile')
     # Create a new sample profile
-    print 'Creating a new profile:'
-    print '-----------------------'
+    print('Creating a new profile:')
+    print('-----------------------')
 
     profile_data = Profile(name="My Sample User Cert Enrollment",
                            profile_id="MySampleProfile",
@@ -1328,12 +1329,12 @@ def main():
                                      sort_keys=True, indent=4))
     # Create a new profile
     created_profile = profile_client.create_profile(profile_data)
-    print created_profile
-    print
+    print(created_profile)
+    print()
 
     # Test creating a new profile with a duplicate profile id
-    print "Create a profile with duplicate profile id."
-    print "-------------------------------------------"
+    print("Create a profile with duplicate profile id.")
+    print("-------------------------------------------")
 
     try:
         profile_data = Profile(name="My Sample User Cert Enrollment",
@@ -1358,12 +1359,12 @@ def main():
         profile_client.create_profile(profile_data)
     # pylint: disable=W0703
     except pki.BadRequestException as e:
-        print 'MySampleProfile ' + str(e)
-    print
+        print('MySampleProfile ' + str(e))
+    print()
 
     # Modify the above created profile
-    print 'Modifying the profile MySampleProfile.'
-    print '-----------------------------------'
+    print('Modifying the profile MySampleProfile.')
+    print('-----------------------------------')
 
     fetch = profile_client.get_profile('MySampleProfile')
     profile_input2 = ProfileInput("i2", "keyGenInputImpl")
@@ -1378,41 +1379,41 @@ def main():
         output_file.write(json.dumps(fetch, cls=encoder.CustomTypeEncoder,
                                      sort_keys=True, indent=4))
 
-    print modified_profile
-    print
+    print(modified_profile)
+    print()
 
     # Delete a profile
-    print "Deleting the profile MySampleProfile."
-    print "----------------------------------"
+    print("Deleting the profile MySampleProfile.")
+    print("----------------------------------")
     profile_client.delete_profile('MySampleProfile')
-    print "Deleted profile MySampleProfile."
-    print
+    print("Deleted profile MySampleProfile.")
+    print()
 
     # Testing deletion of a profile
-    print 'Test profile deletion.'
-    print '----------------------'
+    print('Test profile deletion.')
+    print('----------------------')
     try:
         profile_client.get_profile('MySampleProfile')
     # pylint: disable=W0703
     except pki.ProfileNotFoundException as e:
-        print str(e)
-    print
+        print(str(e))
+    print()
 
     # Creating a profile from file
-    print 'Creating a profile using file input.'
-    print '------------------------------------'
+    print('Creating a profile using file input.')
+    print('------------------------------------')
     original = profile_client.create_profile_from_file(
         file_path + 'original.json')
-    print original
-    print
+    print(original)
+    print()
 
     # Modifying a profile from file
-    print 'Modifying a profile using file input.'
-    print '------------------------------------'
+    print('Modifying a profile using file input.')
+    print('------------------------------------')
     modified = profile_client.modify_profile_from_file(
         file_path + 'modified.json')
-    print modified
-    print
+    print(modified)
+    print()
 
     # Test clean up
     profile_client.delete_profile('MySampleProfile')

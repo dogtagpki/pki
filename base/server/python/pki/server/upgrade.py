@@ -20,6 +20,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 import os
 import traceback
 
@@ -78,12 +79,12 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
             if not self.can_upgrade_server(instance):
                 if verbose:
-                    print 'Skipping ' + str(instance) + ' instance.'
+                    print('Skipping ' + str(instance) + ' instance.')
                 continue
 
             try:
                 if verbose:
-                    print 'Upgrading ' + str(instance) + ' instance.'
+                    print('Upgrading ' + str(instance) + ' instance.')
                 self.upgrade_instance(instance)
                 self.update_server_tracker(instance)
 
@@ -92,11 +93,11 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                 if verbose:
                     traceback.print_exc()
                 else:
-                    print 'ERROR: %s' % e
+                    print('ERROR: %s' % e)
 
                 message = 'Failed upgrading ' + str(instance) + ' instance.'
                 if self.upgrader.silent:
-                    print message
+                    print(message)
                 else:
                     result = pki.read_text(
                         message + ' Continue (Yes/No)',
@@ -113,12 +114,12 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
             if not self.can_upgrade_server(instance, subsystem):
                 if verbose:
-                    print 'Skipping ' + str(subsystem) + ' subsystem.'
+                    print('Skipping ' + str(subsystem) + ' subsystem.')
                 continue
 
             try:
                 if verbose:
-                    print 'Upgrading ' + str(subsystem) + ' subsystem.'
+                    print('Upgrading ' + str(subsystem) + ' subsystem.')
                 self.upgrade_subsystem(instance, subsystem)
                 self.update_server_tracker(instance, subsystem)
 
@@ -127,11 +128,11 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                 if verbose:
                     traceback.print_exc()
                 else:
-                    print 'ERROR: %s' % e
+                    print('ERROR: %s' % e)
 
                 message = 'Failed upgrading ' + str(subsystem) + ' subsystem.'
                 if self.upgrader.silent:
-                    print message
+                    print(message)
                 else:
                     result = pki.read_text(
                         message + ' Continue (Yes/No)',
@@ -326,7 +327,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 tracker = self.get_server_tracker(instance, subsystem)
                 tracker.set(version)
 
-        print 'Tracker has been set to version ' + str(version) + '.'
+        print('Tracker has been set to version ' + str(version) + '.')
 
     def remove_tracker(self):
         for instance in self.instances():
@@ -340,4 +341,4 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 tracker = self.get_server_tracker(instance, subsystem)
                 tracker.remove()
 
-        print 'Tracker has been removed.'
+        print('Tracker has been removed.')

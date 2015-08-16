@@ -22,6 +22,7 @@
 This module contains top-level classes and functions used by the Dogtag project.
 """
 from __future__ import absolute_import
+from __future__ import print_function
 from functools import wraps
 import os
 import re
@@ -376,7 +377,7 @@ class PropertyFile(object):
         :return: None
         """
         for line in self.lines:
-            print line
+            print(line)
 
     def insert_line(self, index, line):
         """

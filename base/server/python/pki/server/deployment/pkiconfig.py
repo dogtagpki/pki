@@ -20,6 +20,7 @@
 #
 
 # PKI Deployment Constants
+from __future__ import print_function
 PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS = 0o0755
 PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS = 0o0770
 PKI_DEPLOYMENT_DEFAULT_EXE_PERMISSIONS = 0o0770
@@ -127,38 +128,38 @@ def str2bool(string):
 #        'pki_enable_java_debugger=True' in the appropriate
 #        deployment configuration file.
 def prepare_for_an_external_java_debugger(instance):
-    print
-    print PKI_DEPLOYMENT_INTERRUPT_BANNER
-    print
-    print "The following 'JAVA_OPTS' MUST be edited in"
-    print "'%s':" % instance
-    print
-    print "    JAVA_OPTS=\"-DRESTEASY_LIB=/usr/share/java/resteasy \""
-    print "              \"-Xdebug -Xrunjdwp:transport=dt_socket,\""
-    print "              \"address=8000,server=y,suspend=n \""
-    print "              \"-Djava.awt.headless=true -Xmx128M\""
-    print
+    print()
+    print(PKI_DEPLOYMENT_INTERRUPT_BANNER)
+    print()
+    print("The following 'JAVA_OPTS' MUST be edited in")
+    print("'%s':" % instance)
+    print()
+    print("    JAVA_OPTS=\"-DRESTEASY_LIB=/usr/share/java/resteasy \"")
+    print("              \"-Xdebug -Xrunjdwp:transport=dt_socket,\"")
+    print("              \"address=8000,server=y,suspend=n \"")
+    print("              \"-Djava.awt.headless=true -Xmx128M\"")
+    print()
     raw_input("Enable external java debugger 'JAVA_OPTS' "
               "and press return to continue  . . . ")
-    print
-    print PKI_DEPLOYMENT_INTERRUPT_BANNER
-    print
+    print()
+    print(PKI_DEPLOYMENT_INTERRUPT_BANNER)
+    print()
     return
 
 
 def wait_to_attach_an_external_java_debugger():
-    print
-    print PKI_DEPLOYMENT_INTERRUPT_BANNER
-    print
-    print "Attach the java debugger to this process on the port specified by"
-    print "the 'address' selected by 'JAVA_OPTS' (e. g. - port 8000) and"
-    print "set any desired breakpoints"
-    print
+    print()
+    print(PKI_DEPLOYMENT_INTERRUPT_BANNER)
+    print()
+    print("Attach the java debugger to this process on the port specified by")
+    print("the 'address' selected by 'JAVA_OPTS' (e. g. - port 8000) and")
+    print("set any desired breakpoints")
+    print()
     raw_input("Please attach an external java debugger "
               "and press return to continue  . . . ")
-    print
-    print PKI_DEPLOYMENT_INTERRUPT_BANNER
-    print
+    print()
+    print(PKI_DEPLOYMENT_INTERRUPT_BANNER)
+    print()
     return
 
 

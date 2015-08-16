@@ -21,6 +21,7 @@
 
 # System Imports
 from __future__ import absolute_import
+from __future__ import print_function
 import ConfigParser
 import argparse
 import getpass
@@ -136,20 +137,20 @@ class PKIConfigParser:
         if len(config.pki_root_prefix) > 0:
             if not os.path.exists(config.pki_root_prefix) or \
                     not os.path.isdir(config.pki_root_prefix):
-                print "ERROR:  " + \
-                      log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % \
-                      config.pki_root_prefix
-                print
+                print("ERROR:  " +
+                      log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 %
+                      config.pki_root_prefix)
+                print()
                 self.arg_parser.print_help()
                 self.arg_parser.exit(-1)
 
         # always default that configuration file exists
         if not os.path.exists(config.default_deployment_cfg) or \
                 not os.path.isfile(config.default_deployment_cfg):
-            print "ERROR:  " + \
-                  log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % \
-                  config.default_deployment_cfg
-            print
+            print("ERROR:  " +
+                  log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
+                  config.default_deployment_cfg)
+            print()
             self.arg_parser.print_help()
             self.arg_parser.exit(-1)
 
@@ -157,10 +158,10 @@ class PKIConfigParser:
             # verify user configuration file exists
             if not os.path.exists(config.user_deployment_cfg) or \
                     not os.path.isfile(config.user_deployment_cfg):
-                print "ERROR:  " + \
-                      log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % \
-                      config.user_deployment_cfg
-                print
+                print("ERROR:  " +
+                      log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
+                      config.user_deployment_cfg)
+                print()
                 self.arg_parser.print_help()
                 self.arg_parser.exit(-1)
 
@@ -247,7 +248,7 @@ class PKIConfigParser:
         config.user_config.set(section, key, value)
 
     def print_text(self, message):
-        print ' ' * self.indent + message
+        print(' ' * self.indent + message)
 
     def read_text(self, message, section=None, key=None, default=None,
                   options=None, sign=':', allow_empty=True,
@@ -337,8 +338,8 @@ class PKIConfigParser:
                     'pki_replicationdb_password',
                     'pki_security_domain_password')
 
-                print 'Loading deployment configuration from ' + \
-                      config.user_deployment_cfg + '.'
+                print('Loading deployment configuration from ' +
+                      config.user_deployment_cfg + '.')
                 self.pki_config.read([config.user_deployment_cfg])
                 config.user_config.read([config.user_deployment_cfg])
 
@@ -372,7 +373,7 @@ class PKIConfigParser:
                             except ConfigParser.NoOptionError:
                                 continue
         except ConfigParser.ParsingError as err:
-            print err
+            print(err)
             rv = err
         return rv
 

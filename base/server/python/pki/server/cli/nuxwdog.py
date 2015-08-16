@@ -20,6 +20,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 import getopt
 import fileinput
 import os
@@ -59,11 +60,11 @@ class NuxwdogEnableCLI(pki.cli.CLI):
             'Enable nuxwdog')
 
     def print_help(self):
-        print 'Usage: pki-server nuxwdog-enable [OPTIONS]'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server nuxwdog-enable [OPTIONS]')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
         try:
@@ -71,7 +72,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
@@ -84,7 +85,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
@@ -172,7 +173,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
 
     def enable_nuxwdog_server_xml(self, filename, instance):
         if self.verbose:
-            print 'Enabling nuxwdog in %s' % filename
+            print('Enabling nuxwdog in %s' % filename)
 
         conf_file = self.get_conf_file(instance)
 
@@ -265,11 +266,11 @@ class NuxwdogDisableCLI(pki.cli.CLI):
             'Disable nuxwdog')
 
     def print_help(self):
-        print 'Usage: pki-server nuxwdog-disable [OPTIONS]'
-        print
-        print '  -v, --verbose                Run in verbose mode.'
-        print '      --help                   Show help message.'
-        print
+        print('Usage: pki-server nuxwdog-disable [OPTIONS]')
+        print()
+        print('  -v, --verbose                Run in verbose mode.')
+        print('      --help                   Show help message.')
+        print()
 
     def execute(self, argv):
         try:
@@ -277,7 +278,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            print 'ERROR: ' + str(e)
+            print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
 
@@ -290,7 +291,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print 'ERROR: unknown option ' + o
+                print('ERROR: unknown option ' + o)
                 self.print_help()
                 sys.exit(1)
 
@@ -351,7 +352,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
 
     def disable_nuxwdog_server_xml(self, filename, instance):
         if self.verbose:
-            print 'Disabling nuxwdog in %s' % filename
+            print('Disabling nuxwdog in %s' % filename)
 
         pw_conf = os.path.join(instance.conf_dir, 'password.conf')
 

@@ -22,6 +22,7 @@
 
 # System Imports
 from __future__ import absolute_import
+from __future__ import print_function
 import errno
 import sys
 import os
@@ -4455,7 +4456,7 @@ class ConfigClient:
 
                 data.adminCertRequest = b64
             else:
-                print "log.PKI_CONFIG_PKCS10_SUPPORT_ONLY"
+                print("log.PKI_CONFIG_PKCS10_SUPPORT_ONLY")
                 raise Exception(log.PKI_CONFIG_PKCS10_SUPPORT_ONLY)
 
     def set_issuing_ca_parameters(self, data):
