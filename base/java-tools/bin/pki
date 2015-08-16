@@ -31,7 +31,7 @@ def run_java_cli(args):
     value = subprocess.check_output(
         '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
         shell=True)
-    resteasy_lib = str(value).strip()
+    resteasy_lib = value.decode(sys.getfilesystemencoding()).strip()
 
     # construct classpath
     classpath = [
@@ -92,7 +92,8 @@ def main(argv):
     value = subprocess.check_output(
         '. /etc/pki/pki.conf && echo $PKI_CLI_OPTIONS',
         shell=True)
-    args = shlex.split(value.strip())
+    value = value.decode(sys.getfilesystemencoding()).strip()
+    args = shlex.split(value)
     args.extend(argv[1:])
 
     client_type = 'java'

@@ -31,6 +31,7 @@ import random
 import requests.exceptions
 import string
 import subprocess
+import sys
 import xml.etree.ElementTree as ET
 
 from six.moves import input, range  # pylint: disable=W0622,F0401
@@ -174,16 +175,18 @@ class PKIConfigParser:
         resteasy_lib = subprocess.check_output(
             '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
             shell=True)
+        resteasy_lib = resteasy_lib.decode(sys.getfilesystemencoding())
         # workaround for pylint error E1103
-        resteasy_lib = str(resteasy_lib).strip()
+        resteasy_lib = resteasy_lib.strip()
 
         # JNI jar location
         jni_jar_dir = subprocess.check_output(
             '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf '
             '&& echo $JNI_JAR_DIR',
             shell=True)
+        jni_jar_dir = jni_jar_dir.decode(sys.getfilesystemencoding())
         # workaround for pylint error E1103
-        jni_jar_dir = str(jni_jar_dir).strip()
+        jni_jar_dir = jni_jar_dir.strip()
 
         default_instance_name = 'pki-tomcat'
         default_http_port = '8080'

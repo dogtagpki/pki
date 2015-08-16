@@ -21,6 +21,7 @@
 
 from __future__ import absolute_import
 import os
+import sys
 import subprocess
 
 import pki.server.upgrade
@@ -41,8 +42,9 @@ class ReplaceJettisonWithJackson(pki.server.upgrade.PKIServerUpgradeScriptlet):
         resteasy_lib = subprocess.check_output(
             '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
             shell=True)
+        resteasy_lib = resteasy_lib.decode(sys.getfilesystemencoding())
         # workaround for pylint error E1103
-        resteasy_lib = str(resteasy_lib).strip()
+        resteasy_lib = resteasy_lib.strip()
 
         # remove old links
         link = os.path.join(common_lib, 'jettison.jar')

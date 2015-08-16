@@ -2717,10 +2717,10 @@ class Modutil:
         # execute command
         p = subprocess.Popen(command, stdout=subprocess.PIPE)
         output = p.communicate()[0]
-
         p.wait()
         # ignore return code due to issues with HSM
         # https://fedorahosted.org/pki/ticket/1444
+        output = output.decode('utf-8')
 
         # find modules from lines such as '1. NSS Internal PKCS #11 Module'
         modules = re.findall(r'^ +\d+\. +(.*)$', output, re.MULTILINE)
@@ -3052,7 +3052,7 @@ class KRAConnector:
 
         output = subprocess.check_output(command,
                                          stderr=subprocess.STDOUT)
-
+        output = output.decode('utf-8')
         error = re.findall("ClientResponseFailure:(.*?)", output)
         if error:
             config.pki_log.warning(
@@ -3206,7 +3206,7 @@ class TPSConnector:
         output = subprocess.check_output(command,
                                          stderr=subprocess.STDOUT,
                                          shell=False)
-
+        output = output.decode('utf-8')
         error = re.findall("ClientResponseFailure:(.*?)", output)
         if error:
             config.pki_log.warning(
@@ -3304,6 +3304,7 @@ class SecurityDomain:
                 output = subprocess.check_output(
                     command,
                     stderr=subprocess.STDOUT)
+                output = output.decode('utf-8')
             except subprocess.CalledProcessError:
                 config.pki_log.warning(
                     log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
@@ -3418,6 +3419,7 @@ class SecurityDomain:
         try:
             output = subprocess.check_output(command,
                                              stderr=subprocess.STDOUT)
+            output = output.decode('utf-8')
             return output
         except subprocess.CalledProcessError as exc:
             config.pki_log.warning(
