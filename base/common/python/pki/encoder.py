@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import json
+from six import iteritems, itervalues
 
 TYPES = {}
 NOTYPES = {}
@@ -35,10 +36,10 @@ class CustomTypeEncoder(json.JSONEncoder):
     # pylint: disable=E0202
 
     def default(self, obj):
-        for k, v in TYPES.iteritems():
+        for k, v in iteritems(TYPES):
             if isinstance(obj, v):
                 return {k: obj.__dict__}
-        for t in NOTYPES.itervalues():
+        for t in itervalues(NOTYPES):
             if isinstance(obj, t):
                 return self.attr_name_conversion(obj.__dict__, type(obj))
         return json.JSONEncoder.default(self, obj)
@@ -48,9 +49,9 @@ class CustomTypeEncoder(json.JSONEncoder):
         if not hasattr(object_class, 'json_attribute_names'):
             return attr_dict
         reverse_dict = {v: k for k, v in
-                        object_class.json_attribute_names.iteritems()}
+                        iteritems(object_class.json_attribute_names)}
         new_dict = dict()
-        for k, v in attr_dict.iteritems():
+        for k, v in iteritems(attr_dict):
             if k in reverse_dict:
                 new_dict[reverse_dict[k]] = v
             else:
@@ -60,7 +61,8 @@ class CustomTypeEncoder(json.JSONEncoder):
 
 def CustomTypeDecoder(dct):  # nopep8
     if len(dct) == 1:
-        type_name, value = dct.items()[0]
+        type_name = list(dct)[0]
+        value = dct[type_name]
         if type_name in TYPES:
             return TYPES[type_name].from_dict(value)
     return dct

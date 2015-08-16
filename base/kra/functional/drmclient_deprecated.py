@@ -1067,7 +1067,7 @@ response = test_kra.list_security_data(client_id, "active")
 print(response)
 
 # create recovery request
-key_id = response.keys()[0]
+key_id = list(response)[0]
 print(key_id)
 response = test_kra.submit_recovery_request(key_id)
 print(response)

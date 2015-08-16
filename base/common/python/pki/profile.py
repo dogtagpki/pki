@@ -22,6 +22,7 @@ from __future__ import print_function
 import json
 import os
 
+from six import iteritems
 
 import pki
 import pki.client as client
@@ -60,7 +61,7 @@ class ProfileDataInfo(object):
             return None
 
         profile_data_info = cls()
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k in ProfileDataInfo.json_attribute_names:
                 setattr(profile_data_info,
                         ProfileDataInfo.json_attribute_names[k], v)
@@ -130,7 +131,7 @@ class Descriptor(object):
             return None
 
         descriptor = cls()
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k in Descriptor.json_attribute_names:
                 setattr(descriptor,
                         Descriptor.json_attribute_names[k], v)
@@ -262,7 +263,7 @@ class ProfileInput(object):
             return None
         profile_input = cls()
 
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['Attribute', 'ConfigAttribute']:
                 if k in ProfileInput.json_attribute_names:
                     setattr(profile_input,
@@ -347,7 +348,7 @@ class ProfileOutput(object):
             return None
 
         profile_output = cls()
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['attributes']:
                 if k in ProfileOutput.json_attribute_names:
                     setattr(profile_output,
@@ -469,7 +470,7 @@ class PolicyDefault(object):
             return None
 
         policy_def = cls()
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['policyAttribute', 'params']:
                 if k in PolicyDefault.json_attribute_names:
                     setattr(policy_def,
@@ -588,7 +589,7 @@ class PolicyConstraint(object):
             return None
 
         policy_constraint = cls()
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['constraint']:
                 if k in PolicyConstraint.json_attribute_names:
                     setattr(policy_constraint,
@@ -921,7 +922,7 @@ class Profile(object):
     @classmethod
     def from_json(cls, attr_list):
         profile_data = cls()
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['Input', 'Output', 'PolicySets']:
                 if k in Profile.json_attribute_names:
                     setattr(profile_data,

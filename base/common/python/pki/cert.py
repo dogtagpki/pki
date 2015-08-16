@@ -25,6 +25,8 @@ from __future__ import print_function
 import copy
 import json
 
+from six import iteritems
+
 import pki
 import pki.client as client
 import pki.encoder as encoder
@@ -75,7 +77,7 @@ class CertData(object):
         """ Return CertData object from JSON dict """
         cert_data = cls()
 
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['Link']:
                 if k in CertData.json_attribute_names:
                     setattr(cert_data, CertData.json_attribute_names[k], v)
@@ -131,7 +133,7 @@ class CertDataInfo(object):
     def from_json(cls, attr_list):
         """ Return CertDataInfo object from JSON dict """
         cert_data_info = cls()
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['Link']:
                 if k in CertDataInfo.json_attribute_names:
                     setattr(cert_data_info,
@@ -221,7 +223,7 @@ class CertRequestInfo(object):
     def from_json(cls, attr_list):
         cert_request_info = cls()
 
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['Link']:
                 if k in CertRequestInfo.json_attribute_names:
                     setattr(cert_request_info,
@@ -336,7 +338,7 @@ class CertSearchRequest(object):
         if len(cert_search_params) == 0:
             setattr(self, 'serialNumberRangeInUse', True)
 
-        for param, value in cert_search_params.viewitems():
+        for param, value in iteritems(cert_search_params):
             if param not in CertSearchRequest.search_params:
                 raise ValueError('Invalid search parameter: ' + param)
 
@@ -499,7 +501,7 @@ class CertEnrollmentRequest(object):
 
         enroll_request = cls()
 
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['Input', 'Output']:
                 if k in CertEnrollmentRequest.json_attribute_names:
                     setattr(enroll_request,
@@ -592,7 +594,7 @@ class CertReviewResponse(CertEnrollmentRequest):
         # First read the values for attributes defined in CertEnrollmentRequest
         review_response = super(CertReviewResponse, cls).from_json(attr_list)
 
-        for k, v in attr_list.iteritems():
+        for k, v in iteritems(attr_list):
             if k not in ['ProfilePolicySet'] and k not in \
                     CertEnrollmentRequest.json_attribute_names:
                 if k in CertReviewResponse.json_attribute_names:

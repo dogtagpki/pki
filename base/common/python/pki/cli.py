@@ -24,6 +24,7 @@ from __future__ import print_function
 import collections
 import getopt
 import sys
+from six import itervalues
 
 
 class CLI(object):
@@ -75,7 +76,7 @@ class CLI(object):
 
         print('Commands:')
 
-        for module in self.modules.itervalues():
+        for module in itervalues(self.modules):
             full_name = module.get_full_name()
             print(' {:30}{:30}'.format(full_name, module.description))
 

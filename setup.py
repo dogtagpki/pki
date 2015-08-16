@@ -72,7 +72,7 @@ setup(
         'base/server/sbin/pkispawn',
         'base/java-tools/bin/pki',
     ],
-    data_files=upgrades.items(),
+    data_files=list(upgrades.items()),
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',

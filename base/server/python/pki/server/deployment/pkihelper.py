@@ -3025,7 +3025,7 @@ class KRAConnector:
                 "Trying old interface. " + str(e),
                 extra=config.PKI_INDENTATION_LEVEL_2)
             info = sd.get_old_security_domain_info()
-        return info.systems['CA'].hosts.values()
+        return list(info.systems['CA'].hosts.values())
 
     def execute_using_pki(
             self, caport, cahost, subsystemnick,
