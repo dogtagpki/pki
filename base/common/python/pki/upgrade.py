@@ -539,7 +539,10 @@ class PKIUpgrader(object):
 
             # load scriptlet class
             variables = {}
-            execfile(os.path.join(version_dir, filename), variables)
+            absname = os.path.join(version_dir, filename)
+            with open(absname, 'r') as f:
+                bytecode = compile(f.read(), absname, 'exec')
+            exec(bytecode, variables)  # pylint: disable=W0122
 
             # create scriptlet object
             scriptlet = variables[classname]()
