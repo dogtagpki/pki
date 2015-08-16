@@ -21,9 +21,18 @@
 
 from __future__ import absolute_import
 import selinux
+import sys
 import time
+
+seobject = None
 if selinux.is_selinux_enabled():
-    import seobject
+    try:
+        import seobject
+    except ImportError:
+        # TODO: Fedora 22 has an incomplete Python 3 package
+        # sepolgen is missing.
+        if sys.version_info.major == 2:
+            raise
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -50,7 +59,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
 
-        if not bool(selinux.is_selinux_enabled()):
+        if not selinux.is_selinux_enabled() or seobject is None:
             config.pki_log.info(log.SELINUX_DISABLED_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv

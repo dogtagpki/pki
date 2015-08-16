@@ -43,8 +43,16 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 import zipfile
 import selinux
+
+seobject = None
 if selinux.is_selinux_enabled():
-    import seobject
+    try:
+        import seobject
+    except ImportError:
+        # TODO: Fedora 22 has an incomplete Python 3 package
+        # sepolgen is missing.
+        if sys.version_info.major == 2:
+            raise
 
 
 # PKI Deployment Imports
@@ -856,7 +864,7 @@ class ConfigurationFile:
         if len(ports) == 0:
             return
 
-        if not bool(selinux.is_selinux_enabled()):
+        if not selinux.is_selinux_enabled() or seobject is None:
             config.pki_log.error(
                 log.PKIHELPER_SELINUX_DISABLED,
                 extra=config.PKI_INDENTATION_LEVEL_2)
