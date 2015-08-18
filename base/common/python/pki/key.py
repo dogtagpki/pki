@@ -30,7 +30,7 @@ import base64
 import json
 
 from six import iteritems
-from six.moves.urllib.parse import quote  # pylint: disable=F0401
+from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
 
 import pki
 import pki.encoder as encoder
