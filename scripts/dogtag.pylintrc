@@ -45,7 +45,7 @@ extension-pkg-whitelist=ldap,lxml,nss
 #
 # C and R messages are disabled by default. To clean up the code, enable C and
 # R messages temporarily.
-disable=W0511,W0105,W0142,C,R
+disable=W0511,W0105,W0142,C,R,W0232
 
 
 [REPORTS]
