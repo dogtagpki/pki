@@ -548,7 +548,7 @@ sha256_pw_enc( char *pwd )
 
     sprintf( enc, "{SHA256}");
 
-    (void)ldif_base64_encode( hash, enc + 5,
+    (void)ldif_base64_encode( hash, enc + 8,
         SHA256_LENGTH, -1 );
 
     return( enc );
