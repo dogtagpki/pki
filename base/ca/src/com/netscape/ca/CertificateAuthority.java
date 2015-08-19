@@ -349,9 +349,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                     throw e;
             }
 
-            // init web gateway.
-            initWebGateway();
-
             mUseNonces = mConfig.getBoolean("enableNonces", true);
             mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
 
@@ -1493,14 +1490,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         mReplicaRepot = new ReplicaIDRepository(
                 DBSubsystem.getInstance(), 1, replicaReposDN);
         CMS.debug("Replica Repot inited");
-
-    }
-
-    /**
-     * init web gateway - just gets the ee gateway for this CA.
-     */
-    private void initWebGateway()
-            throws EBaseException {
     }
 
     private void startPublish()
