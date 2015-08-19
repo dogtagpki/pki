@@ -947,7 +947,7 @@ class PKIConfigParser:
                     "+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
                     "-TLS_RSA_WITH_3DES_EDE_CBC_SHA," + \
                     "-TLS_RSA_WITH_AES_128_CBC_SHA," + \
-                    "-TLS_RSA_WITH_AES_256_CBC_SHA," + \
+                    "+TLS_RSA_WITH_AES_256_CBC_SHA," + \
                     "+TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
                     "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
                     "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
@@ -963,13 +963,13 @@ class PKIConfigParser:
                     "-TLS_DHE_RSA_WITH_AES_256_CBC_SHA256," + \
                     "-TLS_DHE_RSA_WITH_AES_128_GCM_SHA256," + \
                     "-TLS_RSA_WITH_AES_128_CBC_SHA256," + \
-                    "-TLS_RSA_WITH_AES_256_CBC_SHA256," + \
+                    "+TLS_RSA_WITH_AES_256_CBC_SHA256," + \
                     "-TLS_RSA_WITH_AES_128_GCM_SHA256," + \
                     "+TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256," + \
                     "+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+                    "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
+                    "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256," + \
+                    "-TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
             else:
                 self.mdict['TOMCAT_SSL_RANGE_CIPHERS_SLOT'] = \
                     "-TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA," + \
@@ -983,9 +983,9 @@ class PKIConfigParser:
                     "-TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA," + \
                     "-TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA," + \
                     "-TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
+                    "-TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA," + \
+                    "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA," + \
+                    "-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA," + \
                     "-TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA," + \
                     "-TLS_DHE_DSS_WITH_AES_128_CBC_SHA," + \
                     "-TLS_DHE_DSS_WITH_AES_256_CBC_SHA," + \
@@ -997,9 +997,9 @@ class PKIConfigParser:
                     "-TLS_DHE_RSA_WITH_AES_128_GCM_SHA256," + \
                     "-TLS_DHE_DSS_WITH_AES_128_GCM_SHA256," + \
                     "-TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256," + \
+                    "-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256," + \
                     "-TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256," + \
-                    "+TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256," + \
+                    "-TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256," + \
                     "-TLS_RSA_WITH_AES_128_CBC_SHA256," + \
                     "-TLS_RSA_WITH_AES_256_CBC_SHA256," + \
                     "-TLS_RSA_WITH_AES_128_GCM_SHA256," + \
