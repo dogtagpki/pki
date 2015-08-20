@@ -47,6 +47,27 @@ var key = new Object();
 key.type = "EC";
 keyList[1] = key;
 
+function isIE() {
+   if ( "ActiveXObject" in window ) {
+     return true;
+   }
+   return false;
+ }
+
+ function isIE11() {
+
+   if ( !(window.ActiveXObject) && "ActiveXObject" in window ) {
+     return true;
+   }
+   return false;
+ }
+
+function getIE11Warning() {
+     document.write('<p> <font color="red"> Warning: Internet Explore Version 11 is not currently supported for certain enrollment operations. Please use an earlier version of the browser.  </font> </p>');
+     document.write('<br>');
+}
+
+
 function getKeyStrengthTableForKeyGen() {
 
   document.writeln("<table border='1'> <caption> KeyGen Key Strength Info </caption> <tr> <th> Key Type </th> <th> High Grade </th> <th> Medium Grade </th> </tr>");
@@ -145,7 +166,7 @@ function keyTypeOptions (keyPurpose)
   if (keyFound == 0) {
     keyType = "RSA";
   }
-  if ((navigator.appName == "Microsoft Internet Explorer") &&
+  if ((isIE()) &&
       ((navigator.appVersion).indexOf("NT 6.") == -1)) {
     keyType = "RSA";
   }
@@ -156,7 +177,7 @@ function keyTypeOptions (keyPurpose)
 function translateCurveName (name)
 {
   var translated = "";
-  if (navigator.appName == "Microsoft Internet Explorer") {
+  if (isIE()) {
     if (name == "nistp256" || name == "ECDSA_P256") {
       translated = "ECDSA_P256";
     } else if (name == "nistp384" || name == "ECDSA_P384") {
@@ -207,7 +228,7 @@ function keyLengthsCurvesOptions (keyPurpose)
       }
     }
   }
-  if ((navigator.appName == "Microsoft Internet Explorer") &&
+  if ((isIE()) &&
       ((navigator.appVersion).indexOf("NT 6.") == -1)) {
     keyType = "RSA";
   }
@@ -222,7 +243,7 @@ function keyLengthsCurvesOptions (keyPurpose)
       if (keyType != "EC" && !isNumeric(value)) {
           included = false;
       } else if (keyType == "EC" &&
-                 navigator.appName == "Microsoft Internet Explorer" &&
+                 isIE() &&
                  value != "nistp256" && value != "nistp384" && value != "nistp521" &
                  value != "ECDSA_P256" && value != "ECDSA_P384" && value != "ECDSA_P521") {
           included = false;
@@ -245,7 +266,7 @@ function keyLengthsCurvesOptions (keyPurpose)
      if (keyType != "EC") {
          options = '<OPTION VALUE=1024 SELECTED>1024';
      } else {
-         if (navigator.appName == "Microsoft Internet Explorer") {
+         if (isIE()) {
              options = '<OPTION VALUE="ECDSA_P256">nistp256';
          } else {
              options = '<OPTION VALUE="nistp256">nistp256';
@@ -418,7 +439,7 @@ function setCRMFRequest()
       uri = '/ca/eeca/ca/profileSubmitSSLClient';
     }
   }
-  if (navigator.appName == "Microsoft Internet Explorer") {
+  if (isIE()) {
     if ((navigator.appVersion).indexOf("NT 6.") > -1) {
       document.writeln("<OBJECT id='g_objClassFactory' CLASSID='clsid:884e2049-217d-11da-b2a4-000e7bbb2b09'></OBJECT>");
     } else {
@@ -717,7 +738,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
     } else if (inputListSet[n].inputSyntax == 'cert_request_type') {
       document.writeln('<select name=' + inputListSet[n].inputId + '><option value="pkcs10">PKCS#10</option><option value="crmf">CRMF</option></select>');
     } else if (inputListSet[n].inputSyntax == 'dual_keygen_request') {
-      if (navigator.appName == "Microsoft Internet Explorer") { 
+      if (isIE()) {
         document.writeln('<input type=hidden name=' + inputListSet[n].inputId + '>');
       } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.write('<SELECT NAME="encKeyParam">'+keyLengthsCurvesOptions("encryption")+'</SELECT>');
@@ -734,7 +755,10 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
     } else if ((inputListSet[n].inputSyntax == 'keygen_request') ||
                (inputListSet[n].inputSyntax == 'enc_keygen_request') ||
                (inputListSet[n].inputSyntax == 'sign_keygen_request')) {
-      if (navigator.appName == "Microsoft Internet Explorer") { 
+      if (isIE()) {
+        if ( isIE11() ) {
+          getIE11Warning();
+        }
         document.writeln('<input type=hidden name=' + inputListSet[n].inputId + '>');
         document.writeln('<SELECT NAME="keyLength">'+keyLengthsCurvesOptions("")+'</SELECT>&nbsp;&nbsp;<SELECT NAME=\"cryptprovider\"></SELECT>');
       } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
@@ -771,7 +795,10 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
       }
     } else if (inputListSet[n].inputSyntax == 'dual_keygen_request_type') {
       keygen_request = 'true';
-      if (navigator.appName == "Microsoft Internet Explorer") {
+      if (isIE()) {
+        if ( isIE11() ) {
+          getIE11Warning();
+        }
         document.writeln('Not Supported<input type=hidden name=' + inputListSet[n].inputId + ' value=>');
       } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">crmf</FONT><input type=hidden name=' + inputListSet[n].inputId + ' value=crmf>');
@@ -783,7 +810,7 @@ for (var m = 0; m < inputPluginListSet.length; m++) {
                (inputListSet[n].inputSyntax == 'enc_keygen_request_type') ||
                (inputListSet[n].inputSyntax == 'sign_keygen_request_type')) {
       keygen_request = 'true';
-      if (navigator.appName == "Microsoft Internet Explorer") {
+      if (isIE()) {
         document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">pkcs10</FONT><input type=hidden name=' + inputListSet[n].inputId + ' value=pkcs10>');
       } else if (typeof(crypto) != "undefined" && typeof(crypto.version) != "undefined") {
         document.writeln('<FONT size="-1" face="PrimaSans BT, Verdana, sans-serif">crmf</FONT><input type=hidden name=' + inputListSet[n].inputId + ' value=crmf>');
@@ -811,7 +838,7 @@ document.writeln('<input type=hidden name=xmlOutput value="' +
 <p>
 <script language=javascript>
 if (errorCode == 0) {
-  if (navigator.appName == "Microsoft Internet Explorer") {
+  if (isIE()) {
     if (typeof(keygen_request) != "undefined") {
       document.writeln('<input type=submit value="Submit">');
     } else {
