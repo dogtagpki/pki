@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          6%{?dist}
+Release:          7%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -172,6 +172,9 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch19:          pki-core-Remove-PortalEnroll-plugin.patch
 #Patch20:          pki-core-Fix-setpin-utility.patch
 #Patch21:          pki-core-Fix-weak-HTTPS-TLS-ciphers.patch
+#Patch22:          pki-core-Minor-setpin-fix.patch
+#Patch23:          pki-core-Fix-TLS-ciphers-on-non-CA-HSMs.patch
+#Patch24:          pki-core-Issue-IE-11-warning.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -697,6 +700,9 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch19 -p1
 #%patch20 -p1
 #%patch21 -p1
+#%patch22 -p1
+#%patch23 -p1
+#%patch24 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1045,6 +1051,14 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Aug 20 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-7
+- PKI TRAC Ticket #1546 - Setpin utility doesn't set the pin for users - minor
+  tweak [jmagne]
+- PKI TRAC Ticket #1566 - non-CA subystem installations failing while trying
+  to join security domain [cfu]
+- PKI TRAC Ticket #1575 - Internet Explorer 11: caUserCert request submission
+  fails using the EE page [jmagne]
+
 * Sun Aug 16 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-6
 - PKI TRAC Ticket #1549 - Enabling random serial number management does not
   enable the same in clone [alee]
