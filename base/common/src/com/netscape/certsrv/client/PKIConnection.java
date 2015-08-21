@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -408,15 +409,27 @@ public class PKIConnection {
     }
 
     public <T> T getEntity(Response response, Class<T> clazz) {
-
-        // handle HTTP status code 4xx and 5xx only
-        StatusType status = response.getStatusInfo();
-        Family family = status.getFamily();
+        Family family = response.getStatusInfo().getFamily();
         if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
             if (response.hasEntity()) return response.readEntity(clazz);
             return null;
         }
+        handleErrorResponse(response);
+        return null;
+    }
 
+    public <T> T getEntity(Response response, GenericType<T> clazz) {
+        Family family = response.getStatusInfo().getFamily();
+        if (!family.equals(Family.CLIENT_ERROR) && !family.equals(Family.SERVER_ERROR)) {
+            if (response.hasEntity()) return response.readEntity(clazz);
+            return null;
+        }
+        handleErrorResponse(response);
+        return null;
+    }
+
+    private void handleErrorResponse(Response response) {
+        StatusType status = response.getStatusInfo();
         MediaType contentType = response.getMediaType();
 
         if (!MediaType.APPLICATION_XML_TYPE.equals(contentType)

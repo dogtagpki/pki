@@ -26,6 +26,7 @@ import java.security.cert.CertificateEncodingException;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -109,6 +110,10 @@ public class PKIClient {
     }
 
     public <T> T getEntity(Response response, Class<T> clazz) {
+        return connection.getEntity(response, clazz);
+    }
+
+    public <T> T getEntity(Response response, GenericType<T> clazz) {
         return connection.getEntity(response, clazz);
     }
 
