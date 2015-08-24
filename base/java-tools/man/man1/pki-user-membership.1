@@ -1,0 +1,84 @@
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH pki-user-membership 1 "Aug 24, 2015" "version 10.2" "PKI User Membership Management Commands" Dogtag Team
+.\" Please adjust this date whenever revising the man page.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for man page specific macros, see man(7)
+.SH NAME
+pki-user-membership \- Command-Line Interface for managing Certificate System user memberships.
+
+.SH SYNOPSIS
+.nf
+\fBpki\fR [CLI options] \fB<subsystem>-user-membership\fR
+\fBpki\fR [CLI options] \fB<subsystem>-user-membership-find\fR <user ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-membership-add\fR <user ID> <group ID> [command options]
+\fBpki\fR [CLI options] \fB<subsystem>-user-membership-del\fR <user ID> <group ID> [command options]
+.fi
+
+.SH DESCRIPTION
+.PP
+The \fBpki-user-membership\fR commands provide command-line interfaces to manage user memberships on the specified subsystem.
+.PP
+Valid subsystems are \fBca\fR, \fBkra\fR, \fBocsp\fR, \fBtks\fR, and \fBtps\fR. If the \fB<subsystem>-\fR prefix is omitted, it will default to \fBca\fR.
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-membership\fR
+.RS 4
+This command is to list available user membership commands for the subsystem.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-membership-find\fR <user ID> [command options]
+.RS 4
+This command is to list groups in which the subsystem user is a member.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-membership-add\fR <user ID> <group ID> [command options]
+.RS 4
+This command is to add the subsystem user into a group.
+.RE
+.PP
+\fBpki\fR [CLI options] \fB<subsystem>-user-membership-del\fR <user ID> <group ID> [command options]
+.RS 4
+This command is to delete the subsystem user from a group.
+.RE
+
+.SH OPTIONS
+The CLI options are described in \fBpki\fR(1).
+
+.SH OPERATIONS
+To view available user membership commands, type \fBpki <subsystem>-user-membership\fP. To view each command's usage, type \fB pki <subsystem>-user-membership-<command> \-\-help\fP.
+
+All user membership commands must be executed as the subsystem administrator.
+
+For example, to list groups in which a CA user is a member execute the following command:
+
+.B pki <CA admin authentication> ca-user-membership-find testuser
+
+The results can be paged by specifying the (0-based) index of the first entry to return and the maximum number of entries returned:
+
+.B pki <CA admin authentication> ca-user-membership-find testuser --start 20 --size 10
+
+The above command will return entries #20 to #29.
+
+To add a CA user into a group, specify the user ID and the group ID in the following command:
+
+.B pki <CA admin authentication> ca-user-membership-add testuser Administrators
+
+To delete a CA user from a group, specify the user ID and the group ID in the following command:
+
+.B pki <CA admin authentication> ca-user-membership-del testuser Administrators
+
+.SH AUTHORS
+Endi S. Dewata <edewata@redhat.com>.
+
+.SH COPYRIGHT
+Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
