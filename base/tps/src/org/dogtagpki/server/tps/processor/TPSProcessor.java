@@ -3402,10 +3402,20 @@ public class TPSProcessor {
         byte protocol = oidSecureChannelProtocol.at(length - 2);
         byte implementation = oidSecureChannelProtocol.at(length - 1);
 
+        if (protocol == SecureChannel.SECURE_PROTO_03) {
+            throw new TPSException("TPSProcessor.gp211GetSecureChannelProtocolDetails: No support for SCP03 as of yet, bailing.",
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+        }
+
         platProtInfo.setProtocol(protocol);
         platProtInfo.setImplementation(implementation);
         platProtInfo.setKeysetInfoData(keyData);
-        platProtInfo.setPlatform(SecureChannel.GP211);
+
+        if (protocol == SecureChannel.SECURE_PROTO_02)
+            platProtInfo.setPlatform(SecureChannel.GP211);
+        else
+            platProtInfo.setPlatform(SecureChannel.GP201);
+
 
         CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: protocol: " + protocol + " implementation: "
                 + implementation + " keyInfoData: " + keyData.toHexString());
