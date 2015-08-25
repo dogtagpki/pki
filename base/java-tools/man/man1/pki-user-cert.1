@@ -77,19 +77,19 @@ The above command will return entries #20 to #29.
 
 To view a certificate owned by a CA user, specify the user ID and the certificate ID in the following command:
 
-.B pki <CA admin authentication> ca-user-cert-show testuser \*(lq2;11;CN=CA Signing Certificate,O=EXAMPLE;UID=testuser\*(rq
+.B pki <CA admin authentication> ca-user-show testuser \*(lq2;11;CN=CA Signing Certificate,O=EXAMPLE;UID=testuser\*(rq
 
 To add a certificate to a CA user from a file, specify the user ID and the input file:
 
-.B pki <CA admin authentication> ca-user-cert-add testuser --input testuser.crt
+.B pki <CA admin authentication> ca-user-add testuser --input testuser.crt
 
 To add a certificate to a CA user from the certificate repository, specify the user ID and the serial number:
 
-.B pki <CA admin authentication> ca-user-cert-add testuser --serial 0x80
+.B pki <CA admin authentication> ca-user-add testuser --serial 0x80
 
 To delete a certificate from a CA user, specify the user ID and the certificate ID in the following command:
 
-.B pki <CA admin authentication> ca-user-cert-del testuser \*(lq2;11;CN=CA Signing Certificate,O=EXAMPLE;UID=testuser\*(rq
+.B pki <CA admin authentication> ca-user-del testuser \*(lq2;11;CN=CA Signing Certificate,O=EXAMPLE;UID=testuser\*(rq
 
 .SH AUTHORS
 Endi S. Dewata <edewata@redhat.com>.
