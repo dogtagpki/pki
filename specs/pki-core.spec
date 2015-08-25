@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          7%{?dist}
+Release:          8%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -175,6 +175,9 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch22:          pki-core-Minor-setpin-fix.patch
 #Patch23:          pki-core-Fix-TLS-ciphers-on-non-CA-HSMs.patch
 #Patch24:          pki-core-Issue-IE-11-warning.patch
+#Patch25:          pki-core-User-Membership-Man-Page.patch
+#Patch26:          pki-core-Fix-SC650-Token-Format-Enroll.patch
+#Patch27:          pki-core-Support-Multiple-Keysets.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -703,6 +706,9 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch22 -p1
 #%patch23 -p1
 #%patch24 -p1
+#%patch25 -p1
+#%patch26 -p1
+#%patch27 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1052,6 +1058,13 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon Aug 24 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-8
+- PKI TRAC Ticket #1584 - man page for pki-user does not information about
+  user-membership [edewata]
+- PKI TRAC Ticket #1583 - SC650 format/enroll fails [jmagne]
+- PKI TRAC Ticket #1307 - [RFE] Support multiple keySets for different cards
+  for ExternalReg [cfu]
+
 * Thu Aug 20 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-7
 - PKI TRAC Ticket #1546 - Setpin utility doesn't set the pin for users - minor
   tweak [jmagne]
