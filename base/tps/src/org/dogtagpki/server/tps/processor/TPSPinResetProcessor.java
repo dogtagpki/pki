@@ -110,7 +110,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
             if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
                 FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
-                        appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                        appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                         appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
                 TPSSubsystem subsystem =
                         (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);

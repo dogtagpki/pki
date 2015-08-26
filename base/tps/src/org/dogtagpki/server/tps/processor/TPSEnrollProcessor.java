@@ -239,7 +239,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
                     FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
-                            appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                            appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                             appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
                     TPSSubsystem subsystem =
                             (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -267,7 +267,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
                     FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
-                            appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                            appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                             appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
                     TPSSubsystem subsystem =
                             (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);

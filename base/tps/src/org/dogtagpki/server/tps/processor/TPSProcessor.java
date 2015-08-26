@@ -1866,7 +1866,7 @@ public class TPSProcessor {
 
                 if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
                     FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
-                            appletInfo.getCUIDhexString(), appletInfo.getMSNString(),
+                            appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                             appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
                     TPSSubsystem subsystem =
                             (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -1894,7 +1894,7 @@ public class TPSProcessor {
                 String resolverInstName = getResolverInstanceName();
 
                 if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
-                    FilterMappingParams mappingParams  = createFilterMappingParams(resolverInstName, cuid, msn, major_version, minor_version);
+                    FilterMappingParams mappingParams  = createFilterMappingParams(resolverInstName, appletInfo.getCUIDhexStringPlain(), msn, major_version, minor_version);
 
                     TPSSubsystem subsystem =
                             (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
