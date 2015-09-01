@@ -37,7 +37,10 @@ public interface CertRequestResource {
     @POST
     @Path("certrequests")
     @ClientResponseType(entityType=CertRequestInfos.class)
-    public Response enrollCert(CertEnrollmentRequest data);
+    public Response enrollCert(
+        CertEnrollmentRequest data,
+        @QueryParam("issuer-id") String caIDString,
+        @QueryParam("issuer-dn") String caDNString);
 
     /**
      * Used to retrieve cert request info for a specific request

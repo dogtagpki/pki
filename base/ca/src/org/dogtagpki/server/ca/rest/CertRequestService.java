@@ -18,6 +18,7 @@
 
 package org.dogtagpki.server.ca.rest;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -41,8 +42,11 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
@@ -63,6 +67,7 @@ import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+import netscape.security.x509.X500Name;
 
 /**
  * @author alee
@@ -115,12 +120,42 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     }
 
     @Override
-    public Response enrollCert(CertEnrollmentRequest data) {
-
+    public Response enrollCert(CertEnrollmentRequest data, String aidString, String adnString) {
         if (data == null) {
             CMS.debug("enrollCert: data is null");
             throw new BadRequestException("Unable to create enrollment reequest: Invalid input data");
         }
+
+        if (aidString != null && adnString != null)
+            throw new BadRequestException("Cannot provide both issuer-id and issuer-dn");
+
+        AuthorityID aid = null;
+        ICertificateAuthority ca = (ICertificateAuthority)
+            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        if (aidString != null) {
+            try {
+                aid = new AuthorityID(aidString);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("invalid AuthorityID: " + aidString);
+            }
+            ca = ca.getCA(aid);
+            if (ca == null)
+                throw new ResourceNotFoundException("CA not found: " + aidString);
+        }
+        if (adnString != null) {
+            X500Name adn = null;
+            try {
+                adn = new X500Name(adnString);
+            } catch (IOException e) {
+                throw new BadRequestException("invalid DN: " + adnString);
+            }
+            ca = ca.getCA(adn);
+            if (ca == null)
+                throw new ResourceNotFoundException("CA not found: " + adnString);
+            aid = ca.getAuthorityID();
+        }
+        if (!ca.getAuthorityEnabled())
+            throw new ConflictingOperationException("CA not enabled: " + aid.toString());
 
         data.setRemoteHost(servletRequest.getRemoteHost());
         data.setRemoteAddr(servletRequest.getRemoteAddr());
@@ -129,7 +164,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
 
         CertRequestInfos infos;
         try {
-            infos = dao.submitRequest(data, servletRequest, uriInfo, getLocale(headers));
+            infos = dao.submitRequest(aid, data, servletRequest, uriInfo, getLocale(headers));
         } catch (EAuthException e) {
             CMS.debug("enrollCert: authentication failed: " + e);
             throw new UnauthorizedException(e.toString());

@@ -30,6 +30,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -164,8 +165,13 @@ public class CertRequestDAO extends CMSRequestDAO {
      * @throws EBaseException
      * @throws ServletException
      */
-    public CertRequestInfos submitRequest(CertEnrollmentRequest data, HttpServletRequest request, UriInfo uriInfo,
-            Locale locale) throws EBaseException {
+    public CertRequestInfos submitRequest(
+            AuthorityID aid,
+            CertEnrollmentRequest data,
+            HttpServletRequest request,
+            UriInfo uriInfo,
+            Locale locale)
+        throws EBaseException {
 
         CertRequestInfos ret = new CertRequestInfos();
 
@@ -175,7 +181,7 @@ public class CertRequestDAO extends CMSRequestDAO {
             results = processor.processRenewal(data, request);
         } else {
             EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
-            results = processor.processEnrollment(data, request, null);
+            results = processor.processEnrollment(data, request, aid);
         }
 
         IRequest reqs[] = (IRequest[]) results.get(CAProcessor.ARG_REQUESTS);

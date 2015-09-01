@@ -17,16 +17,19 @@
 //--- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.core.Response;
 
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileDataInfos;
 import com.netscape.certsrv.request.RequestId;
+import netscape.security.x509.X500Name;
 
 /**
  * @author Endi S. Dewata
@@ -85,8 +88,17 @@ public class CertClient extends Client {
         return client.getEntity(response, CertRequestInfo.class);
     }
 
-    public CertRequestInfos enrollRequest(CertEnrollmentRequest data) {
-        Response response = certRequestClient.enrollCert(data);
+    public CertRequestInfos enrollRequest(
+            CertEnrollmentRequest data, AuthorityID aid, X500Name adn) {
+        String aidString = aid != null ? aid.toString() : null;
+        String adnString = null;
+        if (adn != null) {
+            try {
+                adnString = adn.toLdapDNString();
+            } catch (IOException e) {
+            }
+        }
+        Response response = certRequestClient.enrollCert(data, aidString, adnString);
         return client.getEntity(response, CertRequestInfos.class);
     }
 

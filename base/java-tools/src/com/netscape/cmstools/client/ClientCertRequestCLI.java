@@ -283,7 +283,7 @@ public class ClientCertRequestCLI extends CLI {
             System.out.println("Sending certificate request.");
         }
 
-        CertRequestInfos infos = certClient.enrollRequest(request);
+        CertRequestInfos infos = certClient.enrollRequest(request, null, null);
 
         MainCLI.printMessage("Submitted certificate request");
         CertCLI.printCertRequestInfos(infos);

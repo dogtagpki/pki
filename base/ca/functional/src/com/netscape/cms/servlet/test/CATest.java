@@ -288,7 +288,7 @@ public class CATest {
     private static void enrollAndApproveCertRequest(CertClient client, CertEnrollmentRequest data) {
         CertRequestInfos reqInfo = null;
         try {
-            reqInfo = client.enrollRequest(data);
+            reqInfo = client.enrollRequest(data, null, null);
         } catch (Exception e) {
             e.printStackTrace();
             log(e.toString());
@@ -308,7 +308,7 @@ public class CATest {
     private static void enrollCertRequest(CertClient client, CertEnrollmentRequest data) {
         CertRequestInfos reqInfo = null;
         try {
-            reqInfo = client.enrollRequest(data);
+            reqInfo = client.enrollRequest(data, null, null);
         } catch (Exception e) {
             e.printStackTrace();
             log(e.toString());

@@ -2,18 +2,22 @@ package com.netscape.cmstools.cert;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
+import netscape.security.x509.X500Name;
 
 public class CertRequestSubmitCLI extends CLI {
 
@@ -22,6 +26,14 @@ public class CertRequestSubmitCLI extends CLI {
     public CertRequestSubmitCLI(CertCLI certCLI) {
         super("request-submit", "Submit certificate request", certCLI);
         this.certCLI = certCLI;
+
+        Option optAID = new Option(null, "issuer-id", true, "Authority ID (host authority if omitted)");
+        optAID.setArgName("id");
+        options.addOption(optAID);
+
+        Option optADN = new Option(null, "issuer-dn", true, "Authority DN (host authority if omitted)");
+        optADN.setArgName("dn");
+        options.addOption(optADN);
     }
 
     public void printHelp() {
@@ -55,9 +67,39 @@ public class CertRequestSubmitCLI extends CLI {
             System.exit(-1);
         }
 
+        AuthorityID aid = null;
+        if (cmd.hasOption("issuer-id")) {
+            String aidString = cmd.getOptionValue("issuer-id");
+            try {
+                aid = new AuthorityID(aidString);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Bad AuthorityID: " + aidString);
+                printHelp();
+                System.exit(-1);
+            }
+        }
+
+        X500Name adn = null;
+        if (cmd.hasOption("issuer-dn")) {
+            String adnString = cmd.getOptionValue("issuer-dn");
+            try {
+                adn = new X500Name(adnString);
+            } catch (IOException e) {
+                System.err.println("Bad DN: " + adnString);
+                printHelp();
+                System.exit(-1);
+            }
+        }
+
+        if (aid != null && adn != null) {
+            System.err.println("--issuer-id and --issuer-dn options are mutually exclusive");
+            printHelp();
+            System.exit(-1);
+        }
+
         try {
             CertEnrollmentRequest erd = getEnrollmentRequest(cmdArgs[0]);
-            CertRequestInfos cri = certCLI.certClient.enrollRequest(erd);
+            CertRequestInfos cri = certCLI.certClient.enrollRequest(erd, aid, adn);
             MainCLI.printMessage("Submitted certificate request");
             CertCLI.printCertRequestInfos(cri);
 
