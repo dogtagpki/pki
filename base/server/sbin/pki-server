@@ -25,6 +25,7 @@ import getopt
 import sys
 
 import pki.cli
+import pki.server.cli.ca
 import pki.server.cli.instance
 import pki.server.cli.subsystem
 import pki.server.cli.migrate
@@ -38,6 +39,7 @@ class PKIServerCLI(pki.cli.CLI):
             'pki-server',
             'PKI server command-line interface')
 
+        self.add_module(pki.server.cli.ca.CACLI())
         self.add_module(pki.server.cli.instance.InstanceCLI())
         self.add_module(pki.server.cli.subsystem.SubsystemCLI())
         self.add_module(pki.server.cli.migrate.MigrateCLI())

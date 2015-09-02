@@ -215,6 +215,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         if self.subsystemName:
             subsystem = pki.server.PKISubsystem(instance, self.subsystemName)
             subsystem.validate()
+            subsystem.load()
             return [subsystem]
 
         subsystem_list = []
@@ -229,6 +230,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                         instance,
                         subsystemName)
                     subsystem.validate()
+                    subsystem.load()
                     subsystem_list.append(subsystem)
         else:
             for subsystemName in pki.server.SUBSYSTEM_TYPES:
@@ -241,6 +243,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                         instance,
                         subsystemName)
                     subsystem.validate()
+                    subsystem.load()
                     subsystem_list.append(subsystem)
 
         subsystem_list.sort()
