@@ -20,7 +20,11 @@
 #
 
 from lxml import etree
+import getpass
 import grp
+import io
+import ldap
+import operator
 import os
 import pwd
 import re
@@ -31,7 +35,7 @@ import pki
 INSTANCE_BASE_DIR = '/var/lib/pki'
 REGISTRY_DIR = '/etc/sysconfig/pki'
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
-
+SUBSYSTEM_CLASSES = {}
 
 class PKIServer(object):
 
@@ -65,6 +69,7 @@ class PKISubsystem(object):
             self.base_dir = instance.base_dir
 
         self.conf_dir = os.path.join(self.base_dir, 'conf')
+        self.cs_conf = os.path.join(self.conf_dir, 'CS.cfg')
 
         self.context_xml_template = os.path.join(
             pki.SHARE_DIR, self.name, 'conf', 'Catalina', 'localhost', self.name + '.xml')
@@ -72,8 +77,61 @@ class PKISubsystem(object):
         self.context_xml = os.path.join(
             instance.conf_dir, 'Catalina', 'localhost', self.name + '.xml')
 
+        self.config = {}
+        self.type = None
+        self.prefix = None
+
         # custom subsystem location
         self.doc_base = os.path.join(self.base_dir, 'webapps', self.name)
+
+    def load(self):
+        self.config.clear()
+
+        lines = open(self.cs_conf).read().splitlines()
+
+        for line in lines:
+            parts = line.split('=', 1)
+            name = parts[0]
+            value = parts[1]
+            self.config[name] = value
+
+        self.type = self.config['cs.type']
+        self.prefix = self.type.lower()
+
+    def find_subsystem_certs(self):
+        certs = []
+
+        cert_ids = self.config['%s.cert.list' % self.name].split(',')
+        for cert_id in cert_ids:
+            cert = self.create_subsystem_cert_object(cert_id)
+            certs.append(cert)
+
+        return certs
+
+    def get_subsystem_cert(self, cert_id):
+        return self.create_subsystem_cert_object(cert_id)
+
+    def create_subsystem_cert_object(self, cert_id):
+        cert = {}
+        cert['id'] = cert_id
+        cert['nickname'] = self.config.get('%s.%s.nickname' % (self.name, cert_id), None)
+        cert['token'] = self.config.get('%s.%s.tokenname' % (self.name, cert_id), None)
+        cert['data'] = self.config.get('%s.%s.cert' % (self.name, cert_id), None)
+        cert['request'] = self.config.get('%s.%s.certreq' % (self.name, cert_id), None)
+        return cert
+
+    def update_subsystem_cert(self, cert):
+        cert_id = cert['id']
+        self.config['%s.%s.nickname' % (self.name, cert_id)] = cert.get('nickname', None)
+        self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token', None)
+        self.config['%s.%s.cert' % (self.name, cert_id)] = cert.get('data', None)
+        self.config['%s.%s.certreq' % (self.name, cert_id)] = cert.get('request', None)
+
+    def save(self):
+        sorted_config = sorted(self.config.items(), key=operator.itemgetter(0))
+        with io.open(self.cs_conf, 'wb') as f:
+            for (key, value) in sorted_config:
+                f.write('%s=%s\n' % (key, value))
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)
@@ -102,6 +160,21 @@ class PKISubsystem(object):
     def disable(self):
         self.instance.undeploy(self.name)
 
+    def open_database(self, name='internaldb'):
+
+        hostname = self.config['%s.ldapconn.host' % name]
+        port = self.config['%s.ldapconn.port' % name]
+        bind_dn = self.config['%s.ldapauth.bindDN' % name]
+
+        # TODO: add support for other authentication
+        # mechanisms (e.g. client cert authentication, LDAPI)
+        bind_password = self.instance.get_password(name)
+
+        con = ldap.initialize('ldap://%s:%s' % (hostname, port))
+        con.simple_bind_s(bind_dn, bind_password)
+
+        return con
+
     def __repr__(self):
         return str(self.instance) + '/' + self.name
 
@@ -119,6 +192,9 @@ class PKIInstance(object):
             self.base_dir = os.path.join(pki.BASE_DIR, name)
 
         self.conf_dir = os.path.join(self.base_dir, 'conf')
+        self.password_conf = os.path.join(self.conf_dir, 'password.conf')
+
+        self.nssdb_dir = os.path.join(self.base_dir, 'alias')
         self.lib_dir = os.path.join(self.base_dir, 'lib')
 
         self.registry_dir = os.path.join(pki.server.REGISTRY_DIR, 'tomcat', self.name)
@@ -131,6 +207,8 @@ class PKIInstance(object):
 
         self.uid = None
         self.gid = None
+
+        self.passwords = {}
 
         self.subsystems = []
 
@@ -153,6 +231,7 @@ class PKIInstance(object):
         return rc == 0
 
     def load(self):
+        # load UID and GID
         with open(self.registry_file, 'r') as registry:
             lines = registry.readlines()
 
@@ -168,10 +247,40 @@ class PKIInstance(object):
                 self.group = m.group(1)
                 self.gid = grp.getgrnam(self.group).gr_gid
 
+        # load passwords
+        self.passwords.clear()
+        lines = open(self.password_conf).read().splitlines()
+
+        for line in lines:
+            parts = line.split('=', 1)
+            name = parts[0]
+            value = parts[1]
+            self.passwords[name] = value
+
+        # load subsystems
         for subsystem_name in os.listdir(self.registry_dir):
-            if subsystem_name in pki.server.SUBSYSTEM_TYPES:
-                subsystem = PKISubsystem(self, subsystem_name)
+            if subsystem_name in SUBSYSTEM_TYPES:
+                if subsystem_name in SUBSYSTEM_CLASSES:
+                    subsystem = SUBSYSTEM_CLASSES[subsystem_name](self)
+                else:
+                    subsystem = PKISubsystem(self, subsystem_name)
+                subsystem.load()
                 self.subsystems.append(subsystem)
+
+    def get_password(self, name):
+        if name in self.passwords:
+            return self.passwords[name]
+
+        password = getpass.getpass(prompt='Enter password for %s: ' % name)
+        self.passwords[name] = password
+
+        return password
+
+    def get_subsystem(self, name):
+        for subsystem in self.subsystems:
+            if name == subsystem.name:
+                return subsystem
+        return None
 
     def is_deployed(self, webapp_name):
         context_xml = os.path.join(
