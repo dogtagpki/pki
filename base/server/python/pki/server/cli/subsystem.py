@@ -104,7 +104,7 @@ class SubsystemFindCLI(pki.cli.CLI):
             if first:
                 first = False
             else:
-                print
+                print()
 
             SubsystemCLI.print_subsystem(subsystem)
 

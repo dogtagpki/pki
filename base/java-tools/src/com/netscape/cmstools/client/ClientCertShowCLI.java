@@ -29,10 +29,8 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.X509Certificate;
 
-import com.netscape.certsrv.cert.CertData;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
-import com.netscape.cmsutil.util.Utils;
 
 /**
  * @author Endi S. Dewata
@@ -54,6 +52,10 @@ public class ClientCertShowCLI extends CLI {
 
     public void createOptions() {
         Option option = new Option(null, "cert", true, "PEM file to store the certificate.");
+        option.setArgName("path");
+        options.addOption(option);
+
+        option = new Option(null, "private-key", true, "PEM file to store the private key.");
         option.setArgName("path");
         options.addOption(option);
 
@@ -107,90 +109,82 @@ public class ClientCertShowCLI extends CLI {
 
         String nickname = cmdArgs[0];
         String certPath = cmd.getOptionValue("cert");
+        String privateKeyPath = cmd.getOptionValue("private-key");
+        String clientCertPath = cmd.getOptionValue("client-cert");
         String pkcs12Path = cmd.getOptionValue("pkcs12");
         String pkcs12Password = cmd.getOptionValue("pkcs12-password");
-        String clientCertPath = cmd.getOptionValue("client-cert");
 
-        if (certPath != null) {
+        File pkcs12File;
 
-            if (verbose) System.out.println("Exporting certificate to " + clientCertPath + ".");
+        if (pkcs12Path != null) {
+            // exporting certificate to PKCS #12 file
 
-            // late initialization
-            mainCLI.init();
-
-            client = mainCLI.getClient();
-            X509Certificate cert = client.getCert(nickname);
-
-            try (PrintWriter out = new PrintWriter(new FileWriter(certPath))) {
-                out.println(CertData.HEADER);
-                out.println(Utils.base64encode(cert.getEncoded()));
-                out.println(CertData.FOOTER);
-            }
-
-        } else if (pkcs12Path != null) {
-
-            if (verbose) System.out.println("Exporting certificate chain and private key to " + pkcs12Path + ".");
+            pkcs12File = new File(pkcs12Path);
 
             if (pkcs12Password == null) {
                 throw new Exception("Missing PKCS #12 password");
             }
 
-            // store password into a temporary file
-            File pkcs12PasswordFile = File.createTempFile("pki-client-cert-show-", ".pwd");
-            pkcs12PasswordFile.deleteOnExit();
+        } else if (certPath != null || clientCertPath != null || privateKeyPath != null) {
+            // exporting certificate and/or private key to PEM files using temporary PKCS #12 file
 
-            try (PrintWriter out = new PrintWriter(new FileWriter(pkcs12PasswordFile))) {
-                out.print(pkcs12Password);
-            }
-
-            // export certificate chain and private key into PKCS #12 file
-            exportPKCS12(
-                    mainCLI.certDatabase.getAbsolutePath(),
-                    mainCLI.config.getCertPassword(),
-                    pkcs12Path,
-                    pkcs12PasswordFile.getAbsolutePath(),
-                    nickname);
-
-        } else if (clientCertPath != null) {
-
-            if (verbose) System.out.println("Exporting client certificate and private key to " + clientCertPath + ".");
-
-            // generate random PKCS #12 password
-            pkcs12Password = RandomStringUtils.randomAlphanumeric(16);
-
-            // store password into a temporary file
-            File pkcs12PasswordFile = File.createTempFile("pki-client-cert-show-", ".pwd");
-            pkcs12PasswordFile.deleteOnExit();
-
-            try (PrintWriter out = new PrintWriter(new FileWriter(pkcs12PasswordFile))) {
-                out.print(pkcs12Password);
-            }
-
-            // export certificate chain and private key into a temporary PKCS #12 file
-            File pkcs12File = File.createTempFile("pki-client-cert-show-", ".p12");
+            // prepare temporary PKCS #12 file
+            pkcs12File = File.createTempFile("pki-client-cert-show-", ".p12");
             pkcs12File.deleteOnExit();
 
-            exportPKCS12(
-                    mainCLI.certDatabase.getAbsolutePath(),
-                    mainCLI.config.getCertPassword(),
-                    pkcs12File.getAbsolutePath(),
-                    pkcs12PasswordFile.getAbsolutePath(),
-                    nickname);
-
-            // export client certificate and private key into a PEM file
-            exportClientCertificate(
-                    pkcs12File.getAbsolutePath(),
-                    pkcs12PasswordFile.getAbsolutePath(),
-                    clientCertPath);
+            // generate random password
+            pkcs12Password = RandomStringUtils.randomAlphanumeric(16);
 
         } else {
-            // late initialization
+            // displaying certificate info
+
             mainCLI.init();
 
             client = mainCLI.getClient();
             X509Certificate cert = client.getCert(nickname);
 
             ClientCLI.printCertInfo(cert);
+            return;
+        }
+
+        // store password into a temporary file
+        File pkcs12PasswordFile = File.createTempFile("pki-client-cert-show-", ".pwd");
+        pkcs12PasswordFile.deleteOnExit();
+
+        try (PrintWriter out = new PrintWriter(new FileWriter(pkcs12PasswordFile))) {
+            out.print(pkcs12Password);
+        }
+
+        if (verbose) System.out.println("Exporting certificate chain and private key to " + pkcs12File + ".");
+        exportPKCS12(
+                mainCLI.certDatabase.getAbsolutePath(),
+                mainCLI.config.getCertPassword(),
+                pkcs12File.getAbsolutePath(),
+                pkcs12PasswordFile.getAbsolutePath(),
+                nickname);
+
+        if (certPath != null) {
+            if (verbose) System.out.println("Exporting certificate to " + certPath + ".");
+            exportCertificate(
+                    pkcs12File.getAbsolutePath(),
+                    pkcs12PasswordFile.getAbsolutePath(),
+                    certPath);
+        }
+
+        if (privateKeyPath != null) {
+            if (verbose) System.out.println("Exporting private key to " + privateKeyPath + ".");
+            exportPrivateKey(
+                    pkcs12File.getAbsolutePath(),
+                    pkcs12PasswordFile.getAbsolutePath(),
+                    privateKeyPath);
+        }
+
+        if (clientCertPath != null) {
+            if (verbose) System.out.println("Exporting client certificate and private key to " + clientCertPath + ".");
+            exportClientCertificateAndPrivateKey(
+                    pkcs12File.getAbsolutePath(),
+                    pkcs12PasswordFile.getAbsolutePath(),
+                    clientCertPath);
         }
     }
 
@@ -218,7 +212,53 @@ public class ClientCertShowCLI extends CLI {
         }
     }
 
-    public void exportClientCertificate(
+    public void exportCertificate(
+            String pkcs12Path,
+            String pkcs12PasswordPath,
+            String certPath) throws Exception {
+
+        String[] command = {
+                "/bin/openssl",
+                "pkcs12",
+                "-clcerts", // certificate only
+                "-nokeys",
+                "-in",      pkcs12Path,
+                "-passin",  "file:" + pkcs12PasswordPath,
+                "-out",     certPath
+        };
+
+        try {
+            run(command);
+
+        } catch (Exception e) {
+            throw new Exception("Unable to export certificate", e);
+        }
+    }
+
+    public void exportPrivateKey(
+            String pkcs12Path,
+            String pkcs12PasswordPath,
+            String privateKeyPath) throws Exception {
+
+        String[] command = {
+                "/bin/openssl",
+                "pkcs12",
+                "-nocerts", // private key only
+                "-nodes",   // no encryption
+                "-in",      pkcs12Path,
+                "-passin",  "file:" + pkcs12PasswordPath,
+                "-out",     privateKeyPath
+        };
+
+        try {
+            run(command);
+
+        } catch (Exception e) {
+            throw new Exception("Unable to export private key", e);
+        }
+    }
+
+    public void exportClientCertificateAndPrivateKey(
             String pkcs12Path,
             String pkcs12PasswordPath,
             String clientCertPath) throws Exception {
@@ -226,7 +266,7 @@ public class ClientCertShowCLI extends CLI {
         String[] command = {
                 "/bin/openssl",
                 "pkcs12",
-                "-clcerts", // client certificate only
+                "-clcerts", // client certificate and private key
                 "-nodes",   // no encryption
                 "-in",      pkcs12Path,
                 "-passin",  "file:" + pkcs12PasswordPath,
@@ -237,7 +277,7 @@ public class ClientCertShowCLI extends CLI {
             run(command);
 
         } catch (Exception e) {
-            throw new Exception("Unable to export client certificate", e);
+            throw new Exception("Unable to export client certificate and private key", e);
         }
     }
 
