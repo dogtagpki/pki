@@ -45,13 +45,13 @@ class CASubsystem(pki.server.PKISubsystem):
 
         con = self.open_database()
 
-        entries = con.search_s(
+        entries = con.ldap.search_s(
             'ou=ca,ou=requests,%s' % base_dn,
             ldap.SCOPE_ONELEVEL,
             search_filter,
             None)
 
-        con.unbind_s()
+        con.close()
 
         requests = []
         for entry in entries:
@@ -65,13 +65,13 @@ class CASubsystem(pki.server.PKISubsystem):
 
         con = self.open_database()
 
-        entries = con.search_s(
+        entries = con.ldap.search_s(
             'cn=%s,ou=ca,ou=requests,%s' % (request_id, base_dn),
             ldap.SCOPE_BASE,
             '(objectClass=*)',
             None)
 
-        con.unbind_s()
+        con.close()
 
         entry = entries[0]
         return self.create_request_object(entry)

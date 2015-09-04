@@ -28,7 +28,9 @@ import operator
 import os
 import pwd
 import re
+import shutil
 import subprocess
+import tempfile
 
 import pki
 
@@ -162,18 +164,43 @@ class PKISubsystem(object):
 
     def open_database(self, name='internaldb'):
 
+        # TODO: add LDAPI support
         hostname = self.config['%s.ldapconn.host' % name]
         port = self.config['%s.ldapconn.port' % name]
-        bind_dn = self.config['%s.ldapauth.bindDN' % name]
+        secure = self.config['%s.ldapconn.secureConn' % name]
 
-        # TODO: add support for other authentication
-        # mechanisms (e.g. client cert authentication, LDAPI)
-        bind_password = self.instance.get_password(name)
+        if secure == 'true':
+            url = 'ldaps://%s:%s' % (hostname, port)
 
-        con = ldap.initialize('ldap://%s:%s' % (hostname, port))
-        con.simple_bind_s(bind_dn, bind_password)
+        elif secure == 'false':
+            url = 'ldap://%s:%s' % (hostname, port)
 
-        return con
+        else:
+            raise Exception('Invalid parameter value in %s.ldapconn.secureConn: %s' % (name, secure))
+
+        connection = PKIDatabaseConnection(url)
+
+        connection.set_security_database(self.instance.nssdb_dir)
+
+        auth_type = self.config['%s.ldapauth.authtype' % name]
+        if auth_type == 'BasicAuth':
+            connection.set_credentials(
+                bind_dn=self.config['%s.ldapauth.bindDN' % name],
+                bind_password=self.instance.get_password(name)
+            )
+
+        elif auth_type == 'SslClientAuth':
+            connection.set_credentials(
+                client_cert_nickname=self.config['%s.ldapauth.clientCertNickname' % name],
+                nssdb_password=self.instance.get_password('internal')
+            )
+
+        else:
+            raise Exception('Invalid parameter value in %s.ldapauth.authtype: %s' % (name, auth_type))
+
+        connection.open()
+
+        return connection
 
     def __repr__(self):
         return str(self.instance) + '/' + self.name
@@ -335,6 +362,64 @@ class PKIInstance(object):
         if self.type == 9:
             return "Dogtag 9 " + self.name
         return self.name
+
+
+class PKIDatabaseConnection(object):
+
+    def __init__(self, url='ldap://localhost:389'):
+
+        self.url = url
+
+        self.nssdb_dir = None
+
+        self.bind_dn = None
+        self.bind_password = None
+
+        self.client_cert_nickname = None
+        self.nssdb_password = None
+
+        self.temp_dir = None
+        self.ldap = None
+
+    def set_security_database(self, nssdb_dir=None):
+        self.nssdb_dir = nssdb_dir
+
+    def set_credentials(self, bind_dn=None, bind_password=None,
+            client_cert_nickname=None, nssdb_password=None):
+        self.bind_dn = bind_dn
+        self.bind_password = bind_password
+        self.client_cert_nickname = client_cert_nickname
+        self.nssdb_password = nssdb_password
+
+    def open(self):
+
+        self.temp_dir = tempfile.mkdtemp()
+
+        if self.nssdb_dir:
+
+            ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, self.nssdb_dir)
+
+        if self.client_cert_nickname:
+
+            password_file = os.path.join(self.temp_dir, 'password.txt')
+            with open(password_file, 'w') as f:
+                f.write(self.nssdb_password)
+
+            ldap.set_option(ldap.OPT_X_TLS_CERTFILE, self.client_cert_nickname)
+            ldap.set_option(ldap.OPT_X_TLS_KEYFILE, password_file)
+
+        self.ldap = ldap.initialize(self.url)
+
+        if self.bind_dn and self.bind_password:
+            self.ldap.simple_bind_s(self.bind_dn, self.bind_password)
+
+    def close(self):
+
+        if self.ldap:
+            self.ldap.unbind_s()
+
+        if self.temp_dir:
+            shutil.rmtree(self.temp_dir)
 
 
 class PKIServerException(pki.PKIException):
