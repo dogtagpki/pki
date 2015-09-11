@@ -31,13 +31,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -55,8 +48,16 @@ import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
+import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
 
 /**
  * @author Endi S. Dewata
@@ -74,47 +75,56 @@ public class SecurityDomainProcessor extends CAProcessor {
         super("securitydomain", locale);
     }
 
+    public static String getEnterpriseGroupName(String subsystemname) {
+        return "Enterprise " + subsystemname + " Administrators";
+    }
+
     public InstallToken getInstallToken(
             String user,
-            String hostname,
-            String subsystem) throws EBaseException {
+            String host,
+            String subsystem) throws Exception {
 
-        String groupname = ConfigurationUtils.getGroupName(user, subsystem);
+        subsystem = subsystem.toUpperCase();
+        IUGSubsystem ugSubsystem = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
 
-        if (groupname == null) {
+        String group = getEnterpriseGroupName(subsystem);
+        CMS.debug("SecurityDomainProcessor: group: " + group);
+
+        if (!ugSubsystem.isMemberOf(user, group)) {
             String message = CMS.getLogMessage(
                     LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
                     user,
                     ILogger.FAILURE,
-                    "Enterprise " + subsystem + " Administrators");
+                    group);
             audit(message);
 
-            throw new UnauthorizedException("Access denied.");
+            throw new UnauthorizedException("User " + user + " is not a member of " + group + " group.");
         }
 
         String message = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_ROLE_ASSUME,
                 user,
                 ILogger.SUCCESS,
-                groupname);
+                group);
         audit(message);
 
         String ip = "";
         try {
-            ip = InetAddress.getByName(hostname).getHostAddress();
+            ip = InetAddress.getByName(host).getHostAddress();
         } catch (Exception e) {
-            CMS.debug("Unable to determine IP address for "+hostname);
+            CMS.debug("Unable to determine IP address for " + host + ": " + e);
         }
 
-        // assign cookie
-        Long num = random.nextLong();
-        String cookie = num.toString();
+        // generate random session ID
+        // use positive number to avoid CLI issues
+        Long num = Math.abs(random.nextLong());
+        String sessionID = num.toString();
 
-        String auditParams = "operation;;issue_token+token;;" + cookie + "+ip;;" + ip +
-                      "+uid;;" + user + "+groupname;;" + groupname;
+        String auditParams = "operation;;issue_token+token;;" + sessionID + "+ip;;" + ip +
+                      "+uid;;" + user + "+groupname;;" + group;
 
         ISecurityDomainSessionTable ctable = CMS.getSecurityDomainSessionTable();
-        int status = ctable.addEntry(cookie, ip, user, groupname);
+        int status = ctable.addEntry(sessionID, ip, user, group);
 
         if (status == ISecurityDomainSessionTable.SUCCESS) {
             message = CMS.getLogMessage(
@@ -132,11 +142,11 @@ public class SecurityDomainProcessor extends CAProcessor {
                                auditParams);
             audit(message);
 
-            throw new PKIException("Failed to update security domain.");
+            throw new PKIException("Failed to create session.");
         }
 
 
-        return new InstallToken(cookie);
+        return new InstallToken(sessionID);
     }
 
     public DomainInfo getDomainInfo() throws EBaseException {

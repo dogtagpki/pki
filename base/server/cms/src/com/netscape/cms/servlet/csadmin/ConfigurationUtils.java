@@ -441,24 +441,6 @@ public class ConfigurationUtils {
         return null;
     }
 
-    public static String getGroupName(String uid, String subsystemname) {
-        IUGSubsystem subsystem = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
-        if (subsystem.isMemberOf(uid, "Enterprise CA Administrators") && subsystemname.equals("CA")) {
-            return "Enterprise CA Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise KRA Administrators") && subsystemname.equals("KRA")) {
-            return "Enterprise KRA Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise OCSP Administrators") && subsystemname.equals("OCSP")) {
-            return "Enterprise OCSP Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise TKS Administrators") && subsystemname.equals("TKS")) {
-            return "Enterprise TKS Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise RA Administrators") && subsystemname.equals("RA")) {
-            return "Enterprise RA Administrators";
-        } else if (subsystem.isMemberOf(uid, "Enterprise TPS Administrators") && subsystemname.equals("TPS")) {
-            return "Enterprise TPS Administrators";
-        }
-        return null;
-    }
-
     public static String getDomainXML(String hostname, int https_admin_port, boolean https)
             throws IOException, SAXException, ParserConfigurationException {
         CMS.debug("getDomainXML start");

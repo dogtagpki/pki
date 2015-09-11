@@ -24,7 +24,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
@@ -51,6 +51,7 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
 
     @Override
     public Response getInstallToken(String hostname, String subsystem) {
+        CMS.debug("SecurityDomainService.getInstallToken(" + hostname + ", " + subsystem + ")");
         try {
             // Get uid from realm authentication.
             String user = servletRequest.getUserPrincipal().getName();
@@ -59,8 +60,12 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
             InstallToken installToken = processor.getInstallToken(user, hostname, subsystem);
             return createOKResponse(installToken);
 
+        } catch (PKIException e) {
+            CMS.debug("SecurityDomainService: " + e);
+            throw e;
 
-        } catch (EBaseException e) {
+        } catch (Exception e) {
+            CMS.debug(e);
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -72,7 +77,12 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
             DomainInfo domainInfo = processor.getDomainInfo();
             return createOKResponse(domainInfo);
 
-        } catch (EBaseException e) {
+        } catch (PKIException e) {
+            CMS.debug("SecurityDomainService: " + e);
+            throw e;
+
+        } catch (Exception e) {
+            CMS.debug(e);
             throw new PKIException(e.getMessage(), e);
         }
     }
