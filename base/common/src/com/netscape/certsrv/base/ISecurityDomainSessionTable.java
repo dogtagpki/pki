@@ -26,25 +26,25 @@ public interface ISecurityDomainSessionTable {
     public static final int SUCCESS = 0;
     public static final int FAILURE = 1;
 
-    public int addEntry(String cookieId, String ip, String uid, String group);
+    public int addEntry(String sessionID, String ip, String uid, String group) throws Exception;
 
-    public int removeEntry(String sessionId);
+    public int removeEntry(String sessionID) throws Exception;
 
-    public boolean isSessionIdExist(String sessionId);
+    public boolean sessionExists(String sessionID) throws Exception;
 
-    public String getIP(String sessionId);
+    public String getIP(String sessionID) throws Exception;
 
-    public String getUID(String sessionId);
+    public String getUID(String sessionID) throws Exception;
 
-    public String getGroup(String sessionId);
+    public String getGroup(String sessionID) throws Exception;
 
-    public long getBeginTime(String sessionId);
+    public long getBeginTime(String sessionID) throws Exception;
 
-    public int getSize();
+    public int getSize() throws Exception;
 
     public long getTimeToLive();
 
-    public Enumeration<String> getSessionIds();
+    public Enumeration<String> getSessionIDs() throws Exception;
 
     public void shutdown();
 }

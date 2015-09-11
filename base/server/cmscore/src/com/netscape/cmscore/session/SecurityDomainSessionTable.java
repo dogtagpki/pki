@@ -56,11 +56,11 @@ public class SecurityDomainSessionTable
         return SUCCESS;
     }
 
-    public boolean isSessionIdExist(String sessionId) {
+    public boolean sessionExists(String sessionId) {
         return m_sessions.containsKey(sessionId);
     }
 
-    public Enumeration<String> getSessionIds() {
+    public Enumeration<String> getSessionIDs() {
         return m_sessions.keys();
     }
 

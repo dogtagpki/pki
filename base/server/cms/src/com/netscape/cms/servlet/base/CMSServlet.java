@@ -44,17 +44,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -99,6 +88,17 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * This is the base class of all CS servlet.
@@ -560,7 +560,7 @@ public abstract class CMSServlet extends HttpServlet {
      *             process the request
      */
     protected void process(CMSRequest cmsRequest)
-            throws EBaseException {
+            throws Exception {
     }
 
     /**

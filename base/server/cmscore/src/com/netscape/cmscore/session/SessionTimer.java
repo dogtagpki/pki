@@ -37,7 +37,17 @@ public class SessionTimer extends TimerTask {
     }
 
     public void run() {
-        Enumeration<String> keys = m_sessiontable.getSessionIds();
+        CMS.debug("SessionTimer: run()");
+        try {
+            runImpl();
+        } catch (Exception e) {
+            CMS.debug(e);
+        }
+    }
+
+    public void runImpl() throws Exception {
+
+        Enumeration<String> keys = m_sessiontable.getSessionIDs();
         while (keys.hasMoreElements()) {
             String sessionId = keys.nextElement();
             long beginTime = m_sessiontable.getBeginTime(sessionId);

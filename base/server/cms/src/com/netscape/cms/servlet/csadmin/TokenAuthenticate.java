@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -62,7 +61,7 @@ public class TokenAuthenticate extends CMSServlet {
      *
      * @param cmsReq the object holding the request and response information
      */
-    protected void process(CMSRequest cmsReq) throws EBaseException {
+    protected void process(CMSRequest cmsReq) throws Exception {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
         IConfigStore config = CMS.getConfigStore();
@@ -82,7 +81,7 @@ public class TokenAuthenticate extends CMSServlet {
         String uid = "";
         String gid = "";
         CMS.debug("TokenAuthentication: checking session in the session table");
-        if (table.isSessionIdExist(sessionId)) {
+        if (table.sessionExists(sessionId)) {
             CMS.debug("TokenAuthentication: found session");
             if (checkIP) {
                 String hostname = table.getIP(sessionId);
