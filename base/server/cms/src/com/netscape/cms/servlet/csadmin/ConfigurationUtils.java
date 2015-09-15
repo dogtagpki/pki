@@ -50,6 +50,7 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -61,32 +62,6 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPDN;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv3;
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
@@ -180,6 +155,32 @@ import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv3;
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.Extension;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509Key;
 
 /**
  * Utility class for functions to be used both by the RESTful installer
@@ -3930,7 +3931,7 @@ public class ConfigurationUtils {
         String groupName = "Trusted Managers";
         IGroup group = system.getGroupFromName(groupName);
         if (!group.isMember(id)) {
-            CMS.debug("setupClientAuthUser: adding user to the trusted managers group.");
+            CMS.debug("setupClientAuthUser: adding user to the " + groupName + " group.");
             group.addMemberName(id);
             system.modifyGroup(group);
         }
@@ -4156,7 +4157,7 @@ public class ConfigurationUtils {
         user.setX509Certificates(certs);
 
         system.addUser(user);
-        CMS.debug("setupDBUser(): successfully added the user");
+        CMS.debug("setupDBUser(): successfully added " + DBUSER);
 
         system.addUserCert(user);
         CMS.debug("setupDBUser(): successfully add the user certificate");
@@ -4167,6 +4168,36 @@ public class ConfigurationUtils {
         // remove old db users
         CMS.debug("setupDBUser(): removing seeAlso from old dbusers");
         removeOldDBUsers(certs[0].getSubjectDN().toString());
+
+        // workaround for ticket #1595
+        IConfigStore cs = CMS.getConfigStore();
+        String csType = cs.getString("cs.type").toUpperCase();
+
+        Collection<String> groupNames = new ArrayList<String>();
+
+        if ("CA".equals(csType)) {
+            groupNames.add("Subsystem Group");
+            groupNames.add("Certificate Manager Agents");
+
+        } else if ("KRA".equals(csType)) {
+            groupNames.add("Data Recovery Manager Agents");
+            groupNames.add("Trusted Managers");
+
+        } else if ("OCSP".equals(csType)) {
+            groupNames.add("Trusted Managers");
+
+        } else if ("TKS".equals(csType)) {
+            groupNames.add("Token Key Service Manager Agents");
+        }
+
+        for (String groupName : groupNames) {
+            IGroup group = system.getGroupFromName(groupName);
+            if (!group.isMember(DBUSER)) {
+                CMS.debug("setupDBUser(): adding " + DBUSER + " to the " + groupName + " group.");
+                group.addMemberName(DBUSER);
+                system.modifyGroup(group);
+            }
+        }
     }
 
     public static void addProfilesToTPSUser(String adminID) throws EUsrGrpException, LDAPException {
