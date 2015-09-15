@@ -40,6 +40,7 @@ REGISTRY_DIR = '/etc/sysconfig/pki'
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 SUBSYSTEM_CLASSES = {}
 
+
 class PKIServer(object):
 
     @classmethod
@@ -75,7 +76,12 @@ class PKISubsystem(object):
         self.cs_conf = os.path.join(self.conf_dir, 'CS.cfg')
 
         self.context_xml_template = os.path.join(
-            pki.SHARE_DIR, self.name, 'conf', 'Catalina', 'localhost', self.name + '.xml')
+            pki.SHARE_DIR,
+            self.name,
+            'conf',
+            'Catalina',
+            'localhost',
+            self.name + '.xml')
 
         self.context_xml = os.path.join(
             instance.conf_dir, 'Catalina', 'localhost', self.name + '.xml')
@@ -117,18 +123,26 @@ class PKISubsystem(object):
     def create_subsystem_cert_object(self, cert_id):
         cert = {}
         cert['id'] = cert_id
-        cert['nickname'] = self.config.get('%s.%s.nickname' % (self.name, cert_id), None)
-        cert['token'] = self.config.get('%s.%s.tokenname' % (self.name, cert_id), None)
-        cert['data'] = self.config.get('%s.%s.cert' % (self.name, cert_id), None)
-        cert['request'] = self.config.get('%s.%s.certreq' % (self.name, cert_id), None)
+        cert['nickname'] = self.config.get(
+            '%s.%s.nickname' % (self.name, cert_id), None)
+        cert['token'] = self.config.get(
+            '%s.%s.tokenname' % (self.name, cert_id), None)
+        cert['data'] = self.config.get(
+            '%s.%s.cert' % (self.name, cert_id), None)
+        cert['request'] = self.config.get(
+            '%s.%s.certreq' % (self.name, cert_id), None)
         return cert
 
     def update_subsystem_cert(self, cert):
         cert_id = cert['id']
-        self.config['%s.%s.nickname' % (self.name, cert_id)] = cert.get('nickname', None)
-        self.config['%s.%s.tokenname' % (self.name, cert_id)] = cert.get('token', None)
-        self.config['%s.%s.cert' % (self.name, cert_id)] = cert.get('data', None)
-        self.config['%s.%s.certreq' % (self.name, cert_id)] = cert.get('request', None)
+        self.config['%s.%s.nickname' % (self.name, cert_id)] = (
+            cert.get('nickname', None))
+        self.config['%s.%s.tokenname' % (self.name, cert_id)] = (
+            cert.get('token', None))
+        self.config['%s.%s.cert' % (self.name, cert_id)] = (
+            cert.get('data', None))
+        self.config['%s.%s.certreq' % (self.name, cert_id)] = (
+            cert.get('request', None))
 
     def save(self):
         sorted_config = sorted(self.config.items(), key=operator.itemgetter(0))
@@ -177,7 +191,9 @@ class PKISubsystem(object):
             url = 'ldap://%s:%s' % (hostname, port)
 
         else:
-            raise Exception('Invalid parameter value in %s.ldapconn.secureConn: %s' % (name, secure))
+            raise Exception(
+                'Invalid parameter value in %s.ldapconn.secureConn: %s' %
+                (name, secure))
 
         connection = PKIDatabaseConnection(url)
 
@@ -192,12 +208,15 @@ class PKISubsystem(object):
 
         elif auth_type == 'SslClientAuth':
             connection.set_credentials(
-                client_cert_nickname=self.config['%s.ldapauth.clientCertNickname' % name],
+                client_cert_nickname=self.config[
+                    '%s.ldapauth.clientCertNickname' % name],
                 nssdb_password=self.instance.get_password('internal')
             )
 
         else:
-            raise Exception('Invalid parameter value in %s.ldapauth.authtype: %s' % (name, auth_type))
+            raise Exception(
+                'Invalid parameter value in %s.ldapauth.authtype: %s' %
+                (name, auth_type))
 
         connection.open()
 
@@ -391,7 +410,7 @@ class PKIDatabaseConnection(object):
         self.nssdb_dir = nssdb_dir
 
     def set_credentials(self, bind_dn=None, bind_password=None,
-            client_cert_nickname=None, nssdb_password=None):
+                        client_cert_nickname=None, nssdb_password=None):
         self.bind_dn = bind_dn
         self.bind_password = bind_password
         self.client_cert_nickname = client_cert_nickname

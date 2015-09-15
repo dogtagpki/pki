@@ -676,7 +676,7 @@ class CertClient(object):
 
     def _submit_revoke_request(self, url, cert_serial_number,
                                revocation_reason=None, invalidity_date=None,
-                               comments=None, nonce=None):
+                               comments=None, nonce=None, authority=None):
         """
         Submits a certificate revocation request.
         Expects the URL for submitting the request.
@@ -698,12 +698,22 @@ class CertClient(object):
                                     comments)
         revoke_request = json.dumps(request, cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
-        r = self.connection.post(url, revoke_request, headers=self.headers)
+        params = {}
+        if authority:
+            params['authority'] = authority
+
+        r = self.connection.post(
+            url,
+            revoke_request,
+            headers=self.headers,
+            params=params)
+
         return CertRequestInfo.from_json(r.json())
 
     @pki.handle_exceptions()
     def revoke_cert(self, cert_serial_number, revocation_reason=None,
-                    invalidity_date=None, comments=None, nonce=None):
+                    invalidity_date=None, comments=None, nonce=None,
+                    authority=None):
         """ Revokes a certificate.
             Returns a CertRequestInfo object with information about the request.
             This method requires an agent's authentication cert in the
@@ -712,11 +722,12 @@ class CertClient(object):
         url = self.agent_cert_url + '/' + str(cert_serial_number) + '/revoke'
         return self._submit_revoke_request(url, cert_serial_number,
                                            revocation_reason, invalidity_date,
-                                           comments, nonce)
+                                           comments, nonce, authority)
 
     @pki.handle_exceptions()
     def revoke_ca_cert(self, cert_serial_number, revocation_reason=None,
-                       invalidity_date=None, comments=None, nonce=None):
+                       invalidity_date=None, comments=None, nonce=None,
+                       authority=None):
         """ Revokes a CA certificate.
             Returns a CertRequestInfo object with information about the request.
             This method requires an agent's authentication cert in the
@@ -726,10 +737,10 @@ class CertClient(object):
             '/revoke-ca'
         return self._submit_revoke_request(url, cert_serial_number,
                                            revocation_reason, invalidity_date,
-                                           comments, nonce)
+                                           comments, nonce, authority)
 
     @pki.handle_exceptions()
-    def hold_cert(self, cert_serial_number, comments=None):
+    def hold_cert(self, cert_serial_number, comments=None, authority=None):
         """ Places a certificate on-hold.
             Calls the revoke_cert method with reason -
             CertRevokeRequest.REASON_CERTIFICATE_HOLD.
@@ -738,10 +749,10 @@ class CertClient(object):
             connection object.
         """
         return self.revoke_cert(cert_serial_number, 'Certificate_Hold',
-                                comments=comments)
+                                comments=comments, authority=authority)
 
     @pki.handle_exceptions()
-    def unrevoke_cert(self, cert_serial_number):
+    def unrevoke_cert(self, cert_serial_number, authority=None):
         """ Un-revokes a revoked certificate.
             Returns a CertRequestInfo object.
             This method requires an agent's authentication cert in the
@@ -751,7 +762,17 @@ class CertClient(object):
             raise ValueError("Certificate ID must be specified")
 
         url = self.agent_cert_url + '/' + str(cert_serial_number) + '/unrevoke'
-        r = self.connection.post(url, None, headers=self.headers)
+
+        params = {}
+        if authority is not None:
+            params['authority'] = authority
+
+        r = self.connection.post(
+            url,
+            None,
+            headers=self.headers,
+            params=params)
+
         return CertRequestInfo.from_json(r.json())
 
     @pki.handle_exceptions()
@@ -950,7 +971,7 @@ class CertClient(object):
         return enrollment_template
 
     @pki.handle_exceptions()
-    def submit_enrollment_request(self, enrollment_request):
+    def submit_enrollment_request(self, enrollment_request, authority=None):
         """
         Submits the CertEnrollmentRequest object to the server.
         Returns a CertRequestInfoCollection object with information about the
@@ -959,13 +980,18 @@ class CertClient(object):
         request_object = json.dumps(enrollment_request,
                                     cls=encoder.CustomTypeEncoder,
                                     sort_keys=True)
+
+        params = {}
+        if authority is not None:
+            params['authority'] = authority
+
         # print request_object
         r = self.connection.post(self.cert_requests_url, request_object,
-                                 self.headers)
+                                 self.headers, params)
         return CertRequestInfoCollection.from_json(r.json())
 
     @pki.handle_exceptions()
-    def enroll_cert(self, profile_id, inputs):
+    def enroll_cert(self, profile_id, inputs, authority=None):
         """
         A convenience method for enrolling a certificate for a given profile id.
         The inputs parameter should be a dictionary with values for the profile
@@ -988,7 +1014,8 @@ class CertClient(object):
         enroll_request = self.create_enrollment_request(profile_id, inputs)
 
         # Submit the enrollment request
-        cert_request_infos = self.submit_enrollment_request(enroll_request)
+        cert_request_infos = self.submit_enrollment_request(
+            enroll_request, authority)
 
         # Approve the requests generated for the certificate enrollment.
         # Fetch the CertData objects for all the certificates created and

@@ -511,7 +511,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         subsystem_cert['data'] = data
 
         # format cert data for LDAP database
-        lines = [data[i:i+64] for i in range(0, len(data), 64)]
+        lines = [data[i:i + 64] for i in range(0, len(data), 64)]
         data = string.join(lines, '\r\n') + '\r\n'
 
         # get cert request from local CA
