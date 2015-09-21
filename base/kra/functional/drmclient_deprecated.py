@@ -44,12 +44,14 @@ from ipalib.errors import NetworkError, CertificateOperationError
 from urllib import urlencode, quote_plus
 from datetime import datetime
 import logging
-import base64
 import six
 from six.moves import http_client  # pylint: disable=F0401
 
 CERT_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----"
 CERT_FOOTER = "-----END NEW CERTIFICATE REQUEST-----"
+
+
+from base64 import b64decode, b64encode
 
 
 def _(string):
@@ -949,7 +951,7 @@ class KRA:
 
         # wrap this key with the transport cert
         public_key = self.transport_cert.subject_public_key_info.public_key
-        wrapped_session_key = base64.b64encode(
+        wrapped_session_key = b64encode(
             nss.pub_wrap_sym_key(
                 self.mechanism,
                 public_key,
@@ -957,7 +959,7 @@ class KRA:
         wrapped_passphrase = None
         if passphrase is not None:
             # wrap passphrase with session key
-            wrapped_session_key = base64.b64encode(
+            wrapped_session_key = b64encode(
                 self.symmetric_wrap(
                     passphrase,
                     session_key))
@@ -982,10 +984,10 @@ class KRA:
 
         if passphrase is None:
             iv = nss.data_to_hex(
-                base64.decodestring(
+                b64decode(
                     parse_result['nonce_data']))
             parse_result['data'] = self.symmetric_unwrap(
-                base64.decodestring(parse_result['wrapped_data']),
+                b64decode(parse_result['wrapped_data']),
                 session_key, iv)
 
         return parse_result
@@ -1090,14 +1092,14 @@ except CertificateOperationError as e:
 # retrieve key
 response = test_kra.retrieve_security_data(request_id)
 print(response)
-print("retrieved data is " + base64.encodestring(response['data']))
+print("retrieved data is " + b64encode(response['data']))
 
 # read original symkey from file
 f = open(work_dir + "/" + symkey_file)
 orig_key = f.read()
 print("orig key is " + orig_key)
 
-if orig_key.strip() == base64.encodestring(response['data']).strip():
+if orig_key.strip() == b64encode(response['data']).strip():
     print("Success: the keys match")
 else:
     print("Failure: keys do not match")

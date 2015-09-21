@@ -1,9 +1,39 @@
 from __future__ import absolute_import
+
+import base64
 import json
+
+import six
 from six import iteritems, itervalues
 
 TYPES = {}
 NOTYPES = {}
+
+
+def encode_cert(data):
+    """base64 encode X.509 certificate
+
+    Python 3's base64.b64encode() doesn't support ASCII text.
+
+    :param data: data as bytes or ASCII text
+    :type data: str, bytes
+    :rtype: bytes
+    """
+    if isinstance(data, six.text_type):
+        data = data.encode('ascii')
+    return base64.b64encode(data)
+
+
+def decode_cert(data):
+    """base64 decode X.509 certificate
+
+    :param data: data as bytes or ASCII text
+    :type data: str, bytes
+    :rtype: bytes
+    """
+    if isinstance(data, six.text_type):
+        data = data.encode('ascii')
+    return base64.b64decode(data)
 
 
 class CustomTypeEncoder(json.JSONEncoder):

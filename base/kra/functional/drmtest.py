@@ -34,7 +34,7 @@ See drmtest.readme.txt.
 
 from __future__ import absolute_import
 from __future__ import print_function
-import base64
+
 import getopt
 import random
 import shutil
@@ -42,6 +42,7 @@ import string
 import sys
 import tempfile
 import time
+from base64 import b64decode, b64encode
 
 from six.moves import range  # pylint: disable=W0622,F0401
 
@@ -50,6 +51,7 @@ import pki.crypto
 import pki.key as key
 
 from pki.client import PKIConnection
+from pki.encoder import encode_cert
 from pki.kra import KRAClient
 
 
@@ -72,7 +74,7 @@ def print_key_info(key_info):
     if key_info.public_key is not None:
         print("Public key: ")
         print()
-        pub_key = base64.encodestring(key_info.public_key)
+        pub_key = encode_cert(key_info.public_key)
         print(pub_key)
 
 
@@ -80,11 +82,11 @@ def print_key_data(key_data):
     """ Prints the relevant fields of a KeyData object """
     print("Key Algorithm: " + str(key_data.algorithm))
     print("Key Size: " + str(key_data.size))
-    print("Nonce Data: " + base64.encodestring(key_data.nonce_data))
+    print("Nonce Data: " + b64encode(key_data.nonce_data))
     print("Wrapped Private Data: " +
-          base64.encodestring(key_data.encrypted_data))
+          b64encode(key_data.encrypted_data))
     if key_data.data is not None:
-        print("Private Data: " + base64.encodestring(key_data.data))
+        print("Private Data: " + b64encode(key_data.data))
 
 
 def run_test(protocol, hostname, port, client_cert, certdb_dir,
@@ -169,12 +171,12 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     unwrapped_key = crypto.symmetric_unwrap(key_data.encrypted_data,
                                             session_key,
                                             nonce_iv=key_data.nonce_data)
-    key1 = base64.encodestring(unwrapped_key)
+    key1 = b64encode(unwrapped_key)
 
     # Test 7: Recover key without providing trans_wrapped_session_key
     key_data = keyclient.retrieve_key(key_id)
     print_key_data(key_data)
-    key2 = base64.encodestring(key_data.data)
+    key2 = b64encode(key_data.data)
 
     # Test 8 - Confirm that keys returned are the same
     if key1 == key2:
@@ -255,7 +257,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
 
     response = keyclient.archive_key(client_key_id,
                                      keyclient.SYMMETRIC_KEY_TYPE,
-                                     base64.decodestring(key1),
+                                     b64decode(key1),
                                      key_algorithm=keyclient.AES_ALGORITHM,
                                      key_size=128)
     print_key_request(response.request_info)
@@ -266,7 +268,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
 
     key_data = keyclient.retrieve_key(key_info.get_key_id())
     print_key_data(key_data)
-    key2 = base64.encodestring(key_data.data)
+    key2 = b64encode(key_data.data)
 
     if key1 == key2:
         print("Success: archived and recovered keys match")

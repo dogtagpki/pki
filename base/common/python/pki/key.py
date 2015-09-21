@@ -89,9 +89,9 @@ class Key(object):
 
     def __init__(self, key_data):
         """ Constructor """
-        self.encrypted_data = base64.decodestring(
+        self.encrypted_data = base64.b64decode(
             key_data.wrapped_private_data)
-        self.nonce_data = base64.decodestring(key_data.nonce_data)
+        self.nonce_data = base64.b64decode(key_data.nonce_data)
         self.algorithm = key_data.algorithm
         self.size = key_data.size
 
@@ -133,7 +133,7 @@ class KeyInfo(object):
             else:
                 setattr(key_info, k, v)
         if key_info.public_key is not None:
-            key_info.public_key = base64.decodestring(key_info.public_key)
+            key_info.public_key = encoder.decode_cert(key_info.public_key)
         return key_info
 
     def get_key_id(self):
@@ -584,7 +584,7 @@ class KeyClient(object):
             raise TypeError("Must specify Client Key ID")
 
         if trans_wrapped_session_key is not None:
-            twsk = base64.encodestring(trans_wrapped_session_key)
+            twsk = base64.b64encode(trans_wrapped_session_key)
             # noinspection PyUnusedLocal
             request = SymKeyGenerationRequest(
                 client_key_id=client_key_id,
@@ -764,9 +764,9 @@ class KeyClient(object):
         if not nonce_iv:
             raise TypeError('Missing nonce IV')
 
-        data = base64.encodestring(encrypted_data)
-        twsk = base64.encodestring(wrapped_session_key)
-        symkey_params = base64.encodestring(nonce_iv)
+        data = base64.b64encode(encrypted_data)
+        twsk = base64.b64encode(wrapped_session_key)
+        symkey_params = base64.b64encode(nonce_iv)
 
         request = KeyArchivalRequest(client_key_id=client_key_id,
                                      data_type=data_type,
@@ -806,7 +806,7 @@ class KeyClient(object):
         if pki_archive_options is None:
             raise TypeError("No data provided to be archived")
 
-        data = base64.encodestring(pki_archive_options)
+        data = base64.b64encode(pki_archive_options)
         request = KeyArchivalRequest(client_key_id=client_key_id,
                                      data_type=data_type,
                                      pki_archive_options=data,
@@ -915,7 +915,7 @@ class KeyClient(object):
         request = KeyRecoveryRequest(
             key_id=key_id,
             request_id=request_id,
-            trans_wrapped_session_key=base64.encodestring(
+            trans_wrapped_session_key=base64.b64encode(
                 trans_wrapped_session_key))
 
         key = self.retrieve_key_data(request)
