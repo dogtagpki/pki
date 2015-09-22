@@ -25,6 +25,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Random;
 
@@ -57,6 +58,7 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -91,6 +93,7 @@ public class SecurityDataRecoveryService implements IService {
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_PROCESSED_5";
     public static final String ATTR_SERIALNO = "serialNumber";
     public static final String ATTR_KEY_RECORD = "keyRecord";
+    private static boolean allowEncDecrypt_recovery = false;
 
     public SecurityDataRecoveryService(IKeyRecoveryAuthority kra) {
         mKRA = kra;
@@ -123,6 +126,15 @@ public class SecurityDataRecoveryService implements IService {
         byte iv[]= null;
         byte iv_default[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         byte iv_in[] = null;
+
+        IConfigStore config = null;
+
+        try {
+            config = CMS.getConfigStore();
+            allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+        }
 
         String requestor = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         String auditSubjectID = requestor;
@@ -185,15 +197,24 @@ public class SecurityDataRecoveryService implements IService {
         PrivateKey privateKey = null;
 
         if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
-            symKey = recoverSymKey(keyRecord);
+            if (allowEncDecrypt_recovery == true) {
+                CMS.debug("Recover symmetric key by decrypting as per allowEncDecrypt_recovery: true.");
+                unwrappedSecData = recoverSecurityData(keyRecord);
+            } else {
+                symKey = recoverSymKey(keyRecord);
+            }
 
         } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
             unwrappedSecData = recoverSecurityData(keyRecord);
-
         } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
             try {
-                privateKey = mStorageUnit.unwrap(keyRecord.getPrivateKeyData(),
-                        X509Key.parsePublicKey(new DerValue(keyRecord.getPublicKeyData())));
+                if (allowEncDecrypt_recovery == true) {
+                    CMS.debug("Recover asymmetric key by decrypting as per allowEncDecrypt_recovery: true.");
+                    unwrappedSecData = recoverSecurityData(keyRecord);
+                } else {
+                    privateKey = mStorageUnit.unwrap(keyRecord.getPrivateKeyData(),
+                            X509Key.parsePublicKey(new DerValue(keyRecord.getPublicKeyData())));
+                }
 
             } catch (IOException e) {
                 throw new EBaseException("Cannot fetch the private key from the database.", e);
@@ -223,17 +244,27 @@ public class SecurityDataRecoveryService implements IService {
                 passStr = null;
 
                 if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
-                    CMS.debug("SecurityDataRecoveryService: wrap stored symmetric key with transport passphrase");
-                    pbeWrappedData = createEncryptedContentInfo(ct, symKey, null, null,
-                            pass);
-                } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)){
+                    CMS.debug("SecurityDataRecoveryService: wrap or encrypt stored symmetric key with transport passphrase");
+                    if (allowEncDecrypt_recovery == true) {
+                        CMS.debug("SecurityDataRecoveryServic: allowEncDecyypt_recovery: true, symmetric key:  create blob with unwrapped key.");
+                        pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
+                    } else {
+                        pbeWrappedData = createEncryptedContentInfo(ct, symKey, null, null,
+                                pass);
+                    }
+                } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
                     CMS.debug("SecurityDataRecoveryService: encrypt stored passphrase with transport passphrase");
                     pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null,
                             pass);
                 } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
-                    CMS.debug("SecurityDataRecoveryService: wrap stored private key with transport passphrase");
-                    pbeWrappedData = createEncryptedContentInfo(ct, null, null, privateKey,
-                            pass);
+                    if (allowEncDecrypt_recovery == true) {
+                        CMS.debug("SecurityDataRecoveryService: allowEncDecyypt_recovery: true, asymmetric key:  create blob with unwrapped key.");
+                        pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
+                    } else {
+                        CMS.debug("SecurityDataRecoveryService: wrap stored private key with transport passphrase");
+                        pbeWrappedData = createEncryptedContentInfo(ct, null, null, privateKey,
+                                pass);
+                    }
                 }
 
                 params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
@@ -257,12 +288,27 @@ public class SecurityDataRecoveryService implements IService {
             CMS.debug("SecurityDataRecoveryService: secure retrieved data with session key");
 
             if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
-                CMS.debug("SecurityDataRecoveryService: wrap stored symmetric key with session key");
+                CMS.debug("SecurityDataRecoveryService: wrap or encrypt stored symmetric key with session key");
                 try {
-                    unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.WRAP);
-                    KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-                    wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
-                    key_data = wrapper.wrap(symKey);
+                    if (allowEncDecrypt_recovery == true) {
+                        CMS.debug("SecurityDataRecoveryService: encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
+                        unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.ENCRYPT);
+                        Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
+                        if (encryptor != null) {
+                            encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
+                            key_data = encryptor.doFinal(unwrappedSecData);
+                        } else {
+                            auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
+                                    serialno.toString(), "Failed to create cipher encrypting symmetric key");
+                            throw new IOException("Failed to create cipher encryping symmetric key");
+                        }
+
+                    } else {
+                        unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.WRAP);
+                        KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+                        wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
+                        key_data = wrapper.wrap(symKey);
+                    }
 
                 } catch (Exception e) {
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
@@ -292,12 +338,27 @@ public class SecurityDataRecoveryService implements IService {
                 }
 
             } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
-                CMS.debug("SecurityDataRecoveryService: wrap stored private key with session key");
+                CMS.debug("SecurityDataRecoveryService: wrap or encrypt stored private key with session key");
                 try {
-                    unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.WRAP);
-                    KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-                    wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
-                    key_data = wrapper.wrap(privateKey);
+                    if (allowEncDecrypt_recovery == true) {
+                        CMS.debug("SecurityDataRecoveryService: encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
+                        unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.ENCRYPT);
+                        Cipher encryptor = ct.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
+                        if (encryptor != null) {
+                            encryptor.initEncrypt(unwrappedSess, new IVParameterSpec(iv));
+                            key_data = encryptor.doFinal(unwrappedSecData);
+                        } else {
+                            auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID,
+                                    serialno.toString(), "Failed to create cipher encrypting asymmetric key");
+                            throw new IOException("Failed to create cipher encrypting asymmetric key");
+                        }
+
+                    } else {
+                        unwrappedSess = mTransportUnit.unwrap_sym(wrappedSessKey, SymmetricKey.Usage.WRAP);
+                        KeyWrapper wrapper = ct.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+                        wrapper.initWrap(unwrappedSess, new IVParameterSpec(iv));
+                        key_data = wrapper.wrap(privateKey);
+                    }
 
                 } catch (Exception e) {
                     auditRecoveryRequestProcessed(auditSubjectID, ILogger.FAILURE, requestID, serialno.toString(),
@@ -309,6 +370,10 @@ public class SecurityDataRecoveryService implements IService {
             String wrappedKeyData = Utils.base64encode(key_data);
             params.put(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA, wrappedKeyData);
             params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
+        }
+
+        if(unwrappedSecData != null && unwrappedSecData.length > 0) {
+            Arrays.fill(unwrappedSecData, (byte)0);
         }
 
         auditRecoveryRequestProcessed(auditSubjectID, ILogger.SUCCESS, requestID, serialno.toString(),
