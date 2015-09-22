@@ -18,12 +18,14 @@
 package com.netscape.kra;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import org.dogtagpki.server.kra.rest.KeyRequestService;
 import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.key.KeyRequestResource;
@@ -53,6 +55,7 @@ public class SecurityDataService implements IService {
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
     private ILogger signedAuditLogger = CMS.getSignedAuditLogger();
+    private Boolean allowEncDecrypt_archival = false;
 
     private final static String LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED =
             "LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED_6";
@@ -100,6 +103,16 @@ public class SecurityDataService implements IService {
         CMS.debug("SecurityDataService.serviceRequest. Request id: " + id);
         CMS.debug("SecurityDataService.serviceRequest wrappedSecurityData: " + wrappedSecurityData);
 
+        IConfigStore config = null;
+
+        try {
+            config = CMS.getConfigStore();
+            allowEncDecrypt_archival = config.getBoolean("kra.allowEncDecrypt.archival", false);
+        } catch (Exception e) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+        }
+
+
         String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
 
@@ -146,16 +159,42 @@ public class SecurityDataService implements IService {
         byte[] securityData = null;
 
         String keyType = null;
+        byte [] tmp_unwrapped = null;
+        byte [] unwrapped = null;
         if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
             // Symmetric Key
             keyType = KeyRequestResource.SYMMETRIC_KEY_TYPE;
-            securitySymKey = mTransportUnit.unwrap_symmetric(
-                    wrappedSessionKey,
-                    algStr,
-                    sparams,
-                    secdata,
-                    KeyRequestService.SYMKEY_TYPES.get(algorithm),
-                    strength);
+
+            if (allowEncDecrypt_archival == true) {
+                tmp_unwrapped = mTransportUnit.decryptExternalPrivate(
+                        wrappedSessionKey,
+                        algStr,
+                        sparams,
+                        secdata);
+
+                if(tmp_unwrapped == null ) {
+                    throw new EBaseException("Can't decrypt symm key using allEncDecrypt_archival : true .");
+                }
+
+                /* making sure leading 0's are removed */
+                int first=0;
+                for (int j=0; (j< tmp_unwrapped.length) && (tmp_unwrapped[j]==0); j++) {
+                    first++;
+                }
+                unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
+                Arrays.fill(tmp_unwrapped, (byte)0);
+
+
+            } else {
+
+                securitySymKey = mTransportUnit.unwrap_symmetric(
+                        wrappedSessionKey,
+                        algStr,
+                        sparams,
+                        secdata,
+                        KeyRequestService.SYMKEY_TYPES.get(algorithm),
+                        strength);
+            }
 
         } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
             keyType = KeyRequestResource.PASS_PHRASE_TYPE;
@@ -170,9 +209,13 @@ public class SecurityDataService implements IService {
         byte[] publicKey = null;
         byte privateSecurityData[] = null;
 
-        if (securitySymKey != null) {
+        if (securitySymKey != null && unwrapped == null) {
             privateSecurityData = mStorageUnit.wrap(securitySymKey);
-        } else if (securityData != null) {
+        } else if (unwrapped != null && allowEncDecrypt_archival == true) {
+            privateSecurityData = mStorageUnit.encryptInternalPrivate(unwrapped);
+            Arrays.fill(unwrapped, (byte)0);
+            CMS.debug("allowEncDecrypt_archival of symmetric key.");
+        }else if (securityData != null) {
             privateSecurityData = mStorageUnit.encryptInternalPrivate(securityData);
         } else { // We have no data.
             auditArchivalRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
