@@ -8,6 +8,7 @@ import javax.ws.rs.core.Application;
 import org.dogtagpki.server.rest.ACLInterceptor;
 import org.dogtagpki.server.rest.AccountService;
 import org.dogtagpki.server.rest.AuthMethodInterceptor;
+import org.dogtagpki.server.rest.FeatureService;
 import org.dogtagpki.server.rest.GroupService;
 import org.dogtagpki.server.rest.MessageFormatInterceptor;
 import org.dogtagpki.server.rest.PKIExceptionMapper;
@@ -56,6 +57,9 @@ public class CAApplication extends Application {
 
         // kra connector
         classes.add(KRAConnectorService.class);
+
+        // features
+        classes.add(FeatureService.class);
 
         // security domain
         IConfigStore cs = CMS.getConfigStore();
