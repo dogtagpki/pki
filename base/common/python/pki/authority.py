@@ -45,7 +45,7 @@ class AuthorityData(object):
         'enabled': 'enabled',
         'isHostAuthority': 'is_host_authority',
         'link': 'link',
-        'parentAID': 'parent_aid'
+        'parentID': 'parent_aid'
     }
 
     def __init__(self, dn=None, aid=None, parent_aid=None,
@@ -351,15 +351,15 @@ def main():
     except ValueError as e:
         print(e.message)
 
-    # Get a top-level CA
-    print("Getting a top level CA")
+    # Get the host CA
+    print("Getting the host CA")
     print("----------------------")
     authorities = ca_client.list_cas()
     for ca in authorities.ca_list:
-        if ca.parent_aid is None:
-            top_ca = ca
+        if ca.is_host_authority:
+            host_ca = ca
 
-    print(str(top_ca))
+    print(str(host_ca))
 
     # Create a sub CA
     print("Creating a new subordinate CA")
@@ -368,7 +368,7 @@ def main():
     authority_data = {
         'dn': subca_subject,
         'description': 'Test subordinate CA',
-        'parent_aid': top_ca.aid
+        'parent_aid': host_ca.aid
     }
     data = AuthorityData(**authority_data)
     subca = ca_client.create_ca(data)
