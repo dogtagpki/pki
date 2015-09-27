@@ -21,7 +21,7 @@ pki-client \- Command-Line Interface for managing the security database on Certi
 \fBpki\fR [CLI options] \fBclient\fR
 \fBpki\fR [CLI options] \fBclient-init\fR [command options]
 \fBpki\fR [CLI options] \fBclient-cert-find\fR [command options]
-\fBpki\fR [CLI options] \fBclient-cert-request\fR <subject DN> [command options]
+\fBpki\fR [CLI options] \fBclient-cert-request\fR [subject DN] [command options]
 \fBpki\fR [CLI options] \fBclient-cert-import\fR [nickname] [command options]
 \fBpki\fR [CLI options] \fBclient-cert-mod\fR <nickname> [command options]
 \fBpki\fR [CLI options] \fBclient-cert-show\fR <nickname> [command options]
@@ -47,7 +47,7 @@ This command is to create a new security database for the client.
 This command is to list certificates in the client security database.
 .RE
 .PP
-\fBpki\fR [CLI options] \fBclient-cert-request\fR <subject DN> [command options]
+\fBpki\fR [CLI options] \fBclient-cert-request\fR [subject DN] [command options]
 .RS 4
 This command is to generate and submit a certificate request.
 .RE
@@ -82,13 +82,22 @@ To create a new database execute the following command:
 
 .B pki -d <security database location> -c <security database password> client-init
 
-To view certificates in the security database:
+To list certificates in the security database:
 
 .B pki -d <security database location> -c <security database password> client-cert-find
 
 To request a certificate:
 
-.B pki -d <security database location> -c <security database password> client-cert-request <subject DN>
+.B pki -d <security database location> -c <security database password> client-cert-request [subject DN]
+
+The subject DN requirement depends on the certificate profile being requested.
+Some profiles may require the user to provide a subject DN in a certain
+format. Some other profiles may generate their own subject DN.
+
+Certain profiles may also require additional authentication. To authenticate,
+a username and a password can be specified using the --username and --password
+options, respectively. If the subject DN is not specififed the CLI may use the
+username to generate a default subject DN "UID=<username>".
 
 To import a certificate from a file into the security database:
 
