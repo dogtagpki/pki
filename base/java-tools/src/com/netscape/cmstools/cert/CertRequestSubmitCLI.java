@@ -1,5 +1,6 @@
 package com.netscape.cmstools.cert;
 
+import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -8,6 +9,7 @@ import java.util.Scanner;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
@@ -22,6 +24,13 @@ public class CertRequestSubmitCLI extends CLI {
     public CertRequestSubmitCLI(CertCLI certCLI) {
         super("request-submit", "Submit certificate request", certCLI);
         this.certCLI = certCLI;
+
+        Option option = new Option(null, "username", true, "Username for request authentication");
+        option.setArgName("username");
+        options.addOption(option);
+
+        option = new Option(null, "password", false, "Prompt password for request authentication");
+        options.addOption(option);
     }
 
     public void printHelp() {
@@ -29,7 +38,7 @@ public class CertRequestSubmitCLI extends CLI {
     }
 
     @Override
-    public void execute(String[] args) {
+    public void execute(String[] args) throws Exception {
         // Always check for "--help" prior to parsing
         if (Arrays.asList(args).contains("--help")) {
             // Display usage
@@ -55,20 +64,22 @@ public class CertRequestSubmitCLI extends CLI {
             System.exit(-1);
         }
 
-        try {
-            CertEnrollmentRequest erd = getEnrollmentRequest(cmdArgs[0]);
-            CertRequestInfos cri = certCLI.certClient.enrollRequest(erd);
-            MainCLI.printMessage("Submitted certificate request");
-            CertCLI.printCertRequestInfos(cri);
+        CertEnrollmentRequest request = getEnrollmentRequest(cmdArgs[0]);
 
-        } catch (FileNotFoundException e) {
-            System.err.println("Error: " + e.getMessage());
-            System.exit(-1);
-
-        } catch (JAXBException e) {
-            System.err.println("Error: " + e.getMessage());
-            System.exit(-1);
+        String certRequestUsername = cmd.getOptionValue("username");
+        if (certRequestUsername != null) {
+            request.setAttribute("uid", certRequestUsername);
         }
+
+        if (cmd.hasOption("password")) {
+            Console console = System.console();
+            String certRequestPassword = new String(console.readPassword("Password: "));
+            request.setAttribute("pwd", certRequestPassword);
+        }
+
+        CertRequestInfos cri = certCLI.certClient.enrollRequest(request);
+        MainCLI.printMessage("Submitted certificate request");
+        CertCLI.printCertRequestInfos(cri);
     }
 
     private CertEnrollmentRequest getEnrollmentRequest(String fileName) throws JAXBException, FileNotFoundException {
