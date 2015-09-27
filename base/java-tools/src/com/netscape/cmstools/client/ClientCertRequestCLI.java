@@ -68,7 +68,7 @@ public class ClientCertRequestCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Subject DN> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [Subject DN] [OPTIONS...]", options);
     }
 
     public void createOptions() {
@@ -151,13 +151,22 @@ public class ClientCertRequestCLI extends CLI {
             System.exit(-1);
         }
 
-        if (cmdArgs.length < 1) {
-            System.err.println("Error: Missing subject DN.");
-            printHelp();
-            System.exit(-1);
-        }
+        String certRequestUsername = cmd.getOptionValue("username");
 
-        String subjectDN = cmdArgs[0];
+        String subjectDN;
+
+        if (cmdArgs.length == 0) {
+            if (certRequestUsername == null) {
+                System.err.println("Error: Missing subject DN or request username.");
+                printHelp();
+                System.exit(-1);
+            }
+
+            subjectDN = "UID=" + certRequestUsername;
+
+        } else {
+            subjectDN = cmdArgs[0];
+        }
 
         // pkcs10, crmf
         String requestType = cmd.getOptionValue("type", "pkcs10");
@@ -316,7 +325,6 @@ public class ClientCertRequestCLI extends CLI {
             }
         }
 
-        String certRequestUsername = cmd.getOptionValue("username");
         if (certRequestUsername != null) {
             request.setAttribute("uid", certRequestUsername);
         }
