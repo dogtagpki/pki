@@ -19,12 +19,12 @@
 package com.netscape.cmstools.client;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Console;
 import java.io.File;
 import java.security.KeyPair;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
-
-import netscape.ldap.util.DN;
-import netscape.ldap.util.RDN;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -50,6 +50,9 @@ import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.ldap.util.DN;
+import netscape.ldap.util.RDN;
+
 /**
  * @author Endi S. Dewata
  */
@@ -71,6 +74,13 @@ public class ClientCertRequestCLI extends CLI {
     public void createOptions() {
         Option option = new Option(null, "type", true, "Request type (default: pkcs10)");
         option.setArgName("request type");
+        options.addOption(option);
+
+        option = new Option(null, "username", true, "Username for request authentication");
+        option.setArgName("username");
+        options.addOption(option);
+
+        option = new Option(null, "password", false, "Prompt password for request authentication");
         options.addOption(option);
 
         option = new Option(null, "attribute-encoding", false, "Enable Attribute encoding");
@@ -265,18 +275,56 @@ public class ClientCertRequestCLI extends CLI {
             }
         }
 
+        // parse subject DN and put the values in a map
+        DN dn = new DN(subjectDN);
+        Vector<?> rdns = dn.getRDNs();
+
+        Map<String, String> subjectAttributes = new HashMap<String, String>();
+        for (int i=0; i< rdns.size(); i++) {
+            RDN rdn = (RDN)rdns.elementAt(i);
+            String type = rdn.getTypes()[0].toLowerCase();
+            String value = rdn.getValues()[0];
+            subjectAttributes.put(type, value);
+        }
+
         ProfileInput sn = request.getInput("Subject Name");
         if (sn != null) {
-            DN dn = new DN(subjectDN);
-            Vector<?> rdns = dn.getRDNs();
+            if (verbose) System.out.println("Subject Name:");
 
-            for (int i=0; i< rdns.size(); i++) {
-                RDN rdn = (RDN)rdns.elementAt(i);
-                String type = rdn.getTypes()[0].toLowerCase();
-                String value = rdn.getValues()[0];
-                ProfileAttribute uidAttr = sn.getAttribute("sn_" + type);
-                uidAttr.setValue(value);
+            for (ProfileAttribute attribute : sn.getAttributes()) {
+                String name = attribute.getName();
+                String value = null;
+
+                if (name.equals("subject")) {
+                    // get the whole subject DN
+                    value = subjectDN;
+
+                } else if (name.startsWith("sn_")) {
+                    // get value from subject DN
+                    value = subjectAttributes.get(name.substring(3));
+
+                } else {
+                    // unknown attribute, ignore
+                    if (verbose) System.out.println(" - " + name);
+                    continue;
+                }
+
+                if (value == null) continue;
+
+                if (verbose) System.out.println(" - " + name + ": " + value);
+                attribute.setValue(value);
             }
+        }
+
+        String certRequestUsername = cmd.getOptionValue("username");
+        if (certRequestUsername != null) {
+            request.setAttribute("uid", certRequestUsername);
+        }
+
+        if (cmd.hasOption("password")) {
+            Console console = System.console();
+            String certRequestPassword = new String(console.readPassword("Password: "));
+            request.setAttribute("pwd", certRequestPassword);
         }
 
         if (verbose) {
