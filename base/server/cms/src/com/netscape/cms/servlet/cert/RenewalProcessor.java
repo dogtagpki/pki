@@ -26,9 +26,6 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.apps.CMS;
@@ -45,31 +42,16 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
+
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.X509CertImpl;
 
 public class RenewalProcessor extends CertProcessor {
 
     public RenewalProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
-    }
-
-    public HashMap<String, Object> processRenewal(CMSRequest cmsReq) throws EBaseException {
-        HttpServletRequest req = cmsReq.getHttpReq();
-        String profileId = (this.profileID == null) ? req.getParameter("profileId") : this.profileID;
-        IProfile profile = ps.getProfile(profileId);
-        if (profile == null) {
-            throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
-                    CMSTemplate.escapeJavaScriptStringHTML(profileId)));
-        }
-
-        CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
-
-        //only used in renewal
-        data.setSerialNum(req.getParameter("serial_num"));
-
-        return processRenewal(data, req);
     }
 
     /*

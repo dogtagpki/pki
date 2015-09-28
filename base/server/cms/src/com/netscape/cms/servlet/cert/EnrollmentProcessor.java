@@ -37,7 +37,6 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -79,26 +78,6 @@ public class EnrollmentProcessor extends CertProcessor {
             }
         }
 
-    }
-
-    /**
-     * Called by the legacy servlets to access the Processor function
-     * @param request
-     * @return
-     * @throws EBaseException
-     */
-    public HashMap<String, Object> processEnrollment(CMSRequest cmsReq) throws EBaseException {
-        HttpServletRequest req = cmsReq.getHttpReq();
-        String profileId = (this.profileID == null) ? req.getParameter("profileId") : this.profileID;
-        IProfile profile = ps.getProfile(profileId);
-
-        if (profile == null) {
-            CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
-            throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
-        }
-
-        CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
-        return processEnrollment(data, cmsReq.getHttpReq());
     }
 
     /**

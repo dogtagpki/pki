@@ -26,9 +26,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -36,20 +33,27 @@ import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileOutput;
+import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
+import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
 import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -114,12 +118,10 @@ public class ProfileSubmitServlet extends ProfileServlet {
         try {
             if ((renewal != null) && (renewal.equalsIgnoreCase("true"))) {
                 CMS.debug("ProfileSubmitServlet: isRenewal true");
-                RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
-                results = processor.processRenewal(cmsReq);
+                results = processRenewal(cmsReq);
             } else {
                 CMS.debug("ProfileSubmitServlet: isRenewal false");
-                EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
-                results = processor.processEnrollment(cmsReq);
+                results = processEnrollment(cmsReq);
             }
         } catch (BadRequestDataException e) {
             CMS.debug("ProfileSubmitServlet: bad data provided in processing request: " + e.toString());
@@ -197,6 +199,56 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
             outputTemplate(request, response, args);
         }
+    }
+
+    public HashMap<String, Object> processEnrollment(CMSRequest cmsReq) throws EBaseException {
+
+        HttpServletRequest request = cmsReq.getHttpReq();
+        Locale locale = getLocale(request);
+
+        EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
+
+        String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
+        CMS.debug("ProfileSubmitServlet: profile: " + profileId);
+
+        IProfileSubsystem ps = processor.getProfileSubsystem();
+        IProfile profile = ps.getProfile(profileId);
+
+        if (profile == null) {
+            CMS.debug("ProfileSubmitServlet: Profile " + profileId + " not found");
+            throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
+                    CMSTemplate.escapeJavaScriptStringHTML(profileId)));
+        }
+
+        CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
+        return processor.processEnrollment(data, request);
+    }
+
+    public HashMap<String, Object> processRenewal(CMSRequest cmsReq) throws EBaseException {
+
+        HttpServletRequest request = cmsReq.getHttpReq();
+        Locale locale = getLocale(request);
+
+        RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
+
+        String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
+        CMS.debug("ProfileSubmitServlet: profile: " + profileId);
+
+        IProfileSubsystem ps = processor.getProfileSubsystem();
+        IProfile profile = ps.getProfile(profileId);
+
+        if (profile == null) {
+            CMS.debug("ProfileSubmitServlet: Profile " + profileId + " not found");
+            throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
+                    CMSTemplate.escapeJavaScriptStringHTML(profileId)));
+        }
+
+        CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
+
+        //only used in renewal
+        data.setSerialNum(request.getParameter("serial_num"));
+
+        return processor.processRenewal(data, request);
     }
 
     private void setOutputIntoArgs(IProfile profile, ArgList outputlist, Locale locale, IRequest req) {
