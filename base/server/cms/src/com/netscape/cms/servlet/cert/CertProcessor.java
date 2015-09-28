@@ -42,6 +42,7 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -51,26 +52,31 @@ public class CertProcessor extends CAProcessor {
         super(id, locale);
     }
 
-    protected void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator,
+    protected void setCredentialsIntoContext(
+            HttpServletRequest request,
+            AuthCredentials creds,
+            IProfileAuthenticator authenticator,
             IProfileContext ctx) {
-        Enumeration<String> authIds = authenticator.getValueNames();
 
-        if (authIds != null) {
-            CMS.debug("CertRequestSubmitter:setCredentialsIntoContext() authNames not null");
-            while (authIds.hasMoreElements()) {
-                String authName = authIds.nextElement();
+        Enumeration<String> names = authenticator.getValueNames();
+        if (names == null) {
+            CMS.debug("CertProcessor: No authenticator credentials required");
+            return;
+        }
 
-                CMS.debug("CertRequestSubmitter:setCredentialsIntoContext() authName:" +
-                        authName);
-                if (request.getParameter(authName) != null) {
-                    CMS.debug("CertRequestSubmitter:setCredentialsIntoContext() authName found in request");
-                    ctx.set(authName, request.getParameter(authName));
-                } else {
-                    CMS.debug("CertRequestSubmitter:setCredentialsIntoContext() authName not found in request");
-                }
+        CMS.debug("CertProcessor: Authentication credentials:");
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+
+            Object value;
+            if (creds == null) {
+                value = request.getParameter(name);
+            } else {
+                value = creds.get(name);
             }
-        } else {
-            CMS.debug("CertRequestSubmitter:setCredentialsIntoContext() authIds` null");
+
+            if (value == null) continue;
+            ctx.set(name, value.toString());
         }
     }
 

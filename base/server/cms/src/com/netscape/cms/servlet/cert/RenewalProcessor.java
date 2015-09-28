@@ -42,6 +42,7 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 
@@ -63,7 +64,10 @@ public class RenewalProcessor extends CertProcessor {
      * Things to note:
      * * the renew request will contain the original profile instead of the new
      */
-    public HashMap<String, Object> processRenewal(CertEnrollmentRequest data, HttpServletRequest request)
+    public HashMap<String, Object> processRenewal(
+            CertEnrollmentRequest data,
+            HttpServletRequest request,
+            AuthCredentials credentials)
             throws EBaseException {
         try {
             if (CMS.debugOn()) {
@@ -170,14 +174,14 @@ public class RenewalProcessor extends CertProcessor {
 
             if (authenticator != null) {
                 CMS.debug("RenewalSubmitter: authenticator " + authenticator.getName() + " found");
-                setCredentialsIntoContext(request, authenticator, ctx);
+                setCredentialsIntoContext(request, credentials, authenticator, ctx);
             }
 
             // for renewal, this will override or add auth info to the profile context
             if (origAuthenticator != null) {
                 CMS.debug("RenewalSubmitter: for renewal, original authenticator " +
                         origAuthenticator.getName() + " found");
-                setCredentialsIntoContext(request, origAuthenticator, ctx);
+                setCredentialsIntoContext(request, credentials, origAuthenticator, ctx);
             }
 
             // for renewal, input needs to be retrieved from the orig req record
@@ -197,7 +201,7 @@ public class RenewalProcessor extends CertProcessor {
                 context.put("origSubjectDN", origSubjectDN);
 
             // before creating the request, authenticate the request
-            IAuthToken authToken = authenticate(request, origReq, authenticator, context, true);
+            IAuthToken authToken = authenticate(request, origReq, authenticator, context, true, credentials);
 
             // authentication success, now authorize
             authorize(profileId, renewProfile, authToken);
