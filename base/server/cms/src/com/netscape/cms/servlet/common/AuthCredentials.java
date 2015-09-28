@@ -54,7 +54,7 @@ public class AuthCredentials implements IAuthCredentials {
      */
     public void set(String name, Object cred) throws EAuthException {
         if (cred == null) {
-            throw new EAuthException("AuthCredentials.set()");
+            throw new EAuthException("Missing credential: " + name);
         }
 
         authCreds.put(name, cred);

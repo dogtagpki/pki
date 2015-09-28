@@ -221,7 +221,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         }
 
         CertEnrollmentRequest data = CertEnrollmentRequestFactory.create(cmsReq, profile, locale);
-        return processor.processEnrollment(data, request);
+        return processor.processEnrollment(data, request, null);
     }
 
     public HashMap<String, Object> processRenewal(CMSRequest cmsReq) throws EBaseException {
@@ -248,7 +248,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         //only used in renewal
         data.setSerialNum(request.getParameter("serial_num"));
 
-        return processor.processRenewal(data, request);
+        return processor.processRenewal(data, request, null);
     }
 
     private void setOutputIntoArgs(IProfile profile, ArgList outputlist, Locale locale, IRequest req) {

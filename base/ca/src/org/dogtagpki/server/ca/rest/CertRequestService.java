@@ -138,6 +138,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             CMS.debug("enrollCert: bad request data: " + e);
             throw new BadRequestException(e.toString());
         } catch (EBaseException e) {
+            CMS.debug(e);
             throw new PKIException(e);
         } catch (Exception e) {
             CMS.debug(e);

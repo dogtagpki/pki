@@ -195,6 +195,8 @@ public class AuthSubsystem implements IAuthSubsystem {
 
             while (instances.hasMoreElements()) {
                 String insName = instances.nextElement();
+                CMS.debug("AuthSubsystem: initializing authentication manager " + insName);
+
                 String implName = c.getString(insName + "." + PROP_PLUGIN);
                 AuthMgrPlugin plugin =
                         mAuthMgrPlugins.get(implName);
@@ -233,6 +235,7 @@ public class AuthSubsystem implements IAuthSubsystem {
                     throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
 
                 } catch (EBaseException e) {
+                    CMS.debug(e);
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString()));
                     // Skip the authenticaiton instance if
                     // it is mis-configurated. This give
@@ -240,6 +243,7 @@ public class AuthSubsystem implements IAuthSubsystem {
                     // fix the problem via console
 
                 } catch (Throwable e) {
+                    CMS.debug(e);
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString()));
                     // Skip the authenticaiton instance if
                     // it is mis-configurated. This give
