@@ -34,8 +34,6 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -68,6 +66,8 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 public class CAProcessor extends Processor {
 
@@ -194,6 +194,14 @@ public class CAProcessor extends Processor {
         if (certdb == null) {
             throw new EBaseException("CertProcessor: Certificate repository not found");
         }
+    }
+
+    public String getProfileID() {
+        return profileID;
+    }
+
+    public IProfileSubsystem getProfileSubsystem() {
+        return ps;
     }
 
     /******************************************
