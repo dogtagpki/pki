@@ -39,6 +39,7 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -102,7 +103,8 @@ public class EnrollmentProcessor extends CertProcessor {
     public HashMap<String, Object> processEnrollment(
             CertEnrollmentRequest data,
             HttpServletRequest request,
-            AuthorityID aid)
+            AuthorityID aid,
+            AuthCredentials credentials)
         throws EBaseException {
 
         try {
@@ -140,7 +142,7 @@ public class EnrollmentProcessor extends CertProcessor {
             IProfileAuthenticator authenticator = profile.getAuthenticator();
             if (authenticator != null) {
                 CMS.debug("EnrollmentProcessor: authenticator " + authenticator.getName() + " found");
-                setCredentialsIntoContext(request, authenticator, ctx);
+                setCredentialsIntoContext(request, credentials, authenticator, ctx);
             }
 
             // for ssl authentication; pass in servlet for retrieving ssl client certificates
@@ -151,7 +153,7 @@ public class EnrollmentProcessor extends CertProcessor {
             CMS.debug("EnrollmentProcessor: set sslClientCertProvider");
 
             // before creating the request, authenticate the request
-            IAuthToken authToken = authenticate(request, null, authenticator, context, false);
+            IAuthToken authToken = authenticate(request, null, authenticator, context, false, credentials);
 
             // authentication success, now authorize
             authorize(profileId, profile, authToken);

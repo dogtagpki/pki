@@ -67,6 +67,7 @@ import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+
 import netscape.security.x509.X500Name;
 
 /**
@@ -175,6 +176,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             CMS.debug("enrollCert: bad request data: " + e);
             throw new BadRequestException(e.toString());
         } catch (EBaseException e) {
+            CMS.debug(e);
             throw new PKIException(e);
         } catch (Exception e) {
             CMS.debug(e);

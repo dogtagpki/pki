@@ -44,6 +44,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
+import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 
@@ -175,13 +176,23 @@ public class CertRequestDAO extends CMSRequestDAO {
 
         CertRequestInfos ret = new CertRequestInfos();
 
+        AuthCredentials credentials = new AuthCredentials();
+        String uid = data.getAttribute("uid");
+        if (uid != null) {
+            credentials.set("uid", uid);
+        }
+        String password = data.getAttribute("pwd");
+        if (password != null) {
+            credentials.set("pwd", password);
+        }
+
         HashMap<String, Object> results = null;
         if (data.isRenewal()) {
             RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
-            results = processor.processRenewal(data, request);
+            results = processor.processRenewal(data, request, credentials);
         } else {
             EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
-            results = processor.processEnrollment(data, request, aid);
+            results = processor.processEnrollment(data, request, aid, credentials);
         }
 
         IRequest reqs[] = (IRequest[]) results.get(CAProcessor.ARG_REQUESTS);

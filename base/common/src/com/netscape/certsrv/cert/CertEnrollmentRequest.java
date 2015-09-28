@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.profile.ProfileOutput;
@@ -48,7 +49,7 @@ import com.netscape.certsrv.profile.ProfileOutput;
 
 @XmlRootElement(name = "CertEnrollmentRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CertEnrollmentRequest {
+public class CertEnrollmentRequest extends ResourceMessage {
 
     private static final String PROFILE_ID = "profileId";
     private static final String RENEWAL = "renewal";
@@ -286,7 +287,7 @@ public class CertEnrollmentRequest {
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
+        int result = super.hashCode();
         result = prime * result + ((inputs == null) ? 0 : inputs.hashCode());
         result = prime * result + ((outputs == null) ? 0 : outputs.hashCode());
         result = prime * result + ((profileId == null) ? 0 : profileId.hashCode());
@@ -301,7 +302,7 @@ public class CertEnrollmentRequest {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
         if (getClass() != obj.getClass())
             return false;
@@ -346,8 +347,6 @@ public class CertEnrollmentRequest {
         before.setProfileId("caUserCert");
         before.setRenewal(false);
 
-        //Simulate a "caUserCert" Profile enrollment
-
         ProfileInput certReq = before.createInput("KeyGenInput");
         certReq.addAttribute(new ProfileAttribute("cert_request_type", "crmf", null));
         certReq.addAttribute(new ProfileAttribute(
@@ -370,6 +369,9 @@ public class CertEnrollmentRequest {
         submitter.addAttribute(new ProfileAttribute("requestor_name", "admin", null));
         submitter.addAttribute(new ProfileAttribute("requestor_email", "admin@redhat.com", null));
         submitter.addAttribute(new ProfileAttribute("requestor_phone", "650-555-5555", null));
+
+        before.setAttribute("uid", "testuser");
+        before.setAttribute("pwd", "password");
 
         String xml = before.toXML();
         System.out.println(xml);

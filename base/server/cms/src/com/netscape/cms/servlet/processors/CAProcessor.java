@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
+import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
@@ -358,10 +359,14 @@ public class CAProcessor extends Processor {
      *   authenticate for renewal - more to add necessary params/values
      *   to the session context
      */
-    public IAuthToken authenticate(IProfileAuthenticator authenticator,
-            HttpServletRequest request, IRequest origReq, SessionContext context) throws EBaseException
+    public IAuthToken authenticate(
+            IProfileAuthenticator authenticator,
+            HttpServletRequest request,
+            IRequest origReq,
+            SessionContext context,
+            AuthCredentials credentials) throws EBaseException
     {
-        IAuthToken authToken = authenticate(authenticator, request);
+        IAuthToken authToken = authenticate(authenticator, request, credentials);
         // For renewal, fill in necessary params
         if (authToken != null) {
             String ouid = origReq.getExtDataInString("auth_token.uid");
@@ -417,18 +422,23 @@ public class CAProcessor extends Processor {
         return authToken;
     }
 
-    public IAuthToken authenticate(IProfileAuthenticator authenticator,
-            HttpServletRequest request) throws EBaseException {
-        AuthCredentials credentials = new AuthCredentials();
+    public IAuthToken authenticate(
+            IProfileAuthenticator authenticator,
+            HttpServletRequest request,
+            AuthCredentials credentials) throws EBaseException {
 
-        // build credential
-        Enumeration<String> authNames = authenticator.getValueNames();
+        if (credentials == null) {
+            credentials = new AuthCredentials();
 
-        if (authNames != null) {
-            while (authNames.hasMoreElements()) {
-                String authName = authNames.nextElement();
+            // build credential
+            Enumeration<String> authNames = authenticator.getValueNames();
 
-                credentials.set(authName, request.getParameter(authName));
+            if (authNames != null) {
+                while (authNames.hasMoreElements()) {
+                    String authName = authNames.nextElement();
+
+                    credentials.set(authName, request.getParameter(authName));
+                }
             }
         }
 
@@ -447,8 +457,13 @@ public class CAProcessor extends Processor {
         return authToken;
     }
 
-    public IAuthToken authenticate(HttpServletRequest request, IRequest origReq, IProfileAuthenticator authenticator,
-            SessionContext context, boolean isRenewal) throws EBaseException {
+    public IAuthToken authenticate(
+            HttpServletRequest request,
+            IRequest origReq,
+            IProfileAuthenticator authenticator,
+            SessionContext context,
+            boolean isRenewal,
+            AuthCredentials credentials) throws EBaseException {
         startTiming("profile_authentication");
 
         IAuthToken authToken = null;
@@ -475,12 +490,27 @@ public class CAProcessor extends Processor {
             String auditMessage = null;
             try {
                 if (isRenewal) {
-                    authToken = authenticate(authenticator, request, origReq, context);
+                    authToken = authenticate(authenticator, request, origReq, context, credentials);
                 } else {
-                    authToken = authenticate(authenticator, request);
+                    authToken = authenticate(authenticator, request, credentials);
                 }
+
+            } catch (EAuthException e) {
+                CMS.debug("CAProcessor: authentication error: " + e);
+
+                authSubjectID += " : " + uid_cred;
+                auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_AUTH_FAIL,
+                        authSubjectID,
+                        ILogger.FAILURE,
+                        authMgrID,
+                        uid_attempted_cred);
+                audit(auditMessage);
+
+                throw e;
+
             } catch (EBaseException e) {
-                CMS.debug("CertProcessor: authentication error " + e.toString());
+                CMS.debug(e);
 
                 authSubjectID += " : " + uid_cred;
                 auditMessage = CMS.getLogMessage(
