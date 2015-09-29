@@ -161,7 +161,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
 
-    private static final Map<AuthorityID, ICertificateAuthority> caMap = new TreeMap<>();
+    private static final Map<AuthorityID, ICertificateAuthority> caMap =
+        Collections.synchronizedSortedMap(new TreeMap<>());
     protected CertificateAuthority hostCA = null;
     protected AuthorityID authorityID = null;
     protected AuthorityID authorityParentID = null;
@@ -1934,7 +1935,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      *
      * This method must only be called by the host CA.
      */
-    private synchronized void loadLightweightCAs() throws EBaseException {
+    private void loadLightweightCAs() throws EBaseException {
         ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("loadLightweightCAs");
         dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
         LDAPConnection conn = dbFactory.getConn();
@@ -2321,10 +2322,12 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     /**
      * Enumerate all authorities (including host authority)
      */
-    public synchronized List<ICertificateAuthority> getCAs() {
+    public List<ICertificateAuthority> getCAs() {
         List<ICertificateAuthority> cas = new ArrayList<>();
-        for (ICertificateAuthority ca : caMap.values()) {
-            cas.add(ca);
+        synchronized (caMap) {
+            for (ICertificateAuthority ca : caMap.values()) {
+                cas.add(ca);
+            }
         }
         return cas;
     }
@@ -2379,9 +2382,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
         ICertificateAuthority ca = parentCA.createSubCA(
                 subjectDN, description);
-        synchronized (this) {
-            caMap.put(ca.getAuthorityID(), ca);
-        }
+        caMap.put(ca.getAuthorityID(), ca);
         return ca;
     }
 
