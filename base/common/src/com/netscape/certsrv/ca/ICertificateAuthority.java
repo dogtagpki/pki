@@ -583,4 +583,10 @@ public interface ICertificateAuthority extends ISubsystem {
      */
     public void modifyAuthority(Boolean enabled, String desc)
         throws EBaseException;
+
+    /**
+     * Delete this lightweight CA.
+     */
+    public void deleteAuthority()
+        throws EBaseException;
 }

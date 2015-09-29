@@ -1,5 +1,6 @@
 package com.netscape.certsrv.authority;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -92,5 +93,12 @@ public interface AuthorityResource {
     @AuthMethodMapping("authorities")
     @ACLMapping("authorities.modify")
     public Response disableCA(@PathParam("id") String caIDString);
+
+    @DELETE
+    @Path("{id}")
+    @ClientResponseType(entityType=Void.class)
+    @AuthMethodMapping("authorities")
+    @ACLMapping("authorities.delete")
+    public Response deleteCA(@PathParam("id") String caIDString);
 
 }

@@ -29,6 +29,10 @@ public class AuthorityID implements Comparable<AuthorityID> {
         return uuid.toString();
     }
 
+    public boolean equals(AuthorityID aid) {
+        return this.compareTo(aid) == 0;
+    }
+
     public int compareTo(AuthorityID aid) {
         return uuid.compareTo(aid.uuid);
     }

@@ -59,3 +59,4 @@ resourceACLS: certServer.ca.selftests:read,execute:allow (read,execute) group="A
 resourceACLS: certServer.ca.users:execute:allow (execute) group="Administrators":Admins may execute user operations
 resourceACLS: certServer.ca.authorities:list,read:allow (list,read) user="anybody":Anybody may list and read lightweight authorities
 resourceACLS: certServer.ca.authorities:create,modify:allow (create,modify) group="Administrators":Administrators may create and modify lightweight authorities
+resourceACLS: certServer.ca.authorities:delete:allow (delete) group="Administrators":Administrators may delete lightweight authorities

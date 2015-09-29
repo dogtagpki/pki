@@ -59,4 +59,9 @@ public class AuthorityClient extends Client {
         return client.getEntity(response, AuthorityData.class);
     }
 
+    public void deleteCA(String aidString) {
+        Response response = proxy.deleteCA(aidString);
+        client.getEntity(response, Void.class);
+    }
+
 }

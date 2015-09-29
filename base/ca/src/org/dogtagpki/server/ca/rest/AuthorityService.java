@@ -42,7 +42,9 @@ import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
@@ -99,7 +101,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
             try {
                 aid = new AuthorityID(aidString);
             } catch (IllegalArgumentException e) {
-                throw new BadRequestException("Bad CA ID: " + aidString);
+                throw new BadRequestException("Bad AuthorityID: " + aidString);
             }
 
             ca = hostCA.getCA(aid);
@@ -116,7 +118,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         try {
             aid = new AuthorityID(aidString);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Bad CA ID: " + aidString);
+            throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
         ICertificateAuthority ca = hostCA.getCA(aid);
@@ -143,7 +145,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         try {
             aid = new AuthorityID(aidString);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Bad CA ID: " + aidString);
+            throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
         ICertificateAuthority ca = hostCA.getCA(aid);
@@ -198,7 +200,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         try {
             aid = new AuthorityID(aidString);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Bad CA ID: " + aidString);
+            throw new BadRequestException("Bad AuthorityID: " + aidString);
         }
 
         ICertificateAuthority ca = hostCA.getCA(aid);
@@ -230,6 +232,32 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         return modifyCA(
             aidString,
             new AuthorityData(null, null, null, null, false, null));
+    }
+
+    @Override
+    public Response deleteCA(String aidString) {
+        AuthorityID aid = null;
+        try {
+            aid = new AuthorityID(aidString);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Bad AuthorityID: " + aidString);
+        }
+
+        ICertificateAuthority ca = hostCA.getCA(aid);
+        if (ca == null)
+            throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
+
+        try {
+            ca.deleteAuthority();
+            return createNoContentResponse();
+        } catch (CATypeException e) {
+            throw new ForbiddenException(e.toString());
+        } catch (CAEnabledException | CANotLeafException e) {
+            throw new ConflictingOperationException(e.toString());
+        } catch (EBaseException e) {
+            CMS.debug(e);
+            throw new PKIException("Error modifying authority: " + e.toString());
+        }
     }
 
     private static AuthorityData readAuthorityData(ICertificateAuthority ca)

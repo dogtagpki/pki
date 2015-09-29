@@ -17,6 +17,7 @@ public class AuthorityCLI extends CLI {
         addModule(new AuthorityCreateCLI(this));
         addModule(new AuthorityDisableCLI(this));
         addModule(new AuthorityEnableCLI(this));
+        addModule(new AuthorityRemoveCLI(this));
     }
 
     public String getFullName() {

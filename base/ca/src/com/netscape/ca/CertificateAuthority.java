@@ -72,9 +72,11 @@ import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkix.cert.Extension;
@@ -90,7 +92,9 @@ import com.netscape.certsrv.base.Nonces;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CANotFoundException;
+import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
@@ -2621,6 +2625,77 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             // update was successful; update CA's state
             authorityEnabled = nextEnabled;
             authorityDescription = nextDesc;
+        }
+    }
+
+    public void deleteAuthority() throws EBaseException {
+        if (isHostAuthority())
+            throw new CATypeException("Cannot delete the host CA");
+
+        if (authorityEnabled)
+            throw new CAEnabledException("Must disable CA before deletion");
+
+        boolean hasSubCAs = false;
+        for (ICertificateAuthority ca : getCAs()) {
+            AuthorityID parentAID = ca.getAuthorityParentID();
+            if (parentAID != null && parentAID.equals(this.authorityID)) {
+                hasSubCAs = true;
+                break;
+            }
+        }
+        if (hasSubCAs)
+            throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
+
+        caMap.remove(authorityID);
+        shutdown();
+
+        // delete ldap entry
+        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("updateAuthority");
+        dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
+        LDAPConnection conn = dbFactory.getConn();
+        String dn = "cn=" + authorityID.toString() + ",ou=authorities,ou="
+            + getId() + "," + getDBSubsystem().getBaseDN();
+        try {
+            conn.delete(dn);
+        } catch (LDAPException e) {
+            throw new ELdapException("Error deleting authority entry '" + dn + "': " + e);
+        } finally {
+            dbFactory.returnConn(conn);
+            dbFactory.reset();
+        }
+
+        CryptoManager cryptoManager;
+        try {
+            cryptoManager = CryptoManager.getInstance();
+        } catch (CryptoManager.NotInitializedException e) {
+            // can't happen
+            throw new ECAException("CryptoManager not initialized");
+        }
+
+        // delete cert
+        CryptoStore cryptoStore =
+            cryptoManager.getInternalKeyStorageToken().getCryptoStore();
+        try {
+            cryptoStore.deleteCert(mCaX509Cert);
+        } catch (NoSuchItemOnTokenException e) {
+            CMS.debug("deleteAuthority: cert is not on token: " + e);
+            // if the cert isn't there, never mind
+        } catch (TokenException e) {
+            CMS.debug("deleteAuthority: TokenExcepetion while deleting cert: " + e);
+            throw new ECAException("TokenException while deleting cert: " + e);
+        }
+
+        // delete key
+        try {
+            cryptoStore.deletePrivateKey(mSigningUnit.getPrivateKey());
+        } catch (NoSuchItemOnTokenException e) {
+            CMS.debug("deleteAuthority: private key is not on token: " + e);
+            // if the key isn't there, never mind
+        } catch (TokenException e) {
+            CMS.debug("deleteAuthority: TokenExcepetion while deleting private key: " + e);
+            // TODO don't know what causes this yet, or how to
+            // prevent it.
+            //throw new ECAException("TokenException while deleting private key: " + e);
         }
     }
 
