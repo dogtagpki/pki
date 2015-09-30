@@ -275,6 +275,20 @@ class AuthorityClient(object):
 
         self.connection.post(url, headers)
 
+    @pki.handle_exceptions()
+    def delete_ca(self, aid):
+        """Delete the specified CA
+        :param aid: ID of the CA to be deleted
+        :return: None
+        """
+        if aid is None:
+            raise ValueError("CA ID must be specified")
+
+        url = '{}/{}'.format(self.ca_url, str(aid))
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+
+        self.connection.delete(url, headers)
 
 encoder.NOTYPES['AuthorityData'] = AuthorityData
 
@@ -429,8 +443,17 @@ def main():
     cert_client = cert.CertClient(connection)
     issue_cert_using_authority(cert_client, sub_subca.aid)
 
+    # delete the sub-subca
+    print("Delete sub CA")
+    print("-------------")
+    try:
+        ca_client.delete_ca(sub_subca.aid)
+    except pki.ConflictingOperationException as e:
+        print(e)
+
     # disable the sub-subca
     print("Disable sub sub CA")
+    print("------------------")
     ca_client.disable_ca(sub_subca.aid)
 
     # Get sub-subca
@@ -438,8 +461,44 @@ def main():
     print(str(sub_subca))
 
     # issue a cert using sub-subca
-    issue_cert_using_authority(cert_client, sub_subca.aid)
+    print("Issuing a cert using disabled subca")
+    print("-----------------------------------")
+    try:
+        issue_cert_using_authority(cert_client, sub_subca.aid)
+    except pki.ConflictingOperationException as e:
+        print(e)
 
+    # delete the sub-subca
+    print("Delete sub CA")
+    print("-------------")
+    ca_client.delete_ca(sub_subca.aid)
+
+    # get the sub-subca
+    print("Get deleted subca")
+    print("-----------------")
+    try:
+        ca_client.get_ca(sub_subca.aid)
+    except pki.ResourceNotFoundException as e:
+        print(e)
+
+    # issue a cert using the sub-subca
+    print("Issue a cert using deleted subca")
+    print("--------------------------------")
+    try:
+        issue_cert_using_authority(cert_client, sub_subca.aid)
+    except pki.ResourceNotFoundException as e:
+        print(e)
+
+    # create a new subca with same subjectdn
+    print("Create a new sub-subca re-using subject dn")
+    print("------------------------------------------")
+    data = AuthorityData(**sub_subca_data)
+    sub_subca = ca_client.create_ca(data)
+    print(ca_client.get_ca(sub_subca.aid))
+
+    print("Issuing a cert using sub-subca")
+    print("-----------------------------------")
+    issue_cert_using_authority(cert_client, sub_subca.aid)
 
 if __name__ == "__main__":
     main()

@@ -105,7 +105,6 @@ class AuthorityTests(unittest.TestCase):
             authority_data
         )
 
-
     def test_should_get_ca(self):
         get_return = mock.MagicMock()
         get_return.json.return_value = self.ca1_data
@@ -128,4 +127,5 @@ class AuthorityTests(unittest.TestCase):
                 self.assertEquals(ca.dn, self.dn2)
             else:
                 self.assertEquals(ca.dn, self.dn)
+
 
