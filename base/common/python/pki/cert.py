@@ -700,7 +700,7 @@ class CertClient(object):
                                     sort_keys=True)
         params = {}
         if authority:
-            params['authority'] = authority
+            params['issuer-id'] = authority
 
         r = self.connection.post(
             url,
@@ -765,7 +765,7 @@ class CertClient(object):
 
         params = {}
         if authority is not None:
-            params['authority'] = authority
+            params['issuer-id'] = authority
 
         r = self.connection.post(
             url,
@@ -983,7 +983,7 @@ class CertClient(object):
 
         params = {}
         if authority is not None:
-            params['authority'] = authority
+            params['issuer-id'] = authority
 
         # print request_object
         r = self.connection.post(self.cert_requests_url, request_object,
