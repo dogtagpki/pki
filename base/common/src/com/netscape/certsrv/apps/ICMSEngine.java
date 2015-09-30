@@ -1131,6 +1131,13 @@ public interface ICMSEngine extends ISubsystem {
      */
     public void forceShutdown();
 
+    /**
+     * graceful shutdown, same as forceShutdown, but allowing
+     * option to restart
+     */
+    public void autoShutdown();
+    public void checkForAndAutoShutdown();
+
     public IPasswordStore getPasswordStore() throws EBaseException;
 
     public ISecurityDomainSessionTable getSecurityDomainSessionTable();

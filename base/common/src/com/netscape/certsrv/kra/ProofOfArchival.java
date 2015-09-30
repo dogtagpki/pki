@@ -341,6 +341,8 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
         } catch (InvalidKeyException e) {
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
         } catch (SignatureException e) {
+            CMS.debug("ProofOfArchival.encodeAndSign: " + e.toString());
+            CMS.checkForAndAutoShutdown();
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
         } catch (IOException e) {
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));

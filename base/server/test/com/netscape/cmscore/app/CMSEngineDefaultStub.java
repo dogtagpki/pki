@@ -545,6 +545,12 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void forceShutdown() {
     }
 
+    public void autoShutdown() {
+    }
+
+    public void checkForAndAutoShutdown() {
+    }
+
     public IPasswordStore getPasswordStore() {
         return null;
     }

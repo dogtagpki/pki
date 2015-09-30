@@ -24,6 +24,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509CRL;
@@ -60,8 +62,14 @@ import netscape.security.x509.X509CertInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.parsers.DOMParser;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
+import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.Signature;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.crypto.CryptoToken;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -177,6 +185,7 @@ import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.NuxwdogPasswordStore;
 import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmsutil.util.Cert;
 
 public class CMSEngine implements ICMSEngine {
     private static final String ID = "MAIN";
@@ -187,13 +196,27 @@ public class CMSEngine implements ICMSEngine {
     private static final String PROP_ENABLED = "enabled";
     private static final String SERVER_XML = "server.xml";
 
+    // used for testing HSM issues
+    public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
+                              "log.instance.SignedAudit.signedAuditCertNickname";
+
     public static final SubsystemRegistry mSSReg = SubsystemRegistry.getInstance();
 
     public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
     private String instanceId;
     private int pid;
 
+    private CryptoManager mManager = null;
+
     private IConfigStore mConfig = null;
+    // AutoSD : AutoShutdown
+    private String mAutoSD_CrumbFile = null;
+    private boolean mAutoSD_Restart = false;
+    private int mAutoSD_RestartMax = 3;
+    private int mAutoSD_RestartCount = 0;
+    private String mSAuditCertNickName = null;
+    private PrivateKey mSigningKey = null;
+    private byte[] mSigningData = null;
     @SuppressWarnings("unused")
     private ISubsystem mOwner;
     private long mStartupTime = 0;
@@ -1142,6 +1165,58 @@ public class CMSEngine implements ICMSEngine {
         }
         CMS.debug("CMSEngine: ready to init id=" + id);
         ss.init(this, ssConfig);
+
+        try {
+            /*
+             * autoShutdown.allowed=false
+             * autoShutdown.crumbFile=[PKI_INSTANCE_PATH]/logs/autoShutdown.crumb
+             * autoShutdown.restart.enable=false
+             * autoShutdown.restart.max=3
+             * autoShutdown.restart.count=0
+             */
+
+            mAutoSD_Restart = mConfig.getBoolean("autoShutdown.restart.enable", false);
+            CMS.debug("CMSEngine: restart at autoShutdown? " + mAutoSD_Restart);
+            if (mAutoSD_Restart) {
+                mAutoSD_RestartMax = mConfig.getInteger("autoShutdown.restart.max", 3);
+                CMS.debug("CMSEngine: restart max? " + mAutoSD_RestartMax);
+                mAutoSD_RestartCount = mConfig.getInteger("autoShutdown.restart.count", 0);
+                CMS.debug("CMSEngine: current restart count? " + mAutoSD_RestartCount);
+            } else { //!mAutoSD_Restart
+                mAutoSD_CrumbFile = mConfig.getString("autoShutdown.crumbFile",
+                    instanceDir + "/logs/autoShutdown.crumb");
+                CMS.debug("CMSEngine: autoShutdown crumb file path? " + mAutoSD_CrumbFile);
+                File crumb = new File(mAutoSD_CrumbFile);
+                try {
+                    if (crumb.exists()) {
+                        CMS.debug("CMSEngine: delete autoShutdown crumb file");
+                        crumb.delete();
+                    }
+                } catch (Exception e) {
+                    CMS.debug("CMSEngine: delete autoShutdown crumb file failed; continue: " + e.toString());
+                    e.printStackTrace();
+                }
+            }
+
+            /*
+             * establish signing key reference using audit signing cert
+             * for HSM failover detection
+             */
+            mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
+            mManager = CryptoManager.getInstance();
+            org.mozilla.jss.crypto.X509Certificate cert = mManager.findCertByNickname(mSAuditCertNickName);
+            if (cert != null) {
+                CMS.debug("CMSEngine: found cert:" + mSAuditCertNickName);
+            } else {
+                CMS.debug("CMSEngine: cert not found:" + mSAuditCertNickName);
+            }
+            mSigningKey = mManager.findPrivKeyByCert(cert);
+            mSigningData = cert.getPublicKey().getEncoded();
+
+        } catch (Exception e) {
+            CMS.debug("CMSEngine: " + e.toString());
+        }
+
         // add to id - subsystem hash table.
         CMS.debug("CMSEngine: done init id=" + id);
         CMS.debug("CMSEngine: initialized " + id);
@@ -1166,6 +1241,39 @@ public class CMSEngine implements ICMSEngine {
                 }
             }
         }
+    }
+
+    /**
+     * sign some known data to determine if signing key is botched;
+     * if so, proceed to graceful shutdown
+     */
+    public void checkForAndAutoShutdown() {
+        String method= "CMSEngine: checkForAndAutoShutdown: ";
+        CMS.debug(method + "begins");
+        try {
+            boolean allowShutdown  = mConfig.getBoolean("autoShutdown.allowed", false);
+            if ((!allowShutdown) || (mSigningKey == null) ||
+                    (mSigningData == null)) {
+                CMS.debug(method + "autoShutdown not allowed");
+                return;
+            }
+            CMS.debug(method + "autoShutdown allowed");
+            CryptoToken token = 
+                ((org.mozilla.jss.pkcs11.PK11PrivKey) mSigningKey).getOwningToken();
+            SignatureAlgorithm signAlg = Cert.mapAlgorithmToJss("SHA256withRSA");
+            Signature signer = token.getSignatureContext(signAlg);
+
+            signer.initSign(mSigningKey);
+            signer.update(mSigningData);
+            byte[] result = signer.sign();
+            CMS.debug(method + " signining successful: " + new String(result));
+        } catch (SignatureException e) {
+            CMS.debug(method + "autoShutdown for " + e.toString());
+            CMS.autoShutdown();
+        } catch (Exception e) {
+            CMS.debug(method + "continue for " + e.toString());
+        }
+        CMS.debug(method + "passed; continue");
     }
 
     public void reinit(String id) throws EBaseException {
@@ -1745,6 +1853,8 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public boolean areRequestsDisabled() {
+        CMS.debug("CMSEngine: in areRequestsDisabled");
+        System.out.println("CMSEngine: in areRequestsDisabled");
         return CommandQueue.mShuttingDown;
     }
 
@@ -1767,23 +1877,21 @@ public class CMSEngine implements ICMSEngine {
         return (File.separator.equals("\\"));
     }
 
-    private void shutdownHttpServer() {
-
+    private void shutdownHttpServer(boolean restart) {
         try {
             String cmds[] = null;
-            String cmd = "stop-cert";
-            if (isNT()) {
-                // NT
-                cmds = new String[3];
-                cmds[0] = "cmd";
-                cmds[1] = "/c";
-                cmds[2] = instanceDir + "\\" + cmd;
+            String cmd = "stop";
+            if (restart) {
+                cmd = "restart";
+            }
+
+            cmds = new String[3];
+            cmds[0] = "/usr/bin/systemctl";
+            cmds[1] = cmd;
+            if (startedByNuxwdog()) {
+                cmds[2] = "pki-tomcatd-nuxwdog@" + instanceId + ".service";
             } else {
-                // UNIX
-                cmds = new String[3];
-                cmds[0] = "/bin/sh";
-                cmds[1] = "-c";
-                cmds[2] = instanceDir + "/" + cmd;
+                cmds[2] = "pki-tomcatd@" + instanceId + ".service";
             }
 
             Process process = Runtime.getRuntime().exec(cmds);
@@ -1848,14 +1956,52 @@ public class CMSEngine implements ICMSEngine {
      * exceptions are ignored. process exists at end to force exit.
      * Added extra call to shutdown the web server.
      */
-
     public void forceShutdown() {
+        CMS.debug("CMSEngine.forceShutdown()...begins graceful shutdown.");
+        autoShutdown(false /*no restart*/);
+    }
 
+    public void autoShutdown() {
+        autoShutdown(mAutoSD_Restart /* controlled by config */);
+    }
+
+    public void autoShutdown(boolean restart) {
+        String method = "CMSEngine.autoShutdown(): ";
         Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
                 ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
+        CMS.debug(method + "...with restart=" + restart);
 
-        CMS.debug("CMSEngine.forceShutdown()");
+        // update restart tracker so we don't go into infinite restart loop
+        if (restart == true) {
+            CMS.debug(method + "...checking autoShutdown.restart trackers");
+            if (mAutoSD_RestartCount >= mAutoSD_RestartMax) {
+                mAutoSD_Restart = false;
+                mConfig.putBoolean("autoShutdown.restart.enable", mAutoSD_Restart);
+                CMS.debug(method + "...autoShutdown.restart.max reached, disabled autoShutdown.restart.enable");
+            } else {
+                mAutoSD_RestartCount++;
+                mConfig.putInteger("autoShutdown.restart.count", mAutoSD_RestartCount);
+                CMS.debug(method + "...autoShutdown.restart.max not reached, increment autoShutdown.restart.count");
+            }
+            try {
+                mConfig.commit(false);
+            } catch (EBaseException e) {
+            }
+        } else {
+            // leave a crumb file to be monitored by external monitor
+            File crumb = new File(mAutoSD_CrumbFile);
+            try {
+                crumb.createNewFile();
+            } catch (IOException e) {
+                CMS.debug(method + " create autoShutdown crumb file failed on " +
+                    mAutoSD_CrumbFile + "; nothing to do...keep shutting down:" + e.toString()); 
+                e.printStackTrace();
+            }
+        }
 
+/* cfu: not sure why it's doing a commandQueue but not registering any
+ * service to wait on... what does this do to wait on an empty queue?
+ *
         CommandQueue commandQueue = new CommandQueue();
         Thread t1 = new Thread(commandQueue);
 
@@ -1875,12 +2021,17 @@ public class CMSEngine implements ICMSEngine {
             }
             timeOut = time.getTime();
         }
-        terminateRequests();
+*/
 
+        if (areRequestsDisabled() == false) {
+            disableRequests();
+        }
+        terminateRequests();
         shutdownSubsystems(mFinalSubsystems);
         shutdownSubsystems(mDynSubsystems);
         shutdownSubsystems(mStaticSubsystems);
-        shutdownHttpServer();
+
+        shutdownHttpServer(restart);
 
     }
 
