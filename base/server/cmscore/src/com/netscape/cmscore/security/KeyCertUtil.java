@@ -268,6 +268,8 @@ public class KeyCertUtil {
         } catch (TokenException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
         } catch (SignatureException e) {
+            CMS.debug("CertKeyUtil.signCert: "+ e.toString());
+            CMS.checkForAndAutoShutdown();
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_SIGNED_FAILED", e.toString()));
         } catch (InvalidKeyException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", e.toString()));

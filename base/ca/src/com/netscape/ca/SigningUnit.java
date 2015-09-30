@@ -278,6 +278,16 @@ public final class SigningUnit implements ISigningUnit {
 
             signer.initSign(mPrivk);
             signer.update(data);
+
+            /* debugging
+            boolean testAutoShutdown = false;
+            testAutoShutdown = mConfig.getBoolean("autoShutdown.test", false);
+            if (testAutoShutdown) {
+                CMS.debug("SigningUnit.sign: test auto shutdown");
+                CMS.checkForAndAutoShutdown();
+            }
+            */
+
             // XXX add something more descriptive.
             CMS.debug("Signing Certificate");
             return signer.sign();
@@ -295,6 +305,8 @@ public final class SigningUnit implements ISigningUnit {
             throw new EBaseException(e.toString());
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            CMS.debug("SigningUnit.sign: " + e.toString());
+            CMS.checkForAndAutoShutdown();
             // XXX fix this exception later.
             throw new EBaseException(e.toString());
         }
@@ -334,6 +346,7 @@ public final class SigningUnit implements ISigningUnit {
             throw new EBaseException(e.toString());
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            CMS.checkForAndAutoShutdown();
             // XXX fix this exception later.
             throw new EBaseException(e.toString());
         }
