@@ -6,3 +6,8 @@ dist
 MANIFEST
 *.pyc
 __pycache__
+
+/base/common/python/build/
+/base/common/python/dist/
+/base/common/python/dogtag_pki.egg-info/
+
