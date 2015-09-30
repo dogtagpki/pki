@@ -237,10 +237,17 @@ public final class CMS {
      * Shuts down subsystems in backwards order
      * exceptions are ignored. process exists at end to force exit.
      */
-
     public static void forceShutdown() {
 
         _engine.forceShutdown();
+    }
+
+    public static void autoShutdown() {
+        _engine.autoShutdown();
+    }
+
+    public static void checkForAndAutoShutdown() {
+        _engine.checkForAndAutoShutdown();
     }
 
     /**
