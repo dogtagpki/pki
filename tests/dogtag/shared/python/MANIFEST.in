@@ -1,0 +1,3 @@
+include README.rst
+recursive-include pkilib/etc *
+recursive-include docs *

@@ -1,0 +1,15 @@
+root_password: 'redhat'
+domains:
+  - name: testrelm.test
+    type: cs
+    hosts:
+      - name: hostname1
+        ip: 192.168.122.1
+        role: master
+      - name: hostname2
+        ip: 192.168.122.2
+        role: clone
+      - name: hostname3
+        ip: 192.168.122.3
+        role: client
+

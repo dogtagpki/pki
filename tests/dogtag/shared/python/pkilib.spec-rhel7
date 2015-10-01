@@ -1,0 +1,56 @@
+%define name 	pkilib
+%define owner	mrniranjan
+%define project pkilib
+%define version 0.1
+%define release 1
+%define modulename pkilib
+
+Name: 		%{name}
+Version:	%{version}
+Release:	%{release}%{?dist}
+Summary:	Red Hat Certificate Services/Dogtag PKI PyTest Framework
+
+License:	GPLv3+
+URL:		http://www.dotagpki.org
+Source0:	%{name}-%{version}.tar.gz
+
+BuildArch:      noarch
+BuildRequires:	python
+Requires:	python-paramiko
+Requires: 	python-pytest-multihost
+Requires:	PyYAML
+Requires:	python-ldap
+Requires:	pytest
+Requires:	ipa-python
+Requires:	python-dns
+Requires:	python-krbV
+
+
+%description
+An python framework for Red Hat Certificate Services/Dogtag-PKI Pytest Test suite.
+
+
+%prep
+%setup -qn %{project}
+
+%build
+%{__python} setup.py build
+
+
+%install
+%{__python} setup.py install --skip-build --root %{buildroot}
+%{__python} -m compileall %{buildroot}%{python_sitelib}/%{srcname}
+mkdir -p %{buildroot}%{_sysconfdir}/%{modulename}
+cp -p %{buildroot}%{python_sitelib}/%{modulename}/etc/* %{buildroot}%{_sysconfdir}/%{modulename}
+
+%files
+%defattr(-,root,root) 
+%doc docs/*
+%{python_sitelib}/%{name}-%{version}-py2.?.egg-info
+%{python_sitelib}/%{modulename}/
+%config(noreplace) %{_sysconfdir}/%{modulename}
+
+%changelog
+* Mon Aug 31 2015 Niranjan MR <mrniranjan@fedoraproject.org> - 0.1-1
+- initial version- 
+
