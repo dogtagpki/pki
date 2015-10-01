@@ -19,14 +19,15 @@ package com.netscape.certsrv.ca;
 
 import java.net.URISyntaxException;
 
+import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.cert.CertClient;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.selftests.SelfTestClient;
+import com.netscape.certsrv.system.FeatureClient;
 import com.netscape.certsrv.user.UserClient;
-import com.netscape.certsrv.authority.AuthorityClient;
 
 public class CAClient extends SubsystemClient {
 
@@ -38,6 +39,7 @@ public class CAClient extends SubsystemClient {
     public void init() throws URISyntaxException {
         addClient(new AuthorityClient(client, name));
         addClient(new CertClient(client, name));
+        addClient(new FeatureClient(client, name));
         addClient(new GroupClient(client, name));
         addClient(new ProfileClient(client, name));
         addClient(new SelfTestClient(client, name));

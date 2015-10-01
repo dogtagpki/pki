@@ -55,9 +55,9 @@ public class FeatureService extends PKIService implements FeatureResource {
             props = cs.getSubStore(tag).getProperties();
             Feature feature = new Feature();
             feature.setId(tag);
-            feature.setEnabled(props.getOrDefault("enabled", "false"));
-            feature.setDescription(props.getOrDefault("description", ""));
-            feature.setVersion(props.getOrDefault("version", ""));
+            feature.setEnabled(Boolean.parseBoolean(props.get("enabled")));
+            feature.setDescription(props.get("description"));
+            feature.setVersion(props.get("version"));
             return feature;
         } catch (EBaseException e) {
             throw new PKIException(e);

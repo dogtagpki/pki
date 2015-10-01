@@ -56,12 +56,12 @@ public class Feature {
     }
 
     @XmlAttribute(name="enabled")
-    public boolean getEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
-    public void setEnabled(String enabled) {
-        this.enabled = enabled.equalsIgnoreCase("true");
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @XmlAttribute(name="version")
@@ -138,7 +138,7 @@ public class Feature {
     public static void main(String args[]) throws Exception {
         Feature before = new Feature();
         before.setId("authority");
-        before.setEnabled("true");
+        before.setEnabled(true);
         before.setDescription("Subordinate CA Feature");
         before.setVersion("1.0");
 
