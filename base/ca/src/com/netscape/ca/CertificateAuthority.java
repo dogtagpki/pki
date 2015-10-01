@@ -2121,12 +2121,49 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             return null;
         }
 
+        TBSRequest tbsReq = request.getTBSRequest();
+
+        /* An OCSP request can contain CertIDs for certificates
+         * issued by different CAs, but each SingleResponse is valid
+         * only if the combined response was signed by its issuer or
+         * an authorised OCSP signing delegate.
+         *
+         * Even though it is silly to send an OCSP request
+         * asking about certs issued by different CAs, we must
+         * employ some heuristic to deal with this case. Our
+         * heuristic is:
+         *
+         * 1. Find the issuer of the cert identified by the first
+         *    CertID in the request.
+         *
+         * 2. If this CA is *not* the issuer, look up the issuer
+         *    by its DN in the caMap.  If not found, fail.  If
+         *    found, dispatch to its 'validate' method.  Otherwise
+         *    continue.
+         *
+         * 3. If this CA is NOT the issuing CA, we locate the
+         *    issuing CA and dispatch to its 'validate' method.
+         *    Otherwise, we move forward to generate and sign the
+         *    aggregate OCSP response.
+         */
+        ICertificateAuthority ocspCA = this;
+        if (tbsReq.getRequestCount() > 0) {
+            com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(0);
+            BigInteger serialNo = req.getCertID().getSerialNumber();
+            X509CertImpl cert = mCertRepot.getX509Certificate(serialNo);
+            X500Name certIssuerDN = (X500Name) cert.getIssuerDN();
+            ocspCA = getCA(certIssuerDN);
+        }
+        if (ocspCA == null)
+            throw new CANotFoundException("Could not locate issuing CA");
+        if (ocspCA != this)
+            return ((IOCSPService) ocspCA).validate(request);
+
         mNumOCSPRequest++;
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
         long startTime = CMS.getCurrentDate().getTime();
         try {
             //log(ILogger.LL_INFO, "start OCSP request");
-            TBSRequest tbsReq = request.getTBSRequest();
 
             // (3) look into database to check the
             //     certificate's status
