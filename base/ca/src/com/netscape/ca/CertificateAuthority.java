@@ -43,6 +43,28 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509ExtensionException;
+import netscape.security.x509.X509Key;
+
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
@@ -125,28 +147,6 @@ import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchResults;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
-import netscape.security.x509.X509Key;
-
 
 /**
  * A class represents a Certificate Authority that is
@@ -162,7 +162,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
 
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
-        Collections.synchronizedSortedMap(new TreeMap<>());
+        Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());
     protected CertificateAuthority hostCA = null;
     protected AuthorityID authorityID = null;
     protected AuthorityID authorityParentID = null;
