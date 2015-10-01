@@ -17,12 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -38,10 +32,11 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
-import com.netscape.cmscore.util.Debug;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
 
 /**
  * Certificate Server admin authentication.
@@ -64,8 +59,6 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
     private String mName = null;
     private String mImplName = null;
     private IConfigStore mConfig;
-    private String mBaseDN = null;
-    private LdapBoundConnFactory mConnFactory = null;
     private LdapAnonConnFactory mAnonConnFactory = null;
     private ILogger mLogger = CMS.getLogger();
 
@@ -94,8 +87,6 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         if (ldapinfo == null && CMS.isPreOpMode())
             return;
 
-        mBaseDN = dbs.getBaseDN();
-        mConnFactory = new LdapBoundConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo, dbs.getLdapAuthInfo());
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
 
         log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
@@ -124,76 +115,66 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
 
         // make sure the required credentials are provided
         String uid = (String) authCred.get(CRED_UID);
-        CMS.debug("Authentication: UID=" + uid);
+        CMS.debug("PasswdUserDBAuthentication: UID: " + uid);
         if (uid == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_MISSING_UID"));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_UID));
         }
-        String pwd = (String) authCred.get(CRED_PWD);
 
+        String pwd = (String) authCred.get(CRED_PWD);
         if (pwd == null) {
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_ADMIN_NULL_PW", uid));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_PWD));
         }
+
         // don't allow anonymous binding
         if (pwd == "") {
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_ADMIN_EMPTY_PW", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
-        String userdn = null;
-        LDAPConnection conn = null;
-        LDAPConnection anonConn = null;
-
-        try {
-            conn = mConnFactory.getConn();
-            // do anonymous search for the user's dn.
-            LDAPSearchResults res = conn.search(mBaseDN,
-                    LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", null, false);
-
-            if (res.hasMoreElements()) {
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
-
-                userdn = entry.getDN();
-            }
-            if (userdn == null) {
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_ADMIN_NOT_FOUND", uid));
-                throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
-            }
-            anonConn = mAnonConnFactory.getConn();
-            anonConn.authenticate(userdn, pwd);
-        } catch (LDAPException e) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_AUTH_FAILED", uid, e.toString()));
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
-        } finally {
-            if (conn != null)
-                mConnFactory.returnConn(conn);
-            if (anonConn != null)
-                mAnonConnFactory.returnConn(anonConn);
-        }
-
         UGSubsystem ug = UGSubsystem.getInstance();
-
-        authToken.set(TOKEN_USERDN, userdn);
-        authToken.set(CRED_UID, uid); // return original uid for info
-
-        IUser user = null;
+        IUser user;
 
         try {
             user = ug.getUser(uid);
         } catch (EBaseException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            CMS.debug(e);
             // not a user in our user/group database.
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_UID_NOT_FOUND", uid, e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + " " + e.getMessage());
         }
+
         if (user == null) {
+            CMS.debug("PasswdUserDBAuthentication: User not found: " + uid);
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR",
                     "Failure in User Group subsystem."));
         }
+
+        String userdn = user.getUserDN();
+        CMS.debug("PasswdUserDBAuthentication: DN: " + userdn);
+
+        LDAPConnection anonConn = null;
+
+        try {
+            anonConn = mAnonConnFactory.getConn();
+            anonConn.authenticate(userdn, pwd);
+
+        } catch (LDAPException e) {
+            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_AUTH_FAILED", uid, e.toString()));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+
+        } finally {
+            if (anonConn != null)
+                mAnonConnFactory.returnConn(anonConn);
+        }
+
+        authToken.set(TOKEN_USERDN, userdn);
+        authToken.set(CRED_UID, uid); // return original uid for info
+
         authToken.set(TOKEN_USERDN, user.getUserDN());
         authToken.set(TOKEN_USERID, user.getUserID());
+
         log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
 
         return authToken;
@@ -241,7 +222,6 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
     public void shutdown() {
         try {
             // disconnect all outstanding connections in the factory
-            if (mConnFactory != null) mConnFactory.reset();
             if (mAnonConnFactory != null) mAnonConnFactory.reset();
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, e.toString());

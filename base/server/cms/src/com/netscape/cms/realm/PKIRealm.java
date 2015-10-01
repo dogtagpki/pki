@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.lang.StringUtils;
 
@@ -24,6 +22,8 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.common.AuthCredentials;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  *  PKI Realm
@@ -47,7 +47,7 @@ public class PKIRealm extends RealmBase {
 
     @Override
     public Principal authenticate(String username, String password) {
-        logDebug("Authenticating username "+username+" with password.");
+        CMS.debug("PKIRealm: Authenticating user " + username + " with password.");
         String auditMessage = null;
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String attemptedAuditUID = username;
@@ -61,7 +61,7 @@ public class PKIRealm extends RealmBase {
             creds.set(IPasswdUserDBAuthentication.CRED_PWD, password);
 
             IAuthToken authToken = authMgr.authenticate(creds); // throws exception if authentication fails
-            authToken.set(SessionContext.AUTH_MANAGER_ID,IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
+            authToken.set(SessionContext.AUTH_MANAGER_ID, IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
             // store a message in the signed audit log file
@@ -91,7 +91,7 @@ public class PKIRealm extends RealmBase {
 
     @Override
     public Principal authenticate(final X509Certificate certs[]) {
-        logDebug("Authenticating certificate chain:");
+        CMS.debug("PKIRealm: Authenticating certificate chain:");
 
         String auditMessage = null;
         // get the cert from the ssl client auth
@@ -105,7 +105,7 @@ public class PKIRealm extends RealmBase {
             X509CertImpl certImpls[] = new X509CertImpl[certs.length];
             for (int i=0; i<certs.length; i++) {
                 X509Certificate cert = certs[i];
-                logDebug("  "+cert.getSubjectDN());
+                CMS.debug("PKIRealm:   " + cert.getSubjectDN());
 
                 // Convert sun.security.x509.X509CertImpl to netscape.security.x509.X509CertImpl
                 certImpls[i] = new X509CertImpl(cert.getEncoded());
@@ -123,7 +123,7 @@ public class PKIRealm extends RealmBase {
             // reset it to the one authenticated with authManager
             auditSubjectID = authToken.getInString(IAuthToken.USER_ID);
 
-            logDebug("User ID: "+username);
+            CMS.debug("PKIRealm: User ID: " + username);
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
@@ -181,7 +181,7 @@ public class PKIRealm extends RealmBase {
     protected IUser getUser(String username) throws EUsrGrpException {
         IUGSubsystem ugSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
         IUser user = ugSub.getUser(username);
-        logDebug("User DN: "+user.getUserDN());
+        CMS.debug("PKIRealm: User DN: " + user.getUserDN());
         return user;
     }
 
@@ -192,12 +192,12 @@ public class PKIRealm extends RealmBase {
         IUGSubsystem ugSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
         Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
-        logDebug("Roles:");
+        CMS.debug("PKIRealm: Roles:");
         while (groups.hasMoreElements()) {
             IGroup group = groups.nextElement();
 
             String name = group.getName();
-            logDebug("  "+name);
+            CMS.debug("PKIRealm:   " + name);
             roles.add(name);
         }
 
@@ -207,19 +207,6 @@ public class PKIRealm extends RealmBase {
     @Override
     protected String getPassword(String username) {
         return null;
-    }
-
-    /*
-     * TODO: Figure out how to do real logging
-     */
-    public void logErr(String msg) {
-        System.err.println(msg);
-        CMS.debug("PKIRealm.logErr: " + msg);
-    }
-
-    public void logDebug(String msg) {
-        System.out.println("PKIRealm: "+msg);
-        CMS.debug("PKIRealm.logDebug: " + msg);
     }
 
     /**
