@@ -18,6 +18,7 @@
 package org.dogtagpki.server.rest;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.Locale;
 
@@ -27,6 +28,8 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
+
+import org.jboss.resteasy.core.ResourceMethodInvoker;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -58,6 +61,13 @@ public class SessionContextInterceptor implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
+
+        ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext
+                .getProperty("org.jboss.resteasy.core.ResourceMethodInvoker");
+        Method method = methodInvoker.getMethod();
+        Class<?> clazz = methodInvoker.getResourceClass();
+
+        CMS.debug("SessionContextInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
 
         Principal principal = securityContext.getUserPrincipal();
 
