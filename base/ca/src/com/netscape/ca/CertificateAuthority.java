@@ -2409,6 +2409,9 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             String subjectDN, String description)
             throws EBaseException {
 
+        if (!authorityEnabled)
+            throw new CADisabledException("Parent CA is disabled");
+
         // check requested DN
         X500Name subjectX500Name = null;
         try {

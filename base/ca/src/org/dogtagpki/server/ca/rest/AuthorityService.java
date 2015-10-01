@@ -43,6 +43,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CAEnabledException;
+import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
@@ -186,7 +187,7 @@ public class AuthorityService extends PKIService implements AuthorityResource {
             throw new BadRequestException(e.toString());
         } catch (CANotFoundException e) {
             throw new ResourceNotFoundException(e.toString());
-        } catch (IssuerUnavailableException e) {
+        } catch (IssuerUnavailableException | CADisabledException e) {
             throw new ConflictingOperationException(e.toString());
         } catch (Exception e) {
             CMS.debug(e);
