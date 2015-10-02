@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          8%{?dist}
+Release:          9%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -151,13 +151,17 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
 
+## pki-core-10.2.6-2
 #Patch1:           pki-core-Fixed-ObjectNotFoundException-in-PKCS12Export.patch
+## pki-core-10.2.6-3
+## pki-core-10.2.6-4
 #Patch2:           pki-core-Do-Not-Create-Replication-Agreements.patch
 #Patch3:           pki-core-Remove-Noise-File-Generation.patch
 #Patch4:           pki-core-Fix-Pin-Reset-Operation.patch
 #Patch5:           pki-core-Externalreg-Support-Multiple-KeySets.patch
 #Patch6:           pki-core-Add-Externalreg-revokeCert-Parameter.patch
 #Patch7:           pki-core-Fix-ECC-Admin-Cert-Creation.patch
+## pki-core-10.2.6-5
 #Patch8:           pki-core-Fix-Firefox-Warning.patch
 #Patch9:           pki-core-Add-Reindex-Data-During-Cloning-No-Replication.patch
 #Patch10:          pki-core-Fix-Base-64-Encoded-Cert-Displays.patch
@@ -165,6 +169,7 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch12:          pki-core-Add-Bound-Bind-Connection-To-Dirauth-Plugin.patch
 #Patch13:          pki-core-Remove-Inaccessible-URLs-From-Pkidaemon.patch
 #Patch14:          pki-core-Temporarily-Silence-InsecureRequestWarning.patch
+## pki-core-10.2.6-6
 #Patch15:          pki-core-Separate-range-and-cert-status-threads.patch
 #Patch16:          pki-core-Fix-admin-profiles-for-ECC-cert-reqs.patch
 #Patch17:          pki-core-Fix-missing-query-parms-in-ListCerts-page.patch
@@ -172,12 +177,24 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch19:          pki-core-Remove-PortalEnroll-plugin.patch
 #Patch20:          pki-core-Fix-setpin-utility.patch
 #Patch21:          pki-core-Fix-weak-HTTPS-TLS-ciphers.patch
+## pki-core-10.2.6-7
 #Patch22:          pki-core-Minor-setpin-fix.patch
 #Patch23:          pki-core-Fix-TLS-ciphers-on-non-CA-HSMs.patch
 #Patch24:          pki-core-Issue-IE-11-warning.patch
+## pki-core-10.2.6-8
 #Patch25:          pki-core-User-Membership-Man-Page.patch
 #Patch26:          pki-core-Fix-SC650-Token-Format-Enroll.patch
 #Patch27:          pki-core-Support-Multiple-Keysets.patch
+## pki-core-10.2.6-9
+#Patch28:          pki-core-Added-CLI-to-update-cert-data-and-request-in-CS_cfg.patch
+#Patch29:          pki-core-Fixed-pkidbuser-group-memberships.patch
+#Patch30:          pki-core-Added-support-for-secure-database-connection-in-CLI.patch
+#Patch31:          pki-core-KRA-via-CLI-should-honor-encrypt-decrypt-flags.patch
+#Patch32:          pki-core-Relocated-legacy-cert-enrollment-methods.patch
+#Patch33:          pki-core-Refactored-certificate-processors.patch
+#Patch34:          pki-core-Added-support-for-directory-authenticated-profiles.patch
+#Patch35:          pki-core-Added-default-subject-DN-for-pki-client-cert-request.patch
+#Patch36:          pki-core-HSM-failover-support.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -313,6 +330,7 @@ Requires:         jss >= 4.2.6-35
 Requires:         ldapjdk
 Requires:         python-ldap
 Requires:         python-lxml
+Requires:         python-nss
 Requires:         python-requests >= 1.1.0-3
 
 %if 0%{?rhel}
@@ -709,6 +727,15 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch25 -p1
 #%patch26 -p1
 #%patch27 -p1
+#%patch28 -p1
+#%patch29 -p1
+#%patch30 -p1
+#%patch31 -p1
+#%patch32 -p1
+#%patch33 -p1
+#%patch34 -p1
+#%patch35 -p1
+#%patch36 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1058,6 +1085,20 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Oct  1 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-9
+- PKI TRAC Ticket #1551 - Upgraded CA lacks ca.sslserver.certreq in CS.cfg
+  [edewata]
+- PKI TRAC Ticket #1595 - CA fails to authenticate to KRA for archival
+  [edewata]
+- PKI TRAC Ticket #1551 - Upgraded CA lacks ca.sslserver.certreq in CS.cfg
+  (added support for secure database authentication) [edewata]
+- PKI TRAC Ticket #1597 - KRA: key archival/recovery via cli - should honor
+  encryption/decryption flags [jmagne]
+- PKI TRAC Ticket #1463 - pki cli client-cert-request should support dir based
+  auth (4 patches) [edewata]
+- PKI TRAC Ticket #1593 - HSM failover support [cfu]
+- PKI TRAC Ticket #1623 - Runtime dependency on python-nss is missing [mharmsen]
+
 * Mon Aug 24 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-8
 - PKI TRAC Ticket #1584 - man page for pki-user does not information about
   user-membership [edewata]
