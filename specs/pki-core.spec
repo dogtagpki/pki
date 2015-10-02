@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.3.0
-Release:          0.1%{?dist}
+Release:          0.2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -286,6 +286,7 @@ Requires:         jss >= 4.2.6-35
 Requires:         ldapjdk
 Requires:         python-ldap
 Requires:         python-lxml
+Requires:         python-nss
 Requires:         python-requests >= 1.1.0-3
 Requires:         python-six
 
@@ -1005,6 +1006,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Sat Oct  2 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.2
+- PKI TRAC Ticket #1623 - Runtime dependency on python-nss is missing
+
 * Sat Aug  8 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.1
 - Updated version number to 10.3.0-0.1
 
