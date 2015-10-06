@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          9%{?dist}
+Release:          10%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -195,6 +195,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch34:          pki-core-Added-support-for-directory-authenticated-profiles.patch
 #Patch35:          pki-core-Added-default-subject-DN-for-pki-client-cert-request.patch
 #Patch36:          pki-core-HSM-failover-support.patch
+## pki-core-10.2.6-10
+#Patch37:          pki-core-Fixed-user-search-in-PasswdUserDBAuthentication.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -736,6 +738,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch34 -p1
 #%patch35 -p1
 #%patch36 -p1
+#%patch37 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1085,6 +1088,10 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Tue Oct  6 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-10
+- PKI TRAC Ticket #1580 - dogtag can get confused about users [edewata]
+- Fedora 23 and Fedora 24 only
+
 * Thu Oct  1 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-9
 - PKI TRAC Ticket #1551 - Upgraded CA lacks ca.sslserver.certreq in CS.cfg
   [edewata]
