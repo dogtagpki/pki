@@ -37,6 +37,17 @@ public class CertEnrollmentRequestFactory {
             throws EProfileException {
         IArgBlock params = cmsReq.getHttpParams();
 
+        CertEnrollmentRequest request = create(params, profile, locale);
+
+        HttpServletRequest httpRequest = cmsReq.getHttpReq();
+        request.setRemoteHost(httpRequest.getRemoteHost());
+        request.setRemoteAddr(httpRequest.getRemoteAddr());
+
+        return request;
+    }
+
+    public static CertEnrollmentRequest create(IArgBlock params, IProfile profile, Locale locale)
+            throws EProfileException {
         CertEnrollmentRequest request = new CertEnrollmentRequest();
         request.setProfileId(profile.getId());
 
@@ -47,10 +58,6 @@ public class CertEnrollmentRequestFactory {
             ProfileInput addInput = ProfileInputFactory.create(input, params, locale);
             request.addInput(addInput);
         }
-
-        HttpServletRequest httpRequest = cmsReq.getHttpReq();
-        request.setRemoteHost(httpRequest.getRemoteHost());
-        request.setRemoteAddr(httpRequest.getRemoteAddr());
 
         return request;
     }

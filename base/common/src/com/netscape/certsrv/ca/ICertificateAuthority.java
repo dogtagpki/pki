@@ -34,6 +34,7 @@ import netscape.security.x509.X509CertInfo;
 
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -562,6 +563,7 @@ public interface ICertificateAuthority extends ISubsystem {
      * Create a new sub-CA under the specified parent CA.
      */
     public ICertificateAuthority createCA(
+            IAuthToken authToken,
             String dn, AuthorityID parentAID, String desc)
         throws EBaseException;
 
@@ -572,6 +574,7 @@ public interface ICertificateAuthority extends ISubsystem {
      * caller's responsibility.
      */
     public ICertificateAuthority createSubCA(
+            IAuthToken authToken,
             String dn, String desc)
         throws EBaseException;
 

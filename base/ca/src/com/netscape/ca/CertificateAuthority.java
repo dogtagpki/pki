@@ -18,15 +18,18 @@
 package com.netscape.ca;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.Signature;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
@@ -36,6 +39,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -51,6 +55,7 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
+import netscape.security.pkcs.PKCS10;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.x509.AlgorithmId;
@@ -59,6 +64,7 @@ import netscape.security.x509.CertificateIssuerName;
 import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.CertificateVersion;
 import netscape.security.x509.X500Name;
+import netscape.security.x509.X500Signer;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
@@ -83,6 +89,7 @@ import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -100,6 +107,7 @@ import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
@@ -110,19 +118,26 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.policy.IPolicyProcessor;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.publish.ICRLPublisher;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.ARequestNotifier;
 import com.netscape.certsrv.request.IPolicy;
+import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
+import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
-import com.netscape.cms.servlet.csadmin.CertUtil;
-import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cms.servlet.cert.EnrollmentProcessor;
+import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
+import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -2376,6 +2391,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * @param description Optional string description of CA
      */
     public ICertificateAuthority createCA(
+            IAuthToken authToken,
             String subjectDN, AuthorityID parentAID,
             String description)
             throws EBaseException {
@@ -2385,7 +2401,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 "Parent CA \"" + parentAID + "\" does not exist");
 
         ICertificateAuthority ca = parentCA.createSubCA(
-                subjectDN, description);
+                authToken, subjectDN, description);
         caMap.put(ca.getAuthorityID(), ca);
         return ca;
     }
@@ -2406,6 +2422,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * caller's responsibility.
      */
     public ICertificateAuthority createSubCA(
+            IAuthToken authToken,
             String subjectDN, String description)
             throws EBaseException {
 
@@ -2476,20 +2493,49 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 PublicKey pub = keypair.getPublic();
                 X509Key x509key = CryptoUtil.convertPublicKeyToX509Key(pub);
 
+                // Create pkcs10 request
+                CMS.debug("createSubCA: creating pkcs10 request");
+                PKCS10 pkcs10 = new PKCS10(x509key);
+                Signature signature = Signature.getInstance("SHA256withRSA");
+                signature.initSign(keypair.getPrivate());
+                pkcs10.encodeAndSign(
+                    new X500Signer(signature, subjectX500Name));
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                pkcs10.print(new PrintStream(out));
+                String pkcs10String = out.toString();
+
                 // Sign certificate
-                String algName = mSigningUnit.getDefaultAlgorithm();
-                IConfigStore cs = new PropConfigStore("cs");
-                cs.put(".profile", "caCert.profile");
-                cs.put(".dn", subjectDN);
-                cs.put(".keyalgorithm", algName);
-                X509CertImpl cert =
-                    CertUtil.createLocalCertWithCA(cs, x509key, "", "", "local", this);
+                Locale locale = Locale.getDefault();
+                String profileId = "caCACert";
+                IProfileSubsystem ps = (IProfileSubsystem)
+                    CMS.getSubsystem(IProfileSubsystem.ID);
+                IProfile profile = ps.getProfile(profileId);
+                ArgBlock argBlock = new ArgBlock();
+                argBlock.set("cert_request_type", "pkcs10");
+                argBlock.set("cert_request", pkcs10String);
+                CertEnrollmentRequest certRequest =
+                    CertEnrollmentRequestFactory.create(argBlock, profile, locale);
+                EnrollmentProcessor processor =
+                    new EnrollmentProcessor("createSubCA", locale);
+                Map<String, Object> resultMap = processor.processEnrollment(
+                    certRequest, null, authorityID, null, authToken);
+                IRequest requests[] = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
+                IRequest request = requests[0];
+                Integer result = request.getExtDataInInteger(IRequest.RESULT);
+                if (result != null && !result.equals(IRequest.RES_SUCCESS))
+                    throw new EBaseException("createSubCA: certificate request submission resulted in error: " + result);
+                RequestStatus requestStatus = request.getRequestStatus();
+                if (requestStatus != RequestStatus.COMPLETE)
+                    throw new EBaseException("createSubCA: certificate request did not complete; status: " + requestStatus);
 
                 // Add certificate to nssdb
+                X509CertImpl cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
                 cryptoManager.importCertPackage(cert.getEncoded(), nickname);
             } catch (Exception e) {
                 // something went wrong; delete just-added entry
                 conn.delete(dn);
+                CMS.debug("Error creating lightweight CA certificate");
+                CMS.debug(e);
                 throw new ECAException("Error creating lightweight CA certificate: " + e);
             }
         } catch (LDAPException e) {

@@ -49,6 +49,7 @@ import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.util.Utils;
 
@@ -179,8 +180,12 @@ public class AuthorityService extends PKIService implements AuthorityResource {
             throw new BadRequestException("Bad Authority ID: " + parentAIDString);
         }
 
+        PKIPrincipal principal =
+            (PKIPrincipal) servletRequest.getUserPrincipal();
+
         try {
             ICertificateAuthority subCA = hostCA.createCA(
+                principal.getAuthToken(),
                 data.getDN(), parentAID, data.getDescription());
             return createOKResponse(readAuthorityData(subCA));
         } catch (IllegalArgumentException e) {

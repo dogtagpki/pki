@@ -83,6 +83,15 @@ public class EnrollmentProcessor extends CertProcessor {
 
     }
 
+    public HashMap<String, Object> processEnrollment(
+            CertEnrollmentRequest data,
+            HttpServletRequest request,
+            AuthorityID aid,
+            AuthCredentials credentials)
+            throws EBaseException {
+        return processEnrollment(data, request, aid, credentials, null);
+    }
+
     /**
      * Process the HTTP request
      * <P>
@@ -104,7 +113,8 @@ public class EnrollmentProcessor extends CertProcessor {
             CertEnrollmentRequest data,
             HttpServletRequest request,
             AuthorityID aid,
-            AuthCredentials credentials)
+            AuthCredentials credentials,
+            IAuthToken authToken)
         throws EBaseException {
 
         try {
@@ -153,7 +163,8 @@ public class EnrollmentProcessor extends CertProcessor {
             CMS.debug("EnrollmentProcessor: set sslClientCertProvider");
 
             // before creating the request, authenticate the request
-            IAuthToken authToken = authenticate(request, null, authenticator, context, false, credentials);
+            if (authToken == null)
+                authToken = authenticate(request, null, authenticator, context, false, credentials);
 
             // authentication success, now authorize
             authorize(profileId, profile, authToken);
