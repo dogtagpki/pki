@@ -1868,11 +1868,21 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             filter += "(" + CertRecord.ATTR_ID + "<=" + mEndSerial.toString() + ")";
         }
 
-        // get all revoked non-expired certs.
-        if (mEndSerial != null || mBeginSerial != null || mCACertsOnly ||
-                (mProfileCertsOnly && mProfileList != null && mProfileList.size() > 0)) {
-            filter = "(&" + filter + ")";
+        String issuerFilter =
+            "(" + CertRecord.ATTR_X509CERT_ISSUER
+            + "=" + mCA.getX500Name().toString() + ")";
+        // host authority may be absent issuer attribute
+        if (mCA.isHostAuthority()) {
+            issuerFilter =
+                "(|"
+                + "(!(" + CertRecord.ATTR_X509CERT_ISSUER + "=*))"
+                + issuerFilter
+                + ")";
         }
+        filter += issuerFilter;
+
+        // get all revoked non-expired certs.
+        filter = "(&" + filter + ")";
 
         return filter;
     }
