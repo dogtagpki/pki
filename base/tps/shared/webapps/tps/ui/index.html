@@ -50,7 +50,7 @@ $(function() {
             tps.user = data;
             var roles = tps.user.Roles.Role;
 
-            var user = $("#user");
+            var user = $("#navigation [name=account] [name=username]");
             user.text(data.FullName);
 
             var accounts_menu = $("#navigation [name=accounts]");
@@ -383,22 +383,22 @@ $(function() {
 </div>
 <div class="collapse navbar-collapse navbar-collapse-1">
     <ul class="nav navbar-nav navbar-utility">
-    <li><a href="#">Status</a></li>
-    <li class="dropdown">
+    <li name="status"><a href="#">Status</a></li>
+    <li name="account" class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
         <span class="pficon pficon-user"></span>
-        <span id="user"></span><b class="caret"></b>
+        <span name="username"></span><b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
-        <li><a href="#logout">Logout</a></li>
+        <li name="logout"><a href="#logout">Logout</a></li>
         </ul>
     </li>
     </ul>
     <ul class="nav navbar-nav navbar-primary">
-    <li><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-    <li><a href="#tokens">Tokens</a></li>
-    <li><a href="#certs">Certificates</a></li>
-    <li><a href="#activities">Activities</a></li>
+    <li name="home"><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+    <li name="tokens"><a href="#tokens">Tokens</a></li>
+    <li name="certs"><a href="#certs">Certificates</a></li>
+    <li name="activities"><a href="#activities">Activities</a></li>
     <li name="accounts" class="dropdown context" style="display: none;">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">
         Accounts

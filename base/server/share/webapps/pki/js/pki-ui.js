@@ -393,7 +393,10 @@ var TableItem = Backbone.View.extend({
     },
     render: function() {
         var self = this;
-        var prefix = self.table.$el.attr("name") + "_select_";
+
+        var template = self.table.template;
+        var templateCheckbox = $("input[type='checkbox']", template);
+        var prefix = templateCheckbox.attr("id") + "-";
 
         var templateTDs = $("td", self.table.template);
         $("td", self.$el).each(function(index) {
