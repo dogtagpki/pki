@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +36,7 @@ import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.xml.sax.SAXException;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ConflictingOperationException;
@@ -54,10 +56,6 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.http.HttpClient;
-import com.netscape.cmsutil.http.HttpRequest;
-import com.netscape.cmsutil.http.HttpResponse;
-import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.security.pkcs.PKCS10;
@@ -72,67 +70,46 @@ public class CertUtil {
     static final int LINE_COUNT = 76;
 
     public static X509CertImpl createRemoteCert(String hostname,
-            int port, String content, HttpServletResponse response)
-            throws IOException {
-        HttpClient httpclient = new HttpClient();
-        String c = null;
-        CMS.debug("CertUtil createRemoteCert: content " + content);
-        try {
-            JssSSLSocketFactory factory = new JssSSLSocketFactory();
+            int port, MultivaluedMap<String, String> content, HttpServletResponse response)
+            throws Exception {
 
-            httpclient = new HttpClient(factory);
-            httpclient.connect(hostname, port);
-            HttpRequest httprequest = new HttpRequest();
+        CMS.debug("CertUtil: content: " + content);
 
-            httprequest.setMethod(HttpRequest.POST);
-            httprequest.setURI("/ca/ee/ca/profileSubmit");
-            httprequest.setHeader("user-agent", "HTTPTool/1.0");
-            httprequest.setHeader("content-length", "" + content.length());
-            httprequest.setHeader("content-type",
-                    "application/x-www-form-urlencoded");
-            httprequest.setContent(content);
-            HttpResponse httpresponse = httpclient.send(httprequest);
-
-            c = httpresponse.getContent();
-        } catch (Exception e) {
-            CMS.debug("CertUtil createRemoteCert: " + e.toString());
-            throw new IOException(e.toString());
-        }
+        String c = ConfigurationUtils.post(hostname, port, true, "/ca/ee/ca/profileSubmit", content, null, null);
 
         if (c != null) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+            XMLObject parser;
             try {
-                ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-                XMLObject parser = null;
-
-                try {
-                    parser = new XMLObject(bis);
-                } catch (Exception e) {
-                    CMS.debug("CertUtil::createRemoteCert() - "
-                             + "Exception=" + e.toString());
-                    throw new IOException(e.toString());
-                }
-                String status = parser.getValue("Status");
-
-                CMS.debug("CertUtil createRemoteCert: status=" + status);
-                if (!status.equals("0")) {
-                    String error = parser.getValue("Error");
-                    throw new IOException(error);
-                }
-
-                String b64 = parser.getValue("b64");
-
-                CMS.debug("CertUtil createRemoteCert: " + b64);
-                b64 = CryptoUtil.normalizeCertAndReq(b64);
-                byte[] b = CryptoUtil.base64Decode(b64);
-
-                return new X509CertImpl(b);
-            } catch (Exception e) {
-                CMS.debug("CertUtil createRemoteCert: " + e.toString());
-                throw new IOException(e.toString());
+                parser = new XMLObject(bis);
+            } catch (SAXException e) {
+                CMS.debug("CertUtil: Unable to parse XML response:");
+                CMS.debug(c);
+                CMS.debug(e);
+                throw e;
             }
-        }
 
-        return null;
+            String status = parser.getValue("Status");
+
+            CMS.debug("CertUtil: status: " + status);
+            if (!status.equals("0")) {
+                String error = parser.getValue("Error");
+                CMS.debug("CertUtil: error: " + error);
+                throw new IOException(error);
+            }
+
+            String b64 = parser.getValue("b64");
+
+            CMS.debug("CertUtil: cert: " + b64);
+            b64 = CryptoUtil.normalizeCertAndReq(b64);
+            byte[] b = CryptoUtil.base64Decode(b64);
+
+            return new X509CertImpl(b);
+
+        } else {
+            CMS.debug("CertUtil: Missing CA response");
+            throw new Exception("Missing CA response");
+        }
     }
 
     public static String getPKCS10(IConfigStore config, String prefix,
