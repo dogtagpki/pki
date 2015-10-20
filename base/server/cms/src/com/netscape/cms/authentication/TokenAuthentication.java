@@ -18,10 +18,12 @@
 package com.netscape.cms.authentication;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
+
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -38,10 +40,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cmsutil.http.HttpClient;
-import com.netscape.cmsutil.http.HttpRequest;
-import com.netscape.cmsutil.http.HttpResponse;
-import com.netscape.cmsutil.http.JssSSLSocketFactory;
+import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -138,7 +137,9 @@ public class TokenAuthentication implements IAuthManager,
         int authEEPort = sconfig.getInteger("securitydomain.httpseeport");
         String authURL = "/ca/admin/ca/tokenAuthenticate";
 
-        String content = CRED_SESSION_ID + "=" + sessionId + "&hostname=" + givenHost;
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle(CRED_SESSION_ID, sessionId);
+        content.putSingle("hostname", givenHost);
         CMS.debug("TokenAuthentication: content=" + content);
 
         String c = null;
@@ -158,7 +159,7 @@ public class TokenAuthentication implements IAuthManager,
             authURL = "/ca/ee/ca/tokenAuthenticate";
             try {
                 c = sendAuthRequest(authHost, authEEPort, authURL, content);
-            } catch (IOException e1) {
+            } catch (Exception e1) {
                 CMS.debug("TokenAuthenticate: failed to contact EE host:port "
                         + authHost + ":" + authAdminPort + " " + e1);
                 throw new EBaseException(e1.getMessage());
@@ -208,27 +209,10 @@ public class TokenAuthentication implements IAuthManager,
         return authToken;
     }
 
-    private String sendAuthRequest(String authHost, int authPort, String authUrl, String content)
-            throws IOException {
-        HttpClient httpclient = new HttpClient();
-        String c = null;
+    private String sendAuthRequest(String authHost, int authPort, String authUrl, MultivaluedMap<String, String> content)
+            throws Exception {
 
-        JssSSLSocketFactory factory = new JssSSLSocketFactory();
-        httpclient = new HttpClient(factory);
-        httpclient.connect(authHost, authPort);
-        HttpRequest httprequest = new HttpRequest();
-        httprequest.setMethod(HttpRequest.POST);
-        httprequest.setURI(authUrl);
-        httprequest.setHeader("user-agent", "HTTPTool/1.0");
-        httprequest.setHeader("content-length", "" + content.length());
-        httprequest.setHeader("content-type",
-                "application/x-www-form-urlencoded");
-        httprequest.setContent(content);
-
-        HttpResponse httpresponse = httpclient.send(httprequest);
-        c = httpresponse.getContent();
-
-        return c;
+        return ConfigurationUtils.post(authHost, authPort, true, authUrl, content, null, null);
     }
 
     /**
