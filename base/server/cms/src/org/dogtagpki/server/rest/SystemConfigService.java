@@ -907,7 +907,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String host;
         int port;
         try {
-            CMS.debug("Resolving security domain URL" + securityDomainURL);
+            CMS.debug("Resolving security domain URL " + securityDomainURL);
             secdomainURL = new URL(securityDomainURL);
             host = secdomainURL.getHost();
             port = secdomainURL.getPort();
@@ -931,8 +931,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             domainXML = ConfigurationUtils.getDomainXML(host, port, true);
             ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e);
+            CMS.debug(e);
+            throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e, e);
         }
         return domainXML;
     }
@@ -942,8 +942,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException("Failed to import certificate chain from security domain master: " + e);
+            CMS.debug(e);
+            throw new PKIException("Failed to import certificate chain from security domain master: " + e, e);
         }
     }
 

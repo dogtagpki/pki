@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -149,10 +148,6 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.http.HttpClient;
-import com.netscape.cmsutil.http.HttpRequest;
-import com.netscape.cmsutil.http.HttpResponse;
-import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -219,95 +214,63 @@ public class ConfigurationUtils {
         return rv;
     }
 
-    public static String getHttpResponse(String hostname, int port, boolean secure,
-            String uri, String content, String clientnickname) throws IOException {
-        return getHttpResponse(hostname, port, secure, uri, content, clientnickname, null);
-    }
-
-    public static String post(String hostname, int port, boolean secure,
-            String path, MultivaluedMap<String, String> map, String clientnickname,
+    public static String get(String hostname, int port, boolean secure,
+            String path, String clientnickname,
             SSLCertificateApprovalCallback certApprovalCallback)
             throws Exception {
 
         String protocol = secure ? "https" : "http";
         ClientConfig config = new ClientConfig();
-        config.setServerURI(protocol + "://" + hostname + ":" + port + path);
+        config.setServerURI(protocol + "://" + hostname + ":" + port);
         config.setCertNickname(clientnickname);
 
-        PKIClient client = new PKIClient(config, null);
-        PKIConnection connection = client.getConnection();
-        return connection.post(map);
+        CMS.debug("ConfigurationUtils: GET " + config.getServerURI() + path);
+        PKIConnection connection = new PKIConnection(config);
+        connection.setCallback(certApprovalCallback);
+        return connection.get(path);
     }
 
-    //TODO - replace with Jack's connector code
-    // or as we replace calls with restful calls,  remove altogether
-    public static String getHttpResponse(String hostname, int port, boolean secure,
-            String uri, String content, String clientnickname,
+    public static String post(String hostname, int port, boolean secure,
+            String path, MultivaluedMap<String, String> content, String clientnickname,
             SSLCertificateApprovalCallback certApprovalCallback)
-            throws IOException {
-        HttpClient httpclient = null;
-        String c = null;
+            throws Exception {
 
-        try {
-            if (secure) {
-                JssSSLSocketFactory factory = null;
-                if (clientnickname != null && clientnickname.length() > 0)
-                    factory = new JssSSLSocketFactory(clientnickname);
-                else
-                    factory = new JssSSLSocketFactory();
+        String protocol = secure ? "https" : "http";
+        ClientConfig config = new ClientConfig();
+        config.setServerURI(protocol + "://" + hostname + ":" + port);
+        config.setCertNickname(clientnickname);
 
-                httpclient = new HttpClient(factory, certApprovalCallback);
-            } else {
-                httpclient = new HttpClient();
-            }
-            httpclient.connect(hostname, port);
-            HttpRequest httprequest = new HttpRequest();
-
-            httprequest.setMethod(HttpRequest.POST);
-            httprequest.setURI(uri);
-            httprequest.setHeader("user-agent", "HTTPTool/1.0");
-            httprequest.setHeader("content-type",
-                    "application/x-www-form-urlencoded");
-            if (content != null && content.length() > 0) {
-                String content_c = content;
-                httprequest.setHeader("content-length", "" + content_c.length());
-                httprequest.setContent(content_c);
-            }
-            HttpResponse httpresponse = httpclient.send(httprequest);
-
-            c = httpresponse.getContent();
-            //cfu
-
-        } catch (ConnectException e) {
-            CMS.debug("getHttpResponse: " + e.toString());
-            throw new IOException("The server you tried to contact is not running.", e);
-
-        } catch (Exception e) {
-            CMS.debug("getHttpResponse: " + e.toString());
-            throw new IOException(e.toString(), e);
-
-        } finally {
-            if (httpclient.connected()) {
-                httpclient.disconnect();
-            }
-        }
-
-        return c;
+        CMS.debug("ConfigurationUtils: POST " + config.getServerURI() + path);
+        PKIConnection connection = new PKIConnection(config);
+        connection.setCallback(certApprovalCallback);
+        return connection.post(path, content);
     }
 
     public static void importCertChain(String host, int port, String serverPath, String tag)
-            throws IOException, SAXException, ParserConfigurationException, CertificateEncodingException,
-            CertificateException, NotInitializedException, TokenException, EBaseException {
+            throws Exception {
+
         IConfigStore cs = CMS.getConfigStore();
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-        XMLObject parser = null;
-        String c = ConfigurationUtils.getHttpResponse(host, port, true, serverPath, null, null,
-                certApprovalCallback);
+        String c = get(host, port, true, serverPath, null, certApprovalCallback);
+
         if (c != null) {
+
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            parser = new XMLObject(bis);
+
+            XMLObject parser;
+            try {
+                parser = new XMLObject(bis);
+            } catch (SAXException e) {
+                CMS.debug("ConfigurationUtils: Unable to parse XML response:");
+                CMS.debug(c);
+                CMS.debug(e);
+                throw e;
+            }
+
             String certchain = parser.getValue("ChainBase64");
-            if ((certchain != null) && (certchain.length() > 0)) {
+
+            if (certchain != null && certchain.length() > 0) {
+
                 certchain = CryptoUtil.normalizeCertStr(certchain);
                 cs.putString("preop." + tag + ".pkcs7", certchain);
 
@@ -319,6 +282,7 @@ public class ConfigurationUtils {
                 if (b_certchain != null) {
                     size = b_certchain.length;
                 }
+
                 cs.putInteger("preop." + tag + ".certchain.size", size);
                 for (int i = 0; i < size; i++) {
                     byte[] bb = b_certchain[i].getEncoded();
@@ -328,9 +292,11 @@ public class ConfigurationUtils {
 
                 cs.commit(false);
                 CryptoUtil.importCertificateChain(certchain);
+
             } else {
                 throw new IOException("importCertChain: Security Domain response does not contain certificate chain");
             }
+
         } else {
             throw new IOException("importCertChain: Failed to get response from security domain");
         }
@@ -338,12 +304,6 @@ public class ConfigurationUtils {
 
     public static String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
         IConfigStore cs = CMS.getConfigStore();
-        boolean oldtoken = cs.getBoolean("cs.useOldTokenInterface", false);
-
-        if (oldtoken) {
-            CMS.debug("Getting old token");
-            return ConfigurationUtils.getOldToken(sdhost, sdport, user, passwd);
-        }
 
         String csType = cs.getString("cs.type");
 
@@ -392,31 +352,14 @@ public class ConfigurationUtils {
                 + CMS.getAdminPort() + "/ca/admin/console/config/wizard" +
                 "?p=5&subsystem=" + cs.getString("cs.type");
 
-        MultivaluedMap<String, String> map = new MultivaluedHashMap<String, String>();
-        map.putSingle("uid", user);
-        map.putSingle("pwd", passwd);
-        map.putSingle("url", subca_url);
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("uid", user);
+        content.putSingle("pwd", passwd);
+        content.putSingle("url", subca_url);
 
         String body = post(sdhost, sdport, true, "/ca/admin/ca/getCookie",
-                map, null, null);
+                content, null, null);
         return getContentValue(body, "header.session_id");
-    }
-
-    public static String getOldToken(String sdhost, int sdport, String user, String passwd) throws IOException,
-            EPropertyNotFound, EBaseException, URISyntaxException {
-        IConfigStore cs = CMS.getConfigStore();
-
-        String subca_url = "https://" + CMS.getEEHost() + ":"
-                + CMS.getAdminPort() + "/ca/admin/console/config/wizard" +
-                "?p=5&subsystem=" + cs.getString("cs.type");
-
-        String content = "uid=" + URLEncoder.encode(user, "UTF-8") + "&pwd=" + URLEncoder.encode(passwd, "UTF-8") +
-                "&url=" + URLEncoder.encode(subca_url, "UTF-8");
-
-        String response = ConfigurationUtils.getHttpResponse(sdhost, sdport, true,
-                "/ca/admin/ca/getCookie", content, null);
-
-        return getContentValue(response, "header.session_id");
     }
 
     public static String getContentValue(String body, String header) {
@@ -459,27 +402,32 @@ public class ConfigurationUtils {
     }
 
     public static String getDomainXML(String hostname, int https_admin_port, boolean https)
-            throws IOException, SAXException, ParserConfigurationException {
-        CMS.debug("getDomainXML start");
-        String c = getHttpResponse(hostname, https_admin_port, https, "/ca/admin/ca/getDomainXML", null, null, null);
+            throws Exception {
+
+        CMS.debug("ConfigurationUtils: getting domain info");
+
+        String c = get(hostname, https_admin_port, https, "/ca/admin/ca/getDomainXML", null, null);
+
         if (c != null) {
+
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject parser = null;
 
             parser = new XMLObject(bis);
             String status = parser.getValue("Status");
-            CMS.debug("getDomainXML: status=" + status);
+            CMS.debug("ConfigurationUtils: status: " + status);
 
             if (status.equals(SUCCESS)) {
                 String domainInfo = parser.getValue("DomainInfo");
-                CMS.debug("getDomainXML: domainInfo=" + domainInfo);
+                CMS.debug("ConfigurationUtils: domain info: " + domainInfo);
                 return domainInfo;
+
             } else {
                 String error = parser.getValue("Error");
                 throw new IOException(error);
             }
-
         }
+
         return null;
     }
 
@@ -515,7 +463,7 @@ public class ConfigurationUtils {
 
     public static Vector<String> getUrlListFromSecurityDomain(IConfigStore config,
             String type, String portType)
-            throws EPropertyNotFound, EBaseException, IOException, SAXException, ParserConfigurationException {
+            throws Exception {
         Vector<String> v = new Vector<String>();
 
         String hostname = config.getString("securitydomain.host");
@@ -591,7 +539,7 @@ public class ConfigurationUtils {
     }
 
     public static void getConfigEntriesFromMaster()
-            throws IOException, EBaseException, SAXException, ParserConfigurationException {
+            throws Exception {
 
         IConfigStore config = CMS.getConfigStore();
         String cstype = "";
@@ -605,16 +553,23 @@ public class ConfigurationUtils {
         int master_port = config.getInteger("preop.master.httpsadminport", -1);
         int master_ee_port = config.getInteger("preop.master.httpsport", -1);
 
-        String content = "";
         if (cstype.equals("ca") || cstype.equals("kra")) {
-            content = "type=request&xmlOutput=true&sessionID=" + session_id;
-            CMS.debug("http content=" + content);
+            MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+            content.putSingle("type", "request");
+            content.putSingle("xmlOutput", "true");
+            content.putSingle("sessionID", session_id);
             updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "request");
 
-            content = "type=serialNo&xmlOutput=true&sessionID=" + session_id;
+            content = new MultivaluedHashMap<String, String>();
+            content.putSingle("type", "serialNo");
+            content.putSingle("xmlOutput", "true");
+            content.putSingle("sessionID", session_id);
             updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "serialNo");
 
-            content = "type=replicaId&xmlOutput=true&sessionID=" + session_id;
+            content = new MultivaluedHashMap<String, String>();
+            content.putSingle("type", "replicaId");
+            content.putSingle("xmlOutput", "true");
+            content.putSingle("sessionID", session_id);
             updateNumberRange(master_hostname, master_ee_port, master_port, true, content, "replicaId");
         }
 
@@ -656,12 +611,14 @@ public class ConfigurationUtils {
 
         s1.append(",internaldb,internaldb.ldapauth,internaldb.ldapconn");
 
-        content =
-                "op=get&names=cloning.module.token,cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,"
-                        + "internaldb.replication.password" + c1.toString()
-                        + "&substores=" + s1.toString()
-                        + "&xmlOutput=true&sessionID="
-                        + session_id;
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("op", "get");
+        content.putSingle("names", "cloning.module.token,cloning.token,instanceId,"
+                + "internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password" + c1);
+        content.putSingle("substores", s1.toString());
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", session_id);
+
         boolean success = updateConfigEntries(master_hostname, master_port, true,
                 "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content, config);
         if (!success) {
@@ -673,8 +630,8 @@ public class ConfigurationUtils {
 
     }
 
-    public static void updateNumberRange(String hostname, int eePort, int adminPort, boolean https, String content,
-            String type) throws IOException, EBaseException, SAXException, ParserConfigurationException {
+    public static void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
+            MultivaluedMap<String, String> content, String type) throws Exception {
         CMS.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
         IConfigStore cs = CMS.getConfigStore();
 
@@ -685,7 +642,7 @@ public class ConfigurationUtils {
         String c = null;
         XMLObject parser = null;
         try {
-            c = getHttpResponse(hostname, adminPort, https, serverPath, content, null, null);
+            c = post(hostname, adminPort, https, serverPath, content, null, null);
             if (c == null || c.equals("")) {
                 CMS.debug("updateNumberRange: content is null.");
                 throw new IOException("The server you want to contact is not available");
@@ -695,12 +652,13 @@ public class ConfigurationUtils {
             // when the admin servlet is unavailable, we return a badly formatted error page
             // in that case, this will throw an exception and be passed into the catch block.
             parser = new XMLObject(new ByteArrayInputStream(c.getBytes()));
+
         } catch (Exception e) {
             // for backward compatibility, try the old ee interface too
             CMS.debug("updateNumberRange: Failed to contact master using admin port" + e);
             CMS.debug("updateNumberRange: Attempting to contact master using EE port");
             serverPath = "/" + cstype + "/ee/" + cstype + "/updateNumberRange";
-            c = getHttpResponse(hostname, eePort, https, serverPath, content, null, null);
+            c = post(hostname, eePort, https, serverPath, content, null, null);
             if (c == null || c.equals("")) {
                 CMS.debug("updateNumberRange: content is null.");
                 throw new IOException("The server you want to contact is not available", e);
@@ -729,8 +687,10 @@ public class ConfigurationUtils {
             cs.putString("dbs.enableSerialManagement", "true");
             cs.commit(false);
             return;
+
         } else if (status.equals(AUTH_FAILURE)) {
             throw new EAuthException(AUTH_FAILURE);
+
         } else {
             String error = parser.getValue("Error");
             throw new IOException(error);
@@ -738,10 +698,10 @@ public class ConfigurationUtils {
     }
 
     public static boolean updateConfigEntries(String hostname, int port, boolean https,
-            String servlet, String uri, IConfigStore config)
-                    throws IOException, EBaseException, SAXException, ParserConfigurationException {
+            String servlet, MultivaluedMap<String, String> content, IConfigStore config)
+                    throws Exception {
         CMS.debug("updateConfigEntries start");
-        String c = getHttpResponse(hostname, port, https, servlet, uri, null, null);
+        String c = post(hostname, port, https, servlet, content, null, null);
 
         if (c != null) {
 
@@ -2425,7 +2385,7 @@ public class ConfigurationUtils {
     }
 
     public static int getSubsystemCount(String hostname, int https_admin_port,
-            boolean https, String type) throws IOException, SAXException, ParserConfigurationException {
+            boolean https, String type) throws Exception {
         CMS.debug("getSubsystemCount start");
         String c = getDomainXML(hostname, https_admin_port, true);
         if (c != null) {
@@ -2461,7 +2421,7 @@ public class ConfigurationUtils {
     }
 
     public static void configCert(HttpServletRequest request, HttpServletResponse response,
-            Context context, Cert certObj) throws IOException {
+            Context context, Cert certObj) throws Exception {
 
         IConfigStore config = CMS.getConfigStore();
         String caType = certObj.getType();
@@ -2520,29 +2480,29 @@ public class ConfigurationUtils {
                 config.putString(subsystem + "." + certTag + ".certreq", pkcs10);
                 String profileId = config.getString(PCERT_PREFIX + certTag + ".profile");
                 String session_id = CMS.getConfigSDSessionId();
-                String sd_hostname = "";
-                int sd_ee_port = -1;
-                try {
-                    sd_hostname = config.getString("securitydomain.host", "");
-                    sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
-                } catch (Exception ee) {
-                    CMS.debug("configCert(): exception caught:" + ee.toString());
-                }
                 String sysType = config.getString("cs.type", "");
                 String machineName = config.getString("machineName", "");
                 String securePort = config.getString("service.securePort", "");
+
                 if (certTag.equals("subsystem")) {
                     boolean standalone = config.getBoolean(sysType.toLowerCase() + ".standalone", false);
                     if (standalone) {
                         // Treat standalone subsystem the same as "otherca"
                         config.putString(subsystem + "." + certTag + ".cert",
                                          "...paste certificate here...");
+
                     } else {
-                        String content =
-                                "requestor_name="
-                                        + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
-                                        + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
-                                        + "&xmlOutput=true&sessionID=" + session_id;
+                        String sd_hostname = config.getString("securitydomain.host", "");
+                        int sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
+
+                        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+                        content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+                        content.putSingle("profileId", profileId);
+                        content.putSingle("cert_request_type", "pkcs10");
+                        content.putSingle("cert_request", pkcs10);
+                        content.putSingle("xmlOutput", "true");
+                        content.putSingle("sessionID", session_id);
+
                         cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port,
                                 content, response);
                         if (cert == null) {
@@ -2576,14 +2536,17 @@ public class ConfigurationUtils {
                             CertUtil.buildSANSSLserverURLExtension(config);
                     }
 
-                    String content =
-                            "requestor_name="
-                                    + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
-                                    + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
-                                    + "&xmlOutput=true&sessionID=" + session_id
-                                    + sslserver_extension;
+                    MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+                    content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+                    content.putSingle("profileId", profileId);
+                    content.putSingle("cert_request_type", "pkcs10");
+                    content.putSingle("cert_request", pkcs10);
+                    content.putSingle("xmlOutput", "true");
+                    content.putSingle("sessionID", session_id);
+
                     cert = CertUtil.createRemoteCert(ca_hostname, ca_port,
                             content, response);
+
                     if (cert == null) {
                         throw new IOException("Error: remote certificate is null");
                     }
@@ -2703,10 +2666,9 @@ public class ConfigurationUtils {
                 config.putString(subsystem + "." + certTag + ".cert", certs);
             }
             config.commit(false);
-        } catch (IOException e) {
-            throw e;
         } catch (Exception e) {
             CMS.debug("configCert() exception caught:" + e.toString());
+            throw e;
         }
     }
 
@@ -3594,8 +3556,7 @@ public class ConfigurationUtils {
     }
 
     public static String submitAdminCertRequest(String ca_hostname, int ca_port, String profileId,
-            String certRequestType, String certRequest, String subjectDN) throws IOException, EBaseException,
-            SAXException, ParserConfigurationException {
+            String certRequestType, String certRequest, String subjectDN) throws Exception {
         IConfigStore config = CMS.getConfigStore();
 
         if (profileId == null) {
@@ -3603,10 +3564,16 @@ public class ConfigurationUtils {
         }
         certRequest = URLEncoder.encode(certRequest, "UTF-8");
         String session_id = CMS.getConfigSDSessionId();
-        String content = "profileId=" + profileId + "&cert_request_type=" + certRequestType +
-                "&cert_request=" + certRequest + "&xmlOutput=true&sessionID=" + session_id + "&subject=" + subjectDN;
 
-        String c = getHttpResponse(ca_hostname, ca_port, true, "/ca/ee/ca/profileSubmit", content, null, null);
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("profileId", profileId);
+        content.putSingle("cert_request_type", certRequestType);
+        content.putSingle("cert_request", certRequest);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", session_id);
+        content.putSingle("subject", subjectDN);
+
+        String c = post(ca_hostname, ca_port, true, "/ca/ee/ca/profileSubmit", content, null, null);
 
         // retrieve the request Id and admin certificate
         if (c != null) {
@@ -3713,8 +3680,8 @@ public class ConfigurationUtils {
         // String c = getDomainXML(CMS.getEESSLHost(), Integer.parseInt(CMS.getAdminPort()), true);
     }
 
-    public static void updateSecurityDomain() throws IOException, SAXException, ParserConfigurationException,
-            EPropertyNotFound, EBaseException {
+    public static void updateSecurityDomain() throws Exception {
+
         IConfigStore cs = CMS.getConfigStore();
 
         int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
@@ -3731,28 +3698,30 @@ public class ConfigurationUtils {
             CMS.debug("Cloning a domain master");
         }
 
-        String cloneStr = select.equals("clone") ? "&clone=true" : "&clone=false";
-        String domainMasterStr = cloneMaster ? "&dm=true" : "&dm=false";
-        String eecaStr = (CMS.getEEClientAuthSSLPort() != null) ? "&eeclientauthsport=" + CMS.getEEClientAuthSSLPort()
-                : "";
-
         String url =  "/ca/admin/ca/updateDomainXML";
-        String content = "list=" + type + "List"
-                + "&type=" + type
-                + "&host=" + CMS.getEESSLHost()
-                + "&name=" + subsystemName
-                + "&sport=" + CMS.getEESSLPort()
-                + domainMasterStr
-                + cloneStr
-                + "&agentsport=" + CMS.getAgentPort()
-                + "&adminsport=" + CMS.getAdminPort()
-                + eecaStr
-                + "&httpport=" + CMS.getEENonSSLPort();
+
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("list", type + "List");
+        content.putSingle("type", type);
+        content.putSingle("host", CMS.getEESSLHost());
+        content.putSingle("name", subsystemName);
+        content.putSingle("sport", CMS.getEESSLPort());
+        content.putSingle("dm", cloneMaster ? "true" : "false");
+        content.putSingle("clone", select.equals("clone") ? "true" : "false");
+        content.putSingle("agentsport", CMS.getAgentPort());
+        content.putSingle("adminsport", CMS.getAdminPort());
+
+        if (CMS.getEEClientAuthSSLPort() != null) {
+            content.putSingle("eeclientauthsport", CMS.getEEClientAuthSSLPort());
+        }
+
+        content.putSingle("httpport", CMS.getEENonSSLPort());
 
         try {
             String session_id = CMS.getConfigSDSessionId();
-            content += "&sessionID="+ session_id;
+            content.putSingle("sessionID", session_id);
             updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
+
         } catch (Exception e) {
             CMS.debug("updateSecurityDomain: failed to update security domain using admin port "
                       + sd_admin_port + ": " + e);
@@ -3767,8 +3736,7 @@ public class ConfigurationUtils {
         String c = getDomainXML(sd_host, sd_admin_port, true);
     }
 
-    public static boolean isSDHostDomainMaster(IConfigStore config) throws EPropertyNotFound, EBaseException,
-            IOException, SAXException, ParserConfigurationException {
+    public static boolean isSDHostDomainMaster(IConfigStore config) throws Exception {
         String dm = "false";
 
         String hostname = config.getString("securitydomain.host");
@@ -3798,9 +3766,11 @@ public class ConfigurationUtils {
     }
 
     public static void updateDomainXML(String hostname, int port, boolean https,
-            String servlet, String uri, boolean useClientAuth) throws IOException, EBaseException, SAXException,
-            ParserConfigurationException {
+            String servlet, MultivaluedMap<String, String> content, boolean useClientAuth)
+                    throws Exception {
+
         CMS.debug("ConfigurationUtils: updateDomainXML start hostname=" + hostname + " port=" + port);
+
         String c = null;
         if (useClientAuth) {
             IConfigStore cs = CMS.getConfigStore();
@@ -3814,10 +3784,12 @@ public class ConfigurationUtils {
             }
             CMS.debug("updateDomainXML() nickname=" + nickname);
 
-            c = getHttpResponse(hostname, port, https, servlet, uri, nickname, null);
+            c = post(hostname, port, https, servlet, content, nickname, null);
+
         } else {
-            c = getHttpResponse(hostname, port, https, servlet, uri, null, null);
+            c = post(hostname, port, https, servlet, content, null, null);
         }
+
         if (c != null && !c.equals("")) {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject obj = new XMLObject(bis);
@@ -3830,13 +3802,14 @@ public class ConfigurationUtils {
                 String error = obj.getValue("Error");
                 throw new IOException(error);
             }
+
         } else {
             throw new IOException("Failed to get response when updating security domain");
         }
     }
 
     public static void updateConnectorInfo(String ownagenthost, String ownagentsport)
-            throws IOException, EBaseException, SAXException, ParserConfigurationException {
+            throws Exception {
         IConfigStore cs = CMS.getConfigStore();
         int port = -1;
         String url = "";
@@ -3852,23 +3825,29 @@ public class ConfigurationUtils {
 
         if (host == null) {
             CMS.debug("updateConnectorInfo(): preop.ca.url is not defined. External CA selected. No transport certificate setup is required");
+
         } else {
             CMS.debug("updateConnectorInfo(): Transport certificate is being setup in " + url);
             String session_id = CMS.getConfigSDSessionId();
-            String content = "ca.connector.KRA.enable=true&ca.connector.KRA.local=false&ca.connector.KRA.timeout=30"
-                    + "&ca.connector.KRA.uri=/kra/agent/kra/connector&ca.connector.KRA.host=" + ownagenthost
-                    + "&ca.connector.KRA.port=" + ownagentsport
-                    + "&ca.connector.KRA.transportCert=" + URLEncoder.encode(transportCert, "UTF-8")
-                    + "&sessionID=" + session_id;
+
+            MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+            content.putSingle("ca.connector.KRA.enable", "true");
+            content.putSingle("ca.connector.KRA.local", "false");
+            content.putSingle("ca.connector.KRA.timeout", "30");
+            content.putSingle("ca.connector.KRA.uri", "/kra/agent/kra/connector");
+            content.putSingle("ca.connector.KRA.host", ownagenthost);
+            content.putSingle("ca.connector.KRA.port", ownagentsport);
+            content.putSingle("ca.connector.KRA.transportCert", transportCert);
+            content.putSingle("sessionID", session_id);
 
             updateConnectorInfo(host, port, true, content);
         }
     }
 
     public static void updateConnectorInfo(String host, int port, boolean https,
-            String content) throws IOException, SAXException, ParserConfigurationException {
+            MultivaluedMap<String, String> content) throws Exception {
         CMS.debug("updateConnectorInfo start");
-        String c = getHttpResponse(host, port, https, "/ca/admin/ca/updateConnector", content, null, null);
+        String c = post(host, port, https, "/ca/admin/ca/updateConnector", content, null, null);
         if (c != null) {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject parser = null;
@@ -3882,8 +3861,7 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void setupClientAuthUser() throws EBaseException, CertificateException, IOException, SAXException,
-            ParserConfigurationException, LDAPException {
+    public static void setupClientAuthUser() throws Exception {
         IConfigStore cs = CMS.getConfigStore();
         String host = cs.getString("preop.ca.hostname", "");
         int port = cs.getInteger("preop.ca.httpsadminport", -1);
@@ -3938,9 +3916,12 @@ public class ConfigurationUtils {
     }
 
     public static String getSubsystemCert(String host, int port, boolean https)
-            throws IOException, SAXException, ParserConfigurationException {
+            throws Exception {
+
         CMS.debug("getSubsystemCert() start");
-        String c = getHttpResponse(host, port, https, "/ca/admin/ca/getSubsystemCert", null, null, null);
+
+        String c = get(host, port, https, "/ca/admin/ca/getSubsystemCert", null, null);
+
         if (c != null) {
             ByteArrayInputStream bis =
                     new ByteArrayInputStream(c.getBytes());
@@ -3953,20 +3934,22 @@ public class ConfigurationUtils {
                 return null;
             }
         }
+
         return null;
     }
 
     public static String getTransportCert(URI secdomainURI, URI kraUri)
-            throws IOException, SAXException, ParserConfigurationException {
+            throws Exception {
         CMS.debug("getTransportCert() start");
         String sessionId = CMS.getConfigSDSessionId();
 
-        String content = "&xmlOutput=true" +
-                "&sessionID=" + sessionId +
-                "&auth_hostname=" + secdomainURI.getHost() +
-                "&auth_port=" + secdomainURI.getPort();
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionId);
+        content.putSingle("auth_hostname", secdomainURI.getHost());
+        content.putSingle("auth_port", secdomainURI.getPort() + "");
 
-        String c = getHttpResponse(
+        String c = post(
                 kraUri.getHost(),
                 kraUri.getPort(),
                 true,
@@ -4088,17 +4071,22 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void updateOCSPConfig()
-            throws IOException, EBaseException, SAXException, ParserConfigurationException {
+    public static void updateOCSPConfig() throws Exception {
+
         IConfigStore config = CMS.getConfigStore();
         String cahost = config.getString("preop.ca.hostname", "");
         int caport = config.getInteger("preop.ca.httpsport", -1);
         String ocsphost = CMS.getAgentHost();
         int ocspport = Integer.parseInt(CMS.getAgentPort());
         String session_id = CMS.getConfigSDSessionId();
-        String content = "xmlOutput=true&sessionID=" + session_id + "&ocsp_host=" + ocsphost + "&ocsp_port=" + ocspport;
 
-        String c = getHttpResponse(cahost, caport, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", session_id);
+        content.putSingle("ocsp_host", ocsphost);
+        content.putSingle("ocsp_port", ocspport + "");
+
+        String c = post(cahost, caport, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
         if (c == null || c.equals("")) {
             CMS.debug("ConfigurationUtils: updateOCSPConfig: content is null.");
             throw new IOException("The server you want to contact is not available");
@@ -4219,17 +4207,18 @@ public class ConfigurationUtils {
         String sessionId = CMS.getConfigSDSessionId();
         String subsystemName = cs.getString("preop.subsystem.name");
 
-        String content = "uid=" + uid +
-                "&xmlOutput=true" +
-                "&sessionID=" + sessionId +
-                "&auth_hostname=" + secdomainURI.getHost() +
-                "&auth_port=" + secdomainURI.getPort() +
-                "&certificate=" + URLEncoder.encode(getSubsystemCert(), "UTF-8") +
-                "&name=" + subsystemName;
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("uid", uid);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionId);
+        content.putSingle("auth_hostname", secdomainURI.getHost());
+        content.putSingle("auth_port", secdomainURI.getPort() + "");
+        content.putSingle("certificate", getSubsystemCert());
+        content.putSingle("name", subsystemName);
 
         String targetURL = "/" + targetType + "/admin/" + targetType + "/registerUser";
 
-        String response = getHttpResponse(
+        String response = post(
                 targetURI.getHost(),
                 targetURI.getPort(),
                 true,
@@ -4239,6 +4228,7 @@ public class ConfigurationUtils {
         if (response == null || response.equals("")) {
             CMS.debug("registerUser: response is empty or null.");
             throw new IOException("The server " + targetURI + "is not available");
+
         } else {
             CMS.debug("registerUser: response: " + response);
             ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
@@ -4250,8 +4240,10 @@ public class ConfigurationUtils {
             if (status.equals(SUCCESS)) {
                 CMS.debug("registerUser: Successfully added user " + uid + " to " + targetURI +
                           " using " + targetURL);
+
             } else if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException(AUTH_FAILURE);
+
             } else {
                 String error = parser.getValue("Error");
                 throw new IOException(error);
@@ -4265,16 +4257,17 @@ public class ConfigurationUtils {
                 + "-" + cs.getString("service.securePort", "");
         String sessionId = CMS.getConfigSDSessionId();
 
-        String content = "name=" + name +
-                "&xmlOutput=true" +
-                "&sessionID=" + sessionId +
-                "&auth_hostname=" + secdomainURI.getHost() +
-                "&auth_port=" + secdomainURI.getPort() +
-                "&certificate=" + URLEncoder.encode(transportCert, "UTF-8");
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("name", name);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionId);
+        content.putSingle("auth_hostname", secdomainURI.getHost());
+        content.putSingle("auth_port", secdomainURI.getPort() + "");
+        content.putSingle("certificate", transportCert);
 
         String targetURL = "/tks/admin/tks/importTransportCert";
 
-        String response = getHttpResponse(
+        String response = post(
                 targetURI.getHost(),
                 targetURI.getPort(),
                 true,

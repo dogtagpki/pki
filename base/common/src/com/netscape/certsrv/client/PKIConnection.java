@@ -216,6 +216,7 @@ public class PKIConnection {
         this.verbose = verbose;
 
     }
+
     public void setCallback(SSLCertificateApprovalCallback callback) {
         this.callback = callback;
     }
@@ -444,9 +445,22 @@ public class PKIConnection {
         }
     }
 
-    public String post(MultivaluedMap<String, String> form) throws Exception {
-        ResteasyWebTarget target = resteasyClient.target(config.getServerURI());
-        return target.request().post(Entity.form(form), String.class);
+    public String get(String path) throws Exception {
+        String uri = config.getServerURI().toString();
+        if (path != null) {
+            uri += path;
+        }
+        ResteasyWebTarget target = resteasyClient.target(uri);
+        return target.request().get(String.class);
+    }
+
+    public String post(String path, MultivaluedMap<String, String> content) throws Exception {
+        String uri = config.getServerURI().toString();
+        if (path != null) {
+            uri += path;
+        }
+        ResteasyWebTarget target = resteasyClient.target(uri);
+        return target.request().post(Entity.form(content), String.class);
     }
 
     public File getOutput() {
