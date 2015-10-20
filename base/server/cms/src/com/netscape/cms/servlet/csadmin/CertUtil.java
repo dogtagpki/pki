@@ -29,14 +29,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
@@ -68,11 +60,19 @@ import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.xml.XMLObject;
 
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
+
 public class CertUtil {
     static final int LINE_COUNT = 76;
 
     public static X509CertImpl createRemoteCert(String hostname,
-            int port, String content, HttpServletResponse response, WizardPanelBase panel)
+            int port, String content, HttpServletResponse response)
             throws IOException {
         HttpClient httpclient = new HttpClient();
         String c = null;
@@ -114,11 +114,7 @@ public class CertUtil {
                 String status = parser.getValue("Status");
 
                 CMS.debug("CertUtil createRemoteCert: status=" + status);
-                if (status.equals("2")) {
-                    //relogin to the security domain
-                    panel.reloginSecurityDomain(response);
-                    return null;
-                } else if (!status.equals("0")) {
+                if (!status.equals("0")) {
                     String error = parser.getValue("Error");
                     throw new IOException(error);
                 }
@@ -206,7 +202,7 @@ public class CertUtil {
         }
     }
 
- 
+
     // Dynamically inject the SubjectAlternativeName extension to a
     // local/self-signed master CA's request for its SSL Server Certificate.
     //

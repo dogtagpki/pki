@@ -29,14 +29,6 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CertInfo;
-
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -95,6 +87,14 @@ import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSSLSocketFactoryExt;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.Extension;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This represents the CMS server. Plugins can access other
@@ -1583,20 +1583,6 @@ public final class CMS {
      * @exception EBaseException failed to start CMS
      */
     public static void start(String path) throws EBaseException {
-        //FileConfigStore mainConfig = null;
-        /*
-                try {
-                    mainConfig = new FileConfigStore(path);
-                } catch (EBaseException e) {
-                    e.printStackTrace();
-                    System.out.println(
-                        "Error: The Server is not fully configured.\n" +
-                        "Finish configuring server using Configure Setup Wizard in " +
-                        "the Certificate Server Console.");
-                    System.out.println(e.toString());
-                    System.exit(0);
-                }
-        */
 
         String classname = "com.netscape.cmscore.apps.CMSEngine";
 
