@@ -178,6 +178,12 @@ public class ConnectionManager
             CMS.debug("ConnectionManager: createConnector(): nickName not found in config");
             throw new EBaseException("nickName not found in config");
         }
+        /*
+         * if tps.connector.<ca>.clientCiphers is specified, it will
+         * override the default;  If it is not specified, default will
+         * be used.
+         */
+        String clientCiphers = conf.getString("clientCiphers", null);
 
         // "resendInterval" is for Request Queue, and not supported in TPS
         int resendInterval = -1;
@@ -188,10 +194,10 @@ public class ConnectionManager
         CMS.debug("ConnectionManager: createConnector(): establishing HttpConnector");
         if (timeout == 0) {
             connector =
-                    new HttpConnector(null, nickname, remauthority, resendInterval, conf);
+                    new HttpConnector(null, nickname, clientCiphers, remauthority, resendInterval, conf);
         } else {
             connector =
-                    new HttpConnector(null, nickname, remauthority, resendInterval, conf, timeout);
+                    new HttpConnector(null, nickname, clientCiphers, remauthority, resendInterval, conf, timeout);
         }
 
         CMS.debug("ConnectionManager: createConnector(): ends.");

@@ -1051,6 +1051,7 @@ public interface ICMSEngine extends ISubsystem {
      * @return resender
      */
     public IResender getResender(IAuthority authority, String nickname,
+            String clientCiphers,
             IRemoteAuthority remote, int interval);
 
     /**

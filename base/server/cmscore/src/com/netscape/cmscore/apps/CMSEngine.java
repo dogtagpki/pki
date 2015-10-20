@@ -1010,8 +1010,9 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public IResender getResender(IAuthority authority, String nickname,
+            String clientCiphers,
             IRemoteAuthority remote, int interval) {
-        return new Resender(authority, nickname, remote, interval);
+        return new Resender(authority, nickname, clientCiphers, remote, interval);
     }
 
     public IPKIMessage getHttpPKIMessage() {

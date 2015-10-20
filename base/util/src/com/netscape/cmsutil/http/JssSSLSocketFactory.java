@@ -29,6 +29,7 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.cmsutil.net.ISocketFactory;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Uses NSS ssl socket.
@@ -37,6 +38,7 @@ import com.netscape.cmsutil.net.ISocketFactory;
  */
 public class JssSSLSocketFactory implements ISocketFactory {
     private String mClientAuthCertNickname = null;
+    private String mClientCiphers = null;
     private SSLSocket s = null;
 
     public JssSSLSocketFactory() {
@@ -44,6 +46,14 @@ public class JssSSLSocketFactory implements ISocketFactory {
 
     public JssSSLSocketFactory(String certNickname) {
         mClientAuthCertNickname = certNickname;
+    }
+
+    public JssSSLSocketFactory(String certNickname, String ciphers) {
+        if (certNickname != null)
+            mClientAuthCertNickname = certNickname;
+
+        if (ciphers != null)
+            mClientCiphers = ciphers;
     }
 
     public Socket makeSocket(String host, int port)
@@ -60,7 +70,10 @@ public class JssSSLSocketFactory implements ISocketFactory {
         try {
             /*
              * let inherit tls range and cipher settings
+             * unless it's overwritten by config
              */
+            if (mClientCiphers != null)
+                CryptoUtil.setClientCiphers(mClientCiphers);
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
                     clientCertCallback);
             s.setUseClientMode(true);

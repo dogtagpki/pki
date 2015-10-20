@@ -509,7 +509,7 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public IResender getResender(IAuthority authority, String nickname, IRemoteAuthority remote, int interval) {
+    public IResender getResender(IAuthority authority, String nickname, String clientCiphers, IRemoteAuthority remote, int interval) {
         return null;
     }
 

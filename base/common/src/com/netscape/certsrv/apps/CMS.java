@@ -896,8 +896,9 @@ public final class CMS {
      * @return resender
      */
     public static IResender getResender(IAuthority authority, String nickname,
+            String clientCiphers,
             IRemoteAuthority remote, int interval) {
-        return _engine.getResender(authority, nickname, remote, interval);
+        return _engine.getResender(authority, nickname, clientCiphers, remote, interval);
     }
 
     /**

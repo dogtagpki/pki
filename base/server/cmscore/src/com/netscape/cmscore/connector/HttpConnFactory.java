@@ -43,6 +43,7 @@ public class HttpConnFactory {
     private IAuthority mSource;
     private IRemoteAuthority mDest = null;
     private String mNickname = "";
+    private String mClientCiphers = null;
     private int mTimeout = 0;
 
     /**
@@ -59,13 +60,18 @@ public class HttpConnFactory {
      * @param maxConns max number of connections to have available. This is
      * @param serverInfo server connection info - host, port, etc.
      */
-    public HttpConnFactory(int minConns, int maxConns, IAuthority source, IRemoteAuthority dest, String nickname,
+    public HttpConnFactory(int minConns, int maxConns, IAuthority source, IRemoteAuthority dest, String nickname, String clientCiphers,
             int timeout) throws EBaseException {
 
         CMS.debug("In HttpConnFactory constructor mTimeout " + timeout);
+        if (mClientCiphers != null)
+            CMS.debug("In HttpConnFactory constructor mClientCiphers: " + mClientCiphers);
+        else
+            CMS.debug("In HttpConnFactory constructor mClientCiphers not specified, will take default ");
         mSource = source;
         mDest = dest;
         mNickname = nickname;
+        mClientCiphers = clientCiphers;
         mTimeout = timeout;
 
         init(minConns, maxConns);
@@ -120,7 +126,7 @@ public class HttpConnFactory {
         CMS.debug("In HttpConnFactory.createConnection.");
 
         try {
-            ISocketFactory tFactory = new JssSSLSocketFactory(mNickname);
+            ISocketFactory tFactory = new JssSSLSocketFactory(mNickname, mClientCiphers);
 
             if (mTimeout == 0) {
                 retConn = CMS.getHttpConnection(mDest, tFactory);

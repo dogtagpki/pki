@@ -290,11 +290,13 @@ public class CAService implements ICAService, IService {
             // Changed by beomsuk
             //connector =
             //	new HttpConnector(mCA, nickname, remauthority, resendInterval);
+
+            String clientCiphers = config.getString("clientCiphers", null);
             if (timeout == 0)
-                connector = new HttpConnector((IAuthority) mCA, nickname, remauthority, resendInterval, config);
+                connector = new HttpConnector((IAuthority) mCA, nickname, clientCiphers, remauthority, resendInterval, config);
             else
                 connector =
-                        new HttpConnector((IAuthority) mCA, nickname, remauthority, resendInterval, config, timeout);
+                        new HttpConnector((IAuthority) mCA, nickname, clientCiphers, remauthority, resendInterval, config, timeout);
             // Change end
 
             // log(ILogger.LL_INFO, "remote authority "+

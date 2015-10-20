@@ -49,13 +49,13 @@ public class HttpConnector implements IConnector {
 
     private HttpConnFactory mConnFactory = null;
 
-    public HttpConnector(IAuthority source, String nickName,
+    public HttpConnector(IAuthority source, String nickName, String clientCiphers,
             IRemoteAuthority dest, int resendInterval, IConfigStore config) throws EBaseException {
 
         mTimeout = 0;
         mSource = source;
         mDest = dest;
-        mFactory = new JssSSLSocketFactory(nickName);
+        mFactory = new JssSSLSocketFactory(nickName, clientCiphers);
 
         int minConns = config.getInteger("minHttpConns", 1);
         int maxConns = config.getInteger("maxHttpConns", 15);
@@ -64,7 +64,7 @@ public class HttpConnector implements IConnector {
         CMS.debug("HttpConn: max " + maxConns);
 
         try {
-            mConnFactory = new HttpConnFactory(minConns, maxConns, source, dest, nickName, 0);
+            mConnFactory = new HttpConnFactory(minConns, maxConns, source, dest, nickName, clientCiphers, 0);
         } catch (EBaseException e) {
             CMS.debug("can't create new HttpConnFactory " + e.toString());
         }
@@ -72,17 +72,17 @@ public class HttpConnector implements IConnector {
         //        mConn = CMS.getHttpConnection(dest, mFactory);
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
-            mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
+            mResender = CMS.getResender(mSource, nickName, clientCiphers, dest, resendInterval);
         }
     }
 
     // Inserted by beomsuk
-    public HttpConnector(IAuthority source, String nickName,
+    public HttpConnector(IAuthority source, String nickName, String clientCiphers,
             IRemoteAuthority dest, int resendInterval, IConfigStore config, int timeout) throws EBaseException {
         mSource = source;
         mDest = dest;
         mTimeout = timeout;
-        mFactory = new JssSSLSocketFactory(nickName);
+        mFactory = new JssSSLSocketFactory(nickName, clientCiphers);
 
         int minConns = config.getInteger("minHttpConns", 1);
         int maxConns = config.getInteger("maxHttpConns", 15);
@@ -91,14 +91,14 @@ public class HttpConnector implements IConnector {
         CMS.debug("HttpConn: max " + maxConns);
 
         try {
-            mConnFactory = new HttpConnFactory(minConns, maxConns, source, dest, nickName, timeout);
+            mConnFactory = new HttpConnFactory(minConns, maxConns, source, dest, nickName, clientCiphers, timeout);
         } catch (EBaseException e) {
             CMS.debug("can't create new HttpConnFactory");
         }
 
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
-            mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
+            mResender = CMS.getResender(mSource, nickName, clientCiphers, dest, resendInterval);
         }
     }
 

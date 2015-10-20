@@ -57,6 +57,7 @@ public class Resender implements IResender {
     protected HttpConnection mConn = null;
 
     protected String mNickName = null;
+    protected String mClientCiphers = null;
     protected boolean connected = false;
 
     // default interval.
@@ -64,20 +65,22 @@ public class Resender implements IResender {
     // was down (versus being serviced in request queue)
     protected int mInterval = 1 * MINUTE;
 
-    public Resender(IAuthority authority, String nickName, IRemoteAuthority dest) {
+    public Resender(IAuthority authority, String nickName, String clientCiphers, IRemoteAuthority dest) {
         mAuthority = authority;
         mQueue = mAuthority.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
+        mClientCiphers = clientCiphers;
     }
 
     public Resender(
-            IAuthority authority, String nickName,
+            IAuthority authority, String nickName, String clientCiphers,
             IRemoteAuthority dest, int interval) {
         mAuthority = authority;
         mQueue = mAuthority.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
+        mClientCiphers = clientCiphers;
         if (interval > 0)
             mInterval = interval; // interval specified in seconds.
     }
@@ -124,7 +127,7 @@ public class Resender implements IResender {
 
         if (! connected) {
             CMS.debug("Connecting ...");
-            mConn = new HttpConnection(mDest, new JssSSLSocketFactory(mNickName));
+            mConn = new HttpConnection(mDest, new JssSSLSocketFactory(mNickName, mClientCiphers));
             initRequests();
             connected = true;
         }
