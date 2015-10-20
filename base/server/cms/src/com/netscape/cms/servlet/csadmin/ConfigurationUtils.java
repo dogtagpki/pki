@@ -183,8 +183,7 @@ import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 
 /**
- * Utility class for functions to be used both by the RESTful installer
- * and the UI Panels.
+ * Utility class for functions to be used by the RESTful installer.
  *
  * @author alee
  *
@@ -1968,7 +1967,7 @@ public class ConfigurationUtils {
             String suffix = cs.getString("internaldb.basedn", "");
 
             String replicadn = "cn=replica,cn=\"" + suffix + "\",cn=mapping tree,cn=config";
-            CMS.debug("DatabasePanel setupReplication: replicadn=" + replicadn);
+            CMS.debug("ConfigurationUtils: setupReplication: replicadn=" + replicadn);
 
             String masterBindUser = "Replication Manager " + masterAgreementName;
             String cloneBindUser = "Replication Manager " + cloneAgreementName;
@@ -2342,12 +2341,12 @@ public class ConfigurationUtils {
 
         do {
             if (ct.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
-                CMS.debug("SizePanel: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set " +
+                CMS.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set " +
                           "properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, ECDH_usages_mask);
             } else {
                 if (ct.equals("sslserver")) {
-                    CMS.debug("SizePanel: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set " +
+                    CMS.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set " +
                               "properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 }
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, usages_mask);
@@ -2462,7 +2461,7 @@ public class ConfigurationUtils {
     }
 
     public static void configCert(HttpServletRequest request, HttpServletResponse response,
-            Context context, Cert certObj, WizardPanelBase panel) throws IOException {
+            Context context, Cert certObj) throws IOException {
 
         IConfigStore config = CMS.getConfigStore();
         String caType = certObj.getType();
@@ -2545,7 +2544,7 @@ public class ConfigurationUtils {
                                         + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
                                         + "&xmlOutput=true&sessionID=" + session_id;
                         cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port,
-                                content, response, panel);
+                                content, response);
                         if (cert == null) {
                             throw new IOException("Error: remote certificate is null");
                         }
@@ -2555,7 +2554,7 @@ public class ConfigurationUtils {
                     int ca_port = -1;
                     try {
                         if (sign_clone_sslserver_cert_using_master) {
-                            CMS.debug("NamePanel: For this Cloned CA, always use its Master CA to generate " +
+                            CMS.debug("ConfigurationUtils: For this Cloned CA, always use its Master CA to generate " +
                                       "the 'sslserver' certificate to avoid any changes which may have been " +
                                       "made to the X500Name directory string encoding order.");
                             ca_hostname = config.getString("preop.master.hostname", "");
@@ -2584,7 +2583,7 @@ public class ConfigurationUtils {
                                     + "&xmlOutput=true&sessionID=" + session_id
                                     + sslserver_extension;
                     cert = CertUtil.createRemoteCert(ca_hostname, ca_port,
-                            content, response, panel);
+                            content, response);
                     if (cert == null) {
                         throw new IOException("Error: remote certificate is null");
                     }
@@ -2607,7 +2606,7 @@ public class ConfigurationUtils {
                     config.putString(subsystem + "." + certTag + ".cert",
                             "...paste certificate here...");
                 } else {
-                    CMS.debug("NamePanel: no preop.ca.type is provided");
+                    CMS.debug("ConfigurationUtils: no preop.ca.type is provided");
                 }
             } else { // not remote CA, ie, self-signed or local
                 ISubsystem ca = CMS.getSubsystem(ICertificateAuthority.ID);
@@ -2717,9 +2716,9 @@ public class ConfigurationUtils {
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
         String nickname = getNickname(config, certTag);
 
-        CMS.debug("NamePanel: updateConfig() for certTag " + certTag);
+        CMS.debug("ConfigurationUtils: updateConfig() for certTag " + certTag);
         if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
-            CMS.debug("NamePanel: setting signing nickname=" + nickname);
+            CMS.debug("ConfigurationUtils: setting signing nickname=" + nickname);
             config.putString(subsystem + "." + certTag + ".cacertnickname", nickname);
             config.putString(subsystem + "." + certTag + ".certnickname", nickname);
         }
@@ -2843,7 +2842,7 @@ public class ConfigurationUtils {
         if (cstype.equals("kra")) {
             String token = config.getString("preop.module.token");
             if (!token.equals("Internal Key Storage Token")) {
-                CMS.debug("NamePanel: updating configuration for KRA clone with hardware token");
+                CMS.debug("ConfigurationUtils: updating configuration for KRA clone with hardware token");
                 String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
                 String storageNickname = getNickname(config, "storage");
                 String transportNickname = getNickname(config, "transport");
@@ -3074,7 +3073,7 @@ public class ConfigurationUtils {
                         deleteCert(tokenname, nickname);
                     }
                 } catch (Exception e) {
-                    CMS.debug("CertRequestPanel update (remote): deleteCert Exception=" + e.toString());
+                    CMS.debug("ConfigurationUtils: update (remote): deleteCert Exception=" + e.toString());
                 }
 
                 b64 = CryptoUtil.stripCertBrackets(b64.trim());
@@ -3221,7 +3220,7 @@ public class ConfigurationUtils {
             boolean done = cs.getBoolean("preop.CertRequestPanel.done"); // check for errors
         } catch (Exception ee) {
             if (hardware) {
-                CMS.debug("CertRequestPanel findCertificate: The certificate with the same nickname: "
+                CMS.debug("ConfigurationUtils: findCertificate: The certificate with the same nickname: "
                         + fullnickname + " has been found on HSM. Please remove it before proceeding.");
                 throw new IOException("The certificate with the same nickname: "
                         + fullnickname + " has been found on HSM. Please remove it before proceeding.");
@@ -3527,7 +3526,7 @@ public class ConfigurationUtils {
             system.addUser(user);
 
         } catch (ConflictingOperationException e) {
-            CMS.debug("AdminPanel createAdmin: addUser " + e.toString());
+            CMS.debug("ConfigurationUtils: createAdmin: addUser " + e.toString());
             // ignore
         }
 
@@ -3545,49 +3544,49 @@ public class ConfigurationUtils {
         if (select.equals("new")) {
             group = system.getGroupFromName("Security Domain Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Security Domain Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Security Domain Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise CA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise CA Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise CA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise KRA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise KRA Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise KRA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise RA Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise RA Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise RA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise TKS Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise TKS Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise TKS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise OCSP Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise OCSP Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise OCSP Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
 
             group = system.getGroupFromName("Enterprise TPS Administrators");
             if (group != null && !group.isMember(uid)) {
-                CMS.debug("AdminPanel createAdmin:  add user '" + uid + "' to group 'Enterprise TPS Administrators'");
+                CMS.debug("ConfigurationUtils: createAdmin:  add user '" + uid + "' to group 'Enterprise TPS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
             }
@@ -3801,7 +3800,7 @@ public class ConfigurationUtils {
     public static void updateDomainXML(String hostname, int port, boolean https,
             String servlet, String uri, boolean useClientAuth) throws IOException, EBaseException, SAXException,
             ParserConfigurationException {
-        CMS.debug("WizardPanelBase updateDomainXML start hostname=" + hostname + " port=" + port);
+        CMS.debug("ConfigurationUtils: updateDomainXML start hostname=" + hostname + " port=" + port);
         String c = null;
         if (useClientAuth) {
             IConfigStore cs = CMS.getConfigStore();
@@ -3823,7 +3822,7 @@ public class ConfigurationUtils {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject obj = new XMLObject(bis);
             String status = obj.getValue("Status");
-            CMS.debug("WizardPanelBase updateDomainXML: status=" + status);
+            CMS.debug("ConfigurationUtils: updateDomainXML: status=" + status);
 
             if (status.equals(SUCCESS)) {
                 return;
@@ -4101,17 +4100,17 @@ public class ConfigurationUtils {
 
         String c = getHttpResponse(cahost, caport, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
         if (c == null || c.equals("")) {
-            CMS.debug("WizardPanelBase updateOCSPConfig: content is null.");
+            CMS.debug("ConfigurationUtils: updateOCSPConfig: content is null.");
             throw new IOException("The server you want to contact is not available");
         } else {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject parser = new XMLObject(bis);
 
             String status = parser.getValue("Status");
-            CMS.debug("WizardPanelBase updateOCSPConfig: status=" + status);
+            CMS.debug("ConfigurationUtils: updateOCSPConfig: status=" + status);
 
             if (status.equals(SUCCESS)) {
-                CMS.debug("WizardPanelBase updateOCSPConfig: Successfully update the OCSP configuration in the CA.");
+                CMS.debug("ConfigurationUtils: updateOCSPConfig: Successfully update the OCSP configuration in the CA.");
             } else if (status.equals(AUTH_FAILURE)) {
                 throw new EAuthException(AUTH_FAILURE);
             } else {
@@ -4337,12 +4336,12 @@ public class ConfigurationUtils {
             nickname = tokenname + ":" + nickname;
         }
 
-        CMS.debug("DonePanel getSubsystemCert: nickname=" + nickname);
+        CMS.debug("ConfigurationUtils: getSubsystemCert: nickname=" + nickname);
 
         CryptoManager cm = CryptoManager.getInstance();
         org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
         if (cert == null) {
-            CMS.debug("DonePanel getSubsystemCert: subsystem cert is null");
+            CMS.debug("ConfigurationUtils: getSubsystemCert: subsystem cert is null");
             return null;
         }
         byte[] bytes = cert.getEncoded();

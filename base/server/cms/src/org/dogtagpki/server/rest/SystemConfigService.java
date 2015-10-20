@@ -33,8 +33,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.mozilla.jss.CryptoManager;
@@ -66,6 +64,8 @@ import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -147,27 +147,27 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         Collection<String> certList = getCertList(data);
 
         // specify module and log into token
-        CMS.debug("=== Token Panel ===");
+        CMS.debug("=== Token Authentication ===");
         String token = data.getToken();
         if (token == null) {
             token = ConfigurationRequest.TOKEN_DEFAULT;
         }
         loginToken(data, token);
 
-        //configure security domain
-        CMS.debug("=== Security Domain Panel ===");
+        // configure security domain
+        CMS.debug("=== Security Domain Configuration ===");
         String domainXML = configureSecurityDomain(data);
 
-        //subsystem panel
-        CMS.debug("=== Subsystem Panel ===");
+        // configure subsystem
+        CMS.debug("=== Subsystem Configuration ===");
         configureSubsystem(data, certList, token, domainXML);
 
-        // Hierarchy Panel
-        CMS.debug("=== Hierarchy Panel ===");
+        // configure hierarchy
+        CMS.debug("=== Hierarchy Configuration ===");
         configureHierarchy(data);
 
-        // Database Panel
-        CMS.debug("=== Database Panel ===");
+        // configure database
+        CMS.debug("=== Database Configuration ===");
         try {
             configureDatabase(data);
             cs.commit(false);
@@ -208,19 +208,18 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
         response.setSystemCerts(SystemCertDataFactory.create(certs));
 
-        // BackupKeyCertPanel/SavePKCS12Panel
-        CMS.debug("=== BackupKeyCert Panel/SavePKCS12 Panel ===");
+        // backup keys
+        CMS.debug("=== Backup Keys ===");
         if (data.getBackupKeys().equals("true")) {
             backupKeys(data);
         }
 
-        // AdminPanel
-        CMS.debug("=== Admin Panel ===");
+        // configure admin
+        CMS.debug("=== Admin Configuration ===");
         configureAdministrator(data, response);
 
-        // Done Panel
-        // Create or update security domain
-        CMS.debug("=== Done Panel ===");
+        // create or update security domain
+        CMS.debug("=== Finalization ===");
         setupSecurityDomain(data);
         setupDBUser(data);
         finalizeConfiguration(data);
@@ -445,7 +444,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cert.setType(cs.getString("preop.cert." + tag + ".type"));
 
                 if (!request.getStepTwo()) {
-                    ConfigurationUtils.configCert(null, null, null, cert, null);
+                    ConfigurationUtils.configCert(null, null, null, cert);
 
                 } else {
                     String subsystem = cs.getString("preop.cert." + tag + ".subsystem");
@@ -589,7 +588,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
                     if (data.getStandAlone() && data.getStepTwo()) {
                         // Stand-alone PKI (Step 2)
-                        CMS.debug("adminPanel:  Stand-alone " + csType + " Admin Cert");
+                        CMS.debug("SystemConfigService:  Stand-alone " + csType + " Admin Cert");
                         cs.putString(csSubsystem + ".admin.cert", b64);
                         cs.commit(false);
                     }
