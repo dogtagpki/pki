@@ -405,7 +405,7 @@ public class RecoveryService implements IService {
                 pubkey = X509Key.parsePublicKey(new DerValue(publicKeyData));
             } catch (Exception e) {
                 CMS.debug("RecoverService: after parsePublicKey:" + e.toString());
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "pubic key parsing failure"));
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "public key parsing failure"));
             }
             byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
             PrivateKey privKey =
