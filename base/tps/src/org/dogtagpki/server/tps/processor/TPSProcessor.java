@@ -1344,19 +1344,42 @@ public class TPSProcessor {
     }
 
     protected String getCAConnectorID() throws TPSException {
+        return getCAConnectorID(null, null);
+    }
+
+    /*
+     * @param enrollType "keyGen" or "renewal"
+     * @param keyType e.g. "authentication", "auth", "encryption", or "signing"
+     */
+    protected String getCAConnectorID(String enrollType, String keyType)
+            throws TPSException {
         IConfigStore configStore = CMS.getConfigStore();
         String id = null;
+        String config = null;
+        String method = "TPSProcessor.getCAConnectorID:";
 
-        String config = "op." + currentTokenOperation + "." + selectedTokenType + ".ca.conn";
+        if ((keyType != null) && (enrollType != null)) {
+            config = "op." + currentTokenOperation + "." +
+                selectedTokenType + "." +
+                enrollType + "." +
+                keyType+
+                ".ca.conn";
+            CMS.debug(method + " finding config: " + config);
+        } else {
+            config = "op." + currentTokenOperation + "." +
+                selectedTokenType +
+                ".ca.conn";
+            CMS.debug(method + " finding config: " + config);
+        }
 
         try {
-            id = configStore.getString(config, "ca1");
+            id = configStore.getString(config);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getCAConnectorID: Internal error finding config value.");
+            throw new TPSException(method + " Internal error finding config value:" + config);
 
         }
 
-        CMS.debug("TPSProcessor.getCAConectorID: returning: " + id);
+        CMS.debug(method + " returning: " + id);
 
         return id;
     }

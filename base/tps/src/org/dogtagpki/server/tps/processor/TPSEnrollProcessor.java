@@ -1197,7 +1197,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         //Renew and fetch the renewed cert blob.
 
                         CARenewCertResponse certResponse = tps.getEngine().renewCertificate(cert,
-                                cert.getSerialNumber(), selectedTokenType, keyType, getCAConnectorID());
+                                cert.getSerialNumber(), selectedTokenType, keyType, getCAConnectorID("renewal", keyType));
                         cEnrollInfo.setRenewedCertData(certResponse);
 
                         generateCertificate(certsInfo, channel, aInfo, keyType, TPSEngine.ENROLL_MODES.MODE_RENEWAL,
@@ -2004,7 +2004,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         try {
 
             if (isRecovery == false && isRenewal == false) {
-                String caConnID = getCAConnectorID();
+                String caConnID = getCAConnectorID("keyGen", cEnrollInfo.getKeyType());
                 CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConnID);
                 TPSBuffer encodedParsedPubKey = new TPSBuffer(parsedPubKey_ba);
 
@@ -3065,24 +3065,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSProcess.getNumberCertsForRecovery: returning: " + keyTypeNum);
 
         return keyTypeNum;
-    }
-
-    protected String getCAConnectorID() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
-        String id = null;
-
-        String config = "op." + currentTokenOperation + "." + selectedTokenType + ".ca.conn";
-
-        try {
-            id = configStore.getString(config, "ca1");
-        } catch (EBaseException e) {
-            throw new TPSException("TPSEnrollProcessor.getCAConnectorID: Internal error finding config value.");
-
-        }
-
-        CMS.debug("TPSEnrollProcessor.getCAConectorID: returning: " + id);
-
-        return id;
     }
 
     private TPSBuffer makeKeyIDFromPublicKeyInfo(byte[] publicKeyInfo) throws TPSException {
