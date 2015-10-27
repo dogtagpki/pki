@@ -68,7 +68,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
 
     def execute(self, argv):
         try:
-            opts, _ = getopt.getopt(argv, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -275,7 +275,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
 
     def execute(self, argv):
         try:
-            opts, _ = getopt.getopt(argv, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:

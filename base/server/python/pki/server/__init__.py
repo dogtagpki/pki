@@ -456,3 +456,21 @@ class PKIServerException(pki.PKIException):
 
         self.instance = instance
         self.subsystem = subsystem
+
+
+class Tomcat(object):
+
+    @classmethod
+    def get_major_version(self):
+
+        # run "tomcat version"
+        output = subprocess.check_output(['/usr/sbin/tomcat', 'version'])
+
+        # find "Server version: Apache Tomcat/<major version>.<minor version>"
+        match = re.search(r'^Server version:[^/]*/(\d+).*$', output, re.MULTILINE)
+
+        if not match:
+            raise Exception('Unable to determine Tomcat version')
+
+        # return major version
+        return match.group(1)

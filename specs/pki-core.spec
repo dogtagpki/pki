@@ -778,7 +778,7 @@ then
 
 else
     # On RPM upgrade run system upgrade
-    echo "Upgrading system at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    echo "Upgrading PKI system configuration at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     /sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 fi
@@ -798,8 +798,12 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
-echo "Upgrading server at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+echo "Upgrading PKI server configuration at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 /sbin/pki-server-upgrade --silent >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+
+# Migrate Tomcat configuration
+/sbin/pki-server migrate >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
 systemctl daemon-reload

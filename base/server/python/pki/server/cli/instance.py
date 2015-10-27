@@ -65,7 +65,7 @@ class InstanceFindCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, _ = getopt.getopt(argv, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -125,7 +125,7 @@ class InstanceShowCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -174,7 +174,7 @@ class InstanceStartCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -224,7 +224,7 @@ class InstanceStopCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -276,7 +276,7 @@ class InstanceMigrateCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'tomcat=', 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -313,11 +313,12 @@ class InstanceMigrateCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if not tomcat_version:
-            print('ERROR: missing Tomcat version')
-            self.print_help()
-            sys.exit(1)
+            tomcat_version = pki.server.Tomcat.get_major_version()
 
-        module = self.top.find_module('migrate')
+        if self.verbose:
+            print('Migrating to Tomcat %s' % tomcat_version)
+
+        module = self.get_top_module().find_module('migrate')
         module.set_verbose(self.verbose)
         module.set_debug(self.debug)
 
@@ -347,7 +348,7 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
 
     def execute(self, argv):
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -373,7 +374,7 @@ class InstanceNuxwdogEnableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        # module = self.top.find_module('nuxwdog-enable')
+        module = self.get_top_module().find_module('nuxwdog-enable')
         module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
         module.set_verbose(self.verbose)
 
@@ -402,7 +403,7 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
 
     def execute(self, argv):
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -428,8 +429,7 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        # module = self.top.find_module('nuxwdog-disable')
-        module = pki.server.cli.nuxwdog.NuxwdogDisableCLI()
+        module = self.get_top_module().find_module('nuxwdog-disable')
         module.set_verbose(self.verbose)
 
         instance = pki.server.PKIInstance(instance_name)
