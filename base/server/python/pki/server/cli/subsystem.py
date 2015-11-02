@@ -67,7 +67,7 @@ class SubsystemFindCLI(pki.cli.CLI):
     def execute(self, args):
 
         try:
-            opts, _ = getopt.getopt(args, 'i:v', [
+            opts, _ = getopt.gnu_getopt(args, 'i:v', [
                 'instance=',
                 'verbose', 'help'])
 
@@ -125,7 +125,7 @@ class SubsystemShowCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'verbose', 'help'])
 
@@ -182,7 +182,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'verbose', 'help'])
 
@@ -242,7 +242,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'verbose', 'help'])
 
@@ -322,7 +322,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'verbose', 'help'])
 
@@ -390,7 +390,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'verbose', 'help'])
 
@@ -455,7 +455,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'verbose', 'help'])
 

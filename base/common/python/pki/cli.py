@@ -31,7 +31,6 @@ class CLI(object):
         self.name = name
         self.description = description
         self.parent = None
-        self.top = self
 
         self.verbose = False
         self.debug = False
@@ -59,10 +58,14 @@ class CLI(object):
     def add_module(self, module):
         self.modules[module.name] = module
         module.parent = self
-        module.top = self.top
 
     def get_module(self, name):
         return self.modules.get(name)
+
+    def get_top_module(self):
+        if self.parent:
+            return self.parent.get_top_module()
+        return self
 
     def print_message(self, message):
         print '-' * len(message)

@@ -48,7 +48,7 @@ class MigrateCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, _ = getopt.getopt(argv, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'tomcat=', 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -79,9 +79,10 @@ class MigrateCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if not tomcat_version:
-            print 'ERROR: missing Tomcat version'
-            self.print_help()
-            sys.exit(1)
+            tomcat_version = pki.server.Tomcat.get_major_version()
+
+        if self.verbose:
+            print('Migrating to Tomcat %s' % tomcat_version)
 
         instances = pki.server.PKIServer.instances()
 
@@ -96,6 +97,9 @@ class MigrateCLI(pki.cli.CLI):
         self.migrate_subsystems(instance, tomcat_version)
 
     def migrate_instance(self, instance, tomcat_version):
+
+        if self.verbose:
+            print('Migrating %s instance' % instance.name)
 
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
         self.migrate_server_xml(server_xml, tomcat_version)
@@ -376,6 +380,8 @@ class MigrateCLI(pki.cli.CLI):
             self.migrate_subsystem(subsystem, tomcat_version)
 
     def migrate_subsystem(self, subsystem, tomcat_version):
+        if self.verbose:
+            print('Migrating %s/%s subsystem' % (subsystem.instance.name, subsystem.name))
 
         self.migrate_context_xml(subsystem.context_xml, tomcat_version)
 
