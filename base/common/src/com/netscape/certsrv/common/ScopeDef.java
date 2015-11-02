@@ -41,6 +41,9 @@ public interface ScopeDef {
     public final static String SC_ADMIN = "admin";
     public final static String SC_NETWORK = "network";
 
+    // lightweight authorities
+    public final static String SC_AUTHORITY = "authority";
+
     // profile
     public final static String SC_PROFILE_IMPLS = "profile";
     public final static String SC_PROFILE_RULES = "rules";

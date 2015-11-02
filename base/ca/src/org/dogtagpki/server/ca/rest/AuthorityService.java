@@ -22,7 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -49,6 +51,9 @@ import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.util.Utils;
@@ -76,12 +81,9 @@ public class AuthorityService extends PKIService implements AuthorityResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    /*
-    private final static String LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL =
-            "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE =
-            "LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE_3";
-    */
+    private final static String LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG =
+            "LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG_3";
+
 
     @Override
     public Response listCAs() {
@@ -183,19 +185,32 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         PKIPrincipal principal =
             (PKIPrincipal) servletRequest.getUserPrincipal();
 
+        Map<String, String> auditParams = new LinkedHashMap<>();
+        auditParams.put("dn", data.getDN());
+        if (parentAID != null)
+            auditParams.put("parent", parentAIDString);
+        if (data.getDescription() != null)
+            auditParams.put("description", data.getDescription());
+
         try {
             ICertificateAuthority subCA = hostCA.createCA(
                 principal.getAuthToken(),
                 data.getDN(), parentAID, data.getDescription());
+            audit(ILogger.SUCCESS, OpDef.OP_ADD,
+                    subCA.getAuthorityID().toString(), auditParams);
             return createOKResponse(readAuthorityData(subCA));
         } catch (IllegalArgumentException e) {
             throw new BadRequestException(e.toString());
         } catch (CANotFoundException e) {
             throw new ResourceNotFoundException(e.toString());
         } catch (IssuerUnavailableException | CADisabledException e) {
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_ADD, "<unknown>", auditParams);
             throw new ConflictingOperationException(e.toString());
         } catch (Exception e) {
             CMS.debug(e);
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_ADD, "<unknown>", auditParams);
             throw new PKIException("Error creating CA: " + e.toString());
         }
     }
@@ -213,15 +228,31 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
+        Map<String, String> auditParams = new LinkedHashMap<>();
+        if (data.getEnabled() != ca.getAuthorityEnabled())
+            auditParams.put("enabled", data.getEnabled().toString());
+        String curDesc = ca.getAuthorityDescription();
+        String newDesc = data.getDescription();
+        if (curDesc != null && !curDesc.equals(newDesc)
+                || curDesc == null && newDesc != null)
+            auditParams.put("description", data.getDescription());
+
         try {
             ca.modifyAuthority(data.getEnabled(), data.getDescription());
+            audit(ILogger.SUCCESS, OpDef.OP_MODIFY, ca.getAuthorityID().toString(), auditParams);
             return createOKResponse(readAuthorityData(ca));
         } catch (CATypeException e) {
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_MODIFY, ca.getAuthorityID().toString(), auditParams);
             throw new ForbiddenException(e.toString());
         } catch (IssuerUnavailableException e) {
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_MODIFY, ca.getAuthorityID().toString(), auditParams);
             throw new ConflictingOperationException(e.toString());
         } catch (EBaseException e) {
             CMS.debug(e);
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_MODIFY, ca.getAuthorityID().toString(), auditParams);
             throw new PKIException("Error modifying authority: " + e.toString());
         }
     }
@@ -253,15 +284,24 @@ public class AuthorityService extends PKIService implements AuthorityResource {
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
+        Map<String, String> auditParams = new LinkedHashMap<>();
+
         try {
             ca.deleteAuthority();
+            audit(ILogger.SUCCESS, OpDef.OP_DELETE, aidString, null);
             return createNoContentResponse();
         } catch (CATypeException e) {
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_DELETE, aidString, auditParams);
             throw new ForbiddenException(e.toString());
         } catch (CAEnabledException | CANotLeafException e) {
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_DELETE, aidString, auditParams);
             throw new ConflictingOperationException(e.toString());
         } catch (EBaseException e) {
             CMS.debug(e);
+            auditParams.put("exception", e.toString());
+            audit(ILogger.FAILURE, OpDef.OP_DELETE, aidString, auditParams);
             throw new PKIException("Error modifying authority: " + e.toString());
         }
     }
@@ -292,25 +332,15 @@ public class AuthorityService extends PKIService implements AuthorityResource {
                 "-----END " + name + "-----\n";
     }
 
-    /* TODO work out what audit messages are needed
-    public void auditProfileChangeState(String profileId, String op, String status) {
+    private void audit(
+            String status, String op, String id,
+            Map<String, String> params) {
         String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
+                LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG,
                 auditor.getSubjectID(),
                 status,
-                profileId,
-                op);
+                auditor.getParamString(ScopeDef.SC_AUTHORITY, op, id, params));
         auditor.log(msg);
     }
-
-    public void auditProfileChange(String scope, String type, String id, String status, Map<String, String> params) {
-        String msg = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_CONFIG_CERT_PROFILE,
-                auditor.getSubjectID(),
-                status,
-                auditor.getParamString(scope, type, id, params));
-        auditor.log(msg);
-    }
-    */
 
 }
