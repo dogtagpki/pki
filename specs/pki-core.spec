@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          10%{?dist}
+Release:          12%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -197,6 +197,11 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch36:          pki-core-HSM-failover-support.patch
 ## pki-core-10.2.6-10
 #Patch37:          pki-core-Fixed-user-search-in-PasswdUserDBAuthentication.patch
+## pki-core-10.2.6-11
+#Patch38:          pki-core-Removed-unused-WizardServlet.patch
+#Patch39:          pki-core-Replaced-legacy-HttpClient.patch
+## pki-core-10.2.6-12
+#Patch40:          pki-core-Added-automatic-Tomcat-migration.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -739,6 +744,9 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch35 -p1
 #%patch36 -p1
 #%patch37 -p1
+#%patch38 -p1
+#%patch39 -p1
+#%patch40 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -860,7 +868,7 @@ then
 
 else
     # On RPM upgrade run system upgrade
-    echo "Upgrading system at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
+    echo "Upgrading PKI system configuration at `/bin/date`." >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     /sbin/pki-upgrade --silent >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
     echo >> /var/log/pki/pki-upgrade-%{version}.log 2>&1
 fi
@@ -880,8 +888,12 @@ fi
 ##        from EITHER 'sysVinit' OR previous 'systemd' processes to the new
 ##        PKI deployment process
 
-echo "Upgrading server at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+echo "Upgrading PKI server configuration at `/bin/date`." >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 /sbin/pki-server-upgrade --silent >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
+
+# Migrate Tomcat configuration
+/sbin/pki-server migrate >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 echo >> /var/log/pki/pki-server-upgrade-%{version}.log 2>&1
 
 systemctl daemon-reload
@@ -1088,6 +1100,13 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Fri Oct 30 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-12
+- PKI TRAC Ticket #1310 - Auto migration to Tomcat 8
+
+* Fri Oct 23 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-11
+- PKI TRAC Ticket #1120 - Removed unused WizardServlet [edewata]
+- PKI TRAC Ticket #342  - Replaced legacy HttpClient [edewata]
+
 * Tue Oct  6 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-10
 - PKI TRAC Ticket #1580 - dogtag can get confused about users [edewata]
 - Fedora 23 and Fedora 24 only
