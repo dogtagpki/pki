@@ -328,10 +328,11 @@ class PKIInstance(object):
 
         return password
 
-    def open_nssdb(self):
+    def open_nssdb(self, token='internal'):
         return pki.nss.NSSDatabase(
             directory=self.nssdb_dir,
-            password=self.get_password('internal'))
+            token=token,
+            password=self.get_password(token))
 
     def get_subsystem(self, name):
         for subsystem in self.subsystems:

@@ -20,6 +20,7 @@ package org.dogtagpki.server.rest;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -420,7 +421,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
                 cs.commit(false);
 
-                if (!request.getStepTwo()) {
+                if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+                    // load key pair for existing and externally-signed signing cert
+                    CMS.debug("SystemConfigService: loading signing cert key pair");
+                    KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname());
+                    ConfigurationUtils.storeKeyPair(cs, tag, pair);
+
+                } else if (!request.getStepTwo()) {
                     if (keytype.equals("ecc")) {
                         String curvename = certData.getKeyCurveName() != null ?
                                 certData.getKeyCurveName() : cs.getString("keys.ecc.curve.default");
@@ -443,7 +450,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cert.setSubsystem(cs.getString("preop.cert." + tag + ".subsystem"));
                 cert.setType(cs.getString("preop.cert." + tag + ".type"));
 
-                if (!request.getStepTwo()) {
+                if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+
+                    // update configuration for existing or externally-signed signing certificate
+                    String certStr = cs.getString("ca." + tag + ".cert" );
+                    cert.setCert(certStr);
+                    CMS.debug("SystemConfigService: certificate " + tag + ": " + certStr);
+                    ConfigurationUtils.updateConfig(cs, tag);
+
+                } else if (!request.getStepTwo()) {
                     ConfigurationUtils.configCert(null, null, null, cert);
 
                 } else {
@@ -465,8 +480,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     CMS.debug("Step 2:  certStr for '" + tag + "' is " + certStr);
                 }
 
-                // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
-                if (request.getStandAlone()) {
+                if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+
+                    CMS.debug("SystemConfigService: Loading cert request for " + tag + " cert");
+                    ConfigurationUtils.loadCertRequest(cs, tag, cert);
+
+                    CMS.debug("SystemConfigService: Loading cert " + tag);
+                    ConfigurationUtils.loadCert(cs, cert);
+
+                } else if (request.getStandAlone()) {
+                    // Handle Cert Requests for everything EXCEPT Stand-alone PKI (Step 2)
                     if (!request.getStepTwo()) {
                         // Stand-alone PKI (Step 1)
                         ConfigurationUtils.handleCertRequest(cs, tag, cert);
@@ -487,6 +510,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
                 if (request.isClone()) {
                     ConfigurationUtils.updateCloneConfig();
+                }
+
+                if (request.isExternal() && tag.equals("signing")) { // external/existing CA
+                    CMS.debug("SystemConfigService: External CA has signing cert");
+                    hasSigningCert.setValue(true);
+                    certs.add(cert);
+                    continue;
                 }
 
                 // to determine if we have the signing cert when using an external ca

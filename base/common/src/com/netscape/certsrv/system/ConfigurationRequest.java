@@ -178,6 +178,9 @@ public class ConfigurationRequest {
     protected String adminCert;
 
     @XmlElement
+    protected Boolean external;
+
+    @XmlElement
     protected String standAlone;
 
     @XmlElement
@@ -754,6 +757,14 @@ public class ConfigurationRequest {
         this.adminCert = adminCert;
     }
 
+    public Boolean isExternal() {
+        return external;
+    }
+
+    public void setExternal(Boolean external) {
+        this.external = external;
+    }
+
     public boolean getStandAlone() {
         return (standAlone != null && standAlone.equalsIgnoreCase("true"));
     }
@@ -945,6 +956,7 @@ public class ConfigurationRequest {
                ", adminCert=" + adminCert +
                ", importAdminCert=" + importAdminCert +
                ", generateServerCert=" + generateServerCert +
+               ", external=" + external +
                ", standAlone=" + standAlone +
                ", stepTwo=" + stepTwo +
                ", authdbBaseDN=" + authdbBaseDN +

@@ -67,9 +67,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if len(deployer.instance.tomcat_instance_subsystems()) == 1:
             # Modify contents of 'serverCertNick.conf' (if necessary)
             deployer.servercertnick_conf.modify()
-        # Optionally, programmatically 'restart' the configured PKI instance
-        if config.str2bool(deployer.mdict['pki_restart_configured_instance']):
-            deployer.systemd.restart()
+
+        external = config.str2bool(deployer.mdict['pki_external'])
+        step_one = not config.str2bool(deployer.mdict['pki_external_step_two'])
+
+        if not (external and step_one):
+            # Optionally, programmatically 'restart' the configured PKI instance
+            if config.str2bool(deployer.mdict['pki_restart_configured_instance']):
+                deployer.systemd.restart()
+
         # Optionally, 'purge' the entire temporary client infrastructure
         # including the client NSS security databases and password files
         #
