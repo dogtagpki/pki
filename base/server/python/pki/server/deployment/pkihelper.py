@@ -742,8 +742,7 @@ class ConfigurationFile:
             # External CA
             if not self.external_step_two:
                 # External CA (Step 1)
-                self.confirm_data_exists("pki_external_csr_path")
-                self.confirm_missing_file("pki_external_csr_path")
+                # The pki_external_csr_path is optional.
                 # generic extension support in CSR - for external CA
                 if self.add_req_ext:
                     self.confirm_data_exists("pki_req_ext_oid")
@@ -751,10 +750,9 @@ class ConfigurationFile:
                     self.confirm_data_exists("pki_req_ext_data")
             else:
                 # External CA (Step 2)
-                self.confirm_data_exists("pki_external_ca_cert_chain_path")
-                self.confirm_file_exists("pki_external_ca_cert_chain_path")
-                self.confirm_data_exists("pki_external_ca_cert_path")
-                self.confirm_file_exists("pki_external_ca_cert_path")
+                # The pki_external_ca_cert_chain_path and
+                # pki_external_ca_cert_path are optional.
+                pass
         elif not self.skip_configuration and self.standalone:
             if not self.external_step_two:
                 # Stand-alone PKI Admin CSR (Step 1)
@@ -3779,17 +3777,7 @@ class ConfigClient:
             if not isinstance(certs, types.ListType):
                 certs = [certs]
             for cdata in certs:
-                if (self.subsystem == "CA" and self.external and
-                        not self.external_step_two):
-                    # External CA (Step 1)
-                    if cdata['tag'].lower() == "signing":
-                        # Save 'External CA Signing Certificate' CSR (Step 1)
-                        self.save_system_csr(
-                            cdata['request'],
-                            log.PKI_CONFIG_EXTERNAL_CSR_SAVE,
-                            self.mdict['pki_external_csr_path'])
-                        return
-                elif self.standalone and not self.external_step_two:
+                if self.standalone and not self.external_step_two:
                     # Stand-alone PKI (Step 1)
                     if cdata['tag'].lower() == "audit_signing":
                         # Save Stand-alone PKI 'Audit Signing Certificate' CSR
@@ -3956,8 +3944,17 @@ class ConfigClient:
             data.token = self.mdict['pki_token_name']
             data.tokenPassword = self.mdict['pki_token_password']
         data.subsystemName = self.mdict['pki_subsystem_name']
+
+        data.external = self.external
         data.standAlone = self.standalone
-        data.stepTwo = self.external_step_two
+
+        if self.standalone:
+            # standalone installation uses two-step process (ticket #1698)
+            data.stepTwo = self.external_step_two
+
+        else:
+            # other installations use only one step in the configuration servlet
+            data.stepTwo = False
 
         # Cloning parameters
         if self.mdict['pki_instance_type'] == "Tomcat":
@@ -4085,25 +4082,46 @@ class ConfigClient:
                             self.mdict['pki_req_ext_critical']
                         cert1.req_ext_data = \
                             self.mdict['pki_req_ext_data']
-                if self.external_step_two:
-                    # External CA (Step 2) or Stand-alone PKI (Step 2)
-                    if not self.subsystem == "CA":
-                        # Stand-alone PKI (Step 2)
-                        cert1 = pki.system.SystemCertData()
-                        cert1.tag = self.mdict['pki_ca_signing_tag']
-                    # Load the External CA or Stand-alone PKI
+
+                if self.external and self.external_step_two: # external/existing CA step 2
+
+                    # If specified, load the externally-signed CA cert
+                    if self.mdict['pki_external_ca_cert_path']:
+                        self.load_system_cert(
+                            cert1,
+                            log.PKI_CONFIG_EXTERNAL_CA_LOAD,
+                            self.mdict['pki_external_ca_cert_path'])
+
+                    # If specified, load the external CA cert chain
+                    if self.mdict['pki_external_ca_cert_chain_path']:
+                        self.load_system_cert_chain(
+                            cert1,
+                            log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD,
+                            self.mdict['pki_external_ca_cert_chain_path'])
+
+                    systemCerts.append(cert1)
+
+                elif self.standalone and self.external_step_two: # standalone KRA/OCSP step 2
+
+                    cert1 = pki.system.SystemCertData()
+                    cert1.tag = self.mdict['pki_ca_signing_tag']
+
+                    # Load the stand-alone PKI
                     # 'External CA Signing Certificate' (Step 2)
                     self.load_system_cert(
                         cert1,
                         log.PKI_CONFIG_EXTERNAL_CA_LOAD,
                         self.mdict['pki_external_ca_cert_path'])
-                    # Load the External CA or Stand-alone PKI
+
+                    # Load the stand-alone PKI
                     # 'External CA Signing Certificate Chain' (Step 2)
                     self.load_system_cert_chain(
                         cert1,
                         log.PKI_CONFIG_EXTERNAL_CA_CHAIN_LOAD,
                         self.mdict['pki_external_ca_cert_chain_path'])
+
                     systemCerts.append(cert1)
+
                 elif self.subsystem == "CA":
                     # PKI CA or Subordinate CA
                     systemCerts.append(cert1)
