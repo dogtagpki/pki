@@ -20,13 +20,18 @@
 #
 
 import json
+import re
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkimessages as log
 from .. import pkiscriptlet
-import pki.system
+
 import pki.encoder
+import pki.nss
+import pki.server
+import pki.system
+import pki.util
 
 
 # PKI Deployment Configuration Scriptlet
@@ -79,6 +84,127 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_client_key_database'],
             deployer.mdict['pki_client_secmod_database'],
             password_file=deployer.mdict['pki_client_password_conf'])
+
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
+        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+
+        token = deployer.mdict['pki_token_name']
+        nssdb = instance.open_nssdb(token)
+
+        external = config.str2bool(deployer.mdict['pki_external'])
+        step_one = not config.str2bool(deployer.mdict['pki_external_step_two'])
+        step_two = not step_one
+
+        try:
+            if external and step_one: # external/existing CA step 1
+
+                key_type = deployer.mdict['pki_ca_signing_key_type']
+                key_alg = deployer.mdict['pki_ca_signing_key_algorithm']
+
+                if key_type == 'rsa':
+                    key_size = int(deployer.mdict['pki_ca_signing_key_size'])
+                    curve = None
+
+                    m = re.match(r'(.*)withRSA', key_alg)
+                    if not m:
+                        raise Exception('Invalid key algorithm: %s' % key_alg)
+                    hash_alg = m.group(1)
+
+                elif key_type == 'ec' or key_type == 'ecc':
+                    key_type = 'ec'
+                    key_size = None
+                    curve = deployer.mdict['pki_ca_signing_key_size']
+
+                    m = re.match(r'(.*)withEC', key_alg)
+                    if not m:
+                        raise Exception('Invalid key algorithm: %s' % key_alg)
+                    hash_alg = m.group(1)
+
+                else:
+                    raise Exception('Invalid key type: %s' % key_type)
+
+                # If filename specified, generate CA cert request and
+                # import it into CS.cfg.
+                request_file = deployer.mdict['pki_external_csr_path']
+                if request_file:
+                    nssdb.create_request(
+                        subject_dn=deployer.mdict['pki_ca_signing_subject_dn'],
+                        request_file=request_file,
+                        key_type=key_type,
+                        key_size=key_size,
+                        curve=curve,
+                        hash_alg=hash_alg)
+                    with open(request_file) as f:
+                        signing_csr = f.read()
+                    signing_csr = pki.nss.convert_csr(signing_csr, 'pem', 'base64')
+                    subsystem.config['ca.signing.certreq'] = signing_csr
+
+                subsystem.save()
+
+            elif external and step_two: # external/existing CA step 2
+
+                # If specified, import existing CA cert request into CS.cfg.
+                request_file = deployer.mdict['pki_external_csr_path']
+                if request_file:
+                    with open(request_file) as f:
+                        signing_csr = f.read()
+                    signing_csr = pki.nss.convert_csr(signing_csr, 'pem', 'base64')
+                    subsystem.config['ca.signing.certreq'] = signing_csr
+
+                # If specified, import external CA cert into NSS database.
+                external_ca_cert_chain_nickname = deployer.mdict['pki_external_ca_cert_chain_nickname']
+                external_ca_cert_chain_file = deployer.mdict['pki_external_ca_cert_chain_path']
+                if external_ca_cert_chain_file:
+                    cert_chain = nssdb.import_cert_chain(
+                        nickname=external_ca_cert_chain_nickname,
+                        cert_chain_file=external_ca_cert_chain_file,
+                        trust_attributes='CT,C,C')
+                    subsystem.config['ca.external_ca_chain.cert'] = cert_chain
+
+                # If specified, import externally-signed CA cert into NSS database.
+                signing_nickname = deployer.mdict['pki_ca_signing_nickname']
+                signing_cert_file = deployer.mdict['pki_external_ca_cert_path']
+                if signing_cert_file:
+                    nssdb.add_cert(
+                        nickname=signing_nickname,
+                        cert_file=signing_cert_file,
+                        trust_attributes='CT,C,C')
+
+                # If specified, import CA cert and key from PKCS #12 file into NSS database.
+                pkcs12_file = deployer.mdict['pki_external_pkcs12_path']
+                if pkcs12_file:
+                    pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
+                    nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
+
+                # Export CA cert from NSS database and import it into CS.cfg.
+                signing_cert_data = nssdb.get_cert(
+                    nickname=signing_nickname,
+                    output_format='base64')
+                subsystem.config['ca.signing.nickname'] = signing_nickname
+                subsystem.config['ca.signing.tokenname'] = deployer.mdict['pki_ca_signing_token']
+                subsystem.config['ca.signing.cert'] = signing_cert_data
+                subsystem.config['ca.signing.cacertnickname'] = signing_nickname
+                subsystem.config['ca.signing.defaultSigningAlgorithm'] = deployer.mdict['pki_ca_signing_signing_algorithm']
+
+                subsystem.save()
+
+            else: # self-signed CA
+
+                # To be implemented in ticket #1692.
+
+                # Generate CA cert request.
+                # Self sign CA cert.
+                # Import self-signed CA cert into NSS database.
+
+                pass
+
+        finally:
+            nssdb.close()
+
+        if external and step_one:
+            return self.rv
 
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger

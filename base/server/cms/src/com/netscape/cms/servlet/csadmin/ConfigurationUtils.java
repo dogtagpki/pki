@@ -126,6 +126,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -133,6 +134,8 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.IDBSubsystem;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -2266,6 +2269,54 @@ public class ConfigurationUtils {
         certObj.setCertChain(certChainStr);
     }
 
+    public static KeyPair loadKeyPair(String nickname) throws Exception {
+
+        CMS.debug("ConfigurationUtils: loadKeyPair(" + nickname + ")");
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        X509Certificate cert = cm.findCertByNickname(nickname);
+        PublicKey publicKey = cert.getPublicKey();
+        PrivateKey privateKey = cm.findPrivKeyByCert(cert);
+
+        return new KeyPair(publicKey, privateKey);
+    }
+
+    public static void storeKeyPair(IConfigStore config, String tag, KeyPair pair)
+            throws TokenException, EBaseException {
+
+        CMS.debug("ConfigurationUtils: storeKeyPair(" + tag + ")");
+
+        PublicKey publicKey = pair.getPublic();
+
+        if (publicKey instanceof RSAPublicKey) {
+
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+
+            byte modulus[] = rsaPublicKey.getModulus().toByteArray();
+            config.putString(PCERT_PREFIX + tag + ".pubkey.modulus",
+                    CryptoUtil.byte2string(modulus));
+
+            byte exponent[] = rsaPublicKey.getPublicExponent().toByteArray();
+            config.putString(PCERT_PREFIX + tag + ".pubkey.exponent",
+                    CryptoUtil.byte2string(exponent));
+
+        } else { // ECC
+
+            CMS.debug("ConfigurationUtils: Public key class: " + publicKey.getClass().getName());
+            byte encoded[] = publicKey.getEncoded();
+            config.putString(PCERT_PREFIX + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
+        }
+
+        PrivateKey privateKey = (PrivateKey) pair.getPrivate();
+        byte id[] = privateKey.getUniqueID();
+        String kid = CryptoUtil.byte2string(id);
+        config.putString(PCERT_PREFIX + tag + ".privkey.id", kid);
+
+        String keyAlgo = config.getString(PCERT_PREFIX + tag + ".signingalgorithm");
+        setSigningAlgorithm(tag, keyAlgo, config);
+    }
+
     public static void createECCKeyPair(String token, String curveName, IConfigStore config, String ct)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             CryptoManager.NotInitializedException, EPropertyNotFound, EBaseException {
@@ -2830,6 +2881,20 @@ public class ConfigurationUtils {
         }
     }
 
+    public static void loadCertRequest(IConfigStore config, String tag, Cert cert) throws Exception {
+
+        CMS.debug("ConfigurationUtils.loadCertRequest(" + tag + ")");
+
+        String subjectDN = config.getString(PCERT_PREFIX + tag + ".dn");
+        cert.setDN(subjectDN);
+
+        String subsystem = config.getString(PCERT_PREFIX + tag + ".subsystem");
+        String certreq = config.getString(subsystem + "." + tag + ".certreq");
+        String formattedCertreq = CryptoUtil.reqFormat(certreq);
+
+        cert.setRequest(formattedCertreq);
+    }
+
     public static void handleCertRequest(IConfigStore config, String certTag, Cert cert) throws EPropertyNotFound,
             EBaseException, InvalidKeyException, NotInitializedException, TokenException, NoSuchAlgorithmException,
             NoSuchProviderException, CertificateException, SignatureException, IOException {
@@ -2969,6 +3034,42 @@ public class ConfigurationUtils {
                 CryptoUtil.string2byte(pubKeyModulus),
                 CryptoUtil.string2byte(pubKeyPublicExponent));
         return pubk;
+    }
+
+    public static void loadCert(IConfigStore config, Cert cert) throws Exception {
+
+        String tag = cert.getCertTag();
+        CMS.debug("ConfigurationUtils: loadCert(" + tag + ")");
+
+        CryptoManager cm = CryptoManager.getInstance();
+        X509Certificate x509Cert = cm.findCertByNickname(cert.getNickname());
+
+        if (!x509Cert.getSubjectDN().equals(x509Cert.getIssuerDN())) {
+            CMS.debug("ConfigurationUtils: " + tag + " cert is not self-signed");
+
+            String subsystem = config.getString(PCERT_PREFIX + tag + ".subsystem");
+            String certChain = config.getString(subsystem + ".external_ca_chain.cert");
+            cert.setCertChain(certChain);
+
+            return;
+        }
+
+        CMS.debug("ConfigurationUtils: " + tag + " cert is self-signed");
+
+        // When importing existing self-signed CA certificate, create a
+        // certificate record to reserve the serial number. Otherwise it
+        // might conflict with system certificates to be created later.
+
+        X509CertImpl x509CertImpl = new X509CertImpl(x509Cert.getEncoded());
+
+        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        ICertificateRepository cr = ca.getCertificateRepository();
+
+        BigInteger serialNo = x509Cert.getSerialNumber();
+        MetaInfo meta = new MetaInfo();
+
+        ICertRecord record = cr.createCertRecord(serialNo, x509CertImpl, meta);
+        cr.addCertificateRecord(record);
     }
 
     public static int handleCerts(Cert cert) throws IOException, EBaseException, CertificateException,
