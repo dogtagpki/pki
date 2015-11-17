@@ -191,23 +191,32 @@ To release a certificate that has been placed on hold:
 .B pki <agent authentication> ca-cert-release-hold <certificate ID>
 
 .SS Certificate Requests
-To request a certificate, first generate a certificate request in PKCS #10 or CRMF, and store this request in the XML template file, of the profile type the request relates to.
 
-The list of profiles can be viewed using the CLI command:
+To request a certificate, first generate a certificate signing request (CSR),
+then submit it with a certificate profile. The list of available profiles can
+be viewed using the following command:
 
 .B pki ca-cert-request-profile-find
 
-The XML template file for a profile type can be created by calling the ca-cert-request-profile-show CLI command. For example:
+To generate a CSR, use the certutil, PKCS10Client, or
+CRMFPopClient, and store it into a file.
 
-\fBpki ca-cert-request-profile-show <profileID> \-\-output <file to store the XML template>\fP
+Basic requests can be submitted using the following command:
 
-will store the XML template of the request in the specified output file.
+.B pki ca-cert-request-submit --profile <profile ID> --request-type <type> --csr-file <CSR file> --subject <subject DN>
 
-Then, fill in the values in the XML file and submit the request for review.  This can be done without authentication.
+To submit more advanced requests, download a template of the request file for
+a particular profile using the following command:
+
+.B pki ca-cert-request-profile-show <profile ID> \-\-output <request file>
+
+Then, edit the request file, fill in the input attributes required by the
+profile, and submit the request using the following command:
 
 .B pki ca-cert-request-submit <request file>
 
-Then, an agent needs to review the request by running the following command:
+Depending on the profile, an agent may need to review the request by running
+the following command:
 
 .B pki <agent authentication> ca-cert-request-review <request ID> --file <file to store the certificate request>
 

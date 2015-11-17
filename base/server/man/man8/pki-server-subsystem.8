@@ -24,6 +24,10 @@ pki-server subsystem \- Command-Line Interface for managing Certificate System s
 \fBpki-server [CLI options] subsystem-show\fR -i <instance ID> <subsystem ID>
 \fBpki-server [CLI options] subsystem-enable\fR -i <instance ID> <subsystem ID>
 \fBpki-server [CLI options] subsystem-disable\fR -i <instance ID> <subsystem ID>
+\fBpki-server [CLI options] subsystem-cert-find\fR -i <instance ID> <subsystem ID>
+\fBpki-server [CLI options] subsystem-cert-show\fR -i <instance ID> <subsystem ID> <cert ID>
+\fBpki-server [CLI options] subsystem-cert-export\fR -i <instance ID> <subsystem ID> <cert ID>
+\fBpki-server [CLI options] subsystem-cert-update\fR -i <instance ID> <subsystem ID> <cert ID>
 .fi
 
 .SH DESCRIPTION
@@ -53,7 +57,7 @@ This command is to list subsystems within a specific instance.
 .PP
 \fBpki-server [CLI options] subsystem-show\fR -i <instance ID> <subsystem ID>
 .RS 4
-This command is to view a details about a particular subsystem.
+This command is to view the details about a particular subsystem.
 .RE
 .PP
 \fBpki-server [CLI options] subsystem-enable\fR -i <instance ID> <subsystem ID>
@@ -77,6 +81,26 @@ corresponding to the subsystem.  The subsystem will no longer be accessible
 through the web interfaces.  This is useful when specific subsystems need to be
 made inaccessible for maintenance as Apache Tomcat allows web applications to be
 deployed/undeployed while the instance is still running (hot deployment).
+.RE
+.PP
+\fBpki-server [CLI options] subsystem-cert-find\fR -i <instance ID> <subsystem ID>
+.RS 4
+This command is to list system certificates in a particular subsystem.
+.RE
+.PP
+\fBpki-server [CLI options] subsystem-cert-show\fR -i <instance ID> <subsystem ID> <cert ID>
+.RS 4
+This command is to view the details about a system certificate in a particular subsystem.
+.RE
+.PP
+\fBpki-server [CLI options] subsystem-cert-export\fR -i <instance ID> <subsystem ID> <cert ID>
+.RS 4
+This command is to export a system certificate in a particular subsystem.
+.RE
+.PP
+\fBpki-server [CLI options] subsystem-cert-update\fR -i <instance ID> <subsystem ID> <cert ID>
+.RS 4
+This command is to update a system certificate in a particular subsystem.
 .RE
 
 .SH OPTIONS
