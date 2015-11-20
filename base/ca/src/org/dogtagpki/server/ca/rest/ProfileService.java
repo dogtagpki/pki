@@ -605,9 +605,8 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             // no error thrown, proceed with profile creation
             profile = ps.createProfile(profileId, classId, className);
-            profile.getConfigStore().commit(false);
             profile.getConfigStore().load(new ByteArrayInputStream(data));
-            ps.disableProfile(profileId);
+            ps.disableProfile(profileId);  // also commits
 
             auditProfileChange(
                     ScopeDef.SC_PROFILE_RULES,
