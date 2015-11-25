@@ -299,14 +299,6 @@ printSecurityInfo(PRFileDesc *fd)
 
 PRBool useModelSocket = PR_TRUE;
 
-static const char outHeader[] = {
-    "HTTP/1.0 200 OK\r\n"
-    "Server: Netscape-Enterprise/2.0a\r\n"
-    "Date: Tue, 26 Aug 1997 22:10:05 GMT\r\n"
-    "Content-type: text/plain\r\n"
-    "\r\n"
-};
-
 
 PRInt32
 do_writes(
@@ -703,18 +695,23 @@ client_main(
 
 
 SECStatus
-createRequest(char * url, char *post)
+createRequest(
+    char * url,
+    char *post,
+    const char *hostName,
+    unsigned short port)
 {
 	char * newstr;
 
     if (post == NULL) {
         newstr = PR_smprintf(
-			"GET %s HTTP/1.0\r\n\r\n",
-			url);
+			"GET %s HTTP/1.0\r\nHost: %s:%u\r\n\r\n",
+			url, hostName, (PRUintn)port);
     } else {
         int len = strlen(post);
         newstr = PR_smprintf(
-			"POST %s HTTP/1.0\r\nContent-Length: %d\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n%s", url, len, post);
+			"POST %s HTTP/1.0\r\nHost: %s:%u\r\nContent-Length: %d\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\n%s",
+                        url, hostName, (PRUintn)port, len, post);
     }
 
     bigBuf.data = (unsigned char *)newstr;
@@ -833,7 +830,7 @@ main(int argc, char **argv)
 	Usage(progName);
     }
 
-    createRequest(url, post);
+    createRequest(url, post, hostName, port);
 
 	if (passwdfile) {
 		fp = fopen(passwdfile,"r");
