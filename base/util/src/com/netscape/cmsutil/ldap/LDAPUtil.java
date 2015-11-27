@@ -18,11 +18,13 @@
 package com.netscape.cmsutil.ldap;
 
 import java.io.IOException;
+import java.lang.Class;
 import java.util.ArrayList;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
@@ -144,5 +146,21 @@ public class LDAPUtil {
                 throw new IOException(e.toString());
             }
         }
+    }
+
+    /**
+     * Get the control of the specified class from the array of controls.
+     *
+     * @return the LDAPControl, or null if not found
+     */
+    public static LDAPControl getControl(
+            Class<? extends LDAPControl> cls, LDAPControl[] controls) {
+        if (controls != null) {
+            for (LDAPControl control : controls) {
+                if (cls.isInstance(control))
+                    return control;
+            }
+        }
+        return null;
     }
 }
