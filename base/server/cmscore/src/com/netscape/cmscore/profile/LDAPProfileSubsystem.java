@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
@@ -47,6 +46,7 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cmscore.base.LDAPConfigStore;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class LDAPProfileSubsystem
         extends AbstractProfileSubsystem
@@ -290,16 +290,9 @@ public class LDAPProfileSubsystem
                     null, false, cons);
                 while (!stopped && results.hasMoreElements()) {
                     LDAPEntry entry = results.next();
-                    LDAPEntryChangeControl changeControl = null;
-                    LDAPControl[] changeControls = results.getResponseControls();
-                    if (changeControls != null) {
-                        for (LDAPControl control : changeControls) {
-                            if (control instanceof LDAPEntryChangeControl) {
-                                changeControl = (LDAPEntryChangeControl) control;
-                                break;
-                            }
-                        }
-                    }
+                    LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)
+                        LDAPUtil.getControl(
+                            LDAPEntryChangeControl.class, results.getResponseControls());
                     CMS.debug("Profile change monitor: Processed change controls.");
                     if (changeControl != null) {
                         int changeType = changeControl.getChangeType();
