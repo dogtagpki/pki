@@ -95,10 +95,6 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
 
         profile.getConfigStore().putString(PROP_ENABLE, "true");
         profile.getConfigStore().putString(PROP_ENABLE_BY, enableBy);
-        try {
-            profile.getConfigStore().commit(false);
-        } catch (EBaseException e) {
-        }
     }
 
     /**
@@ -117,9 +113,19 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
         IProfile profile = mProfiles.get(id);
 
         profile.getConfigStore().putString(PROP_ENABLE, "false");
+    }
+
+    /**
+     * Commits a profile.
+     */
+    public void commitProfile(String id)
+            throws EProfileException {
         try {
-            profile.getConfigStore().commit(false);
+            mProfiles.get(id).getConfigStore().commit(false);
         } catch (EBaseException e) {
+            throw new EProfileException(
+                "Failed to commit config store of profile '" + id + ": " + e,
+                e);
         }
     }
 
