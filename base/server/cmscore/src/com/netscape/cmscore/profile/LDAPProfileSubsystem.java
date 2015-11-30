@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -62,6 +63,11 @@ public class LDAPProfileSubsystem
      * of the profile entry that this instance has seen */
     private TreeMap<String,Integer> entryUSNs;
 
+    private TreeMap<String,String> nsUniqueIds;
+
+    /* Set of nsUniqueIds of deleted entries */
+    private TreeSet<String> deletedNsUniqueIds;
+
     /**
      * Initializes this subsystem with the given configuration
      * store.
@@ -79,6 +85,8 @@ public class LDAPProfileSubsystem
         mProfiles = new LinkedHashMap<String, IProfile>();
         mProfileClassIds = new Hashtable<String, String>();
         entryUSNs = new TreeMap<>();
+        nsUniqueIds = new TreeMap<>();
+        deletedNsUniqueIds = new TreeSet<>();
 
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -109,6 +117,14 @@ public class LDAPProfileSubsystem
     private synchronized void readProfile(LDAPEntry ldapProfile) {
         IPluginRegistry registry = (IPluginRegistry)
             CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+
+        String nsUniqueId =
+            ldapProfile.getAttribute("nsUniqueId").getStringValueArray()[0];
+        if (deletedNsUniqueIds.contains(nsUniqueId)) {
+            CMS.debug("readProfile: ignoring entry with nsUniqueId '"
+                    + nsUniqueId + "' due to deletion");
+            return;
+        }
 
         String profileId = null;
         String dn = ldapProfile.getDN();
@@ -145,6 +161,7 @@ public class LDAPProfileSubsystem
                 CMS.debug("Start Profile Creation - " + profileId + " " + classId + " " + info.getClassName());
                 createProfile(profileId, classId, info.getClassName(), data);
                 entryUSNs.put(profileId, newEntryUSN);
+                nsUniqueIds.put(profileId, nsUniqueId);
                 CMS.debug("Done Profile Creation - " + profileId);
             } catch (EProfileException e) {
                 CMS.debug("Error creating profile '" + profileId + "'; skipping.");
@@ -192,7 +209,7 @@ public class LDAPProfileSubsystem
         }
     }
 
-    public void deleteProfile(String id) throws EProfileException {
+    public synchronized void deleteProfile(String id) throws EProfileException {
         if (isProfileEnable(id)) {
             throw new EProfileException("CMS_PROFILE_DELETE_ENABLEPROFILE");
         }
@@ -215,7 +232,29 @@ public class LDAPProfileSubsystem
             }
         }
 
+        deletedNsUniqueIds.add(nsUniqueIds.get(id));
         forgetProfile(id);
+    }
+
+    private synchronized void handleDELETE(LDAPEntry entry) {
+        LDAPAttribute attr = entry.getAttribute("nsUniqueId");
+        String nsUniqueId = null;
+        if (attr != null)
+            nsUniqueId = attr.getStringValueArray()[0];
+
+       if (deletedNsUniqueIds.remove(nsUniqueId)) {
+            CMS.debug("handleDELETE: delete was already effected");
+            return;
+        }
+
+        String profileId = null;
+        String dn = entry.getDN();
+        if (!dn.startsWith("cn=")) {
+            CMS.debug("handleDELETE: DN " + dn + " does not start with 'cn='");
+            return;
+        }
+        profileId = LDAPDN.explodeDN(dn, true)[0];
+        forgetProfile(profileId);
     }
 
     private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) {
@@ -231,20 +270,61 @@ public class LDAPProfileSubsystem
     @Override
     public synchronized void commitProfile(String id) throws EProfileException {
         LDAPConfigStore cs = (LDAPConfigStore) mProfiles.get(id).getConfigStore();
-        try {
-            String[] attrs = {"entryUSN"};
-            LDAPEntry entry = cs.commitReturn(false, attrs);
 
-            LDAPAttribute attr = null;
-            if (entry != null)
-                attr = entry.getAttribute("entryUSN");
+        // first create a *new* profile object from the configStore
+        // and initialise it with the updated configStore
+        //
+        IPluginRegistry registry = (IPluginRegistry)
+            CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        String classId = mProfileClassIds.get(id);
+        IPluginInfo info = registry.getPluginInfo("profile", classId);
+        String className = info.getClassName();
+        IProfile newProfile = null;
+        try {
+            newProfile = (IProfile) Class.forName(className).newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            throw new EProfileException("Could not instantiate class '"
+                    + classId + "' for profile '" + id + "': " + e);
+        }
+        newProfile.setId(id);
+        try {
+            newProfile.init(this, cs);
+        } catch (EBaseException e) {
+            throw new EProfileException(
+                    "Failed to initialise profile '" + id + "': " + e);
+        }
+
+        // next replace the existing profile with the new profile;
+        // this is to avoid any intermediate state where the profile
+        // is not fully initialised with its inputs, outputs and
+        // policy objects.
+        //
+        mProfiles.put(id, newProfile);
+
+        // finally commit the configStore and track the resulting
+        // entryUSN and (in case of add) the nsUniqueId
+        //
+        try {
+            String[] attrs = {"entryUSN", "nsUniqueId"};
+            LDAPEntry entry = cs.commitReturn(false, attrs);
+            if (entry == null) {
+                // shouldn't happen, but let's be sure not to crash anyway
+                return;
+            }
 
             Integer entryUSN = null;
+            LDAPAttribute attr = entry.getAttribute("entryUSN");
             if (attr != null)
                 entryUSN = new Integer(attr.getStringValueArray()[0]);
-
             entryUSNs.put(id, entryUSN);
             CMS.debug("commitProfile: new entryUSN = " + entryUSN);
+
+            String nsUniqueId = null;
+            attr = entry.getAttribute("nsUniqueId");
+            if (attr != null)
+                nsUniqueId = attr.getStringValueArray()[0];
+            CMS.debug("commitProfile: nsUniqueId = " + nsUniqueId);
+            nsUniqueIds.put(id, nsUniqueId);
         } catch (ELdapException e) {
             throw new EProfileException(
                 "Failed to commit config store of profile '" + id + ": " + e);
@@ -261,17 +341,7 @@ public class LDAPProfileSubsystem
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
         entryUSNs.remove(id);
-    }
-
-    private void forgetProfile(LDAPEntry entry) {
-        String profileId = null;
-        String dn = entry.getDN();
-        if (!dn.startsWith("cn=")) {
-            CMS.debug("forgetProfile: DN " + dn + " does not start with 'cn='");
-            return;
-        }
-        profileId = LDAPDN.explodeDN(dn, true)[0];
-        forgetProfile(profileId);
+        nsUniqueIds.remove(id);
     }
 
     /**
@@ -296,6 +366,8 @@ public class LDAPProfileSubsystem
         mProfiles.clear();
         mProfileClassIds.clear();
         entryUSNs.clear();
+        nsUniqueIds.clear();
+        deletedNsUniqueIds.clear();
     }
 
     /**
@@ -328,7 +400,7 @@ public class LDAPProfileSubsystem
                 cons.setServerControls(persistCtrl);
                 cons.setBatchSize(1);
                 cons.setServerTimeLimit(0 /* seconds */);
-                String[] attrs = {"*", "entryUSN"};
+                String[] attrs = {"*", "entryUSN", "nsUniqueId"};
                 LDAPSearchResults results = conn.search(
                     dn, LDAPConnection.SCOPE_ONE, "(objectclass=*)",
                     attrs, false, cons);
@@ -347,7 +419,7 @@ public class LDAPProfileSubsystem
                             break;
                         case LDAPPersistSearchControl.DELETE:
                             CMS.debug("Profile change monitor: DELETE");
-                            forgetProfile(entry);
+                            handleDELETE(entry);
                             break;
                         case LDAPPersistSearchControl.MODIFY:
                             CMS.debug("Profile change monitor: MODIFY");
