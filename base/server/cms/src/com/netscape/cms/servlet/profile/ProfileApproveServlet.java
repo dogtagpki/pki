@@ -267,6 +267,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                     if (ps.checkOwner()) {
                         if (ps.getProfileEnableBy(profileId).equals(userid)) {
                             ps.disableProfile(profileId);
+                            ps.commitProfile(profileId);
                         } else {
                             // only enableBy can disable profile
                             args.set(ARG_ERROR_CODE, "1");
@@ -288,9 +289,11 @@ public class ProfileApproveServlet extends ProfileServlet {
                         }
                     } else {
                         ps.disableProfile(profileId);
+                        ps.commitProfile(profileId);
                     }
                 } else {
                     ps.enableProfile(profileId, userid);
+                    ps.commitProfile(profileId);
                 }
 
                 // store a message in the signed audit log file

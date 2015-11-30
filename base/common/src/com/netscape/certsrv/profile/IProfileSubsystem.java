@@ -94,6 +94,11 @@ public interface IProfileSubsystem extends ISubsystem {
             throws EProfileException;
 
     /**
+     * Commit a profile's underlying config store.
+     */
+    public void commitProfile(String id) throws EProfileException;
+
+    /**
      * Retrieves the id of the implementation of the given profile.
      *
      * @param id profile id

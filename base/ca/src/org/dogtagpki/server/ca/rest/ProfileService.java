@@ -419,6 +419,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             }
             try {
                 ps.enableProfile(profileId, principal.getName());
+                ps.commitProfile(profileId);
                 auditProfileChangeState(profileId, "approve", ILogger.SUCCESS);
             } catch (EProfileException e) {
                 CMS.debug("modifyProfileState: error enabling profile. " + e);
@@ -436,6 +437,7 @@ public class ProfileService extends PKIService implements ProfileResource {
                 if (ps.checkOwner()) {
                     if (ps.getProfileEnableBy(profileId).equals(userid)) {
                         ps.disableProfile(profileId);
+                        ps.commitProfile(profileId);
                         auditProfileChangeState(profileId, "disapprove", ILogger.SUCCESS);
                     } else {
                         auditProfileChangeState(profileId, "disapprove", ILogger.FAILURE);
@@ -444,6 +446,7 @@ public class ProfileService extends PKIService implements ProfileResource {
                     }
                 } else {
                     ps.disableProfile(profileId);
+                    ps.commitProfile(profileId);
                     auditProfileChangeState(profileId, "disapprove", ILogger.SUCCESS);
                 }
             } catch (EProfileException e) {
@@ -493,7 +496,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             profile.setName(getLocale(headers), data.getName());
             profile.setDescription(getLocale(headers), data.getDescription());
             profile.setVisible(data.isVisible());
-            profile.getConfigStore().commit(false);
+            ps.commitProfile(profileId);
 
             if (profile instanceof IProfileEx) {
                 // populates profile specific plugins such as
@@ -606,7 +609,8 @@ public class ProfileService extends PKIService implements ProfileResource {
             // no error thrown, proceed with profile creation
             profile = ps.createProfile(profileId, classId, className);
             profile.getConfigStore().load(new ByteArrayInputStream(data));
-            ps.disableProfile(profileId);  // also commits
+            ps.disableProfile(profileId);
+            ps.commitProfile(profileId);
 
             auditProfileChange(
                     ScopeDef.SC_PROFILE_RULES,
@@ -740,7 +744,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             // no error thrown, so commit updated profile config
             profile.getConfigStore().load(new ByteArrayInputStream(data));
             ps.disableProfile(profileId);
-            profile.getConfigStore().commit(false);
+            ps.commitProfile(profileId);
 
             return createOKResponse(data);
         } catch (EBaseException | IOException e) {
@@ -817,7 +821,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             populateProfileInputs(data, profile);
             populateProfileOutputs(data, profile);
             populateProfilePolicies(data, profile);
-            profile.getConfigStore().commit(false);
+            ps.commitProfile(profileId);
         } catch (EBaseException e) {
             CMS.debug("changeProfileData: Error changing profile inputs/outputs/policies: " + e);
             e.printStackTrace();

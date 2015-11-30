@@ -19,9 +19,9 @@ package com.netscape.cmscore.profile;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.TreeMap;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -58,6 +58,10 @@ public class LDAPProfileSubsystem
     private boolean stopped = false;
     private Thread monitor;
 
+    /* Map of profileId -> entryUSN for the most recent view
+     * of the profile entry that this instance has seen */
+    private TreeMap<String,Integer> entryUSNs;
+
     /**
      * Initializes this subsystem with the given configuration
      * store.
@@ -74,6 +78,7 @@ public class LDAPProfileSubsystem
         // (re)init member collections
         mProfiles = new LinkedHashMap<String, IProfile>();
         mProfileClassIds = new Hashtable<String, String>();
+        entryUSNs = new TreeMap<>();
 
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -101,7 +106,7 @@ public class LDAPProfileSubsystem
     /**
      * Read the given LDAPEntry into the profile subsystem.
      */
-    private void readProfile(LDAPEntry ldapProfile) {
+    private synchronized void readProfile(LDAPEntry ldapProfile) {
         IPluginRegistry registry = (IPluginRegistry)
             CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
@@ -113,12 +118,24 @@ public class LDAPProfileSubsystem
         }
         profileId = LDAPDN.explodeDN(dn, true)[0];
 
+        Integer newEntryUSN = new Integer(
+                ldapProfile.getAttribute("entryUSN").getStringValueArray()[0]);
+        CMS.debug("readProfile: new entryUSN = " + newEntryUSN);
+
+        Integer knownEntryUSN = entryUSNs.get(profileId);
+        if (knownEntryUSN != null) {
+            CMS.debug("readProfile: known entryUSN = " + knownEntryUSN);
+            if (newEntryUSN <= knownEntryUSN) {
+                CMS.debug("readProfile: data is current");
+                return;
+            }
+        }
+
         String classId = (String)
             ldapProfile.getAttribute("classId").getStringValues().nextElement();
 
-        Enumeration<String> vals =
-            ldapProfile.getAttribute("certProfileConfig").getStringValues();
-        InputStream data = new ByteArrayInputStream(vals.nextElement().getBytes());
+        InputStream data = new ByteArrayInputStream(
+                ldapProfile.getAttribute("certProfileConfig").getByteValueArray()[0]);
 
         IPluginInfo info = registry.getPluginInfo("profile", classId);
         if (info == null) {
@@ -127,6 +144,7 @@ public class LDAPProfileSubsystem
             try {
                 CMS.debug("Start Profile Creation - " + profileId + " " + classId + " " + info.getClassName());
                 createProfile(profileId, classId, info.getClassName(), data);
+                entryUSNs.put(profileId, newEntryUSN);
                 CMS.debug("Done Profile Creation - " + profileId);
             } catch (EProfileException e) {
                 CMS.debug("Error creating profile '" + profileId + "'; skipping.");
@@ -210,6 +228,29 @@ public class LDAPProfileSubsystem
             readProfile(entry);
     }
 
+    @Override
+    public synchronized void commitProfile(String id) throws EProfileException {
+        LDAPConfigStore cs = (LDAPConfigStore) mProfiles.get(id).getConfigStore();
+        try {
+            String[] attrs = {"entryUSN"};
+            LDAPEntry entry = cs.commitReturn(false, attrs);
+
+            LDAPAttribute attr = null;
+            if (entry != null)
+                attr = entry.getAttribute("entryUSN");
+
+            Integer entryUSN = null;
+            if (attr != null)
+                entryUSN = new Integer(attr.getStringValueArray()[0]);
+
+            entryUSNs.put(id, entryUSN);
+            CMS.debug("commitProfile: new entryUSN = " + entryUSN);
+        } catch (ELdapException e) {
+            throw new EProfileException(
+                "Failed to commit config store of profile '" + id + ": " + e);
+        }
+    }
+
     /**
      * Forget a profile without deleting it from the database.
      *
@@ -219,6 +260,7 @@ public class LDAPProfileSubsystem
     private void forgetProfile(String id) {
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
+        entryUSNs.remove(id);
     }
 
     private void forgetProfile(LDAPEntry entry) {
@@ -253,6 +295,7 @@ public class LDAPProfileSubsystem
     private void forgetAllProfiles() {
         mProfiles.clear();
         mProfileClassIds.clear();
+        entryUSNs.clear();
     }
 
     /**
@@ -285,9 +328,10 @@ public class LDAPProfileSubsystem
                 cons.setServerControls(persistCtrl);
                 cons.setBatchSize(1);
                 cons.setServerTimeLimit(0 /* seconds */);
+                String[] attrs = {"*", "entryUSN"};
                 LDAPSearchResults results = conn.search(
                     dn, LDAPConnection.SCOPE_ONE, "(objectclass=*)",
-                    null, false, cons);
+                    attrs, false, cons);
                 while (!stopped && results.hasMoreElements()) {
                     LDAPEntry entry = results.next();
                     LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)

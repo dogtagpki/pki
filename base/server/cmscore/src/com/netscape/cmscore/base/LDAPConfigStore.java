@@ -26,13 +26,17 @@ import java.util.Map;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPConstraints;
+import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.cmsutil.ldap.LDAPPostReadControl;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * LDAPConfigStore:
@@ -65,8 +69,6 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
      * @param attr Name of attribute containing config store
      * @param createAttrs Set of initial attributes if creating the entry.  Should
      *              contain cn, objectclass and possibly other attributes.
-     *
-     * @exception EBaseException failed to create file configuration
      */
     public LDAPConfigStore(
         ILdapConnFactory dbFactory,
@@ -102,7 +104,17 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
      *
      * @param createBackup Ignored.
      */
-    public void commit(boolean createBackup) throws EBaseException {
+    public void commit(boolean createBackup) throws ELdapException {
+        String[] attrs = {};
+        commitReturn(createBackup, attrs);
+    }
+
+    /**
+     * This version of commit also returns the post-read entry that
+     * the change resulted in.
+     */
+    public LDAPEntry commitReturn(boolean createBackup, String[] attrs)
+            throws ELdapException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         save(data, null);
 
@@ -110,26 +122,37 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
 
         LDAPConnection conn = dbFactory.getConn();
 
+        LDAPConstraints cons = new LDAPConstraints();
+        cons.setServerControls(new LDAPPostReadControl(true, attrs));
+
+        LDAPControl[] responseControls;
+
         // first attempt to modify; if modification fails (due
         // to no such object), try and add the entry instead.
         try {
             try {
-                commitModify(conn, configAttr);
+                commitModify(conn, configAttr, cons);
             } catch (LDAPException e) {
                 if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                    commitAdd(conn, configAttr);
+                    commitAdd(conn, configAttr, cons);
                 } else {
                     throw e;
                 }
             }
+            responseControls = conn.getResponseControls();
         } catch (LDAPException e) {
-            throw new EBaseException(
+            throw new ELdapException(
                 "Error writing LDAPConfigStore '"
                 + dn + "': " + e.toString()
             );
         } finally {
             dbFactory.returnConn(conn);
         }
+
+        LDAPPostReadControl control = (LDAPPostReadControl)
+            LDAPUtil.getControl(LDAPPostReadControl.class, responseControls);
+
+        return control.getEntry();
     }
 
     /**
@@ -139,12 +162,14 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
      * @param configAttr Config store attribute.
      * @return true on success, false if the entry does not exist.
      */
-    private void commitModify(LDAPConnection conn, LDAPAttribute configAttr)
-        throws LDAPException
-    {
+    private void commitModify(
+            LDAPConnection conn,
+            LDAPAttribute configAttr,
+            LDAPConstraints cons)
+            throws LDAPException {
         LDAPModification ldapMod =
             new LDAPModification(LDAPModification.REPLACE, configAttr);
-        conn.modify(dn, ldapMod);
+        conn.modify(dn, ldapMod, cons);
     }
 
     /**
@@ -154,12 +179,14 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
      * @param configAttr Config store attribute.
      * @return true on success, false if the entry already exists.
      */
-    private void commitAdd(LDAPConnection conn, LDAPAttribute configAttr)
-        throws LDAPException
-    {
+    private void commitAdd(
+            LDAPConnection conn,
+            LDAPAttribute configAttr,
+            LDAPConstraints cons)
+            throws LDAPException {
         LDAPAttributeSet attrSet = new LDAPAttributeSet(createAttrs);
         attrSet.add(configAttr);
         LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
-        conn.add(ldapEntry);
+        conn.add(ldapEntry, cons);
     }
 }
