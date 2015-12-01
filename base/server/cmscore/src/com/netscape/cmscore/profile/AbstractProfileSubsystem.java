@@ -22,12 +22,15 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
+import com.netscape.certsrv.registry.IPluginInfo;
+import com.netscape.certsrv.registry.IPluginRegistry;
 
 public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
     protected static final String PROP_CHECK_OWNER = "checkOwner";
@@ -120,8 +123,42 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
      */
     public void commitProfile(String id)
             throws EProfileException {
+        IConfigStore cs = mProfiles.get(id).getConfigStore();
+
+        // first create a *new* profile object from the configStore
+        // and initialise it with the updated configStore
+        //
+        IPluginRegistry registry = (IPluginRegistry)
+            CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        String classId = mProfileClassIds.get(id);
+        IPluginInfo info = registry.getPluginInfo("profile", classId);
+        String className = info.getClassName();
+        IProfile newProfile = null;
         try {
-            mProfiles.get(id).getConfigStore().commit(false);
+            newProfile = (IProfile) Class.forName(className).newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            throw new EProfileException("Could not instantiate class '"
+                    + classId + "' for profile '" + id + "': " + e);
+        }
+        newProfile.setId(id);
+        try {
+            newProfile.init(this, cs);
+        } catch (EBaseException e) {
+            throw new EProfileException(
+                    "Failed to initialise profile '" + id + "': " + e);
+        }
+
+        // next replace the existing profile with the new profile;
+        // this is to avoid any intermediate state where the profile
+        // is not fully initialised with its inputs, outputs and
+        // policy objects.
+        //
+        mProfiles.put(id, newProfile);
+
+        // finally commit the configStore
+        //
+        try {
+            cs.commit(false);
         } catch (EBaseException e) {
             throw new EProfileException(
                 "Failed to commit config store of profile '" + id + ": " + e,
