@@ -19,10 +19,12 @@ package com.netscape.cmscore.profile;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.CountDownLatch;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -68,6 +70,11 @@ public class LDAPProfileSubsystem
     /* Set of nsUniqueIds of deleted entries */
     private TreeSet<String> deletedNsUniqueIds;
 
+    /* Variables to track initial loading of profiles */
+    private Integer initialNumProfiles = null;
+    private int numProfilesLoaded = 0;
+    private CountDownLatch initialLoadDone = new CountDownLatch(1);
+
     /**
      * Initializes this subsystem with the given configuration
      * store.
@@ -109,6 +116,13 @@ public class LDAPProfileSubsystem
 
         monitor = new Thread(this, "profileChangeMonitor");
         monitor.start();
+        try {
+            initialLoadDone.await();
+        } catch (InterruptedException e) {
+            CMS.debug("LDAPProfileSubsystem: caught InterruptedException "
+                    + "while waiting for initial load of profiles.");
+        }
+        CMS.debug("LDAPProfileSubsystem: finished init");
     }
 
     /**
@@ -380,6 +394,12 @@ public class LDAPProfileSubsystem
         return "cn=" + id + "," + dn;
     }
 
+    private void checkInitialLoadDone() {
+        if (initialNumProfiles != null
+                && numProfilesLoaded >= initialNumProfiles)
+            initialLoadDone.countDown();
+    }
+
     public void run() {
         int op = LDAPPersistSearchControl.ADD
             | LDAPPersistSearchControl.MODIFY
@@ -400,12 +420,23 @@ public class LDAPProfileSubsystem
                 cons.setServerControls(persistCtrl);
                 cons.setBatchSize(1);
                 cons.setServerTimeLimit(0 /* seconds */);
-                String[] attrs = {"*", "entryUSN", "nsUniqueId"};
+                String[] attrs = {"*", "entryUSN", "nsUniqueId", "numSubordinates"};
                 LDAPSearchResults results = conn.search(
-                    dn, LDAPConnection.SCOPE_ONE, "(objectclass=*)",
+                    dn, LDAPConnection.SCOPE_SUB, "(objectclass=*)",
                     attrs, false, cons);
                 while (!stopped && results.hasMoreElements()) {
                     LDAPEntry entry = results.next();
+
+                    String[] objectClasses =
+                        entry.getAttribute("objectClass").getStringValueArray();
+                    if (Arrays.asList(objectClasses).contains("organizationalUnit")) {
+                        initialNumProfiles = new Integer(
+                            entry.getAttribute("numSubordinates")
+                                .getStringValueArray()[0]);
+                        checkInitialLoadDone();
+                        continue;
+                    }
+
                     LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)
                         LDAPUtil.getControl(
                             LDAPEntryChangeControl.class, results.getResponseControls());
@@ -436,6 +467,8 @@ public class LDAPProfileSubsystem
                     } else {
                         CMS.debug("Profile change monitor: immediate result");
                         readProfile(entry);
+                        numProfilesLoaded += 1;
+                        checkInitialLoadDone();
                     }
                 }
             } catch (ELdapException e) {
