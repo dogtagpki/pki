@@ -1377,23 +1377,23 @@ public final class CMS {
      * Verifies all system certs
      * with tags defined in <subsystemtype>.cert.list
      */
-    public static boolean verifySystemCerts() {
-        return _engine.verifySystemCerts();
+    public static void verifySystemCerts() throws Exception {
+        _engine.verifySystemCerts();
     }
 
     /**
      * Verify a system cert by tag name
      * with tags defined in <subsystemtype>.cert.list
      */
-    public static boolean verifySystemCertByTag(String tag) {
-        return _engine.verifySystemCertByTag(tag);
+    public static void verifySystemCertByTag(String tag) throws Exception {
+        _engine.verifySystemCertByTag(tag);
     }
 
     /**
      * Verify a system cert by certificate nickname
      */
-    public static boolean verifySystemCertByNickname(String nickname, String certificateUsage) {
-        return _engine.verifySystemCertByNickname(nickname, certificateUsage);
+    public static void verifySystemCertByNickname(String nickname, String certificateUsage) throws Exception {
+        _engine.verifySystemCertByNickname(nickname, certificateUsage);
     }
 
     /**

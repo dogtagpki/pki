@@ -1328,13 +1328,24 @@ public class SelfTestSubsystem
                                     loggerFullName,
                                     loggerValue));
 
-                    throw new EInvalidSelfTestException(loggerFullName,
-                            loggerValue);
+                    throw new EInvalidSelfTestException(
+                        "The self test plugin named " +
+                        loggerFullName + " contains a value " +
+                        loggerValue + " which is not an instance of ILogEventListener.");
                 }
 
                 // initialize the self tests logger
                 mLogger = (ILogEventListener) o;
                 mLogger.init(this, loggerConfig);
+
+            } catch (EMissingSelfTestException e) {
+                // already logged
+                throw e;
+
+            } catch (EInvalidSelfTestException e) {
+                // already logged
+                throw e;
+
             } catch (EBaseException e) {
                 // self test property name EBaseException
 
@@ -1351,8 +1362,8 @@ public class SelfTestSubsystem
                                 loggerFullName,
                                 loggerValue));
 
-                throw new EInvalidSelfTestException(loggerFullName,
-                        loggerValue);
+                throw e;
+
             } catch (Exception e) {
                 // NOTE:  These messages can only be logged to the
                 //        "transactions" log, since the "selftests.log"
@@ -1369,8 +1380,7 @@ public class SelfTestSubsystem
 
                 CMS.debugStackTrace();
 
-                throw new EInvalidSelfTestException(loggerFullName,
-                        loggerValue);
+                throw new EBaseException(e);
             }
         }
 
@@ -1481,6 +1491,11 @@ public class SelfTestSubsystem
                     throw new EMissingSelfTestException(instanceFullName,
                             instanceValue);
                 }
+
+            } catch (EMissingSelfTestException e) {
+                // already logged
+                throw e;
+
             } catch (EBaseException e) {
                 // self test property name EBaseException
                 log(mLogger,
@@ -1489,8 +1504,7 @@ public class SelfTestSubsystem
                                 instanceFullName,
                                 instanceValue));
 
-                throw new EInvalidSelfTestException(instanceFullName,
-                        instanceValue);
+                throw e;
             }
 
             // verify that the associated class is a valid instance of ISelfTest

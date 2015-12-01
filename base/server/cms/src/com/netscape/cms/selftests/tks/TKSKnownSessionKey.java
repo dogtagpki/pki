@@ -363,8 +363,6 @@ public class TKSKnownSessionKey
             mSelfTestSubsystem.log(logger, logMessage);
             throw e;
         }
-
-        return;
     }
 
     private void generateSessionKey(String sharedSecretName) throws Exception {

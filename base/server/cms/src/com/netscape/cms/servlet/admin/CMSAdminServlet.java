@@ -38,11 +38,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PQGParams;
@@ -79,6 +74,11 @@ import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.symkey.SessionKey;
+
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * A class representings an administration servlet. This
@@ -2191,9 +2191,12 @@ public final class CMSAdminServlet extends AdminServlet {
                 modifyRADMCert(nickname);
             }
 
-            boolean verified = CMS.verifySystemCertByNickname(nickname, null);
-            if (verified == true) {
-                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() succeeded: " + nickname);
+            boolean verified = false;
+            try {
+                CMS.debug("CMSAdminServlet: verifying system certificate " + nickname);
+                CMS.verifySystemCertByNickname(nickname, null);
+                verified = true;
+
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
                         auditSubjectID,
@@ -2201,8 +2204,9 @@ public final class CMSAdminServlet extends AdminServlet {
                                 nickname);
 
                 audit(auditMessage);
-            } else {
-                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() failed: " + nickname);
+
+            } catch (Exception e) {
+                CMS.debug(e);
                 auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
                                 auditSubjectID,
@@ -2211,6 +2215,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
             }
+
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,

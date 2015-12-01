@@ -12,14 +12,6 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CertInfo;
-
 import org.mozilla.jss.CryptoManager.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -64,6 +56,14 @@ import com.netscape.certsrv.policy.ISubjAltNameConfig;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSSLSocketFactoryExt;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.Extension;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * Default engine stub for testing.
@@ -572,19 +572,16 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     @Override
-    public boolean verifySystemCerts() {
-        return false;
+    public void verifySystemCerts() throws Exception {
     }
 
     @Override
-    public boolean verifySystemCertByTag(String tag) {
-        return false;
+    public void verifySystemCertByTag(String tag) throws Exception {
     }
 
     @Override
-    public boolean verifySystemCertByNickname(String nickname,
-            String certificateUsage) {
-        return false;
+    public void verifySystemCertByNickname(String nickname,
+            String certificateUsage) throws Exception {
     }
 
     @Override

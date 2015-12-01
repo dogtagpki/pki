@@ -24,7 +24,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -44,32 +43,15 @@ import java.util.Vector;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.extensions.CertInfo;
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.parsers.DOMParser;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.CertificateUsage;
-import org.mozilla.jss.util.PasswordCallback;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.crypto.CryptoToken;
-
+import org.mozilla.jss.util.PasswordCallback;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -184,8 +166,24 @@ import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.NuxwdogPasswordStore;
-import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSSLSocketFactoryExt;
+import netscape.security.extensions.CertInfo;
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.Extension;
+import netscape.security.x509.GeneralName;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 public class CMSEngine implements ICMSEngine {
     private static final String ID = "MAIN";
@@ -1259,7 +1257,7 @@ public class CMSEngine implements ICMSEngine {
                 return;
             }
             CMS.debug(method + "autoShutdown allowed");
-            CryptoToken token = 
+            CryptoToken token =
                 ((org.mozilla.jss.pkcs11.PK11PrivKey) mSigningKey).getOwningToken();
             SignatureAlgorithm signAlg = Cert.mapAlgorithmToJss("SHA256withRSA");
             Signature signer = token.getSignatureContext(signAlg);
@@ -1731,17 +1729,16 @@ public class CMSEngine implements ICMSEngine {
         }
     }
 
-    public boolean verifySystemCerts() {
-        return CertUtils.verifySystemCerts();
+    public void verifySystemCerts() throws Exception {
+        CertUtils.verifySystemCerts();
     }
 
-    public boolean verifySystemCertByTag(String tag) {
-        return CertUtils.verifySystemCertByTag(tag);
+    public void verifySystemCertByTag(String tag) throws Exception {
+        CertUtils.verifySystemCertByTag(tag);
     }
 
-    public boolean verifySystemCertByNickname(String nickname, String certificateUsage) {
-        CMS.debug("CMSEngine: verifySystemCertByNickname(" + nickname + ", " + certificateUsage + ")");
-        return CertUtils.verifySystemCertByNickname(nickname, certificateUsage);
+    public void verifySystemCertByNickname(String nickname, String certificateUsage) throws Exception {
+        CertUtils.verifySystemCertByNickname(nickname, certificateUsage);
     }
 
     public CertificateUsage getCertificateUsage(String certusage) {
@@ -1995,7 +1992,7 @@ public class CMSEngine implements ICMSEngine {
                 crumb.createNewFile();
             } catch (IOException e) {
                 CMS.debug(method + " create autoShutdown crumb file failed on " +
-                    mAutoSD_CrumbFile + "; nothing to do...keep shutting down:" + e.toString()); 
+                    mAutoSD_CrumbFile + "; nothing to do...keep shutting down:" + e);
                 e.printStackTrace();
             }
         }

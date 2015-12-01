@@ -189,18 +189,20 @@ public class SystemCertsVerification
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        boolean status = CMS.verifySystemCerts();
-        if (!status) {
+        try {
+            CMS.verifySystemCerts();
+
+            String logMessage = CMS.getLogMessage(
+                    "SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_SUCCESS",
+                    getSelfTestName());
+            mSelfTestSubsystem.log(logger, logMessage);
+
+        } catch (Exception e) {
             String logMessage = CMS.getLogMessage(
                     "SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_FAILURE",
                     getSelfTestName());
             mSelfTestSubsystem.log(logger, logMessage);
-            throw new Exception(logMessage);
+            throw e;
         }
-
-        String logMessage = CMS.getLogMessage(
-                "SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_SUCCESS",
-                getSelfTestName());
-        mSelfTestSubsystem.log(logger, logMessage);
     }
 }
