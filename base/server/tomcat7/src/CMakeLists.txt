@@ -124,8 +124,11 @@ javac(pki-tomcat7-classes
         com/netscape/cms/tomcat/*.java
     CLASSPATH
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_SCAN_JAR}
+            ${CMAKE_BINARY_DIR}/../../tomcat
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/../../tomcat
+    DEPENDS
+        pki-tomcat-classes
 )
 
 configure_file(

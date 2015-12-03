@@ -19,154 +19,47 @@
 package com.netscape.cms.tomcat;
 
 import java.io.IOException;
-import java.security.cert.X509Certificate;
+import java.lang.ThreadLocal;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 
-import org.apache.catalina.Container;
-import org.apache.catalina.Globals;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.authenticator.AuthenticatorBase;
-import org.apache.catalina.authenticator.BasicAuthenticator;
-import org.apache.catalina.authenticator.FormAuthenticator;
-import org.apache.catalina.authenticator.SSLAuthenticator;
+import org.apache.catalina.Authenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.deploy.LoginConfig;
 
 /**
  * @author Endi S. Dewata
  */
-public class SSLAuthenticatorWithFallback extends AuthenticatorBase {
+public class SSLAuthenticatorWithFallback extends AbstractPKIAuthenticator {
 
-    public final static String BASIC_AUTHENTICATOR = "BASIC";
-    public final static String FORM_AUTHENTICATOR = "FORM";
-
-    String fallbackMethod = BASIC_AUTHENTICATOR;
-
-    AuthenticatorBase sslAuthenticator = new SSLAuthenticator();
-    AuthenticatorBase fallbackAuthenticator = new BasicAuthenticator();
-
-    public SSLAuthenticatorWithFallback() {
-        log("Creating SSL authenticator with fallback");
-    }
+    protected static final ThreadLocal<LoginConfig> loginConfig =
+        new ThreadLocal<>();
 
     @Override
     public String getInfo() {
         return "SSL authenticator with "+fallbackMethod+" fallback.";
     }
 
-    public String getFallbackMethod() {
-        return fallbackMethod;
+    @Override
+    public boolean doSubAuthenticate(
+            Authenticator auth, Request req, HttpServletResponse resp)
+            throws IOException {
+        return auth.authenticate(req, resp, loginConfig.get());
     }
 
-    public void setFallbackMethod(String fallbackMethod) {
-        log("Fallback method: "+fallbackMethod);
-        this.fallbackMethod = fallbackMethod;
-
-        if (BASIC_AUTHENTICATOR.equalsIgnoreCase(fallbackMethod)) {
-            fallbackAuthenticator = new BasicAuthenticator();
-
-        } else if (FORM_AUTHENTICATOR.equalsIgnoreCase(fallbackMethod)) {
-            fallbackAuthenticator = new FormAuthenticator();
-        }
-
+    @Override
+    public String doGetRealmName(Request request /* ignored */) {
+        return loginConfig.get().getRealmName();
     }
 
     @Override
     public boolean authenticate(Request request, HttpServletResponse response, LoginConfig config) throws IOException {
-
-        X509Certificate certs[] = (X509Certificate[]) request.getAttribute(Globals.CERTIFICATES_ATTR);
-        boolean result;
-
-        if (certs != null && certs.length > 0) {
-            log("Authenticate with client certificate authentication");
-            HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
-                public void setHeader(String name, String value) {
-                    log("SSL auth header: "+name+"="+value);
-                };
-                public void sendError(int code) {
-                    log("SSL auth return code: "+code);
-                }
-            };
-            result = sslAuthenticator.authenticate(request, wrapper, config);
-
-        } else {
-            log("Authenticating with "+fallbackMethod+" authentication");
-            HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
-                public void setHeader(String name, String value) {
-                    log("Fallback auth header: "+name+"="+value);
-                };
-                public void sendError(int code) {
-                    log("Fallback auth return code: "+code);
-                }
-            };
-            result = fallbackAuthenticator.authenticate(request, wrapper, config);
+        loginConfig.set(config);
+        try {
+            return doAuthenticate(request, response);
+        } finally {
+            loginConfig.remove();
         }
-
-        if (result)
-            return true;
-
-        log("Result: "+result);
-
-        StringBuilder value = new StringBuilder(16);
-        value.append("Basic realm=\"");
-        if (config.getRealmName() == null) {
-            value.append(REALM_NAME);
-        } else {
-            value.append(config.getRealmName());
-        }
-        value.append('\"');
-        response.setHeader(AUTH_HEADER_NAME, value.toString());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-
-        return false;
     }
 
-    @Override
-    protected String getAuthMethod() {
-        return HttpServletRequest.CLIENT_CERT_AUTH;
-    };
-
-    @Override
-    public void setContainer(Container container) {
-        log("Setting container");
-        super.setContainer(container);
-        sslAuthenticator.setContainer(container);
-        fallbackAuthenticator.setContainer(container);
-    }
-
-    @Override
-    protected void initInternal() throws LifecycleException {
-        log("Initializing authenticators");
-
-        super.initInternal();
-
-        sslAuthenticator.setAlwaysUseSession(alwaysUseSession);
-        sslAuthenticator.init();
-
-        fallbackAuthenticator.setAlwaysUseSession(alwaysUseSession);
-        fallbackAuthenticator.init();
-    }
-
-    @Override
-    public void startInternal() throws LifecycleException {
-        log("Starting authenticators");
-        super.startInternal();
-        sslAuthenticator.start();
-        fallbackAuthenticator.start();
-    }
-
-    @Override
-    public void stopInternal() throws LifecycleException {
-        log("Stopping authenticators");
-        super.stopInternal();
-        sslAuthenticator.stop();
-        fallbackAuthenticator.stop();
-    }
-
-    public void log(String message) {
-        System.out.println("SSLAuthenticatorWithFallback: "+message);
-    }
 }
