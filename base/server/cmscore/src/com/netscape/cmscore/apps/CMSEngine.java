@@ -1203,14 +1203,20 @@ public class CMSEngine implements ICMSEngine {
              */
             mSAuditCertNickName = mConfig.getString(PROP_SIGNED_AUDIT_CERT_NICKNAME);
             mManager = CryptoManager.getInstance();
-            org.mozilla.jss.crypto.X509Certificate cert = mManager.findCertByNickname(mSAuditCertNickName);
+            CMS.debug("CMSEngine: about to look for cert for auto-shutdown support:" + mSAuditCertNickName);
+            org.mozilla.jss.crypto.X509Certificate cert = null;
+            try {
+                cert = mManager.findCertByNickname(mSAuditCertNickName);
+            } catch (Exception as) {
+                // can't support auto-shutdown at this point
+                CMS.debug("CMSEngine: cert not found:" + mSAuditCertNickName);
+                CMS.debug("CMSEngine: Exception:" + as.toString());
+            }
             if (cert != null) {
                 CMS.debug("CMSEngine: found cert:" + mSAuditCertNickName);
-            } else {
-                CMS.debug("CMSEngine: cert not found:" + mSAuditCertNickName);
+                mSigningKey = mManager.findPrivKeyByCert(cert);
+                mSigningData = cert.getPublicKey().getEncoded();
             }
-            mSigningKey = mManager.findPrivKeyByCert(cert);
-            mSigningData = cert.getPublicKey().getEncoded();
 
         } catch (Exception e) {
             CMS.debug("CMSEngine: " + e.toString());

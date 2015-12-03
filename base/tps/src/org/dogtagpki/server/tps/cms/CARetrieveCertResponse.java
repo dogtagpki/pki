@@ -18,6 +18,7 @@
 
 package org.dogtagpki.server.tps.cms;
 
+import com.netscape.certsrv.apps.CMS;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.util.Hashtable;
@@ -66,7 +67,11 @@ public class CARetrieveCertResponse extends RemoteResponse
         try {
             cert.checkValidity();
             return true;
-        } catch (CertificateExpiredException | CertificateNotYetValidException e) {
+        } catch (CertificateExpiredException e) {
+            CMS.debug("CARetrieveCertResponse.isCertValid: exception thrown: " + e.toString());
+            return false;
+        } catch (CertificateNotYetValidException e) {
+            CMS.debug("CARetrieveCertResponse.isCertValid: exception thrown: " + e.toString());
             return false;
         }
     }

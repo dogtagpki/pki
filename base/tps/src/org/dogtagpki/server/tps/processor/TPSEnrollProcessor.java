@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -11,11 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.zip.DataFormatException;
-
-import netscape.security.provider.RSAPublicKey;
-//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.x509.X509CertImpl;
 
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
@@ -36,6 +32,7 @@ import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.engine.TPSEngine.ENROLL_MODES;
+import org.dogtagpki.server.tps.main.AttributeSpec;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover.CertStatus;
@@ -61,6 +58,12 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.provider.RSAPublicKey;
+//import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import netscape.security.util.BigInt;
+import netscape.security.x509.X509CertImpl;
+import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -400,10 +403,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
         certsInfo.setStartProgress(15);
         certsInfo.setEndProgress(90);
 
-        // TODO:
-        // remove the not-to-be-retained cert objects from the pkcs11obj
-        // cleanObjectListBeforeExternalRecovery(certsInfo);
-
         boolean renewed = false;
         boolean recovered = false;
 
@@ -420,13 +419,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
         else if (status == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED) {
             statusString = "Recovery processed";
             recovered = true;
-            //TODO:
-            //tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), auditMsg, "success");
+            tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), auditMsg, "success");
         } else if (status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED) {
             statusString = "Renewal processed";
             renewed = true;
-            //TODO:
-            //tps.tdb.tdbActivity(ActivityDatabase.OP_RENEWAL, tokenRecord, session.getIpAddress(), auditMsg, "success");
+            tps.tdb.tdbActivity(ActivityDatabase.OP_RENEWAL, tokenRecord, session.getIpAddress(), auditMsg, "success");
         } else {
             auditMsg = " generateCertsAfterRenewalRecoveryPolicy returned status=" + status;
             CMS.debug(method + auditMsg);
@@ -469,10 +466,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         CMS.debug(method + " after externalRegRecover status is:" + recoverStatus);
                         if (recoverStatus == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED) {
                             recovered = true;
-                            //TODO:
-                            //tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), auditMsg, "success");
+                            auditMsg = method + " externalRegRecover returned: recoverStatus=" + recoverStatus;
+                            tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), auditMsg, "success");
                         } else {
-                            auditMsg = method + " externalRegRecover: recoverStatus=" + recoverStatus;
+                            auditMsg = method + " externalRegRecover returned: recoverStatus=" + recoverStatus;
                             CMS.debug(auditMsg);
                             tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(),
                                     auditMsg,
@@ -538,6 +535,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         statusUpdate(92, "PROGRESS_WRITE_OBJECTS");
 
+        // Purge the object list of certs that have not been explicilty saved from deletion
+        if (isExternalReg) {
+            status = cleanObjectListBeforeExternalRecovery(certsInfo);
+            if (status != TPSStatus.STATUS_NO_ERROR) {
+                throw new TPSException("cleanObjectListBeforeExternalRecovery returns error: " + status);
+            }
+        }
+
         writeFinalPKCS11ObjectToToken(pkcs11objx, appletInfo, channel);
         statusUpdate(98, "PROGRESS_ISSUER_INFO");
         writeIssuerInfoToToken(channel,appletInfo);
@@ -581,6 +586,253 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         statusUpdate(100, "PROGRESS_DONE_ENROLLMENT");
     }
+
+
+    /*
+     * cleanObjectListBeforeExternalRecovery
+     *  - in the ExternalReg case, certs not to be retained are cleaned off the pkcs11obj before further processing
+     *  - certs to be retained are represented in the certsToAdd attribute as <serialNum, caConn>  without the keyId and kraConn
+     */
+    private TPSStatus cleanObjectListBeforeExternalRecovery(EnrolledCertsInfo certsInfo) {
+        TPSStatus status = TPSStatus.STATUS_NO_ERROR;
+        final String method = "TPSEnrollProcessor.cleanObjectListBeforeExternalRecovery :";
+        final int MAX_CERTS = 30;
+        IConfigStore configStore = CMS.getConfigStore();
+
+        /*
+         * Arrays that hold simple indexes of certsToDelete and certsToSave.
+         * certsToDelete is a list of certs NOT in the recovery list.
+         * certsToSave is a list of certs to spare from deletion because they
+         * were enrolled by the regular token profile.
+         */
+        int certsToDelete[] = new int[MAX_CERTS];
+        int certsToSave[] = new int[MAX_CERTS];
+        int numCertsToDelete = 0;
+        int numCertsToSave = 0;
+
+        CMS.debug(method + ": begins");
+        if (certsInfo == null) {
+            CMS.debug(method + "certsInfo cannot be null");
+            return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+        }
+        PKCS11Obj pkcs11obj = certsInfo.getPKCS11Obj();
+        if (pkcs11obj == null) {
+            CMS.debug(method + "no pkcs11obj to work with");
+            return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+        }
+        ExternalRegAttrs erAttrs = session.getExternalRegAttrs();
+        if (session == null || erAttrs == null ||
+                erAttrs.getCertsToRecover() == null) {
+            CMS.debug(method + "no externalReg attrs to work with");
+            return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+        }
+
+        int count = erAttrs.getCertsToRecoverCount();
+        CMS.debug(method + "number of certs to recover=" + count);
+        if (count == 0) {
+            CMS.debug(method + " nothing to process. Returning status: "
+                + status);
+            return status;
+        }
+        String tokenType = erAttrs.getTokenType();
+        if (tokenType == null) {
+            CMS.debug(method + " erAttrs tokenType null. Returning status: "
+                    + status);
+            return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+        }
+
+        /*
+         * Now let's try to save the just freshly enrolled certificates
+         * based on regular profile from deletion.
+         */
+        String configName = "op.enroll." +
+                tokenType + "." +
+                "keyGen.keyType.num";
+        int keyTypeNum = 0;
+        try {
+            CMS.debug(method + " getting config : " + configName);
+            Integer keyTypeNumI = configStore.getInteger(configName);
+            keyTypeNum = keyTypeNumI.intValue();
+        } catch (Exception e) {
+            //return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+            // some externalReg profiles are for "recovering only"
+            keyTypeNum = 0;
+        }
+        CMS.debug(method + " config keyTypeNum: " + keyTypeNum);
+
+        int index = -1;
+        for (int i=0; i < keyTypeNum; i++) {
+            configName = "op.enroll." +
+                tokenType + "." +
+                "keyGen.keyType.value." + i;
+            String keyTypeValue;
+            try {
+                CMS.debug(method + " getting config : " + configName);
+                keyTypeValue = configStore.getString(configName);
+            } catch (EPropertyNotFound e) {
+                e.printStackTrace();
+                return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+            } catch (EBaseException e) {
+                e.printStackTrace();
+                return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+            }
+            CMS.debug(method + " config keyTypeValue: " + keyTypeValue);
+            String keyTypePrefix = "op.enroll." +
+                tokenType + ".keyGen." + keyTypeValue;
+            CMS.debug(method + " keyTypePrefix is: " + keyTypePrefix);
+
+            configName = keyTypePrefix + ".certId";
+            String certId;
+            try {
+                CMS.debug(method + " getting config : " + configName);
+                certId = configStore.getString(configName);
+            } catch (EPropertyNotFound e) {
+                e.printStackTrace();
+                return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+            } catch (EBaseException e) {
+                e.printStackTrace();
+                return TPSStatus.STATUS_ERROR_MISCONFIGURATION;
+            }
+            CMS.debug(method + " certId is: " + certId);
+            if (certId != null && certId.length() >1) {
+                index = Character.getNumericValue(certId.charAt(1));
+            }
+
+            if (index >=0 && numCertsToSave < MAX_CERTS) {
+                /* Set an entry in the list in order to save from subsequent deletion. */
+                CMS.debug(method + " saving object index to certsToSave: " + index);
+                certsToSave[numCertsToSave++] = index;
+            }
+        }
+
+        int num_objs = pkcs11obj.getObjectSpecCount();
+        CMS.debug(method + " pkcs11obj num_objs =" + num_objs);
+        char[] bytesA = new char[3];
+
+        /*
+         * Go through the object spec list and remove stuff we have marked
+         * for deletion. Remove Cert and all associated objects of that cert.
+         */
+        for (int i = 0; i< num_objs; i++) {
+            ObjectSpec os = pkcs11obj.getObjectSpec(i);
+            long oid = os.getObjectID();
+            bytesA[0] = (char)((oid >> 24) & 0xff);
+            bytesA[1] = (char)((oid >> 16) & 0xff);
+            bytesA[2] = '\0';
+
+            if ( bytesA[0] == 'C' )   {    /* Is this a cert object ? */
+                for (int j = 0 ; j <  os.getAttributeSpecCount() ; j++ ) {
+                    AttributeSpec as = os.getAttributeSpec(j);
+                    if (as.getAttributeID() == PKCS11Constants.CKA_VALUE) {
+                        if (as.getType() == (byte) 0) {
+                            TPSBuffer certBuff = as.getValue();
+                            X509CertImpl xCert = null;
+                            try {
+                                xCert = new X509CertImpl(certBuff.toBytesArray());
+                            } catch (CertificateException e) {
+                                CMS.debug(method + e);
+                                e.printStackTrace();
+                                return TPSStatus.STATUS_ERROR_CONTACT_ADMIN;
+                            }
+                            boolean present = isInCertsToRecoverList(xCert);
+                            int certId = Character.getNumericValue(bytesA[1]);
+                            if ( present == false) {
+                                CMS.debug(method + " cert not found in recovery list, possible deletion... id:" + certId);
+                                /*
+                                 * Now check the certsToSave list to see if this cert is protected
+                                 */
+                                boolean protect = false;
+                                for(int p = 0 ; p < numCertsToSave; p++) {
+                                    if( certsToSave[p] == certId)  {
+                                        protect = true;
+                                        break;
+                                    }
+                                }
+                                CMS.debug(method + " protect cert " + certId +
+                                    ": " + protect);
+                                /*
+                                 * Delete this cert if it is NOT protected by
+                                 * the certs generated by the profile enrollment.
+                                 */
+                                if((numCertsToDelete < MAX_CERTS) &&
+                                    (protect == false )) {
+                                    certsToDelete[numCertsToDelete++] = certId;
+                                }
+                            } else {
+                                CMS.debug(method + " cert found in recovery list, to be retained. id:" + certId);
+                                // add retained cert so tokendb will reflect
+                                certsInfo.addCertificate(xCert);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        /*
+         * Now rifle through the certsToDeleteList and remove those that
+         *  need to be deleted
+         */
+        for(int k = 0 ; k <  numCertsToDelete ; k ++ ) {
+            CMS.debug(method + "cert to delete: " + certsToDelete[k]);
+            removeCertFromObjectList(certsToDelete[k], pkcs11obj);
+        }
+
+        CMS.debug(method + " ends. Returning status: "
+                + status);
+        return status;
+    }
+
+    /*
+     * Remove a certificate from the Object Spec List based on Cert index ,
+     *     C(1), C(2), etc
+     */
+    void removeCertFromObjectList(int cIndex, PKCS11Obj pkcs11obj) {
+        String method = "TPSEnrollProcessor.removeCertFromObjectList: ";
+        if ( pkcs11obj == null ) {
+            CMS.debug(method + " pkcs11obj null");
+            return;
+        }
+
+        CMS.debug(method + " index of cert to delete is: " + cIndex);
+
+        int C = cIndex;
+        int c = cIndex;
+        int k1 = 2 * cIndex;
+        int k2 = 2 * cIndex + 1;
+
+        // loop through all objects on token
+        int index = 0;
+        for (int i = 0; i <  pkcs11obj.getObjectSpecCount(); i++) {
+            ObjectSpec spec = pkcs11obj.getObjectSpec(i);
+            long objectID = spec.getObjectID();
+            char c1 = (char) ((objectID >> 24) & 0xff);
+            char cont_id = (char) ((objectID >> 16) & 0xff);
+
+            /* locate all certificate objects */
+            index = Character.getNumericValue(cont_id);
+            if (c1 == 'c' || c1 == 'C') {
+                if (index == C || index == c ) {
+                    CMS.debug(method + " found index:"+ index +
+                       "; Removing cert Object");
+                    pkcs11obj.removeObjectSpec(i);
+                    i--;
+                }
+            }
+
+            if (c1 == 'k') {
+                if (index == k1 || index == k2) {
+                    CMS.debug(method + " found index:"+ index +
+                       "; Removing key Object");
+                    pkcs11obj.removeObjectSpec(i);
+                    i--;
+                }
+            }
+        }
+
+    }
+
 
     private void writeFinalPKCS11ObjectToToken(PKCS11Obj pkcs11objx, AppletInfo ainfo, SecureChannel channel)
             throws TPSException, IOException {
@@ -712,10 +964,42 @@ public class TPSEnrollProcessor extends TPSProcessor {
         return pkcs11objx;
     }
 
+    /*
+     *  Does given cert exist in the ExternalRegAttrs CertsToRecoverList
+     *  We need to know if this cert is to be retained for an ExternalReg Recovery operation.
+     *  If cert is in the list, it will be retained and not erased, otherwise it will go away.
+     */
+    private boolean isInCertsToRecoverList(X509CertImpl xCert) {
+        final String method = "TPSEnrollProcessor.isInCertsToRecoverList :";
+        boolean foundObj = false;
+        if (xCert == null) {
+            CMS.debug(method + "xCert is null. return false");
+            return foundObj;
+        }
+        ExternalRegAttrs erAttrs = session.getExternalRegAttrs();
+        ArrayList<ExternalRegCertToRecover> erCertsToRecover =
+                erAttrs.getCertsToRecover();
+        CMS.debug(method + " begins checking for cert, serial:" + xCert.getSerialNumber());
 
-    private boolean isInCertsToRetainList(X509CertImpl xCert, ArrayList<ExternalRegCertToRecover> toBeRetained) {
-        // TODO Auto-generated method stub
-        return false;
+        int count = erAttrs.getCertsToRecoverCount();
+        if (count <= 0) {
+            CMS.debug(method + "ends. recover list empty. returning: " + foundObj);
+            return foundObj;
+        }
+
+        for (ExternalRegCertToRecover certToRecover : erCertsToRecover) {
+            if (certToRecover == null) {
+                continue;
+            }
+            // TODO: could enhance the comparison to include more than serials
+            if (xCert.getSerialNumber().compareTo(certToRecover.getSerial()) == 0) {
+                foundObj = true;
+                break;
+            }
+        }
+
+        CMS.debug(method + " ends. returning: " + foundObj);
+        return foundObj;
     }
 
     /*
@@ -958,6 +1242,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
             auditMsg = "ExternalReg cert record: serial=" +
                     serial.toString();
+            CMS.debug(method + auditMsg);
 
             // recover cert
             CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConn);
@@ -971,7 +1256,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             String retCertB64 = certResp.getCertB64();
             byte[] cert_bytes;
             if (retCertB64 != null) {
-                CMS.debug(method + "recovered:  retCertB64: " + retCertB64);
+                //CMS.debug(method + "recovered:  retCertB64: " + retCertB64);
+                CMS.debug(method + "recovered retCertB64");
                 cert_bytes = Utils.base64decode(retCertB64);
 
                 TPSBuffer cert_bytes_buf = new TPSBuffer(cert_bytes);
@@ -997,14 +1283,25 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 erCert.setCertStatus(CertStatus.ACTIVE);
 
                 // check if expired or not yet valid
-                if (certResp.isCertValid()) {
+                if (!certResp.isCertValid()) {
                     auditMsg = "cert expired or not yet valid";
                     CMS.debug(auditMsg);
                     erCert.setCertStatus(CertStatus.EXPIRED); // it could be not yet valid
                 }
             }
 
+            if (keyid == null) {
+                auditMsg = " no keyid; skip key recovery; continue";
+                CMS.debug(method + auditMsg);
+                continue;
+            } else if ( keyid.compareTo(BigInteger.valueOf(0))==0) {
+                auditMsg = " keyid is 0; invalid; skip key recovery; continue";
+                CMS.debug(method + auditMsg);
+                continue;
+            }
             // recover keys
+            auditMsg = " recovering for keyid: " + keyid.toString();
+            CMS.debug(method + auditMsg);
             KRARecoverKeyResponse keyResp = null;
             if (kraConn != null) {
                 auditMsg = "kraConn not null:" + kraConn;
@@ -1019,20 +1316,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     CMS.debug(method + auditMsg);
                 }
 
-                // if keyid > 0, recovder by keyid
-                if (keyid != null && keyid.compareTo(BigInteger.valueOf(0))==1) {
-                    auditMsg = "recovering by keyid: "+ keyid.toString();
-                    CMS.debug(method + auditMsg);
-
-                    keyResp = kraRH.recoverKey(cuid, userid, Util.specialURLEncode(channel.getDRMWrappedDesKey()),
+                keyResp = kraRH.recoverKey(cuid, userid, Util.specialURLEncode(channel.getDRMWrappedDesKey()),
                             null, keyid);
-                } else {// otherwise, recover by cert
-                    auditMsg = "recovering by cert";
-                    CMS.debug(method + auditMsg);
-
-                    keyResp = kraRH.recoverKey(cuid, userid, Util.specialURLEncode(channel.getDRMWrappedDesKey()),
-                            Util.uriEncode(retCertB64));
-                }
                 if (keyResp == null) {
                     auditMsg = "recovering key not found";
                     CMS.debug(method + auditMsg);
@@ -1040,18 +1325,19 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 }
             }
 
-
-
             CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
-
             cEnrollInfo.setTokenToBeRecovered(tokenRecord);
             cEnrollInfo.setRecoveredCertData(certResp);
+
             cEnrollInfo.setRecoveredKeyData(keyResp);
 
+            CMS.debug(method + "before calling generateCertificate, certsInfo.getCurrentCertIndex() =" + certsInfo.getCurrentCertIndex());
+            PKCS11Obj pkcs11obj = certsInfo.getPKCS11Obj();
+            int newCertId = pkcs11obj.getNextFreeCertIdNumber();
             generateCertificate(certsInfo, channel, appletInfo,
                     "encryption",
                     TPSEngine.ENROLL_MODES.MODE_RECOVERY,
-                    certsInfo.getCurrentCertIndex() + 1, cEnrollInfo);
+                    newCertId, cEnrollInfo);
 
             CMS.debug(method + "after generateCertificate() with MODE_RECOVERY");
         }
@@ -1948,20 +2234,29 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 publicKeyStr = keyResp.getPublicKey();
                 public_key_blob = new TPSBuffer(Utils.base64decode(publicKeyStr));
-
             }
 
             try {
                 parsedPK11PubKey = PK11RSAPublicKey.fromSPKI(public_key_blob.toBytesArray());
+                parsedPubKey_ba = parsedPK11PubKey.getEncoded();
 
+                if (isRecovery == true) {
+                    // reset to accurate keysize
+                    RSAPublicKey rsaKey = new RSAPublicKey(parsedPubKey_ba);
+                    cEnrollInfo.setKeySize(rsaKey.getKeySize());
+                    CMS.debug("TPSEnrollProcessor.enrollOneCertificate: recovery reset keysize to:" + rsaKey.getKeySize());
+                }
             } catch (InvalidKeyFormatException e) {
-                CMS.debug("TPSEnrollProcessor.enrollOneCertificate, can't create public key object from server side key generated public key blob!");
-                throw new TPSException(
-                        "TPSEnrollProcessor.enrollOneCertificate, can't create public key object from server side key generated public key blob!",
+                String msg = "TPSEnrollProcessor.enrollOneCertificate, can't create public key object from server side key generated public key blob! " + e.toString();
+                CMS.debug(msg);
+                throw new TPSException( msg,
+                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+            } catch (InvalidKeyException e) {
+                String msg = "TPSEnrollProcessor.enrollOneCertificate, can't create public key object from server side key generated public key blob! " + e.toString();
+                CMS.debug(msg);
+                throw new TPSException( msg,
                         TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
             }
-
-            parsedPubKey_ba = parsedPK11PubKey.getEncoded();
 
         } else if (isRenewal) {
 

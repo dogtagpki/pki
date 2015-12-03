@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import netscape.security.x509.RevocationReason;
-
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -92,6 +90,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.symkey.SessionKey;
+
+import netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 
@@ -1669,20 +1669,20 @@ public class TPSProcessor {
                         new ExternalRegCertToRecover();
                 int i = 0;
                 for (i = 0; i < items.length; i++) {
-                    if (i == 0)
+                    if (i == 0) {
+                        CMS.debug(method + "setting serial: " + items[i]);
                         erCert.setSerial(new BigInteger(items[i]));
-                    else if (i == 1)
+                    } else if (i == 1)
                         erCert.setCaConn(items[i]);
-                    else if (i == 2)
+                    else if (i == 2) {
+                        CMS.debug(method + "setting keyid: " + items[i]);
                         erCert.setKeyid(new BigInteger(items[i]));
-                    else if (i == 3)
+                    } else if (i == 3)
                         erCert.setKraConn(items[i]);
                 }
-                /* TODO: for phase 3, retenable certs/keys
                 if (i<3) {
                     erCert.setIsRetainable(true);
                 }
-                */
                 erAttrs.addCertToRecover(erCert);
             }
         } else {
@@ -1877,6 +1877,21 @@ public class TPSProcessor {
                     throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
                 }
                 session.setExternalRegAttrs(erAttrs);
+                /* test
+                ArrayList<ExternalRegCertToRecover> erCertsToRecover =
+                session.getExternalRegAttrs().getCertsToRecover();
+
+                for (ExternalRegCertToRecover erCert : erCertsToRecover) {
+                    BigInteger serial = erCert.getSerial();
+                    CMS.debug("In TPSProcessor.format: " + "serial: " + serial.toString());
+                    BigInteger keyid = erCert.getKeyid();
+                    if (keyid != null)
+                        CMS.debug("In TPSProcessor.format: " + "keyid: " + keyid.toString());
+                    else
+                        CMS.debug("In TPSProcessor.format: " + "no keyid");
+                }
+                test ends */
+
                 setSelectedTokenType(erAttrs.getTokenType());
             }
             CMS.debug("In TPSProcessor.format: isExternalReg: about to process keySet resolver");
@@ -2057,9 +2072,6 @@ public class TPSProcessor {
         tokenRecord.setStatus("uninitialized");
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
-            String successMsg = "update token success";
-            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), successMsg,
-                    "success");
         } catch (Exception e) {
             String failMsg = "update token failure";
             auditMsg = failMsg + ":" + e.toString();
