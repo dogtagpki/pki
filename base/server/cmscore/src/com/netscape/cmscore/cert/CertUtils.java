@@ -834,18 +834,18 @@ public class CertUtils {
         if (certusage == null || certusage.equals(""))
             CMS.debug("CertUtils: verifySystemCertByNickname(): required certusage not defined, getting current certusage");
 
-        CMS.debug("CertUtils: verifySystemCertByNickname(): calling isCertValid()");
         try {
             CryptoManager cm = CryptoManager.getInstance();
             if (cu.getUsage() != CryptoManager.CertificateUsage.CheckAllUsages.getUsage()) {
-                if (cm.isCertValid(nickname, true, cu)) {
-                    CMS.debug("CertUtils: verifySystemCertByNickname() passed: " + nickname);
-                } else {
-                    CMS.debug("CertUtils: verifySystemCertByNickname() failed: " + nickname);
-                    throw new Exception("Invalid certificate " + nickname);
+                CMS.debug("CertUtils: verifySystemCertByNickname(): calling verifyCertificate(" + nickname + ", true, " + cu + ")");
+                try {
+                    cm.verifyCertificate(nickname, true, cu);
+                } catch (CertificateException e) {
+                    throw new Exception("Certificate " + nickname + " is invalid: " + e.getMessage(), e);
                 }
 
             } else {
+                CMS.debug("CertUtils: verifySystemCertByNickname(): calling isCertValid(" + nickname + ", true)");
                 // find out about current cert usage
                 ccu = cm.isCertValid(nickname, true);
                 if (ccu == CertificateUsage.basicCertificateUsages) {
