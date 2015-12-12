@@ -93,9 +93,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         token = deployer.mdict['pki_token_name']
         nssdb = instance.open_nssdb(token)
 
-        external = config.str2bool(deployer.mdict['pki_external'])
-        step_one = not config.str2bool(deployer.mdict['pki_external_step_two'])
-        step_two = not step_one
+        external = deployer.configuration_file.external
+        step_one = deployer.configuration_file.external_step_one
+        step_two = deployer.configuration_file.external_step_two
 
         try:
             if external and step_one: # external/existing CA step 1
@@ -140,6 +140,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         signing_csr = f.read()
                     signing_csr = pki.nss.convert_csr(signing_csr, 'pem', 'base64')
                     subsystem.config['ca.signing.certreq'] = signing_csr
+
+                # This is needed by IPA to detect step 1 completion.
+                # See is_step_one_done() in ipaserver/install/cainstance.py.
+                subsystem.config['preop.ca.type'] = 'otherca'
 
                 subsystem.save()
 

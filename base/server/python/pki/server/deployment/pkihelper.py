@@ -488,15 +488,18 @@ class ConfigurationFile:
         # generic extension support in CSR - for external CA
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
+
         self.external = config.str2bool(self.mdict['pki_external'])
+        self.external_step_one = not config.str2bool(self.mdict['pki_external_step_two'])
+        self.external_step_two = not self.external_step_one
+
         if self.external:
             # generic extension support in CSR - for external CA
             if self.add_req_ext:
                 self.req_ext_oid = self.mdict['pki_req_ext_oid']
                 self.req_ext_critical = self.mdict['pki_req_ext_critical']
                 self.req_ext_data = self.mdict['pki_req_ext_data']
-        self.external_step_two = config.str2bool(
-            self.mdict['pki_external_step_two'])
+
         self.skip_configuration = config.str2bool(
             self.mdict['pki_skip_configuration'])
         self.standalone = config.str2bool(self.mdict['pki_standalone'])
