@@ -43,9 +43,13 @@ def convert_data(data, input_format, output_format, header=None, footer=None):
 
     if input_format == 'base64' and output_format == 'pem':
 
-        # split a single line into multiple lines
-        data = data.rstrip('\r\n')
+        # join base-64 data into a single line
+        data = data.replace('\r', '').replace('\n', '')
+
+        # re-split the line into fixed-length lines
         lines = [data[i:i+64] for i in range(0, len(data), 64)]
+
+        # add header and footer
         return '%s\n%s\n%s\n' % (header, '\n'.join(lines), footer)
 
     if input_format == 'pem' and output_format == 'base64':
