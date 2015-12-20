@@ -20,13 +20,9 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -38,6 +34,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+import netscape.security.x509.BasicConstraintsExtension;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.PKIXExtensions;
+import netscape.security.x509.X509CertInfo;
+
 /**
  * This class implements a CA signing cert enrollment default policy
  * that populates a server-side configurable validity
@@ -46,6 +47,7 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class CAValidityDefault extends EnrollDefault {
     public static final String CONFIG_RANGE = "range";
+    public static final String CONFIG_RANGE_UNIT = "rangeUnit";
     public static final String CONFIG_START_TIME = "startTime";
     public static final String CONFIG_BYPASS_CA_NOTAFTER = "bypassCAnotafter";
 
@@ -61,6 +63,7 @@ public class CAValidityDefault extends EnrollDefault {
     public CAValidityDefault() {
         super();
         addConfigName(CONFIG_RANGE);
+        addConfigName(CONFIG_RANGE_UNIT);
         addConfigName(CONFIG_START_TIME);
         addConfigName(CONFIG_BYPASS_CA_NOTAFTER);
 
@@ -103,6 +106,12 @@ public class CAValidityDefault extends EnrollDefault {
                     "7305", /* 20 years */
                     CMS.getUserMessage(locale,
                             "CMS_PROFILE_VALIDITY_RANGE"));
+        } else if (name.equals(CONFIG_RANGE_UNIT)) {
+            return new Descriptor(IDescriptor.STRING,
+                    null,
+                    "day",
+                    CMS.getUserMessage(locale,
+                            "CMS_PROFILE_VALIDITY_RANGE_UNIT"));
         } else if (name.equals(CONFIG_START_TIME)) {
             return new Descriptor(IDescriptor.STRING,
                     null,
@@ -299,6 +308,28 @@ public class CAValidityDefault extends EnrollDefault {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_VALIDITY", params);
     }
 
+    public int convertRangeUnit(String unit) throws Exception {
+
+        if (unit.equals("year")) {
+            return Calendar.YEAR;
+
+        } else if (unit.equals("month")) {
+            return Calendar.MONTH;
+
+        } else if (unit.equals("day")) {
+            return Calendar.DAY_OF_YEAR;
+
+        } else if (unit.equals("hour")) {
+            return Calendar.HOUR_OF_DAY;
+
+        } else if (unit.equals("minute")) {
+            return Calendar.MINUTE;
+
+        } else {
+            throw new Exception("Invalid range unit: " + unit);
+        }
+    }
+
     /**
      * Populates the request with this policy default.
      */
@@ -307,6 +338,7 @@ public class CAValidityDefault extends EnrollDefault {
 
         // always + 60 seconds
         String startTimeStr = getConfig(CONFIG_START_TIME);
+        CMS.debug("CAValidityDefault: start time: " + startTimeStr);
         try {
             startTimeStr = mapPattern(request, startTimeStr);
         } catch (IOException e) {
@@ -317,21 +349,42 @@ public class CAValidityDefault extends EnrollDefault {
             startTimeStr = "60";
         }
         int startTime = Integer.parseInt(startTimeStr);
-        Date notBefore = new Date(CMS.getCurrentDate().getTime() + (1000 * startTime));
-        long notAfterVal = 0;
 
+        Date notBefore = new Date(CMS.getCurrentDate().getTime() + (1000 * startTime));
+        CMS.debug("CAValidityDefault: not before: " + notBefore);
+
+        String rangeStr = getConfig(CONFIG_RANGE, "7305");
+        CMS.debug("CAValidityDefault: range: " + rangeStr);
+
+        int range;
         try {
-            String rangeStr = getConfig(CONFIG_RANGE);
             rangeStr = mapPattern(request, rangeStr);
-            notAfterVal = notBefore.getTime() +
-                    (mDefault * Integer.parseInt(rangeStr));
-        } catch (Exception e) {
-            // configured value is not correct
-            CMS.debug("CAValidityDefault: populate " + e.toString());
+            range = Integer.parseInt(rangeStr);
+        } catch (IOException e) {
+            CMS.debug(e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE));
         }
-        Date notAfter = new Date(notAfterVal);
+
+        String rangeUnitStr = getConfig(CONFIG_RANGE_UNIT, "day");
+        CMS.debug("CAValidityDefault: range unit: " + rangeUnitStr);
+
+        int rangeUnit;
+        try {
+            rangeUnit = convertRangeUnit(rangeUnitStr);
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new EProfileException(CMS.getUserMessage(
+                        getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE_UNIT));
+        }
+
+        // calculate the end of validity range
+        Calendar date = Calendar.getInstance();
+        date.setTime(notBefore);
+        date.add(rangeUnit, range);
+
+        Date notAfter = date.getTime();
+        CMS.debug("CAValidityDefault: not after: " + notAfter);
 
         CertificateValidity validity =
                 new CertificateValidity(notBefore, notAfter);
