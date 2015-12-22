@@ -201,9 +201,6 @@ public abstract class CMSServlet extends HttpServlet {
     /* input http params */
     protected final static String AUTHMGR_PARAM = "authenticator";
 
-    /* fixed credential passed to auth managers */
-    protected final static String CERT_AUTH_CRED = "sslClientCert";
-
     public static final String CERT_ATTR =
             "javax.servlet.request.X509Certificate";
 
