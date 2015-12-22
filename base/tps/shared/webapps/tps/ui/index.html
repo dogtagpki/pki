@@ -58,13 +58,24 @@ $(function() {
 
             if (_.contains(roles, "Administrators")) {
                 accounts_menu.show();
+            } else {
+                accounts_menu.hide();
+            }
+
+            if (_.contains(roles, "Administrators")) {
+                system_menu.show();
                 $("li", system_menu).show();
 
             } else if (_.contains(roles, "TPS Agents")) {
-                accounts_menu.hide();
+                system_menu.show();
                 $("li", system_menu).hide();
                 $("[name=profiles]", system_menu).show();
+
+            } else {
+                system_menu.hide();
             }
+
+            homePage.update();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             window.location.href = "/tps";
@@ -75,11 +86,13 @@ $(function() {
 
     var router = new Backbone.Router();
 
+    var homePage = new HomePage({
+        el: content,
+        url: "home.html"
+    });
+
     router.route("", "home", function() {
-        new HomePage({
-            el: content,
-            url: "home.html"
-        }).open();
+        homePage.open();
     });
 
     router.route("activities", "activities", function() {

@@ -118,18 +118,32 @@ var PropertiesTable = Table.extend({
 
 var HomePage = Page.extend({
     load: function() {
+        var self = this;
+        self.update();
+    },
+    update: function() {
+        if (!tps.user) return;
         var roles = tps.user.Roles.Role;
         var home_accounts = self.$("[name=home-accounts]");
         var home_system = self.$("[name=home-system]");
 
         if (_.contains(roles, "Administrators")) {
             home_accounts.show();
+        } else {
+            home_accounts.hide();
+        }
+
+        if (_.contains(roles, "Administrators")) {
+            home_system.show();
             $("li", home_system).show();
 
         } else if (_.contains(roles, "TPS Agents")) {
-            home_accounts.hide();
+            home_system.show();
             $("li", home_system).hide();
             $("[name=profiles]", home_system).show();
+
+        } else {
+            home_system.hide();
         }
     }
 });
