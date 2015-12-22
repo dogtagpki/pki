@@ -75,12 +75,6 @@ public class AuthToken implements IAuthToken {
     public static final String TOKEN_CERT_TO_REVOKE = "tokenCertToRevoke";
 
     /**
-     * Plugin name of the authentication manager that created the
-     * AuthToken as a string.
-     */
-    public static final String TOKEN_AUTHMGR_IMPL_NAME = "authMgrImplName";
-
-    /**
      * Name of the authentication manager that created the AuthToken
      * as a string.
      */
@@ -97,7 +91,6 @@ public class AuthToken implements IAuthToken {
      *
      * <pre>
      * 	"authMgrInstName" - The authentication manager instance name.
-     * 	"authMgrImplName" - The authentication manager plugin name.
      * 	"authTime" - The - The time of authentication.
      * </pre>
      *
@@ -107,7 +100,6 @@ public class AuthToken implements IAuthToken {
         mAttrs = new Hashtable<String, Object>();
         if (authMgr != null) {
             set(TOKEN_AUTHMGR_INST_NAME, authMgr.getName());
-            set(TOKEN_AUTHMGR_IMPL_NAME, authMgr.getImplName());
         }
         set(TOKEN_AUTHTIME, new Date());
     }
@@ -416,17 +408,6 @@ public class AuthToken implements IAuthToken {
      */
     public String getAuthManagerInstName() {
         return ((String) mAttrs.get(TOKEN_AUTHMGR_INST_NAME));
-    }
-
-    /**
-     * Gets the plugin name of the authentication manager that created this
-     * token.
-     *
-     * @return The plugin name of the authentication manager that created this
-     *         token.
-     */
-    public String getAuthManagerImplName() {
-        return ((String) mAttrs.get(TOKEN_AUTHMGR_IMPL_NAME));
     }
 
     /**
