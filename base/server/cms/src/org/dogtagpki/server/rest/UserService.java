@@ -39,9 +39,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import netscape.security.pkcs.PKCS7;
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.CryptoManager;
@@ -78,6 +75,9 @@ import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.PKCS7;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * @author Endi S. Dewata
@@ -209,6 +209,7 @@ public class UserService extends PKIService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
+            IConfigStore cs = CMS.getConfigStore();
             IUser user;
 
             try {
@@ -237,17 +238,22 @@ public class UserService extends PKIService implements UserResource {
             String type = user.getUserType();
             if (!StringUtils.isEmpty(type)) userData.setType(type);
 
-            List<String> profiles = user.getTpsProfiles();
-            if (profiles != null) {
-                StringBuilder sb = new StringBuilder();
-                String prefix = "";
-                for (String profile: profiles) {
-                    sb.append(prefix);
-                    prefix = ",";
-                    sb.append(profile);
-                }
+            // TODO: refactor into TPSUserService
+            String csType = cs.getString("cs.type");
+            if (csType.equals("TPS")) {
 
-                userData.setAttribute(ATTR_TPS_PROFILES, sb.toString());
+                List<String> profiles = user.getTpsProfiles();
+                if (profiles != null) {
+                    StringBuilder sb = new StringBuilder();
+                    String prefix = "";
+                    for (String profile: profiles) {
+                        sb.append(prefix);
+                        prefix = ",";
+                        sb.append(profile);
+                    }
+
+                    userData.setAttribute(ATTR_TPS_PROFILES, sb.toString());
+                }
             }
 
             return userData;
@@ -363,15 +369,23 @@ public class UserService extends PKIService implements UserResource {
                 user.setState(state);
             }
 
-            String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
-            CMS.debug("TPS profiles: " + tpsProfiles);
+            // TODO: refactor into TPSUserService
             String csType = cs.getString("cs.type");
-            if (tpsProfiles != null) {
-                if (!csType.equals("TPS")) {
-                    throw new BadRequestException("Cannot set tpsProfiles on a non-TPS subsystem");
+            if (csType.equals("TPS")) {
+
+                String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
+                CMS.debug("TPS profiles: " + tpsProfiles);
+                if (tpsProfiles != null) { // update profiles if specified
+
+                    String[] profiles;
+                    if (StringUtils.isEmpty(tpsProfiles)) {
+                        profiles = new String[0];
+                    } else {
+                        profiles = tpsProfiles.split(",");
+                    }
+
+                    user.setTpsProfiles(Arrays.asList(profiles));
                 }
-                String[] profiles = tpsProfiles.split(",");
-                user.setTpsProfiles(Arrays.asList(profiles));
             }
 
             userGroupManager.addUser(user);
@@ -443,11 +457,23 @@ public class UserService extends PKIService implements UserResource {
             String state = userData.getState();
             user.setState(state);
 
+            // TODO: refactor into TPSUserService
             String csType = cs.getString("cs.type");
             if (csType.equals("TPS")) {
+
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
-                String[] profiles = tpsProfiles.split(",");
-                user.setTpsProfiles(Arrays.asList(profiles));
+                CMS.debug("TPS Profiles: " + tpsProfiles);
+                if (tpsProfiles != null) { // update profiles if specified
+
+                    String[] profiles;
+                    if (StringUtils.isEmpty(tpsProfiles)) {
+                        profiles = new String[0];
+                    } else {
+                        profiles = tpsProfiles.split(",");
+                    }
+
+                    user.setTpsProfiles(Arrays.asList(profiles));
+                }
             }
 
             userGroupManager.modifyUser(user);
@@ -485,6 +511,8 @@ public class UserService extends PKIService implements UserResource {
     @Override
     public Response modifyUser(String userID, UserData userData) {
 
+        CMS.debug("UserService.modifyUser(" + userID + ")");
+
         if (userData == null) throw new BadRequestException("User data is null.");
 
         // ensure that any low-level exceptions are reported
@@ -499,11 +527,13 @@ public class UserService extends PKIService implements UserResource {
             IUser user = userGroupManager.createUser(userID);
 
             String fullName = userData.getFullName();
+            CMS.debug("Full name: " + fullName);
             if (fullName != null) {
                 user.setFullName(fullName);
             }
 
             String email = userData.getEmail();
+            CMS.debug("Email: " + email);
             if (email != null) {
                 user.setEmail(email);
             }
@@ -520,23 +550,34 @@ public class UserService extends PKIService implements UserResource {
             }
 
             String phone = userData.getPhone();
+            CMS.debug("Phone: " + phone);
             if (phone != null) {
                 user.setPhone(phone);
             }
 
             String state = userData.getState();
+            CMS.debug("State: " + state);
             if (state != null) {
                 user.setState(state);
             }
 
-            String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
+            // TODO: refactor into TPSUserService
             String csType = cs.getString("cs.type");
-            if (tpsProfiles != null) {
-                if (!csType.equals("TPS")) {
-                    throw new BadRequestException("Cannot set tpsProfiles on a non-TPS subsystem");
+            if (csType.equals("TPS")) {
+
+                String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
+                CMS.debug("TPS Profiles: " + tpsProfiles);
+                if (tpsProfiles != null) { // update profiles if specified
+
+                    String[] profiles;
+                    if (StringUtils.isEmpty(tpsProfiles)) {
+                        profiles = new String[0];
+                    } else {
+                        profiles = tpsProfiles.split(",");
+                    }
+
+                    user.setTpsProfiles(Arrays.asList(profiles));
                 }
-                String[] profiles = tpsProfiles.split(",");
-                user.setTpsProfiles(Arrays.asList(profiles));
             }
 
             userGroupManager.modifyUser(user);

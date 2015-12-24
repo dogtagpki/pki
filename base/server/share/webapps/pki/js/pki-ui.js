@@ -621,7 +621,7 @@ var Table = Backbone.View.extend({
         // check filter against all values in the entry
         var matches = false;
         _(entry).each(function(value, key) {
-            if (entry.name.indexOf(filter) >= 0) matches = true;
+            if (value && value.indexOf(filter) >= 0) matches = true;
         });
 
         return matches;
@@ -704,7 +704,7 @@ var Table = Backbone.View.extend({
 
             // save new entry
             dialog.save();
-            self.entries.push(dialog.entry);
+            self.addEntry(dialog.entry);
 
             // redraw table
             self.render();
@@ -712,6 +712,10 @@ var Table = Backbone.View.extend({
         });
 
         dialog.open();
+    },
+    addEntry: function(entry) {
+        var self = this;
+        self.entries.push(entry);
     },
     remove: function(items) {
         var self = this;

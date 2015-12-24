@@ -25,19 +25,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPDN;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.apps.CMS;
@@ -59,6 +46,19 @@ import com.netscape.certsrv.usrgrp.IUsrGrp;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPDN;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * This class defines low-level LDAP usr/grp management
@@ -738,11 +738,15 @@ public final class UGSubsystem implements IUGSubsystem {
         }
 
         // TODO add audit logging for profile
-        if (id.getTpsProfiles() != null) {
-            List<String> profiles = id.getTpsProfiles();
-            for (String profile: profiles) {
-                attrs.add(new LDAPAttribute(LDAP_ATTR_PROFILE_ID, profile));
+        List<String> profiles = id.getTpsProfiles();
+        if (profiles != null && profiles.size() > 0) {
+            CMS.debug("Adding " + LDAP_ATTR_PROFILE_ID + ":");
+            LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_PROFILE_ID);
+            for (String profile : profiles) {
+                CMS.debug(" - " + profile);
+                attr.addValue(profile);
             }
+            attrs.add(attr);
         }
 
         LDAPEntry entry = new LDAPEntry("uid=" + LDAPUtil.escapeRDNValue(id.getUserID()) +
@@ -763,12 +767,14 @@ public final class UGSubsystem implements IUGSubsystem {
             ldapconn.add(entry);
 
         } catch (LDAPException e) {
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
+            CMS.debug(e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
-            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_USER_FAIL"));
+            throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_USER_FAIL"), e);
 
         } finally {
             if (ldapconn != null)
@@ -1229,7 +1235,8 @@ public final class UGSubsystem implements IUGSubsystem {
                 }
             }
 
-            if (user.getTpsProfiles() != null) {
+            List<String> profiles = user.getTpsProfiles();
+            if (profiles != null) {
                 // TODO add audit logging for profile
 
                 // replace the objectclass in case tpsProfile is not present
@@ -1238,44 +1245,11 @@ public final class UGSubsystem implements IUGSubsystem {
                 attrs.add(LDAPModification.REPLACE,
                         new LDAPAttribute(OBJECTCLASS_ATTR, oc));
 
-                User ldapUser = (User) getUser(user.getUserID());
-                List<String> oldProfiles = ldapUser.getTpsProfiles();
-                List<String> profiles = user.getTpsProfiles();
-
-                if (oldProfiles == null) {
-                    for (String profile : profiles) {
-                        attrs.add(LDAPModification.ADD,
-                                new LDAPAttribute(LDAP_ATTR_PROFILE_ID, profile));
-                    }
-                } else {
-                    for (String profile : profiles) {
-                        boolean found = false;
-                        for (String oldProfile : oldProfiles) {
-                            if (profile.equals(oldProfile)) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            attrs.add(LDAPModification.ADD,
-                                    new LDAPAttribute(LDAP_ATTR_PROFILE_ID, profile));
-                        }
-                    }
-
-                    for (String oldProfile : oldProfiles) {
-                        boolean found = false;
-                        for (String profile : profiles) {
-                            if (profile.equals(oldProfile)) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            attrs.add(LDAPModification.DELETE,
-                                    new LDAPAttribute(LDAP_ATTR_PROFILE_ID, oldProfile));
-                        }
-                    }
+                LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_PROFILE_ID);
+                for (String profile : profiles) {
+                    attr.addValue(profile);
                 }
+                attrs.add(LDAPModification.REPLACE, attr);
             }
 
             /**
