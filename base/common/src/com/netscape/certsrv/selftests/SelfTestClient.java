@@ -50,6 +50,16 @@ public class SelfTestClient extends Client {
         client.getEntity(response, Void.class);
     }
 
+    public SelfTestResults runSelfTests() {
+        Response response = resource.runSelfTests();
+        return client.getEntity(response, SelfTestResults.class);
+    }
+
+    public SelfTestResult runSelfTest(String selfTestID) {
+        Response response = resource.runSelfTest(selfTestID);
+        return client.getEntity(response, SelfTestResult.class);
+    }
+
     public SelfTestData getSelfTest(String selfTestID) {
         Response response = resource.getSelfTest(selfTestID);
         return client.getEntity(response, SelfTestData.class);

@@ -501,16 +501,11 @@ public class SelfTestSubsystem
         Enumeration<SelfTestOrderedInstance> instances = mOnDemandOrder.elements();
 
         while (instances.hasMoreElements()) {
-            SelfTestOrderedInstance instance = instances.nextElement();
 
-            String instanceFullName = null;
+            SelfTestOrderedInstance instance = instances.nextElement();
             String instanceName = instance.getSelfTestName();
 
-            if (instanceName != null) {
-                instanceName = instanceName.trim();
-                instanceFullName = getFullName(mPrefix,
-                            instanceName);
-            } else {
+            if (instanceName == null) {
                 log(mLogger,
                         CMS.getLogMessage(
                                 "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
@@ -518,37 +513,11 @@ public class SelfTestSubsystem
                 throw new EMissingSelfTestException();
             }
 
-            if (mSelfTestInstances.containsKey(instanceName)) {
-                ISelfTest test = mSelfTestInstances.get(instanceName);
+            instanceName = instanceName.trim();
 
-                try {
-                    if (CMS.debugOn()) {
-                        CMS.debug("SelfTestSubsystem::runSelfTestsOnDemand():"
-                                + "    running \""
-                                + test.getSelfTestName()
-                                + "\"");
-                    }
+            String instanceFullName = getFullName(mPrefix, instanceName);
 
-                    test.runSelfTest(mLogger);
-
-                } catch (Exception e) {
-
-                    CMS.debug(e);
-
-                    // Check to see if the self test was critical:
-                    if (isSelfTestCriticalOnDemand(instanceName)) {
-                        log(mLogger,
-                                CMS.getLogMessage(
-                                        "CMSCORE_SELFTESTS_RUN_ON_DEMAND_FAILED",
-                                        instanceFullName));
-
-                        // shutdown the system gracefully
-                        CMS.shutdown();
-
-                        return;
-                    }
-                }
-            } else {
+            if (!mSelfTestInstances.containsKey(instanceName)) {
                 // self test plugin instance property name is not present
                 log(mLogger,
                         CMS.getLogMessage(
@@ -557,12 +526,46 @@ public class SelfTestSubsystem
 
                 throw new EMissingSelfTestException(instanceFullName);
             }
+
+            try {
+                runSelfTest(instanceName);
+
+            } catch (Exception e) {
+
+                CMS.debug(e);
+
+                // Check to see if the self test was critical:
+                if (isSelfTestCriticalOnDemand(instanceName)) {
+                    log(mLogger,
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_RUN_ON_DEMAND_FAILED",
+                                    instanceFullName));
+
+                    // shutdown the system gracefully
+                    CMS.shutdown();
+
+                    return;
+                }
+            }
         }
 
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::runSelfTestsOnDemand():"
                     + "  EXITING.");
         }
+    }
+
+    public void runSelfTest(String instanceName) throws Exception {
+
+        CMS.debug("SelfTestSubsystem.runSelfTest(" + instanceName + ")");
+
+        ISelfTest test = mSelfTestInstances.get(instanceName);
+
+        if (test == null) {
+            throw new EMissingSelfTestException(instanceName);
+        }
+
+        test.runSelfTest(mLogger);
     }
 
     //

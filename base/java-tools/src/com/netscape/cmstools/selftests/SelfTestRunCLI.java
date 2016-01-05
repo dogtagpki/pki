@@ -21,7 +21,10 @@ package com.netscape.cmstools.selftests;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.lang.StringUtils;
 
+import com.netscape.certsrv.selftests.SelfTestResult;
+import com.netscape.certsrv.selftests.SelfTestResults;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -38,7 +41,20 @@ public class SelfTestRunCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [selftests...] [OPTIONS...]", options);
+    }
+
+    public static void printSelfTestResult(SelfTestResult result) {
+        System.out.println("  Selftest ID: " + result.getID());
+
+        String status = result.getStatus();
+        System.out.println("  Status: " + status);
+
+        String output = result.getOutput();
+        if (StringUtils.isNotEmpty(output)) {
+            System.out.println("  Output:");
+            System.out.println(output);
+        }
     }
 
     public void execute(String[] args) throws Exception {
@@ -62,13 +78,33 @@ public class SelfTestRunCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
 
-        if (cmdArgs.length != 0) {
-            System.err.println("Error: Too many arguments specified.");
-            printHelp();
-            System.exit(-1);
+        SelfTestResults results;
+
+        if (cmdArgs.length == 0) {
+            results = selfTestCLI.selfTestClient.runSelfTests();
+
+        } else {
+
+            results = new SelfTestResults();
+
+            for (String selfTestID : cmdArgs) {
+                SelfTestResult result = selfTestCLI.selfTestClient.runSelfTest(selfTestID);
+                results.addEntry(result);;
+            }
         }
 
-        selfTestCLI.selfTestClient.executeSelfTests("run");
+        boolean first = true;
+
+        for (SelfTestResult result : results.getEntries()) {
+
+            if (first) {
+                first = false;
+            } else {
+                System.out.println();
+            }
+
+            printSelfTestResult(result);
+        }
 
         MainCLI.printMessage("Selftests completed");
     }

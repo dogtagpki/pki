@@ -50,8 +50,20 @@ public interface SelfTestResource {
     @ACLMapping("selftests.execute")
     public Response executeSelfTests(@QueryParam("action") String action);
 
+    @POST
+    @Path("run")
+    @ClientResponseType(entityType=SelfTestResults.class)
+    @ACLMapping("selftests.execute")
+    public Response runSelfTests();
+
     @GET
     @Path("{selfTestID}")
     @ClientResponseType(entityType=SelfTestData.class)
     public Response getSelfTest(@PathParam("selfTestID") String selfTestID);
+
+    @POST
+    @Path("{selfTestID}/run")
+    @ClientResponseType(entityType=SelfTestResult.class)
+    @ACLMapping("selftests.execute")
+    public Response runSelfTest(@PathParam("selfTestID") String selfTestID);
 }

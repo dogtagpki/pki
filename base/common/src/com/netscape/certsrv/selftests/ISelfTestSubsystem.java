@@ -139,6 +139,13 @@ public interface ISelfTestSubsystem
     public void runSelfTestsOnDemand()
             throws EMissingSelfTestException, ESelfTestException;
 
+    /**
+     * Execute a self test.
+     *
+     * @exception Exception self test exception
+     */
+    public void runSelfTest(String instanceName) throws Exception;
+
     //
     // methods associated with the list of startup self tests
     //

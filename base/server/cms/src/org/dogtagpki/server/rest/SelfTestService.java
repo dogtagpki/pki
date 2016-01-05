@@ -18,6 +18,8 @@
 
 package org.dogtagpki.server.rest;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -42,6 +44,8 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.selftests.SelfTestCollection;
 import com.netscape.certsrv.selftests.SelfTestData;
 import com.netscape.certsrv.selftests.SelfTestResource;
+import com.netscape.certsrv.selftests.SelfTestResult;
+import com.netscape.certsrv.selftests.SelfTestResults;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
@@ -144,7 +148,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             return createOKResponse(response);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
     }
@@ -161,7 +165,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             return createOKResponse(createSelfTestData(subsystem, selfTestID));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
     }
@@ -182,10 +186,58 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             subsystem.runSelfTestsOnDemand();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException(e.getMessage());
         }
 
         return createNoContentResponse();
+    }
+
+    @Override
+    public Response runSelfTests() {
+
+        CMS.debug("SelfTestService.runSelfTests()");
+
+        SelfTestResults results = new SelfTestResults();
+
+        try {
+            ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
+            for (String selfTestID : subsystem.listSelfTestsEnabledOnDemand()) {
+                Response response = runSelfTest(selfTestID);
+                SelfTestResult result = (SelfTestResult)response.getEntity();
+                results.addEntry(result);
+            }
+
+        } catch (Exception e) {
+            CMS.debug(e);
+            throw new PKIException(e.getMessage());
+        }
+
+        return createOKResponse(results);
+    }
+
+    @Override
+    public Response runSelfTest(String selfTestID) {
+
+        CMS.debug("SelfTestService.runSelfTest(" + selfTestID + ")");
+
+        SelfTestResult result = new SelfTestResult();
+        result.setID(selfTestID);
+
+        try {
+            ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
+            subsystem.runSelfTest(selfTestID);
+            result.setStatus("PASSED");
+
+        } catch (Exception e) {
+            result.setStatus("FAILED");
+
+            StringWriter sw = new StringWriter();
+            PrintWriter out = new PrintWriter(sw);
+            e.printStackTrace(out);
+            result.setOutput(sw.toString());
+        }
+
+        return createOKResponse(result);
     }
 }
