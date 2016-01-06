@@ -194,6 +194,8 @@ var Dialog = Backbone.View.extend({
         var self = this;
         Dialog.__super__.initialize.call(self, options);
 
+        self.body = self.$(".modal-body");
+
         self.title = options.title;
 
         self.readonly = options.readonly;
@@ -231,7 +233,8 @@ var Dialog = Backbone.View.extend({
         }
 
         // setup input fields
-        self.$(".modal-body input").each(function(index) {
+        // TODO: handle drop-down lists
+        $("input, textarea", self.body).each(function(index) {
             var input = $(this);
             var name = input.attr("name");
             if (_.contains(self.readonly, name)) {
@@ -287,13 +290,7 @@ var Dialog = Backbone.View.extend({
         var self = this;
 
         // load input fields
-        self.$(".modal-body input").each(function(index) {
-            var input = $(this);
-            self.loadField(input);
-        });
-
-        // load drop-down lists
-        self.$(".modal-body select").each(function(index) {
+        $("input, select, textarea", self.body).each(function(index) {
             var input = $(this);
             self.loadField(input);
         });
@@ -424,6 +421,17 @@ var TableItem = Backbone.View.extend({
                 self.renderColumn(td, templateTD);
             }
         });
+    },
+    isSelected: function() {
+        var self = this;
+
+        var checkbox = $("td.pki-select-column input", self.$el);
+
+        // skip blank rows
+        var value = checkbox.val();
+        if (value == "") return false;
+
+        return checkbox.prop("checked");
     },
     get: function(name) {
         var self = this;
@@ -663,6 +671,10 @@ var Table = Backbone.View.extend({
             // clear unused row
             item.reset();
         }
+    },
+    getSelectedRows: function() {
+        var self = this;
+        return _.filter(self.items, function(item) { return item.isSelected(); });
     },
     totalEntries: function() {
         var self = this;

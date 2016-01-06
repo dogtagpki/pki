@@ -24,6 +24,14 @@
 
 <span name="title" class="pki-title">Self Test ${id}</span>
 
+<span class="pki-actions">
+
+<ul name="view" class="pki-actions-menu">
+<li name="run"><a href="#">Run</a></li>
+</ul>
+
+</span>
+
 </div>
 
 <div name="user" class="pki-fields">
@@ -39,4 +47,31 @@
     <label>Critical on Demand</label>
     <input name="criticalOnDemand" readonly="readonly"><br>
 </fieldset>
+</div>
+
+<div id="selftest-result-dialog" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <span class="pficon pficon-close"></span>
+                </button>
+                <h4 class="modal-title">Self Test Result</h4>
+            </div>
+            <div class="modal-body">
+                <fieldset>
+                <label>Self Test ID</label>
+                <input name="id" readonly="readonly"><br>
+                <label>Status</label>
+                <input name="status" readonly="readonly"><br>
+                <label>Output</label>
+                <textarea name="output" rows="20" style="width: 100%; white-space: pre;">
+                </textarea>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button name="close" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>

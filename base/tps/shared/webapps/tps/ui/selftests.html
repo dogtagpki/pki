@@ -32,26 +32,22 @@
                  <input name="search" type="text" placeholder="Search...">
              </span>
              <span class="pki-table-buttons">
+                 <button name="run">Run</button>
+                 <button name="clear">Clear</button>
              </span>
          </th>
     </tr>
     <tr>
         <th class="pki-select-column"><input id="selftests-selectall" type="checkbox"><label for="selftests-selectall">&nbsp;</label></th>
         <th>Self Test ID</th>
-        <th>Enabled at Statup</th>
-        <th>Critical at Startup</th>
-        <th>Enabled on Demand</th>
-        <th>Critical on Demand</th>
+        <th>Status</th>
     </tr>
 </thead>
 <tbody>
     <tr>
         <td class="pki-select-column"><input id="selftests-select" type="checkbox"><label for="selftests-select">&nbsp;</label></td>
         <td name="id"><a href="#selftests/${id}">${id}</a></td>
-        <td name="enabledAtStartup">${enabledAtStartup}</td>
-        <td name="criticalAtStartup">${criticalAtStartup}</td>
-        <td name="enabledOnDemand">${enabledOnDemand}</td>
-        <td name="criticalOnDemand">${criticalOnDemand}</td>
+        <td name="status"></td>
     </tr>
 </tbody>
 <tfoot>
@@ -77,3 +73,30 @@
     </tr>
 </tfoot>
 </table>
+
+<div id="selftest-result-dialog" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <span class="pficon pficon-close"></span>
+                </button>
+                <h4 class="modal-title">Self Test Result</h4>
+            </div>
+            <div class="modal-body">
+                <fieldset>
+                <label>Self Test ID</label>
+                <input name="id" readonly="readonly"><br>
+                <label>Status</label>
+                <input name="status" readonly="readonly"><br>
+                <label>Output</label>
+                <textarea name="output" rows="20" style="width: 100%; white-space: pre;">
+                </textarea>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button name="close" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

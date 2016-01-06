@@ -38,6 +38,18 @@ var SelfTestModel = Model.extend({
             EnabledOnDemand: attributes.enabledOnDemand,
             CriticalOnDemand: attributes.criticalOnDemand
         };
+    },
+    run: function(options) {
+        var self = this;
+        $.ajax({
+            type: "POST",
+            url: self.url() + "/run",
+            dataType: "json"
+        }).done(function(data, textStatus, jqXHR) {
+            if (options.success) options.success.call(self, data, textStatus, jqXHR);
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
+        });
     }
 });
 
@@ -64,6 +76,48 @@ var SelfTestPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
         SelfTestPage.__super__.initialize.call(self, options);
+    },
+    setup: function() {
+        var self = this;
+
+        SelfTestPage.__super__.setup.call(self);
+
+        self.runAction = $("[name='run']", self.viewMenu);
+
+        $("a", self.runAction).click(function(e) {
+
+            e.preventDefault();
+
+            self.model.run({
+                success: function(data, textStatus, jqXHR) {
+                    self.showResult({
+                        id: data.id,
+                        status: data.Status,
+                        output: data.Output
+                    });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    self.showResult({
+                        id: self.model.get("id"),
+                        status: textStatus,
+                        output: errorThrown
+                    });
+                }
+            });
+
+        });
+    },
+    showResult: function(data) {
+        var dialog = new Dialog({
+            el: self.$("#selftest-result-dialog"),
+            title: "Self Test Result",
+            readonly: ["id", "status", "output"],
+            actions: ["close"]
+        });
+
+        dialog.entry = data;
+
+        dialog.open();
     }
 });
 
@@ -71,6 +125,80 @@ var SelfTestsTable = ModelTable.extend({
     initialize: function(options) {
         var self = this;
         SelfTestsTable.__super__.initialize.call(self, options);
+
+        self.runButton = $("[name='run']", self.buttons);
+        self.runButton.click(function(e) {
+            var items = self.getSelectedRows();
+            _.each(items, function(item, index) {
+                self.runTest(item, index);
+            });
+        });
+
+        self.clearButton = $("[name='clear']", self.buttons);
+        self.clearButton.click(function(e) {
+            var items = self.getSelectedRows();
+            _.each(items, function(item, index) {
+                self.clearTest(item, index);
+            });
+        });
+    },
+    runTest: function(item, index) {
+        var self = this;
+
+        var statusTD = $("td[name='status']", item.$el);
+        statusTD.text("RUNNING");
+
+        var id = item.get("id");
+        var model = self.collection.get(id);
+
+        model.run({
+            success: function(data, textStatus, jqXHR) {
+                statusTD.empty();
+                var link = $("<a/>", {
+                    text: data.Status,
+                    click: function(e) {
+                        e.preventDefault();
+                        self.showResult({
+                            id: data.id,
+                            status: data.Status,
+                            output: data.Output
+                        });
+                    }
+                }).appendTo(statusTD);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                statusTD.empty();
+                var link = $("<a/>", {
+                    text: textStatus,
+                    click: function(e) {
+                        e.preventDefault();
+                        self.showResult({
+                            id: id,
+                            status: textStatus,
+                            output: errorThrown
+                        });
+                    }
+                }).appendTo(statusTD);
+            }
+        });
+    },
+    clearTest: function(item, index) {
+        var self = this;
+
+        var statusTD = $("td[name='status']", item.$el);
+        statusTD.empty();
+    },
+    showResult: function(data) {
+        var dialog = new Dialog({
+            el: self.parent.$("#selftest-result-dialog"),
+            title: "Self Test Result",
+            readonly: ["id", "status", "output"],
+            actions: ["close"]
+        });
+
+        dialog.entry = data;
+
+        dialog.open();
     }
 });
 
@@ -79,8 +207,9 @@ var SelfTestsPage = Page.extend({
         var self = this;
 
         var table = new SelfTestsTable({
-            el: $("table[name='selftests']"),
-            collection: new SelfTestCollection()
+            el: self.$("table[name='selftests']"),
+            collection: new SelfTestCollection(),
+            parent: self
         });
 
         table.render();
