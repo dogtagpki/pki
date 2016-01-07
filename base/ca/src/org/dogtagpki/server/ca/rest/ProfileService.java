@@ -46,6 +46,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
@@ -415,7 +416,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         switch (action) {
         case "enable":
             if (ps.isProfileEnable(profileId)) {
-                throw new BadRequestException("Profile already enabled");
+                throw new ConflictingOperationException("Profile already enabled");
             }
             try {
                 ps.enableProfile(profileId, principal.getName());
@@ -430,7 +431,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             break;
         case "disable":
             if (!ps.isProfileEnable(profileId)) {
-                throw new BadRequestException("Profile already disabled");
+                throw new ConflictingOperationException("Profile already disabled");
             }
             String userid = principal.getName();
             try {
@@ -482,7 +483,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         try {
             profile = ps.getProfile(profileId);
             if (profile != null) {
-                throw new BadRequestException("Profile already exists");
+                throw new ConflictingOperationException("Profile already exists");
             }
 
             auditParams.put("class_id", data.getClassId());
@@ -581,7 +582,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
             IProfile profile = ps.getProfile(profileId);
             if (profile != null) {
-                throw new BadRequestException("Profile already exists");
+                throw new ConflictingOperationException("Profile already exists");
             }
 
             auditParams.put("class_id", classId);
@@ -690,7 +691,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         }
 
         if (ps.isProfileEnable(profileId)) {
-            throw new BadRequestException("Cannot change profile data.  Profile must be disabled");
+            throw new ConflictingOperationException("Cannot change profile data.  Profile must be disabled");
         }
 
         // First read the data into a Properties to process escaped
@@ -761,7 +762,7 @@ public class ProfileService extends PKIService implements ProfileResource {
             throw new PKIException("Error changing profile data. Profile not available.");
         }
         if (ps.isProfileEnable(profileId)) {
-            throw new BadRequestException("Cannot change profile data.  Profile must be disabled");
+            throw new ConflictingOperationException("Cannot change profile data.  Profile must be disabled");
         }
 
         Map<String, String> auditParams = new LinkedHashMap<String, String>();
@@ -1177,7 +1178,7 @@ public class ProfileService extends PKIService implements ProfileResource {
                         ILogger.FAILURE,
                         null);
 
-                throw new BadRequestException("Cannot delete profile `" + profileId +
+                throw new ConflictingOperationException("Cannot delete profile `" + profileId +
                         "`.  Profile must be disabled first.");
             }
 
