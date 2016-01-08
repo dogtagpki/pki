@@ -18,8 +18,10 @@
 package org.dogtagpki.tps.msg;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.dogtagpki.tps.main.Util;
@@ -45,30 +47,39 @@ public class ExtendedLoginRequestMsg extends TPSMessage {
     @Override
     public String encode() {
 
+        List<String> orderedParams = new ArrayList<String>();
+
+        //The UID param will always be first in the list
         if (!params.isEmpty()) {
-
-            int i = 0;
+            String cur = null;
             for (Iterator<String> iter = params.iterator(); iter.hasNext();) {
-
-                String curParam = null;
-
                 try {
-                    curParam = Util.uriEncode(iter.next());
+                    cur = Util.uriEncode(iter.next());
                 } catch (UnsupportedEncodingException e) {
-                    curParam = null;
+                    cur = null;
                 }
 
+                if (cur != null && cur.length() > 0) {
+                    if (cur.contains("UID")) {
+                        orderedParams.add(0, cur);
+                    } else {
+                        orderedParams.add(cur);
+                    }
+                }
+            }
+
+            int i = 0;
+            for (Iterator<String> iter = orderedParams.iterator(); iter.hasNext();) {
+                String curParam = iter.next();
                 if (curParam != null && curParam.length() > 0) {
 
-                    String name = /*"&" + */ REQUIRED_PARAMETER_NAME + Integer.toString(i++);
+                    String name = /*"&" + */REQUIRED_PARAMETER_NAME + Integer.toString(i++);
                     String value = curParam;
 
                     put(name, value);
 
                 }
-
             }
-
         }
 
         return super.encode();
