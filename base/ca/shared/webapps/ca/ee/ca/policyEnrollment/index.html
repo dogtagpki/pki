@@ -177,15 +177,6 @@ function initEnrollMenu()
     	count++;
 	}
 
-	// NISAuth - authenticates against NIS
-	if ( isAuthMgrEnabled("NISAuth") ) {
-		item = 'nisuser';
-		menuItems[count] = top.EnrollMenu[count] = 
-			new menuItem(item, 'NISUserEnroll.html', 'NIS');
-    
-    	count++;
-	}
-
 	// Kerberos - authenticates against a Kerberos server
 	if ( isAuthMgrEnabled("KerberosAuth") ) {
 		item = 'kerberos';

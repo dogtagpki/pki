@@ -41,7 +41,6 @@ public class Setup {
             { "auths.impl.UidPwdDirAuth.class", "com.netscape.cms.authentication.UidPwdDirAuthentication" },
             { "auths.impl.UidPwdPinDirAuth.class", "com.netscape.cms.authentication.UidPwdPinDirAuthentication" },
             { "auths.impl.UdnPwdDirAuth.class", "com.netscape.cms.authentication.UdnPwdDirAuthentication" },
-            { "auths.impl.NISAuth.class", "com.netscape.cms.authentication.NISAuth" },
             { "auths.impl.CMCAuth.class", "com.netscape.cms.authentication.CMCAuth" },
             { "auths.impl.AgentCertAuth.class", "com.netscape.cms.authentication.AgentCertAuthentication" },
             { "auths.impl.PortalEnroll.class", "com.netscape.cms.authentication.PortalEnroll"

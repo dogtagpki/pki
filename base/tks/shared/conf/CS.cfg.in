@@ -122,7 +122,6 @@ auths.impl._001=## authentication manager implementations
 auths.impl._002=##
 auths.impl.AgentCertAuth.class=com.netscape.cms.authentication.AgentCertAuthentication
 auths.impl.CMCAuth.class=com.netscape.cms.authentication.CMCAuth
-auths.impl.NISAuth.class=com.netscape.cms.authentication.NISAuth
 auths.impl.PortalEnroll.class=com.netscape.cms.authentication.PortalEnroll
 auths.impl.TokenAuth.class=com.netscape.cms.authentication.TokenAuthentication
 auths.impl.UdnPwdDirAuth.class=com.netscape.cms.authentication.UdnPwdDirAuthentication
