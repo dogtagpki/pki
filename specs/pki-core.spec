@@ -943,11 +943,11 @@ systemctl daemon-reload
 %{_datadir}/pki/scripts/operations
 %{_bindir}/pkidaemon
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
-%{_unitdir}/pki-tomcatd@.service
-%{_unitdir}/pki-tomcatd.target
+%attr(644,-,-) %{_unitdir}/pki-tomcatd@.service
+%attr(644,-,-) %{_unitdir}/pki-tomcatd.target
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
-%{_unitdir}/pki-tomcatd-nuxwdog@.service
-%{_unitdir}/pki-tomcatd-nuxwdog.target
+%attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog@.service
+%attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog.target
 %{_javadir}/pki/pki-cms.jar
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore.jar
