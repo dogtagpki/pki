@@ -1116,46 +1116,15 @@ public class CryptoUtil {
         if (s == null) {
             return s;
         }
-        s = s.replaceAll("-----BEGIN CERTIFICATE REQUEST-----", "");
-        s = s.replaceAll("-----BEGIN NEW CERTIFICATE REQUEST-----", "");
-        s = s.replaceAll("-----END CERTIFICATE REQUEST-----", "");
-        s = s.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
-        s = s.replaceAll("-----BEGIN CERTIFICATE-----", "");
-        s = s.replaceAll("-----END CERTIFICATE-----", "");
-        s = s.replaceAll("-----BEGIN CERTIFICATE CHAIN-----", "");
-        s = s.replaceAll("-----END CERTIFICATE CHAIN-----", "");
+        // grammar defined at https://tools.ietf.org/html/rfc7468#section-3
+        s = s.replaceAll("-----(BEGIN|END) [\\p{Print}&&[^- ]]([- ]?[\\p{Print}&&[^- ]])*-----", "");
 
         StringBuffer sb = new StringBuffer();
         StringTokenizer st = new StringTokenizer(s, "\r\n ");
 
         while (st.hasMoreTokens()) {
             String nextLine = st.nextToken();
-
             nextLine = nextLine.trim();
-            if (nextLine.equals("-----BEGIN CERTIFICATE REQUEST-----")) {
-                continue;
-            }
-            if (nextLine.equals("-----BEGIN NEW CERTIFICATE REQUEST-----")) {
-                continue;
-            }
-            if (nextLine.equals("-----END CERTIFICATE REQUEST-----")) {
-                continue;
-            }
-            if (nextLine.equals("-----END NEW CERTIFICATE REQUEST-----")) {
-                continue;
-            }
-            if (nextLine.equals("-----BEGIN CERTIFICATE-----")) {
-                continue;
-            }
-            if (nextLine.equals("-----END CERTIFICATE-----")) {
-                continue;
-            }
-            if (nextLine.equals("-----BEGIN CERTIFICATE CHAIN-----")) {
-                continue;
-            }
-            if (nextLine.equals("-----END CERTIFICATE CHAIN-----")) {
-                continue;
-            }
             sb.append(nextLine);
         }
         return sb.toString();

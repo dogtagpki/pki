@@ -192,9 +192,9 @@ Base 64 encoded certificate with CA certificate chain in pkcs7 format
 </font>
 <p><pre>
 <SCRIPT type="text/javascript">
-document.writeln('-----BEGIN CERTIFICATE CHAIN-----');
+document.writeln('-----BEGIN PKCS7-----');
 document.write(result.header.pkcs7ChainBase64);
-document.writeln('-----END CERTIFICATE CHAIN-----');
+document.writeln('-----END PKCS7-----');
 </SCRIPT>
 </pre>
 

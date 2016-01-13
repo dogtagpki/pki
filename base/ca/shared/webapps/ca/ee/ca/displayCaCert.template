@@ -43,9 +43,9 @@ if (result.header.displayFormat == "chain") {
     document.writeln('<center><b>' + result.header.subjectdn);
     document.writeln('</b></center><p></font><br>');
     document.writeln('<pre>');
-    document.writeln('-----BEGIN CERTIFICATE CHAIN-----');
+    document.writeln('-----BEGIN PKCS7-----');
     document.write(result.header.chainBase64);
-    document.writeln('-----END CERTIFICATE CHAIN-----');
+    document.writeln('-----END PKCS7-----');
     document.writeln('</pre>');
 } else if (result.header.displayFormat == "individual") {
     if (result.recordSet.length == 0) {

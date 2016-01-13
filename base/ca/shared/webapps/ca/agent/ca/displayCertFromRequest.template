@@ -102,9 +102,9 @@ function displayCert(cert)
 		'Base 64 encoded certificate with CA certificate chain in pkcs7 format'+
 		'</font>'+
 		'<p><pre>'+
-		'-----BEGIN CERTIFICATE CHAIN-----');
+		'-----BEGIN PKCS7-----');
 		document.writeln(cert.pkcs7ChainBase64);
-		document.writeln('-----END CERTIFICATE CHAIN-----'+
+		document.writeln('-----END PKCS7-----'+
 		'</pre>');
 
 }
