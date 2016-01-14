@@ -50,6 +50,7 @@ import netscape.security.x509.RevocationReason;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
 
+import org.apache.catalina.realm.GenericPrincipal;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
@@ -75,7 +76,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cms.servlet.cert.FilterBuilder;
@@ -242,8 +242,10 @@ public class CertService extends PKIService implements CertResource {
 
             processor.createCRLExtension();
 
-            PKIPrincipal principal = (PKIPrincipal)servletRequest.getUserPrincipal();
-            // TODO: do not hard-code role name
+            // TODO remove hardcoded role names and consult authzmgr
+            // (so that we can handle externally-authenticated principals)
+            GenericPrincipal principal =
+                (GenericPrincipal) servletRequest.getUserPrincipal();
             String subjectDN = principal.hasRole("Certificate Manager Agents") ?
                     null : clientSubjectDN;
 

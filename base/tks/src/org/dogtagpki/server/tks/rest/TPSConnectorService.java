@@ -5,6 +5,7 @@ import java.net.URI;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,7 +38,6 @@ import com.netscape.certsrv.system.TPSConnectorResource;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
@@ -326,7 +326,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             throw new PKIException("Bad TPS connection configuration: userid not defined");
         }
 
-        PKIPrincipal principal = (PKIPrincipal) servletRequest.getUserPrincipal();
+        Principal principal = servletRequest.getUserPrincipal();
         if (principal == null) {
             throw new UnauthorizedException("User credentials not provided");
         }

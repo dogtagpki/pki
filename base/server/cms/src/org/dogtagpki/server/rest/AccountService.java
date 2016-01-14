@@ -29,6 +29,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.account.AccountInfo;
@@ -75,8 +76,10 @@ public class AccountService extends PKIService implements AccountResource {
 
             String email = user.getEmail();
             if (!StringUtils.isEmpty(email)) response.setEmail(email);
+        }
 
-            String[] roles = pkiPrincipal.getRoles();
+        if (principal instanceof GenericPrincipal) {
+            String[] roles = ((GenericPrincipal) principal).getRoles();
             response.setRoles(Arrays.asList(roles));
         }
 

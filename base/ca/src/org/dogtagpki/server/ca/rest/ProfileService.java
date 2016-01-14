@@ -41,6 +41,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -77,7 +78,6 @@ import com.netscape.certsrv.profile.ProfileResource;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
@@ -125,11 +125,14 @@ public class ProfileService extends PKIService implements ProfileResource {
             throw new PKIException("Error listing profiles.  Profile Service not available");
         }
 
-        PKIPrincipal principal = (PKIPrincipal) servletRequest.getUserPrincipal();
-        if ((principal != null) &&
-                (principal.hasRole("Certificate Manager Agents") ||
-                principal.hasRole("Certificate Manager Administrators"))) {
-            visibleOnly = false;
+        // TODO remove hardcoded role names and consult authzmgr
+        // (so that we can handle externally-authenticated principals)
+        Principal principal = servletRequest.getUserPrincipal();
+        if (principal != null && principal instanceof GenericPrincipal) {
+            GenericPrincipal genPrincipal = (GenericPrincipal) principal;
+            if (genPrincipal.hasRole("Certificate Manager Agents") ||
+                genPrincipal.hasRole("Certificate Manager Administrators"))
+                    visibleOnly = false;
         }
 
         Enumeration<String> e = ps.getProfileIds();
@@ -182,11 +185,14 @@ public class ProfileService extends PKIService implements ProfileResource {
             throw new PKIException("Error retrieving profile.  Profile Service not available");
         }
 
-        PKIPrincipal principal = (PKIPrincipal) servletRequest.getUserPrincipal();
-        if ((principal != null) &&
-                (principal.hasRole("Certificate Manager Agents") ||
-                principal.hasRole("Certificate Manager Administrators"))) {
-            visibleOnly = false;
+        // TODO remove hardcoded role names and consult authzmgr
+        // (so that we can handle externally-authenticated principals)
+        Principal principal = servletRequest.getUserPrincipal();
+        if (principal != null && principal instanceof GenericPrincipal) {
+            GenericPrincipal genPrincipal = (GenericPrincipal) principal;
+            if (genPrincipal.hasRole("Certificate Manager Agents") ||
+                genPrincipal.hasRole("Certificate Manager Administrators"))
+                    visibleOnly = false;
         }
 
         IProfile profile;
