@@ -478,7 +478,8 @@ class PKIConfigParser:
             protocol='https',
             hostname=self.mdict['pki_security_domain_hostname'],
             port=self.mdict['pki_security_domain_https_port'],
-            subsystem='ca')
+            subsystem='ca',
+            trust_env=False)
 
     def sd_get_info(self):
         sd = pki.system.SecurityDomainClient(self.sd_connection)
@@ -545,7 +546,8 @@ class PKIConfigParser:
             protocol=parse.scheme,
             hostname=parse.hostname,
             port=str(parse.port),
-            subsystem=system_type)
+            subsystem=system_type,
+            trust_env=False)
         client = pki.system.SystemStatusClient(conn)
         response = client.get_status()
         root = ET.fromstring(response)

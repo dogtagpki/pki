@@ -1082,7 +1082,8 @@ class Instance:
             hostname=self.mdict['pki_hostname'],
             port=self.mdict['pki_https_port'],
             subsystem=self.mdict['pki_subsystem_type'],
-            accept='application/xml')
+            accept='application/xml',
+            trust_env=False)
 
         # catching all exceptions because we do not want to break if underlying
         # requests or urllib3 use a different exception.
@@ -3025,7 +3026,8 @@ class KRAConnector:
             protocol='https',
             hostname=sechost,
             port=secport,
-            subsystem='ca')
+            subsystem='ca',
+            trust_env=False)
         sd = pki.system.SecurityDomainClient(sd_connection)
         try:
             info = sd.get_security_domain_info()
@@ -3791,7 +3793,8 @@ class ConfigClient:
             protocol='https',
             hostname=self.mdict['pki_hostname'],
             port=self.mdict['pki_https_port'],
-            subsystem=self.mdict['pki_subsystem_type'])
+            subsystem=self.mdict['pki_subsystem_type'],
+            trust_env=False)
 
         try:
             client = pki.system.SystemConfigClient(connection)
