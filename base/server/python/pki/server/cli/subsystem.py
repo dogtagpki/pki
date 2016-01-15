@@ -448,7 +448,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         super(SubsystemCertExportCLI, self).__init__(
             'export', 'Export subsystem certificate')
 
-    def usage(self):
+    def usage(self):  # flake8: noqa
         print('Usage: pki-server subsystem-cert-export [OPTIONS] <subsystem ID> <cert ID>')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')

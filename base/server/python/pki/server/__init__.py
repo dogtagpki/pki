@@ -467,7 +467,7 @@ class PKIServerException(pki.PKIException):
 class Tomcat(object):
 
     @classmethod
-    def get_major_version(self):
+    def get_major_version(cls):
 
         # run "tomcat version"
         output = subprocess.check_output(['/usr/sbin/tomcat', 'version'])

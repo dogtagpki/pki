@@ -43,18 +43,6 @@ from pwd import getpwuid
 import xml.etree.ElementTree as ET
 from lxml import etree
 import zipfile
-import selinux
-
-seobject = None
-if selinux.is_selinux_enabled():
-    try:
-        import seobject
-    except ImportError:
-        # TODO: Fedora 22 has an incomplete Python 3 package
-        # sepolgen is missing.
-        if sys.version_info.major == 2:
-            raise
-
 
 # PKI Deployment Imports
 from . import pkiconfig as config
@@ -64,6 +52,18 @@ from . import pkimessages as log
 from .pkiparser import PKIConfigParser
 import pki.client
 import pki.system
+
+# special care for SELinux
+import selinux
+seobject = None
+if selinux.is_selinux_enabled():
+    try:
+        import seobject
+    except ImportError:
+        # TODO: Fedora 22 has an incomplete Python 3 package
+        # sepolgen is missing.
+        if sys.version_info.major == 2:
+            raise
 
 
 # PKI Deployment Helper Functions
@@ -3908,8 +3908,8 @@ class ConfigClient:
                     message = root.findall('.//Message')[0].text
                     if message is not None:
                         config.pki_log.error(
-                            log.PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION + " "
-                            + message,
+                            log.PKI_CONFIG_JAVA_CONFIGURATION_EXCEPTION + " " +
+                            message,
                             extra=config.PKI_INDENTATION_LEVEL_2)
 
             raise
@@ -4125,7 +4125,8 @@ class ConfigClient:
                         cert1.req_ext_data = \
                             self.mdict['pki_req_ext_data']
 
-                if self.external and self.external_step_two: # external/existing CA step 2
+                if self.external and self.external_step_two:
+                    # external/existing CA step 2
 
                     # If specified, load the externally-signed CA cert
                     if self.mdict['pki_external_ca_cert_path']:
@@ -4143,7 +4144,8 @@ class ConfigClient:
 
                     systemCerts.append(cert1)
 
-                elif self.standalone and self.external_step_two: # standalone KRA/OCSP step 2
+                elif self.standalone and self.external_step_two:
+                    # standalone KRA/OCSP step 2
 
                     cert1 = pki.system.SystemCertData()
                     cert1.tag = self.mdict['pki_ca_signing_tag']

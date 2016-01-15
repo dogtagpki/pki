@@ -99,7 +99,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         external_csr_path = deployer.configuration_file.external_csr_path
 
         try:
-            if external and step_one: # external/existing CA step 1
+            if external and step_one:  # external/existing CA step 1
 
                 key_type = deployer.mdict['pki_ca_signing_key_type']
                 key_alg = deployer.mdict['pki_ca_signing_key_algorithm']
@@ -147,7 +147,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 subsystem.save()
 
-            elif external and step_two: # external/existing CA step 2
+            elif external and step_two:  # external/existing CA step 2
 
                 # If specified, import existing CA cert request into CS.cfg.
                 if external_csr_path:
@@ -157,7 +157,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
                 # If specified, import external CA cert into NSS database.
-                external_ca_cert_chain_nickname = deployer.mdict['pki_external_ca_cert_chain_nickname']
+                external_ca_cert_chain_nickname = \
+                    deployer.mdict['pki_external_ca_cert_chain_nickname']
                 external_ca_cert_chain_file = deployer.mdict['pki_external_ca_cert_chain_path']
                 if external_ca_cert_chain_file:
                     cert_chain = nssdb.import_cert_chain(
@@ -189,11 +190,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 subsystem.config['ca.signing.tokenname'] = deployer.mdict['pki_ca_signing_token']
                 subsystem.config['ca.signing.cert'] = signing_cert_data
                 subsystem.config['ca.signing.cacertnickname'] = signing_nickname
-                subsystem.config['ca.signing.defaultSigningAlgorithm'] = deployer.mdict['pki_ca_signing_signing_algorithm']
+                subsystem.config['ca.signing.defaultSigningAlgorithm'] = \
+                    deployer.mdict['pki_ca_signing_signing_algorithm']
 
                 subsystem.save()
 
-            else: # self-signed CA
+            else:  # self-signed CA
 
                 # To be implemented in ticket #1692.
 

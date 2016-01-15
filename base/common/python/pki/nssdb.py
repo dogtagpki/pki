@@ -18,6 +18,7 @@
 # All rights reserved.
 #
 
+from __future__ import absolute_import
 import base64
 import os
 import shutil
@@ -36,7 +37,6 @@ PKCS7_FOOTER = '-----END PKCS7-----'
 
 
 def convert_data(data, input_format, output_format, header=None, footer=None):
-
     if input_format == output_format:
         return data
 
@@ -46,7 +46,7 @@ def convert_data(data, input_format, output_format, header=None, footer=None):
         data = data.replace('\r', '').replace('\n', '')
 
         # re-split the line into fixed-length lines
-        lines = [data[i:i+64] for i in range(0, len(data), 64)]
+        lines = [data[i:i + 64] for i in range(0, len(data), 64)]
 
         # add header and footer
         return '%s\n%s\n%s\n' % (header, '\n'.join(lines), footer)
@@ -67,20 +67,20 @@ def convert_data(data, input_format, output_format, header=None, footer=None):
 
     raise Exception('Unable to convert data from %s to %s' % (input_format, output_format))
 
-def convert_csr(csr_data, input_format, output_format):
 
+def convert_csr(csr_data, input_format, output_format):
     return convert_data(csr_data, input_format, output_format, CSR_HEADER, CSR_FOOTER)
 
-def convert_cert(cert_data, input_format, output_format):
 
+def convert_cert(cert_data, input_format, output_format):
     return convert_data(cert_data, input_format, output_format, CERT_HEADER, CERT_FOOTER)
 
-def convert_pkcs7(pkcs7_data, input_format, output_format):
 
+def convert_pkcs7(pkcs7_data, input_format, output_format):
     return convert_data(pkcs7_data, input_format, output_format, PKCS7_HEADER, PKCS7_FOOTER)
 
-def get_file_type(filename):
 
+def get_file_type(filename):
     with open(filename, 'r') as f:
         data = f.read()
 
@@ -118,11 +118,7 @@ class NSSDatabase(object):
     def close(self):
         shutil.rmtree(self.tmpdir)
 
-    def add_cert(self,
-        nickname,
-        cert_file,
-        trust_attributes=',,'):
-
+    def add_cert(self, nickname, cert_file, trust_attributes=',,'):
         cmd = [
             'certutil',
             '-A',
@@ -136,10 +132,7 @@ class NSSDatabase(object):
 
         subprocess.check_call(cmd)
 
-    def modify_cert(self,
-        nickname,
-        trust_attributes):
-
+    def modify_cert(self, nickname, trust_attributes):
         cmd = [
             'certutil',
             '-M',
@@ -153,7 +146,6 @@ class NSSDatabase(object):
         subprocess.check_call(cmd)
 
     def create_noise(self, noise_file, size=2048):
-
         subprocess.check_call([
             'openssl',
             'rand',
@@ -161,15 +153,9 @@ class NSSDatabase(object):
             str(size)
         ])
 
-    def create_request(self,
-        subject_dn,
-        request_file,
-        noise_file=None,
-        key_type=None,
-        key_size=None,
-        curve=None,
-        hash_alg=None):
-
+    def create_request(self, subject_dn, request_file, noise_file=None,
+                       key_type=None, key_size=None, curve=None,
+                       hash_alg=None):
         tmpdir = tempfile.mkdtemp()
 
         try:
@@ -229,12 +215,8 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def create_self_signed_ca_cert(self,
-        subject_dn,
-        request_file,
-        cert_file,
-        serial='1',
-        validity=240):
+    def create_self_signed_ca_cert(self, subject_dn, request_file, cert_file,
+                                   serial='1', validity=240):
 
         cmd = [
             'certutil',
@@ -256,7 +238,8 @@ class NSSDatabase(object):
             '--extAIA'
         ]
 
-        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
 
         keystroke = ''
 
@@ -367,7 +350,7 @@ class NSSDatabase(object):
         try:
             file_type = get_file_type(cert_chain_file)
 
-            if file_type == 'cert': # import single PEM cert
+            if file_type == 'cert':  # import single PEM cert
                 self.add_cert(
                     nickname=nickname,
                     cert_file=cert_chain_file,
@@ -376,14 +359,14 @@ class NSSDatabase(object):
                     nickname=nickname,
                     output_format='base64')
 
-            elif file_type == 'pkcs7': # import PKCS #7 cert chain
+            elif file_type == 'pkcs7':  # import PKCS #7 cert chain
                 return self.import_pkcs7(
                     pkcs7_file=cert_chain_file,
                     nickname=nickname,
                     trust_attributes=trust_attributes,
                     output_format='base64')
 
-            else: # import PKCS #7 data without header/footer
+            else:  # import PKCS #7 data without header/footer
                 with open(cert_chain_file, 'r') as f:
                     base64_data = f.read()
                 pkcs7_data = convert_pkcs7(base64_data, 'base64', 'pem')
@@ -501,7 +484,8 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def export_pkcs12(self, pkcs12_file, nickname, pkcs12_password=None, pkcs12_password_file=None):
+    def export_pkcs12(self, pkcs12_file, nickname, pkcs12_password=None,
+                      pkcs12_password_file=None):
 
         tmpdir = tempfile.mkdtemp()
 

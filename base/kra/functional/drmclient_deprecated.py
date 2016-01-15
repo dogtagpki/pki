@@ -41,6 +41,8 @@ import nss.nss as nss
 from ipapython import nsslib, ipautil
 from nss.error import NSPRError
 from ipalib.errors import NetworkError, CertificateOperationError
+import argparse
+from base64 import b64decode, b64encode
 from urllib import urlencode, quote_plus
 from datetime import datetime
 import logging
@@ -49,9 +51,6 @@ from six.moves import http_client  # pylint: disable=F0401
 
 CERT_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----"
 CERT_FOOTER = "-----END NEW CERTIFICATE REQUEST-----"
-
-
-from base64 import b64decode, b64encode
 
 
 def _(string):
@@ -444,8 +443,8 @@ class KRA:
         try:
             nss.nss_init(self.sec_dir)
         except Exception as e:
-            raise CertificateOperationError(error=_('Error in initializing certdb (%s)')
-                                            + e.strerror)
+            raise CertificateOperationError(
+                error=_('Error in initializing certdb (%s)') % e.strerror)
         self.transport_cert = nss.find_cert_from_nickname(
             self.transport_cert_nickname)
 
@@ -1010,8 +1009,6 @@ class KRA:
         pass
 
 """ Sample Test execution starts here """
-import argparse
-
 parser = argparse.ArgumentParser(description="Sample Test execution")
 parser.add_argument(
     '-d',

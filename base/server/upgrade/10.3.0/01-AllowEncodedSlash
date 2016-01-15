@@ -22,6 +22,7 @@ from __future__ import absolute_import
 import os.path
 import pki.server.upgrade
 
+
 class AllowEncodedSlash(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def __init__(self):

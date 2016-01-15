@@ -33,6 +33,7 @@ class TestHTTPError(requests.exceptions.HTTPError):
         self.response._content = body
         self.response.encoding = 'utf-8'
 
+
 class PKITests(unittest.TestCase):
     def test_handle_exceptions(self):
 
@@ -77,7 +78,6 @@ class PKITests(unittest.TestCase):
             e.exception.ClassName,
             'com.netscape.certsrv.base.BadRequestException'
         )
-
 
         with self.assertRaises(TestHTTPError) as e:
             raiser(b'no json body')

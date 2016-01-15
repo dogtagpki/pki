@@ -20,7 +20,6 @@
 #
 
 import mock
-import requests
 import unittest
 import uuid
 
@@ -38,7 +37,7 @@ class AuthorityTests(unittest.TestCase):
         self.authority_client = authority.AuthorityClient(self.connection)
         self.top_level_aid = str(uuid.uuid4())
         self.aid = str(uuid.uuid4())
-        self.aid2 =  str(uuid.uuid4())
+        self.aid2 = str(uuid.uuid4())
         self.dn = "cn=subordinate ca, o=example.com"
         self.dn2 = "cn=subordinate ca2, o=example.com"
         self.description = "subordinate CA1"
@@ -127,5 +126,3 @@ class AuthorityTests(unittest.TestCase):
                 self.assertEquals(ca.dn, self.dn2)
             else:
                 self.assertEquals(ca.dn, self.dn)
-
-
