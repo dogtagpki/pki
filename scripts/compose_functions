@@ -42,7 +42,7 @@ export PKI_DOGTAG_DIR
 PKI_REDHAT_DIR="${PKI_DIR}/redhat"
 export PKI_REDHAT_DIR
 
-PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake scripts/pylint-build-scan.py scripts/dogtag.pylintrc"
+PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake scripts/pylint-build-scan.py scripts/dogtag.pylintrc tox.ini"
 export PKI_FILE_LIST
 
 PKI_CMAKE_DIR="cmake"

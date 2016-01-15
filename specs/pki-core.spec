@@ -103,6 +103,8 @@ BuildRequires:    resteasy >= 3.0.6-2
 
 %if ! 0%{?rhel}
 BuildRequires:    pylint
+BuildRequires:    python-flake8
+BuildRequires:    python3-flake8
 %endif
 
 BuildRequires:    python-nss
@@ -722,6 +724,25 @@ if [ $? -ne 0 ]; then
     echo "pylint failed. RC: $?"
     exit 1
 fi
+
+python2 ../pylint-build-scan.py rpm --prefix %{buildroot} -- --py3k
+if [ $? -ne 0 ]; then
+    echo "pylint --py3k failed. RC: $?"
+    exit 1
+fi
+
+flake8 --config ../tox.ini %{buildroot}
+if [ $? -ne 0 ]; then
+    echo "flake8 for Python 2 failed. RC: $?"
+    exit 1
+fi
+
+python3-flake8 --config ../tox.ini %{buildroot}
+if [ $? -ne 0 ]; then
+    echo "flake8 for Python 3 failed. RC: $?"
+    exit 1
+fi
+
 %endif
 
 %{__rm} -rf %{buildroot}%{_datadir}/pki/server/lib
