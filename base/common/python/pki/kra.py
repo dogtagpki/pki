@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # Authors:
 #     Abhishek Koneru <akoneru@redhat.com>
 #     Ade Lee <alee@redhat.com>

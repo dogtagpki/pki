@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # Authors:
 #     Endi S. Dewata <edewata@redhat.com>
 #

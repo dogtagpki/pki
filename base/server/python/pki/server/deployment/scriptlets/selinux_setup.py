@@ -1,4 +1,3 @@
-#!/usr/bin/python -t
 # Authors:
 #     Ade Lee <alee@redhat.com>
 #
