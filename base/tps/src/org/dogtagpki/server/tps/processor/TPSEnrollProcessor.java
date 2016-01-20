@@ -89,7 +89,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
     private void enroll() throws TPSException, IOException {
         String method = "TPSEnrollProcessor.enroll:";
         CMS.debug(method + " entering...");
-        String auditMsg = null;
+        String logMsg = null;
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
         IConfigStore configStore = CMS.getConfigStore();
@@ -100,8 +100,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         try {
             appletInfo = getAppletInfo();
         } catch (TPSException e) {
-            auditMsg = e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+            logMsg = e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
             throw e;
@@ -144,11 +144,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 authId = configStore.getString(configName);
             } catch (EBaseException e) {
                 CMS.debug(method + " Internal Error obtaining mandatory config values. Error: " + e);
-                auditMsg = "TPS error getting config values from config store." + e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = "TPS error getting config values from config store." + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
 
             try {
@@ -159,23 +159,23 @@ public class TPSEnrollProcessor extends TPSProcessor {
             } catch (Exception e) {
                 // all exceptions are considered login failure
                 CMS.debug(method + ": authentication exception thrown: " + e);
-                auditMsg = "ExternalReg authentication failed, status = STATUS_ERROR_LOGIN";
+                logMsg = "ExternalReg authentication failed, status = STATUS_ERROR_LOGIN";
 
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg,
+                throw new TPSException(logMsg,
                         TPSStatus.STATUS_ERROR_LOGIN);
             }
 
             try {
                 erAttrs = processExternalRegAttrs(authId);
             } catch (Exception ee) {
-                auditMsg = "after processExternalRegAttrs: " + ee.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = "after processExternalRegAttrs: " + ee.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
 
             /*
@@ -190,15 +190,15 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 CMS.debug(method + " erAttrs.getTokenCUID()=" + erAttrs.getTokenCUID());
                 CMS.debug(method + " tokenRecord.getId()=" + tokenRecord.getId());
                 if (!tokenRecord.getId().equalsIgnoreCase(erAttrs.getTokenCUID())) {
-                    auditMsg = "isExternalReg: token CUID not matching record:" + tokenRecord.getId() + " : " +
+                    logMsg = "isExternalReg: token CUID not matching record:" + tokenRecord.getId() + " : " +
                             erAttrs.getTokenCUID();
-                    CMS.debug(method + auditMsg);
-                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                    CMS.debug(method + logMsg);
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_NOT_TOKEN_OWNER);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NOT_TOKEN_OWNER);
                 } else {
-                    auditMsg = "isExternalReg: token CUID matches record";
-                    CMS.debug(method + auditMsg);
+                    logMsg = "isExternalReg: token CUID matches record";
+                    CMS.debug(method + logMsg);
                 }
             } else {
                 CMS.debug(method + " no need to check if token cuid matches record");
@@ -224,11 +224,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 } catch (EBaseException e) {
                     CMS.debug(method + " Internal Error obtaining mandatory config values. Error: "
                             + e);
-                    auditMsg = "TPS error getting config values from config store." + e.toString();
-                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                    logMsg = "TPS error getting config values from config store." + e.toString();
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
 
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
                 }
             }
 
@@ -253,11 +253,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     CMS.debug(method + " resolved keySet: " + keySet);
                 }
             } catch (TPSException e) {
-                auditMsg = e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
         } else {
             CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: OFF");
@@ -281,11 +281,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     CMS.debug(method + " resolved tokenType: " + tokenType);
                 }
             } catch (TPSException e) {
-                auditMsg = e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
         }
 
@@ -302,13 +302,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 CMS.debug(method + " token transition disallowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
-                auditMsg = "Operation for CUID " + cuid +
+                logMsg = "Operation for CUID " + cuid +
                         " Disabled, illegal transition attempted " + tokenRecord.getTokenStatus() +
                         " to " + newState;
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg,
+                throw new TPSException(logMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
             } else {
                 CMS.debug("TPSPEnrollrocessor.enroll: token transition allowed " +
@@ -322,16 +322,16 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     !tokenPolicy.isAllowdTokenReenroll(cuid) &&
                     !tokenPolicy.isAllowdTokenRenew(cuid)) {
                 CMS.debug(method + " token renewal or reEnroll disallowed ");
-                auditMsg = "Operation renewal or reEnroll for CUID " + cuid +
+                logMsg = "Operation renewal or reEnroll for CUID " + cuid +
                         " Disabled";
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg,
+                throw new TPSException(logMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
             } else {
-                auditMsg = "isExternalReg: skip token policy (reenroll, renewal) check";
-                CMS.debug(method + auditMsg);
+                logMsg = "isExternalReg: skip token policy (reenroll, renewal) check";
+                CMS.debug(method + logMsg);
             }
         } else {
             CMS.debug(method + " token does not exist");
@@ -373,11 +373,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
         try {
             pkcs11objx = getCurrentObjectsOnToken(channel);
         } catch (DataFormatException e) {
-            auditMsg = method + " Failed to parse original token data: " + e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+            logMsg = method + " Failed to parse original token data: " + e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
-            throw new TPSException(auditMsg);
+            throw new TPSException(logMsg);
         }
 
         pkcs11objx.setCUID(appletInfo.getCUID());
@@ -387,10 +387,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 tps.tdb.tdbAddTokenEntry(tokenRecord, "uninitialized");
             } catch (Exception e) {
                 String failMsg = "add token failure";
-                auditMsg = failMsg + ":" + e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = failMsg + ":" + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
-                throw new TPSException(auditMsg);
+                throw new TPSException(logMsg);
             }
         }
 
@@ -419,22 +419,22 @@ public class TPSEnrollProcessor extends TPSProcessor {
         else if (status == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED) {
             statusString = "Recovery processed";
             recovered = true;
-            tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), auditMsg, "success");
+            tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), logMsg, "success");
         } else if (status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED) {
             statusString = "Renewal processed";
             renewed = true;
-            tps.tdb.tdbActivity(ActivityDatabase.OP_RENEWAL, tokenRecord, session.getIpAddress(), auditMsg, "success");
+            tps.tdb.tdbActivity(ActivityDatabase.OP_RENEWAL, tokenRecord, session.getIpAddress(), logMsg, "success");
         } else {
-            auditMsg = " generateCertsAfterRenewalRecoveryPolicy returned status=" + status;
-            CMS.debug(method + auditMsg);
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+            logMsg = " generateCertsAfterRenewalRecoveryPolicy returned status=" + status;
+            CMS.debug(method + logMsg);
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-            throw new TPSException(auditMsg);
+            throw new TPSException(logMsg);
         }
         if (!isExternalReg) {
-            auditMsg = "generateCertsAfterRenewalRecoveryPolicy returns status:"
+            logMsg = "generateCertsAfterRenewalRecoveryPolicy returns status:"
                     + EndOpMsg.statusToInt(status) + " : " + statusString;
-            CMS.debug(method + auditMsg);
+            CMS.debug(method + logMsg);
         }
         if (status == TPSStatus.STATUS_NO_ERROR) {
             if (!generateCertificates(certsInfo, channel, appletInfo)) {
@@ -444,7 +444,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     CMS.debug(method + "generateCertificates returned false means some certs failed enrollment;  clean up (format) the token");
                     format(true /*skipAuth*/);
                 }
-                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
                 throw new TPSException("generateCertificates failed");
             } else {
@@ -466,29 +466,29 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         CMS.debug(method + " after externalRegRecover status is:" + recoverStatus);
                         if (recoverStatus == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED) {
                             recovered = true;
-                            auditMsg = method + " externalRegRecover returned: recoverStatus=" + recoverStatus;
-                            tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), auditMsg, "success");
+                            logMsg = method + " externalRegRecover returned: recoverStatus=" + recoverStatus;
+                            tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), logMsg, "success");
                         } else {
-                            auditMsg = method + " externalRegRecover returned: recoverStatus=" + recoverStatus;
-                            CMS.debug(auditMsg);
+                            logMsg = method + " externalRegRecover returned: recoverStatus=" + recoverStatus;
+                            CMS.debug(logMsg);
                             tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(),
-                                    auditMsg,
+                                    logMsg,
                                     "failure");
 
-                            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_BAD_STATUS);
+                            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_BAD_STATUS);
                         }
                     } catch (EBaseException e) {
-                        auditMsg = method + " externalRegRecover: " + e;
-                        CMS.debug(auditMsg);
+                        logMsg = method + " externalRegRecover: " + e;
+                        CMS.debug(logMsg);
                         tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(),
-                                auditMsg,
+                                logMsg,
                                 "failure");
 
-                        throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_BAD_STATUS);
+                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_BAD_STATUS);
                     }
                 } else {
                     //TODO:
-                    //tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+                    //tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     //"success");
                 }
             }
@@ -555,10 +555,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
         } catch (Exception e) {
             String failMsg = "update token failure";
-            auditMsg = failMsg + ":" + e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+            logMsg = failMsg + ":" + e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-            throw new TPSException(auditMsg);
+            throw new TPSException(logMsg);
         }
         //update the tokendb with new certs
         CMS.debug(method + " updating tokendb with certs.");
@@ -566,9 +566,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
             // clean up the cert records used to belong to this token in tokendb
             tps.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
         } catch (Exception e) {
-            auditMsg = "Attempt to clean up record with tdbRemoveCertificatesByCUID failed; token probably clean; continue anyway:"
+            logMsg = "Attempt to clean up record with tdbRemoveCertificatesByCUID failed; token probably clean; continue anyway:"
                     + e;
-            CMS.debug(method + auditMsg);
+            CMS.debug(method + logMsg);
         }
         CMS.debug(method + " adding certs to token with tdbAddCertificatesForCUID...");
         ArrayList<TPSCertRecord> certRecords = certsInfo.toTPSCertRecords(tokenRecord.getId(), tokenRecord.getUserID());
@@ -578,8 +578,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             tps.tdb.tdbAddCertificatesForCUID(tokenRecord.getId(), certRecords);
         CMS.debug(method + " tokendb updated with certs to the cuid so that it reflects what's on the token");
 
-        auditMsg = "appletVersion=" + lastObjVer + "; tokenType =" + selectedTokenType + "; userid =" + userid;
-        tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+        logMsg = "appletVersion=" + lastObjVer + "; tokenType =" + selectedTokenType + "; userid =" + userid;
+        tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                 "success");
 
         CMS.debug(method + " leaving ...");
@@ -1014,7 +1014,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             AppletInfo aInfo)
             throws TPSException, IOException {
         TPSStatus status = TPSStatus.STATUS_NO_ERROR;
-        String auditMsg;
+        String logMsg;
         final String method = "TPSEnrollProcessor.generateCertsAfterRenewalRecoveryPolicy";
         CMS.debug(method + ": begins");
         IConfigStore configStore = CMS.getConfigStore();
@@ -1029,9 +1029,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
         } catch (Exception e) {
             //TODO: when do you get here?
             // no existing record, means no "renewal" or "recovery" actions needed
-            auditMsg = "no token associated with user: " + userid;
-            CMS.debug(method + auditMsg);
-            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_INACTIVE_TOKEN_NOT_FOUND);
+            logMsg = "no token associated with user: " + userid;
+            CMS.debug(method + logMsg);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_INACTIVE_TOKEN_NOT_FOUND);
         }
         CMS.debug(method + " found " + tokenRecords.size() + " tokens for user:" + userid);
         boolean isRecover = false;
@@ -1045,8 +1045,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             //Is this the same token (current token)?
             if (tokenRecord.getId().equals(aInfo.getCUIDhexStringPlain())) {
                 //same token
-                auditMsg = "found current token entry";
-                CMS.debug(method + ":" + auditMsg);
+                logMsg = "found current token entry";
+                CMS.debug(method + ":" + logMsg);
                 if (tokenRecord.getStatus().equals("uninitialized")) {
                     // this is the current token
                     if (tokenRecords.size() == 1) {
@@ -1070,70 +1070,70 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             isRecover = true;
                             continue; // TODO: or break?
                         }
-                        auditMsg = method + ": user already has an active token";
-                        CMS.debug(auditMsg);
-                        throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
+                        logMsg = method + ": user already has an active token";
+                        CMS.debug(logMsg);
+                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
                     }
                 } else if (tokenRecord.getStatus().equals("active")) {
                     // current token is already active; renew if allowed
                     if (tokenPolicy.isAllowdTokenRenew(aInfo.getCUIDhexStringPlain())) {
                         return processRenewal(certsInfo, channel, aInfo, tokenRecord);
                     } else {
-                        auditMsg = "token is already active; can't renew because renewal is not allowed; will re-enroll if allowed";
-                        CMS.debug(method + ":" + auditMsg);
+                        logMsg = "token is already active; can't renew because renewal is not allowed; will re-enroll if allowed";
+                        CMS.debug(method + ":" + logMsg);
                     }
                     break;
                 } else if (tokenRecord.getStatus().equals("terminated")) {
-                    auditMsg = "terminated token cuid="
+                    logMsg = "terminated token cuid="
                             + aInfo.getCUIDhexStringPlain() + " cannot be reused";
-                    CMS.debug(method + ":" + auditMsg);
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                    CMS.debug(method + ":" + logMsg);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
                 } else if (tokenRecord.getStatus().equals("lost")) {
                     String reasonStr = tokenRecord.getReason();
                     if (reasonStr.equals("keyCompromise")) {
-                        auditMsg = "This token cannot be reused because it has been reported lost";
+                        logMsg = "This token cannot be reused because it has been reported lost";
                         CMS.debug(method + ": "
-                                + auditMsg);
-                        throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE);
+                                + logMsg);
+                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE);
                     } else if (reasonStr.equals("onHold")) {
                         try {
                             tps.tdb.tdbHasActiveToken(userid);
-                            auditMsg = "user already has an active token";
+                            logMsg = "user already has an active token";
                             CMS.debug(method + ": "
-                                    + auditMsg);
-                            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
+                                    + logMsg);
+                            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN);
                         } catch (Exception e2) {
-                            auditMsg = "User needs to contact administrator to report lost token (it should be put on Hold).";
+                            logMsg = "User needs to contact administrator to report lost token (it should be put on Hold).";
                             CMS.debug(method + ": "
-                                    + auditMsg);
+                                    + logMsg);
                             break;
                         }
                     } else if (reasonStr.equals("destroyed")) {
-                        auditMsg = "This destroyed lost case should not be executed because the token is so damaged. It should not get here";
+                        logMsg = "This destroyed lost case should not be executed because the token is so damaged. It should not get here";
                         CMS.debug(method + ": "
-                                + auditMsg);
-                        throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_TOKEN_DISABLED);
+                                + logMsg);
+                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_TOKEN_DISABLED);
                     } else {
-                        auditMsg = "No such lost reason: " + reasonStr + " for this cuid: "
+                        logMsg = "No such lost reason: " + reasonStr + " for this cuid: "
                                 + aInfo.getCUIDhexStringPlain();
-                        CMS.debug(method + ":" + auditMsg);
-                        throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_NO_SUCH_LOST_REASON);
+                        CMS.debug(method + ":" + logMsg);
+                        throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NO_SUCH_LOST_REASON);
                     }
 
                 } else {
-                    auditMsg = "No such token status for this cuid=" + aInfo.getCUIDhexStringPlain();
-                    CMS.debug(method + ":" + auditMsg);
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_NO_SUCH_TOKEN_STATE);
+                    logMsg = "No such token status for this cuid=" + aInfo.getCUIDhexStringPlain();
+                    CMS.debug(method + ":" + logMsg);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NO_SUCH_TOKEN_STATE);
                 }
             } else { //cuid != current token
-                auditMsg = "found token entry different from current token";
-                CMS.debug(method + ":" + auditMsg);
+                logMsg = "found token entry different from current token";
+                CMS.debug(method + ":" + logMsg);
                 if (tokenRecord.getStatus().equals("lost")) {
                     //lostostToken keeps track of the latest token that's lost
                     //last one in the look should be the latest
                     lostToken = tokenRecord;
-                    auditMsg = "found a lost token: cuid = " + tokenRecord.getId();
-                    CMS.debug(method + ":" + auditMsg);
+                    logMsg = "found a lost token: cuid = " + tokenRecord.getId();
+                    CMS.debug(method + ":" + logMsg);
                 }
                 continue;
             }
@@ -1141,14 +1141,14 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         if (isRecover == true) { // this could be set in previous iteration
             if (lostToken == null) {
-                auditMsg = "No lost token to be recovered; do enrollment";
-                CMS.debug(method + ":" + auditMsg);
+                logMsg = "No lost token to be recovered; do enrollment";
+                CMS.debug(method + ":" + logMsg);
                 //shouldn't even get here;  But if we do, just enroll
             } else {
                 String reasonStr = lostToken.getReason();
                 //RevocationReason reason = RevocationReason.valueOf(reasonStr);
-                auditMsg = "isRecover true; reasonStr =" + reasonStr;
-                CMS.debug(method + ":" + auditMsg);
+                logMsg = "isRecover true; reasonStr =" + reasonStr;
+                CMS.debug(method + ":" + logMsg);
 
                 if (reasonStr.equals("keyCompromise")) {
                     return processRecovery(lostToken, certsInfo, channel, aInfo);
@@ -1170,22 +1170,22 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         String tmpTokenType = configStore.getString(configName);
                         setSelectedTokenType(tmpTokenType);
                     } catch (EPropertyNotFound e) {
-                        auditMsg = " configuration " + configName + " not found";
-                        CMS.debug(method + ":" + auditMsg);
-                        throw new TPSException(method + ":" + auditMsg);
+                        logMsg = " configuration " + configName + " not found";
+                        CMS.debug(method + ":" + logMsg);
+                        throw new TPSException(method + ":" + logMsg);
                     } catch (EBaseException e) {
-                        auditMsg = " configuration " + configName + " not found";
-                        CMS.debug(method + ":" + auditMsg);
-                        throw new TPSException(method + ":" + auditMsg);
+                        logMsg = " configuration " + configName + " not found";
+                        CMS.debug(method + ":" + logMsg);
+                        throw new TPSException(method + ":" + logMsg);
                     }
                     return processRecovery(lostToken, certsInfo, channel, aInfo);
 
                 } else if (reasonStr.equals("destroyed")) {
                     return processRecovery(lostToken, certsInfo, channel, aInfo);
                 } else {
-                    auditMsg = "No such lost reason: " + reasonStr + " for this cuid: " + aInfo.getCUIDhexStringPlain();
-                    CMS.debug(method + ":" + auditMsg);
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_NO_SUCH_LOST_REASON);
+                    logMsg = "No such lost reason: " + reasonStr + " for this cuid: " + aInfo.getCUIDhexStringPlain();
+                    CMS.debug(method + ":" + logMsg);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_NO_SUCH_LOST_REASON);
                 }
             }
         }
@@ -1215,7 +1215,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throws EBaseException, IOException {
 
         String method = "TPSEnrollProcessor.externalRegRecover:";
-        String auditMsg;
+        String logMsg;
         CMS.debug(method + "begins");
         TPSStatus status = TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED;
         if (session == null || session.getExternalRegAttrs() == null ||
@@ -1240,16 +1240,16 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 status = TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
                 return status;
             }
-            auditMsg = "ExternalReg cert record: serial=" +
+            logMsg = "ExternalReg cert record: serial=" +
                     serial.toString();
-            CMS.debug(method + auditMsg);
+            CMS.debug(method + logMsg);
 
             // recover cert
             CARemoteRequestHandler caRH = new CARemoteRequestHandler(caConn);
             CARetrieveCertResponse certResp = caRH.retrieveCertificate(serial);
             if (certResp == null) {
-                auditMsg = "In recovery mode, CARetieveCertResponse object not found!";
-                CMS.debug(method + auditMsg);
+                logMsg = "In recovery mode, CARetieveCertResponse object not found!";
+                CMS.debug(method + logMsg);
                 return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
             }
 
@@ -1264,16 +1264,16 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 CMS.debug(method + "recovered: retCertB64: "
                         + cert_bytes_buf.toHexString());
             } else {
-                auditMsg = "recovering cert b64 not found";
-                CMS.debug(method + auditMsg);
+                logMsg = "recovering cert b64 not found";
+                CMS.debug(method + logMsg);
                 return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
             }
 
             if (certResp.isCertRevoked()) {
                 CMS.debug(method + " cert revoked");
                 if (!allowRecoverInvalidCert()) {
-                    auditMsg = "revoked cert not allowed on token per policy;";
-                    CMS.debug(method + auditMsg);
+                    logMsg = "revoked cert not allowed on token per policy;";
+                    CMS.debug(method + logMsg);
                     return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
                 }
                 erCert.setCertStatus(CertStatus.REVOKED);
@@ -1284,43 +1284,43 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                 // check if expired or not yet valid
                 if (!certResp.isCertValid()) {
-                    auditMsg = "cert expired or not yet valid";
-                    CMS.debug(auditMsg);
+                    logMsg = "cert expired or not yet valid";
+                    CMS.debug(logMsg);
                     erCert.setCertStatus(CertStatus.EXPIRED); // it could be not yet valid
                 }
             }
 
             if (keyid == null) {
-                auditMsg = " no keyid; skip key recovery; continue";
-                CMS.debug(method + auditMsg);
+                logMsg = " no keyid; skip key recovery; continue";
+                CMS.debug(method + logMsg);
                 continue;
             } else if ( keyid.compareTo(BigInteger.valueOf(0))==0) {
-                auditMsg = " keyid is 0; invalid; skip key recovery; continue";
-                CMS.debug(method + auditMsg);
+                logMsg = " keyid is 0; invalid; skip key recovery; continue";
+                CMS.debug(method + logMsg);
                 continue;
             }
             // recover keys
-            auditMsg = " recovering for keyid: " + keyid.toString();
-            CMS.debug(method + auditMsg);
+            logMsg = " recovering for keyid: " + keyid.toString();
+            CMS.debug(method + logMsg);
             KRARecoverKeyResponse keyResp = null;
             if (kraConn != null) {
-                auditMsg = "kraConn not null:" + kraConn;
-                CMS.debug(method + auditMsg);
+                logMsg = "kraConn not null:" + kraConn;
+                CMS.debug(method + logMsg);
                 KRARemoteRequestHandler kraRH = new KRARemoteRequestHandler(kraConn);
                 if (channel.getDRMWrappedDesKey() == null) {
-                    auditMsg = "channel.getDRMWrappedDesKey() null";
-                    CMS.debug(method + auditMsg);
+                    logMsg = "channel.getDRMWrappedDesKey() null";
+                    CMS.debug(method + logMsg);
                     return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
                 } else {
-                    auditMsg = "channel.getDRMWrappedDesKey() not null";
-                    CMS.debug(method + auditMsg);
+                    logMsg = "channel.getDRMWrappedDesKey() not null";
+                    CMS.debug(method + logMsg);
                 }
 
                 keyResp = kraRH.recoverKey(cuid, userid, Util.specialURLEncode(channel.getDRMWrappedDesKey()),
                             null, keyid);
                 if (keyResp == null) {
-                    auditMsg = "recovering key not found";
-                    CMS.debug(method + auditMsg);
+                    logMsg = "recovering key not found";
+                    CMS.debug(method + logMsg);
                     return TPSStatus.STATUS_ERROR_RECOVERY_FAILED;
                 }
             }
@@ -1367,7 +1367,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throws TPSException, IOException {
         TPSStatus status = TPSStatus.STATUS_ERROR_RENEWAL_FAILED;
         String method = "TPSEnrollProcess.processRenewal";
-        String auditMsg;
+        String logMsg;
         CMS.debug(method + ": begins");
 
         boolean noFailedCerts = true;
@@ -1502,9 +1502,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         if (!noFailedCerts) {
             // TODO: handle cleanup
-            auditMsg = "There has been failed cert renewal";
-            CMS.debug(method + ":" + auditMsg);
-            throw new TPSException(auditMsg + TPSStatus.STATUS_ERROR_RENEWAL_FAILED);
+            logMsg = "There has been failed cert renewal";
+            CMS.debug(method + ":" + logMsg);
+            throw new TPSException(logMsg + TPSStatus.STATUS_ERROR_RENEWAL_FAILED);
         }
         return status;
     }
@@ -1655,7 +1655,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
     private TPSStatus processRecovery(TokenRecord toBeRecovered, EnrolledCertsInfo certsInfo, SecureChannel channel,
             AppletInfo aInfo) throws TPSException, IOException {
         String method = "TPSEnrollProcessor.processRecover";
-        String auditMsg;
+        String logMsg;
         TPSStatus status = TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED;
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -1772,10 +1772,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     try {
                         caConnId = configStore.getString(config);
                     } catch (Exception e) {
-                        auditMsg = "cannot find config:" + config;
-                        CMS.debug(method + ":" + auditMsg);
+                        logMsg = "cannot find config:" + config;
+                        CMS.debug(method + ":" + logMsg);
                         throw new TPSException(
-                                method + ":" + auditMsg,
+                                method + ":" + logMsg,
                                 TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
                     }
                     CMS.debug("TPSEnrollProcessor.processRecovery: Selecting cert to recover: " + serialToRecover);
@@ -1801,8 +1801,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                     // unrevoke cert if needed
                     if (certToRecover.getStatus().equalsIgnoreCase("revoked_on_hold")) {
-                        auditMsg = "unrevoking cert...";
-                        CMS.debug(method + ":" + auditMsg);
+                        logMsg = "unrevoking cert...";
+                        CMS.debug(method + ":" + logMsg);
 
                         CARemoteRequestHandler caRH = null;
                         try {
@@ -1815,9 +1815,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             CMS.debug(method + ": response status =" + response.getStatus());
 
                         } catch (EBaseException e) {
-                            auditMsg = "failed getting CARemoteRequestHandler";
-                            CMS.debug(method + ":" + auditMsg);
-                            throw new TPSException(method + ":" + auditMsg, TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+                            logMsg = "failed getting CARemoteRequestHandler";
+                            CMS.debug(method + ":" + logMsg);
+                            throw new TPSException(method + ":" + logMsg, TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
                         }
                     }
 
@@ -1827,9 +1827,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
                                                   certToRecover.getIssuedBy(),
                                                   "active");
                     } catch (Exception e) {
-                        auditMsg = "failed tdbUpdateCertEntry";
-                        CMS.debug(method + ":" + auditMsg);
-                        throw new TPSException(method + ":" + auditMsg, TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
+                        logMsg = "failed tdbUpdateCertEntry";
+                        CMS.debug(method + ":" + logMsg);
+                        throw new TPSException(method + ":" + logMsg, TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
                     }
                 } else {
 
@@ -3200,7 +3200,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     protected int getNumberCertsToEnroll() throws TPSException {
         String method = "TPSEnrollProcessor.getNumberCertsToEnroll:";
-        String auditMsg;
+        String logMsg;
         IConfigStore configStore = CMS.getConfigStore();
         int keyTypeNum = 0;
         try {
@@ -3211,8 +3211,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     configValue, 0);
 
         } catch (EBaseException e) {
-            auditMsg = "Internal error finding config value: " + e;
-            throw new TPSException(method + auditMsg,
+            logMsg = "Internal error finding config value: " + e;
+            throw new TPSException(method + logMsg,
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }

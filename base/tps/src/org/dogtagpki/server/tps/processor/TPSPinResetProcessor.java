@@ -62,7 +62,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         // a completely stand alone pin reset of an already enrolled token.
         CMS.debug(method + ": entering...");
 
-        String auditMsg = null;
+        String logMsg = null;
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;
@@ -73,8 +73,8 @@ public class TPSPinResetProcessor extends TPSProcessor {
         try {
             appletInfo = getAppletInfo();
         } catch (TPSException e) {
-            auditMsg = e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), auditMsg,
+            logMsg = e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
             throw e;
@@ -121,11 +121,11 @@ public class TPSPinResetProcessor extends TPSProcessor {
                 CMS.debug(method + " resolved tokenType: " + tokenType);
             }
         } catch (TPSException e) {
-            auditMsg = e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), auditMsg,
+            logMsg = e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
-            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         statusUpdate(15, "PROGRESS_PIN_RESET_RESOLVE_PROFILE");
@@ -149,16 +149,16 @@ public class TPSPinResetProcessor extends TPSProcessor {
             CMS.debug(method + ": token record updated!");
         } catch (Exception e) {
             String failMsg = "update token failure";
-            auditMsg = failMsg + ":" + e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), auditMsg,
+            logMsg = failMsg + ":" + e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-            throw new TPSException(auditMsg);
+            throw new TPSException(logMsg);
         }
 
         statusUpdate(100, "PROGRESS_PIN_RESET_COMPLETE");
 
-        auditMsg = "pin reset operation completed successfully";
-        tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), auditMsg,
+        logMsg = "pin reset operation completed successfully";
+        tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                 "success");
 
         CMS.debug(method + ": Token Pin successfully reset!");

@@ -234,12 +234,12 @@ public class TPSTokendb {
     public void tdbAddCertificatesForCUID(String cuid, ArrayList<TPSCertRecord> certs, ExternalRegAttrs erAttrs)
             throws TPSException {
         String method = "TPSTokendb.tdbAddCertificatesForCUID (with erAttrs): ";
-        String auditMsg = "";
+        String logMsg = "";
         CMS.debug(method + "begins");
         if (cuid == null || certs== null || certs.isEmpty() || erAttrs == null) {
-            auditMsg =  "params cuid, certs and erAttrs cannot be null or empty";
-            CMS.debug(method + auditMsg);
-            throw new TPSException(method + auditMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            logMsg =  "params cuid, certs and erAttrs cannot be null or empty";
+            CMS.debug(method + logMsg);
+            throw new TPSException(method + logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
         CMS.debug("TPSTokendb.tdbAddCertificatesForCUID: number of certs to update:"+ certs.size());
 
@@ -490,7 +490,7 @@ public class TPSTokendb {
         String method = "TPSTokendb.revokeCertsByCUID";
         if (cuid == null)
             throw new TPSException(method + ": cuid null");
-        String auditMsg;
+        String logMsg;
         IConfigStore configStore = CMS.getConfigStore();
         ArrayList<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertRecordsByCUID(cuid);
         if (tokenReason != null) {
@@ -498,9 +498,9 @@ public class TPSTokendb {
                     !tokenReason.equalsIgnoreCase("destroyed") &&
                     !tokenReason.equalsIgnoreCase("keyCompromise") &&
                     !tokenReason.equalsIgnoreCase("terminated")) {
-                auditMsg = "unknown tokenRecord lost reason:" + tokenReason;
-                CMS.debug(method + ":" + auditMsg);
-                throw new Exception(method + ":" + auditMsg);
+                logMsg = "unknown tokenRecord lost reason:" + tokenReason;
+                CMS.debug(method + ":" + logMsg);
+                throw new Exception(method + ":" + logMsg);
             }
 
         }
@@ -512,17 +512,17 @@ public class TPSTokendb {
             RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
 
             if (isRevoke) {
-                auditMsg = "called to revoke";
-                CMS.debug(method + ":" + auditMsg);
+                logMsg = "called to revoke";
+                CMS.debug(method + ":" + logMsg);
                 boolean revokeCert = shouldRevoke(cert, cuid, tokenReason, ipAddress, remoteUser);
 
                 if (!revokeCert) {
-                    auditMsg = "cert not to be revoked:" + cert.getSerialNumber();
-                    CMS.debug(method + ":" + auditMsg);
+                    logMsg = "cert not to be revoked:" + cert.getSerialNumber();
+                    CMS.debug(method + ":" + logMsg);
                     continue;
                 }
-                auditMsg = "cert to be revoked:" + cert.getSerialNumber();
-                CMS.debug(method + ":" + auditMsg);
+                logMsg = "cert to be revoked:" + cert.getSerialNumber();
+                CMS.debug(method + ":" + logMsg);
 
                 // get revoke reason
                 config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() +
@@ -530,11 +530,11 @@ public class TPSTokendb {
                 int reasonInt = configStore.getInteger(config, 0);
                 revokeReason = RevocationReason.fromInt(reasonInt);
             } else { // is unrevoke
-                auditMsg = "called to unrevoke";
-                CMS.debug(method + ":" + auditMsg);
+                logMsg = "called to unrevoke";
+                CMS.debug(method + ":" + logMsg);
                 if (!cert.getStatus().equalsIgnoreCase("revoked_on_hold")) {
-                    auditMsg = "cert record current status is not revoked_on_hold; cannot unrevoke";
-                    CMS.debug(method + ":" + auditMsg);
+                    logMsg = "cert record current status is not revoked_on_hold; cannot unrevoke";
+                    CMS.debug(method + ":" + logMsg);
                     continue;// TODO: continue or bail?
                 }
             }
@@ -553,9 +553,9 @@ public class TPSTokendb {
                                 revokeReason);
                 CMS.debug(method + ": response status =" + response.getStatus());
             } else {
-                auditMsg = "mulformed hex serial number :" + hexSerial;
-                CMS.debug(method + ": " + auditMsg);
-                throw new Exception(auditMsg);
+                logMsg = "mulformed hex serial number :" + hexSerial;
+                CMS.debug(method + ": " + logMsg);
+                throw new Exception(logMsg);
             }
 
             // update certificate status
@@ -569,8 +569,8 @@ public class TPSTokendb {
                 updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "active");
             }
 
-            auditMsg = "cert (un)revoked:" + cert.getSerialNumber();
-            CMS.debug(method + ":" + auditMsg);
+            logMsg = "cert (un)revoked:" + cert.getSerialNumber();
+            CMS.debug(method + ":" + logMsg);
             //TODO: tdbActivity
         }
     }

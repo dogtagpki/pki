@@ -116,12 +116,12 @@ public class ExternalRegAttrs {
      */
     public ExternalRegCertToRecover.CertStatus getCertStatus(String serialString) throws TPSException {
         String method = "ExternalRegAttrs.getCertStatus:";
-        String auditMsg = "";
+        String logMsg = "";
         CMS.debug(method + "begins. getCertsToRecoverCount=" + getCertsToRecoverCount());
         if (serialString == null) {
-            auditMsg = "parameter serialString cannnot be null";
-            CMS.debug(method + auditMsg);
-            throw new TPSException(method + auditMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            logMsg = "parameter serialString cannnot be null";
+            CMS.debug(method + logMsg);
+            throw new TPSException(method + logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         } else
             CMS.debug(method + "searching for serialString =" + serialString);
         if (serialString.startsWith("0x")) {
@@ -136,8 +136,8 @@ public class ExternalRegAttrs {
                 return cert.getCertStatus();
             }
         }
-        auditMsg = "cert not found in ExternalReg, status not reset";
-        CMS.debug(method + auditMsg);
+        logMsg = "cert not found in ExternalReg, status not reset";
+        CMS.debug(method + logMsg);
         // no match means cert was not one of the ExternalReg recovered certs; so don't reset
         // use UNINITIALIZED to mean not found, as all certs in externalReg must have been set by now
         return ExternalRegCertToRecover.CertStatus.UNINITIALIZED;

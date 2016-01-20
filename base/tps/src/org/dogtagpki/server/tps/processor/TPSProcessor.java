@@ -986,12 +986,12 @@ public class TPSProcessor {
     public TPSAuthenticator getAuthentication(String prefix, String tokenType)
             throws EBaseException {
         CMS.debug("TPSProcessor.getAuthentication");
-        String auditMsg = null;
+        String logMsg = null;
 
         if (prefix.isEmpty() || tokenType.isEmpty()) {
-            auditMsg = "TPSProcessor.getAuthentication: missing parameters: prefix or tokenType";
-            CMS.debug(auditMsg);
-            throw new EBaseException(auditMsg);
+            logMsg = "TPSProcessor.getAuthentication: missing parameters: prefix or tokenType";
+            CMS.debug(logMsg);
+            throw new EBaseException(logMsg);
         }
         IConfigStore configStore = CMS.getConfigStore();
         String configName = prefix + "." + tokenType + ".auth.id";
@@ -1001,9 +1001,9 @@ public class TPSProcessor {
                 configName);
         authId = configStore.getString(configName);
         if (authId == null) {
-            auditMsg = "TPSProcessor.getAuthentication: config param not found:" + configName;
-            CMS.debug(auditMsg);
-            throw new EBaseException(auditMsg);
+            logMsg = "TPSProcessor.getAuthentication: config param not found:" + configName;
+            CMS.debug(logMsg);
+            throw new EBaseException(logMsg);
         }
         return getAuthentication(authId);
     }
@@ -1011,12 +1011,12 @@ public class TPSProcessor {
     public TPSAuthenticator getAuthentication(String authId)
             throws EBaseException {
         CMS.debug("TPSProcessor.getAuthentication");
-        String auditMsg = null;
+        String logMsg = null;
 
         if (authId.isEmpty()) {
-            auditMsg = "TPSProcessor.getAuthentication: missing parameters: authId";
-            CMS.debug(auditMsg);
-            throw new EBaseException(auditMsg);
+            logMsg = "TPSProcessor.getAuthentication: missing parameters: authId";
+            CMS.debug(logMsg);
+            throw new EBaseException(logMsg);
         }
         IConfigStore configStore = CMS.getConfigStore();
 
@@ -1029,9 +1029,9 @@ public class TPSProcessor {
                 authCredNameConf);
         String authCredName = configStore.getString(authCredNameConf);
         if (authCredName == null) {
-            auditMsg = "TPSProcessor.getAuthentication: config param not found:" + authCredNameConf;
-            CMS.debug(auditMsg);
-            throw new EBaseException(auditMsg);
+            logMsg = "TPSProcessor.getAuthentication: config param not found:" + authCredNameConf;
+            CMS.debug(logMsg);
+            throw new EBaseException(logMsg);
         }
         authInst.setAuthCredName(authCredName);
 
@@ -1041,13 +1041,13 @@ public class TPSProcessor {
                 authLdapStringAttrs);
         String authLdapStringAttributes = configStore.getString(authLdapStringAttrs, "");
         if (authLdapStringAttributes != null && !authLdapStringAttributes.equals("")) {
-            auditMsg = "TPSProcessor.getAuthentication: got ldapStringAttributes... setting up";
-            CMS.debug(auditMsg);
+            logMsg = "TPSProcessor.getAuthentication: got ldapStringAttributes... setting up";
+            CMS.debug(logMsg);
             ldapStringAttrs = Arrays.asList(authLdapStringAttributes.split(","));
         } else {
             // not set is okay
-            auditMsg = "TPSProcessor.getAuthentication: config param not set:" + authLdapStringAttributes;
-            CMS.debug(auditMsg);
+            logMsg = "TPSProcessor.getAuthentication: config param not set:" + authLdapStringAttributes;
+            CMS.debug(logMsg);
         }
 
         return authInst;
@@ -1090,12 +1090,12 @@ public class TPSProcessor {
             IAuthCredentials userCred)
             throws EBaseException, TPSException {
 
-        String auditMsg = null;
+        String logMsg = null;
         CMS.debug("TPSProcessor.authenticateUser");
         if (op.isEmpty() || userAuth == null || userCred == null) {
-            auditMsg = "TPSProcessor.authenticateUser: missing parameter(s): op, userAuth, or userCred";
-            CMS.debug(auditMsg);
-            throw new EBaseException(auditMsg);
+            logMsg = "TPSProcessor.authenticateUser: missing parameter(s): op, userAuth, or userCred";
+            CMS.debug(logMsg);
+            throw new EBaseException(logMsg);
         }
         IAuthManager auth = userAuth.getAuthManager();
 
@@ -1389,7 +1389,7 @@ public class TPSProcessor {
      */
     protected boolean revokeCertsAtFormat() {
         String method = "revokeCertsAtFormat";
-        String auditMsg;
+        String logMsg;
         CMS.debug(method + ": begins");
 
         IConfigStore configStore = CMS.getConfigStore();
@@ -1398,20 +1398,20 @@ public class TPSProcessor {
         try {
             revokeCert = configStore.getBoolean(configName, false);
         } catch (EBaseException e) {
-            auditMsg = method + ": config not found: " + configName +
+            logMsg = method + ": config not found: " + configName +
                     "; default to false";
-            CMS.debug(auditMsg);
+            CMS.debug(logMsg);
         }
         if (!revokeCert) {
-            auditMsg = method + ":  revokeCert = false";
-            CMS.debug(auditMsg);
+            logMsg = method + ":  revokeCert = false";
+            CMS.debug(logMsg);
         }
         return revokeCert;
     }
 
     protected RevocationReason getRevocationReasonAtFormat() {
         String method = "getRevocationReasonAtFormat";
-        String auditMsg;
+        String logMsg;
 
         IConfigStore configStore = CMS.getConfigStore();
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.revokeReason";
@@ -1420,9 +1420,9 @@ public class TPSProcessor {
             int revokeReasonInt = configStore.getInteger(configName);
             revokeReason = RevocationReason.fromInt(revokeReasonInt);
         } catch (EBaseException e) {
-            auditMsg = method + ": config not found: " + configName +
+            logMsg = method + ": config not found: " + configName +
                     "; default to unspecified";
-            CMS.debug(auditMsg);
+            CMS.debug(logMsg);
             revokeReason = RevocationReason.UNSPECIFIED;
         }
 
@@ -1432,36 +1432,36 @@ public class TPSProcessor {
     /*
      * revokeCertificates revokes certificates on the token specified
      * @param cuid the cuid of the token to revoke certificates
-     * @return auditMsg captures the audit message
+     * @return logMsg captures the audit message
      * @throws TPSException in case of error
      *
      * TODO: maybe make this a callback function later
      */
     protected void revokeCertificates(String cuid, RevocationReason revokeReason, String caConnId) throws TPSException {
-        String auditMsg = "";
+        String logMsg = "";
         final String method = "TPSProcessor.revokeCertificates";
 
         if (cuid == null) {
-            auditMsg = "cuid null";
-            CMS.debug(method + ":" + auditMsg);
-            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+            logMsg = "cuid null";
+            CMS.debug(method + ":" + logMsg);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
         CMS.debug(method + ": begins for cuid:" + cuid);
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         boolean isTokenPresent = tps.tdb.isTokenPresent(cuid);
         if (!isTokenPresent) {
-            auditMsg = method + ": token not found: " + cuid;
-            CMS.debug(auditMsg);
-            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+            logMsg = method + ": token not found: " + cuid;
+            CMS.debug(logMsg);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
 
         CARemoteRequestHandler caRH = null;
         try {
             caRH = new CARemoteRequestHandler(caConnId);
         } catch (EBaseException e) {
-            auditMsg = method + ": getting CARemoteRequestHandler failure";
-            CMS.debug(auditMsg);
-            throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+            logMsg = method + ": getting CARemoteRequestHandler failure";
+            CMS.debug(logMsg);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
         //find all certs belonging to the token
         ArrayList<TPSCertRecord> certRecords = tps.tdb.tdbGetCertRecordsByCUID(cuid);
@@ -1476,9 +1476,9 @@ public class TPSProcessor {
                 try {
                     tps.certDatabase.removeRecord(cert.getId());
                 } catch (Exception e) {
-                    auditMsg = method + ": removeRecord failed";
-                    CMS.debug(auditMsg);
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                    logMsg = method + ": removeRecord failed";
+                    CMS.debug(logMsg);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
                 }
                 continue;
             }
@@ -1499,9 +1499,9 @@ public class TPSProcessor {
                 try {
                     tps.certDatabase.removeRecord(cert.getId());
                 } catch (Exception e) {
-                    auditMsg = method + ": removeRecord failed";
-                    CMS.debug(auditMsg);
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                    logMsg = method + ": removeRecord failed";
+                    CMS.debug(logMsg);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
                 }
                 continue;
             }
@@ -1521,9 +1521,9 @@ public class TPSProcessor {
                 try {
                     tps.certDatabase.removeRecord(cert.getId());
                 } catch (Exception e) {
-                    auditMsg = method + ": removeRecord failed";
-                    CMS.debug(auditMsg);
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                    logMsg = method + ": removeRecord failed";
+                    CMS.debug(logMsg);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
                 }
                 continue;
             }
@@ -1541,30 +1541,30 @@ public class TPSProcessor {
                                     revokeReason);
                     CMS.debug(method + ": response status =" + response.getStatus());
                 } catch (EBaseException e) {
-                    auditMsg = method + ": revokeCertificate from CA failed:" + e;
-                    CMS.debug(auditMsg);
+                    logMsg = method + ": revokeCertificate from CA failed:" + e;
+                    CMS.debug(logMsg);
 
                     if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
                         tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(),
-                                session.getIpAddress(), auditMsg,
+                                session.getIpAddress(), logMsg,
                                 "failure");
                     } else {
                         tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(),
-                                session.getIpAddress(), auditMsg,
+                                session.getIpAddress(), logMsg,
                                 "failure");
                     }
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
                 }
             } else {
-                auditMsg = "mulformed hex serial number :" + hexSerial;
-                CMS.debug(method + ": " + auditMsg);
+                logMsg = "mulformed hex serial number :" + hexSerial;
+                CMS.debug(method + ": " + logMsg);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(), session.getIpAddress(),
-                        auditMsg,
+                        logMsg,
                         "failure");
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
             }
-            auditMsg = "Certificate " + hexSerial + " revoked";
-            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(), session.getIpAddress(), auditMsg,
+            logMsg = "Certificate " + hexSerial + " revoked";
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(), session.getIpAddress(), logMsg,
                     "success");
 
             // delete cert from tokendb
@@ -1573,9 +1573,9 @@ public class TPSProcessor {
             try {
                 tps.certDatabase.removeRecord(cert.getId());
             } catch (Exception e) {
-                auditMsg = "removeRecord failed:" + e;
-                CMS.debug(method + ": " + auditMsg);
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
+                logMsg = "removeRecord failed:" + e;
+                CMS.debug(method + ": " + logMsg);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
             }
             continue;
         }
@@ -1735,7 +1735,7 @@ public class TPSProcessor {
 
         IConfigStore configStore = CMS.getConfigStore();
         String configName = null;
-        String auditMsg = null;
+        String logMsg = null;
         String appletVersion = null;
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -1745,8 +1745,8 @@ public class TPSProcessor {
         try {
             appletInfo = getAppletInfo();
         } catch (TPSException e) {
-            auditMsg = e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+            logMsg = e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
             throw e;
@@ -1810,11 +1810,11 @@ public class TPSProcessor {
                 requireLoginRequest = configStore.getBoolean(configName, false);
             } catch (EBaseException e) {
                 CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
-                auditMsg = "TPS error getting config values from config store." + e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = "TPS error getting config values from config store." + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
             if (!requireLoginRequest) {
                 CMS.debug("In TPSProcessor.format: no Login required");
@@ -1826,11 +1826,11 @@ public class TPSProcessor {
                     setSelectedTokenType(tokenType);
                 } catch (EBaseException e) {
                     CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
-                    auditMsg = "TPS error getting config values from config store." + e.toString();
-                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                    logMsg = "TPS error getting config values from config store." + e.toString();
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
 
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
                 }
                 CMS.debug("In TPSProcessor.format: isExternalReg: setting tokenType to default first:" +
                         tokenType);
@@ -1843,11 +1843,11 @@ public class TPSProcessor {
                     authId = configStore.getString(configName);
                 } catch (EBaseException e) {
                     CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
-                    auditMsg = "TPS error getting config values from config store." + e.toString();
-                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                    logMsg = "TPS error getting config values from config store." + e.toString();
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
 
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
                 }
                 try {
                     TPSAuthenticator userAuth =
@@ -1857,12 +1857,12 @@ public class TPSProcessor {
                 } catch (Exception e) {
                     // all exceptions are considered login failure
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
-                    auditMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
+                    logMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
 
-                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
 
-                    throw new TPSException(auditMsg,
+                    throw new TPSException(logMsg,
                             TPSStatus.STATUS_ERROR_LOGIN);
                 }
 
@@ -1870,11 +1870,11 @@ public class TPSProcessor {
                 try {
                     erAttrs = processExternalRegAttrs(/*authToken,*/authId);
                 } catch (Exception ee) {
-                    auditMsg = "processExternalRegAttrs: " + ee.toString();
-                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                    logMsg = "processExternalRegAttrs: " + ee.toString();
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
 
-                    throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
                 }
                 session.setExternalRegAttrs(erAttrs);
                 /* test
@@ -1915,11 +1915,11 @@ public class TPSProcessor {
                     CMS.debug("In TPSProcessor.format: resolved keySet: " + keySet);
                 }
             } catch (TPSException e) {
-                auditMsg = e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
         } else {
             CMS.debug("In TPSProcessor.format isExternalReg: OFF");
@@ -1943,11 +1943,11 @@ public class TPSProcessor {
                     CMS.debug("In TPSProcessor.format: resolved tokenType: " + tokenType);
                 }
             } catch (TPSException e) {
-                auditMsg = e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
             CMS.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
         }
@@ -1962,11 +1962,11 @@ public class TPSProcessor {
                 isAuthRequired = configStore.getBoolean(configName, true);
             } catch (EBaseException e) {
                 CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
-                auditMsg = "TPS error getting config values from config store." + e.toString();
-                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                logMsg = "TPS error getting config values from config store." + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
 
             if (isAuthRequired && !skipAuth) {
@@ -1977,12 +1977,12 @@ public class TPSProcessor {
                 } catch (Exception e) {
                     // all exceptions are considered login failure
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
-                    auditMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
+                    logMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
 
-                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
 
-                    throw new TPSException(auditMsg,
+                    throw new TPSException(logMsg,
                             TPSStatus.STATUS_ERROR_LOGIN);
                 }
             } // TODO: if no auth required, should wipe out existing tokenRecord entry data later?
@@ -2000,14 +2000,14 @@ public class TPSProcessor {
                 CMS.debug("TPSProcessor.format: token transition disallowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
-                auditMsg = "Operation for CUID " + appletInfo.getCUIDhexStringPlain() +
+                logMsg = "Operation for CUID " + appletInfo.getCUIDhexStringPlain() +
                         " Disabled, illegal transition attempted " + tokenRecord.getTokenStatus() +
                         " to " + newState;
 
-                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg,
+                tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
-                throw new TPSException(auditMsg,
+                throw new TPSException(logMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
             } else {
                 CMS.debug("TPSProcessor.format: token transition allowed " +
@@ -2064,7 +2064,7 @@ public class TPSProcessor {
                 revokeCertificates(tokenRecord.getId(), reason, caConnId);
             } catch (TPSException te) {
                 // failed revocation; capture message and continue
-                auditMsg = te.getMessage();
+                logMsg = te.getMessage();
             }
         }
 
@@ -2074,16 +2074,16 @@ public class TPSProcessor {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
         } catch (Exception e) {
             String failMsg = "update token failure";
-            auditMsg = failMsg + ":" + e.toString();
+            logMsg = failMsg + ":" + e.toString();
             tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), failMsg,
                     "failure");
 
-            throw new TPSException(auditMsg);
+            throw new TPSException(logMsg);
         }
 
-        auditMsg = "format operation succeeded";
+        logMsg = "format operation succeeded";
 
-        tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), auditMsg, "success");
+        tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg, "success");
 
         CMS.debug("TPSProcessor.format:: ends");
 
