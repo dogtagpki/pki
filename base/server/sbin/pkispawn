@@ -616,9 +616,13 @@ def main(argv):
 
     external = deployer.configuration_file.external
     step_one = deployer.configuration_file.external_step_one
+    external_csr_path = deployer.configuration_file.external_csr_path
 
     if external and step_one:
-        print_step_one_information(parser.mdict)
+        if external_csr_path:
+            print_external_ca_step_one_information(parser.mdict)
+        else:
+            print_existing_ca_step_one_information(parser.mdict)
     else:
         print_install_information(parser.mdict)
 
@@ -630,7 +634,7 @@ def set_port(parser, tag, prompt, existing_data):
         parser.read_text(prompt, config.pki_subsystem, tag)
 
 
-def print_step_one_information(mdict):
+def print_external_ca_step_one_information(mdict):
 
     print(log.PKI_SPAWN_INFORMATION_HEADER)
     print("      The %s subsystem of the '%s' instance is still incomplete." %
@@ -641,7 +645,19 @@ def print_step_one_information(mdict):
           % mdict['pki_external_csr_path'])
     print()
     print("      Submit the CSR to an external CA to generate a CA certificate\n"
-          "      for this subsystem.")
+          "      for this subsystem. Import the CA certificate and the certificate\n"
+          "      chain, then continue the installation.")
+    print(log.PKI_SPAWN_INFORMATION_FOOTER)
+
+
+def print_existing_ca_step_one_information(mdict):
+
+    print(log.PKI_SPAWN_INFORMATION_HEADER)
+    print("      The %s subsystem of the '%s' instance is still incomplete." %
+          (config.pki_subsystem, mdict['pki_instance_name']))
+    print()
+    print("      Import an existing CA certificate with the key and the CSR, and\n"
+          "      the certificate chain if available, then continue the installation.")
     print(log.PKI_SPAWN_INFORMATION_FOOTER)
 
 

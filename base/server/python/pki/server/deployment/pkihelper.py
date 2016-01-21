@@ -504,6 +504,7 @@ class ConfigurationFile:
         self.external = config.str2bool(self.mdict['pki_external'])
         self.external_step_one = not config.str2bool(self.mdict['pki_external_step_two'])
         self.external_step_two = not self.external_step_one
+        self.external_csr_path = self.mdict['pki_external_csr_path']
 
         if self.external:
             # generic extension support in CSR - for external CA
