@@ -28,7 +28,16 @@ import org.dogtagpki.server.connector.IRemoteRequest;
  */
 public abstract class RemoteResponse
 {
+    private String connId;
     protected Hashtable<String, Object> nameValTable;
+
+    protected void setConnID(String connid) {
+        connId = connid;
+    }
+
+    public String getConnID() {
+        return connId;
+    }
 
     public int getStatus() {
         Integer iValue = (Integer) nameValTable.get(IRemoteRequest.RESPONSE_STATUS);

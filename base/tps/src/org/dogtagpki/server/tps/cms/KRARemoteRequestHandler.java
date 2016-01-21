@@ -208,7 +208,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             }
 
             CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): ends.");
-            return new KRAServerSideKeyGenResponse(response);
+            return new KRAServerSideKeyGenResponse(connid, response);
         } else {
             CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): no response content.");
             throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): no response content.");
@@ -352,7 +352,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             }
 
             CMS.debug("KRARemoteRequestHandler: recoverKey(): ends.");
-            return new KRARecoverKeyResponse(response);
+            return new KRARecoverKeyResponse(connid, response);
         } else {
             CMS.debug("KRARemoteRequestHandler: recoverKey(): no response content.");
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): no response content.");

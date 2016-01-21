@@ -72,8 +72,12 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         try {
             appletInfo = getAppletInfo();
+            auditOpRequest("pinReset", appletInfo, "success", null);
         } catch (TPSException e) {
             logMsg = e.toString();
+            // appletInfo is null as expected at this point
+            // but audit for the record anyway
+            auditOpRequest("pinReset", appletInfo, "failure", logMsg);
             tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
@@ -85,9 +89,10 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         if (tokenRecord == null) {
             //We can't reset the pin of a token that does not exist.
-
-            CMS.debug(method + ": Token does not exist!");
-            throw new TPSException(method + " Can't reset pin of token that does not exist ",
+            logMsg = "Token does not exist!";
+            auditPinReset(session.getIpAddress(), userid, appletInfo, "failure", null, logMsg);
+            CMS.debug(method + ": " + logMsg);
+            throw new TPSException(method + logMsg +
                     TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
@@ -122,6 +127,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             }
         } catch (TPSException e) {
             logMsg = e.toString();
+            auditPinReset(session.getIpAddress(), userid, appletInfo, "failure", null, logMsg);
             tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
@@ -144,6 +150,9 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         checkAndHandlePinReset(channel);
 
+        auditPinReset(session.getIpAddress(), userid, appletInfo, "success",
+                channel.getKeyInfoData().toHexStringPlain(), null);
+
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
             CMS.debug(method + ": token record updated!");
@@ -163,6 +172,33 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         CMS.debug(method + ": Token Pin successfully reset!");
 
+    }
+
+    protected void auditPinReset(String ip, String subjectID,
+            AppletInfo aInfo,
+            String status,
+            String keyVersion,
+            String info) {
+
+        String auditType = "";
+        switch (status) {
+        case "success":
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_PIN_RESET_SUCCESS_6";
+            break;
+        default:
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_PIN_RESET_FAILURE_6";
+        }
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                ip,
+                subjectID,
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                status,
+                getSelectedTokenType(),
+                keyVersion,
+                info);
+        audit(auditMessage);
     }
 
     public static void main(String[] args) {

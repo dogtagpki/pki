@@ -9,6 +9,7 @@ public class AppletInfo {
     private byte minorVersion;
     private byte appMajorVersion;
     private byte appMinorVersion;
+    private String finalAppletVersion = null;
 
     private TPSBuffer aid;
     private TPSBuffer cuid;
@@ -24,6 +25,14 @@ public class AppletInfo {
         appMajorVersion = appMajorVer;
         appMinorVersion = appMinorVer;
 
+    }
+
+    public void setFinalAppletVersion(String appletVersion) {
+        finalAppletVersion = appletVersion;
+    }
+
+    public String getFinalAppletVersion() {
+        return finalAppletVersion;
     }
 
     public void setKDD(TPSBuffer theKDD) {

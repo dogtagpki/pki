@@ -263,7 +263,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             }
 
             CMS.debug("CARemoteRequestHandler: enrollCertificate(): ends.");
-            return new CAEnrollCertResponse(response);
+            return new CAEnrollCertResponse(connid, response);
         } else {
             CMS.debug("CARemoteRequestHandler: enrollCertificate(): no response content");
             throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): no response content.");
@@ -360,7 +360,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             }
 
             CMS.debug("CARemoteRequestHandler: retrieveCertificate(): ends.");
-            return new CARetrieveCertResponse(response);
+            return new CARetrieveCertResponse(connid, response);
         } else {
             CMS.debug("CARemoteRequestHandler: retrieveCertificate(): no response content");
             throw new EBaseException("CARemoteRequestHandler: retrieveCertificate(): no response content.");
@@ -471,7 +471,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             }
 
             CMS.debug("CARemoteRequestHandler: renewCertificate(): ends.");
-            return new CARenewCertResponse(response);
+            return new CARenewCertResponse(connid, response);
         } else {
             CMS.debug("CARemoteRequestHandler: renewCertificate(): no response content");
             throw new EBaseException("CARemoteRequestHandler: renewCertificate(): no response content.");
@@ -542,7 +542,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
             CMS.debug("CARemoteRequestHandler: revokeCertificate(): ends.");
-            return new CARevokeCertResponse(response);
+            return new CARevokeCertResponse(connid, response);
         } else {
             CMS.debug("CARemoteRequestHandler: revokeCertificate(): no response content.");
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): no response content.");
@@ -605,7 +605,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             response.put(IRemoteRequest.RESPONSE_STATUS, ist);
 
             CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): ends.");
-            return new CARevokeCertResponse(response);
+            return new CARevokeCertResponse(connid, response);
         } else {
             CMS.debug("CARemoteRequestHandler: unrevokeCertificate(): no response content.");
             throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate(): no response content.");

@@ -34,6 +34,11 @@ public class CARenewCertResponse extends RemoteResponse
         nameValTable = ht;
     }
 
+    public CARenewCertResponse(String connid, Hashtable<String, Object> ht) {
+        setConnID(connid);
+        nameValTable = ht;
+    }
+
     public String getRenewedCertB64() {
         return (String) nameValTable.get(IRemoteRequest.CA_RESPONSE_Certificate_b64);
     }

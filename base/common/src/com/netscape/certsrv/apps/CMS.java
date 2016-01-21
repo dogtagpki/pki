@@ -843,6 +843,27 @@ public final class CMS {
     }
 
     /**
+     * Retrieves the centralized log message from LogMessages.properties.
+     *
+     * @param msgID message id defined in LogMessages.properties
+     * @param p1 1st parameter
+     * @param p2 2nd parameter
+     * @param p3 3rd parameter
+     * @param p4 4th parameter
+     * @param p5 5th parameter
+     * @param p6 6th parameter
+     * @param p7 7th parameter
+     * @param p8 8th parameter
+     * @param p9 9th parameter
+     * @param p10 10th parameter
+     * @return localized log message
+     */
+    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8, String p9, String p10) {
+        return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
+    }
+
+    /**
      * Returns the main config store. It is a handle to CMS.cfg.
      *
      * @return configuration store

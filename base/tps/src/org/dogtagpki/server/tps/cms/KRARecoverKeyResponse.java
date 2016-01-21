@@ -33,6 +33,11 @@ public class KRARecoverKeyResponse extends RemoteResponse
         nameValTable = ht;
     }
 
+    public KRARecoverKeyResponse(String connid, Hashtable<String, Object> ht) {
+        setConnID(connid);
+        nameValTable = ht;
+    }
+
     public String getErrorString() {
         return (String) nameValTable.get(IRemoteRequest.RESPONSE_ERROR_STRING);
     }

@@ -88,4 +88,8 @@ public abstract class RemoteRequestHandler
         }
     }
 
+    protected String getConnid() {
+        return connid;
+    }
+
 }

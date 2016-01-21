@@ -88,6 +88,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.symkey.SessionKey;
 
@@ -129,6 +130,8 @@ public class TPSProcessor {
     private PlatformAndSecChannelProtoInfo platProtInfo;
 
     ProfileDatabase profileDatabase = new ProfileDatabase();
+
+    protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
     public TPSProcessor(TPSSession session) {
         setSession(session);
@@ -903,10 +906,12 @@ public class TPSProcessor {
         APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, cardMgrAIDBuff);
 
         if (!select.checkResult()) {
-            throw new TPSException("TPSProcessor.upgradeApplet: Can't selelect the card manager!");
+            String logMsg = "Can't selelect the card manager!";
+            auditAppletUpgrade(appletInfo, "failure", null /*unavailable*/, new_version, logMsg);
+            throw new TPSException("TPSProcessor.upgradeApplet:" + logMsg);
         }
 
-        SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, connId,appletInfo);
+        SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, connId, appletInfo);
 
         channel.externalAuthenticate();
 
@@ -928,9 +933,13 @@ public class TPSProcessor {
         select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
 
         if (!select.checkResult()) {
-            throw new TPSException("TPSProcessor.upgradeApplet: Cannot select newly created applet!",
+            String logMsg = "Cannot select newly created applet!";
+            auditAppletUpgrade(appletInfo, "failure", channel.getKeyInfoData().toHexStringPlain(), new_version, logMsg);
+            throw new TPSException("TPSProcessor.upgradeApplet: " + logMsg,
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
+
+        auditAppletUpgrade(appletInfo, "success", channel.getKeyInfoData().toHexStringPlain(), new_version, null);
         tokenRecord.setAppletID(new_version);
 
     }
@@ -1071,6 +1080,7 @@ public class TPSProcessor {
         tokenRecord.setUserID(userid);
         authToken = authenticateUser(op, userAuth, userCred);
         userid = authToken.getInString("userid");
+
         tokenRecord.setUserID(userid);
         CMS.debug(method + " auth token userid=" + userid);
     }
@@ -1328,16 +1338,16 @@ public class TPSProcessor {
             throw new TPSException("TPSProcessor.isTokenRecordPresent: invalid input data.");
         }
 
-        CMS.debug("TPSEnrollProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
+        CMS.debug("TPSProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         try {
             tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
             // now the in memory tokenRecord is replaced by the actual token data
-            CMS.debug("TPSEnrollProcessor.enroll: found token...");
+            CMS.debug("TPSProcessor.enroll: found token...");
         } catch (Exception e) {
-            CMS.debug("TPSEnrollProcessor.enroll: token does not exist in tokendb... create one in memory");
+            CMS.debug("TPSProcessor.enroll: token does not exist in tokendb... create one in memory");
         }
 
         return tokenRecord;
@@ -1432,7 +1442,6 @@ public class TPSProcessor {
     /*
      * revokeCertificates revokes certificates on the token specified
      * @param cuid the cuid of the token to revoke certificates
-     * @return logMsg captures the audit message
      * @throws TPSException in case of error
      *
      * TODO: maybe make this a callback function later
@@ -1536,13 +1545,15 @@ public class TPSProcessor {
                 CMS.debug(method + ": found cert hex serial: " + serial +
                         " dec serial:" + serialStr);
                 try {
-                    CARevokeCertResponse response =
-                            caRH.revokeCertificate(true, serialStr, cert.getCertificate(),
-                                    revokeReason);
+                    CARevokeCertResponse response = caRH.revokeCertificate(true, serialStr, cert.getCertificate(),
+                            revokeReason);
                     CMS.debug(method + ": response status =" + response.getStatus());
+                    auditRevoke(cuid, true, revokeReason.getCode(), String.valueOf(response.getStatus()), serialStr,
+                            caConnId, null);
                 } catch (EBaseException e) {
                     logMsg = method + ": revokeCertificate from CA failed:" + e;
                     CMS.debug(logMsg);
+                    auditRevoke(cuid, true, revokeReason.getCode(), "failure", serialStr, caConnId, null);
 
                     if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
                         tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(),
@@ -1731,6 +1742,41 @@ public class TPSProcessor {
         return erAttrs;
     }
 
+    protected void setExternalRegSelectedTokenType(ExternalRegAttrs erAttrs)
+            throws TPSException {
+        String method = "TPSProcessor.setExternalRegSelectedTokenType: ";
+        IConfigStore configStore = CMS.getConfigStore();
+        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
+        CMS.debug(method + " begins");
+        if (erAttrs == null || erAttrs.getTokenType() == null) {
+            // get the default externalReg tokenType
+            String configName = "externalReg.default.tokenType";
+            CMS.debug(method + "erAttrs null or externalReg user entry does not contain tokenType...setting to default config: "
+                    + configName);
+            try {
+                String tokenType = configStore.getString(configName,
+                        "externalRegAddToToken");
+                CMS.debug(method + " setting tokenType to default:" +
+                        tokenType);
+                setSelectedTokenType(tokenType);
+            } catch (EBaseException e) {
+                CMS.debug(method + " Internal Error obtaining mandatory config values. Error: "
+                        + e);
+                String logMsg = "TPS error getting config values from config store." + e.toString();
+                tps.tdb.tdbActivity(currentTokenOperation, session.getTokenRecord(), session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+        } else {
+            CMS.debug(method + " setting tokenType to tokenType attribute of user entry:"
+                    +
+                    erAttrs.getTokenType());
+            setSelectedTokenType(erAttrs.getTokenType());
+        }
+    }
+
     protected void format(boolean skipAuth) throws TPSException, IOException {
 
         IConfigStore configStore = CMS.getConfigStore();
@@ -1738,14 +1784,19 @@ public class TPSProcessor {
         String logMsg = null;
         String appletVersion = null;
 
+        CMS.debug("TPSProcessor.format begins");
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
         try {
             appletInfo = getAppletInfo();
+            auditOpRequest("format", appletInfo, "success", null);
         } catch (TPSException e) {
             logMsg = e.toString();
+            // appletInfo is null as expected at this point
+            // but audit for the record anyway
+            auditOpRequest("format", appletInfo, "failure", logMsg);
             tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
@@ -1849,12 +1900,15 @@ public class TPSProcessor {
 
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
                 }
+                TPSAuthenticator userAuth = null;
                 try {
-                    TPSAuthenticator userAuth =
-                            getAuthentication(authId);
+                    userAuth = getAuthentication(authId);
 
                     processAuthentication(TPSEngine.FORMAT_OP, userAuth, cuid, tokenRecord);
+                    auditAuth(userid, currentTokenOperation, appletInfo, "success", authId);
                 } catch (Exception e) {
+                    auditAuth(userid, currentTokenOperation, appletInfo, "failure",
+                            (userAuth != null) ? userAuth.getID() : null);
                     // all exceptions are considered login failure
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
                     logMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
@@ -1892,7 +1946,8 @@ public class TPSProcessor {
                 }
                 test ends */
 
-                setSelectedTokenType(erAttrs.getTokenType());
+                setExternalRegSelectedTokenType(erAttrs);
+//                setSelectedTokenType(erAttrs.getTokenType());
             }
             CMS.debug("In TPSProcessor.format: isExternalReg: about to process keySet resolver");
             /*
@@ -1961,8 +2016,11 @@ public class TPSProcessor {
                 CMS.debug("TPSProcessor.format: getting config: " + configName);
                 isAuthRequired = configStore.getBoolean(configName, true);
             } catch (EBaseException e) {
-                CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
-                logMsg = "TPS error getting config values from config store." + e.toString();
+                String info = " Internal Error obtaining mandatory config values. Error: " + e;
+                auditFormat(userid, appletInfo, "failure",
+                        null, info);
+                CMS.debug("TPSProcessor.format: " + info);
+                logMsg = "TPS error: " + info;
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
 
@@ -1970,11 +2028,15 @@ public class TPSProcessor {
             }
 
             if (isAuthRequired && !skipAuth) {
+                TPSAuthenticator userAuth = null;
                 try {
-                    TPSAuthenticator userAuth =
-                            getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);
+                    userAuth = getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);
                     processAuthentication(TPSEngine.FORMAT_OP, userAuth, cuid, tokenRecord);
+                    auditAuth(userid, currentTokenOperation, appletInfo, "success",
+                            (userAuth != null) ? userAuth.getID() : null);
                 } catch (Exception e) {
+                    auditAuth(userid, currentTokenOperation, appletInfo, "failure",
+                            (userAuth != null) ? userAuth.getID() : null);
                     // all exceptions are considered login failure
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
                     logMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
@@ -1997,12 +2059,12 @@ public class TPSProcessor {
             // Check for transition to 0/UNINITIALIZED status.
 
             if (!tps.engine.isOperationTransitionAllowed(tokenRecord.getTokenStatus(), newState)) {
-                CMS.debug("TPSProcessor.format: token transition disallowed " +
-                        tokenRecord.getTokenStatus() +
-                        " to " + newState);
-                logMsg = "Operation for CUID " + appletInfo.getCUIDhexStringPlain() +
-                        " Disabled, illegal transition attempted " + tokenRecord.getTokenStatus() +
+                String info = " illegal transition attempted: " + tokenRecord.getTokenStatus() +
                         " to " + newState;
+                CMS.debug("TPSProcessor.format: token transition: " + info);
+                logMsg = "Operation for CUID " + appletInfo.getCUIDhexStringPlain() + " Disabled. " + info;
+                auditFormat(userid, appletInfo, "failure",
+                        null, info);
 
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
@@ -2020,6 +2082,8 @@ public class TPSProcessor {
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
         }
 
+        // TODO: the following lines of code could be replaced with call to
+        // checkAndUpgradeApplet()
         TPSBuffer build_id = getAppletVersion();
 
         if (build_id == null) {
@@ -2052,8 +2116,17 @@ public class TPSProcessor {
 
         // Upgrade Symm Keys if needed
 
-        SecureChannel channel = checkAndUpgradeSymKeys(appletInfo,tokenRecord);
+        SecureChannel channel;
+        try {
+            channel = checkAndUpgradeSymKeys(appletInfo, tokenRecord);
+        } catch (TPSException te) {
+            auditKeyChangeover(appletInfo, "failure", null /* TODO */,
+                    getSymmetricKeysRequiredVersionHexString(), te.toString());
+            throw te;
+        }
         channel.externalAuthenticate();
+
+        auditFormat(userid, appletInfo, "success", channel.getKeyInfoData().toHexStringPlain(), null);
 
         if (isTokenPresent && revokeCertsAtFormat()) {
             // Revoke certificates on token, if so configured
@@ -2621,7 +2694,7 @@ public class TPSProcessor {
             index = configStore.getInteger(TPSEngine.CFG_CHANNEL_DEFKEY_INDEX, 0x0);
 
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getChannelDefKeyVersion: Internal error finding config value: " + e,
+            throw new TPSException("TPSProcessor.getChannelDefKeyIndex: Internal error finding config value: " + e,
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
@@ -2800,6 +2873,12 @@ public class TPSProcessor {
                 + " App major version: " + result.getAppMajorVersion() + " App minor version: "
                 + result.getAppMinorVersion());
 
+        String currentAppletVersion = formatCurrentAppletVersion(result);
+        if (currentAppletVersion != null) {
+            CMS.debug("TPSProcessor.getAppletInfo: current applet version = " +
+                currentAppletVersion);
+        }
+
         return result;
     }
 
@@ -2850,6 +2929,14 @@ public class TPSProcessor {
         CMS.debug("TPSProcessor.getSymmetricKeysRequiredVersion: returning version: " + version);
 
         return version;
+    }
+
+    protected String getSymmetricKeysRequiredVersionHexString() throws TPSException {
+        int requiredVersion = getSymmetricKeysRequiredVersion();
+        byte[] nv = { (byte) requiredVersion, 0x01 };
+        TPSBuffer newVersion = new TPSBuffer(nv);
+        String newVersionStr = newVersion.toHexString();
+        return newVersionStr;
     }
 
     protected SecureChannel checkAndUpgradeSymKeys(AppletInfo appletInfo,TokenRecord tokenRecord) throws TPSException, IOException {
@@ -2908,6 +2995,10 @@ public class TPSProcessor {
                 selectCardManager();
 
                 channel = setupSecureChannel(appletInfo);
+
+                auditKeyChangeoverRequired(appletInfo,
+                        channel.getKeyInfoData().toHexStringPlain(),
+                        getSymmetricKeysRequiredVersionHexString(), null);
 
                 /* Assemble the Buffer with the version information
                  The second byte is the key offset, which is always 1
@@ -3003,7 +3094,8 @@ public class TPSProcessor {
                 selectCoolKeyApplet();
 
                 channel = setupSecureChannel((byte) requiredVersion, (byte) defKeyIndex,
-                        getTKSConnectorID(),appletInfo);
+                        getTKSConnectorID(), appletInfo);
+                auditKeyChangeover(appletInfo, "success", curVersionStr, newVersionStr, null);
 
             } else {
                 CMS.debug("TPSProcessor.checkAndUpgradeSymeKeys: We are already at the desired key set, returning secure channel.");
@@ -3160,18 +3252,35 @@ public class TPSProcessor {
     }
 
     protected String formatCurrentAppletVersion(AppletInfo aInfo) throws TPSException, IOException {
+        String method = "TPSProcessor.formatCurrentAppletVersion: ";
+        CMS.debug(method + " begins");
+        /*
+         * TODO: looks like calling formatCurrentAppletVersion() more than
+         * once will cause keygen to fail on token. (resolve later if needed)
+         * In the mean time, resolution is to save up the result the first
+         *  time it is called
+         */
+        if (aInfo.getFinalAppletVersion() != null) {
+            return aInfo.getFinalAppletVersion();
+        }
 
         if (aInfo == null) {
             throw new TPSException("TPSProcessor.formatCurrentAppletVersion: ", TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
 
         TPSBuffer build_id = getAppletVersion();
+        if (build_id == null) {
+            CMS.debug(method + " getAppletVersion returning null");
+            return null;
+        }
         String build_idStr = build_id.toHexStringPlain();
 
         String finalVersion = aInfo.getAppMajorVersion() + "." + aInfo.getAppMinorVersion() + "." + build_idStr;
 
         finalVersion = finalVersion.toLowerCase();
-        CMS.debug("TPSProcessor.formatCurrentAppletVersion: returing: " + finalVersion);
+
+        aInfo.setFinalAppletVersion(finalVersion);
+        CMS.debug(method + " returing: " + finalVersion);
 
         return finalVersion;
 
@@ -3286,13 +3395,17 @@ public class TPSProcessor {
             CMS.debug(method + ": opPrefox: " + opPrefix);
 
             if (isAuthRequired) {
+                TPSAuthenticator userAuth = null;
                 try {
-                    TPSAuthenticator userAuth =
-                            getAuthentication(opPrefix, tokenType);
+                    userAuth = getAuthentication(opPrefix, tokenType);
                     processAuthentication(TPSEngine.ENROLL_OP, userAuth, appletInfo.getCUIDhexString(), tokenRecord);
+                    auditAuth(userid, currentTokenOperation, appletInfo, "success",
+                            (userAuth != null) ? userAuth.getID() : null);
 
                 } catch (Exception e) {
                     // all exceptions are considered login failure
+                    auditAuth(userid, currentTokenOperation, appletInfo, "failure",
+                            (userAuth != null) ? userAuth.getID() : null);
                     CMS.debug("TPSProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
                     String msg = "TPS error user authentication failed:" + e;
                     tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), msg,
@@ -3699,6 +3812,219 @@ public class TPSProcessor {
         return result;
     }
     */
+
+    protected void auditAuth(String subjectID, String op,
+            AppletInfo aInfo,
+            String status,
+            String authMgrId) {
+
+        String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_AUTH_FAILURE_9";
+        if (status.equals("success"))
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_AUTH_SUCCESS_9";
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                session.getIpAddress(),
+                subjectID,
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                (aInfo != null) ? aInfo.getMSNString() : null,
+                status,
+                op,
+                getSelectedTokenType(),
+                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
+                authMgrId);
+        audit(auditMessage);
+    }
+
+    /*
+     * op can be can be "format", "enroll", or "pinReset"
+     */
+    protected void auditOpRequest(String op, AppletInfo aInfo,
+            String status,
+            String info) {
+        String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_OP_REQUEST_6";
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                session.getIpAddress(),
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                (aInfo != null) ? aInfo.getMSNString() : null,
+                status,
+                op,
+                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
+                info);
+        audit(auditMessage);
+    }
+
+    protected void auditFormat(String subjectID,
+            AppletInfo aInfo,
+            String status,
+            String keyVersion,
+            String info) {
+        String auditType = "";
+        switch (status) {
+        case "success":
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_SUCCESS_9";
+            break;
+        default:
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_FAILURE_9";
+        }
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                session.getIpAddress(),
+                subjectID,
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                (aInfo != null) ? aInfo.getMSNString() : null,
+                status,
+                getSelectedTokenType(),
+                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
+                keyVersion,
+                info);
+        audit(auditMessage);
+    }
+
+    protected void auditAppletUpgrade(AppletInfo aInfo,
+            String status,
+            String keyVersion,
+            String newVersion,
+            String info) {
+
+        String auditType = "";
+        switch (status) {
+        case "success":
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_SUCCESS_9";
+            break;
+        default:
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_APPLET_UPGRADE_FAILURE_9";
+        }
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                (session != null) ? session.getIpAddress() : null,
+                userid,
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                (aInfo != null) ? aInfo.getMSNString() : null,
+                status,
+                keyVersion,
+                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
+                newVersion,
+                info);
+        audit(auditMessage);
+    }
+
+    protected void auditKeyChangeoverRequired(AppletInfo aInfo,
+            String oldKeyVersion,
+            String newKeyVersion,
+            String info) {
+
+        String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_REQUIRED_10";
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                (session != null) ? session.getIpAddress() : null,
+                userid,
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                (aInfo != null) ? aInfo.getMSNString() : null,
+                "na",
+                getSelectedTokenType(),
+                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
+                oldKeyVersion,
+                newKeyVersion,
+                info);
+        audit(auditMessage);
+    }
+
+    protected void auditKeyChangeover(AppletInfo aInfo,
+            String status,
+            String oldKeyVersion,
+            String newKeyVersion,
+            String info) {
+
+        String auditType = "";
+        switch (status) {
+        case "success":
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_SUCCESS_9";
+            break;
+        default:
+            auditType = "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_FAILURE_10";
+        }
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                (session != null) ? session.getIpAddress() : null,
+                userid,
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                (aInfo != null) ? aInfo.getMSNString() : null,
+                status,
+                getSelectedTokenType(),
+                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
+                oldKeyVersion,
+                newKeyVersion,
+                info);
+        audit(auditMessage);
+    }
+
+    /*
+     * audit revoke, on-hold, or off-hold
+     */
+    protected void auditRevoke(String cuid,
+            boolean isRevoke,
+            int revokeReason,
+            String status,
+            String serial,
+            String caConnId,
+            String info) {
+
+        String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_CERT_STATUS_CHANGE_REQUEST_10";
+        /*
+         * requestType is "revoke", "on-hold", or "off-hold"
+         */
+        String requestType = "revoke";
+        if (!isRevoke)
+            requestType = "off-hold";
+        else {
+            if (revokeReason == RevocationReason.CERTIFICATE_HOLD.getCode()) {
+                requestType = "on-hold";
+            }
+        }
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                (session != null) ? session.getIpAddress() : null,
+                userid,
+                cuid,
+                status,
+                getSelectedTokenType(),
+                serial,
+                requestType,
+                String.valueOf(revokeReason),
+                caConnId,
+                info);
+        audit(auditMessage);
+    }
+
+    /**
+     * Signed Audit Log
+     *
+     * This method is called to store messages to the signed audit log.
+     * <P>
+     *
+     * @param msg signed audit log message
+     */
+    protected void audit(String msg) {
+        // in this case, do NOT strip preceding/trailing whitespace
+        // from passed-in String parameters
+
+        if (mSignedAuditLogger == null) {
+            return;
+        }
+
+        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
+    }
 
     public static void main(String[] args) {
     }

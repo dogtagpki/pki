@@ -1650,6 +1650,13 @@ public class CMSEngine implements ICMSEngine {
         return getLogMessage(msgID, params);
     }
 
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8, String p9, String p10) {
+        String params[] = { p1, p2, p3, p4, p5, p6, p7, p8, p9, p10 };
+
+        return getLogMessage(msgID, params);
+    }
+
     public void getSubjAltNameConfigDefaultParams(String name,
             Vector<String> params) {
         GeneralNameUtil.SubjAltNameGN.getDefaultParams(name, params);
