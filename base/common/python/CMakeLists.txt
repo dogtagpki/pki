@@ -43,10 +43,21 @@ install(
     DIRECTORY
         pki
     DESTINATION
-        ${PYTHON_SITE_PACKAGES}
+        ${PYTHON2_SITE_PACKAGES}
     FILES_MATCHING PATTERN
         *.py
 )
+
+if(PYTHON3_SITE_PACKAGES)
+    install(
+        DIRECTORY
+            pki
+        DESTINATION
+            ${PYTHON3_SITE_PACKAGES}
+        FILES_MATCHING PATTERN
+            *.py
+    )
+endif()
 
 install(
     DIRECTORY

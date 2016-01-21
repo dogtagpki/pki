@@ -32,12 +32,12 @@ install(
         WORLD_READ
 )
 
-# install Python libraries
+# install Python libraries (Python 2 only)
 install(
     DIRECTORY
         python/pki/server
     DESTINATION
-        ${PYTHON_SITE_PACKAGES}/pki
+        ${PYTHON2_SITE_PACKAGES}/pki
     FILES_MATCHING PATTERN
         *.py
 )

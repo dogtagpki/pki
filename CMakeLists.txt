@@ -98,9 +98,33 @@ execute_process(
         ${PYTHON_EXECUTABLE} -c
         "from distutils.sysconfig import get_python_lib; print get_python_lib()"
     OUTPUT_VARIABLE
-        PYTHON_SITE_PACKAGES
+        PYTHON2_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+
+# CMake doesn't support multiple PythonInterp
+execute_process(
+    COMMAND
+        python3 -c
+        "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
+    OUTPUT_VARIABLE
+        PYTHON3_SITE_PACKAGES
+    ERROR_VARIABLE
+        PYTHON3_ERROR
+    RESULT_VARIABLE
+        PYTHON3_RESULT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if(PYTHON3_RESULT)
+    message(WARNING "python3 not found: ${PYTHON3_RESULT}")
+    if(PYTHON3_ERROR)
+        message(WARNING ${PYTHON3_ERROR})
+    endif()
+    unset(PYTHON3_SITE_PACKAGES)
+endif()
+unset(PYTHON3_RESULT)
+unset(PYTHON3_ERROR)
 
 # config.h checks
 include(ConfigureChecks.cmake)

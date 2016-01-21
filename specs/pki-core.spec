@@ -2,6 +2,11 @@
 %{!?__python2: %global __python2 /usr/bin/python2}
 %{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 
+%if 0%{?rhel}
+%global with_python3 0
+%else
+%global with_python3 1
+%endif
 
 # Tomcat
 %if 0%{?fedora} >= 23
@@ -129,6 +134,13 @@ BuildRequires:    tomcatjss >= 7.1.2
 %endif
 %endif
 
+%if 0%{?with_python3}
+BuildRequires:  python3-devel
+BuildRequires:  python3-nss
+BuildRequires:  python3-requests
+BuildRequires:  python3-six
+%endif  # with_python3
+BuildRequires:  python-devel
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -182,6 +194,8 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
   * pki-symkey                                                         \
   * pki-base                                                           \
+  * pki-base-python2 (alias for pki-base)                              \
+  * pki-base-python3                                                   \
   * pki-base-java                                                      \
   * pki-tools                                                          \
   * pki-server                                                         \
@@ -265,6 +279,7 @@ BuildArch:        noarch
 
 Provides:         pki-common = %{version}-%{release}
 Provides:         pki-util = %{version}-%{release}
+Provides:         pki-base-python2 = %{version}-%{release}
 
 Obsoletes:        pki-common < %{version}-%{release}
 Obsoletes:        pki-util < %{version}-%{release}
@@ -338,6 +353,28 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
+%if 0%{?with_python3}
+
+%package -n       pki-base-python3
+Summary:          Certificate System - PKI Framework
+Group:            System Environment/Base
+
+BuildArch:        noarch
+
+Requires:         pki-base = %{version}-%{release}
+
+Requires:         python3-nss
+Requires:         python3-requests
+Requires:         python3-six
+
+%description -n   pki-base-python3
+This package contains PKI client library for Python 3.
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
+
+%endif  # with_python3 for python3-pki
 
 %package -n       pki-tools
 Summary:          Certificate System - PKI Tools
@@ -391,6 +428,9 @@ Obsoletes:        pki-silent < %{version}-%{release}
 
 Requires:         java-headless >= 1:1.7.0
 Requires:         net-tools
+
+Requires:         python-ldap
+Requires:         python-lxml
 
 %if 0%{?rhel}
 Requires:    nuxwdog-client-java >= 1.0.1-11
@@ -889,6 +929,13 @@ systemctl daemon-reload
 %{_javadir}/pki/pki-cmsutil.jar
 %{_javadir}/pki/pki-nsutil.jar
 %{_javadir}/pki/pki-certsrv.jar
+
+%if %{with_python3}
+%files -n pki-base-python3
+%defattr(-,root,root,-)
+%doc base/common/LICENSE
+%{python3_sitelib}/pki
+%endif # with_python3
 
 %files -n pki-tools
 %defattr(-,root,root,-)
