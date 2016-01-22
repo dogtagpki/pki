@@ -29,7 +29,7 @@ import string
 import sys
 
 import pki.cli
-import pki.nss
+import pki.nssdb
 import pki.server
 
 
@@ -536,13 +536,13 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
         if cert_file:
 
-            cert_data = pki.nss.convert_cert(subsystem_cert['data'], 'base64', 'pem')
+            cert_data = pki.nssdb.convert_cert(subsystem_cert['data'], 'base64', 'pem')
             with open(cert_file, 'w') as f:
                 f.write(cert_data)
 
         if csr_file:
 
-            csr_data = pki.nss.convert_csr(subsystem_cert['request'], 'base64', 'pem')
+            csr_data = pki.nssdb.convert_csr(subsystem_cert['request'], 'base64', 'pem')
             with open(csr_file, 'w') as f:
                 f.write(csr_data)
 
