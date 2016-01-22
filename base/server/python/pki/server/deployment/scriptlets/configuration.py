@@ -28,7 +28,7 @@ from .. import pkimessages as log
 from .. import pkiscriptlet
 
 import pki.encoder
-import pki.nss
+import pki.nssdb
 import pki.server
 import pki.system
 import pki.util
@@ -138,7 +138,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         hash_alg=hash_alg)
                     with open(external_csr_path) as f:
                         signing_csr = f.read()
-                    signing_csr = pki.nss.convert_csr(signing_csr, 'pem', 'base64')
+                    signing_csr = pki.nssdb.convert_csr(signing_csr, 'pem', 'base64')
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
                 # This is needed by IPA to detect step 1 completion.
@@ -153,7 +153,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if external_csr_path:
                     with open(external_csr_path) as f:
                         signing_csr = f.read()
-                    signing_csr = pki.nss.convert_csr(signing_csr, 'pem', 'base64')
+                    signing_csr = pki.nssdb.convert_csr(signing_csr, 'pem', 'base64')
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
                 # If specified, import external CA cert into NSS database.

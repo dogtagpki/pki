@@ -33,7 +33,7 @@ import subprocess
 import tempfile
 
 import pki
-import pki.nss
+import pki.nssdb
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
 REGISTRY_DIR = '/etc/sysconfig/pki'
@@ -328,7 +328,7 @@ class PKIInstance(object):
         return password
 
     def open_nssdb(self, token='internal'):
-        return pki.nss.NSSDatabase(
+        return pki.nssdb.NSSDatabase(
             directory=self.nssdb_dir,
             token=token,
             password=self.get_password(token))
