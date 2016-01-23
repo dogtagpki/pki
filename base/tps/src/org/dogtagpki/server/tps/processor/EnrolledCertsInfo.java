@@ -38,6 +38,7 @@ public class EnrolledCertsInfo {
         ktypes = new ArrayList<String>();
         origins = new ArrayList<String>();
         tokenTypes = new ArrayList<String>();
+        externalRegRecoveryEnrollList = new ArrayList<CertEnrollInfo>();
     }
 
     EnrolledCertsInfo(PKCS11Obj obj, TPSBuffer wrappedChallenge, TPSBuffer plainChallenge, int keyTypeNum,
@@ -57,6 +58,8 @@ public class EnrolledCertsInfo {
     private ArrayList<String> tokenTypes;
     private ArrayList<X509CertImpl> certificates;
 
+    private ArrayList<CertEnrollInfo> externalRegRecoveryEnrollList;
+
     //Input challenge data
     private TPSBuffer wrappedChallenge;
     private TPSBuffer plaintextChallenge;
@@ -70,6 +73,10 @@ public class EnrolledCertsInfo {
 
     public int getCurrentCertIndex() {
         return currentCertIndex;
+    }
+
+    public ArrayList<CertEnrollInfo> getExternalRegRecoveryEnrollList() {
+        return externalRegRecoveryEnrollList;
     }
 
     public void setCurrentCertIndex(int index) {

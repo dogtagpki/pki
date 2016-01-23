@@ -236,7 +236,8 @@ public class ObjectSpec {
         // down to the cert's id, the code below changes both "4" and "5" back
         // to "2".
 
-        int val = (objectID.charAt(1) - '0');
+        int val = objectSpec.getObjectIndex();
+
         switch (objectID.charAt(0)) {
         case 'c':
 
@@ -290,7 +291,7 @@ public class ObjectSpec {
 
         fixedAttrs = 0x00000080; /* CKA_TOKEN */
         xclass = (int) PKCS11Constants.CKO_CERTIFICATE;
-        id = objectID.charAt(1) - '0';
+        id = objectSpec.getObjectIndex();
 
         objectSpec.setFixedAttributes(fixedAttrs | (xclass << 4) | id);
     }
@@ -451,6 +452,209 @@ public class ObjectSpec {
         }
 
         return data;
+    }
+
+    public int getObjectIndex() {
+        return ObjectSpec.getObjectIndex(this.objectID);
+    }
+
+    public static int getObjectIndex(long objectID) {
+        char char_index = (char) ((objectID >> 16) & 0xff);
+        int index = -1;
+
+        if (char_index >= '0' && char_index <= '9') {
+            index = char_index - '0';
+        }
+        if (char_index >= 'A' && char_index <= 'Z') {
+            index = char_index - 'A' + 10;
+        }
+        if (char_index >= 'a' && char_index <= 'z') {
+            index = char_index - 'a' + 26;
+        }
+
+        if ( index == -1) {
+            index = 0x0100 + char_index;
+        }
+
+        return index;
+    }
+
+    public char getObjectType() {
+        return ObjectSpec.getObjectType(objectID);
+    }
+
+    public static char getObjectType(long objectID) {
+        char type = '0';
+        type = (char) ((objectID >> 24) & 0xff);
+        return type;
+    }
+
+    public static char getObjectIndexChar(long objectID) {
+        char char_index = (char) ((objectID >> 16) & 0xff);
+        return char_index;
+    }
+
+    public static long createObjectID(char type, int index) {
+        long id = 0;
+
+        if (type != 'c' && type != 'C' && type != 'k') {
+            return 0;
+        }
+
+        if (index > 61 || index < 0) {
+            return 0;
+        }
+
+        char indexChar = '0';
+
+        long l1 = (type & 0xff) << 24;
+
+        if (index >= 0 && index <= 9) {
+            indexChar = (char) (index + '0');
+        }
+
+        // Handle 10 - 35 : A - Z
+
+        if (index >= 10 && index <= 35) {
+            indexChar = (char) (index - 10 + 'A');
+        }
+
+        // Handle 36 - 61 : a - z
+
+        if (index >= 36 && index <= 61) {
+            indexChar = (char) (index - 26 + 'a');
+        }
+
+        long l2 = (indexChar & 0xff) << 16;
+
+        id = l1 + l2;
+
+        return id;
+    }
+
+    public String getAttrId() {
+        return ObjectSpec.getAttrId(this.objectID);
+    }
+
+    public static String getAttrId(long objectID) {
+        String attrId = "";
+
+        attrId = ObjectSpec.getObjectType(objectID) + String.valueOf(ObjectSpec.getObjectIndex(objectID));
+        return attrId;
+    }
+
+    public static char getObjectType(String attrId) {
+
+        long obj = ObjectSpec.createObjectID(attrId);
+        return ObjectSpec.getObjectType(obj);
+    }
+
+    public static int getObjectIndex(String attrId) {
+        long obj = ObjectSpec.createObjectID(attrId);
+        return ObjectSpec.getObjectIndex(obj);
+    }
+
+    public static long createObjectID(String attrId) {
+        long id = 0;
+
+        if (attrId == null) {
+            return 0;
+        }
+
+        // Allow ex: c0 - c9, or cA - cZ or  ca - cz
+        // C or c or k allowed for types.
+
+        int len = attrId.length();
+
+        if (len < 2 || len > 3) {
+            return 0;
+        }
+
+        String indexStr = attrId.substring(1);
+
+        char typeCh = attrId.charAt(0);
+        int index = 0;
+
+        try
+        {
+            index = Integer.parseInt(indexStr.trim());
+        } catch (NumberFormatException nfe)
+        {
+            CMS.debug("ObjectSpec.createObjectID(Str) bad object index string.");
+            return 0;
+        }
+
+        id = ObjectSpec.createObjectID(typeCh, index);
+        return id;
+    }
+
+    public static void main(String[] args) {
+        String attr1 = "k0";
+        String attr2 = "k10";
+        String attr3 = "c27";
+        String attr4 = "C37";
+
+        long objectID1 = ObjectSpec.createObjectID(attr1);
+        long objectID2 = ObjectSpec.createObjectID(attr2);
+        long objectID3 = ObjectSpec.createObjectID(attr3);
+        long objectID4 = ObjectSpec.createObjectID(attr4);
+
+        System.out.println("objectID1: " + objectID1);
+        System.out.println("objectID2: " + objectID2);
+        System.out.println("objectID3: " + objectID3);
+        System.out.println("objectID4: " + objectID4);
+
+        System.out.println("\n");
+
+        System.out.println("attr1 values: " + attr1 + "\n");
+
+        char type1 = ObjectSpec.getObjectType(objectID1);
+        System.out.println("type1: " + type1);
+
+        int index1 = ObjectSpec.getObjectIndex(objectID1);
+        System.out.println("index1: " + index1);
+
+        System.out.println("index1 getAttrId: " + ObjectSpec.getAttrId(objectID1));
+
+        System.out.println("\n");
+
+        System.out.println("attr2 values: " + attr2 + "\n");
+
+        char type2 = ObjectSpec.getObjectType(objectID2);
+        System.out.println("type2: " + type2);
+
+        int index2 = ObjectSpec.getObjectIndex(objectID2);
+        System.out.println("index2: " + index2);
+        System.out.println("index2 getAttrId: " + ObjectSpec.getAttrId(objectID2));
+        System.out.println("\n");
+
+        System.out.println("attr3 values: " + attr3 + "\n");
+
+        char type3 = ObjectSpec.getObjectType(objectID3);
+        System.out.println("type3: " + type3);
+
+        int index3 = ObjectSpec.getObjectIndex(objectID3);
+        System.out.println("index3: " + index3);
+        System.out.println("index3 getAttrId: " + ObjectSpec.getAttrId(objectID3));
+        System.out.println("\n");
+
+        System.out.println("attr4 values: " + attr4 + "\n");
+
+        char type4 = ObjectSpec.getObjectType(objectID4);
+        System.out.println("type4: " + type4);
+
+        int index4 = ObjectSpec.getObjectIndex(objectID4);
+        System.out.println("index4: " + index4);
+        System.out.println("index4 getAttrId: " + ObjectSpec.getAttrId(objectID4));
+        System.out.println("\n");
+
+        long test_id = 1798307840;
+
+        char testType = ObjectSpec.getObjectType(test_id);
+        int testIndex = ObjectSpec.getObjectIndex(test_id);
+
+        System.out.println("test_id: " + test_id + " testType: " + testType + " testIndex: " + testIndex);
+        System.out.println("\n");
     }
 
 }

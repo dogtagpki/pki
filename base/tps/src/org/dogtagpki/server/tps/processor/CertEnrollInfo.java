@@ -23,6 +23,7 @@ import org.dogtagpki.server.tps.cms.CARetrieveCertResponse;
 import org.dogtagpki.server.tps.cms.KRARecoverKeyResponse;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.main.ObjectSpec;
 
 public class CertEnrollInfo {
 
@@ -257,14 +258,12 @@ public class CertEnrollInfo {
 
     public int getCertIdIndex() {
         int result = 0;
+        long objectID = 0;
 
-        if(certId != null && certId.length() == 2) {
-         result = certId.charAt(1) - '0';
-        }
+        objectID = ObjectSpec.createObjectID(certId);
+        result = ObjectSpec.getObjectIndex(objectID);
 
         return result;
     }
-
-
 
 }

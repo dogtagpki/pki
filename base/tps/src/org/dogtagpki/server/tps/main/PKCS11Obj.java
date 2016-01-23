@@ -3,7 +3,6 @@ package org.dogtagpki.server.tps.main;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -103,29 +102,22 @@ public class PKCS11Obj {
             nread = objSpec.getParseReadSize();
             o.addObjectSpec(objSpec);
 
-            long oid = objSpec.getObjectID();
-            char[] b1 = new char[2];
+            char type = objSpec.getObjectType();
+            int index = objSpec.getObjectIndex();
 
-            b1[0] = (char) ((oid >> 24) & 0xff);
-            b1[1] = (char) ((oid >> 16) & 0xff);
-
-            CMS.debug("PKCS11Obj.parse " + "About to parse = " + b1[0] + ":" + b1[1]);
-            System.out.println("PKCS11Obj.parse " + "About to parse = " + b1[0] + ":" + b1[1]);
+            CMS.debug("PKCS11Obj.parse " + "About to parse = " + type + ":" + index);
+            System.out.println("PKCS11Obj.parse " + "About to parse = " + type + ":" + index);
 
             // add corresponding 'C' object for 'c'
-            if (b1[0] == 'c') {
+            if (type == 'c') {
                 for (int j = 0; j < objSpec.getAttributeSpecCount(); j++) {
                     AttributeSpec as = objSpec.getAttributeSpec(j);
                     if (as.getAttributeID() == PKCS11Constants.CKA_VALUE) {
                         if (as.getType() == (byte) 0) {
                             TPSBuffer cert = as.getValue();
 
-                            long l1 = 0x43; // 'C'
-                            long l2 = b1[1];
-
-                            l1 = (l1 & 0xff) << 24;
-                            l2 = (l2 & 0xff) << 16;
-                            long certid = l1 + l2;
+                            long certid = ObjectSpec.createObjectID('C', index);
+                            System.out.println("certid : " + certid);
 
                             ObjectSpec certSpec =
                                     ObjectSpec.parseFromTokenData(
@@ -148,23 +140,14 @@ public class PKCS11Obj {
     public boolean doesCertIdExist(String certId) {
 
         boolean foundObj = false;
-        char[] certChars = certId.toCharArray();
-
         for (ObjectSpec objSpec : objectSpecs) {
 
-            long oid = objSpec.getObjectID();
+            String attrId = objSpec.getAttrId();
 
-            char[] b1 = new char[2];
-
-            b1[0] = (char) ((oid >> 24) & 0xff);
-            b1[1] = (char) ((oid >> 16) & 0xff);
-
-            if (Arrays.equals(b1, certChars)) {
+            if (attrId != null && attrId.equals(certId)) {
                 foundObj = true;
-                CMS.debug("PKCD11Obj.doesCertIdExist: match found!");
-                break;
+                CMS.debug("PKCD11Obj.doesCertIdExist: match found new way!");
             }
-
         }
 
         return foundObj;
@@ -231,11 +214,9 @@ public class PKCS11Obj {
 
             if (oid == p.getObjectID()) {
                 objectSpecs.remove(objSpec);
-                char[] b1 = new char[2];
 
-                b1[0] = (char) ((oid >> 24) & 0xff);
-                b1[1] = (char) ((oid >> 16) & 0xff);
-                String oidStr = new String(b1);
+                String oidStr = objSpec.getAttrId();
+
                 CMS.debug("PKCS11Obj.addObjectSpec: found dup, removing...: " + oidStr);
                 break;
             }
@@ -307,25 +288,25 @@ public class PKCS11Obj {
 
         for (int i = 0; i < objectCount; i++) {
             ObjectSpec spec = getObjectSpec(i);
-            long objectID = spec.getObjectID();
-            char c = (char) ((objectID >> 24) & 0xff);
+
+            char c = spec.getObjectType();
             long fixedAttrs = spec.getFixedAttributes();
             int xclass = (int) ((fixedAttrs & 0x70) >> 4);
-            char cont_id = (char) ((objectID >> 16) & 0xff);
+            long cont_id = spec.getObjectIndex();
             long id = (int) (fixedAttrs & 0x0f);
+
             /* locate all certificate objects */
             if (c == 'c' && xclass == PKCS11Constants.CKO_CERTIFICATE) {
 
                 //We need to use the container id, there may be more than one cert
                 //with the same CKA_ID byte
 
-                id = cont_id - '0';
+                id = cont_id;
 
                 /* locate the certificate object */
                 for (int u = 0; u < objectCount; u++) {
                     ObjectSpec u_spec = getObjectSpec(u);
-                    long u_objectID = u_spec.getObjectID();
-                    char u_c = (char) ((u_objectID >> 24) & 0xff);
+                    char u_c = u_spec.getObjectType();
                     long u_fixedAttrs =
                             u_spec.getFixedAttributes();
                     int u_xclass = (int) ((u_fixedAttrs & 0x70) >> 4);
@@ -618,6 +599,10 @@ public class PKCS11Obj {
 
         System.out.println("CertID " + certId + " exists: " + exists);
 
+        int nextFreeCertId = object.getNextFreeCertIdNumber();
+
+        System.out.println("Next Free CertID: " + nextFreeCertId);
+
         // This gets the compressed blob that will go out to token of the parsed data.
         TPSBuffer implodedData = object.getCompressedData();
 
@@ -653,7 +638,9 @@ public class PKCS11Obj {
 
     public int getNextFreeCertIdNumber() {
 
-        int highest_cert_id = 0;
+        int free_cert_id = 0;
+
+        int[] certTable = new int[100];
 
         int numObjs = getObjectSpecCount();
 
@@ -662,28 +649,27 @@ public class PKCS11Obj {
             if (os == null)
                 continue;
 
-            long objid = os.getObjectID();
+            char type = os.getObjectType();
+            int index = os.getObjectIndex();
 
-            char[] b1 = new char[2];
-
-            b1[0] = (char) ((objid >> 24) & 0xff);
-            b1[1] = (char) ((objid >> 16) & 0xff);
-
-            if (b1[0] == 'C') { //found a certificate
-
-                int id_int = b1[1] - '0';
-
-                if (id_int > highest_cert_id) {
-                    highest_cert_id = id_int;
+            if (type == 'C') { //found a certificate
+                if (index >= 0 && index < 100) {
+                    certTable[index] = 1;
                 }
             }
-
         }
 
-        highest_cert_id++;
-        CMS.debug("TPSEnrollProcessor.getNextFreeCertIdNumber: returning: " + highest_cert_id);
+        for (int i = 0; i < 100; i++) {
+            if (certTable[i] == 0) {
 
-        return highest_cert_id;
+                free_cert_id = i;
+                break;
+            }
+        }
+
+        CMS.debug("TPSEnrollProcessor.getNextFreeCertIdNumber: returning free cert id: " + free_cert_id );
+
+        return free_cert_id;
     }
 
 }
