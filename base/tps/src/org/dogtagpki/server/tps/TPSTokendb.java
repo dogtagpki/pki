@@ -26,13 +26,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import netscape.security.x509.RevocationReason;
-
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
 import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.tps.main.TPSException;
@@ -42,6 +41,8 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.tps.token.TokenStatus;
+
+import netscape.security.x509.RevocationReason;
 
 /*
  * TPSTokendb class offers a collection of tokendb management convenience routines
@@ -73,7 +74,7 @@ public class TPSTokendb {
         // load allowed token state transitions
         CMS.debug("TPSTokendbs: allowed transitions:");
 
-        for (String transition : configStore.getString("tokendb.allowedTransitions").split(",")) {
+        for (String transition : configStore.getString(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS).split(",")) {
             String states[] = transition.split(":");
             TokenStatus fromState = TokenStatus.fromInt(Integer.valueOf(states[0]));
             TokenStatus toState = TokenStatus.fromInt(Integer.valueOf(states[1]));

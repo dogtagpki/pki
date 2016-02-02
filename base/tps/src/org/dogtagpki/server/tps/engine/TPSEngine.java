@@ -194,7 +194,6 @@ public class TPSEngine {
     public static final String ENROLL_MODE_ENROLLMENT = ENROLL_OP;
     public static final String ENROLL_MODE_RECOVERY = RECOVERY_OP;
     public static final String ERNOLL_MODE_RENEWAL = RENEWAL_OP;
-    private static final String CFG_OPERATIONS_TRANSITIONS = "tps.operations.allowedTransitions";
 
     private static String transitionList;
 
@@ -598,7 +597,7 @@ public class TPSEngine {
 
             IConfigStore configStore = CMS.getConfigStore();
 
-            String transConfig = CFG_OPERATIONS_TRANSITIONS;
+            String transConfig = CFG_OPERATIONS_ALLOWED_TRANSITIONS;
 
             CMS.debug("TPSEngine.isOperationTransistionAllowed: getting config: " + transConfig);
             try {

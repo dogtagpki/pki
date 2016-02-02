@@ -24,6 +24,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.tps.token.TokenData;
+import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -65,6 +66,10 @@ public class TokenModifyCLI extends CLI {
         option = new Option(null, "policy", true, "Policy");
         option.setArgName("Policy");
         options.addOption(option);
+
+        option = new Option(null, "status", true, "Status");
+        option.setArgName("Status");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
@@ -94,17 +99,56 @@ public class TokenModifyCLI extends CLI {
             System.exit(-1);
         }
 
-        String tokenID = cmdArgs[0];
-
         TokenData tokenData = new TokenData();
-        tokenData.setID(tokenID);
-        tokenData.setUserID(cmd.getOptionValue("user"));
-        tokenData.setType(cmd.getOptionValue("type"));
-        tokenData.setAppletID(cmd.getOptionValue("applet"));
-        tokenData.setKeyInfo(cmd.getOptionValue("key-info"));
-        tokenData.setPolicy(cmd.getOptionValue("policy"));
+        boolean modify = false;
 
-        tokenData = tokenCLI.tokenClient.modifyToken(tokenID, tokenData);
+        String tokenID = cmdArgs[0];
+        tokenData.setID(tokenID);
+
+        String userID = cmd.getOptionValue("user");
+        if (userID != null) {
+            tokenData.setUserID(userID);
+            modify = true;
+        }
+
+        String type = cmd.getOptionValue("type");
+        if (type != null) {
+            tokenData.setType(type);
+            modify = true;
+        }
+
+        String appletID = cmd.getOptionValue("applet");
+        if (appletID != null) {
+            tokenData.setAppletID(appletID);
+            modify = true;
+        }
+
+        String keyInfo = cmd.getOptionValue("key-info");
+        if (keyInfo != null) {
+            tokenData.setKeyInfo(keyInfo);
+            modify = true;
+        }
+
+        String policy = cmd.getOptionValue("policy");
+        if (policy != null) {
+            tokenData.setPolicy(policy);
+            modify = true;
+        }
+
+        if (modify) {
+            tokenData = tokenCLI.tokenClient.modifyToken(tokenID, tokenData);
+        }
+
+        String status = cmd.getOptionValue("status");
+        if (status != null) {
+            tokenData = tokenCLI.tokenClient.changeTokenStatus(tokenID, TokenStatus.valueOf(status));
+        }
+
+        if (!modify && status == null) {
+            System.err.println("Error: No modifications specified.");
+            printHelp();
+            System.exit(-1);
+        }
 
         MainCLI.printMessage("Modified token \"" + tokenID + "\"");
 

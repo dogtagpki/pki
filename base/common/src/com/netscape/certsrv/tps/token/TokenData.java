@@ -20,6 +20,7 @@ package com.netscape.certsrv.tps.token;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Collection;
 import java.util.Date;
 
 import javax.xml.bind.JAXBContext;
@@ -54,7 +55,10 @@ public class TokenData {
     String tokenID;
     String userID;
     String type;
+
     TokenStatus status;
+    Collection<TokenStatus> nextStates;
+
     String appletID;
     String keyInfo;
     String policy;
@@ -106,6 +110,15 @@ public class TokenData {
 
     public void setStatus(TokenStatus status) {
         this.status = status;
+    }
+
+    @XmlElement(name="NextStates")
+    public Collection<TokenStatus> getNextStates() {
+        return nextStates;
+    }
+
+    public void setNextStates(Collection<TokenStatus> nextStates) {
+        this.nextStates = nextStates;
     }
 
     @XmlElement(name="AppletID")
@@ -172,6 +185,7 @@ public class TokenData {
         result = prime * result + ((keyInfo == null) ? 0 : keyInfo.hashCode());
         result = prime * result + ((link == null) ? 0 : link.hashCode());
         result = prime * result + ((modifyTimestamp == null) ? 0 : modifyTimestamp.hashCode());
+        result = prime * result + ((nextStates == null) ? 0 : nextStates.hashCode());
         result = prime * result + ((policy == null) ? 0 : policy.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((tokenID == null) ? 0 : tokenID.hashCode());
@@ -218,6 +232,11 @@ public class TokenData {
             if (other.modifyTimestamp != null)
                 return false;
         } else if (!modifyTimestamp.equals(other.modifyTimestamp))
+            return false;
+        if (nextStates == null) {
+            if (other.nextStates != null)
+                return false;
+        } else if (!nextStates.equals(other.nextStates))
             return false;
         if (policy == null) {
             if (other.policy != null)

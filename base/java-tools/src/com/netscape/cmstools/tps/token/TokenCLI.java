@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.tps.token;
 
+import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.tps.token.TokenClient;
@@ -54,6 +55,7 @@ public class TokenCLI extends CLI {
         if (token.getUserID() != null) System.out.println("  User ID: " + token.getUserID());
         if (token.getType() != null) System.out.println("  Type: " + token.getType());
         if (token.getStatus() != null) System.out.println("  Status: " + token.getStatus());
+        if (token.getNextStates() != null) System.out.println("  Next States: " + StringUtils.join(token.getNextStates(), ", "));
         if (token.getAppletID() != null) System.out.println("  Applet ID: " + token.getAppletID());
         if (token.getKeyInfo() != null) System.out.println("  Key Info: " + token.getKeyInfo());
         if (token.getPolicy() != null) System.out.println("  Policy: " + token.getPolicy());

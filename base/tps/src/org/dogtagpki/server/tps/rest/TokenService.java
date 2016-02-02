@@ -38,6 +38,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
@@ -76,7 +77,7 @@ public class TokenService extends PKIService implements TokenResource {
         // load allowed token state transitions
         CMS.debug("TokenService: allowed transitions:");
 
-        for (String transition : configStore.getString("tokendb.allowedTransitions").split(",")) {
+        for (String transition : configStore.getString(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS).split(",")) {
             String states[] = transition.split(":");
             TokenStatus fromState = TokenStatus.fromInt(Integer.valueOf(states[0]));
             TokenStatus toState = TokenStatus.fromInt(Integer.valueOf(states[1]));
@@ -193,7 +194,11 @@ public class TokenService extends PKIService implements TokenResource {
         tokenData.setTokenID(tokenRecord.getId());
         tokenData.setUserID(tokenRecord.getUserID());
         tokenData.setType(tokenRecord.getType());
-        tokenData.setStatus(getTokenStatus(tokenRecord));
+
+        TokenStatus currentState = getTokenStatus(tokenRecord);
+        tokenData.setStatus(currentState);
+        tokenData.setNextStates(transitions.get(currentState));
+
         tokenData.setAppletID(tokenRecord.getAppletID());
         tokenData.setKeyInfo(tokenRecord.getKeyInfo());
         tokenData.setPolicy(tokenRecord.getPolicy());
@@ -484,26 +489,21 @@ public class TokenService extends PKIService implements TokenResource {
 
         TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
-        String msg = "";
+        String msg = "change token status";
         try {
             TokenDatabase database = subsystem.getTokenDatabase();
 
             tokenRecord = database.getRecord(tokenID);
             TokenStatus currentTokenStatus = getTokenStatus(tokenRecord);
             CMS.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
-            msg = "change token status from " + currentTokenStatus + " to " + tokenStatus;
+            msg = msg + " from " + currentTokenStatus + " to " + tokenStatus;
 
             // make sure transition is allowed
             Collection<TokenStatus> nextStatuses = transitions.get(currentTokenStatus);
             CMS.debug("TokenService.changeTokenStatus(): allowed next statuses: " + nextStatuses);
             if (nextStatuses == null || !nextStatuses.contains(tokenStatus)) {
                 CMS.debug("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
-                msg = msg + ": Invalid token status transition";
-                subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
-                    ipAddress, msg,
-                    "failure",
-                    remoteUser);
-                throw new BadRequestException(msg);
+                throw new BadRequestException("Invalid token status transition");
             }
 
             CMS.debug("TokenService.changeTokenStatus(): next status allowed: " + tokenStatus);
@@ -519,7 +519,7 @@ public class TokenService extends PKIService implements TokenResource {
 
         } catch (Exception e) {
             e.printStackTrace();
-            msg = msg + e;
+            msg = msg + ": " + e;
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
                 ipAddress, msg, "failure",
                 remoteUser);

@@ -25,6 +25,7 @@ var TokenStatus = {
     TEMP_LOST: "Temporarily lost",
     PERM_LOST: "Permanently lost",
     DAMAGED: "Physically damaged",
+    TEMP_LOST_PERM_LOST: "Temporarily lost then permanently lost",
     TERMINATED: "Terminated"
 };
 
@@ -38,6 +39,7 @@ var TokenModel = Model.extend({
             type: response.Type,
             status: response.Status,
             statusLabel: TokenStatus[response.Status],
+            nextStates: response.NextStates,
             appletID: response.AppletID,
             keyInfo: response.KeyInfo,
             policy: response.Policy,
@@ -91,11 +93,41 @@ var TokenCollection = Collection.extend({
             type: entry.Type,
             status: entry.Status,
             statusLabel: TokenStatus[entry.Status],
+            nextStates: entry.NextStates,
             appletID: entry.AppletID,
             keyInfo: entry.KeyInfo,
             policy: entry.Policy,
             createTimestamp: entry.CreateTimestamp,
             modifyTimestamp: entry.ModifyTimestamp
+        });
+    }
+});
+
+var TokenDialog = Dialog.extend({
+    loadField: function(input) {
+        var self = this;
+
+        var name = input.attr("name");
+        if (name != "status") {
+            TokenDialog.__super__.loadField.call(self, input);
+            return;
+        }
+
+        var select = input.empty();
+        var status = self.entry["status"];
+
+        $('<option/>', {
+            text: TokenStatus[status],
+            value: status,
+            selected: true
+        }).appendTo(select);
+
+        var nextStates = self.entry["nextStates"];
+        _.each(nextStates, function(nextState) {
+            $('<option/>', {
+                text: TokenStatus[nextState],
+                value: nextState
+            }).appendTo(select);
         });
     }
 });
@@ -116,7 +148,7 @@ var TokenPage = EntryPage.extend({
 
             e.preventDefault();
 
-            var dialog = new Dialog({
+            var dialog = new TokenDialog({
                 el: $("#token-status-dialog"),
                 title: "Change Token Status",
                 readonly: ["tokenID"],
@@ -198,7 +230,7 @@ var TokenTableItem = TableItem.extend({
 
         var model = self.table.collection.get(self.entry.id);
 
-        var dialog = new Dialog({
+        var dialog = new TokenDialog({
             el: $("#token-status-dialog"),
             title: "Change Token Status",
             readonly: ["tokenID", "userID", "type",

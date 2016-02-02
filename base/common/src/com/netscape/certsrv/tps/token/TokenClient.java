@@ -60,6 +60,11 @@ public class TokenClient extends Client {
         return client.getEntity(response, TokenData.class);
     }
 
+    public TokenData changeTokenStatus(String tokenID, TokenStatus tokenStatus) {
+        Response response = resource.changeTokenStatus(tokenID, tokenStatus);
+        return client.getEntity(response, TokenData.class);
+    }
+
     public void removeToken(String tokenID) {
         Response response = resource.removeToken(tokenID);
         client.getEntity(response, Void.class);
