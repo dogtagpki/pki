@@ -616,9 +616,9 @@ def main(argv):
 
     external = deployer.configuration_file.external
     step_one = deployer.configuration_file.external_step_one
-    external_csr_path = deployer.configuration_file.external_csr_path
 
     if external and step_one:
+        external_csr_path = deployer.mdict['pki_external_csr_path']
         if external_csr_path:
             print_external_ca_step_one_information(parser.mdict)
         else:

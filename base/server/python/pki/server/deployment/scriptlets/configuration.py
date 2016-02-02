@@ -96,7 +96,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         external = deployer.configuration_file.external
         step_one = deployer.configuration_file.external_step_one
         step_two = deployer.configuration_file.external_step_two
-        external_csr_path = deployer.configuration_file.external_csr_path
 
         try:
             if external and step_one:  # external/existing CA step 1
@@ -128,6 +127,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 # If filename specified, generate CA cert request and
                 # import it into CS.cfg.
+                external_csr_path = deployer.mdict['pki_external_csr_path']
                 if external_csr_path:
                     nssdb.create_request(
                         subject_dn=deployer.mdict['pki_ca_signing_subject_dn'],
@@ -150,6 +150,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             elif external and step_two:  # external/existing CA step 2
 
                 # If specified, import existing CA cert request into CS.cfg.
+                external_csr_path = deployer.mdict['pki_external_csr_path']
                 if external_csr_path:
                     with open(external_csr_path) as f:
                         signing_csr = f.read()
