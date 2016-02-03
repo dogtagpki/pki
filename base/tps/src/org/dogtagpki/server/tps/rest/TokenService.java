@@ -209,8 +209,8 @@ public class TokenService extends PKIService implements TokenResource {
         try {
             tokenID = URLEncoder.encode(tokenID, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
 
         URI uri = uriInfo.getBaseUriBuilder().path(TokenResource.class).path("{tokenID}").build(tokenID);
@@ -280,9 +280,12 @@ public class TokenService extends PKIService implements TokenResource {
 
             return createOKResponse(response);
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -299,9 +302,12 @@ public class TokenService extends PKIService implements TokenResource {
 
             return createOKResponse(createTokenData(database.getRecord(tokenID)));
 
+        } catch (PKIException e) {
+            throw e;
+
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            CMS.debug(e);
+            throw new PKIException(e);
         }
     }
 
@@ -336,12 +342,17 @@ public class TokenService extends PKIService implements TokenResource {
             return createCreatedResponse(tokenData, tokenData.getLink().getHref());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
+
+            msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
                 ipAddress, msg, "failure", remoteUser);
-            msg = msg + ":" + e;
 
-            throw new PKIException(msg);
+            if (e instanceof PKIException) {
+                throw (PKIException)e;
+            }
+
+            throw new PKIException(e);
         }
     }
 
@@ -377,13 +388,18 @@ public class TokenService extends PKIService implements TokenResource {
             return createOKResponse(tokenData);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
+
+            msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
                 ipAddress, msg, "failure",
                 remoteUser);
-            msg = msg + ":" + e;
 
-            throw new PKIException(msg);
+            if (e instanceof PKIException) {
+                throw (PKIException)e;
+            }
+
+            throw new PKIException(e);
         }
     }
 
@@ -466,13 +482,18 @@ public class TokenService extends PKIService implements TokenResource {
             return createOKResponse(tokenData);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
+
+            msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
                 ipAddress, msg, "failure",
                 remoteUser);
-            msg = msg + ":" + e;
 
-            throw new PKIException(msg);
+            if (e instanceof PKIException) {
+                throw (PKIException)e;
+            }
+
+            throw new PKIException(e);
         }
     }
 
@@ -518,13 +539,18 @@ public class TokenService extends PKIService implements TokenResource {
             return createOKResponse(tokenData);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            msg = msg + ": " + e;
+            CMS.debug(e);
+
+            msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
                 ipAddress, msg, "failure",
                 remoteUser);
 
-            throw new PKIException(msg);
+            if (e instanceof PKIException) {
+                throw (PKIException)e;
+            }
+
+            throw new PKIException(e);
         }
     }
 
@@ -556,13 +582,18 @@ public class TokenService extends PKIService implements TokenResource {
             return createNoContentResponse();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
+
+            msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DELETE, tokenRecord,
                 ipAddress, msg, "failure",
                 remoteUser);
-            msg = msg + ":" + e;
 
-            throw new PKIException(msg);
+            if (e instanceof PKIException) {
+                throw (PKIException)e;
+            }
+
+            throw new PKIException(e);
         }
     }
 }
