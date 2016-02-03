@@ -201,8 +201,33 @@ var TokenPage = EntryPage.extend({
 
         if (self.mode == "add") {
             self.changeStatusAction.hide();
+            self.$("label[name='type']").hide();
+            self.$("input[name='type']").hide();
+            self.$("label[name='appletID']").hide();
+            self.$("input[name='appletID']").hide();
+            self.$("label[name='keyInfo']").hide();
+            self.$("input[name='keyInfo']").hide();
+            self.$("label[name='createTimestamp']").hide();
+            self.$("input[name='createTimestamp']").hide();
+            self.$("label[name='modifyTimestamp']").hide();
+            self.$("input[name='modifyTimestamp']").hide();
+            self.$("label[name='status']").hide();
+            self.$("input[name='statusLabel']").hide();
+
         } else {
             self.changeStatusAction.show();
+            self.$("label[name='type']").show();
+            self.$("input[name='type']").show();
+            self.$("label[name='appletID']").show();
+            self.$("input[name='appletID']").show();
+            self.$("label[name='keyInfo']").show();
+            self.$("input[name='keyInfo']").show();
+            self.$("label[name='createTimestamp']").show();
+            self.$("input[name='createTimestamp']").show();
+            self.$("label[name='modifyTimestamp']").show();
+            self.$("input[name='modifyTimestamp']").show();
+            self.$("label[name='status']").show();
+            self.$("input[name='statusLabel']").show();
         }
     }
 });

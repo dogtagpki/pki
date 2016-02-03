@@ -34,6 +34,7 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
@@ -223,22 +224,6 @@ public class TokenService extends PKIService implements TokenResource {
         return tokenData;
     }
 
-    public TokenRecord createTokenRecord(TokenData tokenData, String ipAddress, String remoteUser) throws Exception {
-
-        TokenRecord tokenRecord = new TokenRecord();
-        tokenRecord.setId(tokenData.getID());
-        tokenRecord.setUserID(tokenData.getUserID());
-        tokenRecord.setType(tokenData.getType());
-        setTokenStatus(tokenRecord, tokenData.getStatus(), ipAddress, remoteUser);
-        tokenRecord.setAppletID(tokenData.getAppletID());
-        tokenRecord.setKeyInfo(tokenData.getKeyInfo());
-        tokenRecord.setPolicy(tokenData.getPolicy());
-        tokenRecord.setCreateTimestamp(tokenData.getCreateTimestamp());
-        tokenRecord.setModifyTimestamp(tokenData.getModifyTimestamp());
-
-        return tokenRecord;
-    }
-
     @Override
     public Response findTokens(String filter, Integer start, Integer size) {
 
@@ -347,11 +332,22 @@ public class TokenService extends PKIService implements TokenResource {
         try {
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            // new tokens are uninitialized when created
-            tokenData.setStatus(TokenStatus.UNINITIALIZED);
-
-            tokenRecord = createTokenRecord(tokenData, ipAddress, remoteUser);
+            tokenRecord = new TokenRecord();
             tokenRecord.setId(tokenID);
+
+            String userID = tokenData.getUserID();
+            if (StringUtils.isNotEmpty(userID)) {
+                tokenRecord.setUserID(userID);
+            }
+
+            String policy = tokenData.getPolicy();
+            if (StringUtils.isNotEmpty(policy)) {
+                tokenRecord.setPolicy(policy);
+            }
+
+            // new tokens are uninitialized when created
+            tokenRecord.setStatus("uninitialized");
+
             database.addRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
                 ipAddress, msg, "success", remoteUser);

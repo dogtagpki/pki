@@ -42,13 +42,16 @@ public class TokenAddCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <Token ID> --user <User ID> [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <Token ID> [OPTIONS...]", options);
     }
 
     public void createOptions() {
         Option option = new Option(null, "user", true, "User ID");
         option.setArgName("User ID");
-        option.setRequired(true);
+        options.addOption(option);
+
+        option = new Option(null, "policy", true, "Policy");
+        option.setArgName("Policy");
         options.addOption(option);
     }
 
@@ -83,7 +86,12 @@ public class TokenAddCLI extends CLI {
 
         TokenData tokenData = new TokenData();
         tokenData.setTokenID(tokenID);
-        tokenData.setUserID(cmd.getOptionValue("user"));
+
+        String userID = cmd.getOptionValue("user");
+        tokenData.setUserID(userID);
+
+        String policy = cmd.getOptionValue("policy");
+        tokenData.setPolicy(policy);
 
         tokenData = tokenCLI.tokenClient.addToken(tokenData);
 
