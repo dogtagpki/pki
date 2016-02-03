@@ -19,16 +19,6 @@
  * @author Endi S. Dewata
  */
 
-var TokenStatus = {
-    UNINITIALIZED: "Uninitialized",
-    ACTIVE: "Active",
-    TEMP_LOST: "Temporarily lost",
-    PERM_LOST: "Permanently lost",
-    DAMAGED: "Physically damaged",
-    TEMP_LOST_PERM_LOST: "Temporarily lost then permanently lost",
-    TERMINATED: "Terminated"
-};
-
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
@@ -38,7 +28,6 @@ var TokenModel = Model.extend({
             userID: response.UserID,
             type: response.Type,
             status: response.Status,
-            statusLabel: TokenStatus[response.Status],
             nextStates: response.NextStates,
             appletID: response.AppletID,
             keyInfo: response.KeyInfo,
@@ -53,7 +42,6 @@ var TokenModel = Model.extend({
             TokenID: attributes.tokenID,
             UserID: attributes.userID,
             Type: attributes.type,
-            Status: attributes.status,
             AppletID: attributes.appletID,
             KeyInfo: attributes.keyInfo,
             Policy: attributes.policy,
@@ -92,7 +80,6 @@ var TokenCollection = Collection.extend({
             userID: entry.UserID,
             type: entry.Type,
             status: entry.Status,
-            statusLabel: TokenStatus[entry.Status],
             nextStates: entry.NextStates,
             appletID: entry.AppletID,
             keyInfo: entry.KeyInfo,
@@ -114,19 +101,19 @@ var TokenDialog = Dialog.extend({
         }
 
         var select = input.empty();
-        var status = self.entry["status"];
+        var status = self.entry.status;
 
         $('<option/>', {
-            text: TokenStatus[status],
-            value: status,
+            text: status.label,
+            value: status.name,
             selected: true
         }).appendTo(select);
 
-        var nextStates = self.entry["nextStates"];
+        var nextStates = self.entry.nextStates;
         _.each(nextStates, function(nextState) {
             $('<option/>', {
-                text: TokenStatus[nextState],
-                value: nextState
+                text: nextState.label,
+                value: nextState.name
             }).appendTo(select);
         });
     }
@@ -212,7 +199,7 @@ var TokenPage = EntryPage.extend({
             self.$("label[name='modifyTimestamp']").hide();
             self.$("input[name='modifyTimestamp']").hide();
             self.$("label[name='status']").hide();
-            self.$("input[name='statusLabel']").hide();
+            self.$("input[name='status']").hide();
 
         } else {
             self.changeStatusAction.show();
@@ -227,8 +214,22 @@ var TokenPage = EntryPage.extend({
             self.$("label[name='modifyTimestamp']").show();
             self.$("input[name='modifyTimestamp']").show();
             self.$("label[name='status']").show();
-            self.$("input[name='statusLabel']").show();
+            self.$("input[name='status']").show();
         }
+    },
+    loadField: function(input) {
+        var self = this;
+
+        var name = input.attr("name");
+        if (name != "status") {
+            TokenPage.__super__.loadField.call(self, input);
+            return;
+        }
+
+        var value = self.entry.status;
+        if (value) value = value.label;
+        if (value === undefined) value = "";
+        input.val(value);
     }
 });
 

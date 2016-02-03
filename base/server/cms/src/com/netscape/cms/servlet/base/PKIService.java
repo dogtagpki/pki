@@ -17,14 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.CacheControl;
@@ -77,9 +82,45 @@ public class PKIService {
     @Context
     protected HttpServletRequest servletRequest;
 
+    @Context
+    protected ServletContext servletContext;
 
     public ILogger logger = CMS.getLogger();
     public IAuditor auditor = CMS.getAuditor();
+
+    public String getInstanceDir() {
+        return System.getProperty("catalina.base");
+    }
+
+    public String getSubsystemName() {
+        // get web application path: /<subsystem>
+        String path = servletContext.getContextPath();
+
+        // get subsystem name by removing the / prefix from the path
+        return path.startsWith("/") ? path.substring(1) : path;
+    }
+
+    public String getSubsystemConfDir() {
+        return getInstanceDir() + File.separator + getSubsystemName() + File.separator + "conf";
+    }
+
+    public String getSharedSubsystemConfDir() {
+        return File.separator + "usr" + File.separator + "share" + File.separator + "pki" +
+                File.separator + getSubsystemName() + File.separator + "conf";
+    }
+
+    public ResourceBundle getResourceBundle(String name) throws Exception {
+
+        // Look in <instance>/<subsystem>/conf first,
+        // then fallback to /usr/share/pki/<subsystem>/conf.
+        URL[] urls = {
+                new File(getSubsystemConfDir()).toURI().toURL(),
+                new File(getSharedSubsystemConfDir()).toURI().toURL()
+        };
+
+        ClassLoader loader = new URLClassLoader(urls);
+        return ResourceBundle.getBundle(name, servletRequest.getLocale(), loader);
+    }
 
     public static MediaType resolveFormat(MediaType format) {
 

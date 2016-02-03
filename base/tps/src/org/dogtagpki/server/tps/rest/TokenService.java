@@ -21,11 +21,13 @@ package org.dogtagpki.server.tps.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -50,6 +52,7 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
+import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
 import com.netscape.certsrv.tps.token.TokenResource;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.servlet.base.PKIService;
@@ -192,7 +195,9 @@ public class TokenService extends PKIService implements TokenResource {
 
     }
 
-    public TokenData createTokenData(TokenRecord tokenRecord) {
+    public TokenData createTokenData(TokenRecord tokenRecord) throws Exception {
+
+        ResourceBundle labels = getResourceBundle("token-states");
 
         TokenData tokenData = new TokenData();
         tokenData.setID(tokenRecord.getId());
@@ -200,9 +205,23 @@ public class TokenService extends PKIService implements TokenResource {
         tokenData.setUserID(tokenRecord.getUserID());
         tokenData.setType(tokenRecord.getType());
 
-        TokenStatus currentState = getTokenStatus(tokenRecord);
-        tokenData.setStatus(currentState);
-        tokenData.setNextStates(transitions.get(currentState));
+        TokenStatus status = getTokenStatus(tokenRecord);
+        TokenStatusData statusData = new TokenStatusData();
+        statusData.name = status;
+        statusData.label = labels.getString(status.toString());
+        tokenData.setStatus(statusData);
+
+        Collection<TokenStatus> nextStates = transitions.get(status);
+        if (nextStates != null) {
+            Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
+            for (TokenStatus nextState : nextStates) {
+                TokenStatusData nextStateData = new TokenStatusData();
+                nextStateData.name = nextState;
+                nextStateData.label = labels.getString(status + "." + nextState);
+                nextStatesData.add(nextStateData);
+            }
+            tokenData.setNextStates(nextStatesData);
+        }
 
         tokenData.setAppletID(tokenRecord.getAppletID());
         tokenData.setKeyInfo(tokenRecord.getKeyInfo());

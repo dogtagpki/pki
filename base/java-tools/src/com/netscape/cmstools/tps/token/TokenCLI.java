@@ -18,11 +18,16 @@
 
 package com.netscape.cmstools.tps.token;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.tps.token.TokenClient;
 import com.netscape.certsrv.tps.token.TokenData;
+import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
+import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmstools.cli.CLI;
 
 /**
@@ -54,8 +59,19 @@ public class TokenCLI extends CLI {
         System.out.println("  Token ID: " + token.getID());
         if (token.getUserID() != null) System.out.println("  User ID: " + token.getUserID());
         if (token.getType() != null) System.out.println("  Type: " + token.getType());
-        if (token.getStatus() != null) System.out.println("  Status: " + token.getStatus());
-        if (token.getNextStates() != null) System.out.println("  Next States: " + StringUtils.join(token.getNextStates(), ", "));
+
+        TokenStatusData status = token.getStatus();
+        if (status != null) System.out.println("  Status: " + status.name);
+
+        Collection<TokenStatusData> nextStates = token.getNextStates();
+        if (nextStates != null) {
+            Collection<TokenStatus> names = new ArrayList<TokenStatus>();
+            for (TokenStatusData nextState : nextStates) {
+                names.add(nextState.name);
+            }
+            System.out.println("  Next States: " + StringUtils.join(names, ", "));
+        }
+
         if (token.getAppletID() != null) System.out.println("  Applet ID: " + token.getAppletID());
         if (token.getKeyInfo() != null) System.out.println("  Key Info: " + token.getKeyInfo());
         if (token.getPolicy() != null) System.out.println("  Policy: " + token.getPolicy());

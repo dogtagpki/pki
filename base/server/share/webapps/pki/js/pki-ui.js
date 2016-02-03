@@ -456,8 +456,24 @@ var TableItem = Backbone.View.extend({
                 break;
             }
 
-            var name = RegExp.$1;
-            var value = self.get(name);
+            // get attribute name
+            var fullName = RegExp.$1;
+
+            // split attribute names
+            var names = fullName.split(".");
+
+            // get the value from the leaf object
+            var value;
+            for (var i=0; i<names.length; i++) {
+                var name = names[i];
+                if (i == 0) {
+                    value = self.get(name);
+                } else {
+                    value = value[name];
+                }
+                if (! value) break;
+            }
+
             if (value === undefined) value = "";
             if (value instanceof Date) value = value.toUTCString();
 
@@ -465,7 +481,7 @@ var TableItem = Backbone.View.extend({
             newContent += content.substring(0, index) + value;
 
             // process the remaining content
-            content = content.substring(index + name.length + 3);
+            content = content.substring(index + fullName.length + 3);
         }
 
         td.html(newContent);

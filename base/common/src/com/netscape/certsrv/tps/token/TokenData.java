@@ -51,13 +51,18 @@ public class TokenData {
         }
     }
 
+    public static class TokenStatusData {
+        public TokenStatus name;
+        public String label;
+    }
+
     String id;
     String tokenID;
     String userID;
     String type;
 
-    TokenStatus status;
-    Collection<TokenStatus> nextStates;
+    TokenStatusData status;
+    Collection<TokenStatusData> nextStates;
 
     String appletID;
     String keyInfo;
@@ -104,20 +109,20 @@ public class TokenData {
     }
 
     @XmlElement(name="Status")
-    public TokenStatus getStatus() {
+    public TokenStatusData getStatus() {
         return status;
     }
 
-    public void setStatus(TokenStatus status) {
+    public void setStatus(TokenStatusData status) {
         this.status = status;
     }
 
     @XmlElement(name="NextStates")
-    public Collection<TokenStatus> getNextStates() {
+    public Collection<TokenStatusData> getNextStates() {
         return nextStates;
     }
 
-    public void setNextStates(Collection<TokenStatus> nextStates) {
+    public void setNextStates(Collection<TokenStatusData> nextStates) {
         this.nextStates = nextStates;
     }
 
@@ -288,7 +293,11 @@ public class TokenData {
         before.setID("token1");
         before.setUserID("user1");
         before.setType("userKey");
-        before.setStatus(TokenStatus.ACTIVE);
+
+        TokenStatusData statusData = new TokenStatusData();
+        statusData.name = TokenStatus.ACTIVE;
+        before.setStatus(statusData);
+
         before.setAppletID("APPLET1234");
         before.setKeyInfo("key info");
         before.setPolicy("FORCE_FORMAT=YES");
