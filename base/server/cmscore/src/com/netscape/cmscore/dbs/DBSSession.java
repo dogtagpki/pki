@@ -19,18 +19,6 @@ package com.netscape.cmscore.dbs;
 
 import java.util.Enumeration;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-import netscape.ldap.controls.LDAPPersistSearchControl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
@@ -45,6 +33,18 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.logging.ILogger;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.ldap.controls.LDAPPersistSearchControl;
 
 /**
  * A class represents the database session. Operations
@@ -119,9 +119,9 @@ public class DBSSession implements IDBSSession {
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
                 throw new EDBNotAvailException(
-                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
             throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        name + " " + e.toString()));
+                        name + ": " + e.getMessage()), e);
         }
     }
 

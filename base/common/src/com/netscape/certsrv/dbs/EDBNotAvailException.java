@@ -37,4 +37,8 @@ public class EDBNotAvailException extends EDBException {
     public EDBNotAvailException(String errorString) {
         super(errorString);
     }
+
+    public EDBNotAvailException(String errorString, Exception e) {
+        super(errorString, e);
+    }
 }
