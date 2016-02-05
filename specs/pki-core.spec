@@ -40,7 +40,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.3.0
-Release:          0.2%{?dist}
+Release:          0.3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -602,8 +602,6 @@ Requires(postun): systemd-units
 
 # additional runtime requirements needed to run native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
-Requires:         mod_nss
-Requires:         mod_revocator
 Requires:         nss >= 3.14.3
 Requires:         nss-tools >= 3.14.3
 Requires:         openldap-clients
@@ -1031,6 +1029,10 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Feb  4 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.3
+- PKI TRAC Ticket #1714 - mod_revocator and mod_nss dependency for tps
+  should be removed
+
 * Sat Oct  2 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.2
 - PKI TRAC Ticket #1623 - Runtime dependency on python-nss is missing
 
