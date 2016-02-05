@@ -480,36 +480,6 @@ public class TokenService extends PKIService implements TokenResource {
                 }
             }
 
-            // update type if specified
-            String type = tokenData.getType();
-            if (type != null) {
-                if (type.equals("")) { // remove value if empty
-                    tokenRecord.setType(null);
-                } else { // otherwise replace value
-                    tokenRecord.setType(type);
-                }
-            }
-
-            // update applet ID if specified
-            String appletID = tokenData.getAppletID();
-            if (appletID != null) {
-                if (appletID.equals("")) { // remove value if empty
-                    tokenRecord.setAppletID(null);
-                } else { // otherwise replace value
-                    tokenRecord.setAppletID(appletID);
-                }
-            }
-
-            // update key info if specified
-            String keyInfo = tokenData.getKeyInfo();
-            if (keyInfo != null) {
-                if (keyInfo.equals("")) { // remove value if empty
-                    tokenRecord.setKeyInfo(null);
-                } else { // otherwise replace value
-                    tokenRecord.setKeyInfo(keyInfo);
-                }
-            }
-
             // update policy if specified
             String policy = tokenData.getPolicy();
             if (policy != null) {

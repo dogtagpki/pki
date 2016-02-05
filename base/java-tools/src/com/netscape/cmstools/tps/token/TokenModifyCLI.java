@@ -51,18 +51,6 @@ public class TokenModifyCLI extends CLI {
         option.setArgName("User ID");
         options.addOption(option);
 
-        option = new Option(null, "type", true, "Type");
-        option.setArgName("Type");
-        options.addOption(option);
-
-        option = new Option(null, "applet", true, "Applet ID");
-        option.setArgName("Applet ID");
-        options.addOption(option);
-
-        option = new Option(null, "key-info", true, "Key info");
-        option.setArgName("Key info");
-        options.addOption(option);
-
         option = new Option(null, "policy", true, "Policy");
         option.setArgName("Policy");
         options.addOption(option);
@@ -108,24 +96,6 @@ public class TokenModifyCLI extends CLI {
         String userID = cmd.getOptionValue("user");
         if (userID != null) {
             tokenData.setUserID(userID);
-            modify = true;
-        }
-
-        String type = cmd.getOptionValue("type");
-        if (type != null) {
-            tokenData.setType(type);
-            modify = true;
-        }
-
-        String appletID = cmd.getOptionValue("applet");
-        if (appletID != null) {
-            tokenData.setAppletID(appletID);
-            modify = true;
-        }
-
-        String keyInfo = cmd.getOptionValue("key-info");
-        if (keyInfo != null) {
-            tokenData.setKeyInfo(keyInfo);
             modify = true;
         }
 
