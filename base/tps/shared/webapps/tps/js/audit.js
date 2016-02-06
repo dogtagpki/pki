@@ -133,45 +133,13 @@ var AuditPage = EntryPage.extend({
         self.disableAction = $("[name='disable']", self.viewMenu);
 
         $("a", self.enableAction).click(function(e) {
-
             e.preventDefault();
-
-            var message = "Are you sure you want to enable this entry?";
-            if (!confirm(message)) return;
-            self.model.changeStatus("enable", {
-                success: function(data, textStatus, jqXHR) {
-                    self.entry = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    new ErrorDialog({
-                        el: $("#error-dialog"),
-                        title: "HTTP Error " + jqXHR.responseJSON.Code,
-                        content: jqXHR.responseJSON.Message
-                    }).open();
-                }
-            });
+            self.changeStatus("enable", "Are you sure you want to enable this entry?");
         });
 
         $("a", self.disableAction).click(function(e) {
-
             e.preventDefault();
-
-            var message = "Are you sure you want to disable this entry?";
-            if (!confirm(message)) return;
-            self.model.changeStatus("disable", {
-                success: function(data, textStatus, jqXHR) {
-                    self.entry = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    new ErrorDialog({
-                        el: $("#error-dialog"),
-                        title: "HTTP Error " + jqXHR.responseJSON.Code,
-                        content: jqXHR.responseJSON.Message
-                    }).open();
-                }
-            });
+            self.changeStatus("disable", "Are you sure you want to disable this entry?");
         });
 
         self.eventsTable = new Table({

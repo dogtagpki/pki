@@ -168,129 +168,33 @@ var ConfigEntryPage = EntryPage.extend({
         self.disableAction = $("[name='disable']", self.viewMenu);
 
         $("a", self.submitAction).click(function(e) {
-
             e.preventDefault();
-
-            var message = "Are you sure you want to submit this entry?";
-            if (!confirm(message)) return;
-            self.model.changeStatus("submit", {
-                success: function(data, textStatus, jqXHR) {
-                    self.entry = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    new ErrorDialog({
-                        el: $("#error-dialog"),
-                        title: "HTTP Error " + jqXHR.responseJSON.Code,
-                        content: jqXHR.responseJSON.Message
-                    }).open();
-                }
-            });
+            self.changeStatus("submit", "Are you sure you want to submit this entry?");
         });
 
         $("a", self.cancelAction).click(function(e) {
-
             e.preventDefault();
-
-            var message = "Are you sure you want to cancel this entry?";
-            if (!confirm(message)) return;
-            self.model.changeStatus("cancel", {
-                success: function(data, textStatus, jqXHR) {
-                    self.entry = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    new ErrorDialog({
-                        el: $("#error-dialog"),
-                        title: "HTTP Error " + jqXHR.responseJSON.Code,
-                        content: jqXHR.responseJSON.Message
-                    }).open();
-                }
-            });
+            self.changeStatus("cancel", "Are you sure you want to cancel this entry?");
         });
 
         $("a", self.approveAction).click(function(e) {
-
             e.preventDefault();
-
-            var message = "Are you sure you want to approve this entry?";
-            if (!confirm(message)) return;
-            self.model.changeStatus("approve", {
-                success: function(data, textStatus, jqXHR) {
-                    self.entry = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    new ErrorDialog({
-                        el: $("#error-dialog"),
-                        title: "HTTP Error " + jqXHR.responseJSON.Code,
-                        content: jqXHR.responseJSON.Message
-                    }).open();
-                }
-            });
+            self.changeStatus("approve", "Are you sure you want to approve this entry?");
         });
 
         $("a", self.rejectAction).click(function(e) {
-
             e.preventDefault();
-
-            var message = "Are you sure you want to reject this entry?";
-            if (!confirm(message)) return;
-            self.model.changeStatus("reject", {
-                success: function(data, textStatus, jqXHR) {
-                    self.entry = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    new ErrorDialog({
-                        el: $("#error-dialog"),
-                        title: "HTTP Error " + jqXHR.responseJSON.Code,
-                        content: jqXHR.responseJSON.Message
-                    }).open();
-                }
-            });
+            self.changeStatus("reject", "Are you sure you want to reject this entry?");
         });
 
         $("a", self.enableAction).click(function(e) {
-
             e.preventDefault();
-
-            var message = "Are you sure you want to enable this entry?";
-            if (!confirm(message)) return;
-            self.model.changeStatus("enable", {
-                success: function(data, textStatus, jqXHR) {
-                    self.entry = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    new ErrorDialog({
-                        el: $("#error-dialog"),
-                        title: "HTTP Error " + jqXHR.responseJSON.Code,
-                        content: jqXHR.responseJSON.Message
-                    }).open();
-                }
-            });
+            self.changeStatus("enable", "Are you sure you want to enable this entry?");
         });
 
         $("a", self.disableAction).click(function(e) {
-
             e.preventDefault();
-
-            var message = "Are you sure you want to disable this entry?";
-            if (!confirm(message)) return;
-            self.model.changeStatus("disable", {
-                success: function(data, textStatus, jqXHR) {
-                    self.entry = _.clone(self.model.attributes);
-                    self.render();
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    new ErrorDialog({
-                        el: $("#error-dialog"),
-                        title: "HTTP Error " + jqXHR.responseJSON.Code,
-                        content: jqXHR.responseJSON.Message
-                    }).open();
-                }
-            });
+            self.changeStatus("disable", "Are you sure you want to disable this entry?");
         });
 
         var dialog = self.$("#property-dialog");

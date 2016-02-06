@@ -197,11 +197,13 @@ var Dialog = Backbone.View.extend({
         self.body = self.$(".modal-body");
 
         self.title = options.title;
+        self.content = options.content;
 
-        self.readonly = options.readonly;
+        // list of readonly fields
         // by default all fields are editable
-        if (self.readonly == undefined) self.readonly = [];
+        self.readonly = options.readonly || [];
 
+        // list of active actions
         self.actions = options.actions;
         if (self.actions == undefined) {
             // by default all buttons are active
@@ -230,6 +232,10 @@ var Dialog = Backbone.View.extend({
 
         if (self.title) {
             self.$(".modal-title").text(self.title);
+        }
+
+        if (self.content) {
+            self.body.html(self.content);
         }
 
         // setup input fields
@@ -533,7 +539,7 @@ var Table = Backbone.View.extend({
         // setup remove button handler
         self.removeButton.click(function(e) {
             var items = [];
-            var message = "Are you sure you want to remove the following entries?\n";
+            var message = "<p>Are you sure you want to remove the following entries?</p>\n<ul>\n";
 
             // get selected items
             $("input:checked", self.tbody).each(function(index) {
@@ -541,13 +547,24 @@ var Table = Backbone.View.extend({
                 var id = input.val();
                 if (id == "") return;
                 items.push(id);
-                message = message + " - " + id + "\n";
+                message = message + "<li>" + id + "</li>\n";
             });
 
-            if (items.length == 0) return;
-            if (!confirm(message)) return;
+            message = message + "</ul>\n";
 
-            self.remove(items);
+            if (items.length == 0) return;
+
+            var dialog = new Dialog({
+                el: $("#confirm-dialog"),
+                content: message
+            });
+
+            dialog.handler("ok", function() {
+                self.remove(items);
+                dialog.close();
+            });
+
+            dialog.open();
         });
 
         // setup select all handler
@@ -1149,5 +1166,34 @@ var EntryPage = Page.extend({
         var value = input.val();
         // save all values including empty ones
         self.entry[name] = value;
+    },
+    changeStatus: function(action, message) {
+        var self = this;
+
+        var dialog = new Dialog({
+            el: $("#confirm-dialog"),
+            content: message
+        });
+
+        dialog.handler("ok", function() {
+
+            self.model.changeStatus(action, {
+                success: function(data, textStatus, jqXHR) {
+                    self.entry = _.clone(self.model.attributes);
+                    self.render();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    new ErrorDialog({
+                        el: $("#error-dialog"),
+                        title: "HTTP Error " + jqXHR.responseJSON.Code,
+                        content: jqXHR.responseJSON.Message
+                    }).open();
+                }
+            });
+
+            dialog.close();
+        });
+
+        dialog.open();
     }
 });
