@@ -541,6 +541,14 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord = database.getRecord(tokenID);
             TokenStatus currentTokenStatus = getTokenStatus(tokenRecord);
             CMS.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
+
+            if (currentTokenStatus == tokenStatus) {
+                CMS.debug("TokenService.changeTokenStatus(): no status change, no activity log generated");
+
+                TokenData tokenData = createTokenData(tokenRecord);
+                return createOKResponse(tokenData);
+            }
+
             msg = msg + " from " + currentTokenStatus + " to " + tokenStatus;
 
             // make sure transition is allowed
