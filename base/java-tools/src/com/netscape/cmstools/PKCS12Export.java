@@ -195,6 +195,8 @@ public class PKCS12Export {
             tool.initDatabase();
             tool.exportData();
 
+            System.out.println("Export complete.");
+
         } catch (Exception e) {
             if (debug) {
                 logger.log(Level.SEVERE, "Unable to export PKCS #12 file", e);
