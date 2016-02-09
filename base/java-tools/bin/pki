@@ -27,9 +27,15 @@ def run_java_cli(args):
 
     # read RESTEasy library path
     value = subprocess.check_output(
-        '. /etc/pki/pki.conf && echo $RESTEASY_LIB',
+        '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $RESTEASY_LIB',
         shell=True)
     resteasy_lib = str(value).strip()
+
+    # read logging configuration path
+    value = subprocess.check_output(
+        '. /usr/share/pki/etc/pki.conf && . /etc/pki/pki.conf && echo $LOGGING_CONFIG',
+        shell=True)
+    logging_config = value.decode(sys.getfilesystemencoding()).strip()
 
     # construct classpath
     classpath = [
@@ -69,6 +75,7 @@ def run_java_cli(args):
         'java',
         '-cp',
         ':'.join(classpath),
+        '-Djava.util.logging.config.file=' + logging_config,
         'com.netscape.cmstools.cli.MainCLI'
     ]
 

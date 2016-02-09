@@ -49,6 +49,7 @@ import com.netscape.cmstools.cert.CertCLI;
 import com.netscape.cmstools.client.ClientCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.key.KeyCLI;
+import com.netscape.cmstools.pkcs12.PKCS12CLI;
 import com.netscape.cmstools.system.SecurityDomainCLI;
 import com.netscape.cmstools.user.UserCLI;
 
@@ -84,6 +85,8 @@ public class MainCLI extends CLI {
         addModule(new OCSPCLI(this));
         addModule(new TKSCLI(this));
         addModule(new TPSCLI(this));
+
+        addModule(new PKCS12CLI(this));
 
         createOptions();
     }
