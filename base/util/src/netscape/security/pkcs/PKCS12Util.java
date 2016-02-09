@@ -17,15 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.pkcs;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BMPString;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
@@ -48,15 +56,29 @@ import org.mozilla.jss.pkcs12.CertBag;
 import org.mozilla.jss.pkcs12.PFX;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
+import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
+
+import netscape.security.x509.X509CertImpl;
 
 public class PKCS12Util {
 
     private static Logger logger = Logger.getLogger(PKCS12Util.class.getName());
 
     PFX pfx;
+
+    public static class PKCS12KeyInfo {
+        public EncryptedPrivateKeyInfo encPrivateKeyInfo;
+        public PrivateKeyInfo privateKeyInfo;
+        public String subjectDN;
+    }
+
+    public static class PKCS12CertInfo {
+        public X509CertImpl cert;
+        public String nickname;
+    }
 
     byte[] getEncodedKey(PrivateKey privateKey) throws Exception {
 
@@ -210,5 +232,159 @@ public class PKCS12Util {
 
         loadFromNSS(password);
         storeIntoPKCS12(filename, password);
+    }
+
+    public PKCS12KeyInfo getKeyInfo(SafeBag bag, Password password) throws Exception {
+
+        // get private key info
+        EncryptedPrivateKeyInfo encPrivateKeyInfo = (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
+
+        PrivateKeyInfo privateKeyInfo = null;
+        if (password != null) {
+            privateKeyInfo = encPrivateKeyInfo.decrypt(password, new PasswordConverter());
+        }
+
+        // find private key's subject DN
+        SET bagAttrs = bag.getBagAttributes();
+        String subjectDN = null;
+
+        for (int i = 0; i < bagAttrs.size(); i++) {
+
+            Attribute attr = (Attribute) bagAttrs.elementAt(i);
+            OBJECT_IDENTIFIER oid = attr.getType();
+
+            if (!oid.equals(SafeBag.FRIENDLY_NAME)) continue;
+
+            SET values = attr.getValues();
+            ANY value = (ANY) values.elementAt(0);
+
+            ByteArrayInputStream bbis = new ByteArrayInputStream(value.getEncoded());
+            BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
+            subjectDN = sss.toString();
+
+            break;
+        }
+
+        logger.fine("Found private key " + subjectDN);
+
+        PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
+        keyInfo.encPrivateKeyInfo = encPrivateKeyInfo;
+        keyInfo.privateKeyInfo = privateKeyInfo;
+        keyInfo.subjectDN = subjectDN;
+
+        return keyInfo;
+    }
+
+    public PKCS12KeyInfo getKeyInfo(SafeBag bag) throws Exception {
+        return getKeyInfo(bag, null);
+    }
+
+    public PKCS12CertInfo getCertInfo(SafeBag bag) throws Exception {
+
+        CertBag certBag = (CertBag) bag.getInterpretedBagContent();
+
+        OCTET_STRING str = (OCTET_STRING) certBag.getInterpretedCert();
+        byte[] x509cert = str.toByteArray();
+
+        // find cert's nickname
+        SET bagAttrs = bag.getBagAttributes();
+        String nickname = null;
+
+        if (bagAttrs != null) {
+
+            for (int k = 0; k < bagAttrs.size(); k++) {
+
+                Attribute attr = (Attribute) bagAttrs.elementAt(k);
+                OBJECT_IDENTIFIER oid = attr.getType();
+
+                if (!oid.equals(SafeBag.FRIENDLY_NAME)) continue;
+                SET values = attr.getValues();
+                ANY value = (ANY) values.elementAt(0);
+
+                ByteArrayInputStream bbis = new ByteArrayInputStream(value.getEncoded());
+                BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
+                nickname = sss.toString();
+
+                break;
+            }
+        }
+
+        X509CertImpl certImpl = new X509CertImpl(x509cert);
+
+        logger.fine("Found certificate " + certImpl.getSubjectDN() + (nickname == null ? "" : " (" + nickname + ")"));
+
+        PKCS12CertInfo certInfo = new PKCS12CertInfo();
+        certInfo.cert = certImpl;
+        certInfo.nickname = nickname;
+
+        return certInfo;
+    }
+
+    public List<PKCS12KeyInfo> getKeyInfos(Password password) throws Exception {
+
+        logger.fine("Getting private keys");
+
+        List<PKCS12KeyInfo> keyInfos = new ArrayList<PKCS12KeyInfo>();
+        AuthenticatedSafes safes = pfx.getAuthSafes();
+
+        for (int i = 0; i < safes.getSize(); i++) {
+
+            SEQUENCE contents = safes.getSafeContentsAt(null, i);
+
+            for (int j = 0; j < contents.size(); j++) {
+
+                SafeBag bag = (SafeBag) contents.elementAt(j);
+                OBJECT_IDENTIFIER oid = bag.getBagType();
+
+                if (!oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) continue;
+
+                PKCS12KeyInfo keyInfo = getKeyInfo(bag, password);
+                keyInfos.add(keyInfo);
+            }
+        }
+
+        return keyInfos;
+    }
+
+    public List<PKCS12KeyInfo> getKeyInfos() throws Exception {
+        return getKeyInfos(null);
+    }
+
+    public List<PKCS12CertInfo> getCertInfos() throws Exception {
+
+        logger.fine("Getting certificates");
+
+        List<PKCS12CertInfo> certInfos = new ArrayList<PKCS12CertInfo>();
+        AuthenticatedSafes safes = pfx.getAuthSafes();
+
+        for (int i = 0; i < safes.getSize(); i++) {
+
+            SEQUENCE contents = safes.getSafeContentsAt(null, i);
+
+            for (int j = 0; j < contents.size(); j++) {
+
+                SafeBag bag = (SafeBag) contents.elementAt(j);
+                OBJECT_IDENTIFIER oid = bag.getBagType();
+
+                if (!oid.equals(SafeBag.CERT_BAG)) continue;
+
+                PKCS12CertInfo certInfo = getCertInfo(bag);
+                certInfos.add(certInfo);
+            }
+        }
+
+        return certInfos;
+    }
+
+    public void loadFromPKCS12(String filename) throws Exception {
+
+        logger.info("Loading PKCS #12 file");
+
+        Path path = Paths.get(filename);
+        byte[] b = Files.readAllBytes(path);
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(b);
+
+        pfx = (PFX) (new PFX.Template()).decode(bis);
     }
 }
