@@ -18,38 +18,15 @@
 package com.netscape.cmstools;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.security.MessageDigest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.asn1.ASN1Value;
-import org.mozilla.jss.asn1.BMPString;
-import org.mozilla.jss.asn1.OCTET_STRING;
-import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.crypto.Cipher;
-import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.EncryptionAlgorithm;
-import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
-import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
-import org.mozilla.jss.crypto.PBEAlgorithm;
-import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkcs12.AuthenticatedSafes;
-import org.mozilla.jss.pkcs12.CertBag;
-import org.mozilla.jss.pkcs12.PFX;
-import org.mozilla.jss.pkcs12.PasswordConverter;
-import org.mozilla.jss.pkcs12.SafeBag;
-import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
-import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
+
+import netscape.security.pkcs.PKCS12Util;
 
 /**
  * Tool for creating PKCS12 file
@@ -61,21 +38,13 @@ import org.mozilla.jss.util.Password;
  */
 public class PKCS12Export {
 
-    boolean debug;
+    private static Logger logger = Logger.getLogger(PKCS12Export.class.getName());
 
     String databaseDirectory;
     String databasePasswordFilename;
 
     String pkcs12PasswordFilename;
     String pkcs12OutputFilename;
-
-    public boolean isDebug() {
-        return debug;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
 
     public String getDatabaseDirectory() {
         return databaseDirectory;
@@ -108,152 +77,9 @@ public class PKCS12Export {
         this.pkcs12OutputFilename = pkcs12OutputFilename;
     }
 
-    void debug(String s) {
-        if (debug)
-            System.out.println("PKCS12Export: " + s);
-    }
-
-    byte[] getEncodedKey(org.mozilla.jss.crypto.PrivateKey pkey) throws Exception {
-
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken token = cm.getInternalKeyStorageToken();
-
-        KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-        SymmetricKey sk = kg.generate();
-
-        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec param = new IVParameterSpec(iv);
-        wrapper.initWrap(sk, param);
-        byte[] enckey = wrapper.wrap(pkey);
-
-        Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-        c.initDecrypt(sk, param);
-        return c.doFinal(enckey);
-    }
-
-    void addKeyBag(org.mozilla.jss.crypto.PrivateKey pkey, X509Certificate x509cert,
-            Password pass, byte[] localKeyId, SEQUENCE safeContents) throws Exception {
-
-        PasswordConverter passConverter = new PasswordConverter();
-        byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
-        byte[] priData = getEncodedKey(pkey);
-
-        PrivateKeyInfo pki = (PrivateKeyInfo)
-                ASN1Util.decode(PrivateKeyInfo.getTemplate(), priData);
-
-        ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-                PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                pass, salt, 1, passConverter, pki);
-
-        SET keyAttrs = createBagAttrs(
-                x509cert.getSubjectDN().toString(), localKeyId);
-
-        SafeBag keyBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG,
-                key, keyAttrs);
-
-        safeContents.addElement(keyBag);
-    }
-
-    byte[] addCertBag(X509Certificate x509cert, String nickname,
-            SEQUENCE safeContents) throws Exception {
-
-        ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
-        byte[] localKeyId = createLocalKeyId(x509cert);
-
-        SET certAttrs = null;
-        if (nickname != null)
-            certAttrs = createBagAttrs(nickname, localKeyId);
-
-        SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
-                new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
-
-        safeContents.addElement(certBag);
-
-        return localKeyId;
-    }
-
-    byte[] createLocalKeyId(X509Certificate cert) throws Exception {
-
-        // SHA1 hash of the X509Cert der encoding
-        byte certDer[] = cert.getEncoded();
-
-        MessageDigest md = MessageDigest.getInstance("SHA");
-
-        md.update(certDer);
-        return md.digest();
-    }
-
-    SET createBagAttrs(String nickName, byte localKeyId[])
-            throws Exception {
-
-        SET attrs = new SET();
-        SEQUENCE nickNameAttr = new SEQUENCE();
-
-        nickNameAttr.addElement(SafeBag.FRIENDLY_NAME);
-        SET nickNameSet = new SET();
-
-        nickNameSet.addElement(new BMPString(nickName));
-        nickNameAttr.addElement(nickNameSet);
-        attrs.addElement(nickNameAttr);
-        SEQUENCE localKeyAttr = new SEQUENCE();
-
-        localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
-        SET localKeySet = new SET();
-
-        localKeySet.addElement(new OCTET_STRING(localKeyId));
-        localKeyAttr.addElement(localKeySet);
-        attrs.addElement(localKeyAttr);
-
-        return attrs;
-    }
-
-    public byte[] generatePKCS12Data(Password password) throws Exception {
-
-        debug("Generating PKCS #12 data");
-
-        CryptoManager cm = CryptoManager.getInstance();
-        CryptoToken token = cm.getInternalKeyStorageToken();
-        CryptoStore store = token.getCryptoStore();
-
-        X509Certificate[] certs = store.getCertificates();
-
-        SEQUENCE encSafeContents = new SEQUENCE();
-        SEQUENCE safeContents = new SEQUENCE();
-
-        for (int i = 0; i < certs.length; i++) {
-            String nickname = certs[i].getNickname();
-            debug(" * Certificate: " + nickname);
-            try {
-                org.mozilla.jss.crypto.PrivateKey prikey = cm.findPrivKeyByCert(certs[i]);
-
-                debug("   Private key exists");
-                byte localKeyId[] =
-                        addCertBag(certs[i], nickname, safeContents);
-                addKeyBag(prikey, certs[i], password, localKeyId, encSafeContents);
-
-            } catch (org.mozilla.jss.crypto.ObjectNotFoundException e) {
-                debug("   Private key does not exist");
-                addCertBag(certs[i], null, safeContents);
-            }
-        }
-
-        AuthenticatedSafes authSafes = new AuthenticatedSafes();
-        authSafes.addSafeContents(safeContents);
-        authSafes.addSafeContents(encSafeContents);
-
-        PFX pfx = new PFX(authSafes);
-        pfx.computeMacData(password, null, 5);
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        pfx.encode(bos);
-
-        return bos.toByteArray();
-    }
-
     public void initDatabase() throws Exception {
 
-        debug("Initializing database in " + databaseDirectory);
+        logger.info("Initializing database in " + databaseDirectory);
 
         CryptoManager.InitializationValues vals =
                 new CryptoManager.InitializationValues(
@@ -263,7 +89,7 @@ public class PKCS12Export {
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
 
-        debug("Reading database password from " + databasePasswordFilename);
+        logger.info("Reading database password from " + databasePasswordFilename);
 
         String line;
         try (BufferedReader in = new BufferedReader(new FileReader(databasePasswordFilename))) {
@@ -274,7 +100,7 @@ public class PKCS12Export {
         }
         Password password = new Password(line.toCharArray());
 
-        debug("Logging into security token");
+        logger.info("Logging into security token");
 
         try {
             token.login(password);
@@ -285,7 +111,7 @@ public class PKCS12Export {
 
     public void exportData() throws Exception {
 
-        debug("Reading PKCS #12 password from " + pkcs12PasswordFilename);
+        logger.info("Reading PKCS #12 password from " + pkcs12PasswordFilename);
 
         String line;
         try (BufferedReader in = new BufferedReader(new FileReader(pkcs12PasswordFilename))) {
@@ -296,17 +122,13 @@ public class PKCS12Export {
         }
         Password password = new Password(line.toCharArray());
 
-        byte[] data;
+        logger.info("Exporting NSS database into " + pkcs12OutputFilename);
+
         try {
-            data = generatePKCS12Data(password);
+            PKCS12Util util = new PKCS12Util();
+            util.exportData(pkcs12OutputFilename, password);
         } finally {
             password.clear();
-        }
-
-        debug("Storing PKCS #12 data into " + pkcs12OutputFilename);
-
-        try (FileOutputStream fos = new FileOutputStream(pkcs12OutputFilename)) {
-            fos.write(data);
         }
     }
 
@@ -355,11 +177,16 @@ public class PKCS12Export {
             }
         }
 
+        if (debug) {
+            Logger.getLogger("org.dogtagpki").setLevel(Level.FINE);
+            Logger.getLogger("com.netscape").setLevel(Level.FINE);
+            Logger.getLogger("netscape").setLevel(Level.FINE);
+        }
+
         // TODO: validate parameters
 
         try {
             PKCS12Export tool = new PKCS12Export();
-            tool.setDebug(debug);
             tool.setDatabaseDirectory(databaseDirectory);
             tool.setDatabasePasswordFilename(databasePasswordFilename);
             tool.setPkcs12PasswordFilename(pkcs12PasswordFilename);
@@ -370,9 +197,9 @@ public class PKCS12Export {
 
         } catch (Exception e) {
             if (debug) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Unable to export PKCS #12 file", e);
             } else {
-                System.err.println("ERROR: " + e);
+                logger.severe("Unable to export PKCS #12 file: " + e.getMessage());
             }
             System.exit(1);
         }
