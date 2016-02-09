@@ -24,6 +24,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -46,6 +49,7 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
@@ -61,6 +65,7 @@ import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
 
+import netscape.ldap.LDAPDN;
 import netscape.security.x509.X509CertImpl;
 
 public class PKCS12Util {
@@ -386,5 +391,154 @@ public class PKCS12Util {
         ByteArrayInputStream bis = new ByteArrayInputStream(b);
 
         pfx = (PFX) (new PFX.Template()).decode(bis);
+    }
+
+    public PrivateKey.Type getPrivateKeyType(PublicKey publicKey) {
+        if (publicKey.getAlgorithm().equals("EC")) {
+            return PrivateKey.Type.EC;
+        }
+        return PrivateKey.Type.RSA;
+    }
+
+    public X509CertImpl getCertBySubjectDN(String subjectDN, List<PKCS12CertInfo> certInfos)
+            throws CertificateException {
+
+        for (PKCS12CertInfo certInfo : certInfos) {
+            X509CertImpl cert = certInfo.cert;
+            Principal certSubjectDN = cert.getSubjectDN();
+            if (LDAPDN.equals(certSubjectDN.toString(), subjectDN)) return cert;
+        }
+
+        return null;
+    }
+
+    public void importKey(
+            PKCS12KeyInfo keyInfo,
+            Password password,
+            List<PKCS12CertInfo> certInfos) throws Exception {
+
+        PrivateKeyInfo privateKeyInfo = keyInfo.privateKeyInfo;
+
+        if (privateKeyInfo == null) {
+            privateKeyInfo = keyInfo.encPrivateKeyInfo.decrypt(password, new PasswordConverter());
+        }
+
+        String subjectDN = keyInfo.subjectDN;
+
+        logger.fine("Importing private key " + subjectDN);
+
+        // encode private key
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        privateKeyInfo.encode(bos);
+        byte[] privateKey = bos.toByteArray();
+
+        X509CertImpl x509cert = getCertBySubjectDN(subjectDN, certInfos);
+        if (x509cert == null) {
+            logger.fine("Private key nas no certificate, ignore");
+            return;
+        }
+
+        CryptoManager cm = CryptoManager.getInstance();
+        CryptoToken token = cm.getInternalKeyStorageToken();
+        CryptoStore store = token.getCryptoStore();
+
+        X509Certificate cert = cm.importCACertPackage(x509cert.getEncoded());
+
+        // get public key
+        PublicKey publicKey = cert.getPublicKey();
+
+        // delete the cert again
+        try {
+            store.deleteCert(cert);
+        } catch (NoSuchItemOnTokenException e) {
+            // this is OK
+        }
+
+        // encrypt private key
+        KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
+        SymmetricKey sk = kg.generate();
+        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        IVParameterSpec param = new IVParameterSpec(iv);
+        Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
+        c.initEncrypt(sk, param);
+        byte[] encpkey = c.doFinal(privateKey);
+
+        // unwrap private key to load into database
+        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+        wrapper.initUnwrap(sk, param);
+        wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publicKey), publicKey);
+    }
+
+    public void importKeys(
+            List<PKCS12KeyInfo> keyInfos,
+            Password password,
+            List<PKCS12CertInfo> certInfos
+        ) throws Exception {
+
+        for (int i = 0; i < keyInfos.size(); i++) {
+            PKCS12KeyInfo keyInfo = keyInfos.get(i);
+            importKey(keyInfo, password, certInfos);
+        }
+    }
+
+    public X509Certificate importCert(X509CertImpl cert) throws Exception {
+
+        logger.fine("Importing certificate " + cert.getSubjectDN());
+
+        CryptoManager cm = CryptoManager.getInstance();
+        return cm.importCACertPackage(cert.getEncoded());
+    }
+
+    public X509Certificate importCert(X509CertImpl cert, String nickname) throws Exception {
+
+        logger.fine("Importing certificate " + cert.getSubjectDN() + " (" + nickname + ")");
+
+        CryptoManager cm = CryptoManager.getInstance();
+        return cm.importUserCACertPackage(cert.getEncoded(), nickname);
+    }
+
+    public void importCerts(List<PKCS12CertInfo> certInfos) throws Exception {
+
+        for (PKCS12CertInfo certInfo : certInfos) {
+
+            X509CertImpl cert = certInfo.cert;
+            String nickname = certInfo.nickname;
+
+            if (nickname == null) {
+                importCert(cert);
+                continue;
+            }
+
+            importCert(cert, nickname);
+        }
+    }
+
+    public void verifyPassword(Password password) throws Exception {
+
+        StringBuffer reason = new StringBuffer();
+        boolean valid = pfx.verifyAuthSafes(password, reason);
+
+        if (!valid) {
+            throw new Exception(reason.toString());
+        }
+    }
+
+    public void storeIntoNSS(Password password) throws Exception {
+
+        logger.info("Storing data into NSS database");
+
+        verifyPassword(password);
+
+        List<PKCS12KeyInfo> keyInfos = getKeyInfos();
+        List<PKCS12CertInfo> certInfos = getCertInfos();
+
+        importKeys(keyInfos, password, certInfos);
+        importCerts(certInfos);
+    }
+
+    public void importData(String filename, Password password) throws Exception {
+
+        loadFromPKCS12(filename);
+        storeIntoNSS(password);
     }
 }

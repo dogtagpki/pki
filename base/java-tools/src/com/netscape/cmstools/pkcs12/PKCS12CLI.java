@@ -30,6 +30,8 @@ public class PKCS12CLI extends CLI {
         super("pkcs12", "PKCS #12 utilities", parent);
 
         addModule(new PKCS12CertCLI(this));
+        addModule(new PKCS12ExportCLI(this));
+        addModule(new PKCS12ImportCLI(this));
         addModule(new PKCS12KeyCLI(this));
     }
 
