@@ -13,6 +13,7 @@ configure_file(
 
 install(
     FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/logging.properties
         ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
     DESTINATION
         ${DATA_INSTALL_DIR}/etc/
