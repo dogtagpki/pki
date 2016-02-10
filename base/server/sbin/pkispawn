@@ -93,7 +93,7 @@ def main(argv):
         config.pki_dns_domainname = dnsdomainname
         if not len(config.pki_dns_domainname):
             print(log.PKI_DNS_DOMAIN_NOT_SET)
-            sys.exit(1)
+            config.pki_dns_domainname = config.pki_hostname
     except subprocess.CalledProcessError as exc:
         print(log.PKI_SUBPROCESS_ERROR_1 % exc)
         sys.exit(1)
