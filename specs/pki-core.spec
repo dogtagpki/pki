@@ -18,7 +18,6 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %if 0%{?rhel}
 %define resteasy_lib /usr/share/java/resteasy-base
 %else
-# 0%{?fedora}
 %define resteasy_lib /usr/share/java/resteasy
 %endif
 
@@ -40,7 +39,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.3.0
-Release:          0.3%{?dist}
+Release:          0.4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -713,6 +712,11 @@ for subsystem in ca kra ocsp tks tps; do
     ln -s %{_javadir}/pki/pki-$subsystem.jar %{buildroot}%{_datadir}/pki/$subsystem/webapps/$subsystem/WEB-INF/lib
 done
 
+# Create compatibility symlink for DRMTool -> KRATool
+ln -s %{_bindir}/KRATool %{buildroot}%{_bindir}/DRMTool
+# Create compatibility symlink for DRMTool.cfg -> KRATool.cfg
+ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-tools/DRMTool.cfg
+
 %if %{with server}
 
 %if ! 0%{?rhel}
@@ -896,6 +900,7 @@ systemctl daemon-reload
 %{_bindir}/GenIssuerAltNameExt
 %{_bindir}/GenSubjectAltNameExt
 %{_bindir}/HttpClient
+%{_bindir}/KRATool
 %{_bindir}/OCSPClient
 %{_bindir}/PKCS10Client
 %{_bindir}/PKCS12Export
@@ -1029,11 +1034,14 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Feb 11 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.4
+- PKI TRAC Ticket #1850 - Rename DRMTool --> KRATool
+
 * Thu Feb  4 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.3
 - PKI TRAC Ticket #1714 - mod_revocator and mod_nss dependency for tps
   should be removed
 
-* Sat Oct  2 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.2
+* Sat Oct  3 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.2
 - PKI TRAC Ticket #1623 - Runtime dependency on python-nss is missing
 
 * Sat Aug  8 2015 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.1
