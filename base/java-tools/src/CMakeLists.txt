@@ -141,7 +141,7 @@ install(
 
 install(
     FILES
-        com/netscape/cmstools/DRMTool.cfg
+        com/netscape/cmstools/KRATool.cfg
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/pki/java-tools
 )

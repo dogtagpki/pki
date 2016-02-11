@@ -10,12 +10,12 @@ set(PKI_COMMANDS
     CMCResponse
     CMCRevoke
     CRMFPopClient
-    DRMTool
     ExtJoiner
     GenExtKeyUsage
     GenIssuerAltNameExt
     GenSubjectAltNameExt
     HttpClient
+    KRATool
     OCSPClient
     PKCS10Client
     PKCS12Export

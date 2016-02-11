@@ -37,8 +37,8 @@ CRMFPopClient                                  A command line utility used to
                                                generate CRMF requests with
                                                proof of possession (POP).
 
-DRMTool -drmtool_config_file                   A command line utility used to
-        <path + drmtool config file>           change the storage key used
+KRATool -kratool_config_file                   A command line utility used to
+        <path + kratool config file>           change the storage key used
         -source_ldif_file                      to wrap the symmetric key
         <path + source ldif file>              which is used to encrypt the
         -target_ldif_file                      user's private key.
@@ -46,7 +46,7 @@ DRMTool -drmtool_config_file                   A command line utility used to
         -log_file                              may also be used to re-index IDs
         <path + log file >                     associated with the various
         [-source_pki_security_database_path    records which may be useful
-         <path to PKI source databases>        for DRM consolidation.
+         <path to PKI source databases>        for KRA consolidation.
          -source_storage_token_name
          '<source token>'
          -source_storage_certificate_nickname
@@ -59,10 +59,10 @@ DRMTool -drmtool_config_file                   A command line utility used to
          <numeric offset> ||
          -remove_id_offset
          <numeric offset>]
-        [-source_drm_naming_context
-          <source DRM naming context>]
-        [-target_drm_naming_context
-          <target DRM naming context>]
+        [-source_kra_naming_context
+          <source KRA naming context>]
+        [-target_kra_naming_context
+          <target KRA naming context>]
         [-process_requests_and_key_records_only]
 
 ExtJoiner <ext_file0> . . . <ext_file9>        A command line utility utilized
