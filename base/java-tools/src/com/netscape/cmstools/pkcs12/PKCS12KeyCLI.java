@@ -34,7 +34,7 @@ public class PKCS12KeyCLI extends CLI {
     }
 
     public static void printKeyInfo(PKCS12KeyInfo keyInfo) throws Exception {
-        System.out.println("  Subject: " + keyInfo.subjectDN);
+        System.out.println("  Subject DN: " + keyInfo.subjectDN);
 
         if (keyInfo.privateKeyInfo != null) {
             System.out.println("  Algorithm: " + keyInfo.privateKeyInfo.getAlgorithm());

@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.pkcs12;
 
+import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.CLI;
 
 import netscape.security.pkcs.PKCS12Util.PKCS12CertInfo;
@@ -34,8 +35,13 @@ public class PKCS12CertCLI extends CLI {
     }
 
     public static void printCertInfo(PKCS12CertInfo certInfo) throws Exception {
+        System.out.println("  Serial Number: " + new CertId(certInfo.cert.getSerialNumber()).toHexString());
         System.out.println("  Nickname: " + certInfo.nickname);
-        System.out.println("  Subject: " + certInfo.cert.getSubjectDN());
-        System.out.println("  Issuer: " + certInfo.cert.getIssuerDN());
+        System.out.println("  Subject DN: " + certInfo.cert.getSubjectDN());
+        System.out.println("  Issuer DN: " + certInfo.cert.getIssuerDN());
+
+        if (certInfo.trustFlags != null) {
+            System.out.println("  Trust flags: " + certInfo.trustFlags);
+        }
     }
 }

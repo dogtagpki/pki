@@ -45,6 +45,7 @@ import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -73,6 +74,7 @@ public class PKCS12Util {
     private static Logger logger = Logger.getLogger(PKCS12Util.class.getName());
 
     PFX pfx;
+    boolean trustFlagsEnabled = true;
 
     public static class PKCS12KeyInfo {
         public EncryptedPrivateKeyInfo encPrivateKeyInfo;
@@ -83,6 +85,42 @@ public class PKCS12Util {
     public static class PKCS12CertInfo {
         public X509CertImpl cert;
         public String nickname;
+        public String trustFlags;
+    }
+
+    public boolean isTrustFlagsEnabled() {
+        return trustFlagsEnabled;
+    }
+
+    public void setTrustFlagsEnabled(boolean trustFlagsEnabled) {
+        this.trustFlagsEnabled = trustFlagsEnabled;
+    }
+
+    public String getTrustFlags(X509Certificate cert) {
+
+        InternalCertificate icert = (InternalCertificate) cert;
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(PKCS12.encodeFlags(icert.getSSLTrust()));
+        sb.append(",");
+        sb.append(PKCS12.encodeFlags(icert.getEmailTrust()));
+        sb.append(",");
+        sb.append(PKCS12.encodeFlags(icert.getObjectSigningTrust()));
+
+        return sb.toString();
+    }
+
+    public void setTrustFlags(X509Certificate cert, String trustFlags) throws Exception {
+
+        InternalCertificate icert = (InternalCertificate) cert;
+
+        String[] flags = trustFlags.split(",");
+        if (flags.length < 3) throw new Exception("Invalid trust flags: " + trustFlags);
+
+        icert.setSSLTrust(PKCS12.decodeFlags(flags[0]));
+        icert.setEmailTrust(PKCS12.decodeFlags(flags[1]));
+        icert.setObjectSigningTrust(PKCS12.decodeFlags(flags[2]));
     }
 
     byte[] getEncodedKey(PrivateKey privateKey) throws Exception {
@@ -107,6 +145,8 @@ public class PKCS12Util {
     public void addKeyBag(PrivateKey privateKey, X509Certificate x509cert,
             Password pass, byte[] localKeyID, SEQUENCE safeContents) throws Exception {
 
+        logger.fine("Creating key bag for " + x509cert.getSubjectDN());
+
         PasswordConverter passConverter = new PasswordConverter();
         byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
         byte[] priData = getEncodedKey(privateKey);
@@ -118,7 +158,7 @@ public class PKCS12Util {
                 PBEAlgorithm.PBE_SHA1_DES3_CBC,
                 pass, salt, 1, passConverter, pki);
 
-        SET keyAttrs = createBagAttrs(
+        SET keyAttrs = createKeyBagAttrs(
                 x509cert.getSubjectDN().toString(), localKeyID);
 
         SafeBag keyBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG,
@@ -130,12 +170,18 @@ public class PKCS12Util {
     public byte[] addCertBag(X509Certificate x509cert, String nickname,
             SEQUENCE safeContents) throws Exception {
 
+        logger.fine("Creating cert bag for " + nickname);
+
         ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
         byte[] localKeyID = createLocalKeyID(x509cert);
 
-        SET certAttrs = null;
-        if (nickname != null)
-            certAttrs = createBagAttrs(nickname, localKeyID);
+        String trustFlags = null;
+        if (trustFlagsEnabled) {
+            trustFlags = getTrustFlags(x509cert);
+            logger.fine("Trust flags: " + trustFlags);
+        }
+
+        SET certAttrs = createCertBagAttrs(nickname, localKeyID, trustFlags);
 
         SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
                 new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
@@ -156,26 +202,65 @@ public class PKCS12Util {
         return md.digest();
     }
 
-    SET createBagAttrs(String nickname, byte localKeyID[])
+    SET createKeyBagAttrs(String subjectDN, byte localKeyID[])
             throws Exception {
 
         SET attrs = new SET();
-        SEQUENCE nicknameAttr = new SEQUENCE();
 
-        nicknameAttr.addElement(SafeBag.FRIENDLY_NAME);
-        SET nicknameSet = new SET();
+        SEQUENCE subjectAttr = new SEQUENCE();
+        subjectAttr.addElement(SafeBag.FRIENDLY_NAME);
 
-        nicknameSet.addElement(new BMPString(nickname));
-        nicknameAttr.addElement(nicknameSet);
-        attrs.addElement(nicknameAttr);
+        SET subjectSet = new SET();
+        subjectSet.addElement(new BMPString(subjectDN));
+        subjectAttr.addElement(subjectSet);
+
+        attrs.addElement(subjectAttr);
+
         SEQUENCE localKeyAttr = new SEQUENCE();
-
         localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
-        SET localKeySet = new SET();
 
+        SET localKeySet = new SET();
         localKeySet.addElement(new OCTET_STRING(localKeyID));
         localKeyAttr.addElement(localKeySet);
+
         attrs.addElement(localKeyAttr);
+
+        return attrs;
+    }
+
+    SET createCertBagAttrs(String nickname, byte localKeyID[], String trustFlags)
+            throws Exception {
+
+        SET attrs = new SET();
+
+        SEQUENCE nicknameAttr = new SEQUENCE();
+        nicknameAttr.addElement(SafeBag.FRIENDLY_NAME);
+
+        SET nicknameSet = new SET();
+        nicknameSet.addElement(new BMPString(nickname));
+        nicknameAttr.addElement(nicknameSet);
+
+        attrs.addElement(nicknameAttr);
+
+        SEQUENCE localKeyAttr = new SEQUENCE();
+        localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
+
+        SET localKeySet = new SET();
+        localKeySet.addElement(new OCTET_STRING(localKeyID));
+        localKeyAttr.addElement(localKeySet);
+
+        attrs.addElement(localKeyAttr);
+
+        if (trustFlags != null && trustFlagsEnabled) {
+            SEQUENCE trustFlagsAttr = new SEQUENCE();
+            trustFlagsAttr.addElement(PKCS12.CERT_TRUST_FLAGS_OID);
+
+            SET trustFlagsSet = new SET();
+            trustFlagsSet.addElement(new BMPString(trustFlags));
+            trustFlagsAttr.addElement(trustFlagsSet);
+
+            attrs.addElement(trustFlagsAttr);
+        }
 
         return attrs;
     }
@@ -191,7 +276,7 @@ public class PKCS12Util {
         SEQUENCE encSafeContents = new SEQUENCE();
         SEQUENCE safeContents = new SEQUENCE();
 
-        logger.fine("Loading certificates:");
+        logger.fine("Loading certificates");
 
         X509Certificate[] certs = store.getCertificates();
 
@@ -200,13 +285,13 @@ public class PKCS12Util {
 
             try {
                 PrivateKey prikey = cm.findPrivKeyByCert(cert);
-                logger.fine(" - cert " + nickname + " with private key");
+                logger.fine("Found certificate " + nickname + " with private key");
 
                 byte localKeyID[] = addCertBag(cert, nickname, safeContents);
                 addKeyBag(prikey, cert, password, localKeyID, encSafeContents);
 
             } catch (ObjectNotFoundException e) {
-                logger.fine(" - cert " + nickname + " without private key");
+                logger.fine("Found certificate " + nickname + " without private key");
                 addCertBag(cert, nickname, safeContents);
             }
         }
@@ -286,41 +371,47 @@ public class PKCS12Util {
 
     public PKCS12CertInfo getCertInfo(SafeBag bag) throws Exception {
 
+        PKCS12CertInfo certInfo = new PKCS12CertInfo();
+
         CertBag certBag = (CertBag) bag.getInterpretedBagContent();
 
-        OCTET_STRING str = (OCTET_STRING) certBag.getInterpretedCert();
-        byte[] x509cert = str.toByteArray();
+        OCTET_STRING certStr = (OCTET_STRING) certBag.getInterpretedCert();
+        byte[] x509cert = certStr.toByteArray();
 
-        // find cert's nickname
+        certInfo.cert = new X509CertImpl(x509cert);
+        logger.fine("Found certificate " + certInfo.cert.getSubjectDN());
+
         SET bagAttrs = bag.getBagAttributes();
-        String nickname = null;
+        if (bagAttrs == null) return certInfo;
 
-        if (bagAttrs != null) {
+        for (int i = 0; i < bagAttrs.size(); i++) {
 
-            for (int k = 0; k < bagAttrs.size(); k++) {
+            Attribute attr = (Attribute) bagAttrs.elementAt(i);
+            OBJECT_IDENTIFIER oid = attr.getType();
 
-                Attribute attr = (Attribute) bagAttrs.elementAt(k);
-                OBJECT_IDENTIFIER oid = attr.getType();
+            if (oid.equals(SafeBag.FRIENDLY_NAME)) {
 
-                if (!oid.equals(SafeBag.FRIENDLY_NAME)) continue;
                 SET values = attr.getValues();
                 ANY value = (ANY) values.elementAt(0);
 
-                ByteArrayInputStream bbis = new ByteArrayInputStream(value.getEncoded());
-                BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
-                nickname = sss.toString();
+                ByteArrayInputStream is = new ByteArrayInputStream(value.getEncoded());
+                BMPString nicknameStr = (BMPString) (new BMPString.Template()).decode(is);
 
-                break;
+                certInfo.nickname = nicknameStr.toString();
+                logger.fine("Nickname: " + certInfo.nickname);
+
+            } else if (oid.equals(PKCS12.CERT_TRUST_FLAGS_OID) && trustFlagsEnabled) {
+
+                SET values = attr.getValues();
+                ANY value = (ANY) values.elementAt(0);
+
+                ByteArrayInputStream is = new ByteArrayInputStream(value.getEncoded());
+                BMPString trustFlagsStr = (BMPString) (new BMPString.Template()).decode(is);
+
+                certInfo.trustFlags = trustFlagsStr.toString();
+                logger.fine("Trust flags: " + certInfo.trustFlags);
             }
         }
-
-        X509CertImpl certImpl = new X509CertImpl(x509cert);
-
-        logger.fine("Found certificate " + certImpl.getSubjectDN() + (nickname == null ? "" : " (" + nickname + ")"));
-
-        PKCS12CertInfo certInfo = new PKCS12CertInfo();
-        certInfo.cert = certImpl;
-        certInfo.nickname = nickname;
 
         return certInfo;
     }
@@ -481,35 +572,31 @@ public class PKCS12Util {
         }
     }
 
-    public X509Certificate importCert(X509CertImpl cert) throws Exception {
+    public X509Certificate importCert(X509CertImpl cert, String nickname, String trustFlags) throws Exception {
 
         logger.fine("Importing certificate " + cert.getSubjectDN());
 
         CryptoManager cm = CryptoManager.getInstance();
-        return cm.importCACertPackage(cert.getEncoded());
-    }
 
-    public X509Certificate importCert(X509CertImpl cert, String nickname) throws Exception {
+        X509Certificate xcert;
 
-        logger.fine("Importing certificate " + cert.getSubjectDN() + " (" + nickname + ")");
+        if (nickname == null) {
+            xcert = cm.importCACertPackage(cert.getEncoded());
 
-        CryptoManager cm = CryptoManager.getInstance();
-        return cm.importUserCACertPackage(cert.getEncoded(), nickname);
+        } else {
+            xcert = cm.importUserCACertPackage(cert.getEncoded(), nickname);
+        }
+
+        if (trustFlags != null && trustFlagsEnabled)
+            setTrustFlags(xcert, trustFlags);
+
+        return xcert;
     }
 
     public void importCerts(List<PKCS12CertInfo> certInfos) throws Exception {
 
         for (PKCS12CertInfo certInfo : certInfos) {
-
-            X509CertImpl cert = certInfo.cert;
-            String nickname = certInfo.nickname;
-
-            if (nickname == null) {
-                importCert(cert);
-                continue;
-            }
-
-            importCert(cert, nickname);
+            importCert(certInfo.cert, certInfo.nickname, certInfo.trustFlags);
         }
     }
 
