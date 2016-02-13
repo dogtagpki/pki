@@ -59,6 +59,8 @@ public class PKCS12ImportCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
+        options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
+
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
@@ -120,8 +122,11 @@ public class PKCS12ImportCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
+        boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
+
         try {
             PKCS12Util util = new PKCS12Util();
+            util.setTrustFlagsEnabled(trustFlagsEnabled);
             util.importData(filename, password);
         } finally {
             password.clear();
