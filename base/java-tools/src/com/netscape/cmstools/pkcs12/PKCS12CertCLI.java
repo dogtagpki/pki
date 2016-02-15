@@ -31,7 +31,9 @@ public class PKCS12CertCLI extends CLI {
     public PKCS12CertCLI(PKCS12CLI parent) {
         super("cert", "PKCS #12 certificate management commands", parent);
 
+        addModule(new PKCS12CertAddCLI(this));
         addModule(new PKCS12CertFindCLI(this));
+        addModule(new PKCS12CertRemoveCLI(this));
     }
 
     public static void printCertInfo(PKCS12CertInfo certInfo) throws Exception {

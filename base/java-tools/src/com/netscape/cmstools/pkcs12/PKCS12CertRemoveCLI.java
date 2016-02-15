@@ -15,16 +15,17 @@
 // (C) 2016 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
+
 package com.netscape.cmstools.pkcs12;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
@@ -34,18 +35,18 @@ import netscape.security.pkcs.PKCS12;
 import netscape.security.pkcs.PKCS12Util;
 
 /**
- * Tool for exporting NSS database into PKCS #12 file
+ * @author Endi S. Dewata
  */
-public class PKCS12ExportCLI extends CLI {
+public class PKCS12CertRemoveCLI extends CLI {
 
-    public PKCS12ExportCLI(PKCS12CLI certCLI) {
-        super("export", "Export NSS database into PKCS #12 file", certCLI);
+    public PKCS12CertRemoveCLI(PKCS12CertCLI certCLI) {
+        super("del", "Remove certificate from PKCS #12 file", certCLI);
 
         createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " <nickname> [OPTIONS...]", options);
     }
 
     public void createOptions() {
@@ -61,8 +62,6 @@ public class PKCS12ExportCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
-        options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
-
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
@@ -73,8 +72,8 @@ public class PKCS12ExportCLI extends CLI {
         CommandLine cmd = null;
 
         try {
-            cmd = parser.parse(options, args, true);
-        } catch (Exception e) {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
             System.exit(-1);
@@ -95,6 +94,16 @@ public class PKCS12ExportCLI extends CLI {
             Logger.getLogger("com.netscape").setLevel(Level.FINE);
             Logger.getLogger("netscape").setLevel(Level.FINE);
         }
+
+        String[] cmdArgs = cmd.getArgs();
+
+        if (cmdArgs.length == 0) {
+            System.err.println("Error: Missing certificate nickname.");
+            printHelp();
+            System.exit(-1);
+        }
+
+        String nickname = cmdArgs[0];
 
         String filename = cmd.getOptionValue("pkcs12");
 
@@ -124,27 +133,17 @@ public class PKCS12ExportCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
-        boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
-
         try {
             PKCS12Util util = new PKCS12Util();
-            util.setTrustFlagsEnabled(trustFlagsEnabled);
 
-            PKCS12 pkcs12;
-
-            if (new File(filename).exists()) {
-                pkcs12 = util.loadFromFile(filename, password);
-            } else {
-                pkcs12 = new PKCS12();
-            }
-
-            util.loadFromNSS(pkcs12);
+            PKCS12 pkcs12 = util.loadFromFile(filename, password);
+            pkcs12.removeCertInfoByNickname(nickname);
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {
             password.clear();
         }
 
-        MainCLI.printMessage("Export complete");
+        MainCLI.printMessage("Deleted certificate \"" + nickname + "\"");
     }
 }

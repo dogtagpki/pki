@@ -232,24 +232,36 @@ public class PKCS12Util {
         return attrs;
     }
 
-    public PKCS12 loadFromNSS() throws Exception {
+    public void loadFromNSS(PKCS12 pkcs12) throws Exception {
 
-        logger.info("Loading data from NSS database");
+        logger.info("Loading all certificate and keys from NSS database");
 
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
         CryptoStore store = token.getCryptoStore();
 
-        PKCS12 pkcs12 = new PKCS12();
-
+        // load all certs
         for (X509Certificate cert : store.getCertificates()) {
-            loadCertAndKeyFromNSS(pkcs12, cert);
+            loadCertFromNSS(pkcs12, cert, true); // load cert with private key
         }
-
-        return pkcs12;
     }
 
-    public void loadCertAndKeyFromNSS(PKCS12 pkcs12, X509Certificate cert) throws Exception {
+    public void loadFromNSS(PKCS12 pkcs12, String nickname, boolean includeCert, boolean includeKey, boolean includeChain) throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        X509Certificate cert = cm.findCertByNickname(nickname);
+
+        if (includeCert) {
+            loadCertFromNSS(pkcs12, cert, includeKey);
+        }
+
+        if (includeChain) {
+            loadCertChainFromNSS(pkcs12, cert);
+        }
+    }
+
+    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert, boolean includeKey) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading certificate \"" + nickname + "\" from NSS database");
@@ -265,9 +277,12 @@ public class PKCS12Util {
         certInfo.trustFlags = getTrustFlags(cert);
         pkcs12.addCertInfo(certInfo);
 
+        if (!includeKey) return;
+
+        logger.info("Loading private key for certificate \"" + nickname + "\" from NSS database");
+
         try {
             PrivateKey privateKey = cm.findPrivKeyByCert(cert);
-
             logger.fine("Certificate \"" + nickname + "\" has private key");
 
             PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
@@ -282,6 +297,20 @@ public class PKCS12Util {
 
         } catch (ObjectNotFoundException e) {
             logger.fine("Certificate \"" + nickname + "\" has no private key");
+        }
+    }
+
+    public void loadCertChainFromNSS(PKCS12 pkcs12, X509Certificate cert) throws Exception {
+
+        logger.info("Loading certificate chain for \"" + cert.getNickname() + "\"");
+
+        CryptoManager cm = CryptoManager.getInstance();
+        X509Certificate[] certChain = cm.buildCertificateChain(cert);
+
+        // load parent certificates only
+        for (int i = 1; i < certChain.length; i++) {
+            X509Certificate c = certChain[i];
+            loadCertFromNSS(pkcs12, c, false); // do not include private key
         }
     }
 
