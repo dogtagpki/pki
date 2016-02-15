@@ -29,8 +29,8 @@ import org.apache.commons.cli.ParseException;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
+import netscape.security.pkcs.PKCS12CertInfo;
 import netscape.security.pkcs.PKCS12Util;
-import netscape.security.pkcs.PKCS12Util.PKCS12CertInfo;
 
 /**
  * @author Endi S. Dewata
