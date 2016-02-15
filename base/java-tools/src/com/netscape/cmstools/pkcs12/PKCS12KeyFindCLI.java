@@ -20,7 +20,7 @@ package com.netscape.cmstools.pkcs12;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +32,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
+import netscape.security.pkcs.PKCS12;
 import netscape.security.pkcs.PKCS12KeyInfo;
 import netscape.security.pkcs.PKCS12Util;
 
@@ -124,21 +125,24 @@ public class PKCS12KeyFindCLI extends CLI {
             }
         }
 
-        Password password = null;
-        if (passwordString != null) {
-            password = new Password(passwordString.toCharArray());
+        if (passwordString == null) {
+            System.err.println("Error: Missing PKCS #12 password.");
+            printHelp();
+            System.exit(-1);
         }
 
-        List<PKCS12KeyInfo> keyInfos;
+        Password password = new Password(passwordString.toCharArray());
+
+        Collection<PKCS12KeyInfo> keyInfos;
 
         try {
             PKCS12Util util = new PKCS12Util();
-            util.loadFromPKCS12(filename);
+            PKCS12 pkcs12 = util.loadFromFile(filename, password);
 
-            keyInfos = util.getKeyInfos(password);
+            keyInfos = pkcs12.getKeyInfos();
 
         } finally {
-            if (password != null) password.clear();
+            password.clear();
         }
 
         MainCLI.printMessage(keyInfos.size() + " entries found");

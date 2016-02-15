@@ -40,6 +40,10 @@ public class PKCS12CertCLI extends CLI {
         System.out.println("  Subject DN: " + certInfo.getCert().getSubjectDN());
         System.out.println("  Issuer DN: " + certInfo.getCert().getIssuerDN());
 
+        if (certInfo.getKeyID() != null) {
+            System.out.println("  Key ID: " + certInfo.getKeyID().toString(16));
+        }
+
         if (certInfo.getTrustFlags() != null) {
             System.out.println("  Trust flags: " + certInfo.getTrustFlags());
         }

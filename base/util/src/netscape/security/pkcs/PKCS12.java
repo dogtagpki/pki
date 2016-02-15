@@ -17,6 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.pkcs;
 
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 
 public class PKCS12 {
@@ -132,5 +137,44 @@ public class PKCS12 {
         }
 
         return value;
+    }
+
+    Map<BigInteger, PKCS12KeyInfo> keyInfosByID = new LinkedHashMap<BigInteger, PKCS12KeyInfo>();
+
+    Map<String, PKCS12CertInfo> certInfosByNickname = new LinkedHashMap<String, PKCS12CertInfo>();
+
+    public PKCS12() {
+    }
+
+    public Collection<PKCS12KeyInfo> getKeyInfos() {
+        return keyInfosByID.values();
+    }
+
+    public void addKeyInfo(PKCS12KeyInfo keyInfo) {
+        keyInfosByID.put(keyInfo.id, keyInfo);
+    }
+
+    public PKCS12KeyInfo getKeyInfoByID(BigInteger id) {
+        return keyInfosByID.get(id);
+    }
+
+    public PKCS12KeyInfo removeKeyInfoByID(BigInteger id) {
+        return keyInfosByID.remove(id);
+    }
+
+    public Collection<PKCS12CertInfo> getCertInfos() {
+        return certInfosByNickname.values();
+    }
+
+    public void addCertInfo(PKCS12CertInfo certInfo) {
+        certInfosByNickname.put(certInfo.nickname, certInfo);
+    }
+
+    public PKCS12CertInfo getCertInfoByNickname(String nickname) {
+        return certInfosByNickname.get(nickname);
+    }
+
+    public PKCS12CertInfo removeCertInfoByNickname(String nickname) {
+        return certInfosByNickname.remove(nickname);
     }
 }

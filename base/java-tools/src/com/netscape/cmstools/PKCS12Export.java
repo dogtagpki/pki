@@ -26,6 +26,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.util.Password;
 
+import netscape.security.pkcs.PKCS12;
 import netscape.security.pkcs.PKCS12Util;
 
 /**
@@ -126,7 +127,9 @@ public class PKCS12Export {
 
         try {
             PKCS12Util util = new PKCS12Util();
-            util.exportData(pkcs12OutputFilename, password);
+            PKCS12 pkcs12 = util.loadFromNSS();
+            util.storeIntoFile(pkcs12, pkcs12OutputFilename, password);
+
         } finally {
             password.clear();
         }

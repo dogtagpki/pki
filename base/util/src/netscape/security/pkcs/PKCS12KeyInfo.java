@@ -17,24 +17,25 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.pkcs;
 
-import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
+import java.math.BigInteger;
+
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 
 public class PKCS12KeyInfo {
 
-    EncryptedPrivateKeyInfo encPrivateKeyInfo;
+    BigInteger id;
     PrivateKeyInfo privateKeyInfo;
     String subjectDN;
 
     public PKCS12KeyInfo() {
     }
 
-    public EncryptedPrivateKeyInfo getEncPrivateKeyInfo() {
-        return encPrivateKeyInfo;
+    public BigInteger getID() {
+        return id;
     }
 
-    public void setEncPrivateKeyInfo(EncryptedPrivateKeyInfo encPrivateKeyInfo) {
-        this.encPrivateKeyInfo = encPrivateKeyInfo;
+    public void setID(BigInteger id) {
+        this.id = id;
     }
 
     public PrivateKeyInfo getPrivateKeyInfo() {
