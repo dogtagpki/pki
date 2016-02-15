@@ -15,29 +15,40 @@
 // (C) 2016 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
+package netscape.security.pkcs;
 
-package com.netscape.cmstools.pkcs12;
+import netscape.security.x509.X509CertImpl;
 
-import com.netscape.cmstools.cli.CLI;
+public class PKCS12CertInfo {
 
-import netscape.security.pkcs.PKCS12KeyInfo;
+    X509CertImpl cert;
+    String nickname;
+    String trustFlags;
 
-/**
- * @author Endi S. Dewata
- */
-public class PKCS12KeyCLI extends CLI {
-
-    public PKCS12KeyCLI(PKCS12CLI parent) {
-        super("key", "PKCS #12 key management commands", parent);
-
-        addModule(new PKCS12KeyFindCLI(this));
+    public PKCS12CertInfo() {
     }
 
-    public static void printKeyInfo(PKCS12KeyInfo keyInfo) throws Exception {
-        System.out.println("  Subject DN: " + keyInfo.getSubjectDN());
+    public X509CertImpl getCert() {
+        return cert;
+    }
 
-        if (keyInfo.getPrivateKeyInfo() != null) {
-            System.out.println("  Algorithm: " + keyInfo.getPrivateKeyInfo().getAlgorithm());
-        }
+    public void setCert(X509CertImpl cert) {
+        this.cert = cert;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getTrustFlags() {
+        return trustFlags;
+    }
+
+    public void setTrustFlags(String trustFlags) {
+        this.trustFlags = trustFlags;
     }
 }

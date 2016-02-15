@@ -32,8 +32,8 @@ import org.mozilla.jss.util.Password;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
+import netscape.security.pkcs.PKCS12KeyInfo;
 import netscape.security.pkcs.PKCS12Util;
-import netscape.security.pkcs.PKCS12Util.PKCS12KeyInfo;
 
 /**
  * @author Endi S. Dewata

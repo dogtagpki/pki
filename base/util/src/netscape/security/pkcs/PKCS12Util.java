@@ -20,6 +20,7 @@ package netscape.security.pkcs;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,18 +77,6 @@ public class PKCS12Util {
     PFX pfx;
     boolean trustFlagsEnabled = true;
 
-    public static class PKCS12KeyInfo {
-        public EncryptedPrivateKeyInfo encPrivateKeyInfo;
-        public PrivateKeyInfo privateKeyInfo;
-        public String subjectDN;
-    }
-
-    public static class PKCS12CertInfo {
-        public X509CertImpl cert;
-        public String nickname;
-        public String trustFlags;
-    }
-
     public boolean isTrustFlagsEnabled() {
         return trustFlagsEnabled;
     }
@@ -143,7 +132,7 @@ public class PKCS12Util {
     }
 
     public void addKeyBag(PrivateKey privateKey, X509Certificate x509cert,
-            Password pass, byte[] localKeyID, SEQUENCE safeContents) throws Exception {
+            Password pass, BigInteger localKeyID, SEQUENCE safeContents) throws Exception {
 
         logger.fine("Creating key bag for " + x509cert.getSubjectDN());
 
@@ -167,13 +156,13 @@ public class PKCS12Util {
         safeContents.addElement(keyBag);
     }
 
-    public byte[] addCertBag(X509Certificate x509cert, String nickname,
+    public BigInteger addCertBag(X509Certificate x509cert, String nickname,
             SEQUENCE safeContents) throws Exception {
 
         logger.fine("Creating cert bag for " + nickname);
 
         ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
-        byte[] localKeyID = createLocalKeyID(x509cert);
+        BigInteger localKeyID = createLocalKeyID(x509cert);
 
         String trustFlags = null;
         if (trustFlagsEnabled) {
@@ -191,7 +180,7 @@ public class PKCS12Util {
         return localKeyID;
     }
 
-    byte[] createLocalKeyID(X509Certificate cert) throws Exception {
+    BigInteger createLocalKeyID(X509Certificate cert) throws Exception {
 
         // SHA1 hash of the X509Cert DER encoding
         byte[] certDer = cert.getEncoded();
@@ -199,10 +188,10 @@ public class PKCS12Util {
         MessageDigest md = MessageDigest.getInstance("SHA");
 
         md.update(certDer);
-        return md.digest();
+        return new BigInteger(1, md.digest());
     }
 
-    SET createKeyBagAttrs(String subjectDN, byte localKeyID[])
+    SET createKeyBagAttrs(String subjectDN, BigInteger localKeyID)
             throws Exception {
 
         SET attrs = new SET();
@@ -220,7 +209,7 @@ public class PKCS12Util {
         localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
         SET localKeySet = new SET();
-        localKeySet.addElement(new OCTET_STRING(localKeyID));
+        localKeySet.addElement(new OCTET_STRING(localKeyID.toByteArray()));
         localKeyAttr.addElement(localKeySet);
 
         attrs.addElement(localKeyAttr);
@@ -228,7 +217,7 @@ public class PKCS12Util {
         return attrs;
     }
 
-    SET createCertBagAttrs(String nickname, byte localKeyID[], String trustFlags)
+    SET createCertBagAttrs(String nickname, BigInteger localKeyID, String trustFlags)
             throws Exception {
 
         SET attrs = new SET();
@@ -246,7 +235,7 @@ public class PKCS12Util {
         localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
         SET localKeySet = new SET();
-        localKeySet.addElement(new OCTET_STRING(localKeyID));
+        localKeySet.addElement(new OCTET_STRING(localKeyID.toByteArray()));
         localKeyAttr.addElement(localKeySet);
 
         attrs.addElement(localKeyAttr);
@@ -287,7 +276,7 @@ public class PKCS12Util {
                 PrivateKey prikey = cm.findPrivKeyByCert(cert);
                 logger.fine("Found certificate " + nickname + " with private key");
 
-                byte localKeyID[] = addCertBag(cert, nickname, safeContents);
+                BigInteger localKeyID = addCertBag(cert, nickname, safeContents);
                 addKeyBag(prikey, cert, password, localKeyID, encSafeContents);
 
             } catch (ObjectNotFoundException e) {
