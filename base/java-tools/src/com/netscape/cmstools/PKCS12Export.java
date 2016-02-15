@@ -127,7 +127,8 @@ public class PKCS12Export {
 
         try {
             PKCS12Util util = new PKCS12Util();
-            PKCS12 pkcs12 = util.loadFromNSS();
+            PKCS12 pkcs12 = new PKCS12();
+            util.loadFromNSS(pkcs12);
             util.storeIntoFile(pkcs12, pkcs12OutputFilename, password);
 
         } finally {
