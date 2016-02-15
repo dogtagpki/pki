@@ -28,8 +28,6 @@ import java.security.MessageDigest;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.mozilla.jss.CryptoManager;
@@ -74,7 +72,6 @@ public class PKCS12Util {
 
     private static Logger logger = Logger.getLogger(PKCS12Util.class.getName());
 
-    PFX pfx;
     boolean trustFlagsEnabled = true;
 
     public boolean isTrustFlagsEnabled() {
@@ -131,53 +128,36 @@ public class PKCS12Util {
         return c.doFinal(enckey);
     }
 
-    public void addKeyBag(PrivateKey privateKey, X509Certificate x509cert,
-            Password pass, BigInteger localKeyID, SEQUENCE safeContents) throws Exception {
+    public void addKeyBag(PKCS12KeyInfo keyInfo, Password password,
+            SEQUENCE encSafeContents) throws Exception {
 
-        logger.fine("Creating key bag for " + x509cert.getSubjectDN());
+        logger.fine("Creating key bag for " + keyInfo.subjectDN);
 
         PasswordConverter passConverter = new PasswordConverter();
         byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
-        byte[] priData = getEncodedKey(privateKey);
 
-        PrivateKeyInfo pki = (PrivateKeyInfo)
-                ASN1Util.decode(PrivateKeyInfo.getTemplate(), priData);
-
-        ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
+        EncryptedPrivateKeyInfo encPrivateKeyInfo = EncryptedPrivateKeyInfo.createPBE(
                 PBEAlgorithm.PBE_SHA1_DES3_CBC,
-                pass, salt, 1, passConverter, pki);
+                password, salt, 1, passConverter, keyInfo.privateKeyInfo);
 
-        SET keyAttrs = createKeyBagAttrs(
-                x509cert.getSubjectDN().toString(), localKeyID);
+        SET keyAttrs = createKeyBagAttrs(keyInfo);
 
-        SafeBag keyBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG,
-                key, keyAttrs);
-
-        safeContents.addElement(keyBag);
+        SafeBag safeBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG, encPrivateKeyInfo, keyAttrs);
+        encSafeContents.addElement(safeBag);
     }
 
-    public BigInteger addCertBag(X509Certificate x509cert, String nickname,
+    public void addCertBag(PKCS12CertInfo certInfo,
             SEQUENCE safeContents) throws Exception {
 
-        logger.fine("Creating cert bag for " + nickname);
+        logger.fine("Creating cert bag for " + certInfo.nickname);
 
-        ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
-        BigInteger localKeyID = createLocalKeyID(x509cert);
+        ASN1Value cert = new OCTET_STRING(certInfo.cert.getEncoded());
+        CertBag certBag = new CertBag(CertBag.X509_CERT_TYPE, cert);
 
-        String trustFlags = null;
-        if (trustFlagsEnabled) {
-            trustFlags = getTrustFlags(x509cert);
-            logger.fine("Trust flags: " + trustFlags);
-        }
+        SET certAttrs = createCertBagAttrs(certInfo);
 
-        SET certAttrs = createCertBagAttrs(nickname, localKeyID, trustFlags);
-
-        SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
-                new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
-
-        safeContents.addElement(certBag);
-
-        return localKeyID;
+        SafeBag safeBag = new SafeBag(SafeBag.CERT_BAG, certBag, certAttrs);
+        safeContents.addElement(safeBag);
     }
 
     BigInteger createLocalKeyID(X509Certificate cert) throws Exception {
@@ -191,8 +171,7 @@ public class PKCS12Util {
         return new BigInteger(1, md.digest());
     }
 
-    SET createKeyBagAttrs(String subjectDN, BigInteger localKeyID)
-            throws Exception {
+    SET createKeyBagAttrs(PKCS12KeyInfo keyInfo) throws Exception {
 
         SET attrs = new SET();
 
@@ -200,7 +179,7 @@ public class PKCS12Util {
         subjectAttr.addElement(SafeBag.FRIENDLY_NAME);
 
         SET subjectSet = new SET();
-        subjectSet.addElement(new BMPString(subjectDN));
+        subjectSet.addElement(new BMPString(keyInfo.subjectDN));
         subjectAttr.addElement(subjectSet);
 
         attrs.addElement(subjectAttr);
@@ -209,7 +188,7 @@ public class PKCS12Util {
         localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
         SET localKeySet = new SET();
-        localKeySet.addElement(new OCTET_STRING(localKeyID.toByteArray()));
+        localKeySet.addElement(new OCTET_STRING(keyInfo.id.toByteArray()));
         localKeyAttr.addElement(localKeySet);
 
         attrs.addElement(localKeyAttr);
@@ -217,8 +196,7 @@ public class PKCS12Util {
         return attrs;
     }
 
-    SET createCertBagAttrs(String nickname, BigInteger localKeyID, String trustFlags)
-            throws Exception {
+    SET createCertBagAttrs(PKCS12CertInfo certInfo) throws Exception {
 
         SET attrs = new SET();
 
@@ -226,7 +204,7 @@ public class PKCS12Util {
         nicknameAttr.addElement(SafeBag.FRIENDLY_NAME);
 
         SET nicknameSet = new SET();
-        nicknameSet.addElement(new BMPString(nickname));
+        nicknameSet.addElement(new BMPString(certInfo.nickname));
         nicknameAttr.addElement(nicknameSet);
 
         attrs.addElement(nicknameAttr);
@@ -235,17 +213,17 @@ public class PKCS12Util {
         localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
         SET localKeySet = new SET();
-        localKeySet.addElement(new OCTET_STRING(localKeyID.toByteArray()));
+        localKeySet.addElement(new OCTET_STRING(certInfo.keyID.toByteArray()));
         localKeyAttr.addElement(localKeySet);
 
         attrs.addElement(localKeyAttr);
 
-        if (trustFlags != null && trustFlagsEnabled) {
+        if (certInfo.trustFlags != null && trustFlagsEnabled) {
             SEQUENCE trustFlagsAttr = new SEQUENCE();
             trustFlagsAttr.addElement(PKCS12.CERT_TRUST_FLAGS_OID);
 
             SET trustFlagsSet = new SET();
-            trustFlagsSet.addElement(new BMPString(trustFlags));
+            trustFlagsSet.addElement(new BMPString(certInfo.trustFlags));
             trustFlagsAttr.addElement(trustFlagsSet);
 
             attrs.addElement(trustFlagsAttr);
@@ -254,7 +232,7 @@ public class PKCS12Util {
         return attrs;
     }
 
-    public void loadFromNSS(Password password) throws Exception {
+    public PKCS12 loadFromNSS() throws Exception {
 
         logger.info("Loading data from NSS database");
 
@@ -262,40 +240,72 @@ public class PKCS12Util {
         CryptoToken token = cm.getInternalKeyStorageToken();
         CryptoStore store = token.getCryptoStore();
 
-        SEQUENCE encSafeContents = new SEQUENCE();
+        PKCS12 pkcs12 = new PKCS12();
+
+        for (X509Certificate cert : store.getCertificates()) {
+            loadCertAndKeyFromNSS(pkcs12, cert);
+        }
+
+        return pkcs12;
+    }
+
+    public void loadCertAndKeyFromNSS(PKCS12 pkcs12, X509Certificate cert) throws Exception {
+
+        String nickname = cert.getNickname();
+        logger.info("Loading certificate \"" + nickname + "\" from NSS database");
+
+        CryptoManager cm = CryptoManager.getInstance();
+
+        BigInteger keyID = createLocalKeyID(cert);
+
+        PKCS12CertInfo certInfo = new PKCS12CertInfo();
+        certInfo.keyID = keyID;
+        certInfo.nickname = nickname;
+        certInfo.cert = new X509CertImpl(cert.getEncoded());
+        certInfo.trustFlags = getTrustFlags(cert);
+        pkcs12.addCertInfo(certInfo);
+
+        try {
+            PrivateKey privateKey = cm.findPrivKeyByCert(cert);
+
+            logger.fine("Certificate \"" + nickname + "\" has private key");
+
+            PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
+            keyInfo.id = keyID;
+            keyInfo.subjectDN = cert.getSubjectDN().toString();
+
+            byte[] privateData = getEncodedKey(privateKey);
+            keyInfo.privateKeyInfo = (PrivateKeyInfo)
+                    ASN1Util.decode(PrivateKeyInfo.getTemplate(), privateData);
+
+            pkcs12.addKeyInfo(keyInfo);
+
+        } catch (ObjectNotFoundException e) {
+            logger.fine("Certificate \"" + nickname + "\" has no private key");
+        }
+    }
+
+    public void storeIntoFile(PKCS12 pkcs12, String filename, Password password) throws Exception {
+
+        logger.info("Storing data into PKCS #12 file");
+
         SEQUENCE safeContents = new SEQUENCE();
 
-        logger.fine("Loading certificates");
+        for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
+            addCertBag(certInfo, safeContents);
+        }
 
-        X509Certificate[] certs = store.getCertificates();
+        SEQUENCE encSafeContents = new SEQUENCE();
 
-        for (X509Certificate cert : certs) {
-            String nickname = cert.getNickname();
-
-            try {
-                PrivateKey prikey = cm.findPrivKeyByCert(cert);
-                logger.fine("Found certificate " + nickname + " with private key");
-
-                BigInteger localKeyID = addCertBag(cert, nickname, safeContents);
-                addKeyBag(prikey, cert, password, localKeyID, encSafeContents);
-
-            } catch (ObjectNotFoundException e) {
-                logger.fine("Found certificate " + nickname + " without private key");
-                addCertBag(cert, nickname, safeContents);
-            }
+        for (PKCS12KeyInfo keyInfo : pkcs12.getKeyInfos()) {
+            addKeyBag(keyInfo, password, encSafeContents);
         }
 
         AuthenticatedSafes authSafes = new AuthenticatedSafes();
         authSafes.addSafeContents(safeContents);
         authSafes.addSafeContents(encSafeContents);
 
-        pfx = new PFX(authSafes);
-    }
-
-    public void storeIntoPKCS12(String filename, Password password) throws Exception {
-
-        logger.info("Storing data into PKCS #12 file");
-
+        PFX pfx = new PFX(authSafes);
         pfx.computeMacData(password, null, 5);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -307,55 +317,49 @@ public class PKCS12Util {
         }
     }
 
-    public void exportData(String filename, Password password) throws Exception {
-
-        loadFromNSS(password);
-        storeIntoPKCS12(filename, password);
-    }
-
     public PKCS12KeyInfo getKeyInfo(SafeBag bag, Password password) throws Exception {
+
+        PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
 
         // get private key info
         EncryptedPrivateKeyInfo encPrivateKeyInfo = (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
+        keyInfo.privateKeyInfo = encPrivateKeyInfo.decrypt(password, new PasswordConverter());
 
-        PrivateKeyInfo privateKeyInfo = null;
-        if (password != null) {
-            privateKeyInfo = encPrivateKeyInfo.decrypt(password, new PasswordConverter());
-        }
-
-        // find private key's subject DN
+        // get key attributes
         SET bagAttrs = bag.getBagAttributes();
-        String subjectDN = null;
 
         for (int i = 0; i < bagAttrs.size(); i++) {
 
             Attribute attr = (Attribute) bagAttrs.elementAt(i);
             OBJECT_IDENTIFIER oid = attr.getType();
 
-            if (!oid.equals(SafeBag.FRIENDLY_NAME)) continue;
+            if (oid.equals(SafeBag.FRIENDLY_NAME)) {
 
-            SET values = attr.getValues();
-            ANY value = (ANY) values.elementAt(0);
+                SET values = attr.getValues();
+                ANY value = (ANY) values.elementAt(0);
 
-            ByteArrayInputStream bbis = new ByteArrayInputStream(value.getEncoded());
-            BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
-            subjectDN = sss.toString();
+                ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
+                BMPString subjectDN = (BMPString) new BMPString.Template().decode(bis);
 
-            break;
+                keyInfo.subjectDN = subjectDN.toString();
+                logger.fine("Subject DN: " + keyInfo.subjectDN);
+
+            } else if (oid.equals(SafeBag.LOCAL_KEY_ID)) {
+
+                SET values = attr.getValues();
+                ANY value = (ANY) values.elementAt(0);
+
+                ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
+                OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
+
+                keyInfo.id = new BigInteger(1, keyID.toByteArray());
+                logger.fine("Key ID: " + keyInfo.id.toString(16));
+            }
         }
 
-        logger.fine("Found private key " + subjectDN);
-
-        PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
-        keyInfo.encPrivateKeyInfo = encPrivateKeyInfo;
-        keyInfo.privateKeyInfo = privateKeyInfo;
-        keyInfo.subjectDN = subjectDN;
+        logger.fine("Found private key " + keyInfo.subjectDN);
 
         return keyInfo;
-    }
-
-    public PKCS12KeyInfo getKeyInfo(SafeBag bag) throws Exception {
-        return getKeyInfo(bag, null);
     }
 
     public PKCS12CertInfo getCertInfo(SafeBag bag) throws Exception {
@@ -383,11 +387,23 @@ public class PKCS12Util {
                 SET values = attr.getValues();
                 ANY value = (ANY) values.elementAt(0);
 
-                ByteArrayInputStream is = new ByteArrayInputStream(value.getEncoded());
-                BMPString nicknameStr = (BMPString) (new BMPString.Template()).decode(is);
+                ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
+                BMPString nickname = (BMPString) (new BMPString.Template()).decode(bis);
 
-                certInfo.nickname = nicknameStr.toString();
+                certInfo.nickname = nickname.toString();
                 logger.fine("Nickname: " + certInfo.nickname);
+
+
+            } else if (oid.equals(SafeBag.LOCAL_KEY_ID)) {
+
+                SET values = attr.getValues();
+                ANY value = (ANY) values.elementAt(0);
+
+                ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
+                OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
+
+                certInfo.keyID = new BigInteger(1, keyID.toByteArray());
+                logger.fine("Key ID: " + certInfo.keyID.toString(16));
 
             } else if (oid.equals(PKCS12.CERT_TRUST_FLAGS_OID) && trustFlagsEnabled) {
 
@@ -395,9 +411,9 @@ public class PKCS12Util {
                 ANY value = (ANY) values.elementAt(0);
 
                 ByteArrayInputStream is = new ByteArrayInputStream(value.getEncoded());
-                BMPString trustFlagsStr = (BMPString) (new BMPString.Template()).decode(is);
+                BMPString trustFlags = (BMPString) (new BMPString.Template()).decode(is);
 
-                certInfo.trustFlags = trustFlagsStr.toString();
+                certInfo.trustFlags = trustFlags.toString();
                 logger.fine("Trust flags: " + certInfo.trustFlags);
             }
         }
@@ -405,16 +421,15 @@ public class PKCS12Util {
         return certInfo;
     }
 
-    public List<PKCS12KeyInfo> getKeyInfos(Password password) throws Exception {
+    public void getKeyInfos(PKCS12 pkcs12, PFX pfx, Password password) throws Exception {
 
         logger.fine("Getting private keys");
 
-        List<PKCS12KeyInfo> keyInfos = new ArrayList<PKCS12KeyInfo>();
         AuthenticatedSafes safes = pfx.getAuthSafes();
 
         for (int i = 0; i < safes.getSize(); i++) {
 
-            SEQUENCE contents = safes.getSafeContentsAt(null, i);
+            SEQUENCE contents = safes.getSafeContentsAt(password, i);
 
             for (int j = 0; j < contents.size(); j++) {
 
@@ -424,27 +439,20 @@ public class PKCS12Util {
                 if (!oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) continue;
 
                 PKCS12KeyInfo keyInfo = getKeyInfo(bag, password);
-                keyInfos.add(keyInfo);
+                pkcs12.addKeyInfo(keyInfo);
             }
         }
-
-        return keyInfos;
     }
 
-    public List<PKCS12KeyInfo> getKeyInfos() throws Exception {
-        return getKeyInfos(null);
-    }
-
-    public List<PKCS12CertInfo> getCertInfos() throws Exception {
+    public void getCertInfos(PKCS12 pkcs12, PFX pfx, Password password) throws Exception {
 
         logger.fine("Getting certificates");
 
-        List<PKCS12CertInfo> certInfos = new ArrayList<PKCS12CertInfo>();
         AuthenticatedSafes safes = pfx.getAuthSafes();
 
         for (int i = 0; i < safes.getSize(); i++) {
 
-            SEQUENCE contents = safes.getSafeContentsAt(null, i);
+            SEQUENCE contents = safes.getSafeContentsAt(password, i);
 
             for (int j = 0; j < contents.size(); j++) {
 
@@ -454,14 +462,12 @@ public class PKCS12Util {
                 if (!oid.equals(SafeBag.CERT_BAG)) continue;
 
                 PKCS12CertInfo certInfo = getCertInfo(bag);
-                certInfos.add(certInfo);
+                pkcs12.addCertInfo(certInfo);
             }
         }
-
-        return certInfos;
     }
 
-    public void loadFromPKCS12(String filename) throws Exception {
+    public PKCS12 loadFromFile(String filename, Password password) throws Exception {
 
         logger.info("Loading PKCS #12 file");
 
@@ -470,7 +476,25 @@ public class PKCS12Util {
 
         ByteArrayInputStream bis = new ByteArrayInputStream(b);
 
-        pfx = (PFX) (new PFX.Template()).decode(bis);
+        PFX pfx = (PFX) (new PFX.Template()).decode(bis);
+
+        PKCS12 pkcs12 = new PKCS12();
+
+        StringBuffer reason = new StringBuffer();
+        boolean valid = pfx.verifyAuthSafes(password, reason);
+
+        if (!valid) {
+            throw new Exception("Invalid PKCS #12 password: " + reason);
+        }
+
+        getKeyInfos(pkcs12, pfx, password);
+        getCertInfos(pkcs12, pfx, password);
+
+        return pkcs12;
+    }
+
+    public PKCS12 loadFromFile(String filename) throws Exception {
+        return loadFromFile(filename, null);
     }
 
     public PrivateKey.Type getPrivateKeyType(PublicKey publicKey) {
@@ -480,40 +504,32 @@ public class PKCS12Util {
         return PrivateKey.Type.RSA;
     }
 
-    public X509CertImpl getCertBySubjectDN(String subjectDN, List<PKCS12CertInfo> certInfos)
+    public PKCS12CertInfo getCertBySubjectDN(PKCS12 pkcs12, String subjectDN)
             throws CertificateException {
 
-        for (PKCS12CertInfo certInfo : certInfos) {
-            X509CertImpl cert = certInfo.cert;
-            Principal certSubjectDN = cert.getSubjectDN();
-            if (LDAPDN.equals(certSubjectDN.toString(), subjectDN)) return cert;
+        for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
+            Principal certSubjectDN = certInfo.cert.getSubjectDN();
+            if (LDAPDN.equals(certSubjectDN.toString(), subjectDN)) return certInfo;
         }
 
         return null;
     }
 
     public void importKey(
-            PKCS12KeyInfo keyInfo,
-            Password password,
-            List<PKCS12CertInfo> certInfos) throws Exception {
+            PKCS12 pkcs12,
+            PKCS12KeyInfo keyInfo) throws Exception {
+
+        logger.fine("Importing private key " + keyInfo.subjectDN);
 
         PrivateKeyInfo privateKeyInfo = keyInfo.privateKeyInfo;
-
-        if (privateKeyInfo == null) {
-            privateKeyInfo = keyInfo.encPrivateKeyInfo.decrypt(password, new PasswordConverter());
-        }
-
-        String subjectDN = keyInfo.subjectDN;
-
-        logger.fine("Importing private key " + subjectDN);
 
         // encode private key
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         privateKeyInfo.encode(bos);
         byte[] privateKey = bos.toByteArray();
 
-        X509CertImpl x509cert = getCertBySubjectDN(subjectDN, certInfos);
-        if (x509cert == null) {
+        PKCS12CertInfo certInfo = getCertBySubjectDN(pkcs12, keyInfo.subjectDN);
+        if (certInfo == null) {
             logger.fine("Private key nas no certificate, ignore");
             return;
         }
@@ -522,7 +538,7 @@ public class PKCS12Util {
         CryptoToken token = cm.getInternalKeyStorageToken();
         CryptoStore store = token.getCryptoStore();
 
-        X509Certificate cert = cm.importCACertPackage(x509cert.getEncoded());
+        X509Certificate cert = cm.importCACertPackage(certInfo.cert.getEncoded());
 
         // get public key
         PublicKey publicKey = cert.getPublicKey();
@@ -549,72 +565,38 @@ public class PKCS12Util {
         wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publicKey), publicKey);
     }
 
-    public void importKeys(
-            List<PKCS12KeyInfo> keyInfos,
-            Password password,
-            List<PKCS12CertInfo> certInfos
-        ) throws Exception {
+    public void importKeys(PKCS12 pkcs12) throws Exception {
 
-        for (int i = 0; i < keyInfos.size(); i++) {
-            PKCS12KeyInfo keyInfo = keyInfos.get(i);
-            importKey(keyInfo, password, certInfos);
+        for (PKCS12KeyInfo keyInfo : pkcs12.getKeyInfos()) {
+            importKey(pkcs12, keyInfo);
         }
     }
 
-    public X509Certificate importCert(X509CertImpl cert, String nickname, String trustFlags) throws Exception {
+    public void importCert(PKCS12CertInfo certInfo) throws Exception {
 
-        logger.fine("Importing certificate " + cert.getSubjectDN());
+        logger.fine("Importing certificate " + certInfo.nickname);
 
         CryptoManager cm = CryptoManager.getInstance();
 
-        X509Certificate xcert;
+        X509Certificate cert = cm.importUserCACertPackage(
+                certInfo.cert.getEncoded(), certInfo.nickname);
 
-        if (nickname == null) {
-            xcert = cm.importCACertPackage(cert.getEncoded());
-
-        } else {
-            xcert = cm.importUserCACertPackage(cert.getEncoded(), nickname);
-        }
-
-        if (trustFlags != null && trustFlagsEnabled)
-            setTrustFlags(xcert, trustFlags);
-
-        return xcert;
+        if (certInfo.trustFlags != null && trustFlagsEnabled)
+            setTrustFlags(cert, certInfo.trustFlags);
     }
 
-    public void importCerts(List<PKCS12CertInfo> certInfos) throws Exception {
+    public void importCerts(PKCS12 pkcs12) throws Exception {
 
-        for (PKCS12CertInfo certInfo : certInfos) {
-            importCert(certInfo.cert, certInfo.nickname, certInfo.trustFlags);
+        for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
+            importCert(certInfo);
         }
     }
 
-    public void verifyPassword(Password password) throws Exception {
-
-        StringBuffer reason = new StringBuffer();
-        boolean valid = pfx.verifyAuthSafes(password, reason);
-
-        if (!valid) {
-            throw new Exception(reason.toString());
-        }
-    }
-
-    public void storeIntoNSS(Password password) throws Exception {
+    public void storeIntoNSS(PKCS12 pkcs12, Password password) throws Exception {
 
         logger.info("Storing data into NSS database");
 
-        verifyPassword(password);
-
-        List<PKCS12KeyInfo> keyInfos = getKeyInfos();
-        List<PKCS12CertInfo> certInfos = getCertInfos();
-
-        importKeys(keyInfos, password, certInfos);
-        importCerts(certInfos);
-    }
-
-    public void importData(String filename, Password password) throws Exception {
-
-        loadFromPKCS12(filename);
-        storeIntoNSS(password);
+        importKeys(pkcs12);
+        importCerts(pkcs12);
     }
 }

@@ -34,10 +34,9 @@ public class PKCS12KeyCLI extends CLI {
     }
 
     public static void printKeyInfo(PKCS12KeyInfo keyInfo) throws Exception {
-        System.out.println("  Subject DN: " + keyInfo.getSubjectDN());
 
-        if (keyInfo.getPrivateKeyInfo() != null) {
-            System.out.println("  Algorithm: " + keyInfo.getPrivateKeyInfo().getAlgorithm());
-        }
+        System.out.println("  Key ID: " + keyInfo.getID().toString(16));
+        System.out.println("  Subject DN: " + keyInfo.getSubjectDN());
+        System.out.println("  Algorithm: " + keyInfo.getPrivateKeyInfo().getAlgorithm());
     }
 }

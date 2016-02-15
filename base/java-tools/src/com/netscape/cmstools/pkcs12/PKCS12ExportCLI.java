@@ -29,6 +29,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
+import netscape.security.pkcs.PKCS12;
 import netscape.security.pkcs.PKCS12Util;
 
 /**
@@ -127,7 +128,10 @@ public class PKCS12ExportCLI extends CLI {
         try {
             PKCS12Util util = new PKCS12Util();
             util.setTrustFlagsEnabled(trustFlagsEnabled);
-            util.exportData(filename, password);
+
+            PKCS12 pkcs12 = util.loadFromNSS();
+            util.storeIntoFile(pkcs12, filename, password);
+
         } finally {
             password.clear();
         }

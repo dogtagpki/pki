@@ -17,15 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.pkcs;
 
+import java.math.BigInteger;
+
 import netscape.security.x509.X509CertImpl;
 
 public class PKCS12CertInfo {
 
+    BigInteger keyID;
     X509CertImpl cert;
     String nickname;
     String trustFlags;
 
     public PKCS12CertInfo() {
+    }
+
+    public BigInteger getKeyID() {
+        return keyID;
+    }
+
+    public void setKeyID(BigInteger keyID) {
+        this.keyID = keyID;
     }
 
     public X509CertImpl getCert() {

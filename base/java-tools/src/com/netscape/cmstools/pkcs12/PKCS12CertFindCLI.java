@@ -18,17 +18,21 @@
 
 package com.netscape.cmstools.pkcs12;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
+import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
+import netscape.security.pkcs.PKCS12;
 import netscape.security.pkcs.PKCS12CertInfo;
 import netscape.security.pkcs.PKCS12Util;
 
@@ -52,7 +56,15 @@ public class PKCS12CertFindCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
-        options.addOption("v", "verbose", false, "Run in verbose mode.");
+        option = new Option(null, "pkcs12-password", true, "PKCS #12 password");
+        option.setArgName("password");
+        options.addOption(option);
+
+        option = new Option(null, "pkcs12-password-file", true, "PKCS #12 password file");
+        option.setArgName("path");
+        options.addOption(option);
+
+         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
         options.addOption(null, "help", false, "Show help message.");
     }
@@ -101,10 +113,36 @@ public class PKCS12CertFindCLI extends CLI {
             System.exit(-1);
         }
 
-        PKCS12Util util = new PKCS12Util();
-        util.loadFromPKCS12(filename);
+        String passwordString = cmd.getOptionValue("pkcs12-password");
 
-        List<PKCS12CertInfo> certInfos = util.getCertInfos();
+        if (passwordString == null) {
+
+            String passwordFile = cmd.getOptionValue("pkcs12-password-file");
+            if (passwordFile != null) {
+                try (BufferedReader in = new BufferedReader(new FileReader(passwordFile))) {
+                    passwordString = in.readLine();
+                }
+            }
+        }
+
+        if (passwordString == null) {
+            System.err.println("Error: Missing PKCS #12 password.");
+            printHelp();
+            System.exit(-1);
+        }
+
+        Password password = new Password(passwordString.toCharArray());
+
+        Collection<PKCS12CertInfo> certInfos;
+        try {
+            PKCS12Util util = new PKCS12Util();
+            PKCS12 pkcs12 = util.loadFromFile(filename, password);
+
+            certInfos = pkcs12.getCertInfos();
+
+        } finally {
+            password.clear();
+        }
 
         MainCLI.printMessage(certInfos.size() + " entries found");
         if (certInfos.size() == 0) return;
