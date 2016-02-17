@@ -31,6 +31,7 @@ public class PKCS12KeyCLI extends CLI {
         super("key", "PKCS #12 key management commands", parent);
 
         addModule(new PKCS12KeyFindCLI(this));
+        addModule(new PKCS12KeyRemoveCLI(this));
     }
 
     public static void printKeyInfo(PKCS12KeyInfo keyInfo) throws Exception {
