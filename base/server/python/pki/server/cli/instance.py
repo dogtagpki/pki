@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import getpass
 import os
 import sys
 
@@ -35,6 +36,7 @@ class InstanceCLI(pki.cli.CLI):
         super(InstanceCLI, self).__init__('instance',
                                           'Instance management commands')
 
+        self.add_module(InstanceCertCLI())
         self.add_module(InstanceFindCLI())
         self.add_module(InstanceShowCLI())
         self.add_module(InstanceStartCLI())
@@ -47,6 +49,98 @@ class InstanceCLI(pki.cli.CLI):
     def print_instance(instance):
         print('  Instance ID: %s' % instance.name)
         print('  Active: %s' % instance.is_active())
+
+
+class InstanceCertCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(InstanceCertCLI, self).__init__(
+            'cert', 'Instance certificate management commands')
+
+        self.add_module(InstanceCertExportCLI())
+
+
+class InstanceCertExportCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(InstanceCertExportCLI, self).__init__(
+            'export', 'Export subsystem certificate')
+
+    def print_help(self):  # flake8: noqa
+        print('Usage: pki-server instance-cert-export [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
+        print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
+        print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        pkcs12_file = None
+        pkcs12_password = None
+        pkcs12_password_file = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--pkcs12-file':
+                pkcs12_file = a
+
+            elif o == '--pkcs12-password':
+                pkcs12_password = a
+
+            elif o == '--pkcs12-password-file':
+                pkcs12_password_file = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        if not pkcs12_file:
+            print('ERROR: missing output file')
+            self.print_help()
+            sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        if not pkcs12_password and not pkcs12_password_file:
+            pkcs12_password = getpass.getpass(prompt='Enter password for PKCS #12 file: ')
+
+        nssdb = instance.open_nssdb()
+        try:
+            nssdb.export_pkcs12(
+                pkcs12_file=pkcs12_file,
+                pkcs12_password=pkcs12_password,
+                pkcs12_password_file=pkcs12_password_file)
+        finally:
+            nssdb.close()
+
+        self.print_message('Exported certificates')
 
 
 class InstanceFindCLI(pki.cli.CLI):

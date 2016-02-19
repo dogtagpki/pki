@@ -301,12 +301,14 @@ class SubsystemCertCLI(pki.cli.CLI):
         self.add_module(SubsystemCertUpdateCLI())
 
     @staticmethod
-    def print_subsystem_cert(cert):
+    def print_subsystem_cert(cert, show_all=False):
         print('  Cert ID: %s' % cert['id'])
         print('  Nickname: %s' % cert['nickname'])
         print('  Token: %s' % cert['token'])
-        print('  Certificate: %s' % cert['data'])
-        print('  Request: %s' % cert['request'])
+
+        if show_all:
+            print('  Certificate: %s' % cert['data'])
+            print('  Request: %s' % cert['request'])
 
 
 class SubsystemCertFindCLI(pki.cli.CLI):
@@ -315,10 +317,11 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         super(SubsystemCertFindCLI, self).__init__(
             'find', 'Find subsystem certificates')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server subsystem-cert-find [OPTIONS] <subsystem ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --help                      Show help message.')
         print()
@@ -327,25 +330,29 @@ class SubsystemCertFindCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=',
+                'instance=', 'show-all',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
             print('ERROR: missing subsystem ID')
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         subsystem_name = args[0]
         instance_name = 'pki-tomcat'
+        show_all = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--show-all':
+                show_all = True
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -356,14 +363,14 @@ class SubsystemCertFindCLI(pki.cli.CLI):
 
             else:
                 print('ERROR: unknown option ' + o)
-                self.usage()
+                self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
-        results = subsystem.find_subsystem_certs()
+        results = subsystem.find_system_certs()
 
         self.print_message('%s entries matched' % len(results))
 
@@ -374,7 +381,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
             else:
                 print()
 
-            SubsystemCertCLI.print_subsystem_cert(cert)
+            SubsystemCertCLI.print_subsystem_cert(cert, show_all)
 
 
 class SubsystemCertShowCLI(pki.cli.CLI):
@@ -448,8 +455,8 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         super(SubsystemCertExportCLI, self).__init__(
             'export', 'Export subsystem certificate')
 
-    def usage(self):  # flake8: noqa
-        print('Usage: pki-server subsystem-cert-export [OPTIONS] <subsystem ID> <cert ID>')
+    def print_help(self):  # flake8: noqa
+        print('Usage: pki-server subsystem-cert-export [OPTIONS] <subsystem ID> [cert ID]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --cert-file <path>             Output file to store the exported certificate in PEM format.')
@@ -471,21 +478,16 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         if len(args) < 1:
             print('ERROR: missing subsystem ID')
-            self.usage()
-            sys.exit(1)
-
-        if len(args) < 2:
-            print('ERROR: missing cert ID')
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         subsystem_name = args[0]
-        cert_id = args[1]
+
         instance_name = 'pki-tomcat'
         cert_file = None
         csr_file = None
@@ -521,19 +523,28 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
             else:
                 print('ERROR: unknown option ' + o)
-                self.usage()
+                self.print_help()
                 sys.exit(1)
 
-        if not cert_file and not csr_file and not pkcs12_file:
+        if not pkcs12_file:
             print('ERROR: missing output file')
-            self.usage()
+            self.print_help()
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
-        subsystem_cert = subsystem.get_subsystem_cert(cert_id)
+        subsystem_cert = None
+
+        if len(args) >= 2:
+            cert_id = args[1]
+            subsystem_cert = subsystem.get_subsystem_cert(cert_id)
+
+        if (cert_file or csr_file) and not subsystem_cert:
+            print('ERROR: missing cert ID')
+            self.print_help()
+            sys.exit(1)
 
         if cert_file:
 
@@ -552,17 +563,28 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             if not pkcs12_password and not pkcs12_password_file:
                 pkcs12_password = getpass.getpass(prompt='Enter password for PKCS #12 file: ')
 
+            nicknames = []
+
+            if subsystem_cert:
+                nicknames.append(subsystem_cert['nickname'])
+
+            else:
+                subsystem_certs = subsystem.find_system_certs()
+                for subsystem_cert in subsystem_certs:
+                    nicknames.append(subsystem_cert['nickname'])
+
             nssdb = instance.open_nssdb()
             try:
                 nssdb.export_pkcs12(
                     pkcs12_file=pkcs12_file,
-                    nickname=subsystem_cert['nickname'],
+                    nicknames=nicknames,
                     pkcs12_password=pkcs12_password,
                     pkcs12_password_file=pkcs12_password_file)
+
             finally:
                 nssdb.close()
 
-        self.print_message('Exported %s certificate' % cert_id)
+        self.print_message('Export complete')
 
 
 class SubsystemCertUpdateCLI(pki.cli.CLI):
