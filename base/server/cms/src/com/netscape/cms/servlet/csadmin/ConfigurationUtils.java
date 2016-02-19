@@ -252,6 +252,8 @@ public class ConfigurationUtils {
     public static void importCertChain(String host, int port, String serverPath, String tag)
             throws Exception {
 
+        CMS.debug("ConfigurationUtils.importCertChain()");
+
         IConfigStore cs = CMS.getConfigStore();
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
         String c = get(host, port, true, serverPath, null, certApprovalCallback);
@@ -932,44 +934,42 @@ public class ConfigurationUtils {
         importKeyCert(pkeyinfo_collection, cert_collection);
     }
 
-    public static boolean isCertdbCloned() {
+    public static void verifySystemCertificates() throws Exception {
+
         IConfigStore cs = CMS.getConfigStore();
-        try {
-            CryptoManager cm = CryptoManager.getInstance();
-            String certList = cs.getString("preop.cert.list");
-            String cstype = cs.getString("cs.type").toLowerCase();
-            StringTokenizer st = new StringTokenizer(certList, ",");
-            while (st.hasMoreTokens()) {
-                String tag = st.nextToken();
-                if (tag.equals("sslserver"))
-                    continue;
-                String tokenname = cs.getString("preop.module.token", "");
-                cm.getTokenByName(tokenname); // throw exception if token doesn't exist
-                String name1 = "preop.master." + tag + ".nickname";
-                String nickname = cs.getString(name1, "");
-                if (!tokenname.equals("Internal Key Storage Token") &&
-                        !tokenname.equals("internal"))
-                    nickname = tokenname + ":" + nickname;
 
-                CMS.debug("ConfigurationUtils.isCertdbCloned(): checking system certificate " + nickname);
+        CryptoManager cm = CryptoManager.getInstance();
+        String certList = cs.getString("preop.cert.list");
+        String cstype = cs.getString("cs.type").toLowerCase();
+        StringTokenizer st = new StringTokenizer(certList, ",");
 
-                // TODO : remove this when we eliminate the extraneous nicknames
-                // needed for self tests
-                cs.putString(cstype + ".cert." + tag + ".nickname", nickname);
+        while (st.hasMoreTokens()) {
+            String tag = st.nextToken();
+            if (tag.equals("sslserver"))
+                continue;
 
-                X509Certificate cert = cm.findCertByNickname(nickname);
-                if (cert == null) {
-                    CMS.debug("Missing system certificate: " + nickname);
-                    return false;
-                }
+            String tokenname = cs.getString("preop.module.token", "");
+            cm.getTokenByName(tokenname); // throw exception if token doesn't exist
+
+            String name1 = "preop.master." + tag + ".nickname";
+            String nickname = cs.getString(name1, "");
+            if (!tokenname.equals("Internal Key Storage Token") &&
+                    !tokenname.equals("internal"))
+                nickname = tokenname + ":" + nickname;
+
+            CMS.debug("ConfigurationUtils.verifySystemCertificates(): checking certificate " + nickname);
+
+            // TODO : remove this when we eliminate the extraneous nicknames
+            // needed for self tests
+            cs.putString(cstype + ".cert." + tag + ".nickname", nickname);
+
+            try {
+                cm.findCertByNickname(nickname);
+
+            } catch (ObjectNotFoundException e) {
+                throw new Exception("Missing system certificate: " + nickname);
             }
-
-        } catch (Exception e) {
-            CMS.debug(e);
-            return false;
         }
-
-        return true;
     }
 
     public static void importKeyCert(
@@ -3666,10 +3666,12 @@ public class ConfigurationUtils {
             String status = parser.getValue("Status");
             CMS.debug("submitAdminXertRequest: status=" + status);
             if (status.equals(AUTH_FAILURE)) {
-                throw new EAuthException(AUTH_FAILURE);
+                throw new EAuthException("Unable to generate admin certificate: authentication failure");
+
             } else if (!status.equals(SUCCESS)) {
                 String error = parser.getValue("Error");
-                throw new IOException(error);
+                CMS.debug("Error: " + error);
+                throw new IOException("Unable to generate admin certificate: " + error);
             }
 
             IConfigStore cs = CMS.getConfigStore();

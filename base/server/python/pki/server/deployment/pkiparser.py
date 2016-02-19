@@ -346,6 +346,7 @@ class PKIConfigParser:
                     'pki_pin',
                     'pki_replication_password',
                     'pki_security_domain_password',
+                    'pki_server_pkcs12_password',
                     'pki_token_password')
 
                 print('Loading deployment configuration from ' +

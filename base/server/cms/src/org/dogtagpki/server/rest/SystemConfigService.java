@@ -662,7 +662,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 response.setAdminCert(admincerts[0]);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                CMS.debug(e);
                 throw new PKIException("Error in creating admin user: " + e);
             }
         }
@@ -818,7 +818,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     cs.putInteger("preop.ca.httpsport", port);
                     cs.putInteger("preop.ca.httpsadminport", admin_port);
 
-                    if (!data.isClone()) {
+                    if (!data.isClone() && !data.getSystemCertsImported()) {
                         ConfigurationUtils.importCertChain(host, admin_port, "/ca/admin/ca/getCertChain", "ca");
                     }
 
@@ -855,7 +855,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     "Clone URI does not match available subsystems: " + url);
         }
 
-        if (csType.equals("CA")) {
+        if (csType.equals("CA") && !data.getSystemCertsImported()) {
             CMS.debug("SystemConfigService: import certificate chain from master");
             int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
                     masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
@@ -867,10 +867,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         ConfigurationUtils.getConfigEntriesFromMaster();
 
         if (token.equals(ConfigurationRequest.TOKEN_DEFAULT)) {
-            CMS.debug("SystemConfigService: restore certificates from P12 file");
-            String p12File = data.getP12File();
-            String p12Pass = data.getP12Password();
-            ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
+            if (!data.getSystemCertsImported()) {
+                CMS.debug("SystemConfigService: restore certificates from P12 file");
+                String p12File = data.getP12File();
+                String p12Pass = data.getP12Password();
+                ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
+            }
 
         } else {
             CMS.debug("SystemConfigService: import certificates from HSM and set permission");
@@ -878,15 +880,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         CMS.debug("SystemConfigService: verify certificates");
-        boolean cloneReady = ConfigurationUtils.isCertdbCloned();
-
-        if (!cloneReady) {
-            CMS.debug("SystemConfigService: clone does not have all the certificates.");
-            throw new PKIException("Clone does not have all the required certificates");
-        }
+        ConfigurationUtils.verifySystemCertificates();
     }
 
-    public String configureSecurityDomain(ConfigurationRequest data) {
+    public String configureSecurityDomain(ConfigurationRequest data) throws Exception {
 
         String domainXML = null;
 
@@ -932,7 +929,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
     }
 
-    private String logIntoSecurityDomain(ConfigurationRequest data, String securityDomainURL) {
+    private String logIntoSecurityDomain(ConfigurationRequest data, String securityDomainURL) throws Exception {
         URL secdomainURL;
         String host;
         int port;
@@ -948,7 +945,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Failed to resolve security domain URL", e);
         }
 
-        getCertChainFromSecurityDomain(host, port);
+        if (!data.getSystemCertsImported()) {
+            CMS.debug("Getting security domain cert chain");
+            ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
+        }
+
         getInstallToken(data, host, port);
 
         return getDomainXML(host, port);
@@ -965,16 +966,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e, e);
         }
         return domainXML;
-    }
-
-    private void getCertChainFromSecurityDomain(String host, int port) {
-        CMS.debug("Getting security domain cert chain");
-        try {
-            ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
-        } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Failed to import certificate chain from security domain master: " + e, e);
-        }
     }
 
     private void getInstallToken(ConfigurationRequest data, String host, int port) {
@@ -1129,12 +1120,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             if (data.getToken().equals(ConfigurationRequest.TOKEN_DEFAULT)) {
-                if (data.getP12File() == null) {
-                    throw new BadRequestException("P12 filename not provided");
-                }
+                if (!data.getSystemCertsImported()) {
+                    if (data.getP12File() == null) {
+                        throw new BadRequestException("P12 filename not provided");
+                    }
 
-                if (data.getP12Password() == null) {
-                    throw new BadRequestException("P12 password not provided");
+                    if (data.getP12Password() == null) {
+                        throw new BadRequestException("P12 password not provided");
+                    }
                 }
             } else {
                 if (data.getP12File() != null) {

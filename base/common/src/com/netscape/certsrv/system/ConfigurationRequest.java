@@ -133,6 +133,9 @@ public class ConfigurationRequest {
     protected String reindexData;
 
     @XmlElement
+    protected Boolean systemCertsImported;
+
+    @XmlElement
     protected List<SystemCertData> systemCerts;
 
     @XmlElement
@@ -559,21 +562,37 @@ public class ConfigurationRequest {
 
     /**
      *
-     * @return systemCerts
+     * @return systemCertsImported
      */
-    public List<SystemCertData> getSystemCerts() {
-        return systemCerts;
+    public Boolean getSystemCertsImported() {
+        return systemCertsImported;
     }
 
     /**
      *
-     * @param systemCerts
+     * @param systemCertsImported
      */
-    public void setSystemCerts(List<SystemCertData> systemCerts) {
-        this.systemCerts = systemCerts;
+    public void setSystemCertsImported(Boolean systemCertsImported) {
+        this.systemCertsImported = systemCertsImported;
     }
 
     /**
+    *
+    * @return systemCerts
+    */
+   public List<SystemCertData> getSystemCerts() {
+       return systemCerts;
+   }
+
+   /**
+    *
+    * @param systemCerts
+    */
+   public void setSystemCerts(List<SystemCertData> systemCerts) {
+       this.systemCerts = systemCerts;
+   }
+
+   /**
      * @return the issuingCA
      */
     public String getIssuingCA() {
@@ -940,6 +959,7 @@ public class ConfigurationRequest {
                ", masterReplicationPort=" + masterReplicationPort +
                ", cloneReplicationPort=" + cloneReplicationPort +
                ", replicationSecurity=" + replicationSecurity +
+               ", systemCertsImported=" + systemCertsImported +
                ", systemCerts=" + systemCerts +
                ", issuingCA=" + issuingCA +
                ", backupKeys=" + backupKeys +
