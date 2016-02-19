@@ -502,7 +502,8 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def export_pkcs12(self, pkcs12_file, nickname, pkcs12_password=None, pkcs12_password_file=None):
+    def export_pkcs12(self, pkcs12_file, nicknames=None, pkcs12_password=None,
+                      pkcs12_password_file=None):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -519,13 +520,23 @@ class NSSDatabase(object):
                 raise Exception('Missing PKCS #12 password')
 
             cmd = [
-                'pk12util',
+                'pki',
                 '-d', self.directory,
-                '-k', self.password_file,
-                '-o', pkcs12_file,
-                '-w', password_file,
-                '-n', nickname
+                '-C', self.password_file
             ]
+
+            if self.token and self.token != 'internal':
+                cmd.extend(['--token', self.token])
+
+            cmd.extend(['pkcs12-export'])
+
+            cmd.extend([
+                '--pkcs12', pkcs12_file,
+                '--pkcs12-password-file', password_file
+            ])
+
+            if nicknames:
+                cmd.extend(nicknames)
 
             subprocess.check_call(cmd)
 

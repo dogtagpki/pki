@@ -23,10 +23,12 @@ from __future__ import absolute_import
 from __future__ import print_function
 import getopt
 import io
+import os
+import shutil
 import sys
+import tempfile
 
 import pki.cli
-import pki.server.ca
 
 
 class CACLI(pki.cli.CLI):
@@ -36,6 +38,7 @@ class CACLI(pki.cli.CLI):
             'ca', 'CA management commands')
 
         self.add_module(CACertCLI())
+        self.add_module(CACloneCLI())
 
 
 class CACertCLI(pki.cli.CLI):
@@ -44,7 +47,104 @@ class CACertCLI(pki.cli.CLI):
         super(CACertCLI, self).__init__(
             'cert', 'CA certificates management commands')
 
+        self.add_module(CACertChainCLI())
         self.add_module(CACertRequestCLI())
+
+
+class CACertChainCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(CACertChainCLI, self).__init__(
+            'chain', 'CA certificate chain management commands')
+
+        self.add_module(CACertChainExportCLI())
+
+
+class CACertChainExportCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(CACertChainExportCLI, self).__init__(
+            'export', 'Export certificate chain')
+
+    def print_help(self):
+        print('Usage: pki-server ca-cert-chain-export [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --pkcs12-file               PKCS #12 file to store certificates and keys.')
+        print('      --pkcs12-password           Password for the PKCS #12 file.')
+        print('      --pkcs12-password-file      File containing the PKCS #12 password.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, args):
+
+        try:
+            opts, _ = getopt.gnu_getopt(args, 'i:v', [
+                'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        pkcs12_file = None
+        pkcs12_password = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--pkcs12-file':
+                pkcs12_file = a
+
+            elif o == '--pkcs12-password':
+                pkcs12_password = a
+
+            elif o == '--pkcs12-password-file':
+                with io.open(a, 'rb') as f:
+                    pkcs12_password = f.read()
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        if not pkcs12_file:
+            print('ERROR: Missing PKCS #12 file')
+            self.print_help()
+            sys.exit(1)
+
+        if not pkcs12_password:
+            print('ERROR: Missing PKCS #12 password')
+            self.print_help()
+            sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            pkcs12_password_file = os.path.join(tmpdir, 'pkcs12_password.txt')
+            with open(pkcs12_password_file, 'w') as f:
+                f.write(pkcs12_password)
+
+            subsystem.export_cert_chain(pkcs12_file, pkcs12_password_file)
+
+        finally:
+            shutil.rmtree(tmpdir)
 
 
 class CACertRequestCLI(pki.cli.CLI):
@@ -204,3 +304,103 @@ class CACertRequestShowCLI(pki.cli.CLI):
 
         else:
             CACertRequestCLI.print_request(request, details=True)
+
+
+class CACloneCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(CACloneCLI, self).__init__(
+            'clone', 'CA clone management commands')
+
+        self.add_module(CAClonePrepareCLI())
+
+
+class CAClonePrepareCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(CAClonePrepareCLI, self).__init__(
+            'prepare', 'Prepare CA clone')
+
+    def print_help(self):
+        print('Usage: pki-server ca-clone-prepare [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --pkcs12-file               PKCS #12 file to store certificates and keys.')
+        print('      --pkcs12-password           Password for the PKCS #12 file.')
+        print('      --pkcs12-password-file      File containing the PKCS #12 password.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, args):
+
+        try:
+            opts, _ = getopt.gnu_getopt(args, 'i:v', [
+                'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        pkcs12_file = None
+        pkcs12_password = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--pkcs12-file':
+                pkcs12_file = a
+
+            elif o == '--pkcs12-password':
+                pkcs12_password = a
+
+            elif o == '--pkcs12-password-file':
+                with io.open(a, 'rb') as f:
+                    pkcs12_password = f.read()
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        if not pkcs12_file:
+            print('ERROR: Missing PKCS #12 file')
+            self.print_help()
+            sys.exit(1)
+
+        if not pkcs12_password:
+            print('ERROR: Missing PKCS #12 password')
+            self.print_help()
+            sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        subsystem = instance.get_subsystem('ca')
+
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            pkcs12_password_file = os.path.join(tmpdir, 'pkcs12_password.txt')
+            with open(pkcs12_password_file, 'w') as f:
+                f.write(pkcs12_password)
+
+            subsystem.export_system_cert(
+                'subsystem', pkcs12_file, pkcs12_password_file, new_file=True)
+            subsystem.export_system_cert('signing', pkcs12_file, pkcs12_password_file)
+            subsystem.export_system_cert('ocsp_signing', pkcs12_file, pkcs12_password_file)
+            subsystem.export_system_cert('audit_signing', pkcs12_file, pkcs12_password_file)
+
+        finally:
+            shutil.rmtree(tmpdir)
