@@ -333,8 +333,9 @@ class PKIConfigParser:
                     'pki_client_pkcs12_password',
                     'pki_ds_password',
                     'pki_pin',
-                    'pki_replicationdb_password',
-                    'pki_security_domain_password')
+                    'pki_replication_password',
+                    'pki_security_domain_password',
+                    'pki_token_password')
 
                 print 'Loading deployment configuration from ' + \
                       config.user_deployment_cfg + '.'

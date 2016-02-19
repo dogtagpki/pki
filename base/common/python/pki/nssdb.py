@@ -489,13 +489,19 @@ class NSSDatabase(object):
                 raise Exception('Missing PKCS #12 password')
 
             cmd = [
-                'pk12util',
+                'pki',
                 '-d', self.directory,
-                '-h', self.token,
-                '-k', self.password_file,
-                '-i', pkcs12_file,
-                '-w', password_file
+                '-C', self.password_file
             ]
+
+            if self.token and self.token != 'internal':
+                cmd.extend(['--token', self.token])
+
+            cmd.extend([
+                'pkcs12-import',
+                '--pkcs12', pkcs12_file,
+                '--pkcs12-password-file', password_file
+            ])
 
             subprocess.check_call(cmd)
 
