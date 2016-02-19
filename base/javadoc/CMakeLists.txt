@@ -1,9 +1,66 @@
 project(pki-javadoc)
 
+# It is important to identify the version of 'javadoc' being utilized since
+# different versions support different options.
+#
+# While 'cmake' contains numerous built-in references to the 'java' version,
+# it contains no built-in references to either the 'javac' or 'javadoc'
+# versions, and unfortunately, the specified version of 'java' may be
+# different from the specified versions of 'javac' and 'javadoc'.
+#
+# Additionally, although 'javadoc' contains no command-line option to identify
+# its version, it is important to note that 'javadoc' is supplied by the same
+# package that supplies 'javac', and although multiple versions of these
+# executables could co-exist on the same system, it is relatively safe to
+# assert that the currently specified 'javac' and 'javadoc' will be the same
+# version.
+#
+# As an example in support of this assertion, on systems which utilize
+# '/usr/sbin/alternatives', setting the 'javac' version will also
+# automatically set the 'javadoc' version to match the 'javac' version, and
+# 'usr/sbin/alternatives' cannot be used to set a specific 'javadoc' version.
+#
+# Therefore, regardless of the 'java' version, this 'CMakeLists.txt' file will
+# programmatically utilize the invoked 'javac' version information (output is
+# to stderr) in order to correctly identify the supported 'javadoc' options:
+#
+#     # javac -version 2>&1 | awk -F \. '{printf $2}'
+#
+# NOTE:  Used 'cut' instead of 'awk' due to 'cmake' parsing limitations:
+#
+#     # javac -version 2>&1 | cut -f2 -d.
+#
+message( STATUS "Java_VERSION_STRING = '${Java_VERSION_STRING}'" )
+execute_process(
+    COMMAND
+        javac -version
+    ERROR_VARIABLE
+        Javac_VERSION_OUTPUT
+    OUTPUT_VARIABLE
+        Javac_VERSION_OUTPUT
+    ERROR_STRIP_TRAILING_WHITESPACE
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+message( STATUS "Javac_VERSION_OUTPUT = '${Javac_VERSION_OUTPUT}'" )
+execute_process(
+    COMMAND
+        echo ${Javac_VERSION_OUTPUT}
+    COMMAND
+        cut -f2 -d.
+    OUTPUT_VARIABLE
+        Javadoc_VERSION_MINOR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+message( STATUS "Javadoc_VERSION_MINOR = '${Javadoc_VERSION_MINOR}'" )
+
+# REMINDER:  Eventually, it would almost certainly be safer to obtain the
+#            'Javadoc_VERSION_MAJOR' number as well and perform the check
+#            on "'Javadoc_VERSION_MAJOR'.'Javadoc_VERSION_MINOR'".
+#
 set(doclintstr "")
-if(${Java_VERSION_MINOR} VERSION_EQUAL 8 OR ${Java_VERSION_MINOR} VERSION_GREATER 8)
+if(NOT (${Javadoc_VERSION_MINOR} LESS 8))
     set(doclintstr "-Xdoclint:none")
-endif(${Java_VERSION_MINOR} VERSION_EQUAL 8 OR ${Java_VERSION_MINOR} VERSION_GREATER 8)
+endif(NOT (${Javadoc_VERSION_MINOR} LESS 8))
 
 javadoc(pki-javadoc
     SOURCEPATH
