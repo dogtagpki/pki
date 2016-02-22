@@ -240,33 +240,22 @@ public class PKCS12Util {
         CryptoToken token = cm.getInternalKeyStorageToken();
         CryptoStore store = token.getCryptoStore();
 
-        // load all certs
         for (X509Certificate cert : store.getCertificates()) {
-            loadCertFromNSS(pkcs12, cert, true); // load cert with private key
-        }
-    }
-
-    public void loadFromNSS(PKCS12 pkcs12, String nickname, boolean includeCert, boolean includeKey, boolean includeChain) throws Exception {
-
-        CryptoManager cm = CryptoManager.getInstance();
-
-        X509Certificate cert = cm.findCertByNickname(nickname);
-
-        if (includeCert) {
-            loadCertFromNSS(pkcs12, cert, includeKey);
-        }
-
-        if (includeChain) {
             loadCertChainFromNSS(pkcs12, cert);
         }
     }
 
-    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert, boolean includeKey) throws Exception {
+    public void loadCertFromNSS(PKCS12 pkcs12, String nickname) throws Exception {
+
+        CryptoManager cm = CryptoManager.getInstance();
+        X509Certificate cert = cm.findCertByNickname(nickname);
+        loadCertChainFromNSS(pkcs12, cert);
+    }
+
+    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading certificate \"" + nickname + "\" from NSS database");
-
-        CryptoManager cm = CryptoManager.getInstance();
 
         BigInteger keyID = createLocalKeyID(cert);
 
@@ -276,17 +265,23 @@ public class PKCS12Util {
         certInfo.cert = new X509CertImpl(cert.getEncoded());
         certInfo.trustFlags = getTrustFlags(cert);
         pkcs12.addCertInfo(certInfo);
+    }
 
-        if (!includeKey) return;
+    public void loadCertKeyFromNSS(PKCS12 pkcs12, X509Certificate cert) throws Exception {
 
+        String nickname = cert.getNickname();
         logger.info("Loading private key for certificate \"" + nickname + "\" from NSS database");
+
+        CryptoManager cm = CryptoManager.getInstance();
 
         try {
             PrivateKey privateKey = cm.findPrivKeyByCert(cert);
             logger.fine("Certificate \"" + nickname + "\" has private key");
 
+            PKCS12CertInfo certInfo = pkcs12.getCertInfoByNickname(nickname);
+
             PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
-            keyInfo.id = keyID;
+            keyInfo.id = certInfo.getKeyID();
             keyInfo.subjectDN = cert.getSubjectDN().toString();
 
             byte[] privateData = getEncodedKey(privateKey);
@@ -302,15 +297,17 @@ public class PKCS12Util {
 
     public void loadCertChainFromNSS(PKCS12 pkcs12, X509Certificate cert) throws Exception {
 
-        logger.info("Loading certificate chain for \"" + cert.getNickname() + "\"");
-
         CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate[] certChain = cm.buildCertificateChain(cert);
 
-        // load parent certificates only
+        // load cert with key
+        loadCertFromNSS(pkcs12, cert);
+        loadCertKeyFromNSS(pkcs12, cert);
+
+        // load parent certs without key
+        X509Certificate[] certChain = cm.buildCertificateChain(cert);
         for (int i = 1; i < certChain.length; i++) {
             X509Certificate c = certChain[i];
-            loadCertFromNSS(pkcs12, c, false); // do not include private key
+            loadCertFromNSS(pkcs12, c);
         }
     }
 
@@ -601,14 +598,20 @@ public class PKCS12Util {
         }
     }
 
-    public void importCert(PKCS12CertInfo certInfo) throws Exception {
-
-        logger.fine("Importing certificate " + certInfo.nickname);
+    public void importCert(PKCS12 pkcs12, PKCS12CertInfo certInfo) throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
 
-        X509Certificate cert = cm.importUserCACertPackage(
-                certInfo.cert.getEncoded(), certInfo.nickname);
+        X509Certificate cert;
+
+        if (pkcs12.getKeyInfoByID(certInfo.getKeyID()) != null) { // cert has key
+            logger.fine("Importing user CA certificate " + certInfo.nickname);
+            cert = cm.importUserCACertPackage(certInfo.cert.getEncoded(), certInfo.nickname);
+
+        } else { // cert has no key
+            logger.fine("Importing CA certificate " + certInfo.nickname);
+            cert = cm.importCACertPackage(certInfo.cert.getEncoded());
+        }
 
         if (certInfo.trustFlags != null && trustFlagsEnabled)
             setTrustFlags(cert, certInfo.trustFlags);
@@ -617,7 +620,7 @@ public class PKCS12Util {
     public void importCerts(PKCS12 pkcs12) throws Exception {
 
         for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
-            importCert(certInfo);
+            importCert(pkcs12, certInfo);
         }
     }
 

@@ -18,7 +18,6 @@
 package com.netscape.cmstools.pkcs12;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +44,7 @@ public class PKCS12ExportCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...] [nicknames...]", options);
     }
 
     public void createOptions() {
@@ -96,6 +95,7 @@ public class PKCS12ExportCLI extends CLI {
             Logger.getLogger("netscape").setLevel(Level.FINE);
         }
 
+        String[] nicknames = cmd.getArgs();
         String filename = cmd.getOptionValue("pkcs12");
 
         if (filename == null) {
@@ -130,15 +130,20 @@ public class PKCS12ExportCLI extends CLI {
             PKCS12Util util = new PKCS12Util();
             util.setTrustFlagsEnabled(trustFlagsEnabled);
 
-            PKCS12 pkcs12;
+            // overwrite existing file
+            PKCS12 pkcs12 = new PKCS12();
 
-            if (new File(filename).exists()) {
-                pkcs12 = util.loadFromFile(filename, password);
+            if (nicknames.length == 0) {
+                // load all certificates
+                util.loadFromNSS(pkcs12);
+
             } else {
-                pkcs12 = new PKCS12();
+                // load specified certificates
+                for (String nickname : nicknames) {
+                    util.loadCertFromNSS(pkcs12, nickname);
+                }
             }
 
-            util.loadFromNSS(pkcs12);
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {

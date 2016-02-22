@@ -63,10 +63,8 @@ public class PKCS12CertAddCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
+        options.addOption(null, "new-file", false, "Create a new PKCS #12 file");
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
-        options.addOption(null, "no-cert", false, "Do not include certificate itself");
-        options.addOption(null, "no-key", false, "Do not include certificate key");
-        options.addOption(null, "no-chain", false, "Do not include certificate chain");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
@@ -139,10 +137,8 @@ public class PKCS12CertAddCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
+        boolean newFile = cmd.hasOption("new-file");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
-        boolean includeCert = !cmd.hasOption("no-cert");
-        boolean includeKey = !cmd.hasOption("no-key");
-        boolean includeChain = !cmd.hasOption("no-chain");
 
         try {
             PKCS12Util util = new PKCS12Util();
@@ -150,13 +146,16 @@ public class PKCS12CertAddCLI extends CLI {
 
             PKCS12 pkcs12;
 
-            if (new File(filename).exists()) {
-                pkcs12 = util.loadFromFile(filename, password);
-            } else {
+            if (newFile || !new File(filename).exists()) {
+                // if new file requested or file does not exist, create a new file
                 pkcs12 = new PKCS12();
+
+            } else {
+                // otherwise, add into the same file
+                pkcs12 = util.loadFromFile(filename, password);
             }
 
-            util.loadFromNSS(pkcs12, nickname, includeCert, includeKey, includeChain);
+            util.loadCertFromNSS(pkcs12, nickname);
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {
