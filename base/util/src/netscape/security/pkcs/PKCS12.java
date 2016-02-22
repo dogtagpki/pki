@@ -175,6 +175,12 @@ public class PKCS12 {
     }
 
     public PKCS12CertInfo removeCertInfoByNickname(String nickname) {
-        return certInfosByNickname.remove(nickname);
+        // remove cert
+        PKCS12CertInfo certInfo = certInfosByNickname.remove(nickname);
+        if (certInfo == null) return null;
+
+        // remove private key
+        keyInfosByID.remove(certInfo.getKeyID());
+        return certInfo;
     }
 }
