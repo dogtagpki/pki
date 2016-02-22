@@ -239,6 +239,18 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
     private long mNextUpdateGracePeriod;
 
+    /**
+     * time to wait at the next loop if exception happens during CRL generation
+     */
+    private long mUnexpectedExceptionWaitTime; 
+
+    /**
+     * Max number allowed to loop if exception happens during CRL generation.
+     * When mUnexpectedExceptionLoopMax is reached, a slow down procedure 
+     * will be executed
+     */
+    private int mUnexpectedExceptionLoopMax;
+
      /**
       * next update as this update extension
       */
@@ -706,6 +718,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         // get next update grace period
         mNextUpdateGracePeriod = MINUTE * config.getInteger(Constants.PR_GRACE_PERIOD, 0);
+        // get unexpected exception wait time; default to 30 minutes
+        mUnexpectedExceptionWaitTime = MINUTE * config.getInteger("unexpectedExceptionWaitTime", 30);
+        CMS.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionWaitTime set to " + mUnexpectedExceptionWaitTime);
+        // get unexpected exception loop max; default to 10 times
+        mUnexpectedExceptionLoopMax = config.getInteger("unexpectedExceptionLoopMax", 10);
+        CMS.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionLoopMax set to " + mUnexpectedExceptionLoopMax);
 
         // get next update as this update extension
         mNextAsThisUpdateExtension = MINUTE * config.getInteger(Constants.PR_NEXT_AS_THIS_EXTENSION, 0);
@@ -1716,6 +1734,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * <P>
      */
     public void run() {
+        /*
+         * mechnism to slow down the infinite loop when depending
+         * components are not available: e.g. Directory server, HSM
+         */
+        boolean unexpectedFailure = false;
+        long timeOfUnexpectedFailure = 0;
+        int loopCounter = 0;
+
         try {
             while (mEnable && ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
                     (mInitialized == CRL_IP_NOT_INITIALIZED) ||
@@ -1766,13 +1792,58 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         } catch (InterruptedException e) {
                         }
                     } else {
+                        /*
+                         * handle last failure so we don't get into
+                         * non-delayed loop
+                         */
+                        if (unexpectedFailure == true) {
+                            // it gets mUnexpectedExceptionLoopMax tries
+                            loopCounter++;
+                            if (loopCounter > mUnexpectedExceptionLoopMax) {
+                                CMS.debug("CRLIssuingPoint:run(): in unexpectedFailure. mUnexpectedExceptionLoopMax reached with loopCounter =" + loopCounter +
+                                    ", loop slowdown procedure ensues");
+                                long now = System.currentTimeMillis();
+                                long timeLapse = now - timeOfUnexpectedFailure;
+                                CMS.debug("CRLIssuingPoint:run(): in unexpectedFailure.  now= "+ now + "; timeOfUnexpectedFailure = " + timeOfUnexpectedFailure);
+                                if (timeLapse < mUnexpectedExceptionWaitTime) {
+                                    long waitTime = mUnexpectedExceptionWaitTime - timeLapse;
+                                    CMS.debug("CRLIssuingPoint:run(): wait time after last failure:" + waitTime);
+                                    try { 
+                                        wait (waitTime);
+                                    } catch (InterruptedException e) {
+                                    } catch (IllegalArgumentException e) {
+                                      // handle possible narrow window that
+                                      // might cause negative value
+                                    }
+                                    // timeOfUnexpectedFailure will be reset again
+                                    // if it still fails below
+                                } else {
+                                    CMS.debug("CRLIssuingPoint:run(): no wait after failure: (now - timeOfUnexpectedFailure) !< mUnexpectedExceptionWaitTime");
+                                }
+                            } else {
+                                CMS.debug("CRLIssuingPoint:run(): in unexpectedFailure. mUnexpectedExceptionLoopMax not reached with loopCounter =" + loopCounter +
+                                    ", no wait time");
+                            }
+                        }
+
+                        CMS.debug("CRLIssuingPoint:run(): before CRL generation");
                         try {
                             if (doCacheUpdate) {
                                 updateCRLCacheRepository();
                             } else if (mAutoUpdateInterval > 0 || mDoLastAutoUpdate || mDoManualUpdate) {
                                 updateCRL();
                             }
+                            // reset if no exception
+                            if (unexpectedFailure == true) {
+                                CMS.debug("CRLIssuingPoint:run(): reset unexpectedFailure values if no Exception.");
+                                unexpectedFailure = false;
+                                timeOfUnexpectedFailure = 0;
+                                loopCounter = 0;
+                            }
                         } catch (Exception e) {
+                            CMS.debug("CRLIssuingPoint:run(): unexpectedFailure occurred:" + e);
+                            unexpectedFailure = true;
+                            timeOfUnexpectedFailure = System.currentTimeMillis();
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CRL",
                                     (doCacheUpdate) ? "update CRL cache" : "update CRL", e.toString()));
                             if (Debug.on()) {
@@ -1783,8 +1854,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         // put this here to prevent continuous loop if internal
                         // db is down.
                         if (mDoLastAutoUpdate)
+                            CMS.debug("CRLIssuingPoint:run(): mDoLastAutoUpdate set to false");
                             mDoLastAutoUpdate = false;
                         if (mDoManualUpdate) {
+                            CMS.debug("CRLIssuingPoint:run(): mDoManualUpdate set to false");
                             mDoManualUpdate = false;
                             mSignatureAlgorithmForManualUpdate = null;
                         }
@@ -1795,6 +1868,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         } catch (EBaseException e1) {
             e1.printStackTrace();
         }
+        CMS.debug("CRLIssuingPoint:run(): out of the while loop");
         mUpdateThread = null;
     }
 
@@ -2382,6 +2456,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     public synchronized void updateCRLNow(String signingAlgorithm)
             throws EBaseException {
+
+        CMS.debug("updateCRLNow: mEnable =" + mEnable);
+        CMS.debug("updateCRLNow: mEnableCRLUpdates =" + mEnableCRLUpdates);
+        CMS.debug("updateCRLNow: mDoLastAutoUpdate =" + mDoLastAutoUpdate);
 
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
             return;
