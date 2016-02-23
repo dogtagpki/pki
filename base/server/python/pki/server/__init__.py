@@ -471,6 +471,7 @@ class Tomcat(object):
 
         # run "tomcat version"
         output = subprocess.check_output(['/usr/sbin/tomcat', 'version'])
+        output = output.decode('utf-8')
 
         # find "Server version: Apache Tomcat/<major version>.<minor version>"
         match = re.search(r'^Server version:[^/]*/(\d+).*$', output, re.MULTILINE)
