@@ -55,6 +55,7 @@ setup(
     },
     packages=[
         'pki',
+        'pki.cli',
         'pki.server',
         'pki.server.cli',
         'pki.server.deployment',
