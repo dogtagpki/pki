@@ -84,7 +84,7 @@ and set up in less than an hour.""",
     license='GPL',
     keywords='pki x509 cert certificate',
     url='http://pki.fedoraproject.org/',
-    packages=['pki'],
+    packages=['pki', 'pki.cli'],
     requirements=['python-nss', 'requests', 'six'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

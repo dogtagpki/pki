@@ -871,6 +871,10 @@ systemctl daemon-reload
 %{python_sitelib}/pki/*.py
 %{python_sitelib}/pki/*.pyc
 %{python_sitelib}/pki/*.pyo
+%dir %{python_sitelib}/pki/cli
+%{python_sitelib}/pki/cli/*.py
+%{python_sitelib}/pki/cli/*.pyc
+%{python_sitelib}/pki/cli/*.pyo
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
 %{_mandir}/man8/pki-upgrade.8.gz

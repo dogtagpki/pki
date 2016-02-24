@@ -38,7 +38,7 @@ PYLINTRC = os.path.join(SCRIPTPATH, 'dogtag.pylintrc')
 FILENAMES = [
     os.path.abspath(__file__),
     '{sitepackages}/pki',
-    '{bin}/pki',
+    '{bin}/pki-cmd',  # see HACK
     '{sbin}/pkispawn',
     '{sbin}/pkidestroy',
     '{sbin}/pki-upgrade',
@@ -130,7 +130,17 @@ def main():
     if args.verbose:
         pprint.pprint(pylint)
 
-    return subprocess.call(pylint, cwd=env['sitepackages'])
+    # HACK:
+    # pylint confuses the pki command with the pki package. We create a
+    # symlink from bin/pki to bin/pki-cmd and test bin/pki-cmd instead.
+    pki_bin = '{bin}/pki'.format(**env)
+    pki_cmd = '{bin}/pki-cmd'.format(**env)
+    os.symlink(pki_bin, pki_cmd)
+
+    try:
+        return subprocess.call(pylint, cwd=env['sitepackages'])
+    finally:
+        os.unlink(pki_cmd)
 
 if __name__ == '__main__':
     sys.exit(main())
