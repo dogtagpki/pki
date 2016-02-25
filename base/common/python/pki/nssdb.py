@@ -99,7 +99,11 @@ def get_file_type(filename):
 
 class NSSDatabase(object):
 
-    def __init__(self, directory, token='internal', password=None, password_file=None):
+    def __init__(self, directory=None, token=None, password=None, password_file=None):
+
+        if not directory:
+            directory = os.path.join(os.path.expanduser("~"), '.dogtag', 'nssdb')
+
         self.directory = directory
         self.token = token
 
@@ -127,13 +131,18 @@ class NSSDatabase(object):
         cmd = [
             'certutil',
             '-A',
-            '-d', self.directory,
-            '-h', self.token,
+            '-d', self.directory
+        ]
+
+        if self.token:
+            cmd.extend(['-h', self.token])
+
+        cmd.extend([
             '-f', self.password_file,
             '-n', nickname,
             '-i', cert_file,
             '-t', trust_attributes
-        ]
+        ])
 
         subprocess.check_call(cmd)
 
@@ -144,12 +153,17 @@ class NSSDatabase(object):
         cmd = [
             'certutil',
             '-M',
-            '-d', self.directory,
-            '-h', self.token,
+            '-d', self.directory
+        ]
+
+        if self.token:
+            cmd.extend(['-h', self.token])
+
+        cmd.extend([
             '-f', self.password_file,
             '-n', nickname,
             '-t', trust_attributes
-        ]
+        ])
 
         subprocess.check_call(cmd)
 
@@ -189,13 +203,18 @@ class NSSDatabase(object):
             cmd = [
                 'certutil',
                 '-R',
-                '-d', self.directory,
-                '-h', self.token,
+                '-d', self.directory
+            ]
+
+            if self.token:
+                cmd.extend(['-h', self.token])
+
+            cmd.extend([
                 '-f', self.password_file,
                 '-s', subject_dn,
                 '-o', binary_request_file,
                 '-z', noise_file
-            ]
+            ])
 
             if key_type:
                 cmd.extend(['-k', key_type])
@@ -241,8 +260,13 @@ class NSSDatabase(object):
             'certutil',
             '-C',
             '-x',
-            '-d', self.directory,
-            '-h', self.token,
+            '-d', self.directory
+        ]
+
+        if self.token:
+            cmd.extend(['-h', self.token])
+
+        cmd.extend([
             '-f', self.password_file,
             '-c', subject_dn,
             '-a',
@@ -255,7 +279,7 @@ class NSSDatabase(object):
             '-3',
             '--extSKID',
             '--extAIA'
-        ]
+        ])
 
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -334,12 +358,17 @@ class NSSDatabase(object):
         cmd = [
             'certutil',
             '-L',
-            '-d', self.directory,
-            '-h', self.token,
+            '-d', self.directory
+        ]
+
+        if self.token:
+            cmd.extend(['-h', self.token])
+
+        cmd.extend([
             '-f', self.password_file,
             '-n', nickname,
             output_format_option
-        ]
+        ])
 
         cert_data = subprocess.check_output(cmd)
 
@@ -353,11 +382,16 @@ class NSSDatabase(object):
         cmd = [
             'certutil',
             '-D',
-            '-d', self.directory,
-            '-h', self.token,
+            '-d', self.directory
+        ]
+
+        if self.token:
+            cmd.extend(['-h', self.token])
+
+        cmd.extend([
             '-f', self.password_file,
             '-n', nickname
-        ]
+        ])
 
         subprocess.check_call(cmd)
 
@@ -494,7 +528,7 @@ class NSSDatabase(object):
                 '-C', self.password_file
             ]
 
-            if self.token and self.token != 'internal':
+            if self.token:
                 cmd.extend(['--token', self.token])
 
             cmd.extend([
@@ -531,7 +565,7 @@ class NSSDatabase(object):
                 '-C', self.password_file
             ]
 
-            if self.token and self.token != 'internal':
+            if self.token:
                 cmd.extend(['--token', self.token])
 
             cmd.extend(['pkcs12-export'])
