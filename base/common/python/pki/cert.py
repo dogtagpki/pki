@@ -603,12 +603,10 @@ class CertReviewResponse(CertEnrollmentRequest):
 
         profile_policy_sets = attr_list['ProfilePolicySet']
         if not isinstance(profile_policy_sets, list):
-            review_response.policy_sets.append(
-                profile.ProfilePolicySet.from_json(profile_policy_sets))
-        else:
-            for policy_set in profile_policy_sets:
-                review_response.policy_sets.append(
-                    profile.ProfilePolicySet.from_json(policy_set))
+            profile_policy_sets = [profile_policy_sets]
+        for policy_set in profile_policy_sets:
+            review_response.policy_sets.append(  # pylint: disable=E1101
+                profile.ProfilePolicySet.from_json(policy_set))
 
         return review_response
 

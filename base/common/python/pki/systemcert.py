@@ -54,6 +54,7 @@ class SystemCertClient(object):
         cert_data = CertData.from_json(response.json())
 
         pem = cert_data.encoded
+        # pylint: disable=E0012,E1136
         b64 = pem[len(pki.CERT_HEADER):len(pem) - len(pki.CERT_FOOTER)]
         cert_data.binary = decode_cert(b64)
 
