@@ -209,14 +209,16 @@ public class PKCS12Util {
 
         attrs.addElement(nicknameAttr);
 
-        SEQUENCE localKeyAttr = new SEQUENCE();
-        localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
+        if (certInfo.keyID != null) {
+            SEQUENCE localKeyAttr = new SEQUENCE();
+            localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
-        SET localKeySet = new SET();
-        localKeySet.addElement(new OCTET_STRING(certInfo.keyID.toByteArray()));
-        localKeyAttr.addElement(localKeySet);
+            SET localKeySet = new SET();
+            localKeySet.addElement(new OCTET_STRING(certInfo.keyID.toByteArray()));
+            localKeyAttr.addElement(localKeySet);
 
-        attrs.addElement(localKeyAttr);
+            attrs.addElement(localKeyAttr);
+        }
 
         if (certInfo.trustFlags != null && trustFlagsEnabled) {
             SEQUENCE trustFlagsAttr = new SEQUENCE();
@@ -252,12 +254,10 @@ public class PKCS12Util {
         loadCertChainFromNSS(pkcs12, cert);
     }
 
-    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert) throws Exception {
+    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger keyID) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading certificate \"" + nickname + "\" from NSS database");
-
-        BigInteger keyID = createLocalKeyID(cert);
 
         PKCS12CertInfo certInfo = new PKCS12CertInfo();
         certInfo.keyID = keyID;
@@ -267,7 +267,7 @@ public class PKCS12Util {
         pkcs12.addCertInfo(certInfo);
     }
 
-    public void loadCertKeyFromNSS(PKCS12 pkcs12, X509Certificate cert) throws Exception {
+    public void loadCertKeyFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger keyID) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading private key for certificate \"" + nickname + "\" from NSS database");
@@ -278,10 +278,8 @@ public class PKCS12Util {
             PrivateKey privateKey = cm.findPrivKeyByCert(cert);
             logger.fine("Certificate \"" + nickname + "\" has private key");
 
-            PKCS12CertInfo certInfo = pkcs12.getCertInfoByNickname(nickname);
-
             PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
-            keyInfo.id = certInfo.getKeyID();
+            keyInfo.id = keyID;
             keyInfo.subjectDN = cert.getSubjectDN().toString();
 
             byte[] privateData = getEncodedKey(privateKey);
@@ -299,15 +297,17 @@ public class PKCS12Util {
 
         CryptoManager cm = CryptoManager.getInstance();
 
+        BigInteger keyID = createLocalKeyID(cert);
+
         // load cert with key
-        loadCertFromNSS(pkcs12, cert);
-        loadCertKeyFromNSS(pkcs12, cert);
+        loadCertFromNSS(pkcs12, cert, keyID);
+        loadCertKeyFromNSS(pkcs12, cert, keyID);
 
         // load parent certs without key
         X509Certificate[] certChain = cm.buildCertificateChain(cert);
         for (int i = 1; i < certChain.length; i++) {
             X509Certificate c = certChain[i];
-            loadCertFromNSS(pkcs12, c);
+            loadCertFromNSS(pkcs12, c, null);
         }
     }
 
@@ -591,21 +591,19 @@ public class PKCS12Util {
         wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publicKey), publicKey);
     }
 
-    public void importKeys(PKCS12 pkcs12) throws Exception {
-
-        for (PKCS12KeyInfo keyInfo : pkcs12.getKeyInfos()) {
-            importKey(pkcs12, keyInfo);
-        }
-    }
-
-    public void importCert(PKCS12 pkcs12, PKCS12CertInfo certInfo) throws Exception {
+    public void storeCertIntoNSS(PKCS12 pkcs12, PKCS12CertInfo certInfo) throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
 
         X509Certificate cert;
+        BigInteger keyID = certInfo.getKeyID();
+        PKCS12KeyInfo keyInfo = keyID == null ? null : pkcs12.getKeyInfoByID(keyID);
 
-        if (pkcs12.getKeyInfoByID(certInfo.getKeyID()) != null) { // cert has key
-            logger.fine("Importing user CA certificate " + certInfo.nickname);
+        if (keyInfo != null) { // cert has key
+            logger.fine("Importing user key for " + certInfo.nickname);
+            importKey(pkcs12, keyInfo);
+
+            logger.fine("Importing user certificate " + certInfo.nickname);
             cert = cm.importUserCACertPackage(certInfo.cert.getEncoded(), certInfo.nickname);
 
         } else { // cert has no key
@@ -617,18 +615,17 @@ public class PKCS12Util {
             setTrustFlags(cert, certInfo.trustFlags);
     }
 
-    public void importCerts(PKCS12 pkcs12) throws Exception {
-
-        for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
-            importCert(pkcs12, certInfo);
-        }
+    public void storeCertIntoNSS(PKCS12 pkcs12, String nickname) throws Exception {
+        PKCS12CertInfo certInfo = pkcs12.getCertInfoByNickname(nickname);
+        storeCertIntoNSS(pkcs12, certInfo);
     }
 
-    public void storeIntoNSS(PKCS12 pkcs12, Password password) throws Exception {
+    public void storeIntoNSS(PKCS12 pkcs12) throws Exception {
 
         logger.info("Storing data into NSS database");
 
-        importKeys(pkcs12);
-        importCerts(pkcs12);
+        for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
+            storeCertIntoNSS(pkcs12, certInfo);
+        }
     }
 }

@@ -32,6 +32,7 @@ public class PKCS12CertCLI extends CLI {
         super("cert", "PKCS #12 certificate management commands", parent);
 
         addModule(new PKCS12CertAddCLI(this));
+        addModule(new PKCS12CertExportCLI(this));
         addModule(new PKCS12CertFindCLI(this));
         addModule(new PKCS12CertRemoveCLI(this));
     }
@@ -47,7 +48,7 @@ public class PKCS12CertCLI extends CLI {
         }
 
         if (certInfo.getTrustFlags() != null) {
-            System.out.println("  Trust flags: " + certInfo.getTrustFlags());
+            System.out.println("  Trust Flags: " + certInfo.getTrustFlags());
         }
     }
 }

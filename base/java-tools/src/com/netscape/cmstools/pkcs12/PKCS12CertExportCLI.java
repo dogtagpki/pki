@@ -15,36 +15,42 @@
 // (C) 2016 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
+
 package com.netscape.cmstools.pkcs12;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.MainCLI;
+import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS12;
+import netscape.security.pkcs.PKCS12CertInfo;
 import netscape.security.pkcs.PKCS12Util;
+import netscape.security.x509.X509CertImpl;
 
 /**
- * Tool for importing NSS database from PKCS #12 file
+ * @author Endi S. Dewata
  */
-public class PKCS12ImportCLI extends CLI {
+public class PKCS12CertExportCLI extends CLI {
 
-    public PKCS12ImportCLI(PKCS12CLI certCLI) {
-        super("import", "Import PKCS #12 file into NSS database", certCLI);
+    public PKCS12CertExportCLI(PKCS12CertCLI certCLI) {
+        super("export", "Export certificate from PKCS #12 file", certCLI);
 
         createOptions();
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " [OPTIONS...] [nicknames...]", options);
+        formatter.printHelp(getFullName() + " [OPTIONS...] <nickname>", options);
     }
 
     public void createOptions() {
@@ -60,7 +66,9 @@ public class PKCS12ImportCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
-        options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
+        option = new Option(null, "cert-file", true, "Certificate file");
+        option.setArgName("path");
+        options.addOption(option);
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
@@ -72,8 +80,8 @@ public class PKCS12ImportCLI extends CLI {
         CommandLine cmd = null;
 
         try {
-            cmd = parser.parse(options, args, true);
-        } catch (Exception e) {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
             System.err.println("Error: " + e.getMessage());
             printHelp();
             System.exit(-1);
@@ -95,10 +103,19 @@ public class PKCS12ImportCLI extends CLI {
             Logger.getLogger("netscape").setLevel(Level.FINE);
         }
 
-        String[] nicknames = cmd.getArgs();
-        String filename = cmd.getOptionValue("pkcs12");
+        String[] cmdArgs = cmd.getArgs();
 
-        if (filename == null) {
+        if (cmdArgs.length < 1) {
+            System.err.println("Error: Missing certificate nickname.");
+            printHelp();
+            System.exit(-1);
+        }
+
+        String nickname = cmdArgs[0];
+
+        String pkcs12File = cmd.getOptionValue("pkcs12");
+
+        if (pkcs12File == null) {
             System.err.println("Error: Missing PKCS #12 file.");
             printHelp();
             System.exit(-1);
@@ -124,30 +141,33 @@ public class PKCS12ImportCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
-        boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
+        String certFile = cmd.getOptionValue("cert-file");
+
+        if (certFile == null) {
+            System.err.println("Error: Missing certificate file.");
+            printHelp();
+            System.exit(-1);
+        }
 
         try {
             PKCS12Util util = new PKCS12Util();
-            util.setTrustFlagsEnabled(trustFlagsEnabled);
+            PKCS12 pkcs12 = util.loadFromFile(pkcs12File, password);
 
-            PKCS12 pkcs12 = util.loadFromFile(filename, password);
-
-            if (nicknames.length == 0) {
-                // store all certificates
-                util.storeIntoNSS(pkcs12);
-
-            } else {
-                // load specified certificates
-                for (String nickname : nicknames) {
-                    util.storeCertIntoNSS(pkcs12, nickname);
-                }
+            PKCS12CertInfo certInfo = pkcs12.getCertInfoByNickname(nickname);
+            if (certInfo == null) {
+                System.err.println("Error: Certificate not found.");
+                System.exit(-1);
             }
 
+            X509CertImpl cert = certInfo.getCert();
+            try (PrintStream os = new PrintStream(new FileOutputStream(certFile))) {
+                os.println("-----BEGIN CERTIFICATE-----");
+                os.print(Utils.base64encode(cert.getEncoded()));
+                os.println("-----END CERTIFICATE-----");
+            }
 
         } finally {
             password.clear();
         }
-
-        MainCLI.printMessage("Import complete");
     }
 }
