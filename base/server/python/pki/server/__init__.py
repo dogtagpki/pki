@@ -342,6 +342,7 @@ class PKISubsystem(object):
         return str(self.instance) + '/' + self.name
 
 
+@functools.total_ordering
 class PKIInstance(object):
 
     def __init__(self, name, instanceType=10):
