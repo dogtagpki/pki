@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 from lxml import etree
+import functools
 import getpass
 import grp
 import io
@@ -59,6 +60,7 @@ class PKIServer(object):
         return instances
 
 
+@functools.total_ordering
 class PKISubsystem(object):
 
     def __init__(self, instance, subsystem_name):
@@ -91,6 +93,29 @@ class PKISubsystem(object):
 
         # custom subsystem location
         self.doc_base = os.path.join(self.base_dir, 'webapps', self.name)
+
+    def __eq__(self, other):
+        if not isinstance(other, PKISubsystem):
+            return NotImplemented
+        return (self.name == other.name and
+                self.instance == other.instance and
+                self.type == other.type)
+
+    def __ne__(self, other):
+        if not isinstance(other, PKISubsystem):
+            return NotImplemented
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if not isinstance(other, PKISubsystem):
+            return NotImplemented
+        self_type = self.type if self.type is not None else ''
+        other_type = other.type if other.type is not None else ''
+        return (self.name < other.name or
+                self.instance < other.instance or
+                self_type < other_type)
+
+    __hash__ = None
 
     def load(self):
         self.config.clear()
@@ -335,6 +360,7 @@ class PKISubsystem(object):
         return str(self.instance) + '/' + self.name
 
 
+@functools.total_ordering
 class PKIInstance(object):
 
     def __init__(self, name, instanceType=10):  # nopep8
@@ -370,6 +396,25 @@ class PKIInstance(object):
         self.passwords = {}
 
         self.subsystems = []
+
+    def __eq__(self, other):
+        if not isinstance(other, PKIInstance):
+            return NotImplemented
+        return (self.name == other.name and
+                self.type == other.type)
+
+    def __ne__(self, other):
+        if not isinstance(other, PKIInstance):
+            return NotImplemented
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if not isinstance(other, PKIInstance):
+            return NotImplemented
+        return (self.name < other.name or
+                self.type < other.type)
+
+    __hash__ = None
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)
