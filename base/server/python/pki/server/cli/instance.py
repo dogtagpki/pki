@@ -26,6 +26,7 @@ import os
 import sys
 
 import pki.cli
+import pki.nssdb
 import pki.server
 import pki.server.cli.nuxwdog
 
@@ -44,6 +45,8 @@ class InstanceCLI(pki.cli.CLI):
         self.add_module(InstanceMigrateCLI())
         self.add_module(InstanceNuxwdogEnableCLI())
         self.add_module(InstanceNuxwdogDisableCLI())
+        self.add_module(InstanceExternalCertAddCLI())
+        self.add_module(InstanceExternalCertDeleteCLI())
 
     @staticmethod
     def print_instance(instance):
@@ -532,3 +535,185 @@ class InstanceNuxwdogDisableCLI(pki.cli.CLI):
             instance)  # pylint: disable=no-member,maybe-no-member
 
         self.print_message('Nuxwdog disabled for instance %s.' % instance_name)
+
+
+class InstanceExternalCertAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(InstanceExternalCertAddCLI, self).__init__(
+            'externalcert-add',
+            'Add external certificate or chain to the instance')
+
+    def print_help(self):
+        print('Usage: pki-server instance-externalcert-add [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --cert-file <path>             Input file containing the external certificate or certificate chain.')
+        print('      --trust-args <trust-args>      Trust args (default \",,\").')
+        print('      --nickname <nickname>          Nickname to be used.')
+        print('      --token <token_name>           Token (default: internal).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'cert-file=', 'trust-args=', 'nickname=','token=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        cert_file = None
+        trust_args = '\",,\"'
+        nickname = None
+        token = 'internal'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--cert-file':
+                cert_file = a
+
+            elif o == '--trust-args':
+                trust_args = a
+
+            elif o == '--nickname':
+                nickname = a
+
+            elif o == '--token':
+                token = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        if not cert_file:
+            print('ERROR: missing input file containing certificate')
+            self.print_help()
+            sys.exit(1)
+
+        if not nickname:
+            print('ERROR: missing nickname')
+            self.print_help()
+            sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        if instance.external_cert_exists(nickname, token):
+            print('ERROR: Certificate already imported for instance %s.' %
+                  instance_name)
+            sys.exit(1)
+
+        nicks = self.import_certs(
+            instance, cert_file, nickname, token, trust_args)
+        self.update_instance_config(instance, nicks, token)
+
+        self.print_message('Certificate imported for instance %s.' %
+                           instance_name)
+
+    def import_certs(self, instance, cert_file, nickname, token, trust_args):
+        password = instance.get_password(token)
+        certdb = pki.nssdb.NSSDatabase(
+            directory=instance.nssdb_dir,
+            password=password,
+            token=token)
+        _chain, nicks = certdb.import_cert_chain(
+            nickname, cert_file, trust_attributes=trust_args)
+        return nicks
+
+    def update_instance_config(self, instance, nicks, token):
+        for nickname in nicks:
+            instance.add_external_cert(nickname, token)
+
+
+class InstanceExternalCertDeleteCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(InstanceExternalCertDeleteCLI, self).__init__(
+            'externalcert-del',
+            'Delete external certificate from the instance')
+
+    def print_help(self):
+        print('Usage: pki-server instance-externalcert-del [OPTIONS]')
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --nickname <nickname>          Nickname to be used.')
+        print('      --token <token_name>           Token (default: internal).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=', 'nickname=','token=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        nickname = None
+        token = 'internal'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--nickname':
+                nickname = a
+
+            elif o == '--token':
+                token = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        if not nickname:
+            print('ERROR: missing nickname')
+            self.print_help()
+            sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        instance.load()
+
+        self.remove_cert(instance, nickname, token)
+        instance.delete_external_cert(nickname, token)
+
+        self.print_message('Certificate removed from instance %s.' %
+                           instance_name)
+
+    def remove_cert(self, instance, nickname, token):
+        password = instance.get_password(token)
+        certdb = pki.nssdb.NSSDatabase(
+            directory=instance.nssdb_dir,
+            password=password,
+            token=token)
+        certdb.remove_cert(nickname)

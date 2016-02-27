@@ -20,7 +20,9 @@
 
 from __future__ import absolute_import
 
+import os
 import pki.nssdb
+import pki.server
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -89,7 +91,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # importing system certificates
 
-            pki_server_pkcs12_password = deployer.mdict['pki_server_pkcs12_password']
+            pki_server_pkcs12_password = deployer.mdict[
+                'pki_server_pkcs12_password']
             if not pki_server_pkcs12_password:
                 raise Exception('Missing pki_server_pkcs12_password property.')
 
@@ -100,6 +103,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             nssdb.import_pkcs12(
                 pkcs12_file=pki_server_pkcs12_path,
                 pkcs12_password=pki_server_pkcs12_password)
+
+            # update external CA file (if needed)
+            external_cert_path = deployer.mdict['pki_server_external_cert_path']
+            if external_cert_path is not None:
+                self.update_external_cert_conf(external_cert_path, deployer)
 
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
             # only create a self signed cert for a new instance
@@ -174,6 +182,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Always delete the temporary 'pfile'
         deployer.file.delete(deployer.mdict['pki_shared_pfile'])
         return self.rv
+
+    def update_external_cert_conf(self, external_path, deployer):
+        external_certs = pki.server.PKIInstance.read_external_certs(
+            external_path)
+
+        if len(external_certs) > 0:
+            instance = pki.server.PKIInstance(
+                deployer.mdict['pki_instance_name'])
+            instance.load_external_certs(
+                os.path.join(deployer.mdict['pki_instance_configuration_path'],
+                             'external_certs.conf')
+            )
+
+            for cert in external_certs:
+                instance.add_external_cert(cert.nickname, cert.token)
 
     def destroy(self, deployer):
 

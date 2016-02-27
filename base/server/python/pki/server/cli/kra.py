@@ -131,9 +131,13 @@ class KRAClonePrepareCLI(pki.cli.CLI):
 
             subsystem.export_system_cert(
                 'subsystem', pkcs12_file, pkcs12_password_file, new_file=True)
-            subsystem.export_system_cert('transport', pkcs12_file, pkcs12_password_file)
-            subsystem.export_system_cert('storage', pkcs12_file, pkcs12_password_file)
-            subsystem.export_system_cert('audit_signing', pkcs12_file, pkcs12_password_file)
+            subsystem.export_system_cert(
+                'transport', pkcs12_file, pkcs12_password_file)
+            subsystem.export_system_cert(
+                'storage', pkcs12_file, pkcs12_password_file)
+            subsystem.export_system_cert(
+                'audit_signing', pkcs12_file, pkcs12_password_file)
+            instance.export_external_certs(pkcs12_file, pkcs12_password_file)
 
         finally:
             shutil.rmtree(tmpdir)
