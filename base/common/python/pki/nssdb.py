@@ -395,7 +395,8 @@ class NSSDatabase(object):
 
         subprocess.check_call(cmd)
 
-    def import_cert_chain(self, nickname, cert_chain_file, trust_attributes=None):
+    def import_cert_chain(self, nickname, cert_chain_file,
+                          trust_attributes=None):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -407,16 +408,18 @@ class NSSDatabase(object):
                     nickname=nickname,
                     cert_file=cert_chain_file,
                     trust_attributes=trust_attributes)
-                return self.get_cert(
-                    nickname=nickname,
-                    output_format='base64')
+                return (
+                    self.get_cert(nickname=nickname, output_format='base64'),
+                    [nickname]
+                )
 
-            elif file_type == 'pkcs7': # import PKCS #7 cert chain
-                return self.import_pkcs7(
+            elif file_type == 'pkcs7':  # import PKCS #7 cert chain
+                chain, nicks = self.import_pkcs7(
                     pkcs7_file=cert_chain_file,
                     nickname=nickname,
                     trust_attributes=trust_attributes,
                     output_format='base64')
+                return chain, nicks
 
             else: # import PKCS #7 data without header/footer
                 with open(cert_chain_file, 'r') as f:
@@ -427,17 +430,18 @@ class NSSDatabase(object):
                 with open(tmp_cert_chain_file, 'w') as f:
                     f.write(pkcs7_data)
 
-                self.import_pkcs7(
+                chain, nicks = self.import_pkcs7(
                     pkcs7_file=tmp_cert_chain_file,
                     nickname=nickname,
                     trust_attributes=trust_attributes)
 
-                return base64_data
+                return base64_data, nicks
 
         finally:
             shutil.rmtree(tmpdir)
 
-    def import_pkcs7(self, pkcs7_file, nickname, trust_attributes=None, output_format='pem'):
+    def import_pkcs7(self, pkcs7_file, nickname, trust_attributes=None,
+                     output_format='pem'):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -453,6 +457,7 @@ class NSSDatabase(object):
             # parse PEM output into separate PEM certificates
             certs = []
             lines = []
+            nicks = []
             state = 'header'
 
             for line in output.splitlines():
@@ -494,6 +499,7 @@ class NSSDatabase(object):
                     n = '%s #%d' % (nickname, counter)
 
                 self.add_cert(n, cert_file, trust_attributes)
+                nicks.append(n)
 
                 counter += 1
 
@@ -501,12 +507,13 @@ class NSSDatabase(object):
             with open(pkcs7_file, 'r') as f:
                 data = f.read()
 
-            return convert_pkcs7(data, 'pem', output_format)
+            return convert_pkcs7(data, 'pem', output_format), nicks
 
         finally:
             shutil.rmtree(tmpdir)
 
-    def import_pkcs12(self, pkcs12_file, pkcs12_password=None, pkcs12_password_file=None):
+    def import_pkcs12(self, pkcs12_file, pkcs12_password=None,
+                      pkcs12_password_file=None):
 
         tmpdir = tempfile.mkdtemp()
 
