@@ -19,6 +19,7 @@ add_custom_target(dogtag_python_client_docs ALL
         -c "${CMAKE_CURRENT_BINARY_DIR}"
         -w "${CMAKE_CURRENT_BINARY_DIR}/python-client-lib-html.log"
         -a
+        -W
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${CMAKE_CURRENT_BINARY_DIR}/html"
     COMMENT "Building Python Client Library HTML documentation")
@@ -29,6 +30,7 @@ add_custom_target(dogtag_python_client_man_docs ALL
         -c "${CMAKE_CURRENT_BINARY_DIR}"
         -w "${CMAKE_CURRENT_BINARY_DIR}/python-client-lib-man.log"
         -a
+        -W
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${CMAKE_CURRENT_BINARY_DIR}/man"
     COMMENT "Building Python Client Library manual pages")
