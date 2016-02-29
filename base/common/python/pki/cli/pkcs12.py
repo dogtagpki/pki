@@ -148,11 +148,9 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
             # determine cert types
             with open(output_file, 'r') as f:
+                cert_info = {}
 
-                cert_info = None
-
-                for line in f.readlines():
-
+                for line in f:
                     match = re.match(r'  Nickname: (.*)$', line)
                     if match:
                         # store previous cert
