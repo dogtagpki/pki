@@ -81,6 +81,9 @@ Specifies the subsystem to be installed and configured, where <subsystem> is CA,
 .B -f <config_file>
 Specifies the path to the user-defined configuration file.  This file contains differences between the default configuration and the custom configuration.
 .TP
+.B --precheck
+Execute pre-checks and exit.
+.TP
 .B -h, --help
 Prints additional help information.
 .TP
@@ -193,6 +196,22 @@ the username of the security domain administrator of the CA. Required only for n
 .TP
 \fIPassword:\fP
 password for the security domain administrator. Required for all subsystems that are not root CAs.
+
+.SH PRE-CHECK MODE
+.PP
+This option is only available when pkispawn is invoked in a non-interactive mode.
+When the \fB--precheck\fP option is provided, a set of basic tests are performed to
+ensure that the parameters provided to pkispawn are valid and consistent.
+
+pkispawn will then exit with an exit code of 0 on success, or 1 on failure.  This
+mode can be used to perform basic tests prior to doing any actual installation of
+the Certificate Server instance.
+
+Flags are available to disable specific tests.  For instance, one might want to
+disable validation of the credentials for the internal database user if the
+directory server instance has not yet been created.
+
+See \fB pki_default.cfg(5) \fP for more details about available flags.
 
 .SH EXAMPLES
 

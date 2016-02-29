@@ -21,7 +21,12 @@ pki_default.cfg \- Certificate Server instance default config file.
 /etc/pki/default.cfg
 
 .SH DESCRIPTION
-This file contains the default settings for a Certificate Server instance created using \fBpkispawn\fP.  This file should not be edited, as it can be modified when the Certificate Server packages are updated.  Rather, when setting up a Certificate Server instance, a user-provided configuration file can provide overrides to the defaults in /etc/pki/default.cfg.  See \fBpkispawn(8)\fR for details.
+This file contains the default settings for a Certificate Server instance created
+using \fBpkispawn\fP.  This file should not be edited, as it can be modified when
+the Certificate Server packages are updated.  Instead, when setting up a
+Certificate Server instance, a user should provide \fBpkispawn\fP with a configuration
+file containing overrides to the defaults in \fB/etc/pki/default.cfg\fP.
+See \fBpkispawn(8)\fR for details.
 
 .SH SECTIONS
 \fIdefault.cfg\fP contains parameters that are grouped into sections.
@@ -40,6 +45,29 @@ This substitutes the value of pki_instance_name into the parameter value.  It is
 .TP
 \fBNote:\fP
 Any non-password related parameter values in the configuration file that needs to contain a \fB%\fP character must be properly escaped.  For example, a value of \fBfoo%bar\fP would be specified as \fBfoo%%bar\fP in the configuration file.
+
+.SH PRE-CHECK PARAMETERS
+Once the configuration parameters have been constructed from the above sections and
+overrides, pkispawn will perform a series of basic tests to determine if the parameters
+being passed in are valid and consistent, before starting any installation.  In
+pre-check mode, these tests are executed and then pkispawn exits.
+
+It is possible to disable specific tests by setting the directives below.  While all
+these tests should pass to ensure a successful installation, it may be
+reasonable to skip tests in pre-check mode.
+.TP
+.B pki_skip_ds_verify
+.IP
+Skip verification of the Directory Server credentials.  In this test, pkispawn attempts
+to bind to the directory server instance for the internal database using the provided
+credentials.  This could be skipped if the directory server instance does not yet
+exist or is inaccessible.  Defaults to False.
+.TP
+.B pki_skip_sd_verify
+.IP
+Skip verification of the security domain user/password.  In this test, pkispawn
+attempts to log onto the security domain using the provided credentials.  This can
+be skipped if the security domain is unavailable. Defaults to False.
 
 .SH GENERAL INSTANCE PARAMETERS
 The parameters described below, as well as the parameters located in the following sections, can be customized as part of a deployment.  This list is not exhaustive.
