@@ -16,23 +16,27 @@ configure_file(
 add_custom_target(dogtag_python_client_docs ALL
     ${SPHINX_EXECUTABLE}
         -b html
-        -c "${CMAKE_CURRENT_BINARY_DIR}"
+        -c "${CMAKE_CURRENT_SOURCE_DIR}"
         -w "${CMAKE_CURRENT_BINARY_DIR}/python-client-lib-html.log"
         -a
         -W
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${CMAKE_CURRENT_BINARY_DIR}/html"
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Building Python Client Library HTML documentation")
 
 add_custom_target(dogtag_python_client_man_docs ALL
     ${SPHINX_EXECUTABLE}
         -b man
-        -c "${CMAKE_CURRENT_BINARY_DIR}"
+        -c "${CMAKE_CURRENT_SOURCE_DIR}"
         -w "${CMAKE_CURRENT_BINARY_DIR}/python-client-lib-man.log"
         -a
         -W
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${CMAKE_CURRENT_BINARY_DIR}/man"
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Building Python Client Library manual pages")
 
 install(
