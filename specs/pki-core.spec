@@ -1056,7 +1056,7 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
-* Mon Mar 1 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.5
+* Tue Mar 1 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.5
 - PKI Trac Ticket #1399 - Move java components out of pki-base
 
 * Thu Feb 11 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.4
