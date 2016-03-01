@@ -27,6 +27,10 @@ pki-server instance \- Command-Line Interface for managing Certificate System in
 \fBpki-server [CLI options] instance-migrate\fR --tomcat <version> <instance ID>
 \fBpki-server [CLI options] instance-nuxwdog-enable\fR <instance ID>
 \fBpki-server [CLI options] instance-nuxwdog-disable\fR <instance ID>
+\fBpki-server [CLI options] instance-externalcert-add\fR -i <instance ID>
+    --cert-file <path> --trust-args <args> --nickname <nickname> --token <token>
+\fBpki-server [CLI options] instance-externalcert-del\fR -i <instance ID>
+    --nickname <nickname> --token <token>
 .fi
 
 .SH DESCRIPTION
@@ -86,6 +90,24 @@ for further details.
 This command is to convert a CS instance to start with access to a
 password file, rather than using the \fBnuxwdog\fR daemon.  See \fBpki-server nuxwdog\fR(8)
 for further details.
+.RE
+.PP
+\fBpki-server [CLI options] instance-externalcert-add\fR -i <instance ID>
+    --cert-file <path> --trust-args <args> --nickname <nickname> --token <token>
+.RS 4
+This command is to add a certificate to the certificate database for a CS instance.
+The certificate will be kept track of in the configuration file \fBexternal_certs.conf\fP,
+and will automatically be exported when the system certificates are exported.  To
+update a certificate, the old one needs to be removed first using the delete command below.
+
+The trust arguments are those defined for NSS databases eg. "C,c,c".  See \fBcertutil(1)\fP
+for more details.  
+.RE
+.PP
+\fBpki-server [CLI options] instance-externalcert-del\fR -i <instance ID>
+    --nickname <nickname> --token <token>
+.RS 4
+This command is to remove a certificate from the certificate database for a CS instance.
 .RE
 
 .SH OPTIONS
