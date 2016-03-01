@@ -39,7 +39,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.3.0
-Release:          0.4%{?dist}
+Release:          0.5%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -183,6 +183,7 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
   * pki-symkey                                                         \
   * pki-base                                                           \
+  * pki-base-java                                                      \
   * pki-tools                                                          \
   * pki-server                                                         \
   * pki-ca                                                             \
@@ -200,23 +201,19 @@ which comprise the following corresponding PKI subsystems:             \
   * Token Key Service (TKS)                                            \
   * Token Processing Service (TPS)                                     \
                                                                        \
-For deployment purposes, PKI Core contains fundamental packages        \
-required by BOTH native-based Apache AND java-based Tomcat             \
-Certificate System instances consisting of the following components:   \
+Python clients need only install the pki-base package.  This           \
+package contains the python REST client packages and the client        \
+upgrade framework.                                                     \
                                                                        \
-  * pki-tools                                                          \
+Java clients should install the pki-base-java package.  This package   \
+contains the legacy and REST Java client packages.  These clients      \
+should also consider installing the pki-tools package, which contain   \
+native and Java-based PKI tools and utilities.                         \
                                                                        \
-Additionally, PKI Core contains the following fundamental packages     \
-required ONLY by ALL java-based Tomcat Certificate System instances:   \
-                                                                       \
-  * pki-symkey                                                         \
-  * pki-base                                                           \
-  * pki-tools                                                          \
-  * pki-server                                                         \
-                                                                       \
-PKI Core also includes the following components:                       \
-                                                                       \
-  * pki-javadoc                                                        \
+Certificate Server instances require the fundamental classes and       \
+modules in pki-base and pki-base-java, as well as the utilities in     \
+pki-tools.  The main server classes are in pki-server, with subsystem  \
+specific Java classes and resources in pki-ca, pki-kra, pki-ocsp etc.  \
                                                                        \
 Finally, if Certificate System is being deployed as an individual or   \
 set of standalone rather than embedded server(s)/service(s), it is     \
@@ -274,6 +271,24 @@ Obsoletes:        pki-common < %{version}-%{release}
 Obsoletes:        pki-util < %{version}-%{release}
 
 Conflicts:        freeipa-server < 3.0.0
+Requires:         python-ldap
+Requires:         python-lxml
+Requires:         python-nss
+Requires:         python-requests >= 1.1.0-3
+Requires:         python-six
+
+%description -n   pki-base
+The PKI Framework contains the common and client libraries and utilities
+written in Python.  This package is a part of the PKI Core used by the
+Certificate System.
+
+%{overview}
+
+%package -n       pki-base-java
+Summary:          Certificate System - Java Framework
+Group:            System Environment/Base
+BuildArch:        noarch
+
 Requires:         apache-commons-cli
 Requires:         apache-commons-codec
 Requires:         apache-commons-io
@@ -285,11 +300,7 @@ Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-35
 Requires:         ldapjdk
-Requires:         python-ldap
-Requires:         python-lxml
-Requires:         python-nss
-Requires:         python-requests >= 1.1.0-3
-Requires:         python-six
+Requires:         pki-base = %{version}-%{release}
 
 %if 0%{?rhel}
 # 'resteasy-base' is a subset of the complete set of
@@ -321,8 +332,11 @@ Requires:         xerces-j2
 Requires:         xml-commons-apis
 Requires:         xml-commons-resolver
 
-%description -n   pki-base
-The PKI Framework contains the common and client libraries and utilities.
+%description -n   pki-base-java
+The PKI Framework contains the common and client libraries and utilities
+written in Java.  This package is a part of the PKI Core used by the
+Certificate System.
+
 This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
@@ -343,6 +357,7 @@ Requires:         nss
 Requires:         nss-tools
 Requires:         java-headless >= 1:1.7.0
 Requires:         pki-base = %{version}-%{release}
+Requires:         pki-base-java = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?fedora} >= 23
 Requires:         tomcat-servlet-3.1-api
@@ -389,6 +404,7 @@ Requires:    nuxwdog-client-java >= 1.0.3
 Requires:         policycoreutils
 Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
+Requires:         pki-base-java = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
 Requires:         policycoreutils-python
 %if 0%{?fedora} >= 23
@@ -863,10 +879,6 @@ systemctl daemon-reload
 %{_datadir}/pki/key/templates
 %dir %{_sysconfdir}/pki
 %config(noreplace) %{_sysconfdir}/pki/pki.conf
-%dir %{_javadir}/pki
-%{_javadir}/pki/pki-cmsutil.jar
-%{_javadir}/pki/pki-nsutil.jar
-%{_javadir}/pki/pki-certsrv.jar
 %dir %{python_sitelib}/pki
 %{python_sitelib}/pki/*.py
 %{python_sitelib}/pki/*.pyc
@@ -879,6 +891,12 @@ systemctl daemon-reload
 %{_sbindir}/pki-upgrade
 %{_mandir}/man8/pki-upgrade.8.gz
 %{_mandir}/man1/pki-python-client.1.gz
+
+%files -n pki-base-java
+%dir %{_javadir}/pki
+%{_javadir}/pki/pki-cmsutil.jar
+%{_javadir}/pki/pki-nsutil.jar
+%{_javadir}/pki/pki-certsrv.jar
 
 %files -n pki-tools
 %defattr(-,root,root,-)
@@ -1038,6 +1056,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Mon Mar 1 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.5
+- PKI Trac Ticket #1399 - Move java components out of pki-base
+
 * Thu Feb 11 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.4
 - PKI TRAC Ticket #1850 - Rename DRMTool --> KRATool
 
