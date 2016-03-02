@@ -33,6 +33,7 @@ import java.security.Signature;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -2245,7 +2246,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             return response;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_REQUEST", e.toString()));
-            throw new EBaseException(e.toString());
+            throw new EBaseException(e.toString(), e);
         }
     }
 
@@ -2300,6 +2301,22 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         CertStatus certStatus = null;
         GeneralizedTime thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
         GeneralizedTime nextUpdate = null;
+
+        byte[] nameHash = null;
+        String digestName = cid.getDigestName();
+        if (digestName != null) {
+            try {
+                MessageDigest md = MessageDigest.getInstance(digestName);
+                nameHash = md.digest(mName.getEncoded());
+            } catch (NoSuchAlgorithmException | IOException e) {
+            }
+        }
+        if (!Arrays.equals(cid.getIssuerNameHash().toByteArray(), nameHash)) {
+            // issuer of cert is not this CA (or we couldn't work
+            // out whether it is or not due to unknown hash alg);
+            // do not return status information for this cert
+            return new SingleResponse(cid, new UnknownInfo(), thisUpdate, null);
+        }
 
         boolean ocspUseCache = true;
 
