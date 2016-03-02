@@ -35,9 +35,11 @@ install(
 # install Python libraries
 install(
     DIRECTORY
-        python/
+        python/pki/server
     DESTINATION
-        ${PYTHON_SITE_PACKAGES}
+        ${PYTHON_SITE_PACKAGES}/pki/server
+    FILES_MATCHING PATTERN
+        *.py
 )
 
 # install systemd scripts

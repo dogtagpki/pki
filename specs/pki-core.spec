@@ -1,8 +1,7 @@
-# Python
-%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from
-distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from
-distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+# Python, keep every statement on a single line
+%{!?__python2: %global __python2 /usr/bin/python2}
+%{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
+
 
 # Tomcat
 %if 0%{?fedora} >= 23
@@ -737,13 +736,13 @@ ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-to
 
 %if ! 0%{?rhel}
 # Scanning the python code with pylint.
-python2 ../pylint-build-scan.py rpm --prefix %{buildroot}
+%{__python2} ../pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
     echo "pylint failed. RC: $?"
     exit 1
 fi
 
-python2 ../pylint-build-scan.py rpm --prefix %{buildroot} -- --py3k
+%{__python2} ../pylint-build-scan.py rpm --prefix %{buildroot} -- --py3k
 if [ $? -ne 0 ]; then
     echo "pylint --py3k failed. RC: $?"
     exit 1
@@ -879,14 +878,7 @@ systemctl daemon-reload
 %{_datadir}/pki/key/templates
 %dir %{_sysconfdir}/pki
 %config(noreplace) %{_sysconfdir}/pki/pki.conf
-%dir %{python_sitelib}/pki
-%{python_sitelib}/pki/*.py
-%{python_sitelib}/pki/*.pyc
-%{python_sitelib}/pki/*.pyo
-%dir %{python_sitelib}/pki/cli
-%{python_sitelib}/pki/cli/*.py
-%{python_sitelib}/pki/cli/*.pyc
-%{python_sitelib}/pki/cli/*.pyo
+%{python2_sitelib}/pki
 %dir %{_localstatedir}/log/pki
 %{_sbindir}/pki-upgrade
 %{_mandir}/man8/pki-upgrade.8.gz
@@ -958,7 +950,7 @@ systemctl daemon-reload
 %{_sbindir}/pki-server
 %{_sbindir}/pki-server-nuxwdog
 %{_sbindir}/pki-server-upgrade
-%{python_sitelib}/pki/server/
+%{python2_sitelib}/pki/server/
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
 %dir %{_datadir}/pki/scripts

@@ -44,6 +44,8 @@ install(
         pki
     DESTINATION
         ${PYTHON_SITE_PACKAGES}
+    FILES_MATCHING PATTERN
+        *.py
 )
 
 install(
