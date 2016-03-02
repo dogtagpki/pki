@@ -466,8 +466,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             MessageDigest md = null;
 
             try {
-                md = MessageDigest.getInstance(
-                            mOCSPAuthority.getDigestName(cid.getHashAlgorithm()));
+                md = MessageDigest.getInstance(cid.getDigestName());
             } catch (Exception e) {
             }
             X509Key key = (X509Key) caCert.getPublicKey();

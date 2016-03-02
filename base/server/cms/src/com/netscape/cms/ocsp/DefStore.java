@@ -449,8 +449,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()));
                         return null;
                     }
-                    MessageDigest md = MessageDigest.getInstance(
-                            mOCSPAuthority.getDigestName(cid.getHashAlgorithm()));
+                    MessageDigest md = MessageDigest.getInstance(cid.getDigestName());
                     X509Key key = (X509Key) cert.getPublicKey();
                     byte digest[] = md.digest(key.getKey());
 

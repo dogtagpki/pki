@@ -257,27 +257,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         return mOCSPSigningAlgorithms;
     }
 
-    public static final OBJECT_IDENTIFIER MD2 =
-            new OBJECT_IDENTIFIER("1.2.840.113549.2.2");
-    public static final OBJECT_IDENTIFIER MD5 =
-            new OBJECT_IDENTIFIER("1.2.840.113549.2.5");
-    public static final OBJECT_IDENTIFIER SHA1 =
-            new OBJECT_IDENTIFIER("1.3.14.3.2.26");
-
-    public String getDigestName(AlgorithmIdentifier alg) {
-        if (alg == null) {
-            return null;
-        } else if (alg.getOID().equals(MD2)) {
-            return "MD2";
-        } else if (alg.getOID().equals(MD5)) {
-            return "MD5";
-        } else if (alg.getOID().equals(SHA1)) {
-            return "SHA1"; // 1.3.14.3.2.26
-        } else {
-            return null;
-        }
-    }
-
     /**
      * Retrieves the name of this OCSP server.
      */

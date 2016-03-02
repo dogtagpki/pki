@@ -20,11 +20,13 @@ package com.netscape.cmsutil.ocsp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 
 import org.mozilla.jss.asn1.ASN1Template;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
+import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.Tag;
@@ -151,5 +153,22 @@ public class CertID implements ASN1Value {
                     (OCTET_STRING) seq.elementAt(2),
                     (INTEGER) seq.elementAt(3));
         }
+    }
+
+
+    private static HashMap<OBJECT_IDENTIFIER, String> digestNames = new HashMap<>();
+
+    static {
+        digestNames.put(new OBJECT_IDENTIFIER("1.2.840.113549.2.2"), "MD2");
+        digestNames.put(new OBJECT_IDENTIFIER("1.2.840.113549.2.5"), "MD5");
+        digestNames.put(new OBJECT_IDENTIFIER("1.3.14.3.2.26"), "SHA-1");
+        digestNames.put(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.2.4"), "SHA-224");
+        digestNames.put(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.2.1"), "SHA-256");
+        digestNames.put(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.2.2"), "SHA-384");
+        digestNames.put(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.2.3"), "SHA-512");
+    }
+
+    public String getDigestName() {
+        return digestNames.get(hashAlgorithm.getOID());
     }
 }

@@ -144,15 +144,6 @@ public interface IOCSPAuthority extends ISubsystem {
     public X500Name getName();
 
     /**
-     * This method retrieves an OCSP server instance digest name as a string.
-     * <P>
-     *
-     * @param alg the signing algorithm
-     * @return String the digest name of the related OCSP server
-     */
-    public String getDigestName(AlgorithmIdentifier alg);
-
-    /**
      * This method signs the basic OCSP response data provided as a parameter.
      * <P>
      *
