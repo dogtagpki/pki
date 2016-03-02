@@ -21,6 +21,8 @@ import sphinx
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# Sphinx 1.1 has only sphinx.__version__ string
+SPHINX_VERSION = tuple(int(v) for v in sphinx.__version__.split('.')[:2])
 
 # -- General configuration -----------------------------------------------
 
@@ -95,7 +97,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-if sphinx.version_info < (1, 3):
+if SPHINX_VERSION < (1, 3):
     html_theme = 'default'
 else:
     html_theme = 'classic'
