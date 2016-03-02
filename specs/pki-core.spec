@@ -271,8 +271,6 @@ Obsoletes:        pki-common < %{version}-%{release}
 Obsoletes:        pki-util < %{version}-%{release}
 
 Conflicts:        freeipa-server < 3.0.0
-Requires:         python-ldap
-Requires:         python-lxml
 Requires:         python-nss
 Requires:         python-requests >= 1.1.0-3
 Requires:         python-six
@@ -406,6 +404,8 @@ Requires:         openldap-clients
 Requires:         pki-base = %{version}-%{release}
 Requires:         pki-base-java = %{version}-%{release}
 Requires:         pki-tools = %{version}-%{release}
+Requires:         python-ldap
+Requires:         python-lxml
 Requires:         policycoreutils-python
 %if 0%{?fedora} >= 23
 Requires:         policycoreutils-python-utils
