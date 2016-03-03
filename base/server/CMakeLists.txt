@@ -37,7 +37,7 @@ install(
     DIRECTORY
         python/pki/server
     DESTINATION
-        ${PYTHON_SITE_PACKAGES}/pki/server
+        ${PYTHON_SITE_PACKAGES}/pki
     FILES_MATCHING PATTERN
         *.py
 )
