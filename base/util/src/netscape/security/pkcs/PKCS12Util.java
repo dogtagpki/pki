@@ -254,7 +254,7 @@ public class PKCS12Util {
         loadCertChainFromNSS(pkcs12, cert);
     }
 
-    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger keyID) throws Exception {
+    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger keyID, boolean replace) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading certificate \"" + nickname + "\" from NSS database");
@@ -264,7 +264,7 @@ public class PKCS12Util {
         certInfo.nickname = nickname;
         certInfo.cert = new X509CertImpl(cert.getEncoded());
         certInfo.trustFlags = getTrustFlags(cert);
-        pkcs12.addCertInfo(certInfo);
+        pkcs12.addCertInfo(certInfo, replace);
     }
 
     public void loadCertKeyFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger keyID) throws Exception {
@@ -300,14 +300,14 @@ public class PKCS12Util {
         BigInteger keyID = createLocalKeyID(cert);
 
         // load cert with key
-        loadCertFromNSS(pkcs12, cert, keyID);
+        loadCertFromNSS(pkcs12, cert, keyID, true);
         loadCertKeyFromNSS(pkcs12, cert, keyID);
 
         // load parent certs without key
         X509Certificate[] certChain = cm.buildCertificateChain(cert);
         for (int i = 1; i < certChain.length; i++) {
             X509Certificate c = certChain[i];
-            loadCertFromNSS(pkcs12, c, null);
+            loadCertFromNSS(pkcs12, c, null, false);
         }
     }
 
@@ -488,7 +488,7 @@ public class PKCS12Util {
                 if (!oid.equals(SafeBag.CERT_BAG)) continue;
 
                 PKCS12CertInfo certInfo = getCertInfo(bag);
-                pkcs12.addCertInfo(certInfo);
+                pkcs12.addCertInfo(certInfo, true);
             }
         }
     }
