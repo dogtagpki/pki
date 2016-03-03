@@ -166,8 +166,12 @@ public class PKCS12 {
         return certInfosByNickname.values();
     }
 
-    public void addCertInfo(PKCS12CertInfo certInfo) {
-        certInfosByNickname.put(certInfo.nickname, certInfo);
+    public void addCertInfo(PKCS12CertInfo certInfo, boolean replace) {
+        String nickname = certInfo.nickname;
+        if (!replace && certInfosByNickname.containsKey(nickname))
+            return;
+
+        certInfosByNickname.put(nickname, certInfo);
     }
 
     public PKCS12CertInfo getCertInfoByNickname(String nickname) {
