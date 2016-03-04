@@ -2,7 +2,7 @@
 %{!?__python2: %global __python2 /usr/bin/python2}
 %{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 
-%if 0%{?rhel}
+%if 0%{?rhel} || 0%{?fedora} < 24
 %global with_python3 0
 %else
 %global with_python3 1
