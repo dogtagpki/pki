@@ -110,7 +110,8 @@ class PKISubsystem(object):
                 self.instance < other.instance or
                 self_type < other_type)
 
-    __hash__ = None
+    def __hash__(self):
+        return hash((self.name, self.instance, self.type))
 
     def load(self):
         self.config.clear()
@@ -393,7 +394,8 @@ class PKIInstance(object):
         return (self.name < other.name or
                 self.type < other.type)
 
-    __hash__ = None
+    def __hash__(self):
+        return hash((self.name, self.type))
 
     def is_valid(self):
         return os.path.exists(self.conf_dir)
