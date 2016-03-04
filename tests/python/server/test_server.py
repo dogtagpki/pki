@@ -36,8 +36,12 @@ class PKIServerTests(unittest.TestCase):
         self.assertFalse(ca != ca)
         self.assertFalse(ca == ca9)
         self.assertTrue(ca != ca9)
-        with self.assertRaises(TypeError):
-            hash(ca)
+        d = {ca: 1, ca9: 2}
+        self.assertEqual(sorted(d), [ca9, ca])
+        d.pop(ca9)
+        self.assertEqual(sorted(d), [ca])
+        self.assertIn(ca, d)
+        self.assertNotIn(ca9, d)
 
     def test_subsystem(self):
         ca = PKIInstance('ca')
@@ -53,8 +57,11 @@ class PKIServerTests(unittest.TestCase):
         self.assertTrue(casub != krasub)
         self.assertFalse(ca == casub)
         self.assertTrue(ca != casub)
-        with self.assertRaises(TypeError):
-            hash(casub)
+        d = {casub: 1, krasub: 2}
+        self.assertEqual(sorted(d), [casub, krasub])
+        self.assertIn(casub, d)
+        d.pop(casub)
+        self.assertNotIn(casub, d)
 
 
 if __name__ == '__main__':
