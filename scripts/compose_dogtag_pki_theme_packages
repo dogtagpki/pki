@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 DOGTAG_PKI_THEME="dogtag-pki-theme"
-DOGTAG_PKI_THEME_VERSION="10.3.0"
+DOGTAG_PKI_THEME_VERSION="10.3.0.a1"
 
 
 ##

@@ -42,8 +42,8 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.3.0
-Release:          0.5%{?dist}
+Version:          10.3.0.a1
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -163,6 +163,13 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
+
+# Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
+#
+#     NOTE:  For "alpha" releases, will be ".a1", ".a2", etc.
+#            For "beta" releases, will be ".b1", ".b2", etc.
+#
+%define version_phase "%(echo `echo %{version} | awk -F. '{ print $4 }'`)"
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -723,6 +730,9 @@ cd build
 	-DBUILD_PKI_CORE:BOOL=ON \
 	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
 	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+%if %{version_phase}
+	-DAPPLICATION_VERSION_PHASE="%{version_phase}" \
+%endif
 %if ! %{with_tomcat7}
 	-DWITH_TOMCAT7:BOOL=OFF \
 %endif
@@ -1095,6 +1105,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Fri Mar  4 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a1-1
+- Build for F24 alpha
+
 * Tue Mar 1 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0-0.5
 - PKI Trac Ticket #1399 - Move java components out of pki-base
 

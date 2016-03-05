@@ -62,6 +62,17 @@ if(NOT (${Javadoc_VERSION_MINOR} LESS 8))
     set(doclintstr "-Xdoclint:none")
 endif(NOT (${Javadoc_VERSION_MINOR} LESS 8))
 
+# NOTE:  The following should generally be set to "".
+#
+#        For "alpha" releases, it will be set to ".a1", ".a2", etc.
+#        For "beta" releases, it will be set to ".b1", ".b2", etc.
+#
+if (NOT DEFINED APPLICATION_VERSION_PHASE)
+    set(JAVADOC_APPLICATION_VERSION ${APPLICATION_VERSION})
+else (NOT DEFINED APPLICATION_VERSION_PHASE)
+    set(JAVADOC_APPLICATION_VERSION ${APPLICATION_VERSION}.${APPLICATION_VERSION_PHASE})
+endif(NOT DEFINED APPLICATION_VERSION_PHASE)
+
 javadoc(pki-javadoc
     SOURCEPATH
         ${CMAKE_SOURCE_DIR}/base/util/src
@@ -69,7 +80,7 @@ javadoc(pki-javadoc
         ${CMAKE_SOURCE_DIR}/base/java-tools/src
         ${CMAKE_SOURCE_DIR}/base/server/cms/src
     DEST
-        ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${APPLICATION_VERSION}
+        ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${JAVADOC_APPLICATION_VERSION}
     SUBPACKAGES
         com.netscape.certsrv
         com.netscape.cms
@@ -100,7 +111,7 @@ javadoc(pki-javadoc
 
 install(
     DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${APPLICATION_VERSION}
+        ${CMAKE_CURRENT_BINARY_DIR}/javadoc/pki-${JAVADOC_APPLICATION_VERSION}
     DESTINATION
         ${CMAKE_INSTALL_PREFIX}/share/javadoc
 )
