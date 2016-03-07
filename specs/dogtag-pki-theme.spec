@@ -141,16 +141,9 @@ cd build
 
 
 # NOTE:  Several "theme" packages require ownership of the "/usr/share/pki"
-#        directory because the PKI subsystems (CA, DRM, OCSP, TKS, RA, TPS)
+#        directory because the PKI subsystems (CA, KRA, OCSP, TKS, TPS)
 #        which require them may be installed either independently or in
 #        multiple combinations.
-#
-#        Since CA, DRM, OCSP, and TKS subsystems all require the
-#        "dogtag-pki-common-theme" as well as their individual "themes",
-#        only "dogtag-pki-common-theme" needs to require this directory.
-#
-#        However, RA and TPS subsystems still require their own individual
-#        ownership of this directory.
 
 %files -n dogtag-pki-server-theme
 %defattr(-,root,root,-)

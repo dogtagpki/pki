@@ -34,14 +34,6 @@ Requires:         pki-symkey >= %{pki_core_version}
 Requires:         pki-base >= %{pki_core_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
-# of ALL top-level Dogtag PKI support javadocs
-Requires:         jss-javadoc >= %{jss_version}
-
-# Make certain that this 'meta' package requires the latest version(s)
-# of ALL Dogtag PKI core javadocs
-Requires:         pki-javadoc >= %{pki_core_version}
-
-# Make certain that this 'meta' package requires the latest version(s)
 # of Dogtag PKI console
 Requires:         pki-console >= %{pki_console_version}
 
@@ -54,23 +46,26 @@ The Dogtag Public Key Infrastructure (PKI) Suite is comprised of the following
 five subsystems and a client (for use by a Token Management System):
 
   * Certificate Authority (CA)
-  * Data Recovery Manager (DRM)
+  * Key Recovery Authority (KRA)
   * Online Certificate Status Protocol (OCSP) Manager
   * Token Key Service (TKS)
   * Token Processing System (TPS)
   * Enterprise Security Client (ESC)
 
 Additionally, it provides a console GUI application used for server and
-user/group administration of CA, DRM, OCSP, and TKS, javadocs on portions
-of the Dogtag API, as well as various command-line tools used to assist with
-a PKI deployment.
+user/group administration of CA, KRA, OCSP, and TKS, as well as various
+command-line tools used to assist with a PKI deployment.
 
-To successfully deploy instances of a CA, DRM, OCSP, TKS, or TPS,
+To successfully deploy instances of a CA, KRA, OCSP, TKS, or TPS,
 a Tomcat Web Server must be up and running locally on this machine.
 
-To meet the database storage requirements of each CA, DRM, OCSP, TKS, or TPS
+To meet the database storage requirements of each CA, KRA, OCSP, TKS, or TPS
 instance, a 389 Directory Server must be up and running either locally on
 this machine, or remotely over the attached network connection.
+
+Finally, although they are no longer supplied by this 'meta' package,
+javadocs are available for both JSS (jss-javadoc) and portions of
+the Dogtag API (pki-javadoc).
 
 NOTE:  As a convenience for standalone deployments, this 'dogtag-pki'
        top-level meta package supplies Dogtag themes for use by the

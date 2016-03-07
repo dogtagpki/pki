@@ -216,7 +216,7 @@ PKI Core contains ALL top-level java-based Tomcat PKI components:      \
 which comprise the following corresponding PKI subsystems:             \
                                                                        \
   * Certificate Authority (CA)                                         \
-  * Data Recovery Manager (DRM)                                        \
+  * Key Recovery Authority (KRA)                                        \
   * Online Certificate Status Protocol (OCSP) Manager                  \
   * Token Key Service (TKS)                                            \
   * Token Processing Service (TPS)                                     \
@@ -500,7 +500,7 @@ Requires:         tomcatjss >= 7.1.2
 The PKI Server Framework is required by the following four PKI subsystems:
 
     the Certificate Authority (CA),
-    the Data Recovery Manager (DRM),
+    the Key Recovery Authority (KRA),
     the Online Certificate Status Protocol (OCSP) Manager,
     the Token Key Service (TKS), and
     the Token Processing Service (TPS).
@@ -538,7 +538,7 @@ provided by the PKI Core used by the Certificate System.
 
 
 %package -n       pki-kra
-Summary:          Certificate System - Data Recovery Manager
+Summary:          Certificate System - Key Recovery Authority
 Group:            System Environment/Daemons
 
 BuildArch:        noarch
@@ -550,18 +550,18 @@ Requires(preun):  systemd-units
 Requires(postun): systemd-units
 
 %description -n   pki-kra
-The Data Recovery Manager (DRM) is an optional PKI subsystem that can act
-as a Key Recovery Authority (KRA).  When configured in conjunction with the
-Certificate Authority (CA), the DRM stores private encryption keys as part of
+The Key Recovery Authority (KRA) is an optional PKI subsystem that can act
+as a key archival facility.  When configured in conjunction with the
+Certificate Authority (CA), the KRA stores private encryption keys as part of
 the certificate enrollment process.  The key archival mechanism is triggered
 when a user enrolls in the PKI and creates the certificate request.  Using the
 Certificate Request Message Format (CRMF) request format, a request is
 generated for the user's private encryption key.  This key is then stored in
-the DRM which is configured to store keys in an encrypted format that can only
+the KRA which is configured to store keys in an encrypted format that can only
 be decrypted by several agents requesting the key at one time, providing for
 protection of the public encryption keys for the users in the PKI deployment.
 
-Note that the DRM archives encryption keys; it does NOT archive signing keys,
+Note that the KRA archives encryption keys; it does NOT archive signing keys,
 since such archival would undermine non-repudiation properties of signing keys.
 
 This package is one of the top-level java-based Tomcat PKI subsystems
@@ -678,7 +678,7 @@ TPS is designed to communicate with tokens that conform to
 Global Platform's Open Platform Specification.
 
 TPS communicates over SSL with various PKI backend subsystems (including
-the Certificate Authority (CA), the Data Recovery Manager (DRM), and the
+the Certificate Authority (CA), the Key Recovery Authority (KRA), and the
 Token Key Service (TKS)) to fulfill the user's requests.
 
 TPS also interacts with the token database, an LDAP server that stores

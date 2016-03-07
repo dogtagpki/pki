@@ -49,8 +49,8 @@ The PKI Console is a java application used to administer CS.
 For deployment purposes, a PKI Console requires ONE AND ONLY ONE of the
 following "Mutually-Exclusive" PKI Theme packages:
 
-  * dogtag-pki-theme (Dogtag Certificate System deployments)
-  * redhat-pki-theme (Red Hat Certificate System deployments)
+  * dogtag-pki-console-theme (Dogtag Certificate System deployments)
+  * redhat-pki-console-theme (Red Hat Certificate System deployments)
 
 
 %prep
