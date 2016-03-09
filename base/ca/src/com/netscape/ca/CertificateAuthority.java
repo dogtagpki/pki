@@ -43,7 +43,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -128,6 +130,8 @@ import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.KeyCertUtil;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.ldap.LDAPPostReadControl;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -148,11 +152,18 @@ import com.netscape.cmsutil.ocsp.UnknownInfo;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPConstraints;
+import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.controls.LDAPEntryChangeControl;
+import netscape.ldap.controls.LDAPPersistSearchControl;
+import netscape.ldap.util.DN;
+
 import netscape.security.pkcs.PKCS10;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
@@ -178,7 +189,8 @@ import netscape.security.x509.X509Key;
  * @author lhsiao
  * @version $Revision$, $Date$
  */
-public class CertificateAuthority implements ICertificateAuthority, ICertAuthority, IOCSPService {
+public class CertificateAuthority
+        implements ICertificateAuthority, ICertAuthority, IOCSPService, Runnable {
     public static final String OFFICIAL_NAME = "Certificate Manager";
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
@@ -292,7 +304,26 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     private boolean mUseNonces = true;
     private int mMaxNonces = 100;
 
+    /* Variables to manage loading and tracking of lightweight CAs
+     *
+     * The initialLoadDone latch causes the host authority's 'init'
+     * method to block until the monitor thread has finished the
+     * initial loading of lightweight CAs.
+     *
+     * In other words: the "server startup" cannot complete until
+     * all the lightweight CAs that exist at start time are loaded.
+     */
+    private static boolean stopped = false;
     private static boolean foundHostAuthority = false;
+    private static Integer initialNumAuthorities = null;
+    private static int numAuthoritiesLoaded = 0;
+    private static CountDownLatch initialLoadDone = new CountDownLatch(1);
+
+    /* Maps and sets of entryUSNs and nsUniqueIds for avoiding race
+     * conditions and unnecessary reloads related to replication */
+    private static TreeMap<AuthorityID,Integer> entryUSNs = new TreeMap<>();
+    private static TreeMap<AuthorityID,String> nsUniqueIds = new TreeMap<>();
+    private static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     /**
      * Constructs a CA subsystem.
@@ -517,7 +548,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             initCRL();
 
             if (isHostAuthority() && haveLightweightCAsContainer()) {
-                loadLightweightCAs();
+                new Thread(this, "authorityMonitor").start();
+                try {
+                    initialLoadDone.await();
+                } catch (InterruptedException e) {
+                    CMS.debug("CertificateAuthority: caught InterruptedException "
+                            + "while waiting for initial load of authorities.");
+                }
 
                 if (!foundHostAuthority) {
                     CMS.debug("loadLightweightCAs: no entry for host authority");
@@ -737,6 +774,22 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
         if (mPublisherProcessor != null) {
             mPublisherProcessor.shutdown();
+        }
+
+        /* Stop the activityMonitor thread
+         *
+         * dbFactory.reset() will disconnect all connections,
+         * causing the current conn.search() to throw.
+         * The search will not be restarted because 'stopped' has
+         * set, and the monitor thread will exit.
+         */
+        stopped = true;
+        try {
+            dbFactory.reset();
+        } catch (ELdapException e) {
+            CMS.debug("CertificateAuthority.shutdown: failed to reset "
+                    + "dbFactory: " + e);
+            // not much else we can do here.
         }
     }
 
@@ -2004,89 +2057,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         log(ILogger.LL_INFO, "CRL Issuing Points inited");
     }
 
-    /**
-     * Find, instantiate and register lightweight CAs.
-     *
-     * This method must only be called by the host CA.
-     */
-    private void loadLightweightCAs() throws EBaseException {
-        LDAPConnection conn = dbFactory.getConn();
-
-        LDAPSearchResults results = null;
-        try {
-            results = conn.search(
-                authorityBaseDN(), LDAPConnection.SCOPE_ONE,
-                "(objectclass=authority)", null, false);
-
-            while (results.hasMoreElements()) {
-                LDAPEntry entry = results.next();
-                LDAPAttribute aidAttr = entry.getAttribute("authorityID");
-                LDAPAttribute nickAttr = entry.getAttribute("authorityKeyNickname");
-                LDAPAttribute dnAttr = entry.getAttribute("authorityDN");
-                LDAPAttribute parentAIDAttr = entry.getAttribute("authorityParentID");
-                LDAPAttribute parentDNAttr = entry.getAttribute("authorityParentDN");
-
-                if (aidAttr == null || nickAttr == null || dnAttr == null)
-                    throw new ECAException("Malformed authority object; required attribute(s) missing: " + entry.getDN());
-
-                AuthorityID aid = new AuthorityID((String)
-                    aidAttr.getStringValues().nextElement());
-
-                X500Name dn = null;
-                try {
-                    dn = new X500Name((String) dnAttr.getStringValues().nextElement());
-                } catch (IOException e) {
-                    throw new ECAException("Malformed authority object; invalid authorityDN: " + entry.getDN());
-                }
-
-                String desc = null;
-                LDAPAttribute descAttr = entry.getAttribute("description");
-                if (descAttr != null)
-                    desc = (String) descAttr.getStringValues().nextElement();
-
-                if (dn.equals(mName)) {
-                    foundHostAuthority = true;
-                    this.authorityID = aid;
-                    this.authorityDescription = desc;
-                    caMap.put(aid, this);
-                    continue;
-                }
-
-                @SuppressWarnings("unused")
-                X500Name parentDN = null;
-                if (parentDNAttr != null) {
-                    try {
-                        parentDN = new X500Name((String) parentDNAttr.getStringValues().nextElement());
-                    } catch (IOException e) {
-                        throw new ECAException("Malformed authority object; invalid authorityParentDN: " + entry.getDN());
-                    }
-                }
-
-                String keyNick = (String) nickAttr.getStringValues().nextElement();
-                AuthorityID parentAID = null;
-                if (parentAIDAttr != null)
-                    parentAID = new AuthorityID((String)
-                        parentAIDAttr.getStringValues().nextElement());
-
-                boolean enabled = true;
-                LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
-                if (enabledAttr != null) {
-                    String enabledString = (String)
-                        enabledAttr.getStringValues().nextElement();
-                    enabled = enabledString.equalsIgnoreCase("TRUE");
-                }
-
-                CertificateAuthority ca = new CertificateAuthority(
-                    this, aid, parentAID, keyNick, desc, enabled);
-                caMap.put(aid, ca);
-            }
-        } catch (LDAPException e) {
-            throw new ECAException("Failed to execute LDAP search for lightweight CAs: " + e);
-        } finally {
-            dbFactory.returnConn(conn);
-        }
-    }
-
     public String getOfficialName() {
         return OFFICIAL_NAME;
     }
@@ -2677,15 +2647,18 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     private void addAuthorityEntry(AuthorityID aid, LDAPEntry entry)
             throws ELdapException {
+        LDAPControl[] responseControls;
         LDAPConnection conn = dbFactory.getConn();
         synchronized (hostCA) {
             try {
-                conn.add(entry);
+                conn.add(entry, getCommitConstraints());
+                responseControls = conn.getResponseControls();
             } catch (LDAPException e) {
                 throw new ELdapException("addAuthorityEntry: failed to add entry", e);
             } finally {
                 dbFactory.returnConn(conn);
             }
+            postCommit(aid, responseControls);
         }
     }
 
@@ -2695,15 +2668,49 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     private void modifyAuthorityEntry(LDAPModificationSet mods)
             throws ELdapException {
         String dn = "cn=" + authorityID.toString() + "," + authorityBaseDN();
+        LDAPControl[] responseControls;
         LDAPConnection conn = dbFactory.getConn();
         synchronized (hostCA) {
             try {
-                conn.modify(dn, mods);
+                conn.modify(dn, mods, getCommitConstraints());
+                responseControls = conn.getResponseControls();
             } catch (LDAPException e) {
                 throw new ELdapException("modifyAuthorityEntry: failed to modify entry", e);
             } finally {
                 dbFactory.returnConn(conn);
             }
+            postCommit(authorityID, responseControls);
+        }
+    }
+
+    private LDAPConstraints getCommitConstraints() {
+        String[] attrs = {"entryUSN", "nsUniqueId"};
+        LDAPConstraints cons = new LDAPConstraints();
+        LDAPPostReadControl control = new LDAPPostReadControl(true, attrs);
+        cons.setServerControls(control);
+        return cons;
+    }
+
+    /**
+     * Post-commit processing of authority to track its entryUSN and nsUniqueId
+     */
+    private void postCommit(AuthorityID aid, LDAPControl[] responseControls) {
+        LDAPPostReadControl control = (LDAPPostReadControl)
+            LDAPUtil.getControl(LDAPPostReadControl.class, responseControls);
+        LDAPEntry entry = control.getEntry();
+
+        LDAPAttribute attr = entry.getAttribute("entryUSN");
+        if (attr != null) {
+            Integer entryUSN = new Integer(attr.getStringValueArray()[0]);
+            entryUSNs.put(aid, entryUSN);
+            CMS.debug("postCommit: new entryUSN = " + entryUSN);
+        }
+
+        attr = entry.getAttribute("nsUniqueId");
+        if (attr != null) {
+            String nsUniqueId = attr.getStringValueArray()[0];
+            nsUniqueIds.put(aid, nsUniqueId);
+            CMS.debug("postCommit: nsUniqueId = " + nsUniqueId);
         }
     }
 
@@ -2832,12 +2839,260 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 dbFactory.returnConn(conn);
             }
 
+            String nsUniqueId = nsUniqueIds.get(aid);
+            if (nsUniqueId != null)
+                deletedNsUniqueIds.add(nsUniqueId);
+            forgetAuthority(aid);
+        }
+    }
+
+    private void checkInitialLoadDone() {
+        if (initialNumAuthorities != null
+                && numAuthoritiesLoaded >= initialNumAuthorities)
+            initialLoadDone.countDown();
+    }
+
+    public void run() {
+        int op = LDAPPersistSearchControl.ADD
+            | LDAPPersistSearchControl.MODIFY
+            | LDAPPersistSearchControl.DELETE
+            | LDAPPersistSearchControl.MODDN;
+        LDAPPersistSearchControl persistCtrl =
+            new LDAPPersistSearchControl(op, false, true, true);
+
+        CMS.debug("authorityMonitor: starting.");
+
+        while (!stopped) {
+            LDAPConnection conn = null;
+            try {
+                conn = dbFactory.getConn();
+                LDAPSearchConstraints cons = conn.getSearchConstraints();
+                cons.setServerControls(persistCtrl);
+                cons.setBatchSize(1);
+                cons.setServerTimeLimit(0 /* seconds */);
+                String[] attrs = {"*", "entryUSN", "nsUniqueId", "numSubordinates"};
+                LDAPSearchResults results = conn.search(
+                    authorityBaseDN(), LDAPConnection.SCOPE_SUB,
+                    "(objectclass=*)", attrs, false, cons);
+                while (!stopped && results.hasMoreElements()) {
+                    LDAPEntry entry = results.next();
+
+                    /* This behaviour requires detailed explanation.
+                     *
+                     * We want to block startup until all the
+                     * lightweight CAs existing at startup time are
+                     * loaded.  To do this, we need to know how many
+                     * authority entries there are.  And we must do
+                     * this atomically - we cannot issue two LDAP
+                     * searches in case things change.
+                     *
+                     * Therefore, we do a subtree search from the
+                     * authority container.  When we find the
+                     * container (objectClass=organizationalUnit),
+                     * we set initialNumAuthorities to the value of
+                     * its numSubordinates attribute.
+                     *
+                     * We increment numAuthoritiesLoaded for each
+                     * authority entry.  When numAuthoritiesLoaded
+                     * equals initialNumAuthorities, we unlock the
+                     * initialLoadDone latch.
+                     */
+                    String[] objectClasses =
+                        entry.getAttribute("objectClass").getStringValueArray();
+                    if (Arrays.asList(objectClasses).contains("organizationalUnit")) {
+                        initialNumAuthorities = new Integer(
+                            entry.getAttribute("numSubordinates")
+                                .getStringValueArray()[0]);
+                        checkInitialLoadDone();
+                        continue;
+                    }
+
+                    LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)
+                        LDAPUtil.getControl(
+                            LDAPEntryChangeControl.class, results.getResponseControls());
+                    CMS.debug("authorityMonitor: Processed change controls.");
+                    if (changeControl != null) {
+                        int changeType = changeControl.getChangeType();
+                        switch (changeType) {
+                        case LDAPPersistSearchControl.ADD:
+                            CMS.debug("authorityMonitor: ADD");
+                            readAuthority(entry);
+                            // TODO kick off signing key replication via custodia
+                            break;
+                        case LDAPPersistSearchControl.DELETE:
+                            CMS.debug("authorityMonitor: DELETE");
+                            handleDELETE(entry);
+                            break;
+                        case LDAPPersistSearchControl.MODIFY:
+                            CMS.debug("authorityMonitor: MODIFY");
+                            // TODO how do we handle authorityID change?
+                            readAuthority(entry);
+                            break;
+                        case LDAPPersistSearchControl.MODDN:
+                            CMS.debug("authorityMonitor: MODDN");
+                            handleMODDN(new DN(changeControl.getPreviousDN()), entry);
+                            break;
+                        default:
+                            CMS.debug("authorityMonitor: unknown change type: " + changeType);
+                            break;
+                        }
+                    } else {
+                        CMS.debug("authorityMonitor: immediate result");
+                        readAuthority(entry);
+                        numAuthoritiesLoaded += 1;
+                        checkInitialLoadDone();
+                    }
+                }
+            } catch (ELdapException e) {
+                CMS.debug("authorityMonitor: failed to get LDAPConnection. Retrying in 1 second.");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+            } catch (LDAPException e) {
+                CMS.debug("authorityMonitor: Failed to execute LDAP search for lightweight CAs: " + e);
+            } finally {
+                try {
+                    dbFactory.returnConn(conn);
+                } catch (Exception e) {
+                    CMS.debug("authorityMonitor: Error releasing the LDAPConnection" + e.toString());
+                }
+            }
+        }
+        CMS.debug("authorityMonitor: stopping.");
+    }
+
+    private synchronized void readAuthority(LDAPEntry entry) {
+        String nsUniqueId =
+            entry.getAttribute("nsUniqueId").getStringValueArray()[0];
+        if (deletedNsUniqueIds.contains(nsUniqueId)) {
+            CMS.debug("readAuthority: ignoring entry with nsUniqueId '"
+                    + nsUniqueId + "' due to deletion");
+            return;
+        }
+
+        LDAPAttribute aidAttr = entry.getAttribute("authorityID");
+        LDAPAttribute nickAttr = entry.getAttribute("authorityKeyNickname");
+        LDAPAttribute dnAttr = entry.getAttribute("authorityDN");
+        LDAPAttribute parentAIDAttr = entry.getAttribute("authorityParentID");
+        LDAPAttribute parentDNAttr = entry.getAttribute("authorityParentDN");
+
+        if (aidAttr == null || nickAttr == null || dnAttr == null) {
+            CMS.debug("Malformed authority object; required attribute(s) missing: " + entry.getDN());
+            return;
+        }
+
+        AuthorityID aid = new AuthorityID((String)
+            aidAttr.getStringValues().nextElement());
+
+        Integer newEntryUSN = new Integer(
+            entry.getAttribute("entryUSN").getStringValueArray()[0]);
+        CMS.debug("readAuthority: new entryUSN = " + newEntryUSN);
+        Integer knownEntryUSN = entryUSNs.get(aid);
+        if (knownEntryUSN != null) {
+            CMS.debug("readAuthority: known entryUSN = " + knownEntryUSN);
+            if (newEntryUSN <= knownEntryUSN) {
+                CMS.debug("readAuthority: data is current");
+                return;
+            }
+        }
+
+        X500Name dn = null;
+        try {
+            dn = new X500Name((String) dnAttr.getStringValues().nextElement());
+        } catch (IOException e) {
+            CMS.debug("Malformed authority object; invalid authorityDN: " + entry.getDN());
+        }
+
+        String desc = null;
+        LDAPAttribute descAttr = entry.getAttribute("description");
+        if (descAttr != null)
+            desc = (String) descAttr.getStringValues().nextElement();
+
+        if (dn.equals(mName)) {
+            foundHostAuthority = true;
+            this.authorityID = aid;
+            this.authorityDescription = desc;
+            caMap.put(aid, this);
+            return;
+        }
+
+        @SuppressWarnings("unused")
+        X500Name parentDN = null;
+        if (parentDNAttr != null) {
+            try {
+                parentDN = new X500Name((String) parentDNAttr.getStringValues().nextElement());
+            } catch (IOException e) {
+                CMS.debug("Malformed authority object; invalid authorityParentDN: " + entry.getDN());
+                return;
+            }
+        }
+
+        String keyNick = (String) nickAttr.getStringValues().nextElement();
+        AuthorityID parentAID = null;
+        if (parentAIDAttr != null)
+            parentAID = new AuthorityID((String)
+                parentAIDAttr.getStringValues().nextElement());
+
+        boolean enabled = true;
+        LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
+        if (enabledAttr != null) {
+            String enabledString = (String)
+                enabledAttr.getStringValues().nextElement();
+            enabled = enabledString.equalsIgnoreCase("TRUE");
+        }
+
+        try {
+            CertificateAuthority ca = new CertificateAuthority(
+                hostCA, aid, parentAID, keyNick, desc, enabled);
+            caMap.put(aid, ca);
+            entryUSNs.put(aid, newEntryUSN);
+            nsUniqueIds.put(aid, nsUniqueId);
+        } catch (EBaseException e) {
+            CMS.debug("Error initialising lightweight CA: " + e);
+        }
+    }
+
+    private synchronized void handleDELETE(LDAPEntry entry) {
+        LDAPAttribute attr = entry.getAttribute("nsUniqueId");
+        String nsUniqueId = null;
+        if (attr != null)
+            nsUniqueId = attr.getStringValueArray()[0];
+
+        if (deletedNsUniqueIds.remove(nsUniqueId)) {
+            CMS.debug("handleDELETE: delete was already effected");
+            return;
+        }
+
+        AuthorityID aid = null;
+        attr = entry.getAttribute("authorityID");
+        if (attr != null) {
+            aid = new AuthorityID((String) attr.getStringValueArray()[0]);
             forgetAuthority(aid);
         }
     }
 
     private void forgetAuthority(AuthorityID aid) {
         caMap.remove(aid);
+        entryUSNs.remove(aid);
+        nsUniqueIds.remove(aid);
+    }
+
+    private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) {
+        DN authorityBase = new DN(authorityBaseDN());
+
+        boolean wasMonitored = oldDN.isDescendantOf(authorityBase);
+        boolean isMonitored = (new DN(entry.getDN())).isDescendantOf(authorityBase);
+        if (wasMonitored && !isMonitored) {
+            LDAPAttribute attr = entry.getAttribute("authorityID");
+            if (attr != null) {
+                AuthorityID aid = new AuthorityID(attr.getStringValueArray()[0]);
+                forgetAuthority(aid);
+            }
+        } else if (!wasMonitored && isMonitored) {
+            readAuthority(entry);
+        }
     }
 
 }
