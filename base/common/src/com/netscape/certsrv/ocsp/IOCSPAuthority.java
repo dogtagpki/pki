@@ -20,7 +20,6 @@ package com.netscape.certsrv.ocsp;
 import netscape.security.x509.X500Name;
 
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
