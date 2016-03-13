@@ -553,16 +553,6 @@ public class CertUtils {
         }
     }
 
-    public static String toMIME64(X509CertImpl cert) {
-        try {
-            return "-----BEGIN CERTIFICATE-----\n" +
-                    Utils.base64encode(cert.getEncoded()) +
-                    "-----END CERTIFICATE-----\n";
-        } catch (CertificateException e) {
-        }
-        return null;
-    }
-
     public static X509Certificate mapCert(String mime64)
             throws IOException {
         mime64 = stripCertBrackets(mime64.trim());

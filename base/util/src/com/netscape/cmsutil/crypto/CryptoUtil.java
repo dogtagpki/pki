@@ -455,20 +455,6 @@ public class CryptoUtil {
             }
         });
     }
-    /*
-     * encodes cert
-     */
-    // private static BASE64Encoder mEncoder = new BASE64Encoder();
-    public static String toMIME64(X509CertImpl cert) {
-        try {
-            return "-----BEGIN CERTIFICATE-----\n"
-                    //  + mEncoder.encodeBuffer(cert.getEncoded())
-                    + Utils.base64encode(cert.getEncoded())
-                    + "-----END CERTIFICATE-----\n";
-        } catch (Exception e) {
-        }
-        return null;
-    }
 
     public static boolean arraysEqual(byte[] bytes, byte[] ints) {
         if (bytes == null || ints == null) {
