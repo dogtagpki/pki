@@ -104,7 +104,6 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
     private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
-    private IConfigStore cs = CMS.getConfigStore().getSubStore("profile");
 
     private final static String LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL =
             "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
@@ -215,8 +214,6 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     @Override
     public Response retrieveProfile(String profileId) throws ProfileNotFoundException {
-        IProfile profile = getProfile(profileId);
-
         ProfileData data = null;
         try {
             data = createProfileData(profileId);
@@ -247,15 +244,7 @@ public class ProfileService extends PKIService implements ProfileResource {
 
 
     public ProfileData createProfileData(String profileId) throws EBaseException {
-
-        IProfile profile;
-
-        try {
-            profile = ps.getProfile(profileId);
-        } catch (EProfileException e) {
-            e.printStackTrace();
-            throw new ProfileNotFoundException(profileId);
-        }
+        IProfile profile = getProfile(profileId);
 
         ProfileData data = new ProfileData();
 

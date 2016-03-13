@@ -80,7 +80,6 @@ public class ProfileSubsystem
             if (info == null) {
                 throw new EBaseException("No plugins for type : profile, with id " + classid);
             }
-            String configPath = subStore.getString(PROP_CONFIG);
 
             CMS.debug("Start Profile Creation - " + id + " " + classid + " " + info.getClassName());
             createProfile(id, classid, info.getClassName(), false);
