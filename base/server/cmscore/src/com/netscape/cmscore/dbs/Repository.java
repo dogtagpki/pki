@@ -88,21 +88,6 @@ public abstract class Repository implements IRepository {
         mBaseDN = baseDN;
 
         BI_INCREMENT = new BigInteger(Integer.toString(increment));
-
-        /*
-        // register schema
-        IDBRegistry reg = db.getRegistry();
-        if (!reg.isObjectClassRegistered(RepositoryRecord.class.getName())) {
-            String repRecordOC[] = new String[2];
-            repRecordOC[0] = RepositorySchema.LDAP_OC_TOP;
-            repRecordOC[1] = RepositorySchema.LDAP_OC_REPOSITORY;
-            reg.registerObjectClass(RepositoryRecord.class.getName(), repRecordOC);
-        }
-        if (!reg.isAttributeRegistered(RepositoryRecord.ATTR_SERIALNO)) {
-            reg.registerAttribute(RepositoryRecord.ATTR_SERIALNO,
-                    new BigIntegerMapper(RepositorySchema.LDAP_ATTR_SERIALNO));
-        }
-        */
     }
 
     /**

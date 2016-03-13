@@ -460,9 +460,6 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
             throw new EDBException(CMS.getLogMessage("CMS_DBS_MISSING_OBJECT_CLASS"));
         }
 
-        // this generates way too many messages;
-        //CMS.debug("createObject: attrs " + attrs);
-
         attrs.remove("objectclass");
 
         // sort the object class values
