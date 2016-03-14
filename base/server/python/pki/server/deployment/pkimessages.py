@@ -70,7 +70,7 @@ PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 = \
 PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 = \
     "Directory '%s' is either missing or is NOT a directory!"
 PKI_DNS_DOMAIN_NOT_SET = \
-    "A valid DNS domain name MUST be established to use PKI services!"
+    "DNS domain name has not been set - using the hostname instead."
 PKI_FILE_ALREADY_EXISTS_1 = "File '%s' already exists!"
 PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 = \
     "File '%s' already exists BUT it is NOT a file!"
