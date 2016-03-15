@@ -40,8 +40,24 @@ public class TokenClient extends Client {
         resource = createProxy(TokenResource.class);
     }
 
-    public TokenCollection findTokens(String filter, Integer start, Integer size) {
-        Response response = resource.findTokens(filter, start, size);
+    public TokenCollection findTokens(
+            String filter,
+            String tokenID,
+            String userID,
+            String type,
+            String status,
+            Integer start,
+            Integer size) {
+
+        Response response = resource.findTokens(
+                filter,
+                tokenID,
+                userID,
+                type,
+                status,
+                start,
+                size);
+
         return client.getEntity(response, TokenCollection.class);
     }
 

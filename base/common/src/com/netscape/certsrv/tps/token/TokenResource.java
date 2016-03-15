@@ -45,6 +45,10 @@ public interface TokenResource {
     @ClientResponseType(entityType=TokenCollection.class)
     public Response findTokens(
             @QueryParam("filter") String filter,
+            @QueryParam("tokenID") String tokenID,
+            @QueryParam("userID") String userID,
+            @QueryParam("type") String type,
+            @QueryParam("status") String status,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 

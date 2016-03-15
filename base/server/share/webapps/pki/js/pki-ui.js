@@ -198,6 +198,7 @@ var Dialog = Backbone.View.extend({
 
         self.title = options.title;
         self.content = options.content;
+        self.entry = options.entry || {};
 
         // list of readonly fields
         // by default all fields are editable
@@ -499,10 +500,14 @@ var Table = Backbone.View.extend({
         var self = this;
 
         Table.__super__.initialize.call(self, options);
+
         self.entries = options.entries || [];
         self.columnMappings = options.columnMappings || {};
         self.mode = options.mode || "view";
         self.parent = options.parent;
+
+        self.searchFilter = "";
+        self.searchAttributes = {};
 
         self.addDialog = options.addDialog;
         self.editDialog = options.editDialog;
@@ -525,6 +530,9 @@ var Table = Backbone.View.extend({
         self.searchField = $("input[name='search']", self.thead);
         self.searchField.keypress(function(e) {
             if (e.which == 13) {
+
+                self.searchFilter = self.searchField.val();
+
                 // show the first page of search results
                 self.page = 1;
                 self.render();
@@ -634,11 +642,10 @@ var Table = Backbone.View.extend({
         var self = this;
 
         // perform manual filter
-        var filter = self.searchField.val();
         self.filteredEntries = [];
 
         _(self.entries).each(function(item, index) {
-            if (!self.matchesFilter(item, filter)) return;
+            if (!self.matchesFilter(item, self.searchFilter)) return;
             self.filteredEntries.push(item);
         });
 
@@ -792,11 +799,20 @@ var ModelTable = Table.extend({
         }
 
         // set query based on current page, page size, and filter
-        self.collection.query({
+        var params = {
             start: (self.page - 1) * self.pageSize,
-            size: self.pageSize,
-            filter: self.searchField.val()
-        });
+            size: self.pageSize
+        };
+
+        if (self.searchFilter != null) {
+            params["filter"] = self.searchFilter;
+        }
+
+        if (!_.isEmpty(self.searchAttributes)) {
+            _.extend(params, self.searchAttributes);
+        }
+
+        self.collection.query(params);
 
         // fetch data based on query
         self.collection.fetch({

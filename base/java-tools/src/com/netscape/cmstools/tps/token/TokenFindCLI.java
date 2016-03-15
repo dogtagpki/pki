@@ -48,7 +48,23 @@ public class TokenFindCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "start", true, "Page start");
+        Option option = new Option(null, "token", true, "Token ID");
+        option.setArgName("token ID");
+        options.addOption(option);
+
+        option = new Option(null, "user", true, "User ID");
+        option.setArgName("user ID");
+        options.addOption(option);
+
+        option = new Option(null, "type", true, "Token type");
+        option.setArgName("type");
+        options.addOption(option);
+
+        option = new Option(null, "status", true, "Token status");
+        option.setArgName("status");
+        options.addOption(option);
+
+        option = new Option(null, "start", true, "Page start");
         option.setArgName("start");
         options.addOption(option);
 
@@ -78,6 +94,10 @@ public class TokenFindCLI extends CLI {
 
         String[] cmdArgs = cmd.getArgs();
         String filter = cmdArgs.length > 0 ? cmdArgs[0] : null;
+        String tokenID = cmd.getOptionValue("token");
+        String userID = cmd.getOptionValue("user");
+        String type = cmd.getOptionValue("type");
+        String status = cmd.getOptionValue("status");
 
         String s = cmd.getOptionValue("start");
         Integer start = s == null ? null : Integer.valueOf(s);
@@ -85,7 +105,14 @@ public class TokenFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        TokenCollection result = tokenCLI.tokenClient.findTokens(filter, start, size);
+        TokenCollection result = tokenCLI.tokenClient.findTokens(
+                filter,
+                tokenID,
+                userID,
+                type,
+                status,
+                start,
+                size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

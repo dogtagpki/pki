@@ -19,6 +19,17 @@
  * @author Endi S. Dewata
  */
 
+// TODO: load labels from server
+var TokenStatus = {
+    UNINITIALIZED       : "Uninitialized",
+    ACTIVE              : "Active",
+    TEMP_LOST           : "Temporarily lost",
+    PERM_LOST           : "Permanently lost",
+    DAMAGED             : "Physically damaged",
+    TEMP_LOST_PERM_LOST : "Temporarily lost then permanently lost",
+    TERMINATED          : "Terminated"
+};
+
 var TokenModel = Model.extend({
     urlRoot: "/tps/rest/tokens",
     parseResponse: function(response) {
@@ -114,6 +125,34 @@ var TokenDialog = Dialog.extend({
             $('<option/>', {
                 text: nextState.label,
                 value: nextState.name
+            }).appendTo(select);
+        });
+    }
+});
+
+var TokenFilterDialog = Dialog.extend({
+    loadField: function(input) {
+        var self = this;
+
+        var name = input.attr("name");
+        if (name != "status") {
+            TokenFilterDialog.__super__.loadField.call(self, input);
+            return;
+        }
+
+        var select = input.empty();
+        var status = self.entry.status;
+
+        $('<option/>', {
+            text: "",
+            value: ""
+        }).appendTo(select);
+
+        _.each(TokenStatus, function(value, key) {
+            $('<option/>', {
+                value: key,
+                text: value,
+                selected: key == status
             }).appendTo(select);
         });
     }
@@ -314,11 +353,40 @@ var TokensPage = Page.extend({
     load: function() {
         var self = this;
 
+        self.tokensTable = self.$("table[name='tokens']");
+
         var table = new TokensTable({
-            el: $("table[name='tokens']"),
+            el: self.tokensTable,
             collection: new TokenCollection()
         });
 
         table.render();
+
+        $("a[name='filter']", self.tokensTable).click(function(e) {
+
+            e.preventDefault();
+
+            var dialog = new TokenFilterDialog({
+                el: $("#token-filter-dialog"),
+                actions: ["cancel", "apply"]
+            });
+
+            dialog.entry = _.clone(table.searchAttributes);
+
+            dialog.handler("apply", function() {
+
+                dialog.save();
+
+                table.searchAttributes = _.clone(dialog.entry);
+
+                // show the first page of search results
+                table.page = 1;
+                table.render();
+
+                dialog.close();
+            });
+
+            dialog.open();
+        });
     }
 });

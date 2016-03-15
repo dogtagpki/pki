@@ -30,6 +30,7 @@
          <th class="pki-table-actions" colspan="10">
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
+                 <a name="filter" href="#tokens-search">Advanced Search</a>
              </span>
              <span class="pki-table-buttons">
                  <button name="add">Add</button>
@@ -122,6 +123,36 @@
             </div>
             <div class="modal-footer">
                 <button name="save" class="btn btn-primary">Save</button>
+                <button name="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="token-filter-dialog" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <span class="pficon pficon-close"></span>
+                </button>
+                <h4 class="modal-title">Token Filter</h4>
+            </div>
+            <div class="modal-body">
+                <fieldset>
+                    <label>Token ID</label>
+                    <input name="tokenID"><br>
+                    <label>User ID</label>
+                    <input name="userID"><br>
+                    <label>Type</label>
+                    <input name="type"><br>
+                    <label>Status</label>
+                    <select name="status">
+                    </select><br>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button name="apply" class="btn btn-primary">Apply</button>
                 <button name="cancel" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>

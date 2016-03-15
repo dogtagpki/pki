@@ -268,12 +268,37 @@ public class TokenService extends PKIService implements TokenResource {
     }
 
     @Override
-    public Response findTokens(String filter, Integer start, Integer size) {
+    public Response findTokens(
+            String filter,
+            String tokenID,
+            String userID,
+            String type,
+            String status,
+            Integer start,
+            Integer size) {
 
         CMS.debug("TokenService.findTokens()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
+        }
+
+        Map<String, String> attributes = new HashMap<String, String>();
+
+        if (StringUtils.isNotEmpty(tokenID)) {
+            attributes.put("id", tokenID);
+        }
+
+        if (StringUtils.isNotEmpty(userID)) {
+            attributes.put("userID", userID);
+        }
+
+        if (StringUtils.isNotEmpty(type)) {
+            attributes.put("type", type);
+        }
+
+        if (StringUtils.isNotEmpty(status)) {
+            attributes.put("status", status);
         }
 
         start = start == null ? 0 : start;
@@ -283,7 +308,7 @@ public class TokenService extends PKIService implements TokenResource {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
-            Iterator<TokenRecord> tokens = database.findRecords(filter).iterator();
+            Iterator<TokenRecord> tokens = database.findRecords(filter, attributes).iterator();
 
             TokenCollection response = new TokenCollection();
             int i = 0;
