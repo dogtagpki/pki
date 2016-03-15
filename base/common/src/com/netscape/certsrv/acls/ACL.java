@@ -17,7 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.acls;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.TreeSet;
 import java.util.Vector;
 
 /**
@@ -40,7 +43,7 @@ public class ACL implements IACL, java.io.Serializable {
     private static final long serialVersionUID = -1867465948611161868L;
 
     protected Vector<ACLEntry> entries = new Vector<ACLEntry>(); // ACL entries
-    protected Vector<String> rights = null; // possible rights entries
+    protected TreeSet<String> rights = null; // possible rights entries
     protected String resourceACLs = null; // exact resourceACLs string on ldap server
     protected String name = null; // resource name
     protected String description = null; // resource description
@@ -65,12 +68,12 @@ public class ACL implements IACL, java.io.Serializable {
      *            Allow administrators to read and modify log
      *            configuration"
      */
-    public ACL(String name, Vector<String> rights, String resourceACLs) {
+    public ACL(String name, Collection<String> rights, String resourceACLs) {
         setName(name);
         if (rights != null) {
-            this.rights = rights;
+            this.rights = new TreeSet<>(rights);
         } else {
-            this.rights = new Vector<String>();
+            this.rights = new TreeSet<>();
         }
         this.resourceACLs = resourceACLs;
 
@@ -170,7 +173,7 @@ public class ACL implements IACL, java.io.Serializable {
      * @param right The right to be added for this ACL
      */
     public void addRight(String right) {
-        rights.addElement(right);
+        rights.add(right);
     }
 
     /**
@@ -189,6 +192,6 @@ public class ACL implements IACL, java.io.Serializable {
      * @return enumeration of rights defined for this ACL
      */
     public Enumeration<String> rights() {
-        return rights.elements();
+        return Collections.enumeration(rights);
     }
 }

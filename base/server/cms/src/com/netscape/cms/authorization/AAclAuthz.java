@@ -160,7 +160,19 @@ public abstract class AAclAuthz {
         ACL acl = (ACL) CMS.parseACL(resACLs);
 
         if (acl != null) {
-            mACLs.put(acl.getName(), acl);
+            ACL curACL = mACLs.get(acl.getName());
+            if (curACL == null) {
+                mACLs.put(acl.getName(), acl);
+            } else {
+                for (Enumeration<ACLEntry> entries = acl.entries() ;
+                        entries.hasMoreElements() ; ) {
+                    curACL.addEntry(entries.nextElement());
+                }
+                for (Enumeration<String> rights = acl.rights() ;
+                        rights.hasMoreElements() ; ) {
+                    curACL.addRight(rights.nextElement());
+                }
+            }
         } else {
             log(ILogger.LL_FAILURE, "parseACL failed");
         }
