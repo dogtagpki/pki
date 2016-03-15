@@ -299,29 +299,23 @@ public class TPSTokendb {
     /*
      * tdbGetCertificatesByCUID finds and returns certificate records belong to a token cuid
      * @param cuid the cuid of the token
-     * @return ArrayList of the cert records
+     * @return Collection of the cert records
      */
-    public ArrayList<TPSCertRecord> tdbGetCertRecordsByCUID(String cuid)
+    public Collection<TPSCertRecord> tdbGetCertRecordsByCUID(String cuid)
             throws TPSException {
+
         if (cuid == null)
             throw new TPSException("TPSTokendb.tdbGetCertificatesByCUID: cuid null");
 
-        ArrayList<TPSCertRecord> certRecords = new ArrayList<TPSCertRecord>();
-        String filter = cuid;
-        Iterator<TPSCertRecord> records;
+        Map<String, String> attributes = new HashMap<String, String>();
+        attributes.put("tokenID",  cuid);
+
         try {
-             records = tps.certDatabase.findRecords(filter).iterator();
+             return tps.certDatabase.findRecords(null, attributes);
         } catch (Exception e) {
             CMS.debug("TPSTokendb.tdbGetCertificatesByCUID:" + e);
-            throw new TPSException(e.getMessage());
+            throw new TPSException(e);
         }
-
-        while (records.hasNext()) {
-            TPSCertRecord certRecord = records.next();
-            certRecords.add(certRecord);
-        }
-
-        return certRecords;
     }
 
     public ArrayList<TPSCertRecord> tdbGetCertRecordsByCert(String serial, String issuer)
@@ -493,7 +487,7 @@ public class TPSTokendb {
             throw new TPSException(method + ": cuid null");
         String logMsg;
         IConfigStore configStore = CMS.getConfigStore();
-        ArrayList<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertRecordsByCUID(cuid);
+        Collection<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertRecordsByCUID(cuid);
         if (tokenReason != null) {
             if (!tokenReason.equalsIgnoreCase("onHold") &&
                     !tokenReason.equalsIgnoreCase("destroyed") &&

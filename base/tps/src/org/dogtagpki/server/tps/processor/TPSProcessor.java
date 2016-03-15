@@ -23,8 +23,8 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1473,7 +1473,7 @@ public class TPSProcessor {
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
         //find all certs belonging to the token
-        ArrayList<TPSCertRecord> certRecords = tps.tdb.tdbGetCertRecordsByCUID(cuid);
+        Collection<TPSCertRecord> certRecords = tps.tdb.tdbGetCertRecordsByCUID(cuid);
 
         CMS.debug(method + ": found " + certRecords.size() + " certs");
 

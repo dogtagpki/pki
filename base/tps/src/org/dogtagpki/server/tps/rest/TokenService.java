@@ -39,6 +39,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
+import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
@@ -139,18 +140,37 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord.setStatus("uninitialized");
             tokenRecord.setReason(null);
             break;
+
         case ACTIVE:
             String origStatus = tokenRecord.getStatus();
             String origReason = tokenRecord.getReason();
+
             if (origStatus.equalsIgnoreCase("lost") &&
                     origReason.equalsIgnoreCase("onHold")) {
-                //unrevoke certs
-                tps.tdb.unRevokeCertsByCUID(tokenRecord.getId(), ipAddress, remoteUser);
+
+                Collection<TPSCertRecord> certRecords = tps.tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
+                if (certRecords.isEmpty()) { // token was uninitialized
+                    // restore to uninitialized state
+                    tokenRecord.setStatus("uninitialized");
+                    tokenRecord.setReason(null);
+
+                } else { // token was active
+                    // unrevoke certs
+                    tps.tdb.unRevokeCertsByCUID(tokenRecord.getId(), ipAddress, remoteUser);
+
+                    // restore to active state
+                    tokenRecord.setStatus("active");
+                    tokenRecord.setReason(null);
+                }
+
+            } else {
+                // switch to active state
+                tokenRecord.setStatus("active");
+                tokenRecord.setReason(null);
             }
 
-            tokenRecord.setStatus("active");
-            tokenRecord.setReason(null);
             break;
+
         case PERM_LOST:
         case TEMP_LOST_PERM_LOST:
             tokenRecord.setStatus("lost");
@@ -159,6 +179,7 @@ public class TokenService extends PKIService implements TokenResource {
             //revoke certs
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "keyCompromise", ipAddress, remoteUser);
             break;
+
         case DAMAGED:
             tokenRecord.setStatus("lost");
             tokenRecord.setReason("destroyed");
@@ -167,6 +188,7 @@ public class TokenService extends PKIService implements TokenResource {
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "destroyed", ipAddress, remoteUser);
 
             break;
+
         case TEMP_LOST:
             tokenRecord.setStatus("lost");
             tokenRecord.setReason("onHold");
@@ -174,6 +196,7 @@ public class TokenService extends PKIService implements TokenResource {
             // put certs onHold
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "onHold", ipAddress, remoteUser);
             break;
+
         case TERMINATED:
             String reason = "terminated";
             String origStatus2 = tokenRecord.getStatus();
@@ -189,6 +212,7 @@ public class TokenService extends PKIService implements TokenResource {
             //revoke certs
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), reason, ipAddress, remoteUser) ;
             break;
+
         default:
             throw new PKIException("Unsupported token state: " + tokenState);
         }

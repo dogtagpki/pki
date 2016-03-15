@@ -6,6 +6,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -1404,7 +1405,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
          * Get certs from the tokendb for this token to find out about
          * renewal possibility
          */
-        ArrayList<TPSCertRecord> allCerts = tps.tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
+        Collection<TPSCertRecord> allCerts = tps.tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
 
         certsInfo.setNumCertsToEnroll(keyTypeNum);
 
@@ -1767,7 +1768,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     actualCertIndex++;
                 }
 
-                ArrayList<TPSCertRecord> certs = tps.tdb.tdbGetCertRecordsByCUID(toBeRecovered.getId());
+                Collection<TPSCertRecord> certs = tps.tdb.tdbGetCertRecordsByCUID(toBeRecovered.getId());
 
                 String serialToRecover = null;
                 TPSCertRecord certToRecover = null;
