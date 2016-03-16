@@ -337,6 +337,7 @@ public class CertificateAuthority
      */
     private CertificateAuthority(
             CertificateAuthority hostCA,
+            X500Name dn,
             AuthorityID aid,
             AuthorityID parentAID,
             String signingKeyNickname,
@@ -345,6 +346,11 @@ public class CertificateAuthority
             ) throws EBaseException {
         setId(hostCA.getId());
         this.hostCA = hostCA;
+
+        // cert and key may not have been replicated to local nssdb
+        // yet, so set DN based on data from LDAP
+        this.mName = dn;
+
         this.authorityID = aid;
         this.authorityParentID = parentAID;
         this.authorityDescription = authorityDescription;
@@ -2596,7 +2602,8 @@ public class CertificateAuthority
         }
 
         return new CertificateAuthority(
-            hostCA, aid, this.authorityID, nickname, description, true);
+            hostCA, subjectX500Name,
+            aid, this.authorityID, nickname, description, true);
     }
 
     /**
@@ -3045,7 +3052,7 @@ public class CertificateAuthority
 
         try {
             CertificateAuthority ca = new CertificateAuthority(
-                hostCA, aid, parentAID, keyNick, desc, enabled);
+                hostCA, dn, aid, parentAID, keyNick, desc, enabled);
             caMap.put(aid, ca);
             entryUSNs.put(aid, newEntryUSN);
             nsUniqueIds.put(aid, nsUniqueId);
