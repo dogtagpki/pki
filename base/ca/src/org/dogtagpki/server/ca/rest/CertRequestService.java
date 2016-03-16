@@ -43,9 +43,12 @@ import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
+import com.netscape.certsrv.base.ServiceUnavailableException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.CAMissingCertException;
+import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
@@ -252,6 +255,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         } catch (CADisabledException e) {
             CMS.debug("changeRequestState: CA disabled: " + e);
             throw new ConflictingOperationException(e.toString());
+        } catch (CAMissingCertException | CAMissingKeyException e) {
+            throw new ServiceUnavailableException(e.toString());
         } catch (EPropertyException e) {
             CMS.debug("changeRequestState: execution error " + e);
             throw new PKIException(CMS.getUserMessage(getLocale(headers),

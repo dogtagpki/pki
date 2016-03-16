@@ -545,6 +545,16 @@ public interface ICertificateAuthority extends ISubsystem {
     public boolean getAuthorityEnabled();
 
     /**
+     * Return whether CA is ready to perform signing operations.
+     */
+    public boolean isReady();
+
+    /**
+     * Throw an exception if CA is not ready to perform signing operations.
+     */
+    public void ensureReady() throws ECAException;
+
+    /**
      * Return CA description.  May be null.
      */
     public String getAuthorityDescription();

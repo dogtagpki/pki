@@ -363,9 +363,20 @@ public class CertificateAuthority
         return hostCA == this;
     }
 
-    private void ensureEnabled() throws CADisabledException {
+    public void ensureReady()
+            throws ECAException {
         if (!authorityEnabled)
             throw new CADisabledException("Authority is disabled");
+        if (!isReady()) {
+            if (signingUnitException != null)
+                throw signingUnitException;
+            else
+                throw new CAMissingKeyException("Authority does not yet have signing key and cert in local NSSDB");
+        }
+    }
+
+    public boolean isReady() {
+        return hasKeys;
     }
 
     public boolean getAuthorityEnabled() {
@@ -1191,7 +1202,7 @@ public class CertificateAuthority
      */
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
             throws EBaseException {
-        ensureEnabled();
+        ensureReady();
         X509CRLImpl signedcrl = null;
 
         IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
@@ -1264,7 +1275,7 @@ public class CertificateAuthority
      */
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException {
-        ensureEnabled();
+        ensureReady();
 
         X509CertImpl signedcert = null;
 
@@ -1349,7 +1360,7 @@ public class CertificateAuthority
      */
     public byte[] sign(byte[] data, String algname)
             throws EBaseException {
-        ensureEnabled();
+        ensureReady();
         return mSigningUnit.sign(data, algname);
     }
 
@@ -2261,7 +2272,7 @@ public class CertificateAuthority
     }
 
     private BasicOCSPResponse sign(ResponseData rd) throws EBaseException {
-        ensureEnabled();
+        ensureReady();
         try (DerOutputStream out = new DerOutputStream()) {
             DerOutputStream tmp = new DerOutputStream();
 
@@ -2490,8 +2501,7 @@ public class CertificateAuthority
             String subjectDN, String description)
             throws EBaseException {
 
-        if (!authorityEnabled)
-            throw new CADisabledException("Parent CA is disabled");
+        ensureReady();
 
         // check requested DN
         X500Name subjectX500Name = null;

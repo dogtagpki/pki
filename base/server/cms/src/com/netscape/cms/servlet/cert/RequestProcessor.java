@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertReviewResponse;
@@ -350,9 +349,7 @@ public class RequestProcessor extends CertProcessor {
         if (ca == null)
             // this shouldn't happen because request was already accepted
             throw new CANotFoundException("Unknown CA: " + aidString);
-        if (!ca.getAuthorityEnabled())
-            // authority was disabled after request was accepted
-            throw new CADisabledException("CA '" + aidString + "' is disabled");
+        ca.ensureReady();
     }
 
     /**

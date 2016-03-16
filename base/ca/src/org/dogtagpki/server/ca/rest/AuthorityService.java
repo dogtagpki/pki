@@ -43,9 +43,12 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
+import com.netscape.certsrv.base.ServiceUnavailableException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CAEnabledException;
 import com.netscape.certsrv.ca.CADisabledException;
+import com.netscape.certsrv.ca.CAMissingCertException;
+import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
@@ -207,6 +210,8 @@ public class AuthorityService extends PKIService implements AuthorityResource {
             auditParams.put("exception", e.toString());
             audit(ILogger.FAILURE, OpDef.OP_ADD, "<unknown>", auditParams);
             throw new ConflictingOperationException(e.toString());
+        } catch (CAMissingCertException | CAMissingKeyException e) {
+            throw new ServiceUnavailableException(e.toString());
         } catch (Exception e) {
             CMS.debug(e);
             auditParams.put("exception", e.toString());
@@ -261,14 +266,14 @@ public class AuthorityService extends PKIService implements AuthorityResource {
     public Response enableCA(String aidString) {
         return modifyCA(
             aidString,
-            new AuthorityData(null, null, null, null, true, null));
+            new AuthorityData(null, null, null, null, true, null, null));
     }
 
     @Override
     public Response disableCA(String aidString) {
         return modifyCA(
             aidString,
-            new AuthorityData(null, null, null, null, false, null));
+            new AuthorityData(null, null, null, null, false, null, null));
     }
 
     @Override
@@ -322,7 +327,8 @@ public class AuthorityService extends PKIService implements AuthorityResource {
             ca.getAuthorityID().toString(),
             parentAID != null ? parentAID.toString() : null,
             ca.getAuthorityEnabled(),
-            ca.getAuthorityDescription()
+            ca.getAuthorityDescription(),
+            ca.isReady()
         );
     }
 

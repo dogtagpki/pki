@@ -95,6 +95,19 @@ public class AuthorityData {
     }
 
 
+    /**
+     * Whether the CA is ready to perform signing operations.
+     *
+     * This is a read-only attribute; it cannot be set by the user.
+     */
+    @XmlAttribute
+    protected Boolean ready;
+
+    public Boolean getReady() {
+        return ready;
+    }
+
+
     protected Link link;
 
     public Link getLink() {
@@ -111,13 +124,15 @@ public class AuthorityData {
     public AuthorityData(
             Boolean isHostAuthority,
             String dn, String id, String parentID,
-            Boolean enabled, String description) {
+            Boolean enabled, String description,
+            Boolean ready) {
         this.isHostAuthority = isHostAuthority;
         this.dn = dn;
         this.id = id;
         this.parentID = parentID;
         this.enabled = enabled;
         this.description = description;
+        this.ready = ready;
     }
 
 }

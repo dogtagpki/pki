@@ -48,7 +48,7 @@ public class AuthorityDisableCLI extends CLI {
         }
 
         AuthorityData data = new AuthorityData(
-            null, null, cmdArgs[0], null, false, null);
+            null, null, cmdArgs[0], null, false, null, null);
         data = authorityCLI.authorityClient.modifyCA(data);
         AuthorityCLI.printAuthorityData(data);
     }

@@ -45,6 +45,7 @@ public class AuthorityCLI extends CLI {
         if (parentAID != null)
             System.out.println("  Parent ID:      " + data.getParentID());
         System.out.println("  Enabled:        " + data.getEnabled());
+        System.out.println("  Ready to sign:  " + data.getReady());
         String desc = data.getDescription();
         if (desc != null)
             System.out.println("  Description:    " + desc);
