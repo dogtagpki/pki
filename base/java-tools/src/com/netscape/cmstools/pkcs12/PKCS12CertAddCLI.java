@@ -151,7 +151,7 @@ public class PKCS12CertAddCLI extends CLI {
                 pkcs12 = new PKCS12();
 
             } else {
-                // otherwise, add into the same file
+                // otherwise, add into the existing file
                 pkcs12 = util.loadFromFile(filename, password);
             }
 

@@ -549,8 +549,10 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def export_pkcs12(self, pkcs12_file, nicknames=None, pkcs12_password=None,
-                      pkcs12_password_file=None):
+    def export_pkcs12(self, pkcs12_file,
+                      pkcs12_password=None,
+                      pkcs12_password_file=None,
+                      nicknames=None):
 
         tmpdir = tempfile.mkdtemp()
 
