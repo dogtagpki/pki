@@ -53,6 +53,8 @@ class PKCS12ImportCLI(pki.cli.CLI):
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  containing the PKCS #12 password.')
         print('      --no-trust-flags               Do not include trust flags')
+        print('      --no-user-certs                Do not import user certificates')
+        print('      --no-ca-certs                  Do not import CA certificates')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -63,7 +65,8 @@ class PKCS12ImportCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(args, 'v', [
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'no-trust-flags', 'verbose', 'debug', 'help'])
+                'no-trust-flags', 'no-user-certs', 'no-ca-certs',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -74,6 +77,9 @@ class PKCS12ImportCLI(pki.cli.CLI):
         pkcs12_password = None
         password_file = None
         no_trust_flags = False
+        import_user_certs = True
+        import_ca_certs = True
+        debug = False
 
         for o, a in opts:
             if o == '--pkcs12-file':
@@ -88,8 +94,17 @@ class PKCS12ImportCLI(pki.cli.CLI):
             elif o == '--no-trust-flags':
                 no_trust_flags = True
 
+            elif o == '--no-user-certs':
+                import_user_certs = False
+
+            elif o == '--no-ca-certs':
+                import_ca_certs = False
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+
+            elif o == '--debug':
+                debug = True
 
             elif o == '--help':
                 self.print_help()
@@ -119,13 +134,11 @@ class PKCS12ImportCLI(pki.cli.CLI):
         if main_cli.verbose:
             print('Getting certificate infos in PKCS #12 file')
 
-        ca_certs = []
-        user_certs = []
+        certs = []
 
         tmpdir = tempfile.mkdtemp()
 
         try:
-
             # find all certs in PKCS #12 file
             output_file = os.path.join(tmpdir, 'pkcs12-cert-find.txt')
             with open(output_file, 'wb') as f:
@@ -144,31 +157,29 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 if no_trust_flags:
                     cmd.extend(['--no-trust-flags'])
 
+                if self.verbose:
+                    cmd.extend(['--verbose'])
+
+                if debug:
+                    cmd.extend(['--debug'])
+
                 main_cli.execute_java(cmd, stdout=f)
 
-            # determine cert types
+            # parse results
             with open(output_file, 'r') as f:
                 cert_info = {}
 
                 for line in f:
-                    match = re.match(r'  Nickname: (.*)$', line)
+                    match = re.match(r'  Certificate ID: (.*)$', line)
                     if match:
-                        # store previous cert
-                        if cert_info:
-                            if 'key_id' in cert_info:
-                                # if cert has key, it's a user cert
-                                user_certs.append(cert_info)
-                            else:
-                                # otherwise it's a CA cert
-                                ca_certs.append(cert_info)
-
                         cert_info = {}
-                        cert_info['nickname'] = match.group(1)
+                        cert_info['id'] = match.group(1)
+                        certs.append(cert_info)
                         continue
 
-                    match = re.match(r'  Key ID: (.*)$', line)
+                    match = re.match(r'  Nickname: (.*)$', line)
                     if match:
-                        cert_info['key_id'] = match.group(1)
+                        cert_info['nickname'] = match.group(1)
                         continue
 
                     match = re.match(r'  Trust Flags: (.*)$', line)
@@ -176,74 +187,112 @@ class PKCS12ImportCLI(pki.cli.CLI):
                         cert_info['trust_flags'] = match.group(1)
                         continue
 
-                # store last cert
-                if cert_info:
-                    if 'key_id' in cert_info:
-                        # if cert has key, it's a user cert
-                        user_certs.append(cert_info)
-                    else:
-                        # otherwise it's a CA cert
-                        ca_certs.append(cert_info)
-
-            cert_file = os.path.join(tmpdir, 'ca-cert.pem')
-
-            nssdb = pki.nssdb.NSSDatabase(
-                main_cli.database,
-                token=main_cli.token,
-                password=main_cli.password,
-                password_file=main_cli.password_file)
-
-            for cert_info in ca_certs:
-
-                nickname = cert_info['nickname']
-                trust_flags = cert_info['trust_flags']
-
-                if main_cli.verbose:
-                    print('Exporting %s from PKCS #12 file' % nickname)
-
-                cmd = ['pkcs12-cert-export']
-
-                if pkcs12_file:
-                    cmd.extend(['--pkcs12-file', pkcs12_file])
-
-                if pkcs12_password:
-                    cmd.extend(['--pkcs12-password', pkcs12_password])
-
-                if password_file:
-                    cmd.extend(['--pkcs12-password-file', password_file])
-
-                cmd.extend(['--cert-file', cert_file, nickname])
-
-                main_cli.execute_java(cmd)
-
-                if main_cli.verbose:
-                    print('Importing %s' % nickname)
-
-                nssdb.add_cert(nickname, cert_file, trust_flags)
+                    match = re.match(r'  Has Key: (.*)$', line)
+                    if match:
+                        cert_info['has_key'] = match.group(1) == 'true'
+                        continue
 
         finally:
             shutil.rmtree(tmpdir)
 
-        # importing user certs
+        # import CA certificates if requested
+        if import_ca_certs:
 
-        nicknames = []
-        for cert_info in user_certs:
-            nicknames.append(cert_info['nickname'])
+            if main_cli.verbose:
+                print('Importing CA certificates')
 
-        cmd = ['pkcs12-import']
+            tmpdir = tempfile.mkdtemp()
 
-        if pkcs12_file:
-            cmd.extend(['--pkcs12-file', pkcs12_file])
+            try:
+                cert_file = os.path.join(tmpdir, 'ca-cert.pem')
 
-        if pkcs12_password:
-            cmd.extend(['--pkcs12-password', pkcs12_password])
+                nssdb = pki.nssdb.NSSDatabase(
+                    main_cli.database,
+                    token=main_cli.token,
+                    password=main_cli.password,
+                    password_file=main_cli.password_file)
 
-        if password_file:
-            cmd.extend(['--pkcs12-password-file', password_file])
+                for cert_info in certs:
 
-        if no_trust_flags:
-            cmd.extend(['--no-trust-flags'])
+                    has_key = cert_info['has_key']
+                    if has_key:
+                        continue
 
-        cmd.extend(nicknames)
+                    cert_id = cert_info['id']
+                    nickname = cert_info['nickname']
+                    trust_flags = cert_info['trust_flags']
 
-        main_cli.execute_java(cmd)
+                    if main_cli.verbose:
+                        print('Exporting %s (%s) from PKCS #12 file' % (nickname, cert_id))
+
+                    cmd = ['pkcs12-cert-export']
+
+                    if pkcs12_file:
+                        cmd.extend(['--pkcs12-file', pkcs12_file])
+
+                    if pkcs12_password:
+                        cmd.extend(['--pkcs12-password', pkcs12_password])
+
+                    if password_file:
+                        cmd.extend(['--pkcs12-password-file', password_file])
+
+                    cmd.extend(['--cert-file', cert_file])
+
+                    cmd.extend(['--cert-id', cert_id])
+
+                    if self.verbose:
+                        cmd.extend(['--verbose'])
+
+                    if debug:
+                        cmd.extend(['--debug'])
+
+                    main_cli.execute_java(cmd)
+
+                    if main_cli.verbose:
+                        print('Importing %s' % nickname)
+
+                    nssdb.add_cert(nickname, cert_file, trust_flags)
+
+            finally:
+                shutil.rmtree(tmpdir)
+
+        # import user certificates if requested
+        if import_user_certs:
+
+            if main_cli.verbose:
+                print('Importing user certificates')
+
+            nicknames = []
+            for cert_info in certs:
+
+                has_key = cert_info['has_key']
+                if not has_key:
+                    continue
+
+                nickname = cert_info['nickname']
+                if nickname not in nicknames:
+                    nicknames.append(nickname)
+
+            cmd = ['pkcs12-import']
+
+            if pkcs12_file:
+                cmd.extend(['--pkcs12-file', pkcs12_file])
+
+            if pkcs12_password:
+                cmd.extend(['--pkcs12-password', pkcs12_password])
+
+            if password_file:
+                cmd.extend(['--pkcs12-password-file', password_file])
+
+            if no_trust_flags:
+                cmd.extend(['--no-trust-flags'])
+
+            if self.verbose:
+                cmd.extend(['--verbose'])
+
+            if debug:
+                cmd.extend(['--debug'])
+
+            cmd.extend(nicknames)
+
+            main_cli.execute_java(cmd)

@@ -494,8 +494,11 @@ class NSSDatabase(object):
         finally:
             shutil.rmtree(tmpdir)
 
-    def import_pkcs12(self, pkcs12_file, pkcs12_password=None,
-                      pkcs12_password_file=None):
+    def import_pkcs12(self, pkcs12_file,
+                      pkcs12_password=None,
+                      pkcs12_password_file=None,
+                      no_user_certs=False,
+                      no_ca_certs=False):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -525,6 +528,12 @@ class NSSDatabase(object):
                 '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', password_file
             ])
+
+            if no_user_certs:
+                cmd.extend(['--no-user-certs'])
+
+            if no_ca_certs:
+                cmd.extend(['--no-ca-certs'])
 
             subprocess.check_call(cmd)
 

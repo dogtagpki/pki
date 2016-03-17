@@ -23,7 +23,7 @@ import netscape.security.x509.X509CertImpl;
 
 public class PKCS12CertInfo {
 
-    BigInteger keyID;
+    BigInteger id;
     X509CertImpl cert;
     String nickname;
     String trustFlags;
@@ -31,12 +31,12 @@ public class PKCS12CertInfo {
     public PKCS12CertInfo() {
     }
 
-    public BigInteger getKeyID() {
-        return keyID;
+    public BigInteger getID() {
+        return id;
     }
 
-    public void setKeyID(BigInteger keyID) {
-        this.keyID = keyID;
+    public void setID(BigInteger id) {
+        this.id = id;
     }
 
     public X509CertImpl getCert() {

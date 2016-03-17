@@ -108,6 +108,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if external_certs_path is not None:
                 self.update_external_certs_conf(external_certs_path, deployer)
 
+        # import CA certificates from PKCS #12 file for cloning
+        pki_clone_pkcs12_path = deployer.mdict['pki_clone_pkcs12_path']
+
+        if pki_clone_pkcs12_path:
+
+            pki_clone_pkcs12_password = deployer.mdict[
+                'pki_clone_pkcs12_password']
+            if not pki_clone_pkcs12_password:
+                raise Exception('Missing pki_clone_pkcs12_password property.')
+
+            nssdb = pki.nssdb.NSSDatabase(
+                directory=deployer.mdict['pki_database_path'],
+                password_file=deployer.mdict['pki_shared_pfile'])
+
+            nssdb.import_pkcs12(
+                pkcs12_file=pki_clone_pkcs12_path,
+                pkcs12_password=pki_clone_pkcs12_password,
+                no_user_certs=True)
+
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
             # only create a self signed cert for a new instance
             #

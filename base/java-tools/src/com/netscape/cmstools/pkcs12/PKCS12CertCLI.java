@@ -18,9 +18,12 @@
 
 package com.netscape.cmstools.pkcs12;
 
+import java.math.BigInteger;
+
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.CLI;
 
+import netscape.security.pkcs.PKCS12;
 import netscape.security.pkcs.PKCS12CertInfo;
 
 /**
@@ -37,18 +40,20 @@ public class PKCS12CertCLI extends CLI {
         addModule(new PKCS12CertRemoveCLI(this));
     }
 
-    public static void printCertInfo(PKCS12CertInfo certInfo) throws Exception {
+    public static void printCertInfo(PKCS12 pkcs12, PKCS12CertInfo certInfo) throws Exception {
+
+        BigInteger id = certInfo.getID();
+        System.out.println("  Certificate ID: " + id.toString(16));
+
         System.out.println("  Serial Number: " + new CertId(certInfo.getCert().getSerialNumber()).toHexString());
         System.out.println("  Nickname: " + certInfo.getNickname());
         System.out.println("  Subject DN: " + certInfo.getCert().getSubjectDN());
         System.out.println("  Issuer DN: " + certInfo.getCert().getIssuerDN());
 
-        if (certInfo.getKeyID() != null) {
-            System.out.println("  Key ID: " + certInfo.getKeyID().toString(16));
-        }
-
         if (certInfo.getTrustFlags() != null) {
             System.out.println("  Trust Flags: " + certInfo.getTrustFlags());
         }
+
+        System.out.println("  Has Key: " + (pkcs12.getKeyInfoByID(id) != null));
     }
 }
