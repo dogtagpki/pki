@@ -133,16 +133,16 @@ public class PKCS12CertFindCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
-        Collection<PKCS12CertInfo> certInfos;
+        PKCS12 pkcs12;
         try {
             PKCS12Util util = new PKCS12Util();
-            PKCS12 pkcs12 = util.loadFromFile(filename, password);
-
-            certInfos = pkcs12.getCertInfos();
+            pkcs12 = util.loadFromFile(filename, password);
 
         } finally {
             password.clear();
         }
+
+        Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfos();
 
         MainCLI.printMessage(certInfos.size() + " entries found");
         if (certInfos.size() == 0) return;
@@ -156,7 +156,7 @@ public class PKCS12CertFindCLI extends CLI {
                 System.out.println();
             }
 
-            PKCS12CertCLI.printCertInfo(certInfo);
+            PKCS12CertCLI.printCertInfo(pkcs12, certInfo);
         }
     }
 }

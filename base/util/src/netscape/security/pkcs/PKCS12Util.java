@@ -28,6 +28,7 @@ import java.security.MessageDigest;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import org.mozilla.jss.CryptoManager;
@@ -160,7 +161,7 @@ public class PKCS12Util {
         safeContents.addElement(safeBag);
     }
 
-    BigInteger createLocalKeyID(X509Certificate cert) throws Exception {
+    BigInteger createLocalID(X509Certificate cert) throws Exception {
 
         // SHA1 hash of the X509Cert DER encoding
         byte[] certDer = cert.getEncoded();
@@ -209,12 +210,12 @@ public class PKCS12Util {
 
         attrs.addElement(nicknameAttr);
 
-        if (certInfo.keyID != null) {
+        if (certInfo.getID() != null) {
             SEQUENCE localKeyAttr = new SEQUENCE();
             localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
             SET localKeySet = new SET();
-            localKeySet.addElement(new OCTET_STRING(certInfo.keyID.toByteArray()));
+            localKeySet.addElement(new OCTET_STRING(certInfo.id.toByteArray()));
             localKeyAttr.addElement(localKeySet);
 
             attrs.addElement(localKeyAttr);
@@ -250,24 +251,28 @@ public class PKCS12Util {
     public void loadCertFromNSS(PKCS12 pkcs12, String nickname) throws Exception {
 
         CryptoManager cm = CryptoManager.getInstance();
-        X509Certificate cert = cm.findCertByNickname(nickname);
-        loadCertChainFromNSS(pkcs12, cert);
+
+        X509Certificate[] certs = cm.findCertsByNickname(nickname);
+        for (X509Certificate cert : certs) {
+            loadCertChainFromNSS(pkcs12, cert);
+        }
     }
 
-    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger keyID, boolean replace) throws Exception {
+    public void loadCertFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger id, boolean replace) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading certificate \"" + nickname + "\" from NSS database");
 
         PKCS12CertInfo certInfo = new PKCS12CertInfo();
-        certInfo.keyID = keyID;
+        certInfo.id = id;
         certInfo.nickname = nickname;
         certInfo.cert = new X509CertImpl(cert.getEncoded());
         certInfo.trustFlags = getTrustFlags(cert);
+
         pkcs12.addCertInfo(certInfo, replace);
     }
 
-    public void loadCertKeyFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger keyID) throws Exception {
+    public void loadCertKeyFromNSS(PKCS12 pkcs12, X509Certificate cert, BigInteger id) throws Exception {
 
         String nickname = cert.getNickname();
         logger.info("Loading private key for certificate \"" + nickname + "\" from NSS database");
@@ -279,7 +284,7 @@ public class PKCS12Util {
             logger.fine("Certificate \"" + nickname + "\" has private key");
 
             PKCS12KeyInfo keyInfo = new PKCS12KeyInfo();
-            keyInfo.id = keyID;
+            keyInfo.id = id;
             keyInfo.subjectDN = cert.getSubjectDN().toString();
 
             byte[] privateData = getEncodedKey(privateKey);
@@ -297,17 +302,20 @@ public class PKCS12Util {
 
         CryptoManager cm = CryptoManager.getInstance();
 
-        BigInteger keyID = createLocalKeyID(cert);
+        BigInteger id = createLocalID(cert);
 
-        // load cert with key
-        loadCertFromNSS(pkcs12, cert, keyID, true);
-        loadCertKeyFromNSS(pkcs12, cert, keyID);
+        // load cert key if exists
+        loadCertKeyFromNSS(pkcs12, cert, id);
+
+        // load cert
+        loadCertFromNSS(pkcs12, cert, id, true);
 
         // load parent certs without key
         X509Certificate[] certChain = cm.buildCertificateChain(cert);
         for (int i = 1; i < certChain.length; i++) {
             X509Certificate c = certChain[i];
-            loadCertFromNSS(pkcs12, c, null, false);
+            BigInteger cid = createLocalID(c);
+            loadCertFromNSS(pkcs12, c, cid, false);
         }
     }
 
@@ -379,7 +387,7 @@ public class PKCS12Util {
                 OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
                 keyInfo.id = new BigInteger(1, keyID.toByteArray());
-                logger.fine("Key ID: " + keyInfo.id.toString(16));
+                logger.fine("ID: " + keyInfo.id.toString(16));
             }
         }
 
@@ -428,8 +436,8 @@ public class PKCS12Util {
                 ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
                 OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
-                certInfo.keyID = new BigInteger(1, keyID.toByteArray());
-                logger.fine("Key ID: " + certInfo.keyID.toString(16));
+                certInfo.id = new BigInteger(1, keyID.toByteArray());
+                logger.fine("ID: " + certInfo.id.toString(16));
 
             } else if (oid.equals(PKCS12.CERT_TRUST_FLAGS_OID) && trustFlagsEnabled) {
 
@@ -596,8 +604,8 @@ public class PKCS12Util {
         CryptoManager cm = CryptoManager.getInstance();
 
         X509Certificate cert;
-        BigInteger keyID = certInfo.getKeyID();
-        PKCS12KeyInfo keyInfo = keyID == null ? null : pkcs12.getKeyInfoByID(keyID);
+        BigInteger id = certInfo.getID();
+        PKCS12KeyInfo keyInfo = pkcs12.getKeyInfoByID(id);
 
         if (keyInfo != null) { // cert has key
             logger.fine("Importing user key for " + certInfo.nickname);
@@ -608,6 +616,7 @@ public class PKCS12Util {
 
         } else { // cert has no key
             logger.fine("Importing CA certificate " + certInfo.nickname);
+            // Note: JSS does not preserve CA certificate nickname
             cert = cm.importCACertPackage(certInfo.cert.getEncoded());
         }
 
@@ -616,8 +625,10 @@ public class PKCS12Util {
     }
 
     public void storeCertIntoNSS(PKCS12 pkcs12, String nickname) throws Exception {
-        PKCS12CertInfo certInfo = pkcs12.getCertInfoByNickname(nickname);
-        storeCertIntoNSS(pkcs12, certInfo);
+        Collection<PKCS12CertInfo> certInfos = pkcs12.getCertInfosByNickname(nickname);
+        for (PKCS12CertInfo certInfo : certInfos) {
+            storeCertIntoNSS(pkcs12, certInfo);
+        }
     }
 
     public void storeIntoNSS(PKCS12 pkcs12) throws Exception {

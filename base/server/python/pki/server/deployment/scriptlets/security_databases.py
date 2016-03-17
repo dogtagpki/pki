@@ -20,6 +20,10 @@
 #
 
 # PKI Deployment Imports
+from __future__ import absolute_import
+
+import pki.nssdb
+
 from .. import pkiconfig as config
 from .. import pkimessages as log
 from .. import pkiscriptlet
@@ -35,8 +39,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             config.pki_log.info(log.SKIP_SECURITY_DATABASES_SPAWN_1, __name__,
                                 extra=config.PKI_INDENTATION_LEVEL_1)
             return self.rv
+
         config.pki_log.info(log.SECURITY_DATABASES_SPAWN_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
             deployer.password.create_hsm_password_conf(
                 deployer.mdict['pki_shared_password_conf'],
@@ -46,6 +52,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.password.create_password_conf(
                 deployer.mdict['pki_shared_password_conf'],
                 deployer.mdict['pki_pin'])
+
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a temporary server 'pfile'
         # which ONLY contains the 'password' for the purposes of
@@ -54,12 +61,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_shared_pfile'],
             deployer.mdict['pki_pin'], pin_sans_token=True)
         deployer.file.modify(deployer.mdict['pki_shared_password_conf'])
+
         deployer.certutil.create_security_databases(
             deployer.mdict['pki_database_path'],
             deployer.mdict['pki_cert_database'],
             deployer.mdict['pki_key_database'],
             deployer.mdict['pki_secmod_database'],
             password_file=deployer.mdict['pki_shared_pfile'])
+
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
             deployer.modutil.register_security_module(
                 deployer.mdict['pki_database_path'],
@@ -74,6 +83,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.file.modify(
             deployer.mdict['pki_secmod_database'],
             perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
+
+        # import CA certificates from PKCS #12 file for cloning
+        pki_clone_pkcs12_path = deployer.mdict['pki_clone_pkcs12_path']
+
+        if pki_clone_pkcs12_path:
+
+            pki_clone_pkcs12_password = deployer.mdict[
+                'pki_clone_pkcs12_password']
+            if not pki_clone_pkcs12_password:
+                raise Exception('Missing pki_clone_pkcs12_password property.')
+
+            nssdb = pki.nssdb.NSSDatabase(
+                directory=deployer.mdict['pki_database_path'],
+                password_file=deployer.mdict['pki_shared_pfile'])
+
+            nssdb.import_pkcs12(
+                pkcs12_file=pki_clone_pkcs12_path,
+                pkcs12_password=pki_clone_pkcs12_password,
+                no_user_certs=True)
 
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
             # only create a self signed cert for a new instance

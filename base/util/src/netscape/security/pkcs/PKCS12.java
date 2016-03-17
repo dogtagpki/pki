@@ -18,6 +18,7 @@
 package netscape.security.pkcs;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -141,7 +142,7 @@ public class PKCS12 {
 
     Map<BigInteger, PKCS12KeyInfo> keyInfosByID = new LinkedHashMap<BigInteger, PKCS12KeyInfo>();
 
-    Map<String, PKCS12CertInfo> certInfosByNickname = new LinkedHashMap<String, PKCS12CertInfo>();
+    Map<BigInteger, PKCS12CertInfo> certInfosByID = new LinkedHashMap<BigInteger, PKCS12CertInfo>();
 
     public PKCS12() {
     }
@@ -163,28 +164,42 @@ public class PKCS12 {
     }
 
     public Collection<PKCS12CertInfo> getCertInfos() {
-        return certInfosByNickname.values();
+        return certInfosByID.values();
     }
 
     public void addCertInfo(PKCS12CertInfo certInfo, boolean replace) {
-        String nickname = certInfo.nickname;
-        if (!replace && certInfosByNickname.containsKey(nickname))
+        BigInteger id = certInfo.getID();
+
+        if (!replace && certInfosByID.containsKey(id))
             return;
 
-        certInfosByNickname.put(nickname, certInfo);
+        certInfosByID.put(id, certInfo);
     }
 
-    public PKCS12CertInfo getCertInfoByNickname(String nickname) {
-        return certInfosByNickname.get(nickname);
+    public PKCS12CertInfo getCertInfoByID(BigInteger id) {
+        return certInfosByID.get(id);
     }
 
-    public PKCS12CertInfo removeCertInfoByNickname(String nickname) {
-        // remove cert
-        PKCS12CertInfo certInfo = certInfosByNickname.remove(nickname);
-        if (certInfo == null) return null;
+    public Collection<PKCS12CertInfo> getCertInfosByNickname(String nickname) {
 
-        // remove private key
-        keyInfosByID.remove(certInfo.getKeyID());
-        return certInfo;
+        Collection<PKCS12CertInfo> result = new ArrayList<PKCS12CertInfo>();
+
+        for (PKCS12CertInfo certInfo : certInfosByID.values()) {
+            if (!nickname.equals(certInfo.getNickname())) continue;
+            result.add(certInfo);
+        }
+
+        return result;
+    }
+
+    public void removeCertInfoByNickname(String nickname) {
+
+        Collection<PKCS12CertInfo> result = getCertInfosByNickname(nickname);
+
+        for (PKCS12CertInfo certInfo : result) {
+            // remove cert and key
+            certInfosByID.remove(certInfo.getID());
+            keyInfosByID.remove(certInfo.getID());
+        }
     }
 }
