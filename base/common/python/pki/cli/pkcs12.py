@@ -46,23 +46,23 @@ class PKCS12ImportCLI(pki.cli.CLI):
         super(PKCS12ImportCLI, self).__init__(
             'import', 'Import PKCS #12 file into NSS database')
 
-    def print_help(self):
+    def print_help(self):  # flake8: noqa
         print('Usage: pki pkcs12-import [OPTIONS]')
         print()
-        print('      --pkcs12                    PKCS #12 file containing certificates and keys.')
-        print('      --pkcs12-password           Password for the PKCS #12 file.')
-        print('      --pkcs12-password-file      File containing the PKCS #12 password.')
-        print('      --no-trust-flags            Do not include trust flags')
-        print('  -v, --verbose                   Run in verbose mode.')
-        print('      --debug                     Run in debug mode.')
-        print('      --help                      Show help message.')
+        print('      --pkcs12-file <path>           PKCS #12 file containing certificates and keys.')
+        print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
+        print('      --pkcs12-password-file <path>  containing the PKCS #12 password.')
+        print('      --no-trust-flags               Do not include trust flags')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
         print()
 
     def execute(self, args):
 
         try:
             opts, _ = getopt.gnu_getopt(args, 'v', [
-                'pkcs12=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
                 'no-trust-flags', 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -76,7 +76,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         no_trust_flags = False
 
         for o, a in opts:
-            if o == '--pkcs12':
+            if o == '--pkcs12-file':
                 pkcs12_file = a
 
             elif o == '--pkcs12-password':
@@ -133,7 +133,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 cmd = ['pkcs12-cert-find']
 
                 if pkcs12_file:
-                    cmd.extend(['--pkcs12', pkcs12_file])
+                    cmd.extend(['--pkcs12-file', pkcs12_file])
 
                 if pkcs12_password:
                     cmd.extend(['--pkcs12-password', pkcs12_password])
@@ -204,7 +204,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 cmd = ['pkcs12-cert-export']
 
                 if pkcs12_file:
-                    cmd.extend(['--pkcs12', pkcs12_file])
+                    cmd.extend(['--pkcs12-file', pkcs12_file])
 
                 if pkcs12_password:
                     cmd.extend(['--pkcs12-password', pkcs12_password])
@@ -233,7 +233,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         cmd = ['pkcs12-import']
 
         if pkcs12_file:
-            cmd.extend(['--pkcs12', pkcs12_file])
+            cmd.extend(['--pkcs12-file', pkcs12_file])
 
         if pkcs12_password:
             cmd.extend(['--pkcs12-password', pkcs12_password])
