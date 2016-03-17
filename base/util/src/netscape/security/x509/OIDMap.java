@@ -99,6 +99,7 @@ public class OIDMap {
     static {
         loadNames();
         loadClasses();
+        addClass(CRLDistributionPointsExtension.class);
     }
 
     // Load the default name to oid map (EXTENSIONS_OIDS)
@@ -224,6 +225,22 @@ public class OIDMap {
             String className = props.getProperty(name);
 
             name2Class.put(name, className);
+        }
+    }
+
+    /**
+     * Add an extension to the OIDMap.
+     *
+     * Assumes existence of static OID and NAME fields with unique values.
+     */
+    public static void addClass(Class<? extends Extension> clazz) {
+        try {
+            addAttribute(clazz.getName(),
+                (String) clazz.getField("OID").get(null),
+                (String) clazz.getField("NAME").get(null));
+        } catch (Throwable e) {
+            System.out.println(
+                "Error adding class " + clazz.getName() + " to OIDMap: " + e);
         }
     }
 

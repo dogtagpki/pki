@@ -178,14 +178,6 @@ public class CRLDistributionPointsExtension extends Extension
     /////////////////////////////////////////////////////////////
     public static final String NAME = "CRLDistributionPoints";
 
-    static {
-        try {
-            OIDMap.addAttribute(CRLDistributionPointsExtension.class.getName(),
-                                OID, NAME);
-        } catch (CertificateException e) {
-        }
-    }
-
     @Override
     public String toString() {
         return NAME;
