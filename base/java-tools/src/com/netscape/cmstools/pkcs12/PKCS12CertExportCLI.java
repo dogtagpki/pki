@@ -54,7 +54,7 @@ public class PKCS12CertExportCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "pkcs12", true, "PKCS #12 file");
+        Option option = new Option(null, "pkcs12-file", true, "PKCS #12 file");
         option.setArgName("path");
         options.addOption(option);
 
@@ -113,7 +113,7 @@ public class PKCS12CertExportCLI extends CLI {
 
         String nickname = cmdArgs[0];
 
-        String pkcs12File = cmd.getOptionValue("pkcs12");
+        String pkcs12File = cmd.getOptionValue("pkcs12-file");
 
         if (pkcs12File == null) {
             System.err.println("Error: Missing PKCS #12 file.");

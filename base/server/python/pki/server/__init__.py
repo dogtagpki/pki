@@ -188,7 +188,7 @@ class PKISubsystem(object):
 
             cmd.extend([
                 'pkcs12-cert-add',
-                '--pkcs12', pkcs12_file,
+                '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', pkcs12_password_file,
             ])
 
@@ -236,7 +236,7 @@ class PKISubsystem(object):
 
             cmd.extend([
                 'pkcs12-export',
-                '--pkcs12', pkcs12_file,
+                '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', pkcs12_password_file,
                 nickname
             ])
@@ -255,7 +255,7 @@ class PKISubsystem(object):
 
             cmd.extend([
                 'pkcs12-cert-del',
-                '--pkcs12', pkcs12_file,
+                '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', pkcs12_password_file,
                 nickname
             ])

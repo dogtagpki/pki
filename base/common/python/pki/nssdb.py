@@ -540,7 +540,7 @@ class NSSDatabase(object):
 
             cmd.extend([
                 'pkcs12-import',
-                '--pkcs12', pkcs12_file,
+                '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', password_file
             ])
 
@@ -578,7 +578,7 @@ class NSSDatabase(object):
             cmd.extend(['pkcs12-export'])
 
             cmd.extend([
-                '--pkcs12', pkcs12_file,
+                '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', password_file
             ])
 

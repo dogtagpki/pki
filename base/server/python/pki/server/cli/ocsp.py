@@ -57,12 +57,12 @@ class OCSPClonePrepareCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ocsp-clone-prepare [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('      --pkcs12-file               PKCS #12 file to store certificates and keys.')
-        print('      --pkcs12-password           Password for the PKCS #12 file.')
-        print('      --pkcs12-password-file      File containing the PKCS #12 password.')
-        print('  -v, --verbose                   Run in verbose mode.')
-        print('      --help                      Show help message.')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --pkcs12-file <path>           PKCS #12 file to store certificates and keys.')
+        print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
+        print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --help                         Show help message.')
         print()
 
     def execute(self, args):
@@ -85,7 +85,7 @@ class OCSPClonePrepareCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
-            elif o == '--pkcs12':
+            elif o == '--pkcs12-file':
                 pkcs12_file = a
 
             elif o == '--pkcs12-password':

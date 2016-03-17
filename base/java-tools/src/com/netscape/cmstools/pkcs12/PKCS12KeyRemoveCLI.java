@@ -51,7 +51,7 @@ public class PKCS12KeyRemoveCLI extends CLI {
     }
 
     public void createOptions() {
-        Option option = new Option(null, "pkcs12", true, "PKCS #12 file");
+        Option option = new Option(null, "pkcs12-file", true, "PKCS #12 file");
         option.setArgName("path");
         options.addOption(option);
 
@@ -106,7 +106,7 @@ public class PKCS12KeyRemoveCLI extends CLI {
 
         BigInteger keyID = new BigInteger(cmdArgs[0], 16);
 
-        String filename = cmd.getOptionValue("pkcs12");
+        String filename = cmd.getOptionValue("pkcs12-file");
 
         if (filename == null) {
             System.err.println("Error: Missing PKCS #12 file.");
