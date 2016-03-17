@@ -577,9 +577,9 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             try:
                 nssdb.export_pkcs12(
                     pkcs12_file=pkcs12_file,
-                    nicknames=nicknames,
                     pkcs12_password=pkcs12_password,
-                    pkcs12_password_file=pkcs12_password_file)
+                    pkcs12_password_file=pkcs12_password_file,
+                    nicknames=nicknames)
 
             finally:
                 nssdb.close()

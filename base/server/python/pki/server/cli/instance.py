@@ -67,10 +67,10 @@ class InstanceCertExportCLI(pki.cli.CLI):
 
     def __init__(self):
         super(InstanceCertExportCLI, self).__init__(
-            'export', 'Export subsystem certificate')
+            'export', 'Export system certificates')
 
     def print_help(self):  # flake8: noqa
-        print('Usage: pki-server instance-cert-export [OPTIONS]')
+        print('Usage: pki-server instance-cert-export [OPTIONS] [nicknames...]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
@@ -83,7 +83,7 @@ class InstanceCertExportCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
                 'verbose', 'help'])
@@ -92,6 +92,8 @@ class InstanceCertExportCLI(pki.cli.CLI):
             print('ERROR: ' + str(e))
             self.print_help()
             sys.exit(1)
+
+        nicknames = args
 
         instance_name = 'pki-tomcat'
         pkcs12_file = None
@@ -139,7 +141,8 @@ class InstanceCertExportCLI(pki.cli.CLI):
             nssdb.export_pkcs12(
                 pkcs12_file=pkcs12_file,
                 pkcs12_password=pkcs12_password,
-                pkcs12_password_file=pkcs12_password_file)
+                pkcs12_password_file=pkcs12_password_file,
+                nicknames=nicknames)
         finally:
             nssdb.close()
 

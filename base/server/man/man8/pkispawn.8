@@ -607,10 +607,10 @@ pki_security_domain_https_port=<master_ca_https_port>
 pki_security_domain_user=caadmin
 
 [Tomcat]
-pki_clone=True
+pki_server_pkcs12_path=<path to pkcs12 file>
 pki_server_pkcs12_password=\fISecret123\fP
-pki_server_pkcs12_path=<path_to_pkcs12_file>
-pki_server_external_cert_path=<path to external_certs.conf file>
+pki_server_external_certs_path=<path to external_certs.conf file>
+pki_clone=True
 pki_clone_replicate_schema=True
 pki_clone_uri=https://<master_ca_hostname>:<master_ca_https_port>
 .fi

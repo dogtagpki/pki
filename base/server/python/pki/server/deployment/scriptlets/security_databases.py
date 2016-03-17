@@ -85,11 +85,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_secmod_database'],
             perms=config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
+        # import system certificates before starting the server
+
         pki_server_pkcs12_path = deployer.mdict['pki_server_pkcs12_path']
-
         if pki_server_pkcs12_path:
-
-            # importing system certificates
 
             pki_server_pkcs12_password = deployer.mdict[
                 'pki_server_pkcs12_password']
@@ -105,9 +104,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 pkcs12_password=pki_server_pkcs12_password)
 
             # update external CA file (if needed)
-            external_cert_path = deployer.mdict['pki_server_external_cert_path']
-            if external_cert_path is not None:
-                self.update_external_cert_conf(external_cert_path, deployer)
+            external_certs_path = deployer.mdict['pki_server_external_certs_path']
+            if external_certs_path is not None:
+                self.update_external_certs_conf(external_certs_path, deployer)
 
         if len(deployer.instance.tomcat_instance_subsystems()) < 2:
             # only create a self signed cert for a new instance
@@ -183,20 +182,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.file.delete(deployer.mdict['pki_shared_pfile'])
         return self.rv
 
-    def update_external_cert_conf(self, external_path, deployer):
+    def update_external_certs_conf(self, external_path, deployer):
         external_certs = pki.server.PKIInstance.read_external_certs(
             external_path)
 
         if len(external_certs) > 0:
-            instance = pki.server.PKIInstance(
-                deployer.mdict['pki_instance_name'])
-            instance.load_external_certs(
+            deployer.instance.load_external_certs(
                 os.path.join(deployer.mdict['pki_instance_configuration_path'],
                              'external_certs.conf')
             )
 
             for cert in external_certs:
-                instance.add_external_cert(cert.nickname, cert.token)
+                deployer.instance.add_external_cert(cert.nickname, cert.token)
 
     def destroy(self, deployer):
 

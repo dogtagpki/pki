@@ -18,6 +18,7 @@
 package com.netscape.cmstools.pkcs12;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,6 +61,7 @@ public class PKCS12ExportCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
+        options.addOption(null, "new-file", false, "Create a new PKCS #12 file");
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
@@ -124,14 +126,23 @@ public class PKCS12ExportCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
+        boolean newFile = cmd.hasOption("new-file");
         boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
 
         try {
             PKCS12Util util = new PKCS12Util();
             util.setTrustFlagsEnabled(trustFlagsEnabled);
 
-            // overwrite existing file
-            PKCS12 pkcs12 = new PKCS12();
+            PKCS12 pkcs12;
+
+            if (newFile || !new File(filename).exists()) {
+                // if new file requested or file does not exist, create a new file
+                pkcs12 = new PKCS12();
+
+            } else {
+                // otherwise, export into the existing file
+                pkcs12 = util.loadFromFile(filename, password);
+            }
 
             if (nicknames.length == 0) {
                 // load all certificates
