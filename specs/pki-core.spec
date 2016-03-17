@@ -9,7 +9,6 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %define with_tomcat7 0
 %define with_tomcat8 1
 %else
-# 0%{?rhel} || 0%{?fedora} <= 22
 %define with_tomcat7 1
 %define with_tomcat8 0
 %endif
@@ -18,7 +17,6 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %if 0%{?rhel}
 %define resteasy_lib /usr/share/java/resteasy-base
 %else
-# 0%{?fedora}
 %define resteasy_lib /usr/share/java/resteasy
 %endif
 
@@ -40,7 +38,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          13%{?dist}
+Release:          16%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -202,6 +200,18 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch39:          pki-core-Replaced-legacy-HttpClient.patch
 ## pki-core-10.2.6-12
 #Patch40:          pki-core-Added-automatic-Tomcat-migration.patch
+## pki-core-10.2.6-13
+#Patch41:          pki-core-sslget-must-set-host-HTTP-header.patch
+## pki-core-10.2.6-14
+#Patch42:          pki-core-Profile-creation-LDAPProfileSubsystem-can-fail-due-to-race-condition.patch
+#Patch43:          pki-core-Block-startup-until-initial-profile-load-completed.patch
+## pki-core-10.2.6-15
+#Patch44:          pki-core-Added-support-for-existing-CA-case-CS9.patch
+#Patch45:          pki-core-Fixed-mismatching-certificate-validity-calculation.patch
+#Patch46:          pki-core-Fix-to-determine-supported-javadoc-options.patch
+## pki-core-10.2.6-16
+#Patch47:          pki-core-Modify-dnsdomainname-test-in-pkispawn.patch
+#Patch48:          pki-core-Build-with-Tomcat-8.0.32.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -394,7 +404,7 @@ Requires:         java-headless >= 1:1.7.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?fedora} >= 23
-Requires:         tomcat-servlet-3.1-api
+Requires:         tomcat-servlet-3.1-api >= 8.0.32
 %else
 %if 0%{?fedora} >= 22
 Requires:         tomcat-servlet-3.0-api
@@ -455,12 +465,13 @@ Obsoletes:        pki-selinux
 %if 0%{?rhel}
 Requires:         tomcat >= 7.0.54
 %else
-Requires:         tomcat >= 7.0.47
 %if 0%{?fedora} >= 23
-Requires:         tomcat-el-3.0-api
-Requires:         tomcat-jsp-2.3-api
-Requires:         tomcat-servlet-3.1-api
+Requires:         tomcat >= 8.0.32
+Requires:         tomcat-el-3.0-api >= 8.0.32
+Requires:         tomcat-jsp-2.3-api >= 8.0.32
+Requires:         tomcat-servlet-3.1-api >= 8.0.32
 %else
+Requires:         tomcat >= 7.0.47
 Requires:         tomcat-el-2.2-api
 Requires:         tomcat-jsp-2.2-api
 Requires:         tomcat-servlet-3.0-api
@@ -745,6 +756,14 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch38 -p1
 #%patch39 -p1
 #%patch40 -p1
+#%patch41 -p1
+#%patch42 -p1
+#%patch43 -p1
+#%patch44 -p1
+#%patch45 -p1
+#%patch46 -p1
+#%patch47 -p1
+#%patch48 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1098,12 +1117,33 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
-* Thu Feb  4 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-13
+* Mon Mar 14 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-16
+- Modify dnsdomainname test in pkispawn
+- PKI TRAC Ticket #2222 - Add missing tomcat-api.jar to javac classpath
+- Updated tomcat dependencies to >= 8.0.32 on F23 and later
+
+* Tue Feb 23 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-15
 - PKI TRAC Ticket #1714 - mod_revocator and mod_nss dependency for tps
-  should be removed
+  should be removed [mharmsen]
+- PKI TRAC Ticket #456 - The user have a chance to import own CA certificate
+  with private key [edewata]
+- PKI TRAC Ticket #1681 - pkispawn: External CA option: allow shutdown and
+  restart between phase 1 and 2 [edewata]
+- PKI TRAC Ticket #1682 - Mismatching certificate validity calculation
+  [edewata]
+- PKI TRAC Ticket #2040 - Determine supported javadoc options [mharmsen]
+
+* Thu Jan 21 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-14
+- PKI TRAC Ticket #1700 - Profile creation (LDAPProfileSubsystem) can fail
+  due to race condition [ftweedal]
+- PKI TRAC Ticket #1702 - getStatus reports ready before LDAPProfileSubsystem
+  has loaded all profiles [ftweedal]
+
+* Tue Dec 15 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-13
+- PKI TRAC Ticket #1704 - sslget must set host HTTP header [cheimes]
 
 * Fri Oct 30 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-12
-- PKI TRAC Ticket #1310 - Auto migration to Tomcat 8
+- PKI TRAC Ticket #1310 - Auto migration to Tomcat 8 [edewata]
 
 * Fri Oct 23 2015 Dogtag Team <pki-devel@redhat.com> 10.2.6-11
 - PKI TRAC Ticket #1120 - Removed unused WizardServlet [edewata]
