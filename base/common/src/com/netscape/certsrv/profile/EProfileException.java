@@ -48,4 +48,8 @@ public class EProfileException extends EBaseException {
     public EProfileException(String msg, Throwable cause) {
         super(msg, cause);
     }
+
+    public EProfileException(Throwable cause) {
+        super(cause.getMessage(), cause);
+    }
 }

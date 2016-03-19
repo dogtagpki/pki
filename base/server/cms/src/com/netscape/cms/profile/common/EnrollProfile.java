@@ -30,29 +30,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -98,6 +75,29 @@ import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cmsutil.util.HMACDigest;
+
+import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS10Attribute;
+import netscape.security.pkcs.PKCS10Attributes;
+import netscape.security.pkcs.PKCS9Attribute;
+import netscape.security.util.DerInputStream;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateAlgorithmId;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSerialNumber;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.Extensions;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * This class implements a generic enrollment profile.
@@ -249,8 +249,9 @@ public abstract class EnrollProfile extends BasicProfile
                     new CertificateExtensions());
         } catch (Exception e) {
             // throw exception - add key to template
-            CMS.debug("EnrollProfile: Building X509CertInfo - " + e.toString());
-            throw new EProfileException(e.toString());
+            CMS.debug("EnrollProfile: Unable to create X509CertInfo: " + e);
+            CMS.debug(e);
+            throw new EProfileException(e);
         }
         req.setExtData(REQUEST_CERTINFO, info);
     }
@@ -269,11 +270,11 @@ public abstract class EnrollProfile extends BasicProfile
                     new CertificateExtensions());
 
             CMS.debug("EnrollProfile: createRequest " +
-                    req.getRequestId().toString());
+                    req.getRequestId());
         } catch (EBaseException e) {
-            // raise exception
-            CMS.debug("EnrollProfile: create new enroll request " +
-                    e.toString());
+            // raise exception?
+            CMS.debug("EnrollProfile: Unable to create enrollment request: " + e);
+            CMS.debug(e);
         }
 
         return req;
@@ -312,7 +313,8 @@ public abstract class EnrollProfile extends BasicProfile
 
             return sn.toString();
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: getRequestDN " + e.toString());
+            CMS.debug("EnrollProfile: Unable to get requestor DN: " + e);
+            CMS.debug(e);
         }
         return null;
     }
@@ -343,7 +345,8 @@ public abstract class EnrollProfile extends BasicProfile
             queue.updateRequest(request);
         } catch (EBaseException e) {
             // save request to disk
-            CMS.debug("EnrollProfile: Update request " + e.toString());
+            CMS.debug("EnrollProfile: Unable to update request: " + e);
+            CMS.debug(e);
         }
 
         if (token == null) {
@@ -353,7 +356,8 @@ public abstract class EnrollProfile extends BasicProfile
             try {
                 queue.updateRequest(request);
             } catch (EBaseException e) {
-                CMS.debug("EnrollProfile: Update request (after validation) " + e.toString());
+                CMS.debug("EnrollProfile: Unable to update request after validation: " + e);
+                CMS.debug(e);
             }
 
             throw new EDeferException("defer request");
@@ -463,9 +467,10 @@ public abstract class EnrollProfile extends BasicProfile
 
             return msgs;
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: parseCMC " + e.toString());
+            CMS.debug("EnrollProfile: Unable to parse CMC request: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 
@@ -692,7 +697,7 @@ public abstract class EnrollProfile extends BasicProfile
                 cm = CryptoManager.getInstance();
                 if (sigver == true) {
                     String tokenName =
-                        CMS.getConfigStore().getString("ca.requestVerify.token", "internal");   
+                        CMS.getConfigStore().getString("ca.requestVerify.token", "internal");
                     savedToken = cm.getThreadToken();
                     if (tokenName.equals("internal")) {
                         signToken = cm.getInternalCryptoToken();
@@ -715,8 +720,7 @@ public abstract class EnrollProfile extends BasicProfile
                 req.setExtData("bodyPartId", tcr.getBodyPartID());
                 fillPKCS10(locale, pkcs10, info, req);
             } catch (Exception e) {
-                CMS.debug("EnrollProfile: fillTaggedRequest " +
-                        e.toString());
+                CMS.debug("EnrollProfile: fillTaggedRequest " + e);
             }  finally {
                 if ((sigver == true) && (tokenSwitched == true)){
                     cm.setThreadToken(savedToken);
@@ -762,8 +766,10 @@ public abstract class EnrollProfile extends BasicProfile
                 lraPop = (LraPopWitness) (ASN1Util.decode(LraPopWitness.getTemplate(),
                         ASN1Util.encode(vals.elementAt(0))));
             } catch (InvalidBERException e) {
+                CMS.debug("EnrollProfile: Unable to parse LRA POP Witness: " + e);
+                CMS.debug(e);
                 throw new EProfileException(
-                        CMS.getUserMessage(locale, "CMS_PROFILE_ENCODING_ERROR"));
+                        CMS.getUserMessage(locale, "CMS_PROFILE_ENCODING_ERROR"), e);
             }
 
             SEQUENCE bodyIds = lraPop.getBodyIds();
@@ -774,7 +780,7 @@ public abstract class EnrollProfile extends BasicProfile
                 if (num.toString().equals(reqId.toString())) {
                     donePOP = true;
                     CMS.debug("EnrollProfile: skip POP for request: "
-                            + reqId.toString() + " because LRA POP Witness control is found.");
+                            + reqId + " because LRA POP Witness control is found.");
                     break;
                 }
             }
@@ -782,7 +788,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         if (!donePOP) {
             CMS.debug("EnrollProfile: not skip POP for request: "
-                    + reqId.toString()
+                    + reqId
                     + " because this request id is not part of the body list in LRA Pop witness control.");
             verifyPOP(locale, crm);
         }
@@ -818,9 +824,10 @@ public abstract class EnrollProfile extends BasicProfile
             }
             return msgs;
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: parseCRMF " + e.toString());
+            CMS.debug("EnrollProfile: Unable to parse CRMF request: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 
@@ -838,7 +845,7 @@ public abstract class EnrollProfile extends BasicProfile
             archOpts = (PKIArchiveOptions)
                     (new PKIArchiveOptions.Template()).decode(bis);
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: getPKIArchiveOptions " + e.toString());
+            CMS.debug("EnrollProfile: getPKIArchiveOptions " + e);
         }
         return archOpts;
     }
@@ -851,7 +858,7 @@ public abstract class EnrollProfile extends BasicProfile
             archOpts = (PKIArchiveOptions)
                     (new PKIArchiveOptions.Template()).decode(bis);
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: toPKIArchiveOptions " + e.toString());
+            CMS.debug("EnrollProfile: toPKIArchiveOptions " + e);
         }
         return archOpts;
     }
@@ -1005,16 +1012,18 @@ public abstract class EnrollProfile extends BasicProfile
 
             }
         } catch (IOException e) {
-            CMS.debug("EnrollProfile: fillCertReqMsg " + e.toString());
+            CMS.debug("EnrollProfile: Unable to fill certificate request message: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         } catch (InvalidKeyException e) {
-            CMS.debug("EnrollProfile: fillCertReqMsg " + e.toString());
+            CMS.debug("EnrollProfile: Unable to fill certificate request message: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
-            //  } catch (CertificateException e) {
-            //     CMS.debug("EnrollProfile: fillCertReqMsg " + e.toString());
-            //    throw new EProfileException(e.toString());
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
+        // } catch (CertificateException e) {
+        //     CMS.debug(e);
+        //     throw new EProfileException(e);
         }
     }
 
@@ -1022,7 +1031,7 @@ public abstract class EnrollProfile extends BasicProfile
             throws EProfileException {
         /* cert request must not be null */
         if (certreq == null) {
-            CMS.debug("EnrollProfile:parsePKCS10() certreq null");
+            CMS.debug("EnrollProfile: parsePKCS10() certreq null");
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
         }
@@ -1061,9 +1070,10 @@ public abstract class EnrollProfile extends BasicProfile
                 pkcs10 = new PKCS10(data, sigver);
             }
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: parsePKCS10 " + e.toString());
+            CMS.debug("EnrollProfile: Unable to parse PKCS #10 request: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         } finally {
             if (sigver) {
                 CMS.debug("EnrollProfile: parsePKCS10 restoring thread token");
@@ -1131,13 +1141,15 @@ public abstract class EnrollProfile extends BasicProfile
 
             CMS.debug("Finish parsePKCS10 - " + pkcs10.getSubjectName());
         } catch (IOException e) {
-            CMS.debug("EnrollProfile: fillPKCS10 " + e.toString());
+            CMS.debug("EnrollProfile: Unable to fill PKCS #10: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         } catch (CertificateException e) {
-            CMS.debug("EnrollProfile: fillPKCS10 " + e.toString());
+            CMS.debug("EnrollProfile: Unable to fill PKCS #10: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 
@@ -1161,9 +1173,10 @@ public abstract class EnrollProfile extends BasicProfile
             CMS.debug("EnrollPrifile: fillNSNKEY(): uid=" + sn);
 
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: fillNSNKEY(): " + e.toString());
+            CMS.debug("EnrollProfile: Unable to fill NSNKEY: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 
@@ -1185,9 +1198,10 @@ public abstract class EnrollProfile extends BasicProfile
             CMS.debug("EnrollPrifile: fillNSNKEY(): tokencuid=" + tcuid);
 
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: fillNSHKEY(): " + e.toString());
+            CMS.debug("EnrollProfile: Unable to fill NSHKEY: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 
@@ -1235,13 +1249,15 @@ public abstract class EnrollProfile extends BasicProfile
             req.setExtData(IEnrollProfile.REQUEST_KEY, certKeyOut.toByteArray());
             info.set(X509CertInfo.KEY, certKey);
         } catch (IOException e) {
-            CMS.debug("EnrollProfile: fillKeyGen " + e.toString());
+            CMS.debug("EnrollProfile: Unable to fill key gen: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         } catch (CertificateException e) {
-            CMS.debug("EnrollProfile: fillKeyGen " + e.toString());
+            CMS.debug("EnrollProfile: Unable to fill key gen: " + e);
+            CMS.debug(e);
             throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 
@@ -1355,7 +1371,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             audit(auditMessage);
         } catch (CertificateException e) {
-            CMS.debug("EnrollProfile: populate " + e.toString());
+            CMS.debug("EnrollProfile: populate " + e);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -1368,7 +1384,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             audit(auditMessage);
         } catch (IOException e) {
-            CMS.debug("EnrollProfile: populate " + e.toString());
+            CMS.debug("EnrollProfile: populate " + e);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -1501,7 +1517,8 @@ public abstract class EnrollProfile extends BasicProfile
             audit(auditMessage);
         } catch (Exception e) {
 
-            CMS.debug("Failed POP verify! " + e.toString());
+            CMS.debug("EnrollProfile: Unable to verify POP: " + e);
+            CMS.debug(e);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -1512,7 +1529,7 @@ public abstract class EnrollProfile extends BasicProfile
             audit(auditMessage);
 
             throw new EProfileException(CMS.getUserMessage(locale,
-                        "CMS_POP_VERIFICATION_ERROR"));
+                        "CMS_POP_VERIFICATION_ERROR"), e);
         }
     }
 }
