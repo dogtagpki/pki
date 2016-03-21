@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -31,7 +30,6 @@ import org.dogtagpki.server.tps.cms.CARevokeCertResponse;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.tps.main.TPSException;
@@ -48,8 +46,8 @@ import netscape.security.x509.RevocationReason;
  * TPSTokendb class offers a collection of tokendb management convenience routines
  */
 public class TPSTokendb {
+
     private TPSSubsystem tps;
-    private Map<TokenStatus, Collection<TokenStatus>> allowedTransitions = new HashMap<TokenStatus, Collection<TokenStatus>>();
 
     public TPSTokendb(TPSSubsystem tps) throws EBaseException {
         if (tps == null) {
@@ -58,44 +56,17 @@ public class TPSTokendb {
             throw new EBaseException(msg);
         }
         this.tps = tps;
-        try {
-            initAllowedTransitions();
-        } catch (Exception e) {
-            CMS.debug("TPSTokendb: initAllowedTransitions() failed:" + e);
-            throw new EBaseException(e.toString());
-        }
     }
 
-    void initAllowedTransitions()
-            throws Exception {
-        CMS.debug("TPSTokendb.initAllowedTransitions()");
-        IConfigStore configStore = CMS.getConfigStore();
-
-        // load allowed token state transitions
-        CMS.debug("TPSTokendbs: allowed transitions:");
-
-        for (String transition : configStore.getString(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS).split(",")) {
-            String states[] = transition.split(":");
-            TokenStatus fromState = TokenStatus.fromInt(Integer.valueOf(states[0]));
-            TokenStatus toState = TokenStatus.fromInt(Integer.valueOf(states[1]));
-            CMS.debug("TPSTokendb:  - " + fromState + " to " + toState);
-
-            Collection<TokenStatus> nextStates = allowedTransitions.get(fromState);
-            if (nextStates == null) {
-                nextStates = new HashSet<TokenStatus>();
-                allowedTransitions.put(fromState, nextStates);
-            }
-            nextStates.add(toState);
-        }
-    }
-
-    public boolean isTransitionAllowed(TokenRecord tokenRecord, TokenStatus newState) {
+    public boolean isTransitionAllowed(TokenRecord tokenRecord, TokenStatus newState) throws Exception {
         boolean result = false;
         TokenStatus currentTokenStatus = tokenRecord.getTokenStatus();
+
         CMS.debug("TokenRecord.isTransitionAllowed(): current status: " + currentTokenStatus);
-        Collection<TokenStatus> nextStatuses = allowedTransitions.get(currentTokenStatus);
+        Collection<TokenStatus> nextStatuses = tps.getNextTokenStates(tokenRecord);
+
         CMS.debug("TokenRecord.isTransitionAllowed(): allowed next statuses: " + nextStatuses);
-        if (nextStatuses == null || !nextStatuses.contains(newState)) {
+        if (!nextStatuses.contains(newState)) {
             CMS.debug("TokenRecord.isTransitionAllowed(): next status not allowed: " + newState);
 
             result = false;

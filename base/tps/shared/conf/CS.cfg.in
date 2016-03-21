@@ -1966,7 +1966,7 @@ tokendb.addConfigTemplate=addConfig.template
 tokendb.addResultTemplate=addResults.template
 tokendb.agentSelectConfigTemplate=agentSelectConfig.template
 tokendb.agentViewConfigTemplate=agentViewConfig.template
-tokendb.allowedTransitions=0:1,0:2,0:3,0:6,3:2,3:4,3:6,4:1,4:2,4:3,4:6
+tokendb.allowedTransitions=0:1,0:2,0:3,0:6,3:2,3:6,4:1,4:2,4:3,4:6
 tokendb.auditAdminTemplate=auditAdmin.template
 tokendb.auditLog=[PKI_INSTANCE_PATH]/logs/tokendb-audit.log
 tokendb.baseDN=ou=Tokens,[TOKENDB_ROOT]

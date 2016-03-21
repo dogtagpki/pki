@@ -17,6 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+
 import org.dogtagpki.server.tps.authentication.AuthenticationManager;
 import org.dogtagpki.server.tps.cms.ConnectionManager;
 import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
@@ -26,7 +31,9 @@ import org.dogtagpki.server.tps.config.ProfileDatabase;
 import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
+import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
+import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.mapping.MappingResolverManager;
 import org.mozilla.jss.CryptoManager;
@@ -43,6 +50,7 @@ import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -70,8 +78,10 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public ConnectionManager connManager;
     public AuthenticationManager authManager;
     public MappingResolverManager mappingResolverManager;
+
     public TPSEngine engine;
     public TPSTokendb tdb;
+    public Map<TokenStatus, Collection<TokenStatus>> allowedTransitions = new HashMap<TokenStatus, Collection<TokenStatus>>();
 
     @Override
     public String getId() {
@@ -105,11 +115,69 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         connectorDatabase = new ConnectorDatabase();
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
+
+        CMS.debug("TokenSubsystem: allowed transitions:");
+
+        // initialize allowed token state transitions with empty containers
+        for (TokenStatus state : TokenStatus.values()) {
+            allowedTransitions.put(state, new LinkedHashSet<TokenStatus>());
+        }
+
+        // load allowed token state transitions from TPS configuration
+        for (String transition : cs.getString(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS).split(",")) {
+            String states[] = transition.split(":");
+
+            TokenStatus fromState = TokenStatus.fromInt(Integer.valueOf(states[0]));
+            TokenStatus toState = TokenStatus.fromInt(Integer.valueOf(states[1]));
+            CMS.debug("TokenSubsystem:  - " + fromState + " to " + toState);
+
+            Collection<TokenStatus> nextStates = allowedTransitions.get(fromState);
+            nextStates.add(toState);
+        }
+
         tdb = new TPSTokendb(this);
 
         engine = new TPSEngine();
         engine.init();
 
+    }
+
+    /**
+     * Return the allowed next states for a given token based on TPS configuration.
+     *
+     * If the current state is TEMP_LOST, token will be allowed transition to either
+     * UNINITIALIZED or ACTIVE depending on whether the token has certificates.
+     *
+     * @param tokenRecord
+     * @return A non-null collection of allowed next token states.
+     */
+    public Collection<TokenStatus> getNextTokenStates(TokenRecord tokenRecord) throws Exception {
+
+        TokenStatus currentState = tokenRecord.getTokenStatus();
+        Collection<TokenStatus> nextStates = allowedTransitions.get(currentState);
+
+        if (currentState == TokenStatus.TEMP_LOST) {
+
+            Collection<TokenStatus> ns = new LinkedHashSet<TokenStatus>();
+
+            // check token certificates
+            Collection<TPSCertRecord> certRecords = tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
+
+            // if token has no certificates, allow token to become uninitialized again
+            if (certRecords.isEmpty()) {
+                ns.add(TokenStatus.UNINITIALIZED);
+
+            } else { // otherwise, allow token to become active again
+                ns.add(TokenStatus.ACTIVE);
+            }
+
+            // add the original allowed next states
+            ns.addAll(nextStates);
+
+            return ns;
+        }
+
+        return nextStates;
     }
 
     @Override

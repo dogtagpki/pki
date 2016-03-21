@@ -24,7 +24,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -39,15 +38,12 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
-import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
-import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
@@ -77,58 +73,8 @@ public class TokenService extends PKIService implements TokenResource {
     @Context
     private HttpServletRequest servletRequest;
 
-    public Map<TokenStatus, Collection<TokenStatus>> transitions = new HashMap<TokenStatus, Collection<TokenStatus>>();
-
     public TokenService() throws Exception {
         CMS.debug("TokenService.<init>()");
-        IConfigStore configStore = CMS.getConfigStore();
-
-        // load allowed token state transitions
-        CMS.debug("TokenService: allowed transitions:");
-
-        for (String transition : configStore.getString(TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS).split(",")) {
-            String states[] = transition.split(":");
-            TokenStatus fromState = TokenStatus.fromInt(Integer.valueOf(states[0]));
-            TokenStatus toState = TokenStatus.fromInt(Integer.valueOf(states[1]));
-            CMS.debug("TokenService:  - " + fromState + " to " + toState);
-
-            Collection<TokenStatus> nextStates = transitions.get(fromState);
-            if (nextStates == null) {
-                nextStates = new HashSet<TokenStatus>();
-                transitions.put(fromState, nextStates);
-            }
-            nextStates.add(toState);
-        }
-
-    }
-
-    public TokenStatus getTokenStatus(TokenRecord tokenRecord) {
-        String status = tokenRecord.getStatus();
-
-        if ("uninitialized".equals(status)) {
-            return TokenStatus.UNINITIALIZED;
-
-        } else if ("active".equals(status)) {
-            return TokenStatus.ACTIVE;
-
-        } else if ("lost".equals(status)) {
-            String reason = tokenRecord.getReason();
-
-            if ("keyCompromise".equals(reason)) {
-                return TokenStatus.PERM_LOST;
-
-            } else if ("destroyed".equals(reason)) {
-                return TokenStatus.DAMAGED;
-
-            } else if ("onHold".equals(reason)) {
-                return TokenStatus.TEMP_LOST;
-            }
-
-        } else if ("terminated".equals(status)) {
-            return TokenStatus.TERMINATED;
-        }
-
-        return TokenStatus.PERM_LOST;
     }
 
     public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser)
@@ -142,32 +88,13 @@ public class TokenService extends PKIService implements TokenResource {
             break;
 
         case ACTIVE:
-            String origStatus = tokenRecord.getStatus();
-            String origReason = tokenRecord.getReason();
-
-            if (origStatus.equalsIgnoreCase("lost") &&
-                    origReason.equalsIgnoreCase("onHold")) {
-
-                Collection<TPSCertRecord> certRecords = tps.tdb.tdbGetCertRecordsByCUID(tokenRecord.getId());
-                if (certRecords.isEmpty()) { // token was uninitialized
-                    // restore to uninitialized state
-                    tokenRecord.setStatus("uninitialized");
-                    tokenRecord.setReason(null);
-
-                } else { // token was active
-                    // unrevoke certs
-                    tps.tdb.unRevokeCertsByCUID(tokenRecord.getId(), ipAddress, remoteUser);
-
-                    // restore to active state
-                    tokenRecord.setStatus("active");
-                    tokenRecord.setReason(null);
-                }
-
-            } else {
-                // switch to active state
-                tokenRecord.setStatus("active");
-                tokenRecord.setReason(null);
+            if (tokenRecord.getTokenStatus() == TokenStatus.TEMP_LOST) {
+                // unrevoke certs
+                tps.tdb.unRevokeCertsByCUID(tokenRecord.getId(), ipAddress, remoteUser);
             }
+
+            tokenRecord.setStatus("active");
+            tokenRecord.setReason(null);
 
             break;
 
@@ -221,6 +148,8 @@ public class TokenService extends PKIService implements TokenResource {
 
     public TokenData createTokenData(TokenRecord tokenRecord) throws Exception {
 
+        TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
         ResourceBundle labels = getResourceBundle("token-states");
 
         TokenData tokenData = new TokenData();
@@ -229,23 +158,21 @@ public class TokenService extends PKIService implements TokenResource {
         tokenData.setUserID(tokenRecord.getUserID());
         tokenData.setType(tokenRecord.getType());
 
-        TokenStatus status = getTokenStatus(tokenRecord);
+        TokenStatus status = tokenRecord.getTokenStatus();
         TokenStatusData statusData = new TokenStatusData();
         statusData.name = status;
         statusData.label = labels.getString(status.toString());
         tokenData.setStatus(statusData);
 
-        Collection<TokenStatus> nextStates = transitions.get(status);
-        if (nextStates != null) {
-            Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
-            for (TokenStatus nextState : nextStates) {
-                TokenStatusData nextStateData = new TokenStatusData();
-                nextStateData.name = nextState;
-                nextStateData.label = labels.getString(status + "." + nextState);
-                nextStatesData.add(nextStateData);
-            }
-            tokenData.setNextStates(nextStatesData);
+        Collection<TokenStatus> nextStates = subsystem.getNextTokenStates(tokenRecord);
+        Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
+        for (TokenStatus nextState : nextStates) {
+            TokenStatusData nextStateData = new TokenStatusData();
+            nextStateData.name = nextState;
+            nextStateData.label = labels.getString(status + "." + nextState);
+            nextStatesData.add(nextStateData);
         }
+        tokenData.setNextStates(nextStatesData);
 
         tokenData.setAppletID(tokenRecord.getAppletID());
         tokenData.setKeyInfo(tokenRecord.getKeyInfo());
@@ -588,7 +515,7 @@ public class TokenService extends PKIService implements TokenResource {
             TokenDatabase database = subsystem.getTokenDatabase();
 
             tokenRecord = database.getRecord(tokenID);
-            TokenStatus currentTokenStatus = getTokenStatus(tokenRecord);
+            TokenStatus currentTokenStatus = tokenRecord.getTokenStatus();
             CMS.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
 
             if (currentTokenStatus == tokenStatus) {
@@ -601,9 +528,10 @@ public class TokenService extends PKIService implements TokenResource {
             msg = msg + " from " + currentTokenStatus + " to " + tokenStatus;
 
             // make sure transition is allowed
-            Collection<TokenStatus> nextStatuses = transitions.get(currentTokenStatus);
+            Collection<TokenStatus> nextStatuses = subsystem.getNextTokenStates(tokenRecord);
             CMS.debug("TokenService.changeTokenStatus(): allowed next statuses: " + nextStatuses);
-            if (nextStatuses == null || !nextStatuses.contains(tokenStatus)) {
+
+            if (!nextStatuses.contains(tokenStatus)) {
                 CMS.debug("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
                 throw new BadRequestException("Invalid token status transition");
             }
