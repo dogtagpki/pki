@@ -30,7 +30,6 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.security.DigestException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -3640,12 +3639,15 @@ public class ConfigurationUtils {
 
     public static String submitAdminCertRequest(String ca_hostname, int ca_port, String profileId,
             String certRequestType, String certRequest, String subjectDN) throws Exception {
+
+        CMS.debug("ConfigurationUtils: submitAdminCertRequest()");
+
         IConfigStore config = CMS.getConfigStore();
 
         if (profileId == null) {
             profileId = config.getString("preop.admincert.profile", "caAdminCert");
         }
-        certRequest = URLEncoder.encode(certRequest, "UTF-8");
+
         String session_id = CMS.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();

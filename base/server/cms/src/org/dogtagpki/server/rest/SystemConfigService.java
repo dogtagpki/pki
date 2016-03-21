@@ -609,11 +609,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response) {
+
         if (!data.isClone()) {
             try {
                 X509CertImpl admincerts[] = new X509CertImpl[1];
                 ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
                         data.getAdminName(), data.getAdminPassword());
+
                 if (data.getImportAdminCert().equalsIgnoreCase("true")) {
                     String b64 = CryptoUtil.stripCertBrackets(data.getAdminCert().trim());
                     if (data.getStandAlone() && data.getStepTwo()) {
@@ -625,6 +627,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     // Convert Admin Cert to X509CertImpl
                     byte[] b = CryptoUtil.base64Decode(b64);
                     admincerts[0] = new X509CertImpl(b);
+
                 } else {
                     if (csType.equals("CA")) {
                         ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
@@ -634,6 +637,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
                         ICertificateRepository repo = ca.getCertificateRepository();
                         admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
+
                     } else {
                         String type = cs.getString("preop.ca.type", "");
                         String ca_hostname = "";
