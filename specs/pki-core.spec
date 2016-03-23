@@ -43,7 +43,7 @@
 
 Name:             pki-core
 Version:          10.3.0.a1
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1105,6 +1105,19 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Wed Mar 23 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a1-2
+- PKI TRAC Ticket #1625 - Allow multiple ACLs of same name
+  (union of rules) [ftweedal]
+- PKI TRAC Ticket #2237 - Add CRL dist points extension to OIDMap
+  unconditionally [edewata]
+- PKI TRAC Ticket #1803 - Removed unnecessary URL encoding for admin cert
+  request. [edewata]
+- PKI TRAC Ticket #1742 - Added support for cloning 3rd-party CA
+  certificates. [edewata]
+- PKI TRAC Ticket #1482 - Added TPS token filter dialog. [edewata]
+- PKI TRAC Ticket #1808 - Fixed illegal token state transition
+  via TEMP_LOST. [edewata]
+
 * Fri Mar  4 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a1-1
 - Build for F24 alpha
 
