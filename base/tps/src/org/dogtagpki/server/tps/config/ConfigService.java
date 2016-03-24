@@ -20,6 +20,7 @@ package org.dogtagpki.server.tps.config;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +35,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.config.ConfigData;
 import com.netscape.certsrv.tps.config.ConfigResource;
 import com.netscape.cms.servlet.base.PKIService;
@@ -94,8 +96,15 @@ public class ConfigService extends PKIService implements ConfigResource {
 
     @Override
     public Response updateConfig(ConfigData configData) {
+        String method = "ConfigService.updateConfig";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (configData == null) throw new BadRequestException("Config data is null.");
+        if (configData == null) {
+            BadRequestException e = new BadRequestException("Config data is null.");
+            auditModParams.put("Info", e.toString());
+            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams, e.toString());
+            throw e;
+        }
 
         CMS.debug("ConfigService.updateConfig()");
 
@@ -103,32 +112,41 @@ public class ConfigService extends PKIService implements ConfigResource {
             ConfigDatabase configDatabase = new ConfigDatabase();
             ConfigRecord configRecord = configDatabase.getRecord("Generals");
 
-            Map<String, String> properties = configData.getProperties();
-            if (properties != null) {
+            Map<String, String> newProperties = configData.getProperties();
+            if (newProperties != null) {
                 // validate new properties
-                configDatabase.validateProperties(configRecord, null, properties);
+                configDatabase.validateProperties(configRecord, null, newProperties);
 
                 // remove old properties
                 configDatabase.removeProperties(configRecord, null);
 
                 // add new properties
-                configDatabase.addProperties(configRecord, null, properties);
+                configDatabase.addProperties(configRecord, null, newProperties);
             }
 
             configDatabase.commit();
 
-            properties = configDatabase.getProperties(configRecord, null);
+            Map<String, String> properties = configDatabase.getProperties(configRecord, null);
             configData = createConfigData(properties);
+
+            auditConfigTokenGeneral(ILogger.SUCCESS, method,
+                    newProperties, null);
 
             return Response
                     .ok(configData)
                     .build();
 
         } catch (PKIException e) {
+            CMS.debug(method +": " + e);
+            auditConfigTokenGeneral(ILogger.FAILURE, method,
+                    auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
             e.printStackTrace();
+            CMS.debug(method +": " + e);
+            auditConfigTokenGeneral(ILogger.FAILURE, method,
+                    auditModParams, e.toString());
             throw new PKIException(e.getMessage());
         }
     }

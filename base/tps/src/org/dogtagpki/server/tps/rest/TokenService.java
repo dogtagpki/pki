@@ -47,6 +47,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
 import com.netscape.certsrv.tps.token.TokenData.TokenStatusData;
@@ -77,13 +78,22 @@ public class TokenService extends PKIService implements TokenResource {
         CMS.debug("TokenService.<init>()");
     }
 
-    public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser)
-            throws Exception {
+    public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser,
+            Map<String, String> auditModParams)
+                    throws Exception {
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
+        String oldStatus = tokenRecord.getStatus();
+        String oldReason = tokenRecord.getReason();
+        String newStatus = String.valueOf(tokenState);
+        String newReason = null;
+
+        auditModParams.put("UserID", tokenRecord.getUserID());
 
         switch (tokenState) {
         case UNINITIALIZED:
             tokenRecord.setStatus("uninitialized");
+            newStatus = "uninitialized";
             tokenRecord.setReason(null);
             break;
 
@@ -94,6 +104,7 @@ public class TokenService extends PKIService implements TokenResource {
             }
 
             tokenRecord.setStatus("active");
+            newStatus = "active";
             tokenRecord.setReason(null);
 
             break;
@@ -101,7 +112,9 @@ public class TokenService extends PKIService implements TokenResource {
         case PERM_LOST:
         case TEMP_LOST_PERM_LOST:
             tokenRecord.setStatus("lost");
+            newStatus = "lost";
             tokenRecord.setReason("keyCompromise");
+            newReason = "keyCompromise";
 
             //revoke certs
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "keyCompromise", ipAddress, remoteUser);
@@ -109,7 +122,9 @@ public class TokenService extends PKIService implements TokenResource {
 
         case DAMAGED:
             tokenRecord.setStatus("lost");
+            newStatus = "lost";
             tokenRecord.setReason("destroyed");
+            newReason = "destroyed";
 
             //revoke certs
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "destroyed", ipAddress, remoteUser);
@@ -118,7 +133,9 @@ public class TokenService extends PKIService implements TokenResource {
 
         case TEMP_LOST:
             tokenRecord.setStatus("lost");
+            newStatus = "lost";
             tokenRecord.setReason("onHold");
+            newReason = "onHold";
 
             // put certs onHold
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "onHold", ipAddress, remoteUser);
@@ -134,15 +151,23 @@ public class TokenService extends PKIService implements TokenResource {
                 reason = "onHold";
             }
             tokenRecord.setStatus("terminated");
+            newStatus = "terminated";
             tokenRecord.setReason(reason);
+            newReason = reason;
 
             //revoke certs
-            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), reason, ipAddress, remoteUser) ;
+            tps.tdb.revokeCertsByCUID(tokenRecord.getId(), reason, ipAddress, remoteUser);
             break;
 
         default:
-            throw new PKIException("Unsupported token state: " + tokenState);
+            PKIException e = new PKIException("Unsupported token state: " + tokenState);
+            auditTokenStateChange(ILogger.FAILURE, oldStatus,
+                    newStatus, oldReason, newReason,
+                    auditModParams, e.toString());
+            throw e;
         }
+
+        auditTokenStateChange(ILogger.SUCCESS, oldStatus, newStatus, oldReason, newReason, auditModParams, null);
 
     }
 
@@ -232,7 +257,7 @@ public class TokenService extends PKIService implements TokenResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             Iterator<TokenRecord> tokens = database.findRecords(filter, attributes).iterator();
@@ -241,24 +266,26 @@ public class TokenService extends PKIService implements TokenResource {
             int i = 0;
 
             // skip to the start of the page
-            for ( ; i<start && tokens.hasNext(); i++) tokens.next();
+            for (; i < start && tokens.hasNext(); i++)
+                tokens.next();
 
             // return entries up to the page size
-            for ( ; i<start+size && tokens.hasNext(); i++) {
+            for (; i < start + size && tokens.hasNext(); i++) {
                 response.addEntry(createTokenData(tokens.next()));
             }
 
             // count the total entries
-            for ( ; tokens.hasNext(); i++) tokens.next();
+            for (; tokens.hasNext(); i++)
+                tokens.next();
             response.setTotal(i);
 
             if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+            if (start + size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }
 
@@ -267,7 +294,7 @@ public class TokenService extends PKIService implements TokenResource {
         } catch (EDBException e) {
             Throwable t = e.getCause();
             if (t != null && t instanceof LDAPException) {
-                throw LDAPExceptionConverter.toPKIException((LDAPException)t);
+                throw LDAPExceptionConverter.toPKIException((LDAPException) t);
             }
             throw new PKIException(e);
 
@@ -283,12 +310,13 @@ public class TokenService extends PKIService implements TokenResource {
     @Override
     public Response getToken(String tokenID) {
 
-        if (tokenID == null) throw new BadRequestException("Token ID is null.");
+        if (tokenID == null)
+            throw new BadRequestException("Token ID is null.");
 
         CMS.debug("TokenService.getToken(\"" + tokenID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
 
             return createOKResponse(createTokenData(database.getRecord(tokenID)));
@@ -296,7 +324,7 @@ public class TokenService extends PKIService implements TokenResource {
         } catch (EDBException e) {
             Throwable t = e.getCause();
             if (t != null && t instanceof LDAPException) {
-                throw LDAPExceptionConverter.toPKIException((LDAPException)t);
+                throw LDAPExceptionConverter.toPKIException((LDAPException) t);
             }
             throw new PKIException(e);
 
@@ -311,16 +339,25 @@ public class TokenService extends PKIService implements TokenResource {
 
     @Override
     public Response addToken(TokenData tokenData) {
+        String method = "TokenService.addToken";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (tokenData == null) throw new BadRequestException("Token data is null.");
+        if (tokenData == null) {
+            BadRequestException ex = new BadRequestException("Token data is null.");
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    ex.toString());
+            throw ex;
+        }
 
         String tokenID = tokenData.getTokenID();
+        auditModParams.put("tokenID", tokenID);
+
         CMS.debug("TokenService.addToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "add token";
 
@@ -333,20 +370,25 @@ public class TokenService extends PKIService implements TokenResource {
             String userID = tokenData.getUserID();
             if (StringUtils.isNotEmpty(userID)) {
                 tokenRecord.setUserID(userID);
+                auditModParams.put("userID", userID);
             }
 
             String policy = tokenData.getPolicy();
             if (StringUtils.isNotEmpty(policy)) {
                 tokenRecord.setPolicy(policy);
+                auditModParams.put("Policy", policy);
             }
 
             // new tokens are uninitialized when created
             tokenRecord.setStatus("uninitialized");
+            auditModParams.put("Status", "uninitialized");
 
             database.addRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
-                ipAddress, msg, "success", remoteUser);
+                    ipAddress, msg, "success", remoteUser);
             tokenData = createTokenData(database.getRecord(tokenID));
+            auditConfigTokenRecord(ILogger.SUCCESS, method, tokenID,
+                    auditModParams, null);
 
             return createCreatedResponse(tokenData, tokenData.getLink().getHref());
 
@@ -355,35 +397,52 @@ public class TokenService extends PKIService implements TokenResource {
 
             msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
-                ipAddress, msg, "failure", remoteUser);
+                    ipAddress, msg, "failure", remoteUser);
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
                 if (t != null && t instanceof LDAPException) {
-                    throw LDAPExceptionConverter.toPKIException((LDAPException)t);
+                    PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
+                    auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                            auditModParams, ex.toString());
+                    throw ex;
                 }
             }
 
             if (e instanceof PKIException) {
-                throw (PKIException)e;
+                auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                        auditModParams, e.toString());
+                throw (PKIException) e;
             }
 
+            auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response replaceToken(String tokenID, TokenData tokenData) {
+        String method = "TokenService.replaceToken";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (tokenID == null) throw new BadRequestException("Token ID is null.");
-        if (tokenData == null) throw new BadRequestException("Token data is null.");
+        if (tokenID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Token ID is null.");
+            throw new BadRequestException("Token ID is null.");
+        }
+        if (tokenData == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams,
+                    "Token data is null.");
+            throw new BadRequestException("Token data is null.");
+        }
 
         CMS.debug("TokenService.replaceToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "replace token";
         try {
@@ -391,15 +450,22 @@ public class TokenService extends PKIService implements TokenResource {
 
             tokenRecord = database.getRecord(tokenID);
             tokenRecord.setUserID(remoteUser);
+            auditModParams.put("userID", remoteUser);
             tokenRecord.setType(tokenData.getType());
+            auditModParams.put("type", tokenData.getType());
             tokenRecord.setAppletID(tokenData.getAppletID());
+            auditModParams.put("appletID", tokenData.getAppletID());
             tokenRecord.setKeyInfo(tokenData.getKeyInfo());
+            auditModParams.put("keyInfo", tokenData.getKeyInfo());
             tokenRecord.setPolicy(tokenData.getPolicy());
+            auditModParams.put("Policy", tokenData.getPolicy());
             database.updateRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
-                ipAddress, msg, "success", remoteUser);
+                    ipAddress, msg, "success", remoteUser);
 
             tokenData = createTokenData(database.getRecord(tokenID));
+            auditConfigTokenRecord(ILogger.SUCCESS, method, tokenID,
+                    auditModParams, null);
 
             return createOKResponse(tokenData);
 
@@ -408,36 +474,55 @@ public class TokenService extends PKIService implements TokenResource {
 
             msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
-                ipAddress, msg, "failure",
-                remoteUser);
+                    ipAddress, msg, "failure",
+                    remoteUser);
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
                 if (t != null && t instanceof LDAPException) {
-                    throw LDAPExceptionConverter.toPKIException((LDAPException)t);
+                    PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
+                    auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                            auditModParams, ex.toString());
+                    throw ex;
                 }
             }
 
             if (e instanceof PKIException) {
-                throw (PKIException)e;
+                auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                        auditModParams, e.toString());
+                throw (PKIException) e;
             }
 
+            auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response modifyToken(String tokenID, TokenData tokenData) {
+        String method = "TokenService.modifyToken";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (tokenID == null) throw new BadRequestException("Token ID is null.");
-        if (tokenData == null) throw new BadRequestException("Token data is null.");
+        if (tokenID == null) {
+            BadRequestException e = new BadRequestException("Token ID is null.");
+            auditConfigTokenRecord(ILogger.FAILURE, "modify", tokenID,
+                    auditModParams, e.toString());
+            throw e;
+        }
+        if (tokenData == null) {
+            BadRequestException e = new BadRequestException("Token data is null.");
+            auditConfigTokenRecord(ILogger.FAILURE, "modify", tokenID,
+                    auditModParams, e.toString());
+            throw e;
+        }
 
         CMS.debug("TokenService.modifyToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "modify token";
         try {
@@ -453,6 +538,7 @@ public class TokenService extends PKIService implements TokenResource {
                     tokenRecord.setUserID(null);
                 } else { // otherwise replace value
                     tokenRecord.setUserID(userID);
+                    auditModParams.put("userID", userID);
                 }
             }
 
@@ -463,14 +549,17 @@ public class TokenService extends PKIService implements TokenResource {
                     tokenRecord.setPolicy(null);
                 } else { //otherwise replace value
                     tokenRecord.setPolicy(policy);
+                    auditModParams.put("Policy", policy);
                 }
             }
 
             database.updateRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
-                ipAddress, msg, "success", remoteUser);
+                    ipAddress, msg, "success", remoteUser);
 
             tokenData = createTokenData(database.getRecord(tokenID));
+            auditConfigTokenRecord(ILogger.SUCCESS, method, tokenID,
+                    auditModParams, null);
 
             return createOKResponse(tokenData);
 
@@ -479,36 +568,61 @@ public class TokenService extends PKIService implements TokenResource {
 
             msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
-                ipAddress, msg, "failure",
-                remoteUser);
+                    ipAddress, msg, "failure",
+                    remoteUser);
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
                 if (t != null && t instanceof LDAPException) {
-                    throw LDAPExceptionConverter.toPKIException((LDAPException)t);
+                    PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
+                    auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                            auditModParams, ex.toString());
+                    throw ex;
                 }
             }
 
             if (e instanceof PKIException) {
-                throw (PKIException)e;
+                auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                        auditModParams, e.toString());
+                throw (PKIException) e;
             }
 
+            auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response changeTokenStatus(String tokenID, TokenStatus tokenStatus) {
+        String method = "TokenService.changeTokenStatus";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (tokenID == null) throw new BadRequestException("Token ID is null.");
-        if (tokenStatus == null) throw new BadRequestException("Token state is null.");
+        if (tokenID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Token ID is null.");
+            throw new BadRequestException("Token ID is null.");
+        }
+        auditModParams.put("tokenID", tokenID);
+        if (tokenStatus == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Token state is null.");
+            throw new BadRequestException("Token state is null.");
+        }
+        auditModParams.put("tokenStatus", tokenStatus.toString());
 
         CMS.debug("TokenService.changeTokenStatus(\"" + tokenID + "\", \"" + tokenStatus + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        // for auditing
+        String oldStatus = null;
+        String oldReason = null;
+        String newStatus = null;
+        String newReason = null;
+
         TokenRecord tokenRecord = null;
         String msg = "change token status";
         try {
@@ -517,6 +631,10 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord = database.getRecord(tokenID);
             TokenStatus currentTokenStatus = tokenRecord.getTokenStatus();
             CMS.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
+
+            oldStatus = tokenRecord.getStatus();
+            oldReason = tokenRecord.getReason();
+            newStatus = String.valueOf(tokenStatus);
 
             if (currentTokenStatus == tokenStatus) {
                 CMS.debug("TokenService.changeTokenStatus(): no status change, no activity log generated");
@@ -533,15 +651,20 @@ public class TokenService extends PKIService implements TokenResource {
 
             if (!nextStatuses.contains(tokenStatus)) {
                 CMS.debug("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
-                throw new BadRequestException("Invalid token status transition");
+                Exception ex = new BadRequestException("Invalid token status transition");
+                auditTokenStateChange(ILogger.FAILURE, oldStatus,
+                        newStatus, oldReason, newReason,
+                        auditModParams, ex.toString());
+                throw ex;
             }
 
             CMS.debug("TokenService.changeTokenStatus(): next status allowed: " + tokenStatus);
-            setTokenStatus(tokenRecord, tokenStatus, ipAddress, remoteUser);
+            // audit in setTokenStatus()
+            setTokenStatus(tokenRecord, tokenStatus, ipAddress, remoteUser, auditModParams);
             database.updateRecord(tokenID, tokenRecord);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
-                ipAddress, msg, "success",
-                remoteUser);
+                    ipAddress, msg, "success",
+                    remoteUser);
 
             TokenData tokenData = createTokenData(database.getRecord(tokenID));
 
@@ -552,35 +675,52 @@ public class TokenService extends PKIService implements TokenResource {
 
             msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
-                ipAddress, msg, "failure",
-                remoteUser);
+                    ipAddress, msg, "failure",
+                    remoteUser);
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
                 if (t != null && t instanceof LDAPException) {
-                    throw LDAPExceptionConverter.toPKIException((LDAPException)t);
+                    PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
+                    auditTokenStateChange(ILogger.FAILURE, oldStatus,
+                            newStatus, oldReason, newReason,
+                            auditModParams, ex.toString());
+                    throw ex;
                 }
             }
 
             if (e instanceof PKIException) {
-                throw (PKIException)e;
+                auditTokenStateChange(ILogger.FAILURE, oldStatus,
+                        newStatus, oldReason, newReason,
+                        auditModParams, e.toString());
+                throw (PKIException) e;
             }
 
+            auditTokenStateChange(ILogger.FAILURE, oldStatus,
+                    newStatus, oldReason, newReason,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response removeToken(String tokenID) {
+        String method = "TokenService.removeToken";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (tokenID == null) throw new BadRequestException("Token ID is null.");
+        if (tokenID == null) {
+            BadRequestException ex = new BadRequestException("Token ID is null.");
+            auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                    auditModParams, ex.toString());
+            throw ex;
+        }
 
         CMS.debug("TokenService.removeToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "remove token";
         try {
@@ -592,8 +732,10 @@ public class TokenService extends PKIService implements TokenResource {
             subsystem.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
 
             database.removeRecord(tokenID);
+            auditConfigTokenRecord(ILogger.SUCCESS, method, tokenID,
+                    auditModParams, null);
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DELETE, tokenRecord,
-                ipAddress, msg, "success", remoteUser);
+                    ipAddress, msg, "success", remoteUser);
 
             return createNoContentResponse();
 
@@ -602,21 +744,66 @@ public class TokenService extends PKIService implements TokenResource {
 
             msg = msg + ": " + e.getMessage();
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DELETE, tokenRecord,
-                ipAddress, msg, "failure",
-                remoteUser);
+                    ipAddress, msg, "failure",
+                    remoteUser);
 
             if (e instanceof EDBException) {
                 Throwable t = e.getCause();
                 if (t != null && t instanceof LDAPException) {
-                    throw LDAPExceptionConverter.toPKIException((LDAPException)t);
+                    PKIException ex = LDAPExceptionConverter.toPKIException((LDAPException) t);
+                    auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                            auditModParams, ex.toString());
+                    throw ex;
                 }
             }
 
             if (e instanceof PKIException) {
-                throw (PKIException)e;
+                auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                        auditModParams, e.toString());
+                throw (PKIException) e;
             }
 
+            auditConfigTokenRecord(ILogger.FAILURE, method, tokenID,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
+    }
+
+    /*
+     * Service can be any of the methods offered
+     */
+    public void auditConfigTokenRecord(String status, String service, String tokenID, Map<String, String> params,
+            String info) {
+
+        String msg = CMS.getLogMessage(
+                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_RECORD_6",
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                service,
+                tokenID,
+                auditor.getParamString(null, params),
+                info);
+        auditor.log(msg);
+
+    }
+
+    /*
+     *
+     */
+    public void auditTokenStateChange(String status, String oldState, String newState, String oldReason,
+            String newReason, Map<String, String> params, String info) {
+
+        String msg = CMS.getLogMessage(
+                "LOGGING_SIGNED_AUDIT_TOKEN_STATE_CHANGE_8",
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                oldState,
+                oldReason,
+                newState,
+                newReason,
+                auditor.getParamString(null, params),
+                info);
+        auditor.log(msg);
+
     }
 }

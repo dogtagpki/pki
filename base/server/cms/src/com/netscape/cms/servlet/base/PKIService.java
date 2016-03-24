@@ -259,6 +259,21 @@ public class PKIService {
         auditor.log(auditMessage);
     }
 
+    public void auditConfigTokenGeneral(String status, String service, Map<String, String> params, String info) {
+        CMS.debug("PKIService.auditConfigTokenGeneral begins");
+
+        String msg = CMS.getLogMessage(
+                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_GENERAL_5",
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                service,
+                auditor.getParamString(null, params),
+                info);
+        auditor.log(msg);
+
+        CMS.debug("PKIService.auditConfigTokenGeneral ends");
+    }
+
     /**
      * Get the values of the fields annotated with @FormParam.
      */

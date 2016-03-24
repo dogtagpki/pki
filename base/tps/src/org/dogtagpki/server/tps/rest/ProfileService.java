@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.profile.ProfileCollection;
 import com.netscape.certsrv.tps.profile.ProfileData;
 import com.netscape.certsrv.tps.profile.ProfileResource;
@@ -108,7 +110,7 @@ public class ProfileService extends PKIService implements ProfileResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
             Iterator<ProfileRecord> profiles = database.findRecords(filter).iterator();
@@ -117,24 +119,26 @@ public class ProfileService extends PKIService implements ProfileResource {
             int i = 0;
 
             // skip to the start of the page
-            for ( ; i<start && profiles.hasNext(); i++) profiles.next();
+            for (; i < start && profiles.hasNext(); i++)
+                profiles.next();
 
             // return entries up to the page size
-            for ( ; i<start+size && profiles.hasNext(); i++) {
+            for (; i < start + size && profiles.hasNext(); i++) {
                 response.addEntry(createProfileData(profiles.next()));
             }
 
             // count the total entries
-            for ( ; profiles.hasNext(); i++) profiles.next();
+            for (; profiles.hasNext(); i++)
+                profiles.next();
             response.setTotal(i);
 
             if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+            if (start + size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }
 
@@ -153,12 +157,13 @@ public class ProfileService extends PKIService implements ProfileResource {
     @Override
     public Response getProfile(String profileID) {
 
-        if (profileID == null) throw new BadRequestException("Profile ID is null.");
+        if (profileID == null)
+            throw new BadRequestException("Profile ID is null.");
 
         CMS.debug("ProfileService.getProfile(\"" + profileID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
             return createOKResponse(createProfileData(database.getRecord(profileID)));
@@ -175,63 +180,97 @@ public class ProfileService extends PKIService implements ProfileResource {
 
     @Override
     public Response addProfile(ProfileData profileData) {
+        String method = "ProfileService.addProfile";
 
-        if (profileData == null) throw new BadRequestException("Profile data is null.");
+        if (profileData == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Profile data is null.");
+            throw new BadRequestException("Profile data is null.");
+        }
 
         CMS.debug("ProfileService.addProfile(\"" + profileData.getID() + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
             String status = profileData.getStatus();
             Principal principal = servletRequest.getUserPrincipal();
 
+            boolean statusChanged = false;
             if (StringUtils.isEmpty(status) || database.requiresApproval() && !database.canApprove(principal)) {
                 // if status is unspecified or user doesn't have rights to approve, the entry is disabled
-                profileData.setStatus(Constants.CFG_DISABLED);
+                status = Constants.CFG_DISABLED;
+                profileData.setStatus(status);
+                statusChanged = true;
             }
 
             database.addRecord(profileData.getID(), createProfileRecord(profileData));
 
             profileData = createProfileData(database.getRecord(profileData.getID()));
 
+            //Map<String, String> properties = database.getRecord(profileData.getID()).getProperties();
+            Map<String, String> properties = profileData.getProperties();
+            if (statusChanged) {
+                properties.put("Status", status);
+            }
+            auditTPSProfileChange(ILogger.SUCCESS, method, profileData.getID(), properties, null);
+
             return createCreatedResponse(profileData, profileData.getLink().getHref());
 
         } catch (PKIException e) {
             CMS.debug("ProfileService: " + e);
+            auditTPSProfileChange(ILogger.FAILURE, method, profileData.getID(), null, e.toString());
             throw e;
 
         } catch (Exception e) {
             CMS.debug(e);
+            auditTPSProfileChange(ILogger.FAILURE, method, profileData.getID(), null, e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response updateProfile(String profileID, ProfileData profileData) {
+        String method = "ProfileService.updateProfile";
 
-        if (profileID == null) throw new BadRequestException("Profile ID is null.");
-        if (profileData == null) throw new BadRequestException("Profile data is null.");
+        if (profileID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Profile id is null.");
+            throw new BadRequestException("Profile ID is null.");
+        }
+
+        if (profileData == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Profile data is null.");
+            throw new BadRequestException("Profile data is null.");
+        }
 
         CMS.debug("ProfileService.updateProfile(\"" + profileID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
             ProfileRecord record = database.getRecord(profileID);
 
             // only disabled profile can be updated
             if (!Constants.CFG_DISABLED.equals(record.getStatus())) {
-                throw new ForbiddenException("Unable to update profile " + profileID);
+                Exception e = new ForbiddenException("Unable to update profile " + profileID);
+                auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                        profileData.getProperties(), e.toString());
+                throw e;
             }
 
             // update status if specified
             String status = profileData.getStatus();
+            boolean statusChanged = false;
             if (status != null && !Constants.CFG_DISABLED.equals(status)) {
                 if (!Constants.CFG_ENABLED.equals(status)) {
-                    throw new ForbiddenException("Invalid profile status: " + status);
+                    Exception e = new ForbiddenException("Invalid profile status: " + status);
+                    auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                            profileData.getProperties(), e.toString());
+                    throw e;
                 }
 
                 // if user doesn't have rights, set to pending
@@ -242,40 +281,61 @@ public class ProfileService extends PKIService implements ProfileResource {
 
                 // enable profile
                 record.setStatus(status);
+                statusChanged = true;
             }
 
             // update properties if specified
             Map<String, String> properties = profileData.getProperties();
             if (properties != null) {
                 record.setProperties(properties);
+                if (statusChanged) {
+                    properties.put("Status", status);
+                }
             }
 
             database.updateRecord(profileID, record);
 
             profileData = createProfileData(database.getRecord(profileID));
 
+            auditTPSProfileChange(ILogger.SUCCESS, method, profileData.getID(), properties, null);
+
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
             CMS.debug("ProfileService: " + e);
+            auditTPSProfileChange(ILogger.FAILURE, method, profileID, profileData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
             CMS.debug(e);
+            auditTPSProfileChange(ILogger.FAILURE, method, profileID, profileData.getProperties(), e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response changeStatus(String profileID, String action) {
+        String method = "ProfileService.changeStatus";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (profileID == null) throw new BadRequestException("Profile ID is null.");
-        if (action == null) throw new BadRequestException("Action is null.");
+        if (profileID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Profile id is null.");
+            throw new BadRequestException("Profile ID is null.");
+        }
+        auditModParams.put("profileID", profileID);
+
+        if (action == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams,
+                    "action is null.");
+            throw new BadRequestException("Action is null.");
+        }
+        auditModParams.put("Action", action);
 
         CMS.debug("ProfileService.changeStatus(\"" + profileID + "\", \"" + action + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
             ProfileRecord record = database.getRecord(profileID);
@@ -295,7 +355,10 @@ public class ProfileService extends PKIService implements ProfileResource {
                         status = Constants.CFG_ENABLED;
 
                     } else {
-                        throw new BadRequestException("Invalid action: " + action);
+                        Exception e = new BadRequestException("Invalid action: " + action);
+                        auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                                auditModParams, e.toString());
+                        throw e;
                     }
 
                 } else {
@@ -303,7 +366,10 @@ public class ProfileService extends PKIService implements ProfileResource {
                         status = Constants.CFG_ENABLED;
 
                     } else {
-                        throw new BadRequestException("Invalid action: " + action);
+                        Exception e = new BadRequestException("Invalid action: " + action);
+                        auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                                auditModParams, e.toString());
+                        throw e;
                     }
                 }
 
@@ -313,7 +379,10 @@ public class ProfileService extends PKIService implements ProfileResource {
                     status = Constants.CFG_DISABLED;
 
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    Exception e = new BadRequestException("Invalid action: " + action);
+                    auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                            auditModParams, e.toString());
+                    throw e;
                 }
 
             } else if (Constants.CFG_PENDING_APPROVAL.equals(status)) {
@@ -328,59 +397,105 @@ public class ProfileService extends PKIService implements ProfileResource {
                     status = Constants.CFG_DISABLED;
 
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    Exception e = new BadRequestException("Invalid action: " + action);
+                    auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                            auditModParams, e.toString());
+                    throw e;
                 }
 
             } else {
-                throw new PKIException("Invalid profile status: " + status);
+                Exception e = new PKIException("Invalid profile status: " + status);
+                auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                        auditModParams, e.toString());
+                throw e;
             }
 
             record.setStatus(status);
             database.updateRecord(profileID, record);
 
             ProfileData profileData = createProfileData(database.getRecord(profileID));
+            auditModParams.put("Status", status);
+            auditTPSProfileChange(ILogger.SUCCESS, method, profileID, auditModParams, null);
 
             return createOKResponse(profileData);
 
         } catch (PKIException e) {
             CMS.debug("ProfileService: " + e);
+            auditConfigTokenGeneral(ILogger.FAILURE, method,
+                    auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
             CMS.debug(e);
+            auditConfigTokenGeneral(ILogger.FAILURE, method,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response removeProfile(String profileID) {
+        String method = "ProfileService.removeProfile";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (profileID == null) throw new BadRequestException("Profile ID is null.");
+        if (profileID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Profile ID is null.");
+            throw new BadRequestException("Profile ID is null.");
+        }
+        auditModParams.put("profileID", profileID);
 
         CMS.debug("ProfileService.removeProfile(\"" + profileID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
 
             ProfileRecord record = database.getRecord(profileID);
             String status = record.getStatus();
 
             if (!Constants.CFG_DISABLED.equals(status)) {
-                throw new ForbiddenException("Profile " + profileID + " is not disabled");
+                Exception e = new ForbiddenException("Profile " + profileID + " is not disabled");
+                auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                        auditModParams, e.toString());
+                throw e;
             }
 
             database.removeRecord(profileID);
+            auditTPSProfileChange(ILogger.SUCCESS, method, profileID, null, null);
 
             return createNoContentResponse();
 
         } catch (PKIException e) {
             CMS.debug("ProfileService: " + e);
+            auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                    auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
             CMS.debug(e);
+            auditTPSProfileChange(ILogger.FAILURE, method, profileID,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
+
+    /*
+     * Service can be any of the methods offered
+     */
+    public void auditTPSProfileChange(String status, String service, String profileID, Map<String, String> params,
+            String info) {
+
+        String msg = CMS.getLogMessage(
+                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_PROFILE_6",
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                service,
+                profileID,
+                auditor.getParamString(null, params),
+                info);
+        auditor.log(msg);
+
+    }
+
 }

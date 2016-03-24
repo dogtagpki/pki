@@ -21,6 +21,7 @@ package org.dogtagpki.server.rest;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -42,6 +43,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.AuditConfig;
 import com.netscape.certsrv.logging.AuditResource;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
@@ -66,29 +68,62 @@ public class AuditService extends PKIService implements AuditResource {
     }
 
     public AuditConfig createAuditConfig() throws UnsupportedEncodingException, EBaseException {
+        return createAuditConfig(null);
+    }
+
+    public AuditConfig createAuditConfig(Map<String, String> auditParams)
+            throws UnsupportedEncodingException, EBaseException {
 
         IConfigStore cs = CMS.getConfigStore();
 
         AuditConfig auditConfig = new AuditConfig();
-        auditConfig.setStatus(cs.getBoolean("log.instance.SignedAudit.enable", false) ? "Enabled" : "Disabled");
-        auditConfig.setSigned(cs.getBoolean("log.instance.SignedAudit.logSigning", false));
-        auditConfig.setInterval(cs.getInteger("log.instance.SignedAudit.flushInterval", 5));
-        auditConfig.setBufferSize(cs.getInteger("log.instance.SignedAudit.bufferSize", 512));
+        String val = null;
+        Boolean boolval = false;
+        Integer integerval;
+
+        val = cs.getBoolean("log.instance.SignedAudit.enable", false) ? "Enabled" : "Disabled";
+        auditConfig.setStatus(val);
+        if (auditParams != null)
+            auditParams.put("enable", val);
+
+        boolval = cs.getBoolean("log.instance.SignedAudit.logSigning", false);
+        if (auditParams != null)
+            auditParams.put("logSigning", boolval ? "true" : "false");
+        auditConfig.setSigned(boolval);
+
+        integerval = cs.getInteger("log.instance.SignedAudit.flushInterval", 5);
+        auditConfig.setInterval(integerval);
+        if (auditParams != null)
+            auditParams.put("flushInterval", integerval.toString());
+
+        integerval = cs.getInteger("log.instance.SignedAudit.bufferSize", 512);
+        auditConfig.setBufferSize(integerval);
+        if (auditParams != null)
+            auditParams.put("bufferSize", integerval.toString());
 
         Map<String, String> eventConfigs = new TreeMap<String, String>();
 
         // unselected optional events
-        for (String event : StringUtils.split(cs.getString("log.instance.SignedAudit.unselected.events", ""), ", ")) {
+        val = cs.getString("log.instance.SignedAudit.unselected.events", "");
+        if (auditParams != null)
+            auditParams.put("unselected.events", val);
+        for (String event : StringUtils.split(val, ", ")) {
             eventConfigs.put(event.trim(), "disabled");
         }
 
         // selected optional events
-        for (String event : StringUtils.split(cs.getString("log.instance.SignedAudit.events", ""), ", ")) {
+        val = cs.getString("log.instance.SignedAudit.events", "");
+        if (auditParams != null)
+            auditParams.put("events", val);
+        for (String event : StringUtils.split(val, ", ")) {
             eventConfigs.put(event.trim(), "enabled");
         }
 
         // always selected mandatory events
-        for (String event : StringUtils.split(cs.getString("log.instance.SignedAudit.mandatory.events", ""), ", ")) {
+        val = cs.getString("log.instance.SignedAudit.mandatory.events", "");
+        if (auditParams != null)
+            auditParams.put("mandatory.events", val);
+        for (String event : StringUtils.split(val, ", ")) {
             eventConfigs.put(event.trim(), "mandatory");
         }
 
@@ -119,8 +154,14 @@ public class AuditService extends PKIService implements AuditResource {
 
     @Override
     public Response updateAuditConfig(AuditConfig auditConfig) {
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (auditConfig == null) throw new BadRequestException("Audit config is null.");
+        if (auditConfig == null) {
+            BadRequestException e = new BadRequestException("Audit config is null.");
+            auditModParams.put("Info", e.toString());
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+            throw e;
+        }
 
         CMS.debug("AuditService.updateAuditConfig()");
 
@@ -157,20 +198,29 @@ public class AuditService extends PKIService implements AuditResource {
 
                     // make sure no event is added
                     if (currentValue == null) {
-                        throw new PKIException("Unable to add event: " + name);
+                        PKIException e = new PKIException("Unable to add event: " + name);
+                        auditModParams.put("Info", e.toString());
+                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                        throw e;
                     }
 
                     // make sure no optional event becomes mandatory
                     if ("mandatory".equals(value)) {
                         if (!"mandatory".equals(currentValue)) {
-                            throw new PKIException("Unable to add mandatory event: " + name);
+                            PKIException e = new PKIException("Unable to add mandatory event: " + name);
+                            auditModParams.put("Info", e.toString());
+                            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                            throw e;
                         }
                         continue;
                     }
 
                     // make sure no mandatory event becomes optional
                     if ("mandatory".equals(currentValue)) {
-                        throw new PKIException("Unable to remove mandatory event: " + name);
+                        PKIException e = new PKIException("Unable to remove mandatory event: " + name);
+                        auditModParams.put("Info", e.toString());
+                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                        throw e;
                     }
 
                     if ("enabled".equals(value)) {
@@ -180,7 +230,10 @@ public class AuditService extends PKIService implements AuditResource {
                         unselected.add(name);
 
                     } else {
-                        throw new PKIException("Invalid event configuration: " + name + "=" + value);
+                        PKIException e = new PKIException("Invalid event configuration: " + name + "=" + value);
+                        auditModParams.put("Info", e.toString());
+                        auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                        throw e;
                     }
                 }
 
@@ -191,20 +244,28 @@ public class AuditService extends PKIService implements AuditResource {
             for (String name : currentEventConfigs.keySet()) {
                 // make sure no event is removed
                 if (!eventConfigs.containsKey(name)) {
-                    throw new PKIException("Unable to remove event: " + name);
+                    PKIException e = new PKIException("Unable to remove event: " + name);
+                    auditModParams.put("Info", e.toString());
+                    auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                    throw e;
                 }
             }
 
             cs.commit(true);
 
-            auditConfig = createAuditConfig();
+            auditConfig = createAuditConfig(auditModParams);
+            auditTPSConfigSignedAudit(ILogger.SUCCESS, auditModParams);
 
             return createOKResponse(auditConfig);
 
         } catch (PKIException e) {
+            auditModParams.put("Info", e.toString());
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
             throw e;
 
         } catch (Exception e) {
+            auditModParams.put("Info", e.toString());
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
             e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
@@ -212,10 +273,12 @@ public class AuditService extends PKIService implements AuditResource {
 
     @Override
     public Response changeAuditStatus(String action) {
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
         CMS.debug("AuditService.changeAuditStatus()");
 
         try {
+            auditModParams.put("Action", action);
             IConfigStore cs = CMS.getConfigStore();
 
             if ("enable".equals(action)) {
@@ -225,21 +288,45 @@ public class AuditService extends PKIService implements AuditResource {
                 cs.putBoolean("log.instance.SignedAudit.enable", false);
 
             } else {
-                throw new BadRequestException("Invalid action " + action);
+                BadRequestException e = new BadRequestException("Invalid action " + action);
+                auditModParams.put("Info", e.toString());
+                auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+                throw e;
             }
 
             cs.commit(true);
 
             AuditConfig auditConfig = createAuditConfig();
+            auditTPSConfigSignedAudit(ILogger.SUCCESS, auditModParams);
 
             return createOKResponse(auditConfig);
 
         } catch (PKIException e) {
+            auditModParams.put("Info", e.toString());
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+            e.printStackTrace();
             throw e;
 
         } catch (Exception e) {
+            auditModParams.put("Info", e.toString());
+            auditTPSConfigSignedAudit(ILogger.FAILURE, auditModParams);
+            e.printStackTrace();
             e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
+    }
+
+    /*
+     * in case of failure, "info" should be in the params
+     */
+    public void auditTPSConfigSignedAudit(String status, Map<String, String> params) {
+
+        String msg = CMS.getLogMessage(
+                "LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT_3",
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                auditor.getParamString(null, params));
+        auditor.log(msg);
+
     }
 }

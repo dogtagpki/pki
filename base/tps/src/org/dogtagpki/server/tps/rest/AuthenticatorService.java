@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorResource;
@@ -69,7 +71,8 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         CMS.debug("AuthenticatorService.<init>()");
     }
 
-    public AuthenticatorData createAuthenticatorData(AuthenticatorRecord authenticatorRecord) throws UnsupportedEncodingException {
+    public AuthenticatorData createAuthenticatorData(AuthenticatorRecord authenticatorRecord)
+            throws UnsupportedEncodingException {
 
         String authenticatorID = authenticatorRecord.getID();
 
@@ -79,7 +82,8 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         authenticatorData.setProperties(authenticatorRecord.getProperties());
 
         authenticatorID = URLEncoder.encode(authenticatorID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(AuthenticatorResource.class).path("{authenticatorID}").build(authenticatorID);
+        URI uri = uriInfo.getBaseUriBuilder().path(AuthenticatorResource.class).path("{authenticatorID}")
+                .build(authenticatorID);
         authenticatorData.setLink(new Link("self", uri));
 
         return authenticatorData;
@@ -108,7 +112,7 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             Iterator<AuthenticatorRecord> authenticators = database.findRecords(filter).iterator();
@@ -117,24 +121,26 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             int i = 0;
 
             // skip to the start of the page
-            for ( ; i<start && authenticators.hasNext(); i++) authenticators.next();
+            for (; i < start && authenticators.hasNext(); i++)
+                authenticators.next();
 
             // return entries up to the page size
-            for ( ; i<start+size && authenticators.hasNext(); i++) {
+            for (; i < start + size && authenticators.hasNext(); i++) {
                 response.addEntry(createAuthenticatorData(authenticators.next()));
             }
 
             // count the total entries
-            for ( ; authenticators.hasNext(); i++) authenticators.next();
+            for (; authenticators.hasNext(); i++)
+                authenticators.next();
             response.setTotal(i);
 
             if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+            if (start + size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }
 
@@ -153,12 +159,13 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
     @Override
     public Response getAuthenticator(String authenticatorID) {
 
-        if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
+        if (authenticatorID == null)
+            throw new BadRequestException("Authenticator ID is null.");
 
         CMS.debug("AuthenticatorService.getAuthenticator(\"" + authenticatorID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             return createOKResponse(createAuthenticatorData(database.getRecord(authenticatorID)));
@@ -175,68 +182,105 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
 
     @Override
     public Response addAuthenticator(AuthenticatorData authenticatorData) {
+        String method = "AuthenticatorService.addAuthenticator";
 
-        if (authenticatorData == null) throw new BadRequestException("Authenticator data is null.");
+        if (authenticatorData == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Authenticator data is null.");
+            throw new BadRequestException("Authenticator data is null.");
+        }
 
         CMS.debug("AuthenticatorService.addAuthenticator(\"" + authenticatorData.getID() + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             String status = authenticatorData.getStatus();
             Principal principal = servletRequest.getUserPrincipal();
 
+            boolean statusChanged = false;
             if (StringUtils.isEmpty(status) || database.requiresApproval() && !database.canApprove(principal)) {
                 // if status is unspecified or user doesn't have rights to approve, the entry is disabled
-                authenticatorData.setStatus(Constants.CFG_DISABLED);
+                status = Constants.CFG_DISABLED;
+                authenticatorData.setStatus(status);
+                statusChanged = true;
             }
 
             database.addRecord(authenticatorData.getID(), createAuthenticatorRecord(authenticatorData));
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorData.getID()));
+            Map<String, String> properties = authenticatorData.getProperties();
+            if (statusChanged) {
+                properties.put("Status", status);
+            }
+            auditTPSAuthenticatorChange(ILogger.SUCCESS, method, authenticatorData.getID(), properties, null);
 
             return createCreatedResponse(authenticatorData, authenticatorData.getLink().getHref());
 
         } catch (PKIException e) {
             CMS.debug("AuthenticatorService: " + e);
+            auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                    authenticatorData.getID(), authenticatorData.getProperties(), e.toString());
+
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug("AuthenticatorService: " + e);
+            auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                    authenticatorData.getID(), authenticatorData.getProperties(), e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response updateAuthenticator(String authenticatorID, AuthenticatorData authenticatorData) {
+        String method = "uthenticatorService.updateAuthenticator";
 
-        if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
-        if (authenticatorData == null) throw new BadRequestException("Authenticator data is null.");
+        if (authenticatorID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Authenticator ID is null.");
+            throw new BadRequestException("Authenticator ID is null.");
+        }
+        if (authenticatorData == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Authenticator data is null.");
+            throw new BadRequestException("Authenticator data is null.");
+        }
 
         CMS.debug("AuthenticatorService.updateAuthenticator(\"" + authenticatorID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
 
             // only disabled authenticator can be updated
             if (!Constants.CFG_DISABLED.equals(record.getStatus())) {
-                throw new ForbiddenException("Unable to update authenticator " + authenticatorID);
+                Exception e = new ForbiddenException("Unable to update authenticator "
+                        + authenticatorID
+                        + "; authenticator not disabled");
+                auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                        authenticatorID, authenticatorData.getProperties(), e.toString());
+                throw e;
             }
 
             // update status if specified
             String status = authenticatorData.getStatus();
+            boolean statusChanged = false;
             if (status != null && !Constants.CFG_DISABLED.equals(status)) {
                 if (!Constants.CFG_ENABLED.equals(status)) {
-                    throw new ForbiddenException("Invalid authenticator status: " + status);
+                    ForbiddenException e = new ForbiddenException("Invalid authenticator status: " + status);
+                    auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                            authenticatorID, authenticatorData.getProperties(), e.toString());
+                    throw e;
                 }
 
                 // if user doesn't have rights, set to pending
                 Principal principal = servletRequest.getUserPrincipal();
                 if (database.requiresApproval() && !database.canApprove(principal)) {
                     status = Constants.CFG_PENDING_APPROVAL;
+                    statusChanged = true;
                 }
 
                 // enable authenticator
@@ -247,34 +291,54 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
             Map<String, String> properties = authenticatorData.getProperties();
             if (properties != null) {
                 record.setProperties(authenticatorData.getProperties());
+                if (statusChanged) {
+                    properties.put("Status", status);
+                }
             }
 
             database.updateRecord(authenticatorID, record);
 
             authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));
+            auditTPSAuthenticatorChange(ILogger.SUCCESS, method, authenticatorData.getID(), properties, null);
 
             return createOKResponse(authenticatorData);
 
         } catch (PKIException e) {
             CMS.debug("AuthenticatorService: " + e);
+            auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                    authenticatorID, authenticatorData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug("AuthenticatorService: " + e);
+            auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                    authenticatorID, authenticatorData.getProperties(), e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response changeStatus(String authenticatorID, String action) {
+        String method = "AuthenticatorService.changeStatus";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
-        if (action == null) throw new BadRequestException("Action is null.");
+        if (authenticatorID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "authenticator id is null.");
+            throw new BadRequestException("Authenticator ID is null.");
+        }
+        auditModParams.put("authenticatorID", authenticatorID);
+        if (action == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams,
+                    "action is null.");
+            throw new BadRequestException("Action is null.");
+        }
+        auditModParams.put("Action", action);
 
         CMS.debug("AuthenticatorService.changeStatus(\"" + authenticatorID + "\", \"" + action + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
@@ -294,7 +358,10 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
                         status = Constants.CFG_ENABLED;
 
                     } else {
-                        throw new BadRequestException("Invalid action: " + action);
+                        Exception e = new BadRequestException("Invalid action: " + action);
+                        auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                                authenticatorID, auditModParams, e.toString());
+                        throw e;
                     }
 
                 } else {
@@ -302,7 +369,10 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
                         status = Constants.CFG_ENABLED;
 
                     } else {
-                        throw new BadRequestException("Invalid action: " + action);
+                        Exception e = new BadRequestException("Invalid action: " + action);
+                        auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                                authenticatorID, auditModParams, e.toString());
+                        throw e;
                     }
                 }
 
@@ -312,7 +382,10 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
                     status = Constants.CFG_DISABLED;
 
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    Exception e = new BadRequestException("Invalid action: " + action);
+                    auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                            authenticatorID, auditModParams, e.toString());
+                    throw e;
                 }
 
             } else if (Constants.CFG_PENDING_APPROVAL.equals(status)) {
@@ -327,59 +400,105 @@ public class AuthenticatorService extends PKIService implements AuthenticatorRes
                     status = Constants.CFG_DISABLED;
 
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    Exception e = new BadRequestException("Invalid action: " + action);
+                    auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                            authenticatorID, auditModParams, e.toString());
                 }
 
             } else {
-                throw new PKIException("Invalid status: " + status);
+                PKIException e = new PKIException("Invalid status: " + status);
+                auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                        authenticatorID, auditModParams, e.toString());
+                throw e;
             }
 
             record.setStatus(status);
             database.updateRecord(authenticatorID, record);
 
             AuthenticatorData authenticatorData = createAuthenticatorData(database.getRecord(authenticatorID));
+            auditModParams.put("Status", status);
+            auditTPSAuthenticatorChange(ILogger.SUCCESS, method, authenticatorID, auditModParams, null);
 
             return createOKResponse(authenticatorData);
 
         } catch (PKIException e) {
             CMS.debug("AuthenticatorService: " + e);
+            auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                    authenticatorID, auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug("AuthenticatorService: " + e);
+            auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                    authenticatorID, auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response removeAuthenticator(String authenticatorID) {
+        String method = "AuthenticatorService.removeAuthenticator";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
-        if (authenticatorID == null) throw new BadRequestException("Authenticator ID is null.");
+        if (authenticatorID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Authenticator ID is null.");
+            throw new BadRequestException("Authenticator ID is null.");
+        }
+        auditModParams.put("authenticatorID", authenticatorID);
 
         CMS.debug("AuthenticatorService.removeAuthenticator(\"" + authenticatorID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
             String status = record.getStatus();
 
             if (!Constants.CFG_DISABLED.equals(status)) {
-                throw new ForbiddenException("Unable to delete authenticator " + authenticatorID);
+                Exception e = new ForbiddenException("Unable to remove authenticator "
+                        + authenticatorID
+                        + "; authenticator not disabled");
+                auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                        authenticatorID, auditModParams, e.toString());
+                throw e;
             }
 
             database.removeRecord(authenticatorID);
+            auditTPSAuthenticatorChange(ILogger.SUCCESS, method, authenticatorID, null, null);
 
             return createNoContentResponse();
 
         } catch (PKIException e) {
             CMS.debug("AuthenticatorService: " + e);
+            auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                    authenticatorID, auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug("AuthenticatorService: " + e);
+            auditTPSAuthenticatorChange(ILogger.FAILURE, method,
+                    authenticatorID, auditModParams, e.toString());
             throw new PKIException(e);
         }
+    }
+
+    /*
+     * service can be any of the methods offered
+     */
+    public void auditTPSAuthenticatorChange(String status, String service, String authenticatorID,
+            Map<String, String> params, String info) {
+
+        String msg = CMS.getLogMessage(
+                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_AUTHENTICATOR_6",
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                service,
+                authenticatorID,
+                auditor.getParamString(null, params),
+                info);
+        auditor.log(msg);
+
     }
 }

@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -43,6 +44,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.profile.ProfileMappingCollection;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.certsrv.tps.profile.ProfileMappingResource;
@@ -69,7 +71,8 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
         CMS.debug("ProfileMappingService.<init>()");
     }
 
-    public ProfileMappingData createProfileMappingData(ProfileMappingRecord profileMappingRecord) throws UnsupportedEncodingException {
+    public ProfileMappingData createProfileMappingData(ProfileMappingRecord profileMappingRecord)
+            throws UnsupportedEncodingException {
 
         String profileMappingID = profileMappingRecord.getID();
 
@@ -79,7 +82,8 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
         profileMappingData.setProperties(profileMappingRecord.getProperties());
 
         profileMappingID = URLEncoder.encode(profileMappingID, "UTF-8");
-        URI uri = uriInfo.getBaseUriBuilder().path(ProfileMappingResource.class).path("{profileMappingID}").build(profileMappingID);
+        URI uri = uriInfo.getBaseUriBuilder().path(ProfileMappingResource.class).path("{profileMappingID}")
+                .build(profileMappingID);
         profileMappingData.setLink(new Link("self", uri));
 
         return profileMappingData;
@@ -108,7 +112,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
         size = size == null ? DEFAULT_SIZE : size;
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             Iterator<ProfileMappingRecord> profileMappings = database.findRecords(filter).iterator();
@@ -117,24 +121,26 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             int i = 0;
 
             // skip to the start of the page
-            for ( ; i<start && profileMappings.hasNext(); i++) profileMappings.next();
+            for (; i < start && profileMappings.hasNext(); i++)
+                profileMappings.next();
 
             // return entries up to the page size
-            for ( ; i<start+size && profileMappings.hasNext(); i++) {
+            for (; i < start + size && profileMappings.hasNext(); i++) {
                 response.addEntry(createProfileMappingData(profileMappings.next()));
             }
 
             // count the total entries
-            for ( ; profileMappings.hasNext(); i++) profileMappings.next();
+            for (; profileMappings.hasNext(); i++)
+                profileMappings.next();
             response.setTotal(i);
 
             if (start > 0) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start-size, 0)).build();
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", Math.max(start - size, 0)).build();
                 response.addLink(new Link("prev", uri));
             }
 
-            if (start+size < i) {
-                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start+size).build();
+            if (start + size < i) {
+                URI uri = uriInfo.getRequestUriBuilder().replaceQueryParam("start", start + size).build();
                 response.addLink(new Link("next", uri));
             }
 
@@ -156,7 +162,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
         CMS.debug("ProfileMappingService.getProfileMapping(\"" + profileMappingID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             return createOKResponse(createProfileMappingData(database.getRecord(profileMappingID)));
@@ -173,11 +179,12 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
     @Override
     public Response addProfileMapping(ProfileMappingData profileMappingData) {
+        String method = "ProfileMappingService.addProfileMapping";
 
         CMS.debug("ProfileMappingService.addProfileMapping(\"" + profileMappingData.getID() + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             String status = profileMappingData.getStatus();
@@ -190,40 +197,54 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
             database.addRecord(profileMappingData.getID(), createProfileMappingRecord(profileMappingData));
             profileMappingData = createProfileMappingData(database.getRecord(profileMappingData.getID()));
+            auditMappingResolverChange(ILogger.SUCCESS, method, profileMappingData.getID(),
+                    profileMappingData.getProperties(), null);
 
             return createCreatedResponse(profileMappingData, profileMappingData.getLink().getHref());
 
         } catch (PKIException e) {
             CMS.debug("ProfileMappingService: " + e);
+            auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
+                    profileMappingData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
             CMS.debug(e);
+            auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
+                    profileMappingData.getProperties(), e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response updateProfileMapping(String profileMappingID, ProfileMappingData profileMappingData) {
+        String method = "ProfileMappingService.updateProfileMapping";
 
         CMS.debug("ProfileMappingService.updateProfileMapping(\"" + profileMappingID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             ProfileMappingRecord record = database.getRecord(profileMappingID);
 
             // only disabled profile mapping can be updated
             if (!Constants.CFG_DISABLED.equals(record.getStatus())) {
-                throw new ForbiddenException("Unable to update profile mapping " + profileMappingID);
+                Exception e = new ForbiddenException("Unable to update profile mapping " + profileMappingID);
+                auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
+                        profileMappingData.getProperties(), e.toString());
+                throw e;
             }
 
             // update status if specified
             String status = profileMappingData.getStatus();
+            boolean statusChanged = false;
             if (status != null && !Constants.CFG_DISABLED.equals(status)) {
                 if (!Constants.CFG_ENABLED.equals(status)) {
-                    throw new ForbiddenException("Invalid profile mapping status: " + status);
+                    Exception e = new ForbiddenException("Invalid profile mapping status: " + status);
+                    auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
+                            profileMappingData.getProperties(), e.toString());
+                    throw e;
                 }
 
                 // if user doesn't have rights, set to pending
@@ -234,6 +255,7 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
                 // enable profile mapping
                 record.setStatus(status);
+                statusChanged = true;
             }
 
             // update properties if specified
@@ -245,32 +267,54 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
             database.updateRecord(profileMappingID, record);
 
             profileMappingData = createProfileMappingData(database.getRecord(profileMappingID));
+            if (statusChanged) {
+                properties.put("Status", status);
+            }
+            auditMappingResolverChange(ILogger.SUCCESS, method, profileMappingData.getID(), properties, null);
 
             return createOKResponse(profileMappingData);
 
         } catch (PKIException e) {
             CMS.debug("ProfileMappingService: " + e);
+            auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
+                    profileMappingData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug("ProfileMappingService: " + e);
+            auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
+                    profileMappingData.getProperties(), e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response changeStatus(String profileMappingID, String action) {
+        String method = "ProfileMappingService.changeStatus";
 
-        if (profileMappingID == null) throw new BadRequestException("Profile mapping ID is null.");
-        if (action == null) throw new BadRequestException("Action is null.");
+        Map<String, String> auditModParams = new HashMap<String, String>();
+
+        if (profileMappingID == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, null,
+                    "Profile mapper ID is null.");
+            throw new BadRequestException("Profile mapper ID is null.");
+        }
+
+        if (action == null) {
+            auditConfigTokenGeneral(ILogger.FAILURE, method, auditModParams,
+                    "action is null.");
+            throw new BadRequestException("Action is null.");
+        }
+        auditModParams.put("Action", action);
 
         CMS.debug("ProfileMappingService.changeStatus(\"" + profileMappingID + "\", \"" + action + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             ProfileMappingRecord record = database.getRecord(profileMappingID);
+            boolean statusChanged = false;
             String status = record.getStatus();
 
             Principal principal = servletRequest.getUserPrincipal();
@@ -282,20 +326,29 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
                     if ("submit".equals(action) && !canApprove) {
                         status = Constants.CFG_PENDING_APPROVAL;
+                        statusChanged = true;
 
                     } else if ("enable".equals(action) && canApprove) {
                         status = Constants.CFG_ENABLED;
+                        statusChanged = true;
 
                     } else {
-                        throw new BadRequestException("Invalid action: " + action);
+                        Exception e = new BadRequestException("Invalid action: " + action);
+                        auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                                auditModParams, e.toString());
+                        throw e;
                     }
 
                 } else {
                     if ("enable".equals(action)) {
                         status = Constants.CFG_ENABLED;
+                        statusChanged = true;
 
                     } else {
-                        throw new BadRequestException("Invalid action: " + action);
+                        Exception e = new BadRequestException("Invalid action: " + action);
+                        auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                                auditModParams, e.toString());
+                        throw e;
                     }
                 }
 
@@ -303,28 +356,41 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
                 if ("disable".equals(action)) {
                     status = Constants.CFG_DISABLED;
+                    statusChanged = true;
 
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    Exception e = new BadRequestException("Invalid action: " + action);
+                    auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                            auditModParams, e.toString());
+                    throw e;
                 }
 
             } else if (Constants.CFG_PENDING_APPROVAL.equals(status)) {
 
                 if ("approve".equals(action) && canApprove) {
                     status = Constants.CFG_ENABLED;
+                    statusChanged = true;
 
                 } else if ("reject".equals(action) && canApprove) {
                     status = Constants.CFG_DISABLED;
+                    statusChanged = true;
 
                 } else if ("cancel".equals(action) && !canApprove) {
                     status = Constants.CFG_DISABLED;
+                    statusChanged = true;
 
                 } else {
-                    throw new BadRequestException("Invalid action: " + action);
+                    Exception e = new BadRequestException("Invalid action: " + action);
+                    auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                            auditModParams, e.toString());
+                    throw e;
                 }
 
             } else {
-                throw new PKIException("Invalid profile mapping status: " + status);
+                Exception e = new PKIException("Invalid profile mapping status: " + status);
+                auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                        auditModParams, e.toString());
+                throw e;
             }
 
             record.setStatus(status);
@@ -332,45 +398,82 @@ public class ProfileMappingService extends PKIService implements ProfileMappingR
 
             ProfileMappingData profileMappingData = createProfileMappingData(database.getRecord(profileMappingID));
 
+            if (statusChanged) {
+                auditModParams.put("Status", status);
+            }
+            auditMappingResolverChange(ILogger.SUCCESS, method, profileMappingData.getID(), auditModParams, null);
+
             return createOKResponse(profileMappingData);
 
         } catch (PKIException e) {
             CMS.debug("ProfileMappingService: " + e);
+            auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                    auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug("ProfileMappingService: " + e);
+            auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
 
     @Override
     public Response removeProfileMapping(String profileMappingID) {
+        String method = "ProfileMappingService.removeProfileMapping";
+        Map<String, String> auditModParams = new HashMap<String, String>();
 
         CMS.debug("ProfileMappingService.removeProfileMapping(\"" + profileMappingID + "\")");
 
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             ProfileMappingRecord record = database.getRecord(profileMappingID);
             String status = record.getStatus();
 
             if (!Constants.CFG_DISABLED.equals(status)) {
-                throw new ForbiddenException("Unable to delete profile mapping " + profileMappingID);
+                Exception e = new ForbiddenException("Unable to delete profile mapping " + profileMappingID);
+                auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                        auditModParams, e.toString());
+                throw e;
             }
 
             database.removeRecord(profileMappingID);
+            auditMappingResolverChange(ILogger.SUCCESS, method, profileMappingID, null, null);
 
             return createNoContentResponse();
 
         } catch (PKIException e) {
             CMS.debug("ProfileMappingService: " + e);
+            auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                    auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            CMS.debug("ProfileMappingService: " + e);
+            auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
+                    auditModParams, e.toString());
             throw new PKIException(e);
         }
     }
+
+    /*
+     * Service can be any of the methods offered
+     */
+    public void auditMappingResolverChange(String status, String service, String resolverID, Map<String, String> params,
+            String info) {
+        String msg = CMS.getLogMessage(
+                "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_MAPPING_RESOLVER_6",
+                servletRequest.getUserPrincipal().getName(),
+                status,
+                service,
+                resolverID,
+                auditor.getParamString(null, params),
+                info);
+        auditor.log(msg);
+
+    }
+
 }

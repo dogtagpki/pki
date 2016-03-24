@@ -70,6 +70,7 @@ public interface IAuditor {
      * @return a delimited string of one or more delimited name/value pairs
      */
     public String getParamString(String scope, String type, String id, Map<String, String> params);
+    public String getParamString(StringBuilder parameters, Map<String, String> params);
 
     /**
      * Log audit message.

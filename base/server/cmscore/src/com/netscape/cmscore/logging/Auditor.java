@@ -95,7 +95,8 @@ public class Auditor implements IAuditor {
     public String getParamString(String scope, String type, String id, Map<String, String> params) {
 
         // if no signed audit object exists, bail
-        if (signedAuditLogger == null) return null;
+        if (signedAuditLogger == null)
+            return null;
         StringBuilder parameters = new StringBuilder();
 
         // always identify the scope of the request
@@ -124,16 +125,26 @@ public class Auditor implements IAuditor {
                     + SIGNED_AUDIT_NAME_VALUE_DELIMITER
                     + id);
         }
+        return getParamString(parameters, params);
+    }
 
-        if (params == null) return parameters.toString();
+    @Override
+    public String getParamString(StringBuilder parameters, Map<String, String> params) {
+
+        if (parameters == null) {
+            parameters = new StringBuilder();
+        }
+        if (params == null)
+            return parameters.toString();
 
         // identify any remaining request parameters
 
-        for (Map.Entry<String,String> entry : params.entrySet() ) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
             String name = entry.getKey();
 
             // skip "RULENAME" parameter
-            if (name.equals(SIGNED_AUDIT_RULENAME)) continue;
+            if (name.equals(SIGNED_AUDIT_RULENAME))
+                continue;
 
             parameters.append(SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER);
 
