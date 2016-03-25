@@ -93,13 +93,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         token = deployer.mdict['pki_token_name']
         nssdb = instance.open_nssdb(token)
 
+        existing = deployer.configuration_file.existing
         external = deployer.configuration_file.external
         step_one = deployer.configuration_file.external_step_one
         step_two = deployer.configuration_file.external_step_two
 
         try:
-            if external and step_one:  # external/existing CA step 1
+            if external and step_one:  # external CA step 1 only
 
+                # Determine CA signing key type and algorithm
                 key_type = deployer.mdict['pki_ca_signing_key_type']
                 key_alg = deployer.mdict['pki_ca_signing_key_algorithm']
 
@@ -129,6 +131,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # import it into CS.cfg.
                 external_csr_path = deployer.mdict['pki_external_csr_path']
                 if external_csr_path:
+                    config.pki_log.info(
+                        "generating CA signing certificate request in %s",
+                        external_csr_path,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
                     nssdb.create_request(
                         subject_dn=deployer.mdict['pki_ca_signing_subject_dn'],
                         request_file=external_csr_path,
@@ -136,8 +142,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         key_size=key_size,
                         curve=curve,
                         hash_alg=hash_alg)
+
                     with open(external_csr_path) as f:
                         signing_csr = f.read()
+
                     signing_csr = pki.nssdb.convert_csr(signing_csr, 'pem', 'base64')
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
@@ -147,20 +155,27 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 subsystem.save()
 
-            elif external and step_two:  # external/existing CA step 2
+            if existing or external and step_two:  # existing CA or external CA step 2
 
-                # If specified, import existing CA cert request into CS.cfg.
-                external_csr_path = deployer.mdict['pki_external_csr_path']
-                if external_csr_path:
-                    with open(external_csr_path) as f:
+                # If specified, import CA signing CSR into CS.cfg.
+                signing_csr_path = deployer.mdict['pki_external_csr_path']
+                if signing_csr_path:
+                    config.pki_log.info(
+                        "importing CA signing CSR from %s",
+                        signing_csr_path,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    with open(signing_csr_path) as f:
                         signing_csr = f.read()
                     signing_csr = pki.nssdb.convert_csr(signing_csr, 'pem', 'base64')
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
-                # If specified, import externally-signed CA cert into NSS database.
+                # If specified, import CA signing cert into NSS database.
                 signing_nickname = deployer.mdict['pki_ca_signing_nickname']
                 signing_cert_file = deployer.mdict['pki_external_ca_cert_path']
                 if signing_cert_file:
+                    config.pki_log.info(
+                        "importing %s from %s", signing_nickname, signing_cert_file,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
                     nssdb.add_cert(
                         nickname=signing_nickname,
                         cert_file=signing_cert_file,
@@ -169,6 +184,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 # If specified, import certs and keys from PKCS #12 file into NSS database.
                 pkcs12_file = deployer.mdict['pki_external_pkcs12_path']
                 if pkcs12_file:
+                    config.pki_log.info(
+                        "importing certificates and keys from %s", pkcs12_file,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
                     pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
                     nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
 
@@ -179,13 +197,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_external_ca_cert_chain_nickname']
                 external_ca_cert_chain_file = deployer.mdict['pki_external_ca_cert_chain_path']
                 if external_ca_cert_chain_file:
+                    config.pki_log.info(
+                        "importing certificate chain %s from %s",
+                        external_ca_cert_chain_nickname, external_ca_cert_chain_file,
+                        extra=config.PKI_INDENTATION_LEVEL_2)
                     cert_chain, _nicks = nssdb.import_cert_chain(
                         nickname=external_ca_cert_chain_nickname,
                         cert_chain_file=external_ca_cert_chain_file,
                         trust_attributes='CT,C,C')
                     subsystem.config['ca.external_ca_chain.cert'] = cert_chain
 
-                # Export CA cert from NSS database and import it into CS.cfg.
+                # Export CA signing cert from NSS database and import it into CS.cfg.
                 signing_cert_data = nssdb.get_cert(
                     nickname=signing_nickname,
                     output_format='base64')

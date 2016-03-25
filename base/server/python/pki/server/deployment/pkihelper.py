@@ -501,6 +501,7 @@ class ConfigurationFile:
         self.add_req_ext = config.str2bool(
             self.mdict['pki_req_ext_add'])
 
+        self.existing = config.str2bool(self.mdict['pki_existing'])
         self.external = config.str2bool(self.mdict['pki_external'])
         self.external_step_one = not config.str2bool(self.mdict['pki_external_step_two'])
         self.external_step_two = not self.external_step_one
@@ -3786,9 +3787,12 @@ class ConfigClient:
         self.mdict = deployer.mdict
         # set useful 'boolean' object variables for this class
         self.clone = config.str2bool(self.mdict['pki_clone'])
+
+        self.existing = config.str2bool(self.mdict['pki_existing'])
         self.external = config.str2bool(self.mdict['pki_external'])
         self.external_step_two = config.str2bool(
             self.mdict['pki_external_step_two'])
+
         self.standalone = config.str2bool(self.mdict['pki_standalone'])
         self.subordinate = config.str2bool(self.mdict['pki_subordinate'])
         # set useful 'string' object variables for this class
@@ -3999,7 +4003,8 @@ class ConfigClient:
             data.tokenPassword = self.mdict['pki_token_password']
         data.subsystemName = self.mdict['pki_subsystem_name']
 
-        data.external = self.external
+        # Process existing CA installation like external CA
+        data.external = self.external or self.existing
         data.standAlone = self.standalone
 
         if self.standalone:
