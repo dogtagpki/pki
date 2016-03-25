@@ -157,17 +157,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     signing_csr = pki.nssdb.convert_csr(signing_csr, 'pem', 'base64')
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
-                # If specified, import external CA cert into NSS database.
-                external_ca_cert_chain_nickname = deployer.mdict['pki_external_ca_cert_chain_nickname']
-                external_ca_cert_chain_file = deployer.mdict['pki_external_ca_cert_chain_path']
-                if external_ca_cert_chain_file:
-                    cert_chain, _nicks = nssdb.import_cert_chain(
-                        nickname=external_ca_cert_chain_nickname,
-                        cert_chain_file=external_ca_cert_chain_file,
-                        trust_attributes='CT,C,C')
-                    subsystem.config['ca.external_ca_chain.cert'] = cert_chain
-
                 # If specified, import externally-signed CA cert into NSS database.
+                # Note: CA cert must be imported before the cert chain to ensure that
+                # the CA cert is imported with the correct nickname.
                 signing_nickname = deployer.mdict['pki_ca_signing_nickname']
                 signing_cert_file = deployer.mdict['pki_external_ca_cert_path']
                 if signing_cert_file:
@@ -181,6 +173,16 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 if pkcs12_file:
                     pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
                     nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
+
+                # If specified, import cert chain into NSS database.
+                external_ca_cert_chain_nickname = deployer.mdict['pki_external_ca_cert_chain_nickname']
+                external_ca_cert_chain_file = deployer.mdict['pki_external_ca_cert_chain_path']
+                if external_ca_cert_chain_file:
+                    cert_chain, _nicks = nssdb.import_cert_chain(
+                        nickname=external_ca_cert_chain_nickname,
+                        cert_chain_file=external_ca_cert_chain_file,
+                        trust_attributes='CT,C,C')
+                    subsystem.config['ca.external_ca_chain.cert'] = cert_chain
 
                 # Export CA cert from NSS database and import it into CS.cfg.
                 signing_cert_data = nssdb.get_cert(
