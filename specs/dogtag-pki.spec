@@ -11,7 +11,7 @@ BuildArch:        noarch
 
 %define dogtag_pki_theme_version   %{version}
 %define esc_version                1.1.0
-%define jss_version                4.2.6-35
+%define jss_version                4.2.6-40
 # NOTE:  The following package versions are TLS compliant:
 %define pki_core_version           %{version}
 %define pki_console_version        %{version}

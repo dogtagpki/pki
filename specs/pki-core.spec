@@ -130,7 +130,7 @@ BuildRequires:    policycoreutils-python-utils
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.2.6-35
+BuildRequires:    jss >= 4.2.6-40
 BuildRequires:    systemd-units
 
 %if 0%{?rhel}
@@ -272,7 +272,7 @@ Group:            System Environment/Libraries
 Requires:         java-headless >= 1:1.7.0
 Requires:         nss
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-35
+Requires:         jss >= 4.2.6-40
 
 Provides:         symkey = %{version}-%{release}
 
@@ -326,7 +326,7 @@ Requires:         jakarta-commons-httpclient
 Requires:         java-headless >= 1:1.7.0
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
-Requires:         jss >= 4.2.6-35
+Requires:         jss >= 4.2.6-40
 Requires:         ldapjdk
 Requires:         pki-base = %{version}-%{release}
 

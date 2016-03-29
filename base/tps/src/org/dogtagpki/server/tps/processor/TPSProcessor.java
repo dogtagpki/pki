@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import netscape.security.x509.RevocationReason;
+
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.authentication.AuthUIParameter;
@@ -77,7 +79,10 @@ import org.dogtagpki.tps.msg.StatusUpdateRequestMsg;
 import org.dogtagpki.tps.msg.TPSMessage;
 import org.dogtagpki.tps.msg.TokenPDURequestMsg;
 import org.dogtagpki.tps.msg.TokenPDUResponseMsg;
+import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
 import com.netscape.certsrv.apps.CMS;
@@ -90,9 +95,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.symkey.SessionKey;
-
-import netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 
@@ -598,7 +602,7 @@ public class TPSProcessor {
         PK11SymKey cmacSessionKeySCP02 = null;
         PK11SymKey rmacSessionKeySCP02 = null;
 
-        PK11SymKey sharedSecret = null;
+        SymmetricKey sharedSecret = null;
 
         //Sanity checking
 
@@ -624,15 +628,29 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
+        SecureChannelProtocol protocol = new SecureChannelProtocol();
+
+        String tokenName = "Internal Key Storage Token";
+
+        CryptoManager cm = null;
+        CryptoToken token = null;
+
+        String sharedSecretName = null;
         try {
-            sharedSecret = getSharedSecretTransportKey(connId);
+            sharedSecretName = getSharedSecretTransportKeyName(connId);
+            SecureChannelProtocol.setSharedSecretKeyName(sharedSecretName);
+
+            cm = protocol.getCryptoManger();
+            token = protocol.returnTokenByName(tokenName, cm);
+
+            sharedSecret = SecureChannelProtocol.getSymKeyByName(token, sharedSecretName);
+
+            // sharedSecret = getSharedSecretTransportKey(connId);
         } catch (Exception e) {
             CMS.debug(e);
             throw new TPSException("TPSProcessor.generateSecureChannel: Can't get shared secret key!: " + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
-
-        String tokenName = "Internal Key Storage Token";
 
         if (platProtInfo.isGP201() || platProtInfo.isSCP01()) {
 
@@ -652,18 +670,28 @@ public class TPSProcessor {
                 TPSBuffer sessionKeyWrapped = resp.getSessionKey();
                 TPSBuffer encSessionKeyWrapped = resp.getEncSessionKey();
 
-                sessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
-                        sessionKeyWrapped.toBytesArray());
+             /* sessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, (PK11SymKey) sharedSecret,
+                        sessionKeyWrapped.toBytesArray()); */
+
+
+               sessionKey =  (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret, sessionKeyWrapped.toBytesArray(), false);
+
+
+
+
 
                 if (sessionKey == null) {
                     CMS.debug("TPSProcessor.generateSecureChannel: Can't extract session key!");
                     throw new TPSException("TPSProcessor.generateSecureChannel: Can't extract session key!",
                             TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
                 }
+
                 CMS.debug("TPSProcessor.generateSecureChannel: retrieved session key: " + sessionKey);
 
-                encSessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
-                        encSessionKeyWrapped.toBytesArray());
+              /*  encSessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName,(PK11SymKey) sharedSecret,
+                        encSessionKeyWrapped.toBytesArray()); */
+
+                encSessionKey = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,encSessionKeyWrapped.toBytesArray(),false);
 
                 if (encSessionKey == null) {
                     CMS.debug("TPSProcessor.generateSecureChannel: Can't extract enc session key!");
@@ -716,7 +744,7 @@ public class TPSProcessor {
                     connId, getSelectedTokenType(), getSelectedKeySet());
 
             TPSBuffer encSessionKeyWrappedSCP02 = respEnc02.getSessionKey();
-            encSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
+            encSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, (PK11SymKey) sharedSecret,
                     encSessionKeyWrappedSCP02.toBytesArray());
 
             if (encSessionKeySCP02 == null) {
@@ -731,7 +759,7 @@ public class TPSProcessor {
 
             TPSBuffer cmacSessionKeyWrappedSCP02 = respCMac02.getSessionKey();
 
-            cmacSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
+            cmacSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName,(PK11SymKey) sharedSecret,
                     cmacSessionKeyWrappedSCP02.toBytesArray());
 
             if (cmacSessionKeySCP02 == null) {
@@ -746,7 +774,7 @@ public class TPSProcessor {
 
             TPSBuffer rmacSessionKeyWrappedSCP02 = respRMac02.getSessionKey();
 
-            rmacSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
+            rmacSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName,(PK11SymKey) sharedSecret,
                     rmacSessionKeyWrappedSCP02.toBytesArray());
 
             if (rmacSessionKeySCP02 == null) {
@@ -763,7 +791,7 @@ public class TPSProcessor {
 
             TPSBuffer dekSessionKeyWrappedSCP02 = respDek02.getSessionKey();
 
-            dekSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName, sharedSecret,
+            dekSessionKeySCP02 = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName,(PK11SymKey) sharedSecret,
                     dekSessionKeyWrappedSCP02.toBytesArray());
 
             if (dekSessionKeySCP02 == null) {
@@ -2091,8 +2119,7 @@ public class TPSProcessor {
         if (build_id == null) {
             checkAllowNoAppletToken(TPSEngine.OP_FORMAT_PREFIX);
         } else {
-            appletVersion = Integer.toHexString(app_major_version) + "." + Integer.toHexString(app_minor_version) + "."
-                    + build_id.toHexString();
+            appletVersion = formatCurrentAppletVersion(appletInfo);
         }
 
         String appletRequiredVersion = checkForAppletUpgrade(TPSEngine.OP_FORMAT_PREFIX);
@@ -2728,7 +2755,7 @@ public class TPSProcessor {
 
     }
 
-    protected PK11SymKey getSharedSecretTransportKey(String connId) throws TPSException, NotInitializedException {
+    protected String getSharedSecretTransportKeyName(String connId) throws TPSException {
 
         IConfigStore configStore = CMS.getConfigStore();
         String sharedSecretName = null;
@@ -2743,10 +2770,21 @@ public class TPSProcessor {
 
         }
 
+        CMS.debug("TPSProcessor.getSharedSecretTransportKeyName: calculated key name: " + sharedSecretName);
+
+        return sharedSecretName;
+
+    }
+    protected PK11SymKey getSharedSecretTransportKey(String connId) throws TPSException, NotInitializedException {
+
+
+        String sharedSecretName = getSharedSecretTransportKeyName(connId);
+
         CMS.debug("TPSProcessor.getSharedSecretTransportKey: calculated key name: " + sharedSecretName);
 
         String symmKeys = null;
         boolean keyPresent = false;
+
         try {
             symmKeys = SessionKey.ListSymmetricKeys("internal");
             CMS.debug("TPSProcessor.getSharedSecretTransportKey: symmKeys List: " + symmKeys);
@@ -2892,7 +2930,7 @@ public class TPSProcessor {
         result.setFreeMem(free_mem);
 
         CMS.debug("TPSProcessor.getAppletInfo: cuid: " + result.getCUIDhexString() + " msn: " + result.getMSNString()
-                + " major version: " + result.getMinorVersion() + " minor version: " + result.getMinorVersion()
+                + " major version: " + result.getMajorVersion() + " minor version: " + result.getMinorVersion()
                 + " App major version: " + result.getAppMajorVersion() + " App minor version: "
                 + result.getAppMinorVersion());
 
@@ -3283,12 +3321,13 @@ public class TPSProcessor {
          * In the mean time, resolution is to save up the result the first
          *  time it is called
          */
-        if (aInfo.getFinalAppletVersion() != null) {
-            return aInfo.getFinalAppletVersion();
-        }
 
         if (aInfo == null) {
             throw new TPSException("TPSProcessor.formatCurrentAppletVersion: ", TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+        }
+
+        if (aInfo.getFinalAppletVersion() != null) {
+            return aInfo.getFinalAppletVersion();
         }
 
         TPSBuffer build_id = getAppletVersion();
@@ -3866,6 +3905,7 @@ public class TPSProcessor {
             String status,
             String info) {
         String auditType = "LOGGING_SIGNED_AUDIT_TOKEN_OP_REQUEST_6";
+
         String auditMessage = CMS.getLogMessage(
                 auditType,
                 session.getIpAddress(),

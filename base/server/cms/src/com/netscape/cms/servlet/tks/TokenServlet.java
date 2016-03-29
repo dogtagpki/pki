@@ -35,6 +35,7 @@ import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapper;
+import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
@@ -213,7 +214,10 @@ public class TokenServlet extends CMSServlet {
                 }
             }
 
-            SessionKey.SetDefaultPrefix(masterKeyPrefix);
+            CMS.debug("Setting masteter keky prefix to: " + masterKeyPrefix);
+
+            SecureChannelProtocol.setDefaultPrefix(masterKeyPrefix);
+            /*SessionKey.SetDefaultPrefix(masterKeyPrefix);*/
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -353,7 +357,6 @@ public class TokenServlet extends CMSServlet {
         String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
 
         String rKDD = req.getParameter(IRemoteRequest.TOKEN_KDD);
-
 
         String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
 
@@ -561,7 +564,8 @@ public class TokenServlet extends CMSServlet {
                         selectedToken, keyNickName,
                         keyInfo,
                         nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
-                        nistSP800_108KdfUseCuidAsKdd,xCUID,xKDD, macKeyArray, sequenceCounter, derivationConstant, useSoftToken_s, keySet,
+                        nistSP800_108KdfUseCuidAsKdd, xCUID, xKDD, macKeyArray, sequenceCounter, derivationConstant,
+                        useSoftToken_s, keySet,
                         transportKeyName);
 
                 if (session_key == null) {
@@ -889,9 +893,9 @@ public class TokenServlet extends CMSServlet {
 
         boolean serversideKeygen = false;
         byte[] drm_trans_wrapped_desKey = null;
-        PK11SymKey desKey = null;
+        SymmetricKey desKey = null;
         //        PK11SymKey kek_session_key;
-        PK11SymKey kek_key;
+        SymmetricKey kek_key;
 
         IConfigStore sconfig = CMS.getConfigStore();
         boolean isCryptoValidate = true;
@@ -1092,14 +1096,15 @@ public class TokenServlet extends CMSServlet {
                                     + keySet + ".mac_key"));
                     CMS.debug("TokenServlet about to try ComputeSessionKey selectedToken="
                             + selectedToken + " keyNickName=" + keyNickName);
-                    session_key = SessionKey.ComputeSessionKey(
-                            selectedToken, keyNickName, card_challenge,
-                            host_challenge, keyInfo,
-                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
-                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
-                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                            macKeyArray, useSoftToken_s, keySet, transportKeyName);
+
+                    SecureChannelProtocol protocol = new SecureChannelProtocol();
+                    SymmetricKey macKey = protocol.computeSessionKey_SCP01(SecureChannelProtocol.macType,
+                            selectedToken,
+                            keyNickName, card_challenge,
+                            host_challenge, keyInfo, nistSP800_108KdfOnKeyVersion, nistSP800_108KdfUseCuidAsKdd, xCUID,
+                            xKDD, macKeyArray, useSoftToken_s, keySet, transportKeyName);
+
+                    session_key = protocol.wrapSessionKey(selectedToken, macKey, null);
 
                     if (session_key == null) {
                         CMS.debug("TokenServlet:Tried ComputeSessionKey, got NULL ");
@@ -1110,14 +1115,13 @@ public class TokenServlet extends CMSServlet {
                     byte encKeyArray[] =
                             com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
                                     + keySet + ".auth_key"));
-                    enc_session_key = SessionKey.ComputeEncSessionKey(
-                            selectedToken, keyNickName, card_challenge,
-                            host_challenge, keyInfo,
-                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
-                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
-                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                            encKeyArray, useSoftToken_s, keySet);
+                    SymmetricKey encKey = protocol.computeSessionKey_SCP01(SecureChannelProtocol.encType,
+                            selectedToken,
+                            keyNickName, card_challenge, host_challenge, keyInfo, nistSP800_108KdfOnKeyVersion,
+                            nistSP800_108KdfUseCuidAsKdd, xCUID, xKDD, encKeyArray, useSoftToken_s, keySet,
+                            transportKeyName);
+
+                    enc_session_key = protocol.wrapSessionKey(selectedToken, encKey, null);
 
                     if (enc_session_key == null) {
                         CMS.debug("TokenServlet:Tried ComputeEncSessionKey, got NULL ");
@@ -1140,14 +1144,11 @@ public class TokenServlet extends CMSServlet {
                                 com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
                                         + keySet + ".kek_key"));
 
-                        kek_key = SessionKey.ComputeKekKey(
-                                selectedToken, keyNickName, card_challenge,
-                                host_challenge, keyInfo,
-                                nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
-                                nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
-                                xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                                xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                                kekKeyArray, useSoftToken_s, keySet);
+                        kek_key = protocol.computeKEKKey_SCP01(selectedToken,
+                                keyNickName,
+                                keyInfo, nistSP800_108KdfOnKeyVersion, nistSP800_108KdfUseCuidAsKdd,
+                                xCUID,
+                                xKDD, kekKeyArray, useSoftToken_s, keySet, transportKeyName);
 
                         CMS.debug("TokenServlet: called ComputeKekKey");
 
@@ -1177,11 +1178,12 @@ public class TokenServlet extends CMSServlet {
                         if (useSoftToken_s.equals("true")) {
                             CMS.debug("TokenServlet: key encryption key generated on internal");
                             //cfu audit here? sym key gen
-                            desKey = SessionKey.GenerateSymkey("internal");
+
+                            desKey = protocol.generateSymKey("internal");
                             //cfu audit here? sym key gen done
                         } else {
                             CMS.debug("TokenServlet: key encryption key generated on " + selectedToken);
-                            desKey = SessionKey.GenerateSymkey(selectedToken);
+                            desKey = protocol.generateSymKey(selectedToken);
                         }
                         if (desKey != null) {
                             // AC: KDF SPEC CHANGE - Output using CUID and KDD
@@ -1204,9 +1206,9 @@ public class TokenServlet extends CMSServlet {
                          * and discard the last 8 bytes before it encrypts.
                          * This is done so that the applet can digest it
                          */
-                        byte[] encDesKey =
-                                SessionKey.ECBencrypt(kek_key,
-                                        desKey);
+
+                        byte[] encDesKey = protocol.ecbEncrypt(kek_key, desKey, selectedToken);
+
                         /*
                         CMS.debug("computeSessionKey:encrypted desKey size = "+encDesKey.length);
                         CMS.debug(encDesKey);
@@ -1216,8 +1218,8 @@ public class TokenServlet extends CMSServlet {
                                 com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
 
                         // get keycheck
-                        byte[] keycheck =
-                                SessionKey.ComputeKeyCheck(desKey);
+
+                        byte[] keycheck = protocol.computeKeyCheck(desKey, selectedToken);
                         /*
                         CMS.debug("computeSessionKey:keycheck size = "+keycheck.length);
                         CMS.debug(keycheck);
@@ -1266,28 +1268,21 @@ public class TokenServlet extends CMSServlet {
                     byte authKeyArray[] =
                             com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
                                     + keySet + ".auth_key"));
-                    host_cryptogram = SessionKey.ComputeCryptogram(
-                            selectedToken, keyNickName, card_challenge,
-                            host_challenge, keyInfo,
-                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
-                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
-                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                            0, authKeyArray, useSoftToken_s, keySet);
+
+                    host_cryptogram = protocol.computeCryptogram_SCP01(selectedToken, keyNickName, card_challenge,
+                            host_challenge,
+                            xkeyInfo, nistSP800_108KdfOnKeyVersion, nistSP800_108KdfUseCuidAsKdd, xCUID, xKDD, SecureChannelProtocol.HOST_CRYPTOGRAM,
+                            authKeyArray, useSoftToken_s, keySet, transportKeyName);
 
                     if (host_cryptogram == null) {
                         CMS.debug("TokenServlet:Tried ComputeCryptogram, got NULL ");
                         throw new Exception("Can't compute host cryptogram!");
 
                     }
-                    card_crypto = SessionKey.ComputeCryptogram(
-                            selectedToken, keyNickName, card_challenge,
-                            host_challenge, keyInfo,
-                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
-                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
-                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                            1, authKeyArray, useSoftToken_s, keySet);
+
+                    card_crypto = protocol.computeCryptogram_SCP01(selectedToken, keyNickName, card_challenge,
+                            host_challenge, xkeyInfo, nistSP800_108KdfOnKeyVersion, nistSP800_108KdfUseCuidAsKdd,
+                            xCUID, xKDD, SecureChannelProtocol.CARD_CRYPTOGRAM, authKeyArray, useSoftToken_s, keySet, transportKeyName);
 
                     if (card_crypto == null) {
                         CMS.debug("TokenServlet:Tried ComputeCryptogram, got NULL ");
@@ -1302,6 +1297,10 @@ public class TokenServlet extends CMSServlet {
                         }
                         input_card_crypto =
                                 com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_cryptogram);
+
+                        SecureChannelProtocol.debugByteArray(input_card_crypto, "input_card_crypto");
+                        SecureChannelProtocol.debugByteArray(card_crypto, "card_crypto");
+
                         if (card_crypto.length == input_card_crypto.length) {
                             for (int i = 0; i < card_crypto.length; i++) {
                                 if (card_crypto[i] != input_card_crypto[i]) {
@@ -1782,18 +1781,28 @@ public class TokenServlet extends CMSServlet {
             byte kekKeyArray[] =
                     com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
 
+            SecureChannelProtocol secProtocol = new SecureChannelProtocol();
             // AC: KDF SPEC CHANGE - check for error reading settings
             if (missingSetting_exception == null) {
-                KeySetData = SessionKey.DiversifyKey(oldSelectedToken,
-                        newSelectedToken, oldKeyNickName,
-                        newKeyNickName,
-                        xkeyInfo, // AC: KDF SPEC CHANGE - pass in old key info so symkey can make decision about which KDF version to use
-                        xnewkeyInfo, // AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!  This means the parameters must be byte[]
-                        nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
-                        nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
-                        xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
-                        xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
-                        (protocol == 2) ? xWrappedDekKey : kekKeyArray, useSoftToken_s, keySet, (byte) protocol);
+                if (protocol == 1) {
+                    KeySetData = secProtocol.diversifyKey(oldSelectedToken,
+                            newSelectedToken, oldKeyNickName,
+                            newKeyNickName,
+                            xkeyInfo, // AC: KDF SPEC CHANGE - pass in old key info so symkey can make decision about which KDF version to use
+                            xnewkeyInfo, // AC: BUGFIX for key versions higher than 09:  We need to specialDecode keyInfo parameters before sending them into symkey!  This means the parameters must be byte[]
+                            nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
+                            xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
+                            xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
+                            (protocol == 2) ? xWrappedDekKey : kekKeyArray, useSoftToken_s, keySet, (byte) protocol);
+
+                } else if (protocol == 2) {
+                    KeySetData = SessionKey.DiversifyKey(oldSelectedToken, newSelectedToken, oldKeyNickName,
+                            newKeyNickName, xkeyInfo,
+                            xnewkeyInfo, nistSP800_108KdfOnKeyVersion, nistSP800_108KdfUseCuidAsKdd, xCUID, xKDD,
+                            (protocol == 2) ? xWrappedDekKey : kekKeyArray, useSoftToken_s, keySet, (byte) protocol);
+                }
+                SecureChannelProtocol.debugByteArray(KeySetData, " New keyset data: ");
 
                 if (KeySetData == null || KeySetData.length <= 1) {
                     CMS.getLogger().log(ILogger.EV_AUDIT,
@@ -1816,7 +1825,6 @@ public class TokenServlet extends CMSServlet {
             } // AC: KDF SPEC CHANGE - endif no error reading settings from settings file
 
         } // ! missingParam
-
 
         String value = "";
         String status = "0";
@@ -2092,13 +2100,17 @@ public class TokenServlet extends CMSServlet {
             // AC: KDF SPEC CHANGE - check for error reading settings
             if (missingSetting_exception == null) {
 
-                encryptedData = SessionKey.EncryptData(
+                SecureChannelProtocol protocol = new SecureChannelProtocol();
+
+                encryptedData = protocol.encryptData(
                         selectedToken, keyNickName, data, keyInfo,
                         nistSP800_108KdfOnKeyVersion, // AC: KDF SPEC CHANGE - pass in configuration file value
                         nistSP800_108KdfUseCuidAsKdd, // AC: KDF SPEC CHANGE - pass in configuration file value
                         xCUID, // AC: KDF SPEC CHANGE - removed duplicative 'CUID' variable and replaced with 'xCUID'
                         xKDD, // AC: KDF SPEC CHANGE - pass in KDD so symkey can make decision about which value (KDD,CUID) to use
                         kekKeyArray, useSoftToken_s, keySet);
+
+                SecureChannelProtocol.debugByteArray(encryptedData, "New Encrypt Data: ");
 
                 // AC: KDF SPEC CHANGE - Log both CUID and KDD
 
