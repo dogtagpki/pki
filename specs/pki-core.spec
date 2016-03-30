@@ -122,7 +122,11 @@ BuildRequires:    tomcatjss >= 7.1.0-6
 %if 0%{?fedora} >= 23
 BuildRequires:    tomcatjss >= 7.1.3
 %else
+%if 0%{?fedora} == 22
+BuildRequires:    tomcatjss >= 7.1.2-2
+%else
 BuildRequires:    tomcatjss >= 7.1.2
+%endif
 %endif
 %endif
 
@@ -342,7 +346,9 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?fedora} >= 23
 Requires:         tomcat-servlet-3.1-api >= 8.0.32
 %else
-%if 0%{?fedora} >= 22
+%if 0%{?fedora} == 22
+Requires:         tomcat-servlet-3.0-api >= 7.0.68
+%else
 Requires:         tomcat-servlet-3.0-api
 %endif
 %endif
@@ -407,10 +413,17 @@ Requires:         tomcat-el-3.0-api >= 8.0.32
 Requires:         tomcat-jsp-2.3-api >= 8.0.32
 Requires:         tomcat-servlet-3.1-api >= 8.0.32
 %else
+%if 0%{?fedora} == 22
+Requires:         tomcat >= 7.0.68
+Requires:         tomcat-el-2.2-api >= 7.0.68
+Requires:         tomcat-jsp-2.2-api >= 7.0.68
+Requires:         tomcat-servlet-3.0-api >= 7.0.68
+%else
 Requires:         tomcat >= 7.0.47
 Requires:         tomcat-el-2.2-api
 Requires:         tomcat-jsp-2.2-api
 Requires:         tomcat-servlet-3.0-api
+%endif
 %endif
 %endif
 
@@ -426,7 +439,11 @@ Requires:         tomcatjss >= 7.1.0-6
 %if 0%{?fedora} >= 23
 Requires:         tomcatjss >= 7.1.3
 %else
+%if 0%{?fedora} == 22
+Requires:         tomcatjss >= 7.1.2-2
+%else
 Requires:         tomcatjss >= 7.1.2
+%endif
 %endif
 %endif
 
