@@ -782,8 +782,6 @@ class PKIConfigParser:
                 self.mdict['pki_ca_hostname']
             self.mdict['PKI_CA_PORT_SLOT'] = \
                 self.mdict['pki_ca_port']
-            self.mdict['PKI_CERT_DB_PASSWORD_SLOT'] = \
-                self.mdict['pki_pin']
             self.mdict['PKI_CFG_PATH_NAME_SLOT'] = \
                 self.mdict['pki_target_cs_cfg']
             self.mdict['PKI_CLOSE_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
@@ -1096,7 +1094,6 @@ class PKIConfigParser:
             self.mdict['pki_secmod_database'] = \
                 os.path.join(self.mdict['pki_database_path'],
                              "secmod.db")
-            self.mdict['pki_self_signed_token'] = "internal"
             self.mdict['pki_self_signed_nickname'] = \
                 self.mdict['pki_ssl_server_nickname']
             self.mdict['pki_self_signed_subject'] = \
