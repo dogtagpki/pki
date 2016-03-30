@@ -9,7 +9,6 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %define with_tomcat7 0
 %define with_tomcat8 1
 %else
-# 0%{?rhel} || 0%{?fedora} <= 22
 %define with_tomcat7 1
 %define with_tomcat8 0
 %endif
@@ -18,7 +17,6 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 %if 0%{?rhel}
 %define resteasy_lib /usr/share/java/resteasy-base
 %else
-# 0%{?fedora}
 %define resteasy_lib /usr/share/java/resteasy
 %endif
 
@@ -342,7 +340,7 @@ Requires:         java-headless >= 1:1.7.0
 Requires:         pki-base = %{version}-%{release}
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?fedora} >= 23
-Requires:         tomcat-servlet-3.1-api
+Requires:         tomcat-servlet-3.1-api >= 8.0.32
 %else
 %if 0%{?fedora} >= 22
 Requires:         tomcat-servlet-3.0-api
@@ -403,12 +401,13 @@ Obsoletes:        pki-selinux
 %if 0%{?rhel}
 Requires:         tomcat >= 7.0.54
 %else
-Requires:         tomcat >= 7.0.47
 %if 0%{?fedora} >= 23
-Requires:         tomcat-el-3.0-api
-Requires:         tomcat-jsp-2.3-api
-Requires:         tomcat-servlet-3.1-api
+Requires:         tomcat >= 8.0.32
+Requires:         tomcat-el-3.0-api >= 8.0.32
+Requires:         tomcat-jsp-2.3-api >= 8.0.32
+Requires:         tomcat-servlet-3.1-api >= 8.0.32
 %else
+Requires:         tomcat >= 7.0.47
 Requires:         tomcat-el-2.2-api
 Requires:         tomcat-jsp-2.2-api
 Requires:         tomcat-servlet-3.0-api
