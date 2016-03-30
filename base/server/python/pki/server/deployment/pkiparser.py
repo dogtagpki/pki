@@ -582,9 +582,21 @@ class PKIConfigParser:
             pin_low = 100000000000
             pin_high = 999999999999
 
-            # use user-provided PIN if specified
-            if 'pki_pin' not in self.mdict:
-                # otherwise generate a random password
+            instance = pki.server.PKIInstance(self.mdict['pki_instance_name'])
+            instance.load()
+
+            internal_password = self.mdict['pki_self_signed_token']
+
+            # if instance already exists and has password, reuse the password
+            if internal_password in instance.passwords:
+                self.mdict['pki_pin'] = instance.passwords.get(internal_password)
+
+            # otherwise, use user-provided password if specified
+            elif 'pki_pin' in self.mdict:
+                pass
+
+            # otherwise, generate a random password
+            else:
                 self.mdict['pki_pin'] = \
                     random.randint(pin_low, pin_high)
 
