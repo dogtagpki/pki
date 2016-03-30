@@ -413,40 +413,44 @@ class PKIInstance(object):
 
     def load(self):
         # load UID and GID
-        with open(self.registry_file, 'r') as registry:
-            lines = registry.readlines()
+        if os.path.exists(self.registry_file):
 
-        for line in lines:
+            with open(self.registry_file, 'r') as registry:
+                lines = registry.readlines()
 
-            m = re.search('^PKI_USER=(.*)$', line)
-            if m:
-                self.user = m.group(1)
-                self.uid = pwd.getpwnam(self.user).pw_uid
+            for line in lines:
+                m = re.search('^PKI_USER=(.*)$', line)
+                if m:
+                    self.user = m.group(1)
+                    self.uid = pwd.getpwnam(self.user).pw_uid
 
-            m = re.search('^PKI_GROUP=(.*)$', line)
-            if m:
-                self.group = m.group(1)
-                self.gid = grp.getgrnam(self.group).gr_gid
+                m = re.search('^PKI_GROUP=(.*)$', line)
+                if m:
+                    self.group = m.group(1)
+                    self.gid = grp.getgrnam(self.group).gr_gid
 
         # load passwords
         self.passwords.clear()
-        lines = open(self.password_conf).read().splitlines()
+        if os.path.exists(self.password_conf):
 
-        for line in lines:
-            parts = line.split('=', 1)
-            name = parts[0]
-            value = parts[1]
-            self.passwords[name] = value
+            lines = open(self.password_conf).read().splitlines()
+
+            for line in lines:
+                parts = line.split('=', 1)
+                name = parts[0]
+                value = parts[1]
+                self.passwords[name] = value
 
         # load subsystems
-        for subsystem_name in os.listdir(self.registry_dir):
-            if subsystem_name in SUBSYSTEM_TYPES:
-                if subsystem_name in SUBSYSTEM_CLASSES:
-                    subsystem = SUBSYSTEM_CLASSES[subsystem_name](self)
-                else:
-                    subsystem = PKISubsystem(self, subsystem_name)
-                subsystem.load()
-                self.subsystems.append(subsystem)
+        if os.path.exists(self.registry_dir):
+            for subsystem_name in os.listdir(self.registry_dir):
+                if subsystem_name in SUBSYSTEM_TYPES:
+                    if subsystem_name in SUBSYSTEM_CLASSES:
+                        subsystem = SUBSYSTEM_CLASSES[subsystem_name](self)
+                    else:
+                        subsystem = PKISubsystem(self, subsystem_name)
+                    subsystem.load()
+                    self.subsystems.append(subsystem)
 
     def get_password(self, name):
         if name in self.passwords:
