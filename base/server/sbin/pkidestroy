@@ -257,12 +257,12 @@ def main(argv):
     pki_subsystem_scriptlets = parser.mdict['destroy_scriplets'].split()
     deployer = util.PKIDeployer(parser.mdict)
     rv = 0
-    for pki_scriptlet in pki_subsystem_scriptlets:
-        scriptlet = __import__("pki.server.deployment.scriptlets." +
-                               pki_scriptlet,
-                               fromlist=[pki_scriptlet])
-        instance = scriptlet.PkiScriptlet()
-        rv = instance.destroy(deployer)
+    for scriptlet_name in pki_subsystem_scriptlets:
+        scriptlet_module = __import__(
+            "pki.server.deployment.scriptlets." + scriptlet_name,
+            fromlist=[scriptlet_name])
+        scriptlet = scriptlet_module.PkiScriptlet()
+        rv = scriptlet.destroy(deployer)
         if rv != 0:
             sys.exit(1)
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
