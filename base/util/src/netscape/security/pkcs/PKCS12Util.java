@@ -540,7 +540,10 @@ public class PKCS12Util {
 
         Path path = Paths.get(filename);
         byte[] b = Files.readAllBytes(path);
+        return loadFromByteArray(b, password);
+    }
 
+    public PKCS12 loadFromByteArray(byte[] b, Password password) throws Exception {
         ByteArrayInputStream bis = new ByteArrayInputStream(b);
 
         PFX pfx = (PFX) (new PFX.Template()).decode(bis);

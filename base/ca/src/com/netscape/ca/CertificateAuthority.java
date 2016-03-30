@@ -35,6 +35,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -62,8 +63,10 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
+import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 
@@ -205,6 +208,7 @@ public class CertificateAuthority
     protected AuthorityID authorityID = null;
     protected AuthorityID authorityParentID = null;
     protected String authorityDescription = null;
+    protected Collection<String> authorityKeyHosts = null;
     protected boolean authorityEnabled = true;
     private boolean hasKeys = false;
     private ECAException signingUnitException = null;
@@ -340,6 +344,7 @@ public class CertificateAuthority
             AuthorityID aid,
             AuthorityID parentAID,
             String signingKeyNickname,
+            Collection<String> authorityKeyHosts,
             String authorityDescription,
             boolean authorityEnabled
             ) throws EBaseException {
@@ -355,6 +360,7 @@ public class CertificateAuthority
         this.authorityDescription = authorityDescription;
         this.authorityEnabled = authorityEnabled;
         mNickname = signingKeyNickname;
+        this.authorityKeyHosts = authorityKeyHosts;
         init(hostCA.mOwner, hostCA.mConfig);
     }
 
@@ -504,7 +510,7 @@ public class CertificateAuthority
 
             // init signing unit & CA cert.
             try {
-                initSigUnit();
+                initSigUnit(/* retrieveKeys */ true);
                 // init default CA attributes like cert version, validity.
                 initDefCaAttrs();
             } catch (EBaseException e) {
@@ -1446,7 +1452,7 @@ public class CertificateAuthority
     /**
      * init CA signing unit & cert chain.
      */
-    private void initSigUnit()
+    private boolean initSigUnit(boolean retrieveKeys)
             throws EBaseException {
         try {
             // init signing unit
@@ -1476,7 +1482,14 @@ public class CertificateAuthority
             } catch (CAMissingCertException | CAMissingKeyException e) {
                 CMS.debug("CA signing key and cert not (yet) present in NSSDB");
                 signingUnitException = e;
-                return;
+                if (retrieveKeys == true) {
+                    CMS.debug("Starting KeyRetrieverRunner thread");
+                    new Thread(
+                        new KeyRetrieverRunner(this),
+                        "KeyRetrieverRunner-" + authorityID
+                    ).start();
+                }
+                return false;
             }
             CMS.debug("CA signing unit inited");
 
@@ -1600,6 +1613,8 @@ public class CertificateAuthority
             mOCSPName = (X500Name) mOCSPCert.getSubjectDN();
             mNickname = mSigningUnit.getNickname();
             CMS.debug("in init - got CA name " + mName);
+
+            return true;
 
         } catch (CryptoManager.NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()));
@@ -2527,11 +2542,14 @@ public class CertificateAuthority
             throw new EBaseException("Failed to convert issuer DN to string: " + e);
         }
 
+        String thisClone = CMS.getEEHost() + ":" + CMS.getEESSLPort();
+
         LDAPAttribute[] attrs = {
             new LDAPAttribute("objectclass", "authority"),
             new LDAPAttribute("cn", aidString),
             new LDAPAttribute("authorityID", aidString),
             new LDAPAttribute("authorityKeyNickname", nickname),
+            new LDAPAttribute("authorityKeyHost", thisClone),
             new LDAPAttribute("authorityEnabled", "TRUE"),
             new LDAPAttribute("authorityDN", subjectDN),
             new LDAPAttribute("authorityParentDN", parentDNString)
@@ -2612,7 +2630,9 @@ public class CertificateAuthority
 
         return new CertificateAuthority(
             hostCA, subjectX500Name,
-            aid, this.authorityID, nickname, description, true);
+            aid, this.authorityID,
+            nickname, Collections.singleton(thisClone),
+            description, true);
     }
 
     /**
@@ -2785,6 +2805,23 @@ public class CertificateAuthority
         }
     }
 
+    /**
+     * Add this instance to the authorityKeyHosts
+     */
+    private void addInstanceToAuthorityKeyHosts() throws ELdapException {
+        String thisClone = CMS.getEEHost() + ":" + CMS.getEESSLPort();
+        if (authorityKeyHosts.contains(thisClone)) {
+            // already there; nothing to do
+            return;
+        }
+        LDAPModificationSet mods = new LDAPModificationSet();
+        mods.add(
+            LDAPModification.ADD,
+            new LDAPAttribute("authorityKeyHost", thisClone));
+        modifyAuthorityEntry(mods);
+        authorityKeyHosts.add(thisClone);
+    }
+
     public synchronized void deleteAuthority() throws EBaseException {
         if (isHostAuthority())
             throw new CATypeException("Cannot delete the host CA");
@@ -2933,7 +2970,6 @@ public class CertificateAuthority
                         case LDAPPersistSearchControl.ADD:
                             CMS.debug("authorityMonitor: ADD");
                             readAuthority(entry);
-                            // TODO kick off signing key replication via custodia
                             break;
                         case LDAPPersistSearchControl.DELETE:
                             CMS.debug("authorityMonitor: DELETE");
@@ -2990,6 +3026,7 @@ public class CertificateAuthority
 
         LDAPAttribute aidAttr = entry.getAttribute("authorityID");
         LDAPAttribute nickAttr = entry.getAttribute("authorityKeyNickname");
+        LDAPAttribute keyHostsAttr = entry.getAttribute("authorityKeyHost");
         LDAPAttribute dnAttr = entry.getAttribute("authorityDN");
         LDAPAttribute parentAIDAttr = entry.getAttribute("authorityParentID");
         LDAPAttribute parentDNAttr = entry.getAttribute("authorityParentDN");
@@ -3052,6 +3089,16 @@ public class CertificateAuthority
         }
 
         String keyNick = (String) nickAttr.getStringValues().nextElement();
+
+        Collection<String> keyHosts;
+        if (keyHostsAttr == null) {
+            keyHosts = Collections.emptyList();
+        } else {
+            @SuppressWarnings("unchecked")
+            Enumeration<String> keyHostsEnum = keyHostsAttr.getStringValues();
+            keyHosts = Collections.list(keyHostsEnum);
+        }
+
         AuthorityID parentAID = null;
         if (parentAIDAttr != null)
             parentAID = new AuthorityID((String)
@@ -3067,7 +3114,7 @@ public class CertificateAuthority
 
         try {
             CertificateAuthority ca = new CertificateAuthority(
-                hostCA, dn, aid, parentAID, keyNick, desc, enabled);
+                hostCA, dn, aid, parentAID, keyNick, keyHosts, desc, enabled);
             caMap.put(aid, ca);
             entryUSNs.put(aid, newEntryUSN);
             nsUniqueIds.put(aid, nsUniqueId);
@@ -3114,6 +3161,109 @@ public class CertificateAuthority
             }
         } else if (!wasMonitored && isMonitored) {
             readAuthority(entry);
+        }
+    }
+
+    private class KeyRetrieverRunner implements Runnable {
+        private CertificateAuthority ca;
+
+        public KeyRetrieverRunner(CertificateAuthority ca) {
+            this.ca = ca;
+        }
+
+        public void run() {
+            String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
+            String className = null;
+            try {
+                className = CMS.getConfigStore().getString(KR_CLASS_KEY);
+            } catch (EBaseException e) {
+                CMS.debug("Unable to read key retriever class from CS.cfg: " + e);
+                return;
+            }
+
+            KeyRetriever kr = null;
+            try {
+                kr = Class.forName(className)
+                    .asSubclass(KeyRetriever.class)
+                    .newInstance();
+            } catch (ClassNotFoundException e) {
+                CMS.debug("Could not find class: " + className);
+                CMS.debug(e);
+                return;
+            } catch (ClassCastException e) {
+                CMS.debug("Class is not an instance of KeyRetriever: " + className);
+                CMS.debug(e);
+                return;
+            } catch (InstantiationException | IllegalAccessException e) {
+                CMS.debug("Could not instantiate class: " + className);
+                CMS.debug(e);
+                return;
+            }
+
+            KeyRetriever.Result krr = null;
+            try {
+                krr = kr.retrieveKey(ca.mNickname, ca.authorityKeyHosts);
+            } catch (Throwable e) {
+                CMS.debug("Caught exception during execution of KeyRetriever.retrieveKey");
+                CMS.debug(e);
+                return;
+            }
+
+            if (krr == null) {
+                CMS.debug("KeyRetriever did not return a result.");
+                return;
+            }
+
+            CMS.debug("Importing key and cert");
+            byte[] certBytes = krr.getCertificate();
+            byte[] paoData = krr.getPKIArchiveOptions();
+            try {
+                CryptoManager manager = CryptoManager.getInstance();
+                CryptoToken token = manager.getInternalKeyStorageToken();
+
+                X509Certificate cert = manager.importCACertPackage(certBytes);
+                PublicKey pubkey = cert.getPublicKey();
+                token.getCryptoStore().deleteCert(cert);
+
+                PrivateKey unwrappingKey = hostCA.mSigningUnit.getPrivateKey();
+
+                CryptoUtil.importPKIArchiveOptions(
+                    token, unwrappingKey, pubkey, paoData);
+
+                cert = manager.importUserCACertPackage(certBytes, ca.mNickname);
+            } catch (Throwable e) {
+                CMS.debug("Caught exception during cert/key import");
+                CMS.debug(e);
+                return;
+            }
+
+            boolean initSigUnitSucceeded = false;
+            try {
+                CMS.debug("Reinitialising SigningUnit");
+                // re-init signing unit, but avoid triggering
+                // key replication if initialisation fails again
+                // for some reason
+                //
+                initSigUnitSucceeded = ca.initSigUnit(/* retrieveKeys */ false);
+            } catch (Throwable e) {
+                CMS.debug("Caught exception during SigningUnit re-init");
+                CMS.debug(e);
+                return;
+            }
+
+            if (!initSigUnitSucceeded) {
+                CMS.debug("Failed to re-init SigningUnit");
+                return;
+            }
+
+            CMS.debug("Adding self to authorityKeyHosts attribute");
+            try {
+                ca.addInstanceToAuthorityKeyHosts();
+            } catch (Throwable e) {
+                CMS.debug("Failed to add self to authorityKeyHosts");
+                CMS.debug(e);
+                return;
+            }
         }
     }
 
