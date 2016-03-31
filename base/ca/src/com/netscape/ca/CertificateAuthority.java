@@ -183,6 +183,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
 
+    /* The static conn factory is initialised by the host authority's
+     * 'init' method, before any lightweight CAs are instantiated
+     */
+    private static ILdapConnFactory dbFactory = null;
+
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());
     protected CertificateAuthority hostCA = null;
@@ -425,6 +430,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             CMS.debug("CertificateAuthority init ");
             mOwner = owner;
             mConfig = config;
+
+            if (isHostAuthority()) {
+                dbFactory = CMS.getLdapBoundConnFactory("CertificateAuthority");
+                dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
+            }
 
             // init cert & crl database
             initCertDatabase();
@@ -1972,8 +1982,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * This method must only be called by the host CA.
      */
     private void loadLightweightCAs() throws EBaseException {
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("loadLightweightCAs");
-        dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
         LDAPConnection conn = dbFactory.getConn();
 
         String searchDN = "ou=authorities,ou=" + getId()
@@ -2059,7 +2067,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             }
         } finally {
             dbFactory.returnConn(conn);
-            dbFactory.reset();
         }
 
         if (haveLightweightCAsContainer && !foundHostAuthority) {
@@ -2543,8 +2550,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
 
         // connect to database
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("createSubCA");
-        dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
         LDAPConnection conn = dbFactory.getConn();
 
         try {
@@ -2612,7 +2617,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             throw new EBaseException("Error adding authority entry to database: " + e);
         } finally {
             dbFactory.returnConn(conn);
-            dbFactory.reset();
         }
 
         return new CertificateAuthority(
@@ -2660,8 +2664,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
 
         // connect to database
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("addHostAuthorityEntry");
-        dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
         LDAPConnection conn = dbFactory.getConn();
 
         try {
@@ -2670,7 +2672,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             throw new ELdapException("Error adding host authority entry to database: " + e);
         } finally {
             dbFactory.returnConn(conn);
-            dbFactory.reset();
         }
 
         this.authorityID = aid;
@@ -2729,8 +2730,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 + getId() + "," + getDBSubsystem().getBaseDN();
 
             // connect to database
-            ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("updateAuthority");
-            dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
             LDAPConnection conn = dbFactory.getConn();
             try {
                 conn.modify(dn, mods);
@@ -2738,7 +2737,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 throw new EBaseException("Error adding authority entry to database: " + e);
             } finally {
                 dbFactory.returnConn(conn);
-                dbFactory.reset();
             }
 
             // update was successful; update CA's state
@@ -2769,8 +2767,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         shutdown();
 
         // delete ldap entry
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("updateAuthority");
-        dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
         LDAPConnection conn = dbFactory.getConn();
         String dn = "cn=" + authorityID.toString() + ",ou=authorities,ou="
             + getId() + "," + getDBSubsystem().getBaseDN();
@@ -2780,7 +2776,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             throw new ELdapException("Error deleting authority entry '" + dn + "': " + e);
         } finally {
             dbFactory.returnConn(conn);
-            dbFactory.reset();
         }
 
         CryptoManager cryptoManager;
