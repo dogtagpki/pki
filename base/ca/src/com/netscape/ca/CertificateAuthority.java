@@ -292,6 +292,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     private boolean mUseNonces = true;
     private int mMaxNonces = 100;
 
+    private static boolean foundHostAuthority = false;
+
     /**
      * Constructs a CA subsystem.
      */
@@ -514,9 +516,17 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             // being functional.
             initCRL();
 
-            if (isHostAuthority())
+            if (isHostAuthority() && haveLightweightCAsContainer()) {
                 loadLightweightCAs();
 
+                if (!foundHostAuthority) {
+                    CMS.debug("loadLightweightCAs: no entry for host authority");
+                    CMS.debug("loadLightweightCAs: adding entry for host authority");
+                    caMap.put(addHostAuthorityEntry(), this);
+                }
+
+                CMS.debug("CertificateAuthority: finished init of host authority");
+            }
         } catch (EBaseException e) {
             if (CMS.isPreOpMode())
                 return;
@@ -528,6 +538,19 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     private String authorityBaseDN() {
         return "ou=authorities,ou=" + getId()
             + "," + getDBSubsystem().getBaseDN();
+    }
+
+    private boolean haveLightweightCAsContainer() throws ELdapException {
+        LDAPConnection conn = dbFactory.getConn();
+        try {
+            LDAPSearchResults results = conn.search(
+                authorityBaseDN(), LDAPConnection.SCOPE_BASE, null, null, false);
+            return results != null;
+        } catch (LDAPException e) {
+            return false;
+        } finally {
+            dbFactory.returnConn(conn);
+        }
     }
 
     private void initCRLPublisher() throws EBaseException {
@@ -1990,8 +2013,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         LDAPConnection conn = dbFactory.getConn();
 
         LDAPSearchResults results = null;
-        boolean foundHostAuthority = false;
-        boolean haveLightweightCAsContainer = true;
         try {
             results = conn.search(
                 authorityBaseDN(), LDAPConnection.SCOPE_ONE,
@@ -2060,22 +2081,9 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 caMap.put(aid, ca);
             }
         } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                CMS.debug(
-                    "Missing lightweight CAs container '" + authorityBaseDN()
-                    + "'.  Disabling lightweight CAs.");
-                haveLightweightCAsContainer = false;
-            } else {
-                throw new ECAException("Failed to execute LDAP search for lightweight CAs: " + e);
-            }
+            throw new ECAException("Failed to execute LDAP search for lightweight CAs: " + e);
         } finally {
             dbFactory.returnConn(conn);
-        }
-
-        if (haveLightweightCAsContainer && !foundHostAuthority) {
-            CMS.debug("loadLightweightCAs: no entry for host authority");
-            CMS.debug("loadLightweightCAs: adding entry for host authority");
-            caMap.put(addHostAuthorityEntry(), this);
         }
     }
 
