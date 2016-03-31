@@ -31,7 +31,6 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.security.DigestException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -166,6 +165,8 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv3;
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS10;
+import netscape.security.pkcs.PKCS12;
+import netscape.security.pkcs.PKCS12Util;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
 import netscape.security.util.DerOutputStream;
@@ -3350,11 +3351,8 @@ public class ConfigurationUtils {
         }
     }
 
-    public static void backupKeys(String pwd, String fname) throws EPropertyNotFound, EBaseException,
-            NotInitializedException, ObjectNotFoundException, TokenException, DigestException,
-            InvalidKeyException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidBERException,
-            CertificateEncodingException, IllegalStateException, IllegalBlockSizeException, BadPaddingException,
-            IOException {
+    public static void backupKeys(String pwd, String fname) throws Exception {
+
         CMS.debug("backupKeys(): start");
         IConfigStore cs = CMS.getConfigStore();
         String certlist = cs.getString("preop.cert.list");
@@ -3363,39 +3361,37 @@ public class ConfigurationUtils {
         CryptoManager cm = CryptoManager.getInstance();
 
         Password pass = new org.mozilla.jss.util.Password(pwd.toCharArray());
-        SEQUENCE encSafeContents = new SEQUENCE();
-        SEQUENCE safeContents = new SEQUENCE();
+
+        PKCS12Util util = new PKCS12Util();
+        PKCS12 pkcs12 = new PKCS12();
+
+        // load system certificate (with key but without chain)
         while (st.hasMoreTokens()) {
+
             String t = st.nextToken();
             if (t.equals("sslserver"))
                 continue;
+
             String nickname = cs.getString("preop.cert." + t + ".nickname");
             String modname = cs.getString("preop.module.token");
 
             if (!modname.equals("Internal Key Storage Token"))
                 nickname = modname + ":" + nickname;
 
-            X509Certificate x509cert = cm.findCertByNickname(nickname);
-            byte localKeyId[] = addCertBag(x509cert, nickname, safeContents);
-            PrivateKey pkey = cm.findPrivKeyByCert(x509cert);
-            addKeyBag(pkey, x509cert, pass, localKeyId, encSafeContents);
+            util.loadCertFromNSS(pkcs12, nickname, true, false);
         }
 
-        X509Certificate[] cacerts = cm.getCACerts();
-
-        for (int i = 0; i < cacerts.length; i++) {
-            String nickname = null;
-            addCertBag(cacerts[i], nickname, safeContents);
+        // load CA certificates (without keys or chains)
+        for (X509Certificate caCert : cm.getCACerts()) {
+            util.loadCertFromNSS(pkcs12, caCert, false, false);
         }
 
-        AuthenticatedSafes authSafes = new AuthenticatedSafes();
-        authSafes.addSafeContents(safeContents);
-        authSafes.addSafeContents(encSafeContents);
-        PFX pfx = new PFX(authSafes);
-        pfx.computeMacData(pass, null, 5);
+        PFX pfx = util.generatePFX(pkcs12, pass);
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         pfx.encode(bos);
         byte[] output = bos.toByteArray();
+
         cs.putString("preop.pkcs12", CryptoUtil.byte2string(output));
         pass.clear();
         cs.commit(false);
