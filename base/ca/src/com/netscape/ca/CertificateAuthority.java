@@ -77,6 +77,8 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAEnabledException;
+import com.netscape.certsrv.ca.CAMissingCertException;
+import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
@@ -188,6 +190,8 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     protected AuthorityID authorityParentID = null;
     protected String authorityDescription = null;
     protected boolean authorityEnabled = true;
+    private boolean hasKeys = false;
+    private ECAException signingUnitException = null;
 
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
@@ -1358,7 +1362,15 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 mIssuerObj = new CertificateIssuerName((X500Name)mSubjectObj.get(CertificateIssuerName.DN_NAME));
             }
 
-            mSigningUnit.init(this, caSigningCfg, mNickname);
+            try {
+                mSigningUnit.init(this, caSigningCfg, mNickname);
+                hasKeys = true;
+                signingUnitException = null;
+            } catch (CAMissingCertException | CAMissingKeyException e) {
+                CMS.debug("CA signing key and cert not (yet) present in NSSDB");
+                signingUnitException = e;
+                return;
+            }
             CMS.debug("CA signing unit inited");
 
             // for identrus
