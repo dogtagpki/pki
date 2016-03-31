@@ -63,6 +63,8 @@ public class PKCS12ExportCLI extends CLI {
 
         options.addOption(null, "new-file", false, "Create a new PKCS #12 file");
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
+        options.addOption(null, "no-key", false, "Do not include private key");
+        options.addOption(null, "no-chain", false, "Do not include certificate chain");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
@@ -127,11 +129,13 @@ public class PKCS12ExportCLI extends CLI {
         Password password = new Password(passwordString.toCharArray());
 
         boolean newFile = cmd.hasOption("new-file");
-        boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
+        boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
+        boolean includeKey = !cmd.hasOption("no-key");
+        boolean includeChain = !cmd.hasOption("no-chain");
 
         try {
             PKCS12Util util = new PKCS12Util();
-            util.setTrustFlagsEnabled(trustFlagsEnabled);
+            util.setTrustFlagsEnabled(includeTrustFlags);
 
             PKCS12 pkcs12;
 
@@ -149,9 +153,9 @@ public class PKCS12ExportCLI extends CLI {
                 util.loadFromNSS(pkcs12);
 
             } else {
-                // load specified certificates
+                // load the specified certificates
                 for (String nickname : nicknames) {
-                    util.loadCertFromNSS(pkcs12, nickname);
+                    util.loadCertFromNSS(pkcs12, nickname, includeKey, includeChain);
                 }
             }
 

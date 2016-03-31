@@ -138,6 +138,9 @@ class PKICLI(pki.cli.CLI):
         if self.token and self.token != 'internal':
             cmd.extend(['--token', self.token])
 
+        if self.verbose:
+            cmd.extend(['--verbose'])
+
         cmd.extend(args)
 
         if self.verbose:

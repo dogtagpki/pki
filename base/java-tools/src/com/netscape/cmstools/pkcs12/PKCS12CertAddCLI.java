@@ -65,6 +65,8 @@ public class PKCS12CertAddCLI extends CLI {
 
         options.addOption(null, "new-file", false, "Create a new PKCS #12 file");
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
+        options.addOption(null, "no-key", false, "Do not include private key");
+        options.addOption(null, "no-chain", false, "Do not include certificate chain");
 
         options.addOption("v", "verbose", false, "Run in verbose mode.");
         options.addOption(null, "debug", false, "Run in debug mode.");
@@ -139,6 +141,8 @@ public class PKCS12CertAddCLI extends CLI {
 
         boolean newFile = cmd.hasOption("new-file");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
+        boolean includeKey = !cmd.hasOption("no-key");
+        boolean includeChain = !cmd.hasOption("no-chain");
 
         try {
             PKCS12Util util = new PKCS12Util();
@@ -155,7 +159,8 @@ public class PKCS12CertAddCLI extends CLI {
                 pkcs12 = util.loadFromFile(filename, password);
             }
 
-            util.loadCertFromNSS(pkcs12, nickname);
+            // load the specified certificate
+            util.loadCertFromNSS(pkcs12, nickname, includeKey, includeChain);
             util.storeIntoFile(pkcs12, filename, password);
 
         } finally {
