@@ -540,7 +540,7 @@ public interface ICertificateAuthority extends ISubsystem {
     public AuthorityID getAuthorityParentID();
 
     /**
-     * Return CA description.  May be null.
+     * Return whether CA is enabled.
      */
     public boolean getAuthorityEnabled();
 
