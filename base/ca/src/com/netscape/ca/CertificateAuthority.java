@@ -525,6 +525,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         }
     }
 
+    private String authorityBaseDN() {
+        return "ou=authorities,ou=" + getId()
+            + "," + getDBSubsystem().getBaseDN();
+    }
+
     private void initCRLPublisher() throws EBaseException {
         // instantiate CRL publisher
         if (!isHostAuthority()) {
@@ -1984,14 +1989,12 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     private void loadLightweightCAs() throws EBaseException {
         LDAPConnection conn = dbFactory.getConn();
 
-        String searchDN = "ou=authorities,ou=" + getId()
-            + "," + getDBSubsystem().getBaseDN();
         LDAPSearchResults results = null;
         boolean foundHostAuthority = false;
         boolean haveLightweightCAsContainer = true;
         try {
             results = conn.search(
-                searchDN, LDAPConnection.SCOPE_ONE,
+                authorityBaseDN(), LDAPConnection.SCOPE_ONE,
                 "(objectclass=authority)", null, false);
 
             while (results.hasMoreElements()) {
@@ -2059,7 +2062,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 CMS.debug(
-                    "Missing lightweight CAs container '" + searchDN
+                    "Missing lightweight CAs container '" + authorityBaseDN()
                     + "'.  Disabling lightweight CAs.");
                 haveLightweightCAsContainer = false;
             } else {
@@ -2522,8 +2525,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         String nickname = hostCA.getNickname() + " " + aidString;
 
         // build database entry
-        String dn = "cn=" + aidString + ",ou=authorities,ou="
-            + getId() + "," + getDBSubsystem().getBaseDN();
+        String dn = "cn=" + aidString + "," + authorityBaseDN();
         CMS.debug("createSubCA: DN = " + dn);
         String parentDNString = null;
         try {
@@ -2641,8 +2643,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         String aidString = aid.toString();
 
         // build database entry
-        String dn = "cn=" + aidString + ",ou=authorities,ou="
-            + getId() + "," + getDBSubsystem().getBaseDN();
+        String dn = "cn=" + aidString + "," + authorityBaseDN();
         String dnString = null;
         try {
             dnString = mName.toLdapDNString();
@@ -2726,8 +2727,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         }
 
         if (mods.size() > 0) {
-            String dn = "cn=" + authorityID.toString() + ",ou=authorities,ou="
-                + getId() + "," + getDBSubsystem().getBaseDN();
+            String dn = "cn=" + authorityID.toString() + "," + authorityBaseDN();
 
             // connect to database
             LDAPConnection conn = dbFactory.getConn();
@@ -2768,8 +2768,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
         // delete ldap entry
         LDAPConnection conn = dbFactory.getConn();
-        String dn = "cn=" + authorityID.toString() + ",ou=authorities,ou="
-            + getId() + "," + getDBSubsystem().getBaseDN();
+        String dn = "cn=" + authorityID.toString() + "," + authorityBaseDN();
         try {
             conn.delete(dn);
         } catch (LDAPException e) {
