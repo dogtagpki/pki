@@ -2559,74 +2559,70 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             attrSet.add(new LDAPAttribute("description", description));
         LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
 
-        // connect to database
-        LDAPConnection conn = dbFactory.getConn();
+        addAuthorityEntry(aid, ldapEntry);
 
         try {
-            // add entry to database
-            conn.add(ldapEntry);
+            // Generate signing key
+            CryptoManager cryptoManager = CryptoManager.getInstance();
+            // TODO read PROP_TOKEN_NAME config
+            CryptoToken token = cryptoManager.getInternalKeyStorageToken();
+            // TODO algorithm parameter
+            KeyPairGenerator gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+            gen.initialize(2048);
+            KeyPair keypair = gen.genKeyPair();
+            PublicKey pub = keypair.getPublic();
+            X509Key x509key = CryptoUtil.convertPublicKeyToX509Key(pub);
 
+            // Create pkcs10 request
+            CMS.debug("createSubCA: creating pkcs10 request");
+            PKCS10 pkcs10 = new PKCS10(x509key);
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(keypair.getPrivate());
+            pkcs10.encodeAndSign(
+                new X500Signer(signature, subjectX500Name));
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            pkcs10.print(new PrintStream(out));
+            String pkcs10String = out.toString();
+
+            // Sign certificate
+            Locale locale = Locale.getDefault();
+            String profileId = "caCACert";
+            IProfileSubsystem ps = (IProfileSubsystem)
+                CMS.getSubsystem(IProfileSubsystem.ID);
+            IProfile profile = ps.getProfile(profileId);
+            ArgBlock argBlock = new ArgBlock();
+            argBlock.set("cert_request_type", "pkcs10");
+            argBlock.set("cert_request", pkcs10String);
+            CertEnrollmentRequest certRequest =
+                CertEnrollmentRequestFactory.create(argBlock, profile, locale);
+            EnrollmentProcessor processor =
+                new EnrollmentProcessor("createSubCA", locale);
+            Map<String, Object> resultMap = processor.processEnrollment(
+                certRequest, null, authorityID, null, authToken);
+            IRequest requests[] = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
+            IRequest request = requests[0];
+            Integer result = request.getExtDataInInteger(IRequest.RESULT);
+            if (result != null && !result.equals(IRequest.RES_SUCCESS))
+                throw new EBaseException("createSubCA: certificate request submission resulted in error: " + result);
+            RequestStatus requestStatus = request.getRequestStatus();
+            if (requestStatus != RequestStatus.COMPLETE)
+                throw new EBaseException("createSubCA: certificate request did not complete; status: " + requestStatus);
+
+            // Add certificate to nssdb
+            X509CertImpl cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+            cryptoManager.importCertPackage(cert.getEncoded(), nickname);
+        } catch (Exception e) {
+            // something went wrong; delete just-added entry
+            CMS.debug("Error creating lightweight CA certificate");
+            CMS.debug(e);
             try {
-                // Generate signing key
-                CryptoManager cryptoManager = CryptoManager.getInstance();
-                // TODO read PROP_TOKEN_NAME config
-                CryptoToken token = cryptoManager.getInternalKeyStorageToken();
-                // TODO algorithm parameter
-                KeyPairGenerator gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-                gen.initialize(2048);
-                KeyPair keypair = gen.genKeyPair();
-                PublicKey pub = keypair.getPublic();
-                X509Key x509key = CryptoUtil.convertPublicKeyToX509Key(pub);
-
-                // Create pkcs10 request
-                CMS.debug("createSubCA: creating pkcs10 request");
-                PKCS10 pkcs10 = new PKCS10(x509key);
-                Signature signature = Signature.getInstance("SHA256withRSA");
-                signature.initSign(keypair.getPrivate());
-                pkcs10.encodeAndSign(
-                    new X500Signer(signature, subjectX500Name));
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                pkcs10.print(new PrintStream(out));
-                String pkcs10String = out.toString();
-
-                // Sign certificate
-                Locale locale = Locale.getDefault();
-                String profileId = "caCACert";
-                IProfileSubsystem ps = (IProfileSubsystem)
-                    CMS.getSubsystem(IProfileSubsystem.ID);
-                IProfile profile = ps.getProfile(profileId);
-                ArgBlock argBlock = new ArgBlock();
-                argBlock.set("cert_request_type", "pkcs10");
-                argBlock.set("cert_request", pkcs10String);
-                CertEnrollmentRequest certRequest =
-                    CertEnrollmentRequestFactory.create(argBlock, profile, locale);
-                EnrollmentProcessor processor =
-                    new EnrollmentProcessor("createSubCA", locale);
-                Map<String, Object> resultMap = processor.processEnrollment(
-                    certRequest, null, authorityID, null, authToken);
-                IRequest requests[] = (IRequest[]) resultMap.get(CAProcessor.ARG_REQUESTS);
-                IRequest request = requests[0];
-                Integer result = request.getExtDataInInteger(IRequest.RESULT);
-                if (result != null && !result.equals(IRequest.RES_SUCCESS))
-                    throw new EBaseException("createSubCA: certificate request submission resulted in error: " + result);
-                RequestStatus requestStatus = request.getRequestStatus();
-                if (requestStatus != RequestStatus.COMPLETE)
-                    throw new EBaseException("createSubCA: certificate request did not complete; status: " + requestStatus);
-
-                // Add certificate to nssdb
-                X509CertImpl cert = request.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-                cryptoManager.importCertPackage(cert.getEncoded(), nickname);
-            } catch (Exception e) {
-                // something went wrong; delete just-added entry
-                conn.delete(dn);
-                CMS.debug("Error creating lightweight CA certificate");
-                CMS.debug(e);
-                throw new ECAException("Error creating lightweight CA certificate: " + e);
+                deleteAuthorityEntry(aid);
+            } catch (ELdapException e2) {
+                // we are about to throw ECAException, so just
+                // log this error.
+                CMS.debug("Error deleting new authority entry after failure during certificate generation: " + e2);
             }
-        } catch (LDAPException e) {
-            throw new EBaseException("Error adding authority entry to database: " + e);
-        } finally {
-            dbFactory.returnConn(conn);
+            throw new ECAException("Error creating lightweight CA certificate: " + e);
         }
 
         return new CertificateAuthority(
@@ -2672,20 +2668,43 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
         LDAPEntry ldapEntry = new LDAPEntry(dn, attrSet);
 
-        // connect to database
-        LDAPConnection conn = dbFactory.getConn();
-
-        try {
-            conn.add(ldapEntry);
-        } catch (LDAPException e) {
-            throw new ELdapException("Error adding host authority entry to database: " + e);
-        } finally {
-            dbFactory.returnConn(conn);
-        }
+        addAuthorityEntry(aid, ldapEntry);
 
         this.authorityID = aid;
         this.authorityDescription = desc;
         return aid;
+    }
+
+    private void addAuthorityEntry(AuthorityID aid, LDAPEntry entry)
+            throws ELdapException {
+        LDAPConnection conn = dbFactory.getConn();
+        synchronized (hostCA) {
+            try {
+                conn.add(entry);
+            } catch (LDAPException e) {
+                throw new ELdapException("addAuthorityEntry: failed to add entry", e);
+            } finally {
+                dbFactory.returnConn(conn);
+            }
+        }
+    }
+
+    /**
+     * Modify _this_ authority with the given modification set.
+     */
+    private void modifyAuthorityEntry(LDAPModificationSet mods)
+            throws ELdapException {
+        String dn = "cn=" + authorityID.toString() + "," + authorityBaseDN();
+        LDAPConnection conn = dbFactory.getConn();
+        synchronized (hostCA) {
+            try {
+                conn.modify(dn, mods);
+            } catch (LDAPException e) {
+                throw new ELdapException("modifyAuthorityEntry: failed to modify entry", e);
+            } finally {
+                dbFactory.returnConn(conn);
+            }
+        }
     }
 
     /**
@@ -2735,17 +2754,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         }
 
         if (mods.size() > 0) {
-            String dn = "cn=" + authorityID.toString() + "," + authorityBaseDN();
-
-            // connect to database
-            LDAPConnection conn = dbFactory.getConn();
-            try {
-                conn.modify(dn, mods);
-            } catch (LDAPException e) {
-                throw new EBaseException("Error adding authority entry to database: " + e);
-            } finally {
-                dbFactory.returnConn(conn);
-            }
+            modifyAuthorityEntry(mods);
 
             // update was successful; update CA's state
             authorityEnabled = nextEnabled;
@@ -2753,7 +2762,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         }
     }
 
-    public void deleteAuthority() throws EBaseException {
+    public synchronized void deleteAuthority() throws EBaseException {
         if (isHostAuthority())
             throw new CATypeException("Cannot delete the host CA");
 
@@ -2771,19 +2780,10 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         if (hasSubCAs)
             throw new CANotLeafException("CA with sub-CAs cannot be deleted (delete sub-CAs first)");
 
-        caMap.remove(authorityID);
         shutdown();
 
         // delete ldap entry
-        LDAPConnection conn = dbFactory.getConn();
-        String dn = "cn=" + authorityID.toString() + "," + authorityBaseDN();
-        try {
-            conn.delete(dn);
-        } catch (LDAPException e) {
-            throw new ELdapException("Error deleting authority entry '" + dn + "': " + e);
-        } finally {
-            dbFactory.returnConn(conn);
-        }
+        deleteAuthorityEntry(authorityID);
 
         CryptoManager cryptoManager;
         try {
@@ -2818,6 +2818,26 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             // prevent it.
             //throw new ECAException("TokenException while deleting private key: " + e);
         }
+    }
+
+    private void deleteAuthorityEntry(AuthorityID aid) throws ELdapException {
+        String dn = "cn=" + aid.toString() + "," + authorityBaseDN();
+        LDAPConnection conn = dbFactory.getConn();
+        synchronized (hostCA) {
+            try {
+                conn.delete(dn);
+            } catch (LDAPException e) {
+                throw new ELdapException("Error deleting authority entry: " + dn, e);
+            } finally {
+                dbFactory.returnConn(conn);
+            }
+
+            forgetAuthority(aid);
+        }
+    }
+
+    private void forgetAuthority(AuthorityID aid) {
+        caMap.remove(aid);
     }
 
 }
