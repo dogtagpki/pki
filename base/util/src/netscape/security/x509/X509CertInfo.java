@@ -156,7 +156,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
             parse(in);
         } catch (IOException e) {
-            throw new CertificateParsingException(e.toString());
+            throw new CertificateParsingException(e);
         }
     }
 
@@ -172,7 +172,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         try {
             parse(derVal);
         } catch (IOException e) {
-            throw new CertificateParsingException(e.toString());
+            throw new CertificateParsingException(e);
         }
     }
 
@@ -266,9 +266,9 @@ public class X509CertInfo implements CertAttrSet, Serializable {
             System.arraycopy(rawCertInfo, 0, dup, 0, dup.length);
             return dup;
         } catch (IOException e) {
-            throw new CertificateEncodingException(e.toString());
+            throw new CertificateEncodingException(e);
         } catch (CertificateException e) {
-            throw new CertificateEncodingException(e.toString());
+            throw new CertificateEncodingException(e);
         }
     }
 
