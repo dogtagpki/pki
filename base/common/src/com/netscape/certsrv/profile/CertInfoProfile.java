@@ -21,11 +21,11 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.request.IRequest;
+
+import netscape.security.x509.X509CertInfo;
 
 public class CertInfoProfile {
     private Vector<ICertInfoPolicyDefault> mDefaults = new Vector<ICertInfoPolicyDefault>();
@@ -87,19 +87,20 @@ public class CertInfoProfile {
         return mProfileSetIDMapping;
     }
 
-    public void populate(X509CertInfo info) {
-        populate( null /* request */, info);
+    public void populate(X509CertInfo info) throws Exception {
+        populate(null /* request */, info);
     }
 
-    public void populate(IRequest request, X509CertInfo info) {
+    public void populate(IRequest request, X509CertInfo info) throws Exception {
         Enumeration<ICertInfoPolicyDefault> e1 = mDefaults.elements();
         while (e1.hasMoreElements()) {
             ICertInfoPolicyDefault def = e1.nextElement();
             try {
-                def.populate( request, info);
+                CMS.debug("CertInfoProfile: Populating certificate with " + def.getClass().getName());
+                def.populate(request, info);
             } catch (Exception e) {
-                CMS.debug(e);
-                CMS.debug("CertInfoProfile.populate: " + e.toString());
+                CMS.debug("CertInfoProfile: Unable to populate certificate: " + e);
+                throw e;
             }
         }
     }
