@@ -22,6 +22,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+
 import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.KeyIdentifier;
 import netscape.security.x509.PKIXExtensions;
@@ -29,9 +33,6 @@ import netscape.security.x509.SubjectKeyIdentifierExtension;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 
 /**
  * This class implements an abstract CA specific
@@ -68,7 +69,7 @@ public abstract class CAEnrollDefault extends EnrollDefault {
         return null;
     }
 
-    public KeyIdentifier getCAKeyIdentifier(ICertificateAuthority ca) {
+    public KeyIdentifier getCAKeyIdentifier(ICertificateAuthority ca) throws EBaseException {
         X509CertImpl caCert = ca.getCACert();
         if (caCert == null) {
             // during configuration, we dont have the CA certificate

@@ -33,8 +33,8 @@ import java.security.Signature;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -47,30 +47,6 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchResults;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500Signer;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
-import netscape.security.x509.X509Key;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -120,8 +96,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.profile.IEnrollProfile;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.publish.ICRLPublisher;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.ARequestNotifier;
@@ -135,8 +111,8 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
-import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.CertEnrollmentRequestFactory;
+import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLRepository;
@@ -166,6 +142,30 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.util.DerOutputStream;
+import netscape.security.util.DerValue;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X500Signer;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509ExtensionException;
+import netscape.security.x509.X509Key;
 
 
 /**
@@ -1272,7 +1272,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         return mCACertChain;
     }
 
-    public X509CertImpl getCACert() {
+    public X509CertImpl getCACert() throws EBaseException {
         if (mCaCert != null) {
             return mCaCert;
         }
@@ -1282,11 +1282,15 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             if (cert != null) {
                 return new X509CertImpl(CMS.AtoB(cert));
             }
+
         } catch (EBaseException e) {
             CMS.debug(e);
+            throw e;
+
         } catch (CertificateException e) {
-            CMS.debug(e);
+            throw new EBaseException(e);
         }
+
         return null;
     }
 

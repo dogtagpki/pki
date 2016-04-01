@@ -24,10 +24,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -58,6 +54,10 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.util.Debug;
+
+import netscape.ldap.LDAPConnection;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
 
 public class PublisherProcessor implements
         IPublisherProcessor, IXcertPublisherProcessor {
@@ -1364,7 +1364,7 @@ public class PublisherProcessor implements
 
     // for crosscerts
     private void publishNow(ILdapMapper mapper, ILdapPublisher publisher,
-            IRequest r, byte[] bytes) throws ELdapException {
+            IRequest r, byte[] bytes) throws EBaseException {
         if (!enabled())
             return;
         CMS.debug("PublisherProcessor: in publishNow() for xcerts");

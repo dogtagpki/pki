@@ -27,13 +27,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
@@ -52,6 +45,13 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.IUser;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * @author Endi S. Dewata
@@ -207,7 +207,8 @@ public class RevocationProcessor extends CertProcessor {
         }
     }
 
-    public void validateCertificateToRevoke(String subjectDN, ICertRecord targetRecord, boolean revokingCACert) {
+    public void validateCertificateToRevoke(String subjectDN, ICertRecord targetRecord, boolean revokingCACert)
+                throws EBaseException {
 
         X509CertImpl targetCert = targetRecord.getCertificate();
         BigInteger targetSerialNumber = targetCert.getSerialNumber();
@@ -426,7 +427,7 @@ public class RevocationProcessor extends CertProcessor {
      * The main purpose is to avoid revoking the self signed
      * CA certificate accidentally.
      */
-    public boolean isSystemCertificate(X509Certificate cert) {
+    public boolean isSystemCertificate(X509Certificate cert) throws EBaseException {
 
         X509Certificate caCert = authority.getCACert();
         if (caCert == null)

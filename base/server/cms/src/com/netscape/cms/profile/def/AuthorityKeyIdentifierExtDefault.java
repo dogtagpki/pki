@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -173,12 +174,17 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
         if (ca == null)
             throw new EProfileException("Could not reach requested CA");
 
-        AuthorityKeyIdentifierExtension ext = createExtension(ca, info);
+        AuthorityKeyIdentifierExtension ext;
+        try {
+            ext = createExtension(ca, info);
+        } catch (EBaseException e) {
+            throw new EProfileException(e);
+        }
         addExtension(PKIXExtensions.AuthorityKey_Id.toString(), ext, info);
     }
 
     public AuthorityKeyIdentifierExtension createExtension(
-            ICertificateAuthority ca, X509CertInfo info) {
+            ICertificateAuthority ca, X509CertInfo info) throws EBaseException {
         KeyIdentifier kid = null;
         String localKey = getConfig("localKey");
         if (localKey != null && localKey.equals("true")) {

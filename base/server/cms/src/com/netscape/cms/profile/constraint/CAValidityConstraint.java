@@ -21,11 +21,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -36,6 +33,10 @@ import com.netscape.cms.profile.def.CAValidityDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
+
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the validity constraint.
@@ -56,7 +57,12 @@ public class CAValidityConstraint extends CAEnrollConstraint {
     public void init(IProfile profile, IConfigStore config)
             throws EProfileException {
         super.init(profile, config);
-        X509CertImpl caCert = getCACert();
+        X509CertImpl caCert;
+        try {
+            caCert = getCACert();
+        } catch (EBaseException e) {
+            throw new EProfileException(e);
+        }
 
         mDefNotBefore = caCert.getNotBefore();
         mDefNotAfter = caCert.getNotAfter();

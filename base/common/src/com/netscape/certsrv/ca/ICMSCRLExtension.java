@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
-import netscape.security.x509.Extension;
-
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
+
+import netscape.security.x509.Extension;
 
 /**
  * An interface representing a CRL extension plugin.

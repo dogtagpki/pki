@@ -23,15 +23,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -49,6 +40,15 @@ import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.ISigningUnit;
+
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.CertificateIssuerName;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * An interface represents a Certificate Authority that is
@@ -321,7 +321,7 @@ public interface ICertificateAuthority extends ISubsystem {
      *
      * @return the CA certificate
      */
-    public X509CertImpl getCACert();
+    public X509CertImpl getCACert() throws EBaseException;
 
     /**
      * Updates the CRL immediately for MasterCRL issuing point if it exists.

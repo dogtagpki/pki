@@ -22,6 +22,15 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.util.Locale;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.ILogger;
+
 import netscape.security.x509.AuthorityKeyIdentifierExtension;
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.Extension;
@@ -32,15 +41,6 @@ import netscape.security.x509.SerialNumber;
 import netscape.security.x509.SubjectKeyIdentifierExtension;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.ca.ICRLIssuingPoint;
-import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents an authority key identifier extension.
@@ -127,7 +127,7 @@ public class CMSAuthorityKeyIdentifierExtension
                                         .getCACert().getSerialNumber()));
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AKI_EXT", e.toString()));
         }
 

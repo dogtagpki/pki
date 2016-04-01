@@ -25,21 +25,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.extensions.AuthInfoAccessExtension;
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLNumberExtension;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.HoldInstructionExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.IssuerAlternativeNameExtension;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.PKIXExtensions;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
@@ -54,6 +39,21 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cmscore.base.SubsystemRegistry;
+
+import netscape.security.extensions.AuthInfoAccessExtension;
+import netscape.security.x509.AuthorityKeyIdentifierExtension;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLNumberExtension;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.DeltaCRLIndicatorExtension;
+import netscape.security.x509.Extension;
+import netscape.security.x509.FreshestCRLExtension;
+import netscape.security.x509.HoldInstructionExtension;
+import netscape.security.x509.InvalidityDateExtension;
+import netscape.security.x509.IssuerAlternativeNameExtension;
+import netscape.security.x509.IssuingDistributionPointExtension;
+import netscape.security.x509.OIDMap;
+import netscape.security.x509.PKIXExtensions;
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
     public static final String PROP_ENABLE = "enable";

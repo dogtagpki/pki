@@ -1510,7 +1510,7 @@ public abstract class CMSServlet extends HttpServlet {
      * The main purpose is to avoid revoking the self signed
      * CA certificate accidentially.
      */
-    protected boolean isSystemCertificate(BigInteger serialNo) {
+    protected boolean isSystemCertificate(BigInteger serialNo) throws EBaseException {
         if (!(mAuthority instanceof ICertificateAuthority)) {
             return false;
         }
