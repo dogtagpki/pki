@@ -38,7 +38,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.7
-Release:          0.5%{?dist}
+Release:          0.6%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1023,6 +1023,12 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Mar 31 2016 Dogtag Team <pki-devel@redhat.com> 10.2.7-0.6
+- PKI TRAC Ticket #2022 - pkispawn ignores 3rd party CA certs in
+  pki_clone_pkcs12_path
+- PKI TRAC Ticket #2053 - Some password/pin fields have no '%%' escape
+- PKI TRAC Ticket #2052 - ipa-kra-install fails when using pki-kra 10.2.x
+
 * Thu Feb  4 2016 Dogtag Team <pki-devel@redhat.com> 10.2.7-0.5
 - PKI TRAC Ticket #1714 - mod_revocator and mod_nss dependency for tps
   should be removed
