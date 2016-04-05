@@ -325,6 +325,7 @@ public class TPSTokendb {
         if (cuid == null)
             throw new Exception(method + ": cuid null");
 
+        CMS.debug(method + ":" + " begins for cuid=" + cuid);
         String filter = cuid;
         Iterator<TPSCertRecord> records;
         try {
@@ -340,8 +341,11 @@ public class TPSTokendb {
             if (certRecord.getTokenID().equalsIgnoreCase(cuid)) {
                 tps.certDatabase.removeRecord(certRecord.getId());
                 CMS.debug(method + ":" + "cert removed:" + certRecord.getId());
+            } else {
+                CMS.debug(method + ":" + " next record not matched:" + certRecord.getTokenID());
             }
         }
+        CMS.debug(method + ":" + " done");
     }
 
     public void revokeCertsByCUID(String cuid, String tokenReason, String ipAddress, String remoteUser)

@@ -2141,6 +2141,15 @@ public class TPSProcessor {
             }
         }
 
+       try {
+            // clean up the cert records used to belong to this token in tokendb
+            tps.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
+        } catch (Exception e) {
+            logMsg = "Attempt to clean up record with tdbRemoveCertificatesByCUID failed; token probably clean; continue anyway:"
+                    + e;
+            CMS.debug("TPSProcessor.format: " + logMsg);
+        }
+
         // Update Token DB
         tokenRecord.setStatus("uninitialized");
         try {
