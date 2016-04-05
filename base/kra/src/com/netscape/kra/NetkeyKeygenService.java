@@ -410,6 +410,12 @@ public class NetkeyKeygenService implements IService {
         audit(auditMessage);
 
         String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+        // the request reocrd field delayLDAPCommit == "true" will cause
+        // updateRequest() to delay actual write to ldap
+        request.setExtData("delayLDAPCommit", "true");
+        // wrappedDesKey no longer needed. removing.
+        request.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
+
         //        CMS.debug("NetkeyKeygenService: received DRM-trans-wrapped DES key ="+rWrappedDesKeyString);
         wrapped_des_key = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDesKeyString);
         CMS.debug("NetkeyKeygenService: wrapped_des_key specialDecoded");

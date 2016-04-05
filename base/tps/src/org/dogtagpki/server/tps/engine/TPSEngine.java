@@ -537,9 +537,11 @@ public class TPSEngine {
             boolean archive,
             boolean isECC) throws TPSException {
 
+/*
         CMS.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
                 + userid + " drmConnId: " + drmConnId + " wrappedDesKey: " + wrappedDesKey + " archive: " + archive
                 + " isECC: " + isECC);
+*/
 
         if (cuid == null || userid == null || drmConnId == null || wrappedDesKey == null) {
             throw new TPSException("TPSEngine.serverSideKeyGen: Invalid input data!",

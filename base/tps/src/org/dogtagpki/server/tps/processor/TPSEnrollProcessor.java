@@ -2816,7 +2816,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSBuffer privKeyBuff = new TPSBuffer(Util.uriDecodeFromHex(wrappedPrivKeyStr));
         privKeyBlob.add(privKeyBuff);
 
-        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 privKeyBlob: " + privKeyBlob.toHexString());
+        //CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 privKeyBlob: " + privKeyBlob.toHexString());
 
         byte[] perms = { 0x40,
                 0x00,
@@ -2840,7 +2840,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8 : keyCheck: " + keyCheck.toHexString());
 
         // String ivParams = ssKeyGenResponse.getIVParam();
-        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: ivParams: " + ivParams);
+        //CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: ivParams: " + ivParams);
         TPSBuffer ivParamsBuff = new TPSBuffer(Util.uriDecodeFromHex(ivParams));
 
         if (ivParamsBuff.size() == 0) {
@@ -2851,9 +2851,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         TPSBuffer kekWrappedDesKey = channel.getKekDesKey();
 
-        if (kekWrappedDesKey != null)
-            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: keyWrappedDesKey: " + kekWrappedDesKey.toHexString());
-        else
+        if (kekWrappedDesKey != null) {
+            //CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: keyWrappedDesKey: " + kekWrappedDesKey.toHexString());
+        } else
             CMS.debug("TPSEnrollProcessor.iportPrivateKeyPKC8: null kekWrappedDesKey!");
 
         byte alg = (byte) 0x80;
@@ -2873,7 +2873,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
         data.add((byte) ivParamsBuff.size());
         data.add(ivParamsBuff);
-        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: key data outgoing: " + data.toHexString());
+        //CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: key data outgoing: " + data.toHexString());
 
         int pe1 = (cEnrollInfo.getKeyUser() << 4) + cEnrollInfo.getPrivateKeyNumber();
         int pe2 = (cEnrollInfo.getKeyUsage() << 4) + cEnrollInfo.getPublicKeyNumber();

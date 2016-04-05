@@ -234,6 +234,19 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String ivString = thisreq.getExtDataInString("iv_s");
 
         /*
+         * clean up fields in request
+         */
+        thisreq.setExtData("wrappedUserPrivate", "");
+        thisreq.setExtData("public_key", "");
+        thisreq.setExtData("iv_s", "");
+        thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
+        String test = thisreq.getExtDataInString("wrappedUserPrivate");
+
+        // now that fields are cleared, we can really write to ldap
+        thisreq.setExtData("delayLDAPCommit", "false");
+        queue.updateRequest(thisreq);
+        
+        /*
           if (selectedToken == null)
           status = "4";
         */
@@ -251,7 +264,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
             value = sb.toString();
 
         }
-        CMS.debug("processServerSideKeyGen:outputString.encode " + value);
+        //CMS.debug("processServerSideKeyGen:outputString.encode " + value);
 
         try {
             resp.setContentLength(value.length());

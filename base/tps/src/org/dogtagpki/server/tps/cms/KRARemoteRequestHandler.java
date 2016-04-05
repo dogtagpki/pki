@@ -107,7 +107,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
                     sDesKey;
 
-            CMS.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
+            //CMS.debug("KRARemoteRequestHandler: outgoing request for ECC: " + request);
 
             resp =
                     conn.send("GenerateKeyPair",
@@ -127,7 +127,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
                     sDesKey;
 
-            CMS.debug("KRARemoteRequestHandler: outgoing request for RSA: " + request);
+            //CMS.debug("KRARemoteRequestHandler: outgoing request for RSA: " + request);
 
             resp =
                     conn.send("GenerateKeyPair",
@@ -144,8 +144,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): got content = " + content);
         if (content != null && !content.equals("")) {
+            CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): got content");
             Hashtable<String, Object> response =
                     parseResponse(content);
 
@@ -192,8 +192,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): response missing name-value pair for: " +
                         IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
             } else {
-                CMS.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey= "
-                        + value);
+                CMS.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey");
                 response.put(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey, value);
             }
 
@@ -202,8 +201,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): response missing name-value pair for: " +
                         IRemoteRequest.KRA_RESPONSE_IV_Param);
             } else {
-                CMS.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_IV_Param= "
-                        + value);
+                CMS.debug("KRARemoteRequestHandler:serverSideKeyGen(): got IRemoteRequest.KRA_RESPONSE_IV_Param");
                 response.put(IRemoteRequest.KRA_RESPONSE_IV_Param, value);
             }
 
@@ -283,7 +281,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.KRA_Trans_DesKey + "=" +
                     sDesKey;
         }
-        CMS.debug("KRARemoteRequestHandler: recoverKey(): sendMsg =" + sendMsg);
+        //CMS.debug("KRARemoteRequestHandler: recoverKey(): sendMsg =" + sendMsg);
         HttpResponse resp =
                 conn.send("TokenKeyRecovery",
                         sendMsg);
@@ -294,8 +292,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
 
         String content = resp.getContent();
 
-        CMS.debug("KRARemoteRequestHandler: recoverKey(): got content = " + content);
         if (content != null && !content.equals("")) {
+            CMS.debug("KRARemoteRequestHandler: recoverKey(): got content");
             Hashtable<String, Object> response =
                     parseResponse(content);
 
@@ -337,8 +335,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
                         IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey);
             } else {
-                CMS.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey= "
-                        + value);
+                CMS.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey");
                 response.put(IRemoteRequest.KRA_RESPONSE_Wrapped_PrivKey, value);
             }
 
@@ -347,7 +344,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
                 CMS.debug("KRARemoteRequestHandler: recoverKey(): response missing name-value pair for: " +
                         IRemoteRequest.KRA_RESPONSE_IV_Param);
             } else {
-                CMS.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_IV_Param= " + value);
+                CMS.debug("KRARemoteRequestHandler:recoverKey(): got IRemoteRequest.KRA_RESPONSE_IV_Param");
                 response.put(IRemoteRequest.KRA_RESPONSE_IV_Param, value);
             }
 

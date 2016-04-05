@@ -540,6 +540,8 @@ public abstract class ARequestQueue
     }
 
     public void updateRequest(IRequest r) {
+        // defualt is to really update ldap
+        String delayLDAPCommit = r.getExtDataInString("delayLDAPCommit");
         ((Request) r).mModificationTime = CMS.getCurrentDate();
 
         String name = getUserIdentity();
@@ -547,9 +549,12 @@ public abstract class ARequestQueue
         if (name != null)
             r.setExtData(IRequest.UPDATED_BY, name);
 
-        // TODO: use a state flag to determine whether to call
-        // addRequest or modifyRequest (see newRequest as well)
-        modifyRequest(r);
+        // by default, write request to LDAP
+        if (delayLDAPCommit == null || !delayLDAPCommit.equals("true")) {
+            // TODO: use a state flag to determine whether to call
+            // addRequest or modifyRequest (see newRequest as well)
+            modifyRequest(r);
+        } // else: delay the write to ldap
     }
 
     // PRIVATE functions
