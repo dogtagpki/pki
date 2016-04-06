@@ -31,6 +31,7 @@ import java.security.cert.CertificateException;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -67,6 +68,7 @@ import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import netscape.ldap.LDAPDN;
+import netscape.ldap.util.DN;
 import netscape.security.x509.X509CertImpl;
 
 public class PKCS12Util {
@@ -417,7 +419,8 @@ public class PKCS12Util {
         byte[] x509cert = certStr.toByteArray();
 
         certInfo.cert = new X509CertImpl(x509cert);
-        logger.fine("   Subject DN: " + certInfo.cert.getSubjectDN());
+        Principal subjectDN = certInfo.cert.getSubjectDN();
+        logger.fine("   Subject DN: " + subjectDN);
 
         SET bagAttrs = bag.getBagAttributes();
 
@@ -466,6 +469,14 @@ public class PKCS12Util {
             logger.fine("   ID not specified, generating new ID");
             certInfo.id = createLocalID(x509cert);
             logger.fine("   ID: " + certInfo.id.toString(16));
+        }
+
+        if (certInfo.nickname == null) {
+            logger.fine("   Nickname not specified, generating new nickname");
+            DN dn = new DN(subjectDN.getName());
+            String[] values = dn.explodeDN(true);
+            certInfo.nickname = StringUtils.join(values, " - ");
+            logger.fine("   Nickname: " + certInfo.nickname);
         }
 
         return certInfo;
@@ -580,9 +591,9 @@ public class PKCS12Util {
         privateKeyInfo.encode(bos);
         byte[] privateKey = bos.toByteArray();
 
-        PKCS12CertInfo certInfo = getCertBySubjectDN(pkcs12, keyInfo.subjectDN);
+        PKCS12CertInfo certInfo = pkcs12.getCertInfoByID(keyInfo.getID());
         if (certInfo == null) {
-            logger.fine("Private key nas no certificate, ignore");
+            logger.fine("Private key has no certificate, ignore");
             return;
         }
 
