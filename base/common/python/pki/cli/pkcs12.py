@@ -220,7 +220,12 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
                     cert_id = cert_info['id']
                     nickname = cert_info['nickname']
-                    trust_flags = cert_info['trust_flags']
+
+                    if 'trust_flags' in cert_info:
+                        trust_flags = cert_info['trust_flags']
+                    else:
+                        # default trust flags for CA certificates
+                        trust_flags = 'CT,c,c'
 
                     if main_cli.verbose:
                         print('Exporting %s (%s) from PKCS #12 file' % (nickname, cert_id))

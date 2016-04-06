@@ -113,6 +113,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.apps.CMS;
@@ -3801,14 +3802,15 @@ public class ConfigurationUtils {
         content.putSingle("httpport", CMS.getEENonSSLPort());
 
         try {
+            CMS.debug("Update security domain using admin interface");
             String session_id = CMS.getConfigSDSessionId();
             content.putSingle("sessionID", session_id);
             updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
 
         } catch (Exception e) {
-            CMS.debug("updateSecurityDomain: failed to update security domain using admin port "
-                      + sd_admin_port + ": " + e);
-            CMS.debug("updateSecurityDomain: now trying agent port with client auth");
+            CMS.debug("Unable to access admin interface: " + e);
+
+            CMS.debug("Update security domain using agent interface");
             url =  "/ca/agent/ca/updateDomainXML";
             updateDomainXML(sd_host, sd_agent_port, true, url, content, true);
         }
@@ -3873,7 +3875,12 @@ public class ConfigurationUtils {
             c = post(hostname, port, https, servlet, content, null, null);
         }
 
-        if (c != null && !c.equals("")) {
+        if (c == null || c.equals("")) {
+            CMS.debug("Unable to update security domain: empty response");
+            throw new IOException("Unable to update security domain: empty response");
+        }
+
+        try {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject obj = new XMLObject(bis);
             String status = obj.getValue("Status");
@@ -3881,13 +3888,21 @@ public class ConfigurationUtils {
 
             if (status.equals(SUCCESS)) {
                 return;
+
+            } else if (status.equals(AUTH_FAILURE)) {
+                CMS.debug("Unable to update security domain: authentication failure");
+                throw new IOException("Unable to update security domain: authentication failure");
+
             } else {
                 String error = obj.getValue("Error");
-                throw new IOException(error);
+                CMS.debug("Unable to update security domain: " + error);
+                throw new IOException("Unable to update security domain: " + error);
             }
 
-        } else {
-            throw new IOException("Failed to get response when updating security domain");
+        } catch (SAXParseException e) {
+            CMS.debug("Unable to update security domain: " + e);
+            CMS.debug(c);
+            throw new IOException("Unable to update security domain: " + e, e);
         }
     }
 

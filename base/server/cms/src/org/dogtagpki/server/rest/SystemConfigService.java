@@ -282,7 +282,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             cs.putString("securitydomain.store", "ldap");
             cs.commit(false);
         } catch (Exception e) {
-            e.printStackTrace();
+            CMS.debug(e);
             throw new PKIException("Error while updating security domain: " + e);
         }
     }
