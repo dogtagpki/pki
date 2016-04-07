@@ -38,7 +38,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          16%{?dist}
+Release:          17%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -216,6 +216,19 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 ## pki-core-10.2.6-16
 #Patch47:          pki-core-Modify-dnsdomainname-test-in-pkispawn.patch
 #Patch48:          pki-core-Build-with-Tomcat-8.0.32.patch
+## pki-core-10.2.6-17
+#Patch49:          pki-core-Added-support-for-cloning-3rd-party-CA-certificates.patch
+#Patch50:          pki-core-Fixed-certificate-chain-import-problem.patch
+#Patch51:          pki-core-Fix-escaping-of-password-fields-to-prevent-interpolation.patch
+#Patch52:          pki-core-Install-tools-clean-up.patch
+#Patch53:          pki-core-Fixed-KRA-install-problem.patch
+#Patch54:          pki-core-Fixed-missing-trust-flags-in-certificate-backup.patch
+#Patch55:          pki-core-Implement-total-ordering-for-PKISubsystem-and-PKIInstance.patch
+#Patch56:          pki-core-Added-pylint-build-scan-py-to-top-level.patch
+## BEGIN:  Manually-crafted patches for use with existing tarballs
+#Patch57:          pki-core-Py3-modernization-libmodernize.fixes.fix_import.patch
+#Patch58:          pki-core-Added-Python-wrapper-for-pki-pkcs12-import.patch
+## END:    Manually-crafted patches for use with existing tarballs
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -781,6 +794,16 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch46 -p1
 #%patch47 -p1
 #%patch48 -p1
+#%patch49 -p1
+#%patch50 -p1
+#%patch51 -p1
+#%patch52 -p1
+#%patch53 -p1
+#%patch54 -p1
+#%patch55 -p1
+#%patch56 -p1
+#%patch57 -p1
+#%patch58 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1135,6 +1158,14 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Mar 31 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-17
+- PKI TRAC Ticket #2022 - pkispawn ignores 3rd party CA certs in
+  pki_clone_pkcs12_path
+- PKI TRAC Ticket #2253 - Some password/pin fields have no '%%' escape
+- PKI TRAC Ticket #2252 - ipa-kra-install fails when using pki-kra 10.2.x
+- PKI TRAC Ticket #2257 - PKCS #12 backup does not contain trust attributes.
+- PKI TRAC Ticket #2216 - Python 3: unorderable types: PKISubsystem()
+
 * Mon Mar 14 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-16
 - Modify dnsdomainname test in pkispawn
 - PKI TRAC Ticket #2222 - Add missing tomcat-api.jar to javac classpath
