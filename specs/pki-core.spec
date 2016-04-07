@@ -42,8 +42,8 @@
 %define pki_homedir /usr/share/pki
 
 Name:             pki-core
-Version:          10.3.0.a1
-Release:          2%{?dist}
+Version:          10.3.0.a2
+Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1105,6 +1105,9 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Apr 7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a2-1
+- Updated build for F24 alpha
+
 * Wed Mar 23 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a1-2
 - PKI TRAC Ticket #1625 - Allow multiple ACLs of same name
   (union of rules) [ftweedal]

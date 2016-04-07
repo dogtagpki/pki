@@ -1,5 +1,5 @@
 Name:             pki-console
-Version:          10.3.0.a1
+Version:          10.3.0.a2
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
@@ -91,6 +91,9 @@ cd build
 
 
 %changelog
+* Thu Apr  7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a2-1
+- Updated build for F24 alpha
+
 * Fri Mar  4 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a1-1
 - Build for F24 alpha
 
