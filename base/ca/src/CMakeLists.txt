@@ -24,6 +24,13 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_IO_JAR
+    NAMES
+        commons-io.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(COMMONS_LANG_JAR
     NAMES
         commons-lang.jar
@@ -73,7 +80,7 @@ javac(pki-ca-classes
         com/netscape/ca/*.java
         org/dogtagpki/server/ca/*.java
     CLASSPATH
-        ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
+        ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}

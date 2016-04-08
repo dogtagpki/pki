@@ -1007,6 +1007,7 @@ systemctl daemon-reload
 %{_sbindir}/pki-server
 %{_sbindir}/pki-server-nuxwdog
 %{_sbindir}/pki-server-upgrade
+%{_libexecdir}/pki-ipa-retrieve-key
 %{python2_sitelib}/pki/server/
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
