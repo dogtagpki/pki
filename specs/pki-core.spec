@@ -1166,6 +1166,7 @@ systemctl daemon-reload
   pki_clone_pkcs12_path
 - PKI TRAC Ticket #2253 - Some password/pin fields have no '%%' escape
 - PKI TRAC Ticket #2252 - ipa-kra-install fails when using pki-kra 10.2.x
+- PKI TRAC Ticket #2257 - PKCS #12 backup does not contain trust attributes.
 - PKI TRAC Ticket #2216 - Python 3: unorderable types: PKISubsystem()
 
 * Mon Mar 14 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-16
