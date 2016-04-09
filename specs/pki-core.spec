@@ -229,6 +229,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 #Patch57:          pki-core-Py3-modernization-libmodernize.fixes.fix_import.patch
 #Patch58:          pki-core-Added-Python-wrapper-for-pki-pkcs12-import.patch
 ## END:    Manually-crafted patches for use with existing tarballs
+## pki-core-10.2.6-18
+#Patch59:          pki-core-Fixed-pki-pkcs12-import-backward-compatibility.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -804,6 +806,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch56 -p1
 #%patch57 -p1
 #%patch58 -p1
+#%patch59 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
