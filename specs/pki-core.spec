@@ -38,7 +38,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          17%{?dist}
+Release:          18%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -1158,12 +1158,14 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Fri Apr  8 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-18
+- PKI TRAC Ticket #2257 - PKCS #12 backup does not contain trust attributes.
+
 * Thu Mar 31 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-17
 - PKI TRAC Ticket #2022 - pkispawn ignores 3rd party CA certs in
   pki_clone_pkcs12_path
 - PKI TRAC Ticket #2253 - Some password/pin fields have no '%%' escape
 - PKI TRAC Ticket #2252 - ipa-kra-install fails when using pki-kra 10.2.x
-- PKI TRAC Ticket #2257 - PKCS #12 backup does not contain trust attributes.
 - PKI TRAC Ticket #2216 - Python 3: unorderable types: PKISubsystem()
 
 * Mon Mar 14 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-16
