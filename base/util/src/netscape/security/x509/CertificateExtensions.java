@@ -88,12 +88,19 @@ public class CertificateExtensions extends Vector<Extension>
                 map.put(certExt.getName(), (Extension) certExt);
                 addElement((Extension) certExt);
             }
-        } catch (NoSuchMethodException nosuch) {
-            throw new IOException(nosuch.toString());
-        } catch (InvocationTargetException invk) {
-            throw new IOException(invk.getTargetException().toString());
+
+        } catch (NoSuchMethodException e) {
+            throw new IOException(e);
+
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getTargetException();
+            if (t instanceof IOException) {
+                throw (IOException)t;
+            }
+            throw new IOException(t);
+
         } catch (Exception e) {
-            throw new IOException(e.toString());
+            throw new IOException(e);
         }
     }
 

@@ -139,7 +139,7 @@ public class SubjectAlternativeNameExtension extends Extension
         try {
             names = new GeneralNames(val);
         } catch (GeneralNamesException e) {
-            throw new IOException("SubjectAlternativeName: " + e);
+            throw new IOException("SubjectAlternativeName: " + e, e);
         }
     }
 

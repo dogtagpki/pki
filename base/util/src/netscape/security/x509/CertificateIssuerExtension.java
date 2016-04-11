@@ -73,7 +73,7 @@ public class CertificateIssuerExtension extends Extension
         try {
             names.encode(os);
         } catch (GeneralNamesException e) {
-            throw new IOException(e.toString());
+            throw new IOException(e);
         }
         this.extensionValue = os.toByteArray();
     }
@@ -139,8 +139,7 @@ public class CertificateIssuerExtension extends Extension
         try {
             names = new GeneralNames(val);
         } catch (GeneralNamesException e) {
-            throw new IOException("CertificateIssuerExtension: " +
-                                  e.toString());
+            throw new IOException("CertificateIssuerExtension: " + e, e);
         }
     }
 

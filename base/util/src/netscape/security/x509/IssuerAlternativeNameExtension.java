@@ -71,7 +71,7 @@ public class IssuerAlternativeNameExtension
         try {
             names.encode(os);
         } catch (GeneralNamesException e) {
-            throw new IOException(e.toString());
+            throw new IOException(e);
         }
         this.extensionValue = os.toByteArray();
     }
@@ -136,8 +136,7 @@ public class IssuerAlternativeNameExtension
         try {
             names = new GeneralNames(val);
         } catch (GeneralNamesException e) {
-            throw new IOException("IssuerAlternativeNameExtension"
-                                  + e.toString());
+            throw new IOException("IssuerAlternativeNameExtension: " + e, e);
         }
     }
 

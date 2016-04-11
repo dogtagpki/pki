@@ -26,11 +26,11 @@ import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import org.mozilla.jss.asn1.ASN1Util;
+
 import netscape.security.util.BitArray;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
-
-import org.mozilla.jss.asn1.ASN1Util;
 
 /**
  * A critical CRL extension that identifies the CRL distribution point
@@ -162,11 +162,9 @@ public class IssuingDistributionPointExtension extends Extension
                                                     issuingDistributionPoint.setFullName(fullName);
                                                 }
                                             } catch (GeneralNamesException e) {
-                                                throw new IOException("Invalid encoding of IssuingDistributionPoint "
-                                                        + e);
+                                                throw new IOException("Invalid encoding of IssuingDistributionPoint " + e, e);
                                             } catch (IOException e) {
-                                                throw new IOException("Invalid encoding of IssuingDistributionPoint "
-                                                        + e);
+                                                throw new IOException("Invalid encoding of IssuingDistributionPoint " + e, e);
                                             }
                                         } else {
                                             throw new IOException("Invalid encoding of IssuingDistributionPoint");
@@ -182,8 +180,7 @@ public class IssuingDistributionPointExtension extends Extension
                                                     issuingDistributionPoint.setRelativeName(relativeName);
                                                 }
                                             } catch (IOException e) {
-                                                throw new IOException("Invalid encoding of IssuingDistributionPoint "
-                                                        + e);
+                                                throw new IOException("Invalid encoding of IssuingDistributionPoint " + e, e);
                                             }
                                         } else {
                                             throw new IOException("Invalid encoding of IssuingDistributionPoint");
@@ -203,7 +200,7 @@ public class IssuingDistributionPointExtension extends Extension
                                     @SuppressWarnings("unused")
                                     byte[] a = reasons.toByteArray(); // check for errors
                                 } catch (IOException e) {
-                                    throw new IOException("Invalid encoding of IssuingDistributionPoint " + e);
+                                    throw new IOException("Invalid encoding of IssuingDistributionPoint " + e, e);
                                 }
 
                             } else {
@@ -218,7 +215,7 @@ public class IssuingDistributionPointExtension extends Extension
                                         issuingDistributionPoint.setIndirectCRL(b);
                                     }
                                 } catch (IOException e) {
-                                    throw new IOException("Invalid encoding of IssuingDistributionPoint " + e);
+                                    throw new IOException("Invalid encoding of IssuingDistributionPoint " + e, e);
                                 }
                             }
                         } else {

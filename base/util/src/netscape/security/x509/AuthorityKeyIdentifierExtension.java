@@ -100,7 +100,7 @@ public class AuthorityKeyIdentifierExtension extends Extension
                             true, TAG_NAMES), tmp1);
                 }
             } catch (Exception e) {
-                throw new IOException(e.toString());
+                throw new IOException(e);
             }
             if (serialNum != null) {
                 DerOutputStream tmp1 = new DerOutputStream();
@@ -199,7 +199,7 @@ public class AuthorityKeyIdentifierExtension extends Extension
                     opt.resetTag(DerValue.tag_Sequence);
                     names = new GeneralNames(opt);
                 } catch (GeneralNamesException e) {
-                    throw new IOException(e.toString());
+                    throw new IOException(e);
                 }
 
             } else if (opt.isContextSpecific(TAG_SERIAL_NUM) &&

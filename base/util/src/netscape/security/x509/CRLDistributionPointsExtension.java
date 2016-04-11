@@ -27,12 +27,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.security.util.BitArray;
-import netscape.security.util.DerOutputStream;
-
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
+
+import netscape.security.util.BitArray;
+import netscape.security.util.DerOutputStream;
 
 /**
  * An extension that tells applications where to find the CRL for
@@ -95,7 +95,7 @@ public class CRLDistributionPointsExtension extends Extension
                 distributionPoints =
                         (SEQUENCE) ASN1Util.decode(seqOfCRLDP, extensionValue);
             } catch (InvalidBERException e) {
-                throw new IOException("Invalid BER-encoding: " + e.toString());
+                throw new IOException("Invalid BER-encoding: " + e, e);
             }
         } catch (IOException e) {
             System.out.println("Big error");
