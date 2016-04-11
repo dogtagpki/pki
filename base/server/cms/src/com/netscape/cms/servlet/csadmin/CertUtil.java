@@ -453,10 +453,20 @@ public class CertUtil {
             } else {
                 keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
             }
+
             if (!caProvided)
                 ca = (ICertificateAuthority) CMS.getSubsystem(
                     ICertificateAuthority.ID);
+
             cr = ca.getCertificateRepository();
+
+            if (cr == null) {
+                if (context != null) {
+                    context.put("errorString", "Ceritifcate Authority is not ready to serve.");
+                }
+                throw new IOException("Ceritifcate Authority is not ready to serve.");
+            }
+
             BigInteger serialNo = cr.getNextSerialNumber();
             if (type.equals("selfsign")) {
                 CMS.debug("Creating local certificate... selfsign cert");
@@ -575,16 +585,13 @@ public class CertUtil {
             if (cert != null) {
                 CMS.debug("CertUtil createSelfSignedCert: got cert signed");
             }
-        } catch (Exception e) {
-            CMS.debug(e);
-            CMS.debug("CertUtil createLocalCert() exception caught:" + e.toString());
-        }
 
-        if (cr == null) {
-            if (context != null) {
-                context.put("errorString", "Ceritifcate Authority is not ready to serve.");
-            }
-            throw new IOException("Ceritifcate Authority is not ready to serve.");
+        } catch (IOException e) {
+            throw e;
+
+        } catch (Exception e) {
+            CMS.debug("Unable to create local certificate: " + e);
+            throw new IOException("Unable to create local certificate: " + e, e);
         }
 
         ICertRecord record = null;

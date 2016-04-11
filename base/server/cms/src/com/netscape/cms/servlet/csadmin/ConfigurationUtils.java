@@ -84,7 +84,6 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.InternalCertificate;
-import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -3055,8 +3054,7 @@ public class ConfigurationUtils {
         cr.addCertificateRecord(record);
     }
 
-    public static int handleCerts(Cert cert) throws IOException, EBaseException, CertificateException,
-            NotInitializedException, TokenException, InvalidKeyException {
+    public static int handleCerts(Cert cert) throws Exception {
         String certTag = cert.getCertTag();
         String subsystem = cert.getSubsystem();
         String nickname = cert.getNickname();
@@ -3491,8 +3489,7 @@ public class ConfigurationUtils {
     }
 
     public static void createAdminCertificate(String certRequest, String certRequestType, String subject)
-            throws InvalidBERException, IOException, InvalidKeyException, InvalidKeyFormatException,
-            NoSuchAlgorithmException, SignatureException, NoSuchProviderException, EBaseException {
+            throws Exception {
         IConfigStore cs = CMS.getConfigStore();
         X509Key x509key = null;
         if (certRequestType.equals("crmf")) {
