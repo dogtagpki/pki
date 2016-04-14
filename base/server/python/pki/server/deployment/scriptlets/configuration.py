@@ -236,6 +236,61 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if external and step_one:
             return self.rv
 
+        if len(deployer.instance.tomcat_instance_subsystems()) < 2:
+
+            deployer.password.create_password_conf(
+                deployer.mdict['pki_shared_pfile'],
+                deployer.mdict['pki_pin'], pin_sans_token=True)
+
+            # only create a self signed cert for a new instance
+            #
+            # NOTE:  ALWAYS create the temporary sslserver certificate
+            #        in the software DB regardless of whether the
+            #        instance will utilize 'softokn' or an HSM
+            #
+            rv = deployer.certutil.verify_certificate_exists(
+                deployer.mdict['pki_database_path'],
+                deployer.mdict['pki_cert_database'],
+                deployer.mdict['pki_key_database'],
+                deployer.mdict['pki_secmod_database'],
+                deployer.mdict['pki_self_signed_token'],
+                deployer.mdict['pki_self_signed_nickname'],
+                password_file=deployer.mdict['pki_shared_pfile'])
+
+            if not rv:
+
+                # note: in the function below, certutil is used to generate
+                # the request for the self signed cert.  The keys are generated
+                # by NSS, which does not actually use the data in the noise
+                # file, so it does not matter what is in this file.  Certutil
+                # still requires it though, otherwise it waits for keyboard
+                # input
+                with open(
+                        deployer.mdict['pki_self_signed_noise_file'], 'w') as f:
+                    f.write("not_so_random_data")
+
+                deployer.certutil.generate_self_signed_certificate(
+                    deployer.mdict['pki_database_path'],
+                    deployer.mdict['pki_cert_database'],
+                    deployer.mdict['pki_key_database'],
+                    deployer.mdict['pki_secmod_database'],
+                    deployer.mdict['pki_self_signed_token'],
+                    deployer.mdict['pki_self_signed_nickname'],
+                    deployer.mdict['pki_self_signed_subject'],
+                    deployer.mdict['pki_self_signed_serial_number'],
+                    deployer.mdict['pki_self_signed_validity_period'],
+                    deployer.mdict['pki_self_signed_issuer_name'],
+                    deployer.mdict['pki_self_signed_trustargs'],
+                    deployer.mdict['pki_self_signed_noise_file'],
+                    password_file=deployer.mdict['pki_shared_pfile'])
+
+                # Delete the temporary 'noise' file
+                deployer.file.delete(
+                    deployer.mdict['pki_self_signed_noise_file'])
+
+            # Always delete the temporary 'pfile'
+            deployer.file.delete(deployer.mdict['pki_shared_pfile'])
+
         # Start/Restart this Tomcat PKI Process
         # Optionally prepare to enable a java debugger
         # (e. g. - 'eclipse'):
