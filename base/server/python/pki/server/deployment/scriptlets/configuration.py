@@ -158,8 +158,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
                 # If specified, import externally-signed CA cert into NSS database.
-                # Note: CA cert must be imported before the cert chain to ensure that
-                # the CA cert is imported with the correct nickname.
                 signing_nickname = deployer.mdict['pki_ca_signing_nickname']
                 signing_cert_file = deployer.mdict['pki_external_ca_cert_path']
                 if signing_cert_file:
@@ -168,13 +166,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         cert_file=signing_cert_file,
                         trust_attributes='CT,C,C')
 
-                # If specified, import CA cert and key from PKCS #12 file into NSS database.
+                # If specified, import certs and keys from PKCS #12 file into NSS database.
                 pkcs12_file = deployer.mdict['pki_external_pkcs12_path']
                 if pkcs12_file:
                     pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
                     nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
 
                 # If specified, import cert chain into NSS database.
+                # Note: Cert chain must be imported after the system certs to ensure that
+                # the system certs are imported with the correct nicknames.
                 external_ca_cert_chain_nickname = \
                     deployer.mdict['pki_external_ca_cert_chain_nickname']
                 external_ca_cert_chain_file = deployer.mdict['pki_external_ca_cert_chain_path']
