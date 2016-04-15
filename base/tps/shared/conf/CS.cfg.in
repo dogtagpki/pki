@@ -1630,6 +1630,7 @@ preop.internaldb.schema.ldif=/usr/share/pki/server/conf/schema.ldif
 preop.internaldb.wait_dn=cn=index1160528734, cn=index, cn=tasks, cn=config
 preop.internaldb.index_task_ldif=/usr/share/pki/tps/conf/indextasks.ldif
 preop.internaldb.index_wait_dn=cn=index1160589774,cn=index,cn=tasks,cn=config
+preop.internaldb.usn.ldif=/usr/share/pki/server/conf/usn.ldif
 preop.module.token=Internal Key Storage Token
 preop.pin=[PKI_RANDOM_NUMBER]
 preop.product.name=CS
