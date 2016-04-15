@@ -163,7 +163,6 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.controls.LDAPEntryChangeControl;
 import netscape.ldap.controls.LDAPPersistSearchControl;
 import netscape.ldap.util.DN;
-
 import netscape.security.pkcs.PKCS10;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
@@ -3003,8 +3002,14 @@ public class CertificateAuthority
         AuthorityID aid = new AuthorityID((String)
             aidAttr.getStringValues().nextElement());
 
-        Integer newEntryUSN = new Integer(
-            entry.getAttribute("entryUSN").getStringValueArray()[0]);
+        LDAPAttribute entryUSN = entry.getAttribute("entryUSN");
+        if (entryUSN == null) {
+            log(ILogger.LL_FAILURE, "Authority entry has no entryUSN.  " +
+                "This is likely because the USN plugin is not enabled in the database");
+            return;
+        }
+
+        Integer newEntryUSN = new Integer(entryUSN.getStringValueArray()[0]);
         CMS.debug("readAuthority: new entryUSN = " + newEntryUSN);
         Integer knownEntryUSN = entryUSNs.get(aid);
         if (knownEntryUSN != null) {
@@ -3085,7 +3090,7 @@ public class CertificateAuthority
         AuthorityID aid = null;
         attr = entry.getAttribute("authorityID");
         if (attr != null) {
-            aid = new AuthorityID((String) attr.getStringValueArray()[0]);
+            aid = new AuthorityID(attr.getStringValueArray()[0]);
             forgetAuthority(aid);
         }
     }

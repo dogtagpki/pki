@@ -833,6 +833,7 @@ preop.internaldb.post_ldif=/usr/share/pki/ca/conf/vlv.ldif,/usr/share/pki/ca/con
 preop.internaldb.wait_dn=cn=index1160589769, cn=index, cn=tasks, cn=config
 preop.internaldb.index_task_ldif=/usr/share/pki/ca/conf/indextasks.ldif
 preop.internaldb.index_wait_dn=cn=index1160589770,cn=index,cn=tasks,cn=config
+preop.internaldb.usn.ldif=/usr/share/pki/server/conf/usn.ldif
 internaldb.multipleSuffix.enable=false
 jobsScheduler._000=##
 jobsScheduler._001=## jobScheduler

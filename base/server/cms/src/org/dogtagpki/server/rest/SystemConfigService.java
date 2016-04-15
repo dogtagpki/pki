@@ -753,6 +753,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             psStore.commit(false);
 
             if (!data.getStepTwo()) {
+                ConfigurationUtils.enableUSNPlugin();
                 ConfigurationUtils.populateDB();
 
                 cs.putString("preop.internaldb.replicationpwd", replicationPassword);

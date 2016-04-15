@@ -1283,6 +1283,23 @@ public class ConfigurationUtils {
         }
     }
 
+    public static void enableUSNPlugin() throws IOException, EBaseException {
+        IConfigStore cs = CMS.getConfigStore();
+
+        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+        dbFactory.init(dbCfg);
+        LDAPConnection conn = dbFactory.getConn();
+        try {
+            importLDIFS("preop.internaldb.usn.ldif", conn);
+        } catch (Exception e) {
+            CMS.debug("Failed to enable USNPlugin: " + e);
+            throw new EBaseException("Failed to enable USN plugin: " + e, e);
+        } finally {
+            releaseConnection(conn);
+        }
+    }
+
     public static void populateDB() throws IOException, EBaseException {
 
         IConfigStore cs = CMS.getConfigStore();
