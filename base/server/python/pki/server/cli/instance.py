@@ -76,7 +76,9 @@ class InstanceCertExportCLI(pki.cli.CLI):
         print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
+        print('      --append                       Append into an existing PKCS #12 file.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -86,7 +88,7 @@ class InstanceCertExportCLI(pki.cli.CLI):
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'verbose', 'help'])
+                'append', 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -99,6 +101,8 @@ class InstanceCertExportCLI(pki.cli.CLI):
         pkcs12_file = None
         pkcs12_password = None
         pkcs12_password_file = None
+        append = False
+        debug = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -113,8 +117,14 @@ class InstanceCertExportCLI(pki.cli.CLI):
             elif o == '--pkcs12-password-file':
                 pkcs12_password_file = a
 
+            elif o == '--append':
+                append = True
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+
+            elif o == '--debug':
+                debug = True
 
             elif o == '--help':
                 self.print_help()
@@ -142,11 +152,11 @@ class InstanceCertExportCLI(pki.cli.CLI):
                 pkcs12_file=pkcs12_file,
                 pkcs12_password=pkcs12_password,
                 pkcs12_password_file=pkcs12_password_file,
-                nicknames=nicknames)
+                nicknames=nicknames,
+                append=append,
+                debug=debug)
         finally:
             nssdb.close()
-
-        self.print_message('Exported certificates')
 
 
 class InstanceFindCLI(pki.cli.CLI):

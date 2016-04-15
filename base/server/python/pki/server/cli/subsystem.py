@@ -464,7 +464,9 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
+        print('      --append                       Append into an existing PKCS #12 file.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -474,7 +476,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert-file=', 'csr-file=',
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'verbose', 'help'])
+                'append', 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -494,6 +496,8 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         pkcs12_file = None
         pkcs12_password = None
         pkcs12_password_file = None
+        append = False
+        debug = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -514,8 +518,14 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             elif o == '--pkcs12-password-file':
                 pkcs12_password_file = a
 
+            elif o == '--append':
+                append = True
+
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+
+            elif o == '--debug':
+                debug = True
 
             elif o == '--help':
                 self.print_help()
@@ -526,7 +536,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        if not pkcs12_file:
+        if not (cert_file or csr_file or pkcs12_file):
             print('ERROR: missing output file')
             self.print_help()
             sys.exit(1)
@@ -579,12 +589,12 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                     pkcs12_file=pkcs12_file,
                     pkcs12_password=pkcs12_password,
                     pkcs12_password_file=pkcs12_password_file,
-                    nicknames=nicknames)
+                    nicknames=nicknames,
+                    append=append,
+                    debug=debug)
 
             finally:
                 nssdb.close()
-
-        self.print_message('Export complete')
 
 
 class SubsystemCertUpdateCLI(pki.cli.CLI):

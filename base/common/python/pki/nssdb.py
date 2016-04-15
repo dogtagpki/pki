@@ -543,7 +543,9 @@ class NSSDatabase(object):
     def export_pkcs12(self, pkcs12_file,
                       pkcs12_password=None,
                       pkcs12_password_file=None,
-                      nicknames=None):
+                      nicknames=None,
+                      append=False,
+                      debug=False):
 
         tmpdir = tempfile.mkdtemp()
 
@@ -574,6 +576,12 @@ class NSSDatabase(object):
                 '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', password_file
             ])
+
+            if append:
+                cmd.extend(['--append'])
+
+            if debug:
+                cmd.extend(['--debug'])
 
             if nicknames:
                 cmd.extend(nicknames)

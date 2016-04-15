@@ -61,7 +61,7 @@ public class PKCS12ExportCLI extends CLI {
         option.setArgName("path");
         options.addOption(option);
 
-        options.addOption(null, "new-file", false, "Create a new PKCS #12 file");
+        options.addOption(null, "append", false, "Append into an existing PKCS #12 file");
         options.addOption(null, "no-trust-flags", false, "Do not include trust flags");
         options.addOption(null, "no-key", false, "Do not include private key");
         options.addOption(null, "no-chain", false, "Do not include certificate chain");
@@ -128,7 +128,7 @@ public class PKCS12ExportCLI extends CLI {
 
         Password password = new Password(passwordString.toCharArray());
 
-        boolean newFile = cmd.hasOption("new-file");
+        boolean append = cmd.hasOption("append");
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
         boolean includeChain = !cmd.hasOption("no-chain");
@@ -139,13 +139,13 @@ public class PKCS12ExportCLI extends CLI {
 
             PKCS12 pkcs12;
 
-            if (newFile || !new File(filename).exists()) {
-                // if new file requested or file does not exist, create a new file
-                pkcs12 = new PKCS12();
+            if (append && new File(filename).exists()) {
+                // if append requested and file exists, export into the existing file
+                pkcs12 = util.loadFromFile(filename, password);
 
             } else {
-                // otherwise, export into the existing file
-                pkcs12 = util.loadFromFile(filename, password);
+                // otherwise, create a new file
+                pkcs12 = new PKCS12();
             }
 
             if (nicknames.length == 0) {

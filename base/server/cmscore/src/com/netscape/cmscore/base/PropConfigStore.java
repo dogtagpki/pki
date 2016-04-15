@@ -255,7 +255,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
         if (str == null) {
             CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
-            throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
+            throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getFullName(name)));
         }
         // should we check for empty string ?
         // if (str.length() == 0) {
