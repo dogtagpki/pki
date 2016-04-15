@@ -75,7 +75,7 @@ $(function() {
                 system_menu.hide();
             }
 
-            homePage.update();
+            // homePage.update();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             window.location.href = "/tps";
@@ -85,14 +85,20 @@ $(function() {
     var content = $("#content");
 
     var router = new Backbone.Router();
-
+/*
     var homePage = new HomePage({
         el: content,
         url: "home.html"
     });
+*/
+    var tokensPage = new TokensPage({
+        el: content,
+        url: "tokens.html"
+    });
 
     router.route("", "home", function() {
-        homePage.open();
+        // homePage.open();
+        tokensPage.open();
     });
 
     router.route("activities", "activities", function() {
@@ -292,10 +298,7 @@ $(function() {
     });
 
     router.route("tokens", "tokens", function() {
-        new TokensPage({
-            el: content,
-            url: "tokens.html"
-        }).open();
+        tokensPage.open();
     });
 
     router.route("tokens/:id", "token", function(id) {
@@ -396,7 +399,9 @@ $(function() {
 </div>
 <div class="collapse navbar-collapse navbar-collapse-1">
     <ul class="nav navbar-nav navbar-utility">
+<!--
     <li name="status"><a href="#">Status</a></li>
+-->
     <li name="account" class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
         <span class="pficon pficon-user"></span>
@@ -408,7 +413,9 @@ $(function() {
     </li>
     </ul>
     <ul class="nav navbar-nav navbar-primary">
+<!--
     <li name="home"><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+-->
     <li name="tokens"><a href="#tokens">Tokens</a></li>
     <li name="certs"><a href="#certs">Certificates</a></li>
     <li name="activities"><a href="#activities">Activities</a></li>
