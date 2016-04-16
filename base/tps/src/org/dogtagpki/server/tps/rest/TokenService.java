@@ -460,7 +460,7 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord.setPolicy(tokenData.getPolicy());
             auditModParams.put("Policy", tokenData.getPolicy());
             database.updateRecord(tokenID, tokenRecord);
-            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                     ipAddress, msg, "success", remoteUser);
 
             tokenData = createTokenData(database.getRecord(tokenID));
@@ -473,7 +473,7 @@ public class TokenService extends PKIService implements TokenResource {
             CMS.debug(e);
 
             msg = msg + ": " + e.getMessage();
-            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                     ipAddress, msg, "failure",
                     remoteUser);
 
@@ -554,7 +554,7 @@ public class TokenService extends PKIService implements TokenResource {
             }
 
             database.updateRecord(tokenID, tokenRecord);
-            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                     ipAddress, msg, "success", remoteUser);
 
             tokenData = createTokenData(database.getRecord(tokenID));
@@ -567,7 +567,7 @@ public class TokenService extends PKIService implements TokenResource {
             CMS.debug(e);
 
             msg = msg + ": " + e.getMessage();
-            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                     ipAddress, msg, "failure",
                     remoteUser);
 
@@ -662,7 +662,7 @@ public class TokenService extends PKIService implements TokenResource {
             // audit in setTokenStatus()
             setTokenStatus(tokenRecord, tokenStatus, ipAddress, remoteUser, auditModParams);
             database.updateRecord(tokenID, tokenRecord);
-            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_STATUS_CHANGE, tokenRecord,
                     ipAddress, msg, "success",
                     remoteUser);
 
@@ -674,7 +674,7 @@ public class TokenService extends PKIService implements TokenResource {
             CMS.debug(e);
 
             msg = msg + ": " + e.getMessage();
-            subsystem.tdb.tdbActivity(ActivityDatabase.OP_DO_TOKEN, tokenRecord,
+            subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_STATUS_CHANGE, tokenRecord,
                     ipAddress, msg, "failure",
                     remoteUser);
 

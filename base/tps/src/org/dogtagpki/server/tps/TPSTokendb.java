@@ -402,7 +402,7 @@ public class TPSTokendb {
                     ", keyType: " + keyType +
                     ", state: " + tokenReason;
 
-            tdbActivity(ActivityDatabase.OP_DO_TOKEN, tdbGetTokenEntry(cuid),
+            tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tdbGetTokenEntry(cuid),
                     ipAddress, activityMsg, "success", remoteUser);
 
             return false;
@@ -418,13 +418,13 @@ public class TPSTokendb {
             Date now = new Date();
             if (now.after(notAfter)) {
                 activityMsg = "revocation not enabled for expired cert: " + cert.getSerialNumber();
-                tdbActivity(ActivityDatabase.OP_DO_TOKEN, tdbGetTokenEntry(cuid),
+                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tdbGetTokenEntry(cuid),
                         ipAddress, activityMsg, "success", remoteUser);
                 return false;
             }
             if (now.before(notBefore)) {
                 activityMsg = "revocation not enabled for cert that is not yet valid: " + cert.getSerialNumber();
-                tdbActivity(ActivityDatabase.OP_DO_TOKEN, tdbGetTokenEntry(cuid),
+                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tdbGetTokenEntry(cuid),
                         ipAddress, activityMsg, "success", remoteUser);
                 return false;
             }
@@ -439,7 +439,7 @@ public class TPSTokendb {
                 activityMsg = "revocation not permitted as certificate " + cert.getSerialNumber() +
                         " is shared by anothr active token";
 
-                tdbActivity(ActivityDatabase.OP_DO_TOKEN, tdbGetTokenEntry(cuid),
+                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tdbGetTokenEntry(cuid),
                         ipAddress, activityMsg, "success", remoteUser);
 
                 return false;
