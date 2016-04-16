@@ -120,6 +120,7 @@ class KeyInfo(object):
         self.owner_name = None
         self.size = None
         self.public_key = None
+        self.realm = None
 
     @classmethod
     def from_json(cls, attr_list):
@@ -185,6 +186,7 @@ class KeyRequestInfo(object):
         self.request_type = None
         self.key_url = None
         self.request_status = None
+        self.realm = None
 
     @classmethod
     def from_json(cls, attr_list):
@@ -287,7 +289,8 @@ class KeyArchivalRequest(pki.ResourceMessage):
                  wrapped_private_data=None,
                  trans_wrapped_session_key=None, pki_archive_options=None,
                  algorithm_oid=None, symkey_params=None,
-                 key_algorithm=None, key_size=None):
+                 key_algorithm=None, key_size=None,
+                 realm=None):
         """ Constructor """
         pki.ResourceMessage.__init__(
             self,
@@ -313,6 +316,9 @@ class KeyArchivalRequest(pki.ResourceMessage):
 
         if key_size is not None:
             self.add_attribute("keySize", key_size)
+
+        if realm is not None:
+            self.add_attribute("realm", realm)
 
 
 class KeyRecoveryRequest(pki.ResourceMessage):
@@ -355,7 +361,7 @@ class SymKeyGenerationRequest(pki.ResourceMessage):
     ENCRYPT_USAGE = "encrypt"
 
     def __init__(self, client_key_id=None, key_size=None, key_algorithm=None,
-                 key_usages=None, trans_wrapped_session_key=None):
+                 key_usages=None, trans_wrapped_session_key=None, realm=None):
         """ Constructor """
         pki.ResourceMessage.__init__(
             self,
@@ -366,6 +372,8 @@ class SymKeyGenerationRequest(pki.ResourceMessage):
         self.add_attribute("keyAlgorithm", key_algorithm)
         self.add_attribute("keyUsage", ','.join(key_usages))
         self.add_attribute("transWrappedSessionKey", trans_wrapped_session_key)
+        if realm is not None:
+            self.add_attribute("realm", realm)
 
 
 class AsymKeyGenerationRequest(pki.ResourceMessage):
@@ -385,7 +393,7 @@ class AsymKeyGenerationRequest(pki.ResourceMessage):
     DERIVE_USAGE = "derive"
 
     def __init__(self, client_key_id=None, key_size=None, key_algorithm=None,
-                 key_usages=None, trans_wrapped_session_key=None):
+                 key_usages=None, trans_wrapped_session_key=None, realm=None):
         """ Constructor """
         pki.ResourceMessage.__init__(
             self,
@@ -396,6 +404,8 @@ class AsymKeyGenerationRequest(pki.ResourceMessage):
         self.add_attribute("keyAlgorithm", key_algorithm)
         self.add_attribute("keyUsage", ','.join(key_usages))
         self.add_attribute("transWrappedSessionKey", trans_wrapped_session_key)
+        if realm is not None:
+            self.add_attribute("realm", realm)
 
 
 class KeyClient(object):
@@ -449,7 +459,7 @@ class KeyClient(object):
 
     @pki.handle_exceptions()
     def list_keys(self, client_key_id=None, status=None, max_results=None,
-                  max_time=None, start=None, size=None):
+                  max_time=None, start=None, size=None, realm=None):
         """ List/Search archived secrets in the DRM.
 
             See KRAClient.list_keys for the valid values of status.
@@ -457,7 +467,7 @@ class KeyClient(object):
         """
         query_params = {'clientKeyID': client_key_id, 'status': status,
                         'maxResults': max_results, 'maxTime': max_time,
-                        'start': start, 'size': size}
+                        'start': start, 'size': size, 'realm': realm}
         response = self.connection.get(self.key_url, self.headers,
                                        params=query_params)
         return KeyInfoCollection.from_json(response.json())
@@ -466,7 +476,7 @@ class KeyClient(object):
     def list_requests(self, request_state=None, request_type=None,
                       client_key_id=None,
                       start=None, page_size=None, max_results=None,
-                      max_time=None):
+                      max_time=None, realm=None):
         """ List/Search key requests in the DRM.
 
             See KRAClient.list_requests for the valid values of request_state
@@ -476,7 +486,8 @@ class KeyClient(object):
                         'requestType': request_type,
                         'clientKeyID': client_key_id, 'start': start,
                         'pageSize': page_size,
-                        'maxResults': max_results, 'maxTime': max_time}
+                        'maxResults': max_results, 'maxTime': max_time,
+                        'realm': realm}
         response = self.connection.get(self.key_requests_url, self.headers,
                                        params=query_params)
         return KeyRequestInfoCollection.from_json(response.json())
@@ -570,8 +581,8 @@ class KeyClient(object):
 
     @pki.handle_exceptions()
     def generate_symmetric_key(self, client_key_id, algorithm=None, size=None,
-                               usages=None,
-                               trans_wrapped_session_key=None):
+                               usages=None, trans_wrapped_session_key=None,
+                               realm=None):
         """ Generate and archive a symmetric key on the DRM.
 
             Return a KeyRequestResponse which contains a KeyRequestInfo
@@ -589,7 +600,9 @@ class KeyClient(object):
                 key_size=size,
                 key_algorithm=algorithm,
                 key_usages=usages,
-                trans_wrapped_session_key=twsk)
+                trans_wrapped_session_key=twsk,
+                realm=realm
+            )
             raise NotImplementedError(
                 "Returning the symmetric key in the same call is not yet "
                 "implemented.")
@@ -598,13 +611,16 @@ class KeyClient(object):
                 client_key_id=client_key_id,
                 key_size=size,
                 key_algorithm=algorithm,
-                key_usages=usages)
+                key_usages=usages,
+                realm=realm
+            )
         return self.submit_request(request)
 
     @pki.handle_exceptions()
     def generate_asymmetric_key(self, client_key_id, algorithm=None,
                                 key_size=None, usages=None,
-                                trans_wrapped_session_key=None):
+                                trans_wrapped_session_key=None,
+                                realm=None):
         """ Generate and archive asymmetric keys in the DRM.
             Supports algorithms RSA and DSA.
             Valid key size for RSA = 256 + (16 * n), where n: 0-496
@@ -646,14 +662,15 @@ class KeyClient(object):
             key_size=key_size,
             key_algorithm=algorithm,
             key_usages=usages,
-            trans_wrapped_session_key=trans_wrapped_session_key
+            trans_wrapped_session_key=trans_wrapped_session_key,
+            realm=realm
         )
 
         return self.submit_request(request)
 
     @pki.handle_exceptions()
     def archive_key(self, client_key_id, data_type, private_data,
-                    key_algorithm=None, key_size=None):
+                    key_algorithm=None, key_size=None, realm=None):
         """ Archive a secret (symmetric key or passphrase) on the DRM.
 
             Requires a user-supplied client ID.  There can be only one active
@@ -707,7 +724,8 @@ class KeyClient(object):
             algorithm_oid=None,
             nonce_iv=nonce_iv,
             key_algorithm=key_algorithm,
-            key_size=key_size)
+            key_size=key_size,
+            realm=realm)
 
     @pki.handle_exceptions()
     def archive_encrypted_data(self,
@@ -718,7 +736,8 @@ class KeyClient(object):
                                algorithm_oid=None,
                                nonce_iv=None,
                                key_algorithm=None,
-                               key_size=None):
+                               key_size=None,
+                               realm=None):
         """
         Archive a secret (symmetric key or passphrase) on the DRM.
 
@@ -773,13 +792,14 @@ class KeyClient(object):
                                      algorithm_oid=algorithm_oid,
                                      symkey_params=symkey_params,
                                      key_algorithm=key_algorithm,
-                                     key_size=key_size)
+                                     key_size=key_size,
+                                     realm=realm)
 
         return self.submit_request(request)
 
     @pki.handle_exceptions()
     def archive_pki_options(self, client_key_id, data_type, pki_archive_options,
-                            key_algorithm=None, key_size=None):
+                            key_algorithm=None, key_size=None, realm=None):
         """ Archive a secret (symmetric key or passphrase) on the DRM.
 
             Refer to archive_key() comments for a description of client_key_id,
@@ -809,7 +829,8 @@ class KeyClient(object):
                                      data_type=data_type,
                                      pki_archive_options=data,
                                      key_algorithm=key_algorithm,
-                                     key_size=key_size)
+                                     key_size=key_size,
+                                     realm=realm)
         return self.submit_request(request)
 
     @pki.handle_exceptions()
