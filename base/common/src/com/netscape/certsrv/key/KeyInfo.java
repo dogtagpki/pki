@@ -58,6 +58,9 @@ public class KeyInfo {
     @XmlElement
     private String publicKey;
 
+    @XmlElement
+    private String realm;
+
     public KeyInfo() {
         // required for JAXB (defaults)
     }
@@ -155,6 +158,14 @@ public class KeyInfo {
         } else {
             this.publicKey = null;
         }
+    }
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
     }
 
 }

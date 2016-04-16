@@ -20,8 +20,8 @@ package com.netscape.certsrv.dbs.keydb;
 import java.math.BigInteger;
 import java.util.Date;
 
-import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.MetaInfo;
 
 /**
  * An interface contains constants for key record.
@@ -44,6 +44,7 @@ public interface IKeyRecord {
     public static final String ATTR_CLIENT_ID = "clientId";
     public static final String ATTR_DATA_TYPE = "dataType";
     public static final String ATTR_STATUS = "status";
+    public static final String ATTR_REALM = "realm";
 
 
     // key state
@@ -93,9 +94,9 @@ public interface IKeyRecord {
     /**
      * Retrieves meta info.
      *
-     * @return MetaInfo 
+     * @return MetaInfo
      */
-    public MetaInfo getMetaInfo(); 
+    public MetaInfo getMetaInfo();
 
     /**
      * Retrieves client ID.
@@ -158,4 +159,12 @@ public interface IKeyRecord {
      * @exception EBaseException failed to retrieve public key data
      */
     public byte[] getPublicKeyData() throws EBaseException;
+
+    /**
+     * Retrieves authorization realm.
+     *
+     * @return authorization realm
+     * @exception EBaseException failed to retrieve authorization realm
+     */
+    public String getRealm() throws EBaseException;
 }

@@ -40,9 +40,6 @@ import com.netscape.certsrv.dbs.keydb.KeyState;
  */
 public class KeyRecord implements IDBObj, IKeyRecord {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -3765000841161998984L;
     private BigInteger mSerialNo = null;
     private KeyState mState = null;
@@ -59,6 +56,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     private String mClientId = null;
     private String mStatus = null;
     private String mDataType = null;
+    private String mRealm = null;
 
 
     protected static Vector<String> mNames = new Vector<String>();
@@ -78,6 +76,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         mNames.addElement(ATTR_CLIENT_ID);
         mNames.addElement(ATTR_STATUS);
         mNames.addElement(ATTR_DATA_TYPE);
+        mNames.addElement(ATTR_REALM);
     }
 
     /**
@@ -141,6 +140,8 @@ public class KeyRecord implements IDBObj, IKeyRecord {
             mDataType = (String) object;
         } else if (name.equalsIgnoreCase(ATTR_STATUS)) {
             mStatus = (String) object;
+        } else if (name.equalsIgnoreCase(ATTR_REALM)) {
+            mRealm = (String) object;
         } else {
             throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -181,6 +182,8 @@ public class KeyRecord implements IDBObj, IKeyRecord {
             return mDataType;
         } else if (name.equalsIgnoreCase(ATTR_STATUS)) {
             return mStatus;
+        } else if (name.equalsIgnoreCase(ATTR_REALM)) {
+            return mRealm;
         } else {
             throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -339,7 +342,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     }
 
     /**
-     * Sets the dateso of revocation.
+     * Sets the date of revocation.
      * <P>
      */
     public void setDateOfRevocation(Date dates[]) throws EBaseException {
@@ -388,5 +391,10 @@ public class KeyRecord implements IDBObj, IKeyRecord {
      */
     public String getDataType() throws EBaseException {
         return mDataType;
+    }
+
+    @Override
+    public String getRealm() throws EBaseException {
+        return mRealm;
     }
 }

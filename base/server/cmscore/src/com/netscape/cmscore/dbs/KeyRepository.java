@@ -27,8 +27,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import netscape.security.x509.X500Name;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -42,6 +40,8 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.repository.IRepository;
+
+import netscape.security.x509.X500Name;
 
 /**
  * A class represents a Key repository. This is the container of
@@ -147,6 +147,10 @@ public class KeyRepository extends Repository implements IKeyRepository {
         if (!reg.isAttributeRegistered(KeyRecord.ATTR_DATA_TYPE)) {
             reg.registerAttribute(KeyRecord.ATTR_DATA_TYPE, new
                     StringMapper(KeyDBSchema.LDAP_ATTR_DATA_TYPE));
+        }
+        if (!reg.isAttributeRegistered(KeyRecord.ATTR_REALM)) {
+            reg.registerAttribute(KeyRecord.ATTR_REALM, new
+                    StringMapper(KeyDBSchema.LDAP_ATTR_REALM));
         }
 
     }

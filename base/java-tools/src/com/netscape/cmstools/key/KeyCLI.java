@@ -108,6 +108,7 @@ public class KeyCLI extends CLI {
         if (info.getAlgorithm() != null) System.out.println("  Algorithm: "+info.getAlgorithm());
         if (info.getSize() != null) System.out.println("  Size: "+info.getSize());
         if (info.getOwnerName() != null) System.out.println("  Owner: "+info.getOwnerName());
+        if (info.getRealm() != null) System.out.println("  Realm: " + info.getRealm());
         if (info.getPublicKey() != null) {
             // Print out the Base64 encoded public key in the form of a blob,
             // where the max line length is 64.
@@ -123,5 +124,6 @@ public class KeyCLI extends CLI {
         if (info.getKeyId() != null) System.out.println("  Key ID: "+info.getKeyId().toHexString());
         if (info.getRequestType() != null) System.out.println("  Type: "+info.getRequestType());
         if (info.getRequestStatus() != null) System.out.println("  Status: "+info.getRequestStatus());
+        if (info.getRealm() != null) System.out.println("  Realm: "+ info.getRealm());
     }
 }

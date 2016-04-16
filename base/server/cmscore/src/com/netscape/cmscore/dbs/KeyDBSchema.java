@@ -48,4 +48,5 @@ public class KeyDBSchema {
     public static final String LDAP_ATTR_CLIENT_ID = "clientId";
     public static final String LDAP_ATTR_STATUS = "status";
     public static final String LDAP_ATTR_DATA_TYPE = "dataType";
+    public static final String LDAP_ATTR_REALM = "realm";
 }
