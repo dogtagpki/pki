@@ -19,10 +19,8 @@
 package org.dogtagpki.server.kra.rest;
 
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,19 +49,12 @@ import com.netscape.certsrv.key.KeyRequestInfoCollection;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -103,10 +94,6 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     public static final int DEFAULT_MAXRESULTS = 100;
     public static final int DEFAULT_MAXTIME = 10;
 
-    private IKeyRecoveryAuthority kra;
-    private IRequestQueue queue;
-    private IKeyService service;
-
     public static final Map<String, SymmetricKey.Type> SYMKEY_TYPES;
     static {
         SYMKEY_TYPES = new HashMap<String, SymmetricKey.Type>();
@@ -116,12 +103,6 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         SYMKEY_TYPES.put(KeyRequestResource.RC2_ALGORITHM, SymmetricKey.RC2);
         SYMKEY_TYPES.put(KeyRequestResource.RC4_ALGORITHM, SymmetricKey.RC4);
         SYMKEY_TYPES.put(KeyRequestResource.AES_ALGORITHM, SymmetricKey.AES);
-    }
-
-    public KeyRequestService() {
-        kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
-        queue = kra.getRequestQueue();
-        service = (IKeyService) kra;
     }
 
     /**
@@ -221,7 +202,9 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
                 throw new UnauthorizedException("Recovery must be initiated by an agent");
             }
             response = (data.getCertificate() != null)?
-                    requestKeyRecovery(data): dao.submitRequest(data, uriInfo, requestor);
+                    dao.submitAsyncKeyRecoveryRequest(data, uriInfo, requestor):
+                    dao.submitRequest(data, uriInfo, requestor);
+
             auditRecoveryRequestMade(response.getRequestInfo().getRequestId(),
                     ILogger.SUCCESS, data.getKeyId());
 
@@ -234,40 +217,18 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         }
     }
 
-    private KeyRequestResponse requestKeyRecovery(KeyRecoveryRequest data) {
-        KeyRequestResponse response = null;
-        if (data == null) {
-            throw new BadRequestException("Invalid request.");
-        }
-        String keyId = data.getKeyId().toString();
-        String b64Certificate = data.getCertificate();
-        byte[] certData = Utils.base64decode(b64Certificate);
-        String agentID = servletRequest.getUserPrincipal().getName();
-        String requestId = null;
-        try {
-            requestId = service.initAsyncKeyRecovery(new BigInteger(keyId), new X509CertImpl(certData), agentID);
-        } catch (EBaseException | CertificateException e) {
-            e.printStackTrace();
-            throw new PKIException(e.toString());
-        }
-        IRequest request = null;
-        try {
-            request = queue.findRequest(new RequestId(requestId));
-        } catch (EBaseException e) {
-        }
-        KeyRequestDAO dao = new KeyRequestDAO();
-        response = dao.createCMSRequestResponse(request, uriInfo);
-
-        return response;
-    }
-
     @Override
     public Response approveRequest(RequestId id) {
         if (id == null) {
             throw new BadRequestException("Invalid request id.");
         }
+        KeyRequestDAO dao = new KeyRequestDAO();
+        String requestor = servletRequest.getUserPrincipal().getName();
+        if (requestor == null) {
+            throw new UnauthorizedException("Request approval must be initiated by an agent");
+        }
         try {
-            service.addAgentAsyncKeyRecovery(id.toString(), servletRequest.getUserPrincipal().getName());
+            dao.approveRequest(id, requestor);
             auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
         } catch (EBaseException e) {
             e.printStackTrace();

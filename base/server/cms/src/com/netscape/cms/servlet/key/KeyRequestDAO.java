@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
+import java.math.BigInteger;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -53,6 +55,7 @@ import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.certsrv.key.KeyResource;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.kra.IKeyService;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
@@ -60,6 +63,9 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -94,11 +100,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     private IKeyRepository repo;
     private IKeyRecoveryAuthority kra;
+    private IKeyService service;
 
     public KeyRequestDAO() {
         super("kra");
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
         repo = kra.getKeyRepository();
+        service = (IKeyService) kra;
     }
 
     /**
@@ -277,6 +285,39 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return createKeyRequestResponse(request, uriInfo);
     }
 
+    public KeyRequestResponse submitAsyncKeyRecoveryRequest(KeyRecoveryRequest data, UriInfo uriInfo,
+            String requestor) throws EBaseException {
+        if (data == null) {
+            throw new BadRequestException("Invalid request.");
+        }
+
+        KeyId keyId = data.getKeyId();
+        IKeyRecord rec = null;
+        try {
+            rec = repo.readKeyRecord(keyId.toBigInteger());
+        } catch (EDBRecordNotFoundException e) {
+            throw new KeyNotFoundException(keyId);
+        }
+
+        String b64Certificate = data.getCertificate();
+        byte[] certData = Utils.base64decode(b64Certificate);
+        String requestId = null;
+        try {
+            requestId = service.initAsyncKeyRecovery(new BigInteger(keyId.toString()), new X509CertImpl(certData), requestor);
+            // TODO - update request with realm
+        } catch (EBaseException | CertificateException e) {
+            e.printStackTrace();
+            throw new PKIException(e.toString());
+        }
+        IRequest request = null;
+        try {
+            request = queue.findRequest(new RequestId(requestId));
+        } catch (EBaseException e) {
+        }
+        return createCMSRequestResponse(request, uriInfo);
+    }
+
+
     public KeyRequestResponse submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo, String owner)
             throws EBaseException {
         String clientKeyId = data.getClientKeyId();
@@ -429,10 +470,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return createKeyRequestResponse(request, uriInfo);
     }
 
-    public void approveRequest(RequestId id) throws EBaseException {
-        IRequest request = queue.findRequest(id);
-        request.setRequestStatus(RequestStatus.APPROVED);
-        queue.updateRequest(request);
+    public void approveRequest(RequestId id, String requestor) throws EBaseException {
+        service.addAgentAsyncKeyRecovery(id.toString(), requestor);
     }
 
     public void rejectRequest(RequestId id) throws EBaseException {
