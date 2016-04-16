@@ -196,3 +196,11 @@ nsindexType: pres
 nsindexType: sub
 nsSystemindex: false
 cn: extension
+
+dn: cn=realm,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: realm
