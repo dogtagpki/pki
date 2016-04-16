@@ -61,6 +61,8 @@ public interface IRequestRecord
     // and the RequestRecord.
     public final static String ATTR_EXT_DATA = "requestExtData";
 
+    public final static String ATTR_REALM = "realm";
+
     /**
      * Gets the request id.
      *

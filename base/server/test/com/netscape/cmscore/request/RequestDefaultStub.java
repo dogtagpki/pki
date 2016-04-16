@@ -7,17 +7,17 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * Default testing stub for the IRequest interface.
@@ -267,5 +267,14 @@ public class RequestDefaultStub implements IRequest {
 
     public IAttrSet asIAttrSet() {
         return null;
+    }
+
+    @Override
+    public String getRealm() {
+        return null;
+    }
+
+    @Override
+    public void setRealm(String realm) {
     }
 }

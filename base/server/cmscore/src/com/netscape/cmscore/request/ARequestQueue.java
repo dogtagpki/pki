@@ -33,14 +33,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
 
-import netscape.security.util.DerInputStream;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -60,6 +52,14 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+
+import netscape.security.util.DerInputStream;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509ExtensionException;
 
 /**
  * The ARequestQueue class is an abstract class that implements
@@ -1432,10 +1432,21 @@ class Request implements IRequest {
     protected String mOwner;
     protected String mRequestType;
     protected String mContext; // string for now.
+    protected String realm;
     protected ExtDataHashtable<Object> mExtData = new ExtDataHashtable<Object>();
 
     Date mCreationTime = CMS.getCurrentDate();
     Date mModificationTime = CMS.getCurrentDate();
+
+    @Override
+    public String getRealm() {
+        return realm;
+    }
+
+    @Override
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
 }
 
 class RequestIAttrSetWrapper implements IAttrSet {

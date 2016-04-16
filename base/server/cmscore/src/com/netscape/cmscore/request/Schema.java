@@ -38,6 +38,7 @@ class Schema {
     public static final String LDAP_ATTR_AGENT_GROUP = "requestAgentGroup";
     public static final String LDAP_ATTR_REQUEST_TYPE = "requestType";
     public static final String LDAP_ATTR_REQUEST_ERROR = "requestError";
+    public static final String LDAP_ATTR_REALM = "realm";
 
     // This attribute is a placeholder used by ExtAttrDynMapper
     public static final String LDAP_ATTR_EXT_ATTR = "extAttr";

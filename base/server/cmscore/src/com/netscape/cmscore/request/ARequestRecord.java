@@ -39,4 +39,5 @@ class ARequestRecord {
     String mOwner;
     String mRequestType;
     Hashtable<String, Object> mExtData;
+    String mRealm;
 };

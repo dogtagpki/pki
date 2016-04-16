@@ -30,9 +30,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -52,6 +49,9 @@ import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.StringMapper;
 import com.netscape.cmscore.util.Debug;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 //
 // A request record is the stored version of a request.
@@ -92,6 +92,8 @@ public class RequestRecord
             return mOwner;
         else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
             return mExtData;
+        else if (name.equals(IRequestRecord.ATTR_REALM))
+            return mRealm;
         else {
             RequestAttr ra = mAttrTable.get(name);
 
@@ -119,6 +121,8 @@ public class RequestRecord
             mSourceId = (String) o;
         else if (name.equals(IRequestRecord.ATTR_REQUEST_OWNER))
             mOwner = (String) o;
+        else if (name.equals(IRequestRecord.ATTR_REALM))
+            mRealm = (String) o;
         else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
             mExtData = (Hashtable<String, Object>) o;
         else {
@@ -155,6 +159,7 @@ public class RequestRecord
         mOwner = r.getRequestOwner();
         mCreateTime = r.getCreationTime();
         mModifyTime = r.getModificationTime();
+        mRealm = r.getRealm();
         mExtData = loadExtDataFromRequest(r);
 
         for (int i = 0; i < mRequestA.length; i++) {
@@ -168,6 +173,7 @@ public class RequestRecord
         r.setRequestOwner(mOwner);
         a.modModificationTime(r, mModifyTime);
         a.modCreationTime(r, mCreateTime);
+        r.setRealm(mRealm);
         storeExtDataIntoRequest(r);
 
         for (int i = 0; i < mRequestA.length; i++) {
@@ -192,6 +198,12 @@ public class RequestRecord
         mods.add(IRequestRecord.ATTR_EXT_DATA,
                 Modification.MOD_REPLACE, loadExtDataFromRequest(r));
 
+        if (r.getRealm() != null) {
+            mods.add(IRequestRecord.ATTR_REALM, Modification.MOD_REPLACE, r.getRealm());
+        } else {
+            mods.add(IRequestRecord.ATTR_REALM, Modification.MOD_DELETE, null);
+        }
+
         for (int i = 0; i < mRequestA.length; i++) {
             mRequestA[i].mod(mods, r);
         }
@@ -213,6 +225,8 @@ public class RequestRecord
                 new StringMapper(Schema.LDAP_ATTR_SOURCE_ID));
         reg.registerAttribute(IRequestRecord.ATTR_REQUEST_OWNER,
                 new StringMapper(Schema.LDAP_ATTR_REQUEST_OWNER));
+        reg.registerAttribute(IRequestRecord.ATTR_REALM,
+                new StringMapper(Schema.LDAP_ATTR_REALM));
         ExtAttrDynMapper extAttrMapper = new ExtAttrDynMapper();
         reg.registerAttribute(IRequestRecord.ATTR_EXT_DATA, extAttrMapper);
         reg.registerDynamicMapper(extAttrMapper);
@@ -306,6 +320,7 @@ public class RequestRecord
         mAttrs.add(IRequestRecord.ATTR_MODIFY_TIME);
         mAttrs.add(IRequestRecord.ATTR_SOURCE_ID);
         mAttrs.add(IRequestRecord.ATTR_REQUEST_OWNER);
+        mAttrs.add(IRequestRecord.ATTR_REALM);
         mAttrs.add(IRequestRecord.ATTR_EXT_DATA);
 
         for (int i = 0; i < mRequestA.length; i++) {

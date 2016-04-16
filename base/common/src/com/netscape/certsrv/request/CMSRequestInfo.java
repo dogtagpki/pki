@@ -35,6 +35,9 @@ public  class CMSRequestInfo {
     @XmlElement
     protected String requestURL;
 
+    @XmlElement
+    protected String realm;
+
     /**
      * @return the requestType
      */
@@ -85,10 +88,19 @@ public  class CMSRequestInfo {
         this.requestURL = requestURL;
     }
 
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + ((realm == null) ? 0 : realm.hashCode());
         result = prime * result + ((requestStatus == null) ? 0 : requestStatus.hashCode());
         result = prime * result + ((requestType == null) ? 0 : requestType.hashCode());
         result = prime * result + ((requestURL == null) ? 0 : requestURL.hashCode());
@@ -104,6 +116,11 @@ public  class CMSRequestInfo {
         if (getClass() != obj.getClass())
             return false;
         CMSRequestInfo other = (CMSRequestInfo) obj;
+        if (realm == null) {
+            if (other.realm != null)
+                return false;
+        } else if (!realm.equals(other.realm))
+            return false;
         if (requestStatus == null) {
             if (other.requestStatus != null)
                 return false;

@@ -27,14 +27,14 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.IAttrSet;
+
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.RevokedCertImpl;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
-
-import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.base.IAttrSet;
 
 /**
  * An interface that defines abilities of request objects,
@@ -304,6 +304,9 @@ public interface IRequest extends Serializable {
     public final static String UPDATED_BY = "updatedBy";
     // String error messages
     public static final String ERROR = "Error";
+
+    // authentication realm
+    public static final String REALM = "realm";
 
     /**
      * Copies meta attributes (excluding request Id, etc.) of another request
@@ -771,4 +774,15 @@ public interface IRequest extends Serializable {
      */
     public IAttrSet asIAttrSet();
 
+    /**
+     * Get realm
+     * @return String
+     */
+    public String getRealm();
+
+    /**
+     * Set the realm
+     * @param realm
+     */
+    public void setRealm(String realm);
 }
