@@ -100,6 +100,9 @@ public class SecurityDataService implements IService {
         String algorithm = request.getExtDataInString(IRequest.SECURITY_DATA_ALGORITHM);
         int strength = request.getExtDataInInteger(IRequest.SECURITY_DATA_STRENGTH);
 
+        // parameter for realm
+        String realm = request.getRealm();
+
         CMS.debug("SecurityDataService.serviceRequest. Request id: " + id);
         CMS.debug("SecurityDataService.serviceRequest wrappedSecurityData: " + wrappedSecurityData);
 
@@ -260,6 +263,10 @@ public class SecurityDataService implements IService {
         if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
             rec.set(KeyRecord.ATTR_ALGORITHM, algorithm);
             rec.set(KeyRecord.ATTR_KEY_SIZE, strength);
+        }
+
+        if (realm != null) {
+            rec.set(KeyRecord.ATTR_REALM,  realm);
         }
 
         request.setExtData(ATTR_KEY_RECORD, serialNo);

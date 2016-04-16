@@ -176,6 +176,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String keyAlgorithm = data.getKeyAlgorithm();
         int keyStrength = dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE) ?
                 data.getKeySize(): 0;
+        String realm = data.getRealm();
 
         boolean keyExists = doesKeyExist(clientKeyId, "active");
 
@@ -204,6 +205,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
 
+        if (realm != null) {
+            request.setRealm(realm);
+        }
+
         queue.processRequest(request);
 
         queue.markAsServiced(request);
@@ -229,8 +234,9 @@ public class KeyRequestDAO extends CMSRequestDAO {
         IRequest request = queue.newRequest(IRequest.SECURITY_DATA_RECOVERY_REQUEST);
 
         KeyId keyId = data.getKeyId();
+        IKeyRecord rec = null;
         try {
-            repo.readKeyRecord(keyId.toBigInteger());
+            rec = repo.readKeyRecord(keyId.toBigInteger());
         } catch (EDBRecordNotFoundException e) {
             throw new KeyNotFoundException(keyId);
         }
@@ -262,6 +268,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, requestor);
         request.setExtData(IRequest.ATTR_APPROVE_AGENTS, requestor);
 
+        if (rec.getRealm() != null) {
+            request.setRealm(rec.getRealm());
+        }
+
         queue.processRequest(request);
 
         return createKeyRequestResponse(request, uriInfo);
@@ -274,6 +284,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         Integer keySize = data.getKeySize();
         List<String> usages = data.getUsages();
         String transWrappedSessionKey = data.getTransWrappedSessionKey();
+        String realm = data.getRealm();
 
         if (StringUtils.isBlank(clientKeyId)) {
             throw new BadRequestException("Invalid key generation request. Missing client ID");
@@ -322,6 +333,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
                     transWrappedSessionKey);
         }
 
+        if (realm != null) {
+            request.setRealm(realm);
+        }
+
         queue.processRequest(request);
         queue.markAsServiced(request);
 
@@ -335,6 +350,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         Integer keySize = data.getKeySize();
         List<String> usages = data.getUsages();
         String transWrappedSessionKey = data.getTransWrappedSessionKey();
+        String realm = data.getRealm();
 
         if (StringUtils.isBlank(clientKeyId)) {
             throw new BadRequestException("Invalid key generation request. Missing client ID");
@@ -403,6 +419,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
                     transWrappedSessionKey);
         }
 
+        if (realm != null) {
+            request.setRealm(realm);
+        }
+
         queue.processRequest(request);
         queue.markAsServiced(request);
 
@@ -448,6 +468,10 @@ public class KeyRequestDAO extends CMSRequestDAO {
             UriBuilder keyBuilder = uriInfo.getBaseUriBuilder();
             keyBuilder.path(keyPath.value() + "/" + keyID);
             ret.setKeyURL(keyBuilder.build().toString());
+        }
+
+        if (request.getRealm()!= null) {
+            ret.setRealm(request.getRealm());
         }
 
         return ret;

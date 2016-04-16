@@ -48,6 +48,14 @@ public class KeyGenerateCLI extends CLI {
                 + "\nAdditional usages for RSA and DSA type keys: derive, sign_recover, verify_recover.");
         option.setArgName("list of usages");
         options.addOption(option);
+
+        option = new Option(
+                null,
+                "realm",
+                true,
+                "Authorization realm");
+        option.setArgName("realm");
+        options.addOption(option);
     }
 
     public void execute(String[] args) {
@@ -80,6 +88,7 @@ public class KeyGenerateCLI extends CLI {
         String clientKeyId = cmdArgs[0];
         String keyAlgorithm = cmd.getOptionValue("key-algorithm");
         String keySize = cmd.getOptionValue("key-size");
+        String realm = cmd.getOptionValue("realm");
 
         if (keySize == null) {
             switch (keyAlgorithm) {
@@ -118,6 +127,7 @@ public class KeyGenerateCLI extends CLI {
         if (givenUsages != null) {
             usages = Arrays.asList(givenUsages.split(","));
         }
+
         KeyRequestResponse response = null;
         switch (keyAlgorithm) {
         case KeyRequestResource.DES3_ALGORITHM:
@@ -126,15 +136,13 @@ public class KeyGenerateCLI extends CLI {
         case KeyRequestResource.RC4_ALGORITHM:
         case KeyRequestResource.AES_ALGORITHM:
         case KeyRequestResource.RC2_ALGORITHM:
-            response = keyCLI.keyClient.generateSymmetricKey(clientKeyId, keyAlgorithm,
-                    size,
-                    usages, null);
+            response = keyCLI.keyClient.generateSymmetricKey(
+                    clientKeyId, keyAlgorithm, size, usages, null, realm);
             break;
         case KeyRequestResource.RSA_ALGORITHM:
         case KeyRequestResource.DSA_ALGORITHM:
-            response = keyCLI.keyClient.generateAsymmetricKey(clientKeyId, keyAlgorithm,
-                    size,
-                    usages, null);
+            response = keyCLI.keyClient.generateAsymmetricKey(
+                    clientKeyId, keyAlgorithm, size, usages, null, realm);
             break;
         default:
             System.err.println("Error: Algorithm not supported.");

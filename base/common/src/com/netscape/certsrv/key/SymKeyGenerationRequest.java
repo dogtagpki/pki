@@ -40,6 +40,7 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
         attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
         attributes.put(KEY_USAGE, form.getFirst(KEY_USAGE));
         attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
+        attributes.put(REALM, form.getFirst(REALM));
 
         String usageString = attributes.get(KEY_USAGE);
         if (!StringUtils.isBlank(usageString)) {
@@ -97,6 +98,7 @@ public class SymKeyGenerationRequest extends KeyGenerationRequest {
         before.addUsage(SymKeyGenerationRequest.DECRYPT_USAGE);
         before.addUsage(SymKeyGenerationRequest.ENCRYPT_USAGE);
         before.addUsage(SymKeyGenerationRequest.SIGN_USAGE);
+        before.setRealm("ipa");
 
         String string = before.toString();
         System.out.println(string);

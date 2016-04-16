@@ -89,6 +89,7 @@ public class SymKeyGenService implements IService {
         String id = request.getRequestId().toString();
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
+        String realm = request.getRealm();
 
         String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
         List<String> usages = new ArrayList<String>(
@@ -211,6 +212,10 @@ public class SymKeyGenService implements IService {
         rec.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
         rec.set(KeyRecord.ATTR_KEY_SIZE, keySize);
         request.setExtData(ATTR_KEY_RECORD, serialNo);
+
+        if (realm != null) {
+            rec.set(KeyRecord.ATTR_REALM, realm);
+        }
 
         CMS.debug("KRA adding Security Data key record " + serialNo);
         storage.addKeyRecord(rec);

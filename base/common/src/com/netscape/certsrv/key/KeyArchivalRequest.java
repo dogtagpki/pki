@@ -52,6 +52,9 @@ public class KeyArchivalRequest extends ResourceMessage {
     private static final String KEY_ALGORITHM = "keyAlgorithm";
     private static final String KEY_SIZE = "keySize";
 
+    // parameters to set realm
+    private static final String REALM = "realm";
+
     public KeyArchivalRequest() {
         // required for JAXB (defaults)
         setClassName(getClass().getName());
@@ -65,6 +68,7 @@ public class KeyArchivalRequest extends ResourceMessage {
         attributes.put(KEY_SIZE, form.getFirst(KEY_SIZE));
         attributes.put(PKI_ARCHIVE_OPTIONS, form.getFirst(PKI_ARCHIVE_OPTIONS));
         attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
+        attributes.put(REALM, form.getFirst(REALM));
         setClassName(getClass().getName());
     }
 
@@ -199,6 +203,20 @@ public class KeyArchivalRequest extends ResourceMessage {
         attributes.put(KEY_SIZE, Integer.toString(keySize));
     }
 
+    /**
+     * @return the authentication realm
+     */
+    public String getRealm() {
+        return attributes.get(REALM);
+    }
+
+    /**
+     * @param realm - the authentication realm
+     */
+    public void setRealm(String realm) {
+        attributes.put(REALM, realm);
+    }
+
     public String toString() {
         try {
             return ResourceMessage.marshal(this, KeyArchivalRequest.class);
@@ -222,6 +240,7 @@ public class KeyArchivalRequest extends ResourceMessage {
         before.setDataType(KeyRequestResource.SYMMETRIC_KEY_TYPE);
         before.setWrappedPrivateData("XXXXABCDEFXXX");
         before.setKeyAlgorithm(KeyRequestResource.AES_ALGORITHM);
+        before.setRealm("ipa-vault");
         before.setKeySize(128);
 
         String string = before.toString();

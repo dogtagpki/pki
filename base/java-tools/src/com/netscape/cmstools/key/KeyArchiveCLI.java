@@ -45,6 +45,10 @@ public class KeyArchiveCLI extends CLI {
                 "Location of the request template file.\nUsed for archiving already encrypted data.");
         option.setArgName("Input file path");
         options.addOption(option);
+
+        option = new Option(null, "realm", true, "Authorization realm.");
+        option.setArgName("Realm");
+        options.addOption(option);
     }
 
     public void execute(String[] args) {
@@ -88,13 +92,15 @@ public class KeyArchiveCLI extends CLI {
 
                 if (req.getPKIArchiveOptions() != null) {
                     response = keyCLI.keyClient.archivePKIOptions(req.getClientKeyId(), req.getDataType(),
-                            req.getKeyAlgorithm(), req.getKeySize(), Utils.base64decode(req.getPKIArchiveOptions()));
+                            req.getKeyAlgorithm(), req.getKeySize(), Utils.base64decode(req.getPKIArchiveOptions()),
+                            req.getRealm());
                 } else {
                     response = keyCLI.keyClient.archiveEncryptedData(req.getClientKeyId(), req.getDataType(),
                             req.getKeyAlgorithm(), req.getKeySize(), req.getAlgorithmOID(),
                             Utils.base64decode(req.getSymmetricAlgorithmParams()),
                             Utils.base64decode(req.getWrappedPrivateData()),
-                            Utils.base64decode(req.getTransWrappedSessionKey()));
+                            Utils.base64decode(req.getTransWrappedSessionKey()),
+                            req.getRealm());
                 }
 
             } catch (JAXBException e) {
@@ -123,8 +129,10 @@ public class KeyArchiveCLI extends CLI {
                 printHelp();
                 System.exit(-1);
             }
+            String realm = cmd.getOptionValue("realm");
+
             try {
-                response = keyCLI.keyClient.archivePassphrase(clientKeyId, passphrase);
+                response = keyCLI.keyClient.archivePassphrase(clientKeyId, passphrase, realm);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
                 if (verbose)

@@ -38,6 +38,7 @@ public class KeyGenerationRequest extends ResourceMessage{
     protected static final String KEY_ALGORITHM = "keyAlgorithm";
     protected static final String KEY_USAGE = "keyUsage";
     protected static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
+    protected static final String REALM = "realm";
 
 
     public List<String> getUsages() {
@@ -122,4 +123,17 @@ public class KeyGenerationRequest extends ResourceMessage{
         attributes.put(TRANS_WRAPPED_SESSION_KEY, transWrappedSessionKey);
     }
 
+    /**
+     * @return the realm
+     */
+    public String getRealm() {
+        return attributes.get(REALM);
+    }
+
+    /**
+     * @param realm - authorization realm to set
+     */
+    public void setRealm(String realm) {
+        attributes.put(REALM, realm);
+    }
 }

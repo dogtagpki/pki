@@ -517,12 +517,13 @@ public class KeyClient extends Client {
      *
      * @param clientKeyId -- Client Key Identfier
      * @param passphrase -- Secret passphrase to be archived
+     * @param realm -- authorization realm
      * @return A KeyRequestResponse object with information about the request.
      * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
      *             IOException, CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
-    public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase) throws Exception {
+    public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase, String realm) throws Exception {
 
         // Default algorithm OID for DES_EDE3_CBC
         String algorithmOID = EncryptionAlgorithm.DES3_CBC.toOID().toString();
@@ -533,7 +534,13 @@ public class KeyClient extends Client {
                 sessionKey, KeyRequestResource.DES3_ALGORITHM);
 
         return archiveEncryptedData(clientKeyId, KeyRequestResource.PASS_PHRASE_TYPE, null, 0, algorithmOID,
-                nonceData, encryptedData, transWrappedSessionKey);
+                nonceData, encryptedData, transWrappedSessionKey, realm);
+    }
+
+    /* Old signature for backwards compatibility */
+    @Deprecated
+    public KeyRequestResponse archivePassphrase(String clientKeyId, String passphrase) throws Exception {
+        return archivePassphrase(clientKeyId, passphrase, null);
     }
 
     /**
@@ -546,13 +553,14 @@ public class KeyClient extends Client {
      * @param clientKeyId -- Client Key Identifier
      * @param keyAlgorithm -- Algorithm used by the symmetric key
      * @param keySize -- Strength of the symmetric key (secret)
+     * @param realm -- authorization realm
      * @return A KeyRequestResponse object with information about the request.
      * @throws Exception - Exceptions of type NoSuchAlgorithmException, IllegalStateException, TokenException,
      *             IOException, CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
     public KeyRequestResponse archiveSymmetricKey(String clientKeyId, SymmetricKey secret, String keyAlgorithm,
-            int keySize) throws Exception {
+            int keySize, String realm) throws Exception {
 
         // Default algorithm OID for DES_EDE3_CBC
         String algorithmOID = EncryptionAlgorithm.DES3_CBC.toOID().toString();
@@ -562,7 +570,14 @@ public class KeyClient extends Client {
         byte[] transWrappedSessionKey = crypto.wrapSessionKeyWithTransportCert(sessionKey, this.transportCert);
 
         return archiveEncryptedData(clientKeyId, KeyRequestResource.SYMMETRIC_KEY_TYPE, keyAlgorithm, keySize,
-                algorithmOID, nonceData, encryptedData, transWrappedSessionKey);
+                algorithmOID, nonceData, encryptedData, transWrappedSessionKey, realm);
+    }
+
+    /* old method signature for backwards compatibility */
+    @Deprecated
+    public KeyRequestResponse archiveSymmetricKey(String clientKeyId, SymmetricKey secret, String keyAlgorithm,
+            int keySize) throws Exception {
+        return archiveSymmetricKey(clientKeyId, secret, keyAlgorithm,keySize, null);
     }
 
     /**
@@ -581,11 +596,12 @@ public class KeyClient extends Client {
      * @param encryptedData -- which is the secret wrapped by a session
      *            key (168 bit 3DES symmetric key)
      * @param transWrappedSessionKey -- session key wrapped by the transport cert.
+     * @param realm -- authorization realm
      * @return A KeyRequestResponse object with information about the request.
      */
     public KeyRequestResponse archiveEncryptedData(String clientKeyId, String dataType, String keyAlgorithm,
-            int keySize,
-            String algorithmOID, byte[] nonceData, byte[] encryptedData, byte[] transWrappedSessionKey) {
+            int keySize, String algorithmOID, byte[] nonceData, byte[] encryptedData,
+            byte[] transWrappedSessionKey, String realm) {
 
         if (clientKeyId == null || dataType == null) {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
@@ -612,7 +628,20 @@ public class KeyClient extends Client {
         data.setWrappedPrivateData(req1);
         data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
 
+        if (realm != null) {
+            data.setRealm(realm);
+        }
+
         return submitRequest(data);
+    }
+
+    /* old signature for backwards compatibility */
+    @Deprecated
+    public KeyRequestResponse archiveEncryptedData(String clientKeyId, String dataType, String keyAlgorithm,
+            int keySize, String algorithmOID, byte[] nonceData, byte[] encryptedData,
+            byte[] transWrappedSessionKey) {
+        return archiveEncryptedData(clientKeyId, dataType, keyAlgorithm, keySize, algorithmOID, nonceData,
+                encryptedData, transWrappedSessionKey, null);
     }
 
     /**
@@ -624,11 +653,12 @@ public class KeyClient extends Client {
      * @param keySize -- Strength of the symmetric key
      * @param pkiArchiveOptions -- is the data to be archived wrapped in a
      *            PKIArchiveOptions structure
+     * @param realm -- authorization realm
      * @return A KeyRequestResponse object with information about the request.
      * @throws Exception
      */
     public KeyRequestResponse archivePKIOptions(String clientKeyId, String dataType, String keyAlgorithm, int keySize,
-            byte[] pkiArchiveOptions) {
+            byte[] pkiArchiveOptions, String realm) {
 
         if (clientKeyId == null || dataType == null) {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
@@ -653,7 +683,18 @@ public class KeyClient extends Client {
         String options = Utils.base64encode(pkiArchiveOptions);
         data.setPKIArchiveOptions(options);
 
+        if (realm != null) {
+            data.setRealm(realm);
+        }
+
         return submitRequest(data);
+    }
+
+    /* old method signature for backwards compatibility */
+    @Deprecated
+    public KeyRequestResponse archivePKIOptions(String clientKeyId, String dataType, String keyAlgorithm, int keySize,
+            byte[] pkiArchiveOptions) {
+        return archivePKIOptions(clientKeyId, dataType, keyAlgorithm, keySize, pkiArchiveOptions, null);
     }
 
     /**
@@ -663,11 +704,14 @@ public class KeyClient extends Client {
      * @param keyAlgorithm -- Algorithm to be used to generate the key
      * @param keySize -- Strength of the keys
      * @param usages -- Usages of the generated key.
+     * @param transWrappedSessionKey - client generated session key wrapped by
+     *         KRA transport key
+     * @param realm -- authorization realm
      * @return a KeyRequestResponse which contains a KeyRequestInfo
      *         object that describes the URL for the request and generated key.
      */
     public KeyRequestResponse generateSymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
-            List<String> usages, String transWrappedSessionKey) {
+            List<String> usages, String transWrappedSessionKey, String realm) {
         if (clientKeyId == null) {
             throw new IllegalArgumentException("Client Key Identifier must be specified.");
         }
@@ -687,7 +731,18 @@ public class KeyClient extends Client {
         data.setUsages(usages);
         data.setTransWrappedSessionKey(transWrappedSessionKey);
 
+        if (realm != null) {
+            data.setRealm(realm);
+        }
+
         return submitRequest(data);
+    }
+
+    /* old method signature for backwards compatibility */
+    @Deprecated
+    public KeyRequestResponse generateSymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
+            List<String> usages, String transWrappedSessionKey) {
+        return generateSymmetricKey(clientKeyId, keyAlgorithm, keySize, usages, transWrappedSessionKey, null);
     }
 
     /**
@@ -696,12 +751,14 @@ public class KeyClient extends Client {
      * @param clientKeyId -- Client Key Identifier
      * @param keyAlgorithm -- Algorithm to be used to generate the asymmetric keys
      * @param keySize -- Strength of the keys
-     * @param usages
-     * @param transWrappedSessionKey
+     * @param usages  -- key usages
+     * @param transWrappedSessionKey  -- client generated session key wrapped by the
+     *        KRA transport key
+     * @param realm  -- authorization realm
      * @return
      */
     public KeyRequestResponse generateAsymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
-            List<String> usages, byte[] transWrappedSessionKey) {
+            List<String> usages, byte[] transWrappedSessionKey, String realm) {
 
         if (clientKeyId == null) {
             throw new IllegalArgumentException("Client Key Identifier must be specified.");
@@ -747,6 +804,17 @@ public class KeyClient extends Client {
         data.setUsages(usages);
         data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
 
+        if (realm != null) {
+            data.setRealm(realm);
+        }
+
         return submitRequest(data);
+    }
+
+    /* old method signature for backwards compatibility */
+    @Deprecated
+    public KeyRequestResponse generateAsymmetricKey(String clientKeyId, String keyAlgorithm, int keySize,
+            List<String> usages, byte[] transWrappedSessionKey) {
+        return generateAsymmetricKey(clientKeyId, keyAlgorithm, keySize, usages, transWrappedSessionKey, null);
     }
 }

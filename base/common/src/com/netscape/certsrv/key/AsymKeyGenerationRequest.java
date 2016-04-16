@@ -56,6 +56,7 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest {
         attributes.put(KEY_ALGORITHM, form.getFirst(KEY_ALGORITHM));
         attributes.put(KEY_USAGE, form.getFirst(KEY_USAGE));
         attributes.put(TRANS_WRAPPED_SESSION_KEY, form.getFirst(TRANS_WRAPPED_SESSION_KEY));
+        attributes.put(REALM,  form.getFirst(REALM));
 
         String usageString = attributes.get(KEY_USAGE);
         if (!StringUtils.isBlank(usageString)) {
@@ -109,6 +110,7 @@ public class AsymKeyGenerationRequest extends KeyGenerationRequest {
         usages.add(AsymKeyGenerationRequest.ENCRYPT);
         usages.add(AsymKeyGenerationRequest.DECRYPT);
         request.setUsages(usages);
+        request.setRealm("ipa-vault");
 
         System.out.println(request.toString());
     }

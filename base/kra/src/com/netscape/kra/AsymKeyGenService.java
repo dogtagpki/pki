@@ -78,6 +78,8 @@ public class AsymKeyGenService implements IService {
         String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);
         int keySize = Integer.valueOf(keySizeStr);
 
+        String realm = request.getRealm();
+
         KeyPairGeneratorSpi.Usage[] usageList = null;
         String usageStr = request.getExtDataInString(IRequest.KEY_GEN_USAGES);
         if (usageStr != null) {
@@ -173,6 +175,10 @@ public class AsymKeyGenService implements IService {
         record.set(KeyRecord.ATTR_STATUS, STATUS_ACTIVE);
         record.set(KeyRecord.ATTR_KEY_SIZE, keySize);
         request.setExtData(ATTR_KEY_RECORD, serialNo);
+
+        if (realm != null) {
+            record.set(KeyRecord.ATTR_REALM, realm);
+        }
 
         storage.addKeyRecord(record);
 
