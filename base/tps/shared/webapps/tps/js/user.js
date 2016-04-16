@@ -40,8 +40,6 @@ var UserModel = Model.extend({
             userID: response.UserID,
             fullName: response.FullName,
             email: response.Email,
-            state: response.State,
-            type: response.Type,
             attributes: attrs
         };
     },
@@ -59,8 +57,6 @@ var UserModel = Model.extend({
             UserID: attributes.userID,
             FullName: attributes.fullName,
             Email: attributes.email,
-            State: attributes.state,
-            Type: attributes.type,
             Attributes: {
                 Attribute: attrs
             }

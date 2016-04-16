@@ -35,12 +35,6 @@ objectClass: groupOfUniqueNames
 cn: TPS Agents
 description: Agents for TPS
 
-dn: cn=TPS Officers,ou=Groups,{rootSuffix}
-objectClass: top
-objectClass: groupOfUniqueNames
-cn: TPS Officers
-description: Security Officers for TPS
-
 dn: cn=Administrators,ou=Groups,{rootSuffix}
 objectClass: top
 objectClass: groupOfUniqueNames

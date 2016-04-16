@@ -1565,7 +1565,7 @@ pkicreate.unsecure_port=[PKI_UNSECURE_PORT]
 pkicreate.user=[PKI_USER]
 pkiremove.cert.subsystem.nickname=subsystemCert cert-[PKI_INSTANCE_NAME]
 preop.admincert.profile=caAdminCert
-preop.admin.group=TPS Agents,TPS Operators,Administrators,TPS Officers
+preop.admin.group=TPS Agents,TPS Operators,Administrators
 preop.admin.name=Token Processing Service Manager Administrator
 preop.cert.admin.defaultSigningAlgorithm=SHA256withRSA
 preop.cert.admin.dn=uid=admin,cn=admin
