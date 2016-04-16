@@ -58,6 +58,11 @@ public interface IAuthzSubsystem extends ISubsystem {
     public static final String PROP_INSTANCE = "instance";
 
     /**
+     * Constant for realm
+     */
+    public static final String PROP_REALM = "realm";
+
+    /**
      * authorize the user associated with the given authToken for a given
      * operation with the given authorization manager name
      *
@@ -74,6 +79,20 @@ public interface IAuthzSubsystem extends ISubsystem {
 
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
             String exp) throws EBaseException;
+
+    /**
+     * Authorize the user against the specified realm.  Looks for authz manager
+     * associated with the plugin and authenticates if present.
+     *
+     * @param realm
+     * @param authToken
+     * @param owner TODO
+     * @param resource
+     * @param operation
+     * @throws EBaseException if any error occurs during authentication.
+     */
+    public void checkRealm(String realm, IAuthToken authToken,
+            String owner, String resource, String operation) throws EBaseException;
 
     /**
      * Adds (registers) the given authorization manager.

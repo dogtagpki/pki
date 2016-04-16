@@ -21,11 +21,14 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.StringUtils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzManagerProxy;
 import com.netscape.certsrv.authorization.AuthzMgrPlugin;
 import com.netscape.certsrv.authorization.AuthzToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.authorization.EAuthzMgrNotFound;
 import com.netscape.certsrv.authorization.EAuthzMgrPluginNotFound;
@@ -156,6 +159,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
+                    CMS.debug(e);
                 } catch (Throwable e) {
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
@@ -163,6 +167,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
+                    CMS.debug(e);
                 }
                 // add manager instance to list.
                 mAuthzMgrInsts.put(insName, new
@@ -212,7 +217,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * Authorization to the named authorization manager instance
      *
      * @param authzMgrName The authorization manager name
-     * @param authToken the authenticaton token associated with a user
+     * @param authToken the authentication token associated with a user
      * @param resource the resource protected by the authorization system
      * @param operation the operation for resource protected by the authoriz
      *            n system
@@ -463,6 +468,39 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION,
                 level, msg);
+    }
+
+    @Override
+    public void checkRealm(String realm, IAuthToken authToken, String owner, String resource, String operation)
+            throws EBaseException {
+        // if no realm entry, SUCCESS by default
+        if (realm == null) return;
+
+        // if record owner == requester, SUCCESS
+        if ((owner != null) && owner.equals(authToken.getInString(IAuthToken.USER_ID))) return;
+
+        String mgrName = getAuthzManagerByRealm(realm);
+        // if no authz manager for this realm, SUCCESS by default
+        if (mgrName == null) return;
+
+        AuthzToken authzToken = authorize(mgrName, authToken, resource, operation);
+        if (authzToken == null) {
+            throw new EAuthzAccessDenied("Not authorized by ACL realm");
+        }
+    }
+
+    public String getAuthzManagerByRealm(String realm) throws EBaseException {
+        for (AuthzManagerProxy proxy : mAuthzMgrInsts.values()) {
+            IAuthzManager mgr = proxy.getAuthzManager();
+            if (mgr != null) {
+                IConfigStore cfg = mgr.getConfigStore();
+                String mgrRealm = cfg.getString(PROP_REALM, null);
+                if (StringUtils.equals(mgrRealm, realm)) {
+                    return mgr.getName();
+                }
+            }
+        }
+        return null;
     }
 
 }
