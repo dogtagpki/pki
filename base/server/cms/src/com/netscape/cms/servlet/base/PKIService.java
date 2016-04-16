@@ -43,6 +43,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
@@ -84,6 +85,8 @@ public class PKIService {
 
     @Context
     protected ServletContext servletContext;
+
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
 
     public ILogger logger = CMS.getLogger();
     public IAuditor auditor = CMS.getAuditor();

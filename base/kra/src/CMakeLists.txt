@@ -104,6 +104,12 @@ find_file(COMMONS_LANG_JAR
 	/usr/share/java
 )
 
+find_file(TOMCAT_CATALINA_JAR
+    NAMES
+        catalina.jar
+    PATHS
+        /usr/share/java/tomcat
+)
 
 # build pki-kra
 javac(pki-kra-classes
@@ -117,7 +123,7 @@ javac(pki-kra-classes
         ${SERVLET_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
-        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${TOMCAT_CATALINA_JAR}
     OUTPUT_DIR
         ${CMAKE_BINARY_DIR}/classes
     DEPENDS

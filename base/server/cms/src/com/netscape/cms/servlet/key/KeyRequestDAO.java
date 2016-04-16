@@ -36,9 +36,11 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
@@ -122,6 +124,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * @param maxResults - max results to be returned in normal search
      * @param maxTime - max time for normal search
      * @param uriInfo - uri context of request
+     * @param authToken - auth token
      * @return collection of key request info
      * @throws EBaseException
      */
@@ -153,14 +156,20 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * Gets info for a specific request
      *
      * @param id
+     * @param uriInfo
+     * @param authToken - authentication token for this request
      * @return info for specific request
      * @throws EBaseException
      */
-    public KeyRequestInfo getRequest(RequestId id, UriInfo uriInfo) throws EBaseException {
+    public KeyRequestInfo getRequest(RequestId id, UriInfo uriInfo, IAuthToken authToken) throws EBaseException {
         IRequest request = queue.findRequest(id);
         if (request == null) {
             return null;
         }
+
+        authz.checkRealm(request.getRealm(), authToken, request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
+                "keyRequest", "read");
+
         KeyRequestInfo info = createKeyRequestInfo(request, uriInfo);
         return info;
     }
@@ -228,10 +237,14 @@ public class KeyRequestDAO extends CMSRequestDAO {
      * Submits a key recovery request.
      *
      * @param data
+     * @param uriInfo
+     * @param requestor
+     * @param authToken
      * @return info on the recovery request created
      * @throws EBaseException
      */
-    public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor)
+    public KeyRequestResponse submitRequest(KeyRecoveryRequest data, UriInfo uriInfo, String requestor,
+            IAuthToken authToken)
             throws EBaseException {
         // set data using request.setExtData(field, data)
 
@@ -247,6 +260,12 @@ public class KeyRequestDAO extends CMSRequestDAO {
             rec = repo.readKeyRecord(keyId.toBigInteger());
         } catch (EDBRecordNotFoundException e) {
             throw new KeyNotFoundException(keyId);
+        }
+
+        try {
+            authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "key", "recover");
+        } catch (EBaseException e) {
+            throw new UnauthorizedException("Agent not authorized by realm");
         }
 
         Hashtable<String, Object> requestParams;
@@ -286,7 +305,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
     }
 
     public KeyRequestResponse submitAsyncKeyRecoveryRequest(KeyRecoveryRequest data, UriInfo uriInfo,
-            String requestor) throws EBaseException {
+            String requestor, IAuthToken authToken) throws EBaseException {
         if (data == null) {
             throw new BadRequestException("Invalid request.");
         }
@@ -297,6 +316,12 @@ public class KeyRequestDAO extends CMSRequestDAO {
             rec = repo.readKeyRecord(keyId.toBigInteger());
         } catch (EDBRecordNotFoundException e) {
             throw new KeyNotFoundException(keyId);
+        }
+
+        try {
+            authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "key", "recover");
+        } catch (EBaseException e) {
+            throw new UnauthorizedException("Agent not authorized by realm");
         }
 
         String b64Certificate = data.getCertificate();
@@ -316,7 +341,6 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
         return createCMSRequestResponse(request, uriInfo);
     }
-
 
     public KeyRequestResponse submitRequest(SymKeyGenerationRequest data, UriInfo uriInfo, String owner)
             throws EBaseException {
@@ -455,13 +479,13 @@ public class KeyRequestDAO extends CMSRequestDAO {
         request.setExtData(IRequest.SECURITY_DATA_CLIENT_KEY_ID, clientKeyId);
         request.setExtData(IRequest.ATTR_REQUEST_OWNER, owner);
 
+        if (realm != null) {
+            request.setRealm(realm);
+        }
+
         if (transWrappedSessionKey != null) {
             request.setExtData(IRequest.KEY_GEN_TRANS_WRAPPED_SESSION_KEY,
                     transWrappedSessionKey);
-        }
-
-        if (realm != null) {
-            request.setRealm(realm);
         }
 
         queue.processRequest(request);
@@ -470,18 +494,32 @@ public class KeyRequestDAO extends CMSRequestDAO {
         return createKeyRequestResponse(request, uriInfo);
     }
 
-    public void approveRequest(RequestId id, String requestor) throws EBaseException {
+    public void approveRequest(RequestId id, String requestor, IAuthToken authToken)
+            throws EBaseException {
+        IRequest request = queue.findRequest(id);
+        authz.checkRealm(request.getRealm(), authToken,
+                request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
+                "keyRequest", "approve");
+
         service.addAgentAsyncKeyRecovery(id.toString(), requestor);
     }
 
-    public void rejectRequest(RequestId id) throws EBaseException {
+    public void rejectRequest(RequestId id, IAuthToken authToken) throws EBaseException {
         IRequest request = queue.findRequest(id);
+        String realm = request.getRealm();
+        authz.checkRealm(realm, authToken,
+                request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
+                "keyRequest", "reject");
         request.setRequestStatus(RequestStatus.REJECTED);
         queue.updateRequest(request);
     }
 
-    public void cancelRequest(RequestId id) throws EBaseException {
+    public void cancelRequest(RequestId id, IAuthToken authToken) throws EBaseException {
         IRequest request = queue.findRequest(id);
+        String realm = request.getRealm();
+        authz.checkRealm(realm, authToken,
+                request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
+                "keyRequest", "cancel");
         request.setRequestStatus(RequestStatus.CANCELED);
         queue.updateRequest(request);
     }

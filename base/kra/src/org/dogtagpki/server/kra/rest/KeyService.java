@@ -21,6 +21,7 @@ package org.dogtagpki.server.kra.rest;
 
 import java.math.BigInteger;
 import java.net.URI;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -41,6 +42,8 @@ import javax.ws.rs.core.UriInfo;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
@@ -67,6 +70,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -337,7 +341,7 @@ public class KeyService extends PKIService implements KeyResource {
         KeyRequestDAO reqDAO = new KeyRequestDAO();
         KeyRequestInfo reqInfo;
         try {
-            reqInfo = reqDAO.getRequest(reqId, uriInfo);
+            reqInfo = reqDAO.getRequest(reqId, uriInfo, getAuthToken());
         } catch (EBaseException e1) {
             // failed to get request
             logMessage = "failed to get request";
@@ -415,6 +419,17 @@ public class KeyService extends PKIService implements KeyResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        if (realm != null) {
+            try {
+                authz.checkRealm(realm, getAuthToken(), null, "keys", "list");
+            } catch (EAuthzAccessDenied e) {
+                throw new UnauthorizedException("Not authorized to list these keys");
+            } catch (EBaseException e) {
+                CMS.debug("listRequests: unable to authorize realm" + e);
+                throw new PKIException(e.toString());
+            }
+        }
+
         // get ldap filter
         String filter = createSearchFilter(status, clientKeyID, realm);
         CMS.debug("listKeys: filter is " + filter);
@@ -489,7 +504,16 @@ public class KeyService extends PKIService implements KeyResource {
         while (iter.hasNext()) {
             KeyInfo info = iter.next();
             if (info != null) {
-                // return the first one
+                // return the first one, but first confirm that the requester has access to this key
+                try {
+                    authz.checkRealm(info.getRealm(), getAuthToken(), info.getOwnerName(), "key", "read");
+                } catch (EAuthzAccessDenied e) {
+                    throw new UnauthorizedException("Not authorized to read this key");
+                } catch (EBaseException e) {
+                    CMS.debug("listRequests: unable to authorize realm" + e);
+                    throw new PKIException(e.toString());
+                }
+
                 auditRetrieveKey(ILogger.SUCCESS, null, clientKeyID, auditInfo);
 
                 return createOKResponse(info);
@@ -654,10 +678,15 @@ public class KeyService extends PKIService implements KeyResource {
         IKeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
+            authz.checkRealm(rec.getRealm(), getAuthToken(), rec.getOwnerName(), "key", "read");
             KeyInfo info = createKeyDataInfo(rec, true);
             auditRetrieveKey(ILogger.SUCCESS, null, keyId, auditInfo);
 
             return createOKResponse(info);
+        } catch (EAuthzAccessDenied e) {
+            auditInfo = method + "Unauthorized access for key record";
+            auditRetrieveKey(ILogger.FAILURE, null, keyId, auditInfo);
+            throw new UnauthorizedException(auditInfo);
         } catch (EDBRecordNotFoundException e) {
             auditInfo = method + e.getMessage();
             auditRetrieveKey(ILogger.FAILURE, null, keyId, auditInfo);
@@ -670,6 +699,13 @@ public class KeyService extends PKIService implements KeyResource {
             e.printStackTrace();
             throw new PKIException(e.getMessage());
         }
+    }
+
+    private IAuthToken getAuthToken() {
+        Principal principal = servletRequest.getUserPrincipal();
+        PKIPrincipal pkiprincipal = (PKIPrincipal) principal;
+        IAuthToken authToken = pkiprincipal.getAuthToken();
+        return authToken;
     }
 
     @Override

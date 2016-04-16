@@ -21,6 +21,7 @@ package org.dogtagpki.server.kra.rest;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,8 @@ import javax.ws.rs.core.UriInfo;
 import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
@@ -52,6 +55,7 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -118,7 +122,9 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestInfo info;
         try {
-            info = dao.getRequest(id, uriInfo);
+            info = dao.getRequest(id, uriInfo, getAuthToken());
+        } catch (EAuthzAccessDenied e) {
+            throw new UnauthorizedException("Not authorized to get request");
         } catch (EBaseException e) {
             // log error
             e.printStackTrace();
@@ -162,11 +168,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
-            String owner = servletRequest.getUserPrincipal().getName();
-            if (owner == null) {
+            if (getRequestor() == null) {
                 throw new UnauthorizedException("Archival must be performed by an agent");
             }
-            response = dao.submitRequest(data, uriInfo, owner);
+            response = dao.submitRequest(data, uriInfo, getRequestor());
             auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
@@ -197,14 +202,12 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
-            String requestor = servletRequest.getUserPrincipal().getName();
-            if (requestor == null) {
+            if (getRequestor() == null) {
                 throw new UnauthorizedException("Recovery must be initiated by an agent");
             }
             response = (data.getCertificate() != null)?
-                    dao.submitAsyncKeyRecoveryRequest(data, uriInfo, requestor):
-                    dao.submitRequest(data, uriInfo, requestor);
-
+                    dao.submitAsyncKeyRecoveryRequest(data, uriInfo, getRequestor(), getAuthToken()):
+                    dao.submitRequest(data, uriInfo, getRequestor(), getAuthToken());
             auditRecoveryRequestMade(response.getRequestInfo().getRequestId(),
                     ILogger.SUCCESS, data.getKeyId());
 
@@ -223,13 +226,14 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             throw new BadRequestException("Invalid request id.");
         }
         KeyRequestDAO dao = new KeyRequestDAO();
-        String requestor = servletRequest.getUserPrincipal().getName();
-        if (requestor == null) {
+        if (getRequestor() == null) {
             throw new UnauthorizedException("Request approval must be initiated by an agent");
         }
         try {
-            dao.approveRequest(id, requestor);
+            dao.approveRequest(id, getRequestor(), getAuthToken());
             auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
+        } catch (EAuthzAccessDenied e) {
+            throw new UnauthorizedException("Not authorized to approve request");
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRecoveryRequestChange(id, ILogger.FAILURE, "approve");
@@ -247,8 +251,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
         try {
-            dao.rejectRequest(id);
+            dao.rejectRequest(id, getAuthToken());
             auditRecoveryRequestChange(id, ILogger.SUCCESS, "reject");
+        }catch (EAuthzAccessDenied e) {
+            throw new UnauthorizedException("Not authorized to reject request");
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRecoveryRequestChange(id, ILogger.FAILURE, "reject");
@@ -266,8 +272,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
         try {
-            dao.cancelRequest(id);
+            dao.cancelRequest(id, getAuthToken());
             auditRecoveryRequestChange(id, ILogger.SUCCESS, "cancel");
+        } catch (EAuthzAccessDenied e) {
+            throw new UnauthorizedException("Not authorized to cancel request");
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRecoveryRequestChange(id, ILogger.FAILURE, "cancel");
@@ -283,8 +291,16 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     @Override
     public Response listRequests(String requestState, String requestType, String clientKeyID,
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime, String realm) {
-        // auth and authz
-
+        if (realm != null) {
+            try {
+                authz.checkRealm(realm, getAuthToken(), null, "keyRequests", "list");
+            } catch (EAuthzAccessDenied e) {
+                throw new UnauthorizedException("Not authorized to list these requests");
+            } catch (EBaseException e) {
+                CMS.debug("listRequests: unable to authorize realm" + e);
+                throw new PKIException(e.toString());
+            }
+        }
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType, clientKeyID, realm);
         CMS.debug("listRequests: filter is " + filter);
@@ -306,7 +322,8 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         return createOKResponse(requests);
     }
 
-    private String createSearchFilter(String requestState, String requestType, String clientKeyID, String realm) {
+    private String createSearchFilter(String requestState, String requestType, String clientKeyID,
+            String realm) {
         String filter = "";
         int matches = 0;
 
@@ -317,17 +334,17 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
         if (requestState != null) {
             filter += "(requeststate=" + LDAPUtil.escapeFilter(requestState) + ")";
-            matches ++;
+            matches++;
         }
 
         if (requestType != null) {
             filter += "(requesttype=" + LDAPUtil.escapeFilter(requestType) + ")";
-            matches ++;
+            matches++;
         }
 
         if (clientKeyID != null) {
             filter += "(clientID=" + LDAPUtil.escapeFilter(clientKeyID) + ")";
-            matches ++;
+            matches++;
         }
 
         if (realm != null) {
@@ -348,7 +365,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     public void auditRecoveryRequestChange(RequestId requestId, String status, String operation) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST_STATE_CHANGE,
-                servletRequest.getUserPrincipal().getName(),
+                getRequestor(),
                 status,
                 requestId.toString(),
                 operation);
@@ -358,7 +375,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     public void auditRecoveryRequestMade(RequestId requestId, String status, KeyId dataId) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SECURITY_DATA_RECOVERY_REQUEST,
-                servletRequest.getUserPrincipal().getName(),
+                getRequestor(),
                 status,
                 requestId != null? requestId.toString(): "null",
                 dataId.toString());
@@ -368,7 +385,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     public void auditArchivalRequestMade(RequestId requestId, String status, String clientKeyID) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SECURITY_DATA_ARCHIVAL_REQUEST,
-                servletRequest.getUserPrincipal().getName(),
+                getRequestor(),
                 status,
                 requestId != null? requestId.toString(): "null",
                 clientKeyID);
@@ -378,7 +395,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     public void auditSymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_SYMKEY_GENERATION_REQUEST,
-                servletRequest.getUserPrincipal().getName(),
+                getRequestor(),
                 status,
                 requestId != null ? requestId.toString() : "null",
                 clientKeyID);
@@ -388,7 +405,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
     public void auditAsymKeyGenRequestMade(RequestId requestId, String status, String clientKeyID) {
         String msg = CMS.getLogMessage(
                 LOGGING_SIGNED_AUDIT_ASYMKEY_GENERATION_REQUEST,
-                servletRequest.getUserPrincipal().getName(),
+                getRequestor(),
                 status,
                 requestId != null ? requestId.toString() : "null",
                 clientKeyID);
@@ -433,11 +450,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
-            String owner = servletRequest.getUserPrincipal().getName();
-            if (owner == null) {
+            if (getRequestor() == null) {
                 throw new UnauthorizedException("Key generation must be performed by an agent");
             }
-            response = dao.submitRequest(data, uriInfo, owner);
+            response = dao.submitRequest(data, uriInfo, getRequestor());
             auditSymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
                     data.getClientKeyId());
 
@@ -458,8 +474,10 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestResponse response;
         try {
-            String owner = servletRequest.getUserPrincipal().getName();
-            response = dao.submitRequest(data, uriInfo, owner);
+            if (getRequestor() == null) {
+                throw new UnauthorizedException("Key generation must be performed by an agent");
+            }
+            response = dao.submitRequest(data, uriInfo, getRequestor());
             auditAsymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
                     data.getClientKeyId());
 
@@ -470,5 +488,16 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             auditAsymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
             throw new PKIException(e.toString());
         }
+    }
+
+    private IAuthToken getAuthToken() {
+        Principal principal = servletRequest.getUserPrincipal();
+        PKIPrincipal pkiprincipal = (PKIPrincipal) principal;
+        IAuthToken authToken = pkiprincipal.getAuthToken();
+        return authToken;
+    }
+
+    private String getRequestor() {
+        return servletRequest.getUserPrincipal().getName();
     }
 }
