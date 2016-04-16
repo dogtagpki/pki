@@ -150,7 +150,7 @@ public class PKCS12ExportCLI extends CLI {
 
             if (nicknames.length == 0) {
                 // load all certificates
-                util.loadFromNSS(pkcs12);
+                util.loadFromNSS(pkcs12, includeKey, includeChain);
 
             } else {
                 // load the specified certificates

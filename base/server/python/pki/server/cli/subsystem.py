@@ -465,6 +465,9 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
         print('      --append                       Append into an existing PKCS #12 file.')
+        print('      --no-trust-flags               Do not include trust flags')
+        print('      --no-key                       Do not include private key')
+        print('      --no-chain                     Do not include certificate chain')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -476,7 +479,8 @@ class SubsystemCertExportCLI(pki.cli.CLI):
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert-file=', 'csr-file=',
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'append', 'verbose', 'debug', 'help'])
+                'append', 'no-trust-flags', 'no-key', 'no-chain',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -497,6 +501,9 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         pkcs12_password = None
         pkcs12_password_file = None
         append = False
+        include_trust_flags = True
+        include_key = True
+        include_chain = True
         debug = False
 
         for o, a in opts:
@@ -520,6 +527,15 @@ class SubsystemCertExportCLI(pki.cli.CLI):
 
             elif o == '--append':
                 append = True
+
+            elif o == '--no-trust-flags':
+                include_trust_flags = False
+
+            elif o == '--no-key':
+                include_key = False
+
+            elif o == '--no-chain':
+                include_chain = False
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -591,6 +607,9 @@ class SubsystemCertExportCLI(pki.cli.CLI):
                     pkcs12_password_file=pkcs12_password_file,
                     nicknames=nicknames,
                     append=append,
+                    include_trust_flags=include_trust_flags,
+                    include_key=include_key,
+                    include_chain=include_chain,
                     debug=debug)
 
             finally:

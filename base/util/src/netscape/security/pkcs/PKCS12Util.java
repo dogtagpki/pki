@@ -239,6 +239,10 @@ public class PKCS12Util {
     }
 
     public void loadFromNSS(PKCS12 pkcs12) throws Exception {
+        loadFromNSS(pkcs12, true, true);
+    }
+
+    public void loadFromNSS(PKCS12 pkcs12, boolean includeKey, boolean includeChain) throws Exception {
 
         logger.info("Loading all certificate and keys from NSS database");
 
@@ -247,7 +251,7 @@ public class PKCS12Util {
         CryptoStore store = token.getCryptoStore();
 
         for (X509Certificate cert : store.getCertificates()) {
-            loadCertFromNSS(pkcs12, cert, true, true);
+            loadCertFromNSS(pkcs12, cert, includeKey, includeChain);
         }
     }
 

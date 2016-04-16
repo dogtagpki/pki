@@ -545,6 +545,9 @@ class NSSDatabase(object):
                       pkcs12_password_file=None,
                       nicknames=None,
                       append=False,
+                      include_trust_flags=True,
+                      include_key=True,
+                      include_chain=True,
                       debug=False):
 
         tmpdir = tempfile.mkdtemp()
@@ -579,6 +582,15 @@ class NSSDatabase(object):
 
             if append:
                 cmd.extend(['--append'])
+
+            if not include_trust_flags:
+                cmd.extend(['--no-trust-flags'])
+
+            if not include_key:
+                cmd.extend(['--no-key'])
+
+            if not include_chain:
+                cmd.extend(['--no-chain'])
 
             if debug:
                 cmd.extend(['--debug'])
