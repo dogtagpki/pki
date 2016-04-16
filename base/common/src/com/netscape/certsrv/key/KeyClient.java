@@ -86,11 +86,19 @@ public class KeyClient extends Client {
      * @param maxTime -- Maximum time for the operation to take
      * @param start -- Start index of list
      * @param size -- Size of the list to be returned.
+     * @param realm - authz realm
      * @return a KeyInfoCollection object.
      */
     public KeyInfoCollection listKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
+            Integer start, Integer size, String realm) {
+        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, realm);
+        return client.getEntity(response, KeyInfoCollection.class);
+    }
+
+    /* for backward compatibility */
+    public KeyInfoCollection listKeys(String clientKeyID, String status, Integer maxSize, Integer maxTime,
             Integer start, Integer size) {
-        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size);
+        Response response = keyClient.listKeys(clientKeyID, status, maxSize, maxTime, start, size, null);
         return client.getEntity(response, KeyInfoCollection.class);
     }
 
@@ -99,8 +107,22 @@ public class KeyClient extends Client {
      *
      * @param requestState -- State of the requests to be queried.
      * @param requestType -- Type of the requests to be queried.
+     * @param realm   -- Authz Realm
      * @return a KeyRequestCollection object.
      */
+    public KeyRequestInfoCollection listRequests(String requestState, String requestType, String realm) {
+        return listRequests(
+                requestState,
+                requestType,
+                null,
+                new RequestId(0),
+                100,
+                100,
+                10,
+                realm);
+    }
+
+    /* method for backwards compatibility */
     public KeyRequestInfoCollection listRequests(String requestState, String requestType) {
         return listRequests(
                 requestState,
@@ -109,7 +131,8 @@ public class KeyClient extends Client {
                 new RequestId(0),
                 100,
                 100,
-                10);
+                10,
+                null);
     }
 
     /**
@@ -122,6 +145,7 @@ public class KeyClient extends Client {
      * @param pageSize -- Size of the list to be returned.
      * @param maxResults -- Maximum number of requests to be fetched
      * @param maxTime -- Maximum time for the operation to take
+     * @param realm -- Authz Realm
      * @return a KeyRequestInfoCollection object.
      */
     public KeyRequestInfoCollection listRequests(
@@ -131,7 +155,8 @@ public class KeyClient extends Client {
             RequestId start,
             Integer pageSize,
             Integer maxResults,
-            Integer maxTime) {
+            Integer maxTime,
+            String realm) {
         Response response = keyRequestClient.listRequests(
                 requestState,
                 requestType,
@@ -139,7 +164,8 @@ public class KeyClient extends Client {
                 start,
                 pageSize,
                 maxResults,
-                maxTime);
+                maxTime,
+                realm);
         return client.getEntity(response, KeyRequestInfoCollection.class);
     }
 

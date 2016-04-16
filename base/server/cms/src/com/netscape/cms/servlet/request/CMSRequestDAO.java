@@ -27,6 +27,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
+import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
@@ -44,6 +45,7 @@ import com.netscape.certsrv.request.RequestId;
 public abstract class CMSRequestDAO {
     protected IRequestQueue queue;
     protected IAuthority authority;
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
 
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",
@@ -78,6 +80,7 @@ public abstract class CMSRequestDAO {
      * @param maxResults - max results to be returned in normal search
      * @param maxTime - max time for normal search
      * @param uriInfo - uri context of request
+     * @param authToken - auth token for the request
      * @return collection of key request info
      * @throws EBaseException
      */
@@ -129,6 +132,9 @@ public abstract class CMSRequestDAO {
         }
         if (params.containsKey("requestType")) {
             builder.queryParam("requestType", params.getFirst("requestType"));
+        }
+        if (params.containsKey("realm")) {
+            builder.queryParam("realm", params.getFirst("realm"));
         }
         builder.queryParam("start", "{start}");
         builder.queryParam("pageSize", "{pageSize}");

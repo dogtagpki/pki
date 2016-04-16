@@ -32,7 +32,8 @@ public interface KeyResource {
                                  @QueryParam("maxResults") Integer maxResults,
                                  @QueryParam("maxTime") Integer maxTime,
                                  @QueryParam("start") Integer start,
-                                 @QueryParam("size") Integer size);
+                                 @QueryParam("size") Integer size,
+                                 @QueryParam("realm") String realm);
 
     @GET
     @Path("active/{clientKeyID}")

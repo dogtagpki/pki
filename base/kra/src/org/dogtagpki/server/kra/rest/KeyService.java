@@ -399,15 +399,15 @@ public class KeyService extends PKIService implements KeyResource {
      */
     @Override
     public Response listKeys(String clientKeyID, String status, Integer maxResults, Integer maxTime,
-            Integer start, Integer size) {
+            Integer start, Integer size, String realm) {
         String method = "KeyService.listKeys: ";
         CMS.debug(method + "begins.");
 
-        return createOKResponse(listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size));
+        return createOKResponse(listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size, realm));
     }
 
     public KeyInfoCollection listKeyInfos(String clientKeyID, String status, Integer maxResults, Integer maxTime,
-            Integer start, Integer size) {
+            Integer start, Integer size, String realm) {
         String method = "KeyService.listKeyInfos: ";
         String auditInfo = "KeyService.listKeyInfos; status =" + status;
         CMS.debug(method + "begins.");
@@ -416,7 +416,7 @@ public class KeyService extends PKIService implements KeyResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         // get ldap filter
-        String filter = createSearchFilter(status, clientKeyID);
+        String filter = createSearchFilter(status, clientKeyID, realm);
         CMS.debug("listKeys: filter is " + filter);
 
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
@@ -479,6 +479,7 @@ public class KeyService extends PKIService implements KeyResource {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 
@@ -513,6 +514,10 @@ public class KeyService extends PKIService implements KeyResource {
         if (rec.getPublicKeyData() != null && getPublicKey) {
             ret.setPublicKey(rec.getPublicKeyData());
         }
+        String realm = rec.getRealm();
+        if (realm != null) {
+            ret.setRealm(realm);
+        }
 
         Path keyPath = KeyResource.class.getAnnotation(Path.class);
         BigInteger serial = rec.getSerialNumber();
@@ -524,13 +529,13 @@ public class KeyService extends PKIService implements KeyResource {
         return ret;
     }
 
-    private String createSearchFilter(String status, String clientKeyID) {
+    private String createSearchFilter(String status, String clientKeyID, String realm) {
         String filter = "";
         int matches = 0;
 
         if ((status == null) && (clientKeyID == null)) {
             filter = "(serialno=*)";
-            return filter;
+            matches ++;
         }
 
         if (status != null) {
@@ -540,6 +545,14 @@ public class KeyService extends PKIService implements KeyResource {
 
         if (clientKeyID != null) {
             filter += "(clientID=" + LDAPUtil.escapeFilter(clientKeyID) + ")";
+            matches ++;
+        }
+
+        if (realm != null) {
+            filter += "(realm=" + LDAPUtil.escapeFilter(realm) + ")";
+            matches ++;
+        } else {
+            filter += "(!(realm=*))";
             matches ++;
         }
 

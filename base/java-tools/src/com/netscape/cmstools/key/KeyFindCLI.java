@@ -72,6 +72,10 @@ public class KeyFindCLI extends CLI {
         option = new Option(null, "size", true, "Page size");
         option.setArgName("size");
         options.addOption(option);
+
+        option = new Option(null, "realm", true, "Realm");
+        option.setArgName("realm");
+        options.addOption(option);
     }
 
     public void execute(String[] args) {
@@ -103,6 +107,7 @@ public class KeyFindCLI extends CLI {
 
         String clientKeyID = cmd.getOptionValue("clientKeyID");
         String status = cmd.getOptionValue("status");
+        String realm = cmd.getOptionValue("realm");
 
         String s = cmd.getOptionValue("maxResults");
         Integer maxResults = s == null ? null : Integer.valueOf(s);
@@ -116,7 +121,7 @@ public class KeyFindCLI extends CLI {
         s = cmd.getOptionValue("size");
         Integer size = s == null ? null : Integer.valueOf(s);
 
-        KeyInfoCollection keys = keyCLI.keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size);
+        KeyInfoCollection keys = keyCLI.keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm);
 
         Collection<KeyInfo> entries = keys.getEntries();
 

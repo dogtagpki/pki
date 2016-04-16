@@ -77,6 +77,10 @@ public class KeyRequestFindCLI extends CLI {
         option = new Option(null, "pageSize", true, "Page size");
         option.setArgName("page size");
         options.addOption(option);
+
+        option = new Option(null, "realm", true, "Authorization Realm");
+        option.setArgName("realm");
+        options.addOption(option);
     }
 
     public void execute(String[] args) {
@@ -109,6 +113,7 @@ public class KeyRequestFindCLI extends CLI {
         String status = cmd.getOptionValue("status");
         String type = cmd.getOptionValue("type");
         String clientKeyID = cmd.getOptionValue("client");
+        String realm = cmd.getOptionValue("realm");
 
         String s = cmd.getOptionValue("start");
         RequestId start = s == null ? null : new RequestId(s);
@@ -123,7 +128,7 @@ public class KeyRequestFindCLI extends CLI {
         Integer maxTime = s == null ? null : Integer.valueOf(s);
 
         KeyRequestInfoCollection keys = keyCLI.keyClient.listRequests(
-                status, type, clientKeyID, start, pageSize, maxResults, maxTime);
+                status, type, clientKeyID, start, pageSize, maxResults, maxTime, realm);
 
         MainCLI.printMessage(keys.getTotal() + " entries matched");
         if (keys.getTotal() == 0) return;

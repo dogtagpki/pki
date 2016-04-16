@@ -34,8 +34,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.apps.CMS;
@@ -64,6 +62,8 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -321,11 +321,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
      */
     @Override
     public Response listRequests(String requestState, String requestType, String clientKeyID,
-            RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
+            RequestId start, Integer pageSize, Integer maxResults, Integer maxTime, String realm) {
         // auth and authz
 
         // get ldap filter
-        String filter = createSearchFilter(requestState, requestType, clientKeyID);
+        String filter = createSearchFilter(requestState, requestType, clientKeyID, realm);
         CMS.debug("listRequests: filter is " + filter);
 
         start = start == null ? new RequestId(KeyRequestService.DEFAULT_START) : start;
@@ -345,13 +345,13 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         return createOKResponse(requests);
     }
 
-    private String createSearchFilter(String requestState, String requestType, String clientKeyID) {
+    private String createSearchFilter(String requestState, String requestType, String clientKeyID, String realm) {
         String filter = "";
         int matches = 0;
 
         if ((requestState == null) && (requestType == null) && (clientKeyID == null)) {
             filter = "(requeststate=*)";
-            return filter;
+            matches ++;
         }
 
         if (requestState != null) {
@@ -367,6 +367,14 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         if (clientKeyID != null) {
             filter += "(clientID=" + LDAPUtil.escapeFilter(clientKeyID) + ")";
             matches ++;
+        }
+
+        if (realm != null) {
+            filter += "(realm=" + LDAPUtil.escapeFilter(realm) + ")";
+            matches++;
+        } else {
+            filter += "(!(realm=*))";
+            matches++;
         }
 
         if (matches > 1) {

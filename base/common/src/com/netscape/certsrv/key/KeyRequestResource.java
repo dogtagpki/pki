@@ -51,7 +51,8 @@ public interface KeyRequestResource {
                                             @QueryParam("start") RequestId start,
                                             @QueryParam("pageSize") Integer pageSize,
                                             @QueryParam("maxResults") Integer maxResults,
-                                            @QueryParam("maxTime") Integer maxTime);
+                                            @QueryParam("maxTime") Integer maxTime,
+                                            @QueryParam("realm") String realm);
 
     @POST
     @ClientResponseType(entityType=KeyRequestResponse.class)
