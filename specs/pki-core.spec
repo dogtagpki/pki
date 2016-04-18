@@ -1108,6 +1108,9 @@ systemctl daemon-reload
 * Mon Apr 18 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.b1-1
 - Build for F24 beta
 
+* Fri Apr 8 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a2-2
+- PKI TRAC Ticket #2255 - PKCS #12 backup does not contain trust attributes.
+
 * Thu Apr 7 2016 Dogtag Team <pki-devel@redhat.com> 10.3.0.a2-1
 - Updated build for F24 alpha
 
