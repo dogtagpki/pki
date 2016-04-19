@@ -134,6 +134,10 @@ public class KeyGenerationRequest extends ResourceMessage{
      * @param realm - authorization realm to set
      */
     public void setRealm(String realm) {
-        attributes.put(REALM, realm);
+        if (realm != null) {
+            attributes.put(REALM, realm);
+        } else {
+            attributes.remove(REALM);
+        }
     }
 }

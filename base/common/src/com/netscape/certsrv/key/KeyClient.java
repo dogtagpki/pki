@@ -653,10 +653,7 @@ public class KeyClient extends Client {
         String req1 = Utils.base64encode(encryptedData);
         data.setWrappedPrivateData(req1);
         data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
-
-        if (realm != null) {
-            data.setRealm(realm);
-        }
+        data.setRealm(realm);
 
         return submitRequest(data);
     }
@@ -708,10 +705,7 @@ public class KeyClient extends Client {
 
         String options = Utils.base64encode(pkiArchiveOptions);
         data.setPKIArchiveOptions(options);
-
-        if (realm != null) {
-            data.setRealm(realm);
-        }
+        data.setRealm(realm);
 
         return submitRequest(data);
     }
@@ -757,9 +751,7 @@ public class KeyClient extends Client {
         data.setUsages(usages);
         data.setTransWrappedSessionKey(transWrappedSessionKey);
 
-        if (realm != null) {
-            data.setRealm(realm);
-        }
+        data.setRealm(realm);
 
         return submitRequest(data);
     }
@@ -829,10 +821,7 @@ public class KeyClient extends Client {
         data.setKeySize(keySize);
         data.setUsages(usages);
         data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey));
-
-        if (realm != null) {
-            data.setRealm(realm);
-        }
+        data.setRealm(realm);
 
         return submitRequest(data);
     }

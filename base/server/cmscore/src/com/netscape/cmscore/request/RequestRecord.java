@@ -93,7 +93,7 @@ public class RequestRecord
         else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
             return mExtData;
         else if (name.equals(IRequestRecord.ATTR_REALM))
-            return mRealm;
+            return realm;
         else {
             RequestAttr ra = mAttrTable.get(name);
 
@@ -122,7 +122,7 @@ public class RequestRecord
         else if (name.equals(IRequestRecord.ATTR_REQUEST_OWNER))
             mOwner = (String) o;
         else if (name.equals(IRequestRecord.ATTR_REALM))
-            mRealm = (String) o;
+            realm = (String) o;
         else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
             mExtData = (Hashtable<String, Object>) o;
         else {
@@ -159,7 +159,7 @@ public class RequestRecord
         mOwner = r.getRequestOwner();
         mCreateTime = r.getCreationTime();
         mModifyTime = r.getModificationTime();
-        mRealm = r.getRealm();
+        realm = r.getRealm();
         mExtData = loadExtDataFromRequest(r);
 
         for (int i = 0; i < mRequestA.length; i++) {
@@ -173,7 +173,7 @@ public class RequestRecord
         r.setRequestOwner(mOwner);
         a.modModificationTime(r, mModifyTime);
         a.modCreationTime(r, mCreateTime);
-        r.setRealm(mRealm);
+        r.setRealm(realm);
         storeExtDataIntoRequest(r);
 
         for (int i = 0; i < mRequestA.length; i++) {

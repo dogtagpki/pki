@@ -44,6 +44,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
@@ -150,7 +151,7 @@ public class KeyService extends PKIService implements KeyResource {
         } catch (EBaseException e) {
             CMS.debug(e);
             auditRetrieveKey(ILogger.FAILURE, requestID, null, auditInfo + ";" + e.getMessage());
-            throw new PKIException(e.getMessage());
+            throw new PKIException(e.getMessage(), e);
         }
 
         String type = request.getRequestType();
@@ -170,7 +171,7 @@ public class KeyService extends PKIService implements KeyResource {
         } catch (Exception e) {
             CMS.debug(e);
             auditRetrieveKey(ILogger.FAILURE, requestID, keyId, auditInfo + ";" + e.getMessage());
-            throw new PKIException(e.getMessage());
+            throw new PKIException(e.getMessage(), e);
         }
 
         if (keyData == null) {
@@ -348,7 +349,7 @@ public class KeyService extends PKIService implements KeyResource {
             CMS.debug(logMessage);
 
             e1.printStackTrace();
-            throw new PKIException(logMessage + e1.getMessage());
+            throw new PKIException(logMessage + e1.getMessage(), e1);
         }
         if (reqInfo == null) {
             // request not found
@@ -377,7 +378,7 @@ public class KeyService extends PKIService implements KeyResource {
             logMessage = e.getMessage();
             CMS.debug(logMessage);
 
-            throw new PKIException(logMessage);
+            throw new PKIException(logMessage, e);
         }
         String originator = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         if (! originator.equals(retriever)) {
@@ -423,10 +424,12 @@ public class KeyService extends PKIService implements KeyResource {
             try {
                 authz.checkRealm(realm, getAuthToken(), null, "keys", "list");
             } catch (EAuthzAccessDenied e) {
-                throw new UnauthorizedException("Not authorized to list these keys");
+                throw new UnauthorizedException("Not authorized to list these keys", e);
+            } catch (EAuthzUnknownRealm e) {
+                throw new BadRequestException("Invalid realm", e);
             } catch (EBaseException e) {
                 CMS.debug("listRequests: unable to authorize realm" + e);
-                throw new PKIException(e.toString());
+                throw new PKIException(e.toString(), e);
             }
         }
 
@@ -475,7 +478,7 @@ public class KeyService extends PKIService implements KeyResource {
             auditRetrieveKey(ILogger.FAILURE, null, clientKeyID, e.getMessage() + auditInfo);
 
             e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            throw new PKIException(e.getMessage(), e);
         }
         auditRetrieveKey(ILogger.SUCCESS, null, clientKeyID, auditInfo);
 
@@ -508,10 +511,10 @@ public class KeyService extends PKIService implements KeyResource {
                 try {
                     authz.checkRealm(info.getRealm(), getAuthToken(), info.getOwnerName(), "key", "read");
                 } catch (EAuthzAccessDenied e) {
-                    throw new UnauthorizedException("Not authorized to read this key");
+                    throw new UnauthorizedException("Not authorized to read this key", e);
                 } catch (EBaseException e) {
                     CMS.debug("listRequests: unable to authorize realm" + e);
-                    throw new PKIException(e.toString());
+                    throw new PKIException(e.toString(), e);
                 }
 
                 auditRetrieveKey(ILogger.SUCCESS, null, clientKeyID, auditInfo);
@@ -686,18 +689,17 @@ public class KeyService extends PKIService implements KeyResource {
         } catch (EAuthzAccessDenied e) {
             auditInfo = method + "Unauthorized access for key record";
             auditRetrieveKey(ILogger.FAILURE, null, keyId, auditInfo);
-            throw new UnauthorizedException(auditInfo);
+            throw new UnauthorizedException(auditInfo, e);
         } catch (EDBRecordNotFoundException e) {
             auditInfo = method + e.getMessage();
             auditRetrieveKey(ILogger.FAILURE, null, keyId, auditInfo);
-
-            throw new KeyNotFoundException(keyId);
+            throw new KeyNotFoundException(keyId, "key not found", e);
         } catch (Exception e) {
             auditInfo = method + "Unable to retrieve key record: " + e.getMessage();
             auditRetrieveKey(ILogger.FAILURE, null, keyId, auditInfo);
             CMS.debug(auditInfo);
             e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            throw new PKIException(e.getMessage(), e);
         }
     }
 
@@ -735,14 +737,14 @@ public class KeyService extends PKIService implements KeyResource {
             CMS.debug(auditInfo);
             auditKeyStatusChange(ILogger.FAILURE, keyId.toString(),
                     (info!=null)?info.getStatus():null, status, auditInfo);
-            throw new KeyNotFoundException(keyId);
+            throw new KeyNotFoundException(keyId, "key not found to modify", e);
         } catch (Exception e) {
             auditInfo = auditInfo + ":" + e.getMessage();
             CMS.debug(auditInfo);
             auditKeyStatusChange(ILogger.FAILURE, keyId.toString(),
                     (info!=null)?info.getStatus():null, status, auditInfo);
             e.printStackTrace();
-            throw new PKIException(e.getMessage());
+            throw new PKIException(e.getMessage(), e);
         }
     }
 

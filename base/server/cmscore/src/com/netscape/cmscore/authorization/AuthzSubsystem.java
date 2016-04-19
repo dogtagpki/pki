@@ -32,6 +32,7 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.authorization.EAuthzMgrNotFound;
 import com.netscape.certsrv.authorization.EAuthzMgrPluginNotFound;
+import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
@@ -480,8 +481,9 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         if ((owner != null) && owner.equals(authToken.getInString(IAuthToken.USER_ID))) return;
 
         String mgrName = getAuthzManagerByRealm(realm);
-        // if no authz manager for this realm, SUCCESS by default
-        if (mgrName == null) return;
+        if (mgrName == null) {
+            throw new EAuthzUnknownRealm("Realm not found");
+        }
 
         AuthzToken authzToken = authorize(mgrName, authToken, resource, operation);
         if (authzToken == null) {

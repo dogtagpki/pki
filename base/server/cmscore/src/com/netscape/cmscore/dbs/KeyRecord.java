@@ -56,7 +56,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     private String mClientId = null;
     private String mStatus = null;
     private String mDataType = null;
-    private String mRealm = null;
+    private String realm = null;
 
 
     protected static Vector<String> mNames = new Vector<String>();
@@ -141,7 +141,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         } else if (name.equalsIgnoreCase(ATTR_STATUS)) {
             mStatus = (String) object;
         } else if (name.equalsIgnoreCase(ATTR_REALM)) {
-            mRealm = (String) object;
+            realm = (String) object;
         } else {
             throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -183,7 +183,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         } else if (name.equalsIgnoreCase(ATTR_STATUS)) {
             return mStatus;
         } else if (name.equalsIgnoreCase(ATTR_REALM)) {
-            return mRealm;
+            return realm;
         } else {
             throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -395,6 +395,6 @@ public class KeyRecord implements IDBObj, IKeyRecord {
 
     @Override
     public String getRealm() throws EBaseException {
-        return mRealm;
+        return realm;
     }
 }

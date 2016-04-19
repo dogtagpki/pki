@@ -37,6 +37,7 @@ import org.mozilla.jss.crypto.KeyPairAlgorithm;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
@@ -259,13 +260,15 @@ public class KeyRequestDAO extends CMSRequestDAO {
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
         } catch (EDBRecordNotFoundException e) {
-            throw new KeyNotFoundException(keyId);
+            throw new KeyNotFoundException(keyId, "key not found to recover", e);
         }
 
         try {
             authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "key", "recover");
+        } catch (EAuthzUnknownRealm e) {
+            throw new UnauthorizedException("Invalid realm", e);
         } catch (EBaseException e) {
-            throw new UnauthorizedException("Agent not authorized by realm");
+            throw new UnauthorizedException("Agent not authorized by realm", e);
         }
 
         Hashtable<String, Object> requestParams;
@@ -315,13 +318,15 @@ public class KeyRequestDAO extends CMSRequestDAO {
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
         } catch (EDBRecordNotFoundException e) {
-            throw new KeyNotFoundException(keyId);
+            throw new KeyNotFoundException(keyId, "key not found to recover", e);
         }
 
         try {
             authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "key", "recover");
+        } catch (EAuthzUnknownRealm e) {
+            throw new UnauthorizedException("Invalid realm", e);
         } catch (EBaseException e) {
-            throw new UnauthorizedException("Agent not authorized by realm");
+            throw new UnauthorizedException("Agent not authorized by realm", e);
         }
 
         String b64Certificate = data.getCertificate();
@@ -332,7 +337,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             // TODO - update request with realm
         } catch (EBaseException | CertificateException e) {
             e.printStackTrace();
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
         IRequest request = null;
         try {

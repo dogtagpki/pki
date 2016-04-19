@@ -214,7 +214,11 @@ public class KeyArchivalRequest extends ResourceMessage {
      * @param realm - the authentication realm
      */
     public void setRealm(String realm) {
-        attributes.put(REALM, realm);
+        if (realm != null) {
+            attributes.put(REALM, realm);
+        } else {
+            attributes.remove(REALM);
+        }
     }
 
     public String toString() {

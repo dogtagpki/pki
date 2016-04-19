@@ -44,35 +44,35 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     private static final String GROUP = "group";
 
     /* name of this authorization manager instance */
-    private String name = null;
+    private String name;
 
     /* name of the authorization manager plugin */
-    private String implName = null;
+    private String implName;
 
     /* configuration store */
     private IConfigStore config;
 
     /* group that is allowed to access resources */
-    private String groupName = null;
+    private String groupName;
 
     /* Vector of extendedPluginInfo strings */
-    protected static Vector<String> mExtendedPluginInfo = null;
+    protected static Vector<String> extendedPluginInfo;
 
-    protected static String[] mConfigParams = null;
+    protected static String[] configParams;
 
     static {
-        mExtendedPluginInfo = new Vector<String>();
-        mExtendedPluginInfo.add("group;string,required;" +
+        extendedPluginInfo = new Vector<String>();
+        extendedPluginInfo.add("group;string,required;" +
                 "Group to permit access");
     }
 
     public BasicGroupAuthz() {
-        mConfigParams = new String[] {"group"};
+        configParams = new String[] {"group"};
     }
 
     @Override
     public String[] getExtendedPluginInfo(Locale locale) {
-        String[] s = Utils.getStringArrayFromVector(mExtendedPluginInfo);
+        String[] s = Utils.getStringArrayFromVector(extendedPluginInfo);
         return s;
     }
 
@@ -103,6 +103,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
         IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
         IGroup group = ug.getGroupFromName(groupName);
         if (!group.isMember(user)) {
+            CMS.debug("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);
             throw new EAuthzAccessDenied("Access denied");
         }
 
@@ -139,7 +140,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
 
     @Override
     public String[] getConfigParams() throws EBaseException {
-        return mConfigParams;
+        return configParams;
     }
 
     @Override

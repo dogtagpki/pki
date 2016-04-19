@@ -38,6 +38,7 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
+import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
@@ -171,15 +172,25 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             if (getRequestor() == null) {
                 throw new UnauthorizedException("Archival must be performed by an agent");
             }
+
+            String realm = data.getRealm();
+            if (realm != null) {
+                authz.checkRealm(realm, getAuthToken(), null, "keyRequest", "archive");
+            }
             response = dao.submitRequest(data, uriInfo, getRequestor());
             auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
-
+        } catch (EAuthzAccessDenied e) {
+            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            throw new UnauthorizedException("Not authorized to generate request in this realm", e);
+        } catch (EAuthzUnknownRealm e) {
+            auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            throw new BadRequestException("Invalid realm", e);
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditArchivalRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
     }
 
@@ -216,7 +227,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditRecoveryRequestMade(null, ILogger.FAILURE, data.getKeyId());
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
     }
 
@@ -233,11 +244,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             dao.approveRequest(id, getRequestor(), getAuthToken());
             auditRecoveryRequestChange(id, ILogger.SUCCESS, "approve");
         } catch (EAuthzAccessDenied e) {
-            throw new UnauthorizedException("Not authorized to approve request");
+            throw new UnauthorizedException("Not authorized to approve request", e);
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRecoveryRequestChange(id, ILogger.FAILURE, "approve");
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
 
         return createNoContentResponse();
@@ -254,11 +265,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             dao.rejectRequest(id, getAuthToken());
             auditRecoveryRequestChange(id, ILogger.SUCCESS, "reject");
         }catch (EAuthzAccessDenied e) {
-            throw new UnauthorizedException("Not authorized to reject request");
+            throw new UnauthorizedException("Not authorized to reject request", e);
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRecoveryRequestChange(id, ILogger.FAILURE, "reject");
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
 
         return createNoContentResponse();
@@ -275,11 +286,11 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             dao.cancelRequest(id, getAuthToken());
             auditRecoveryRequestChange(id, ILogger.SUCCESS, "cancel");
         } catch (EAuthzAccessDenied e) {
-            throw new UnauthorizedException("Not authorized to cancel request");
+            throw new UnauthorizedException("Not authorized to cancel request", e);
         } catch (EBaseException e) {
             e.printStackTrace();
             auditRecoveryRequestChange(id, ILogger.FAILURE, "cancel");
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
 
         return createNoContentResponse();
@@ -295,10 +306,12 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             try {
                 authz.checkRealm(realm, getAuthToken(), null, "keyRequests", "list");
             } catch (EAuthzAccessDenied e) {
-                throw new UnauthorizedException("Not authorized to list these requests");
+                throw new UnauthorizedException("Not authorized to list these requests", e);
+            } catch (EAuthzUnknownRealm e) {
+                throw new BadRequestException("Invalid realm", e);
             } catch (EBaseException e) {
                 CMS.debug("listRequests: unable to authorize realm" + e);
-                throw new PKIException(e.toString());
+                throw new PKIException(e.toString(), e);
             }
         }
         // get ldap filter
@@ -317,7 +330,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
         } catch (EBaseException e) {
             CMS.debug("listRequests: error in obtaining request results" + e);
             e.printStackTrace();
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
         return createOKResponse(requests);
     }
@@ -426,7 +439,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             request = requestClazz.getDeclaredConstructor(ResourceMessage.class).newInstance(data);
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException
                 | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new BadRequestException("Invalid request class." + e);
+            throw new BadRequestException("Invalid request class." + e, e);
         }
 
         if (request instanceof KeyArchivalRequest) {
@@ -453,16 +466,26 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             if (getRequestor() == null) {
                 throw new UnauthorizedException("Key generation must be performed by an agent");
             }
+            String realm = data.getRealm();
+            if (realm != null) {
+                authz.checkRealm(realm, getAuthToken(), null, "keyRequest", "generateSymkey");
+            }
+
             response = dao.submitRequest(data, uriInfo, getRequestor());
             auditSymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
                     data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
-
+        } catch (EAuthzAccessDenied e) {
+            auditSymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            throw new UnauthorizedException("Not authorized to generate request in this realm", e);
+        } catch (EAuthzUnknownRealm e) {
+            auditSymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            throw new BadRequestException("Invalid realm", e);
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditSymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
     }
 
@@ -477,16 +500,26 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             if (getRequestor() == null) {
                 throw new UnauthorizedException("Key generation must be performed by an agent");
             }
+            String realm = data.getRealm();
+            if (realm != null) {
+                authz.checkRealm(realm, getAuthToken(), null, "keyRequest", "generateAsymkey");
+            }
+
             response = dao.submitRequest(data, uriInfo, getRequestor());
             auditAsymKeyGenRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS,
                     data.getClientKeyId());
 
             return createCreatedResponse(response, new URI(response.getRequestInfo().getRequestURL()));
-
+        } catch (EAuthzAccessDenied e) {
+            auditAsymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            throw new UnauthorizedException("Not authorized to generate request in this realm", e);
+        } catch (EAuthzUnknownRealm e) {
+            auditAsymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
+            throw new BadRequestException("Invalid realm", e);
         } catch (EBaseException | URISyntaxException e) {
             e.printStackTrace();
             auditAsymKeyGenRequestMade(null, ILogger.FAILURE, data.getClientKeyId());
-            throw new PKIException(e.toString());
+            throw new PKIException(e.toString(), e);
         }
     }
 

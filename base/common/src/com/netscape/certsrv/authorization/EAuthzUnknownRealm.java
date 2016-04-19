@@ -15,29 +15,14 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.cmscore.request;
+package com.netscape.certsrv.authorization;
 
-import java.util.Date;
-import java.util.Hashtable;
+public class EAuthzUnknownRealm extends EAuthzException {
 
-import com.netscape.certsrv.request.RequestId;
-import com.netscape.certsrv.request.RequestStatus;
+    private static final long serialVersionUID = 2288587364467614277L;
 
-/**
- * The low level (attributes only) version of the database
- * record object. This exists so that RecordAttr methods can use
- * this type definition,
- *
- * RequestRecord refers both to this class and to RecordAttr objects.
- */
-class ARequestRecord {
-    RequestId mRequestId;
-    RequestStatus mRequestState;
-    Date mCreateTime;
-    Date mModifyTime;
-    String mSourceId;
-    String mOwner;
-    String mRequestType;
-    Hashtable<String, Object> mExtData;
-    String realm;
-};
+    public EAuthzUnknownRealm(String errorString) {
+        super(errorString);
+    }
+
+}
