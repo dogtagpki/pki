@@ -80,7 +80,9 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
+import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -1971,6 +1973,31 @@ public class CryptoUtil {
         // wrap session key using transport key
         byte[] session_data = wrapSymmetricKey(manager, token, transportCert, sk);
 
+        return createPKIArchiveOptions(IV, session_data, key_data);
+    }
+
+    public static byte[] createPKIArchiveOptions(
+            CryptoToken token, PublicKey wrappingKey, PrivateKey toBeWrapped,
+            KeyGenAlgorithm keyGenAlg, int symKeySize, IVParameterSpec IV)
+            throws TokenException, NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException, InvalidKeyException,
+            IOException, InvalidBERException {
+        SymmetricKey sessionKey = CryptoUtil.generateKey(token, keyGenAlg, symKeySize);
+
+        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+        wrapper.initWrap(sessionKey, IV);
+        byte[] key_data = wrapper.wrap(toBeWrapped);
+
+        wrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+        wrapper.initWrap(wrappingKey, null);
+        byte session_data[] = wrapper.wrap(sessionKey);
+
+        return createPKIArchiveOptions(IV, session_data, key_data);
+    }
+
+    private static byte[] createPKIArchiveOptions(
+            IVParameterSpec IV, byte[] session_data, byte[] key_data)
+            throws IOException, InvalidBERException {
         // create PKIArchiveOptions structure
         AlgorithmIdentifier algS = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
                 new OCTET_STRING(IV.getIV()));
@@ -1994,6 +2021,37 @@ public class CryptoUtil {
                   (new PKIArchiveOptions.Template()).decode(inStream);
 
         return encoded;
+    }
+
+    public static PrivateKey importPKIArchiveOptions(
+            CryptoToken token, PrivateKey unwrappingKey,
+            PublicKey pubkey, byte[] data)
+            throws InvalidBERException, Exception {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        PKIArchiveOptions options = (PKIArchiveOptions)
+            (new PKIArchiveOptions.Template()).decode(in);
+        EncryptedKey encKey = options.getEncryptedKey();
+        EncryptedValue encVal = encKey.getEncryptedValue();
+        AlgorithmIdentifier algId = encVal.getSymmAlg();
+        BIT_STRING encSymKey = encVal.getEncSymmKey();
+        BIT_STRING encPrivKey = encVal.getEncValue();
+
+        KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+        wrapper.initUnwrap(unwrappingKey, null);
+        SymmetricKey sk = wrapper.unwrapSymmetric(
+            encSymKey.getBits(), SymmetricKey.Type.DES3, 0);
+
+        ASN1Value v = algId.getParameters();
+        v = ((ANY) v).decodeWith(new OCTET_STRING.Template());
+        byte iv[] = ((OCTET_STRING) v).toByteArray();
+        IVParameterSpec ivps = new IVParameterSpec(iv);
+
+        wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+        wrapper.initUnwrap(sk, ivps);
+        PrivateKey.Type keyType = pubkey.getAlgorithm().equals("EC")
+            ? PrivateKey.Type.EC
+            : PrivateKey.Type.RSA;
+        return wrapper.unwrapPrivate(encPrivKey.getBits(), keyType, pubkey);
     }
 
     public static boolean sharedSecretExists(String nickname) throws NotInitializedException, TokenException {
