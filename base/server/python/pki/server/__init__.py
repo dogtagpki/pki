@@ -156,6 +156,8 @@ class PKISubsystem(object):
             '%s.%s.cert' % (self.name, cert_id), None)
         cert['request'] = self.config.get(
             '%s.%s.certreq' % (self.name, cert_id), None)
+        cert['certusage'] = self.config.get(
+            '%s.cert.%s.certusage' % (self.name, cert_id), None)
         return cert
 
     def update_subsystem_cert(self, cert):
