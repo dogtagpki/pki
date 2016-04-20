@@ -80,6 +80,9 @@ public interface IAuthzSubsystem extends ISubsystem {
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
             String exp) throws EBaseException;
 
+    public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
+            String resource, String operation, String realm) throws EBaseException;
+
     /**
      * Authorize the user against the specified realm.  Looks for authz manager
      * associated with the plugin and authenticates if present.

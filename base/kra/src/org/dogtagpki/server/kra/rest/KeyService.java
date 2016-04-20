@@ -422,7 +422,7 @@ public class KeyService extends PKIService implements KeyResource {
 
         if (realm != null) {
             try {
-                authz.checkRealm(realm, getAuthToken(), null, "keys", "list");
+                authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.keys", "list");
             } catch (EAuthzAccessDenied e) {
                 throw new UnauthorizedException("Not authorized to list these keys", e);
             } catch (EAuthzUnknownRealm e) {
@@ -509,7 +509,7 @@ public class KeyService extends PKIService implements KeyResource {
             if (info != null) {
                 // return the first one, but first confirm that the requester has access to this key
                 try {
-                    authz.checkRealm(info.getRealm(), getAuthToken(), info.getOwnerName(), "key", "read");
+                    authz.checkRealm(info.getRealm(), getAuthToken(), info.getOwnerName(), "certServer.kra.key", "read");
                 } catch (EAuthzAccessDenied e) {
                     throw new UnauthorizedException("Not authorized to read this key", e);
                 } catch (EBaseException e) {
@@ -681,7 +681,7 @@ public class KeyService extends PKIService implements KeyResource {
         IKeyRecord rec = null;
         try {
             rec = repo.readKeyRecord(keyId.toBigInteger());
-            authz.checkRealm(rec.getRealm(), getAuthToken(), rec.getOwnerName(), "key", "read");
+            authz.checkRealm(rec.getRealm(), getAuthToken(), rec.getOwnerName(), "certServer.kra.key", "read");
             KeyInfo info = createKeyDataInfo(rec, true);
             auditRetrieveKey(ILogger.SUCCESS, null, keyId, auditInfo);
 

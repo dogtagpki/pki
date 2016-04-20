@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authorization;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.StringUtils;
@@ -227,7 +229,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      */
     public AuthzToken authorize(
             String authzMgrInstName, IAuthToken authToken,
-            String resource, String operation)
+            String resource, String operation, String realm)
             throws EAuthzMgrNotFound, EBaseException {
 
         AuthzManagerProxy proxy = mAuthzMgrInsts.get(authzMgrInstName);
@@ -243,9 +245,20 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         if (authzMgrInst == null) {
             throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
+
+        if ((realm != null) && (resource != null)) {
+            resource = realm + "." + resource;
+        }
         return (authzMgrInst.authorize(authToken, resource, operation));
     }
 
+    @Override
+    public AuthzToken authorize(String authzMgrName, IAuthToken authToken, String resource, String operation)
+            throws EBaseException {
+        return authorize(authzMgrName, authToken, resource, operation, null);
+    }
+
+    @Override
     public AuthzToken authorize(
             String authzMgrInstName, IAuthToken authToken, String exp)
             throws EAuthzMgrNotFound, EBaseException {
@@ -485,7 +498,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             throw new EAuthzUnknownRealm("Realm not found");
         }
 
-        AuthzToken authzToken = authorize(mgrName, authToken, resource, operation);
+        AuthzToken authzToken = authorize(mgrName, authToken, resource, operation, realm);
         if (authzToken == null) {
             throw new EAuthzAccessDenied("Not authorized by ACL realm");
         }
@@ -496,9 +509,13 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             IAuthzManager mgr = proxy.getAuthzManager();
             if (mgr != null) {
                 IConfigStore cfg = mgr.getConfigStore();
-                String mgrRealm = cfg.getString(PROP_REALM, null);
-                if (StringUtils.equals(mgrRealm, realm)) {
-                    return mgr.getName();
+                String mgrRealmString = cfg.getString(PROP_REALM, null);
+                if (mgrRealmString == null) continue;
+
+                List<String> mgrRealms = Arrays.asList(mgrRealmString.split(","));
+                for (String mgrRealm : mgrRealms) {
+                    if (StringUtils.equals(mgrRealm, realm))
+                        return mgr.getName();
                 }
             }
         }

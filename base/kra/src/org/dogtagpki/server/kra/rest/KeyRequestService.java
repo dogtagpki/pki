@@ -175,7 +175,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
 
             String realm = data.getRealm();
             if (realm != null) {
-                authz.checkRealm(realm, getAuthToken(), null, "keyRequest", "archive");
+                authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests.archival", "execute");
             }
             response = dao.submitRequest(data, uriInfo, getRequestor());
             auditArchivalRequestMade(response.getRequestInfo().getRequestId(), ILogger.SUCCESS, data.getClientKeyId());
@@ -304,7 +304,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime, String realm) {
         if (realm != null) {
             try {
-                authz.checkRealm(realm, getAuthToken(), null, "keyRequests", "list");
+                authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests", "list");
             } catch (EAuthzAccessDenied e) {
                 throw new UnauthorizedException("Not authorized to list these requests", e);
             } catch (EAuthzUnknownRealm e) {
@@ -468,7 +468,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             }
             String realm = data.getRealm();
             if (realm != null) {
-                authz.checkRealm(realm, getAuthToken(), null, "keyRequest", "generateSymkey");
+                authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests.symkey", "execute");
             }
 
             response = dao.submitRequest(data, uriInfo, getRequestor());
@@ -502,7 +502,7 @@ public class KeyRequestService extends PKIService implements KeyRequestResource 
             }
             String realm = data.getRealm();
             if (realm != null) {
-                authz.checkRealm(realm, getAuthToken(), null, "keyRequest", "generateAsymkey");
+                authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests.asymkey", "execute");
             }
 
             response = dao.submitRequest(data, uriInfo, getRequestor());

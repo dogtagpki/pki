@@ -169,7 +169,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         authz.checkRealm(request.getRealm(), authToken, request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
-                "keyRequest", "read");
+                "certServer.kra.request", "read");
 
         KeyRequestInfo info = createKeyRequestInfo(request, uriInfo);
         return info;
@@ -264,7 +264,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         try {
-            authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "key", "recover");
+            authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "certServer.kra.key", "recover");
         } catch (EAuthzUnknownRealm e) {
             throw new UnauthorizedException("Invalid realm", e);
         } catch (EBaseException e) {
@@ -322,7 +322,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         try {
-            authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "key", "recover");
+            authz.checkRealm(rec.getRealm(), authToken, rec.getOwnerName(), "certServer.kra.key", "recover");
         } catch (EAuthzUnknownRealm e) {
             throw new UnauthorizedException("Invalid realm", e);
         } catch (EBaseException e) {
@@ -504,7 +504,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         IRequest request = queue.findRequest(id);
         authz.checkRealm(request.getRealm(), authToken,
                 request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
-                "keyRequest", "approve");
+                "certServer.kra.requests", "execute");
 
         service.addAgentAsyncKeyRecovery(id.toString(), requestor);
     }
@@ -514,7 +514,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
                 request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
-                "keyRequest", "reject");
+                "certServer.kra.requests", "execute");
         request.setRequestStatus(RequestStatus.REJECTED);
         queue.updateRequest(request);
     }
@@ -524,7 +524,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
         String realm = request.getRealm();
         authz.checkRealm(realm, authToken,
                 request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER),
-                "keyRequest", "cancel");
+                "certServer.kra.requests", "execute");
         request.setRequestStatus(RequestStatus.CANCELED);
         queue.updateRequest(request);
     }
