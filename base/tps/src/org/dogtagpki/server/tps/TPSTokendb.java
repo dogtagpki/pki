@@ -509,24 +509,15 @@ public class TPSTokendb {
                 }
             }
 
-            CARemoteRequestHandler caRH = null;
-            caRH = new CARemoteRequestHandler(connID);
-            String hexSerial = cert.getSerialNumber();
-            if (hexSerial.length() >= 3 && hexSerial.startsWith("0x")) {
-                String serial = hexSerial.substring(2); // skip over the '0x'
-                BigInteger bInt = new BigInteger(serial, 16);
-                String serialStr = bInt.toString();
-                CMS.debug(method + ": found cert hex serial: " + serial +
-                        " dec serial:" + serialStr);
-                CARevokeCertResponse response =
-                        caRH.revokeCertificate(isRevoke, serialStr, cert.getCertificate(),
-                                revokeReason);
-                CMS.debug(method + ": response status =" + response.getStatus());
-            } else {
-                logMsg = "mulformed hex serial number :" + hexSerial;
-                CMS.debug(method + ": " + logMsg);
-                throw new Exception(logMsg);
-            }
+            CARemoteRequestHandler caRH = new CARemoteRequestHandler(connID);
+            BigInteger bInt = cert.getSerialNumberInBigInteger();
+            String serialStr = bInt.toString();
+            CMS.debug(method + ": found cert hex serial: " + cert.getSerialNumber() +
+                    " dec serial: " + serialStr);
+            CARevokeCertResponse response =
+                    caRH.revokeCertificate(isRevoke, serialStr, cert.getCertificate(),
+                            revokeReason);
+            CMS.debug(method + ": response status: " + response.getStatus());
 
             // update certificate status
             if (isRevoke) {

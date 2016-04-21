@@ -18,6 +18,7 @@
 
 package org.dogtagpki.server.tps.dbs;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 import com.netscape.cmscore.dbs.DBAttribute;
@@ -66,6 +67,18 @@ public class TPSCertRecord extends DBRecord {
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    public BigInteger getSerialNumberInBigInteger()  {
+
+        if (serialNumber == null) return null;
+
+        if (serialNumber.length() < 3 || !serialNumber.startsWith("0x")) {
+            throw new NumberFormatException("Malformed hex serial number: " + serialNumber);
+        }
+
+        String value = serialNumber.substring(2); // skip over the '0x'
+        return new BigInteger(value, 16);
     }
 
     @DBAttribute("tokenSubject")
