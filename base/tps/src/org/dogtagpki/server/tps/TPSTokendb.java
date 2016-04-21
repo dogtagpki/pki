@@ -379,6 +379,125 @@ public class TPSTokendb {
         return true;
     }
 
+    private void revokeCert(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
+            String ipAddress, String remoteUser) {
+
+        String method = "TPSTokendb.revokeCert";
+        String logMsg;
+
+        try {
+
+            IConfigStore configStore = CMS.getConfigStore();
+
+            // get conn ID
+            String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
+            String connID = configStore.getString(config);
+
+            RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
+
+            logMsg = "called to revoke";
+            CMS.debug(method + ": " + logMsg);
+            boolean revokeCert = shouldRevoke(tokenRecord, cert, tokenReason, ipAddress, remoteUser);
+
+            if (!revokeCert) {
+                logMsg = "certificate not to be revoked:" + cert.getSerialNumber();
+                CMS.debug(method + ":" + logMsg);
+                return;
+            }
+
+            logMsg = "certificate to be revoked:" + cert.getSerialNumber();
+            CMS.debug(method + ": " + logMsg);
+
+            // get revoke reason
+            config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() +
+                    ".recovery." + tokenReason + ".revokeCert.reason";
+            int reasonInt = configStore.getInteger(config, 0);
+            revokeReason = RevocationReason.fromInt(reasonInt);
+
+            CARemoteRequestHandler caRH = new CARemoteRequestHandler(connID);
+            BigInteger bInt = cert.getSerialNumberInBigInteger();
+            String serialStr = bInt.toString();
+            CMS.debug(method + ": found cert hex serial: " + cert.getSerialNumber() +
+                    " dec serial: " + serialStr);
+            CARevokeCertResponse response =
+                    caRH.revokeCertificate(true, serialStr, cert.getCertificate(),
+                            revokeReason);
+            CMS.debug(method + ": response status: " + response.getStatus());
+
+            // update certificate status
+            if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
+                updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "revoked_on_hold");
+            } else {
+                updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "revoked");
+            }
+
+            logMsg = "certificate revoked: " + cert.getSerialNumber();
+            CMS.debug(method + ": " + logMsg);
+
+            //TODO: tdbActivity
+
+        } catch (Exception e) {
+            logMsg = "certificate not revoked: " + cert.getSerialNumber() + ": " + e;
+            CMS.debug(method + ": " + logMsg);
+
+            //TODO: tdbActivity
+
+            // continue revoking the next certificate
+        }
+    }
+
+    private void unrevokeCert(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
+            String ipAddress, String remoteUser) {
+
+        String method = "TPSTokendb.unrevokeCert";
+        String logMsg;
+
+        try {
+            IConfigStore configStore = CMS.getConfigStore();
+
+            // get conn ID
+            String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
+            String connID = configStore.getString(config);
+
+            RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
+
+            logMsg = "called to unrevoke";
+            CMS.debug(method + ": " + logMsg);
+
+            if (!cert.getStatus().equalsIgnoreCase("revoked_on_hold")) {
+                logMsg = "certificate record current status is not revoked_on_hold; cannot unrevoke";
+                CMS.debug(method + ": " + logMsg);
+                return; // TODO: continue or bail?
+            }
+
+            CARemoteRequestHandler caRH = new CARemoteRequestHandler(connID);
+            BigInteger bInt = cert.getSerialNumberInBigInteger();
+            String serialStr = bInt.toString();
+            CMS.debug(method + ": found cert hex serial: " + cert.getSerialNumber() +
+                    " dec serial: " + serialStr);
+            CARevokeCertResponse response =
+                    caRH.revokeCertificate(false, serialStr, cert.getCertificate(),
+                            revokeReason);
+            CMS.debug(method + ": response status: " + response.getStatus());
+
+            // update certificate status
+            updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "active");
+
+            logMsg = "certificate unrevoked: " + cert.getSerialNumber();
+            CMS.debug(method + ": " + logMsg);
+
+            //TODO: tdbActivity
+
+        } catch (Exception e) {
+            logMsg = "certificate not unrevoked: " + cert.getSerialNumber() + " : " + e;
+            CMS.debug(method + ": " + logMsg);
+
+            //TODO: tdbActivity
+
+            // continue unrevoking the next certificate
+        }
+    }
+
     private boolean shouldRevoke(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
         IConfigStore configStore = CMS.getConfigStore();
@@ -483,64 +602,11 @@ public class TPSTokendb {
         IConfigStore configStore = CMS.getConfigStore();
 
         for (TPSCertRecord cert : certRecords) {
-            // get conn id
-            String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
-            String connID = configStore.getString(config);
-
-            RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
-
             if (isRevoke) {
-                logMsg = "called to revoke";
-                CMS.debug(method + ":" + logMsg);
-                boolean revokeCert = shouldRevoke(tokenRecord, cert, tokenReason, ipAddress, remoteUser);
-
-                if (!revokeCert) {
-                    logMsg = "cert not to be revoked:" + cert.getSerialNumber();
-                    CMS.debug(method + ":" + logMsg);
-                    continue;
-                }
-                logMsg = "cert to be revoked:" + cert.getSerialNumber();
-                CMS.debug(method + ":" + logMsg);
-
-                // get revoke reason
-                config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() +
-                        ".recovery." + tokenReason + ".revokeCert.reason";
-                int reasonInt = configStore.getInteger(config, 0);
-                revokeReason = RevocationReason.fromInt(reasonInt);
-            } else { // is unrevoke
-                logMsg = "called to unrevoke";
-                CMS.debug(method + ":" + logMsg);
-                if (!cert.getStatus().equalsIgnoreCase("revoked_on_hold")) {
-                    logMsg = "cert record current status is not revoked_on_hold; cannot unrevoke";
-                    CMS.debug(method + ":" + logMsg);
-                    continue;// TODO: continue or bail?
-                }
-            }
-
-            CARemoteRequestHandler caRH = new CARemoteRequestHandler(connID);
-            BigInteger bInt = cert.getSerialNumberInBigInteger();
-            String serialStr = bInt.toString();
-            CMS.debug(method + ": found cert hex serial: " + cert.getSerialNumber() +
-                    " dec serial: " + serialStr);
-            CARevokeCertResponse response =
-                    caRH.revokeCertificate(isRevoke, serialStr, cert.getCertificate(),
-                            revokeReason);
-            CMS.debug(method + ": response status: " + response.getStatus());
-
-            // update certificate status
-            if (isRevoke) {
-                if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
-                    updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "revoked_on_hold");
-                } else {
-                    updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "revoked");
-                }
+                revokeCert(tokenRecord, cert, tokenReason, ipAddress, remoteUser);
             } else {
-                updateCertsStatus(cert.getSerialNumber(), cert.getIssuedBy(), "active");
+                unrevokeCert(tokenRecord, cert, tokenReason, ipAddress, remoteUser);
             }
-
-            logMsg = "cert (un)revoked:" + cert.getSerialNumber();
-            CMS.debug(method + ":" + logMsg);
-            //TODO: tdbActivity
         }
     }
 
