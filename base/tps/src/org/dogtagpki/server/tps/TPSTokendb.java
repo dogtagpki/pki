@@ -397,13 +397,8 @@ public class TPSTokendb {
 
             logMsg = "called to revoke";
             CMS.debug(method + ": " + logMsg);
-            boolean revokeCert = shouldRevoke(tokenRecord, cert, tokenReason, ipAddress, remoteUser);
 
-            if (!revokeCert) {
-                logMsg = "certificate not to be revoked:" + cert.getSerialNumber();
-                CMS.debug(method + ":" + logMsg);
-                return;
-            }
+            checkShouldRevoke(tokenRecord, cert, tokenReason, ipAddress, remoteUser);
 
             logMsg = "certificate to be revoked:" + cert.getSerialNumber();
             CMS.debug(method + ": " + logMsg);
@@ -434,13 +429,15 @@ public class TPSTokendb {
             logMsg = "certificate revoked: " + cert.getSerialNumber();
             CMS.debug(method + ": " + logMsg);
 
-            //TODO: tdbActivity
+            tdbActivity(ActivityDatabase.OP_CERT_REVOCATION, tokenRecord,
+                    ipAddress, logMsg, "success", remoteUser);
 
         } catch (Exception e) {
             logMsg = "certificate not revoked: " + cert.getSerialNumber() + ": " + e;
             CMS.debug(method + ": " + logMsg);
 
-            //TODO: tdbActivity
+            tdbActivity(ActivityDatabase.OP_CERT_REVOCATION, tokenRecord,
+                    ipAddress, e.getMessage(), "failure", remoteUser);
 
             // continue revoking the next certificate
         }
@@ -486,26 +483,27 @@ public class TPSTokendb {
             logMsg = "certificate unrevoked: " + cert.getSerialNumber();
             CMS.debug(method + ": " + logMsg);
 
-            //TODO: tdbActivity
+            tdbActivity(ActivityDatabase.OP_CERT_UNREVOCATION, tokenRecord,
+                    ipAddress, logMsg, "success", remoteUser);
 
         } catch (Exception e) {
             logMsg = "certificate not unrevoked: " + cert.getSerialNumber() + " : " + e;
             CMS.debug(method + ": " + logMsg);
 
-            //TODO: tdbActivity
+            tdbActivity(ActivityDatabase.OP_CERT_UNREVOCATION, tokenRecord,
+                    ipAddress, e.getMessage(), "failure", remoteUser);
 
             // continue unrevoking the next certificate
         }
     }
 
-    private boolean shouldRevoke(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
+    private void checkShouldRevoke(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
+
         IConfigStore configStore = CMS.getConfigStore();
-        String method = "TPStokendb.shouldRevoke";
-        String activityMsg;
 
         if (cert == null) {
-            throw new TPSException(method + ": cert null");
+            throw new TPSException("Missing token certificate");
         }
 
         String tokenType = cert.getType();
@@ -516,15 +514,11 @@ public class TPSTokendb {
                 ".recovery." + tokenReason + ".revokeCert";
         boolean revokeCerts = configStore.getBoolean(config, true);
         if (!revokeCerts) {
-            activityMsg = "certificate revocation (serial " + cert.getSerialNumber() +
+            throw new TPSException(
+                    "certificate revocation (serial " + cert.getSerialNumber() +
                     ") not enabled for tokenType: " + tokenType +
                     ", keyType: " + keyType +
-                    ", state: " + tokenReason;
-
-            tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
-                    ipAddress, activityMsg, "success", remoteUser);
-
-            return false;
+                    ", state: " + tokenReason);
         }
 
         // check if expired certificates should be revoked.
@@ -536,16 +530,12 @@ public class TPSTokendb {
             Date notAfter = cert.getValidNotAfter();
             Date now = new Date();
             if (now.after(notAfter)) {
-                activityMsg = "revocation not enabled for expired cert: " + cert.getSerialNumber();
-                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
-                        ipAddress, activityMsg, "success", remoteUser);
-                return false;
+                throw new TPSException(
+                        "revocation not enabled for expired cert: " + cert.getSerialNumber());
             }
             if (now.before(notBefore)) {
-                activityMsg = "revocation not enabled for cert that is not yet valid: " + cert.getSerialNumber();
-                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
-                        ipAddress, activityMsg, "success", remoteUser);
-                return false;
+                throw new TPSException(
+                        "revocation not enabled for cert that is not yet valid: " + cert.getSerialNumber());
             }
         }
 
@@ -555,17 +545,11 @@ public class TPSTokendb {
         boolean holdRevocation = configStore.getBoolean(config, false);
         if (holdRevocation) {
             if (!isLastActiveSharedCert(cert.getSerialNumber(), cert.getIssuedBy(), tokenRecord.getId())) {
-                activityMsg = "revocation not permitted as certificate " + cert.getSerialNumber() +
-                        " is shared by anothr active token";
-
-                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
-                        ipAddress, activityMsg, "success", remoteUser);
-
-                return false;
+                throw new TPSException(
+                        "revocation not permitted as certificate " + cert.getSerialNumber() +
+                        " is shared by another active token");
             }
         }
-
-        return true;
     }
 
     /*
