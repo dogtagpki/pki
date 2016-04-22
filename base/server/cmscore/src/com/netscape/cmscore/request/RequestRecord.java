@@ -198,10 +198,10 @@ public class RequestRecord
         mods.add(IRequestRecord.ATTR_EXT_DATA,
                 Modification.MOD_REPLACE, loadExtDataFromRequest(r));
 
+        // TODO(alee) - realm cannot be changed once set.  Can the code be refactored to eliminate
+        // the next few lines?
         if (r.getRealm() != null) {
             mods.add(IRequestRecord.ATTR_REALM, Modification.MOD_REPLACE, r.getRealm());
-        } else {
-            mods.add(IRequestRecord.ATTR_REALM, Modification.MOD_DELETE, null);
         }
 
         for (int i = 0; i < mRequestA.length; i++) {
