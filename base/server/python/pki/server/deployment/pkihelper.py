@@ -4592,6 +4592,34 @@ class ConfigClient:
         return cert
 
 
+class SystemCertificateVerifier:
+    """ Verifies system certificates for a subsystem"""
+
+    def __init__(self, instance=None, subsystem=None):
+        self.instance = instance
+        self.subsystem = subsystem
+
+    def verify_certificate(self, cert_id=None):
+        cmd = ['pki-server', 'subsystem-cert-validate',
+               '-i', self.instance.name,
+               self.subsystem]
+        if cert_id is not None:
+            cmd.append(cert_id)
+        try:
+            subprocess.check_output(
+                cmd,
+                stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            config.pki_log.error(
+                "pki subsystem-cert-validate return code: " + str(e.returncode),
+                extra=config.PKI_INDENTATION_LEVEL_2
+            )
+            config.pki_log.error(
+                e.output,
+                extra=config.PKI_INDENTATION_LEVEL_2)
+            raise
+
+
 class PKIDeployer:
     """Holds the global dictionaries and the utility objects"""
 
@@ -4660,3 +4688,7 @@ class PKIDeployer:
         os.chmod(
             new_descriptor,
             config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
+
+    @staticmethod
+    def create_system_cert_verifier(instance=None, subsystem=None):
+        return SystemCertificateVerifier(instance, subsystem)

@@ -24,6 +24,7 @@ import re
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
+from .. import pkihelper
 from .. import pkimessages as log
 from .. import pkiscriptlet
 
@@ -88,7 +89,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
-        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+        subsystem = instance.get_subsystem(
+            deployer.mdict['pki_subsystem'].lower())
 
         token = deployer.mdict['pki_token_name']
         nssdb = instance.open_nssdb(token)
@@ -146,7 +148,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     with open(external_csr_path) as f:
                         signing_csr = f.read()
 
-                    signing_csr = pki.nssdb.convert_csr(signing_csr, 'pem', 'base64')
+                    signing_csr = pki.nssdb.convert_csr(
+                        signing_csr, 'pem', 'base64')
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
                 # This is needed by IPA to detect step 1 completion.
@@ -155,7 +158,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 subsystem.save()
 
-            if existing or external and step_two:  # existing CA or external CA step 2
+            if existing or external and step_two:
+                # existing CA or external CA step 2
 
                 # If specified, import CA signing CSR into CS.cfg.
                 signing_csr_path = deployer.mdict['pki_external_csr_path']
@@ -166,7 +170,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     with open(signing_csr_path) as f:
                         signing_csr = f.read()
-                    signing_csr = pki.nssdb.convert_csr(signing_csr, 'pem', 'base64')
+                    signing_csr = pki.nssdb.convert_csr(
+                        signing_csr, 'pem', 'base64')
                     subsystem.config['ca.signing.certreq'] = signing_csr
 
                 # If specified, import CA signing cert into NSS database.
@@ -174,32 +179,38 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 signing_cert_file = deployer.mdict['pki_external_ca_cert_path']
                 if signing_cert_file:
                     config.pki_log.info(
-                        "importing %s from %s", signing_nickname, signing_cert_file,
+                        "importing %s from %s",
+                        signing_nickname, signing_cert_file,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     nssdb.add_cert(
                         nickname=signing_nickname,
                         cert_file=signing_cert_file,
                         trust_attributes='CT,C,C')
 
-                # If specified, import certs and keys from PKCS #12 file into NSS database.
+                # If specified, import certs and keys from PKCS #12 file
+                # into NSS database.
                 pkcs12_file = deployer.mdict['pki_external_pkcs12_path']
                 if pkcs12_file:
                     config.pki_log.info(
                         "importing certificates and keys from %s", pkcs12_file,
                         extra=config.PKI_INDENTATION_LEVEL_2)
-                    pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
+                    pkcs12_password = deployer.mdict[
+                        'pki_external_pkcs12_password']
                     nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
 
                 # If specified, import cert chain into NSS database.
-                # Note: Cert chain must be imported after the system certs to ensure that
-                # the system certs are imported with the correct nicknames.
+                # Note: Cert chain must be imported after the system certs
+                # to ensure that the system certs are imported with
+                # the correct nicknames.
                 external_ca_cert_chain_nickname = \
                     deployer.mdict['pki_external_ca_cert_chain_nickname']
-                external_ca_cert_chain_file = deployer.mdict['pki_external_ca_cert_chain_path']
+                external_ca_cert_chain_file = deployer.mdict[
+                    'pki_external_ca_cert_chain_path']
                 if external_ca_cert_chain_file:
                     config.pki_log.info(
                         "importing certificate chain %s from %s",
-                        external_ca_cert_chain_nickname, external_ca_cert_chain_file,
+                        external_ca_cert_chain_nickname,
+                        external_ca_cert_chain_file,
                         extra=config.PKI_INDENTATION_LEVEL_2)
                     cert_chain, _nicks = nssdb.import_cert_chain(
                         nickname=external_ca_cert_chain_nickname,
@@ -207,18 +218,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         trust_attributes='CT,C,C')
                     subsystem.config['ca.external_ca_chain.cert'] = cert_chain
 
-                # Export CA signing cert from NSS database and import it into CS.cfg.
+                # Export CA signing cert from NSS database and import
+                # it into CS.cfg.
                 signing_cert_data = nssdb.get_cert(
                     nickname=signing_nickname,
                     output_format='base64')
                 subsystem.config['ca.signing.nickname'] = signing_nickname
-                subsystem.config['ca.signing.tokenname'] = deployer.mdict['pki_ca_signing_token']
+                subsystem.config['ca.signing.tokenname'] = (
+                    deployer.mdict['pki_ca_signing_token'])
                 subsystem.config['ca.signing.cert'] = signing_cert_data
                 subsystem.config['ca.signing.cacertnickname'] = signing_nickname
-                subsystem.config['ca.signing.defaultSigningAlgorithm'] = \
-                    deployer.mdict['pki_ca_signing_signing_algorithm']
+                subsystem.config['ca.signing.defaultSigningAlgorithm'] = (
+                    deployer.mdict['pki_ca_signing_signing_algorithm'])
 
                 subsystem.save()
+
+                # verify the signing certificate
+                # raises exception on  failure
+                config.pki_log.info("validating the signing certificate",
+                                    extra=config.PKI_INDENTATION_LEVEL_2)
+                verifier = pkihelper.PKIDeployer.create_system_cert_verifier(
+                    instance, 'ca')
+                verifier.verify_certificate('signing')
 
             else:  # self-signed CA
 
