@@ -379,7 +379,7 @@ public class TPSTokendb {
         return true;
     }
 
-    private boolean shouldRevoke(TPSCertRecord cert, String cuid, String tokenReason,
+    private boolean shouldRevoke(TokenRecord tokenRecord, TPSCertRecord cert, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
         IConfigStore configStore = CMS.getConfigStore();
         String method = "TPStokendb.shouldRevoke";
@@ -402,7 +402,7 @@ public class TPSTokendb {
                     ", keyType: " + keyType +
                     ", state: " + tokenReason;
 
-            tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tdbGetTokenEntry(cuid),
+            tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                     ipAddress, activityMsg, "success", remoteUser);
 
             return false;
@@ -418,13 +418,13 @@ public class TPSTokendb {
             Date now = new Date();
             if (now.after(notAfter)) {
                 activityMsg = "revocation not enabled for expired cert: " + cert.getSerialNumber();
-                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tdbGetTokenEntry(cuid),
+                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                         ipAddress, activityMsg, "success", remoteUser);
                 return false;
             }
             if (now.before(notBefore)) {
                 activityMsg = "revocation not enabled for cert that is not yet valid: " + cert.getSerialNumber();
-                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tdbGetTokenEntry(cuid),
+                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                         ipAddress, activityMsg, "success", remoteUser);
                 return false;
             }
@@ -435,11 +435,11 @@ public class TPSTokendb {
                 tokenReason + ".holdRevocationUntilLastCredential";
         boolean holdRevocation = configStore.getBoolean(config, false);
         if (holdRevocation) {
-            if (!isLastActiveSharedCert(cert.getSerialNumber(), cert.getIssuedBy(), cuid)) {
+            if (!isLastActiveSharedCert(cert.getSerialNumber(), cert.getIssuedBy(), tokenRecord.getId())) {
                 activityMsg = "revocation not permitted as certificate " + cert.getSerialNumber() +
                         " is shared by anothr active token";
 
-                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tdbGetTokenEntry(cuid),
+                tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                         ipAddress, activityMsg, "success", remoteUser);
 
                 return false;
@@ -458,10 +458,16 @@ public class TPSTokendb {
     private void revokeCertsByCUID(boolean isRevoke, String cuid, String tokenReason,
             String ipAddress, String remoteUser) throws Exception {
         String method = "TPSTokendb.revokeCertsByCUID";
-        if (cuid == null)
-            throw new TPSException(method + ": cuid null");
         String logMsg;
-        IConfigStore configStore = CMS.getConfigStore();
+
+        if (cuid == null) {
+            logMsg = "Missing token CUID";
+            CMS.debug(method + ": " + logMsg);
+            throw new TPSException(logMsg);
+        }
+
+        TokenRecord tokenRecord = tdbGetTokenEntry(cuid);
+
         Collection<TPSCertRecord> certRecords = tps.getTokendb().tdbGetCertRecordsByCUID(cuid);
         if (tokenReason != null) {
             if (!tokenReason.equalsIgnoreCase("onHold") &&
@@ -472,8 +478,10 @@ public class TPSTokendb {
                 CMS.debug(method + ":" + logMsg);
                 throw new Exception(method + ":" + logMsg);
             }
-
         }
+
+        IConfigStore configStore = CMS.getConfigStore();
+
         for (TPSCertRecord cert : certRecords) {
             // get conn id
             String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
@@ -484,7 +492,7 @@ public class TPSTokendb {
             if (isRevoke) {
                 logMsg = "called to revoke";
                 CMS.debug(method + ":" + logMsg);
-                boolean revokeCert = shouldRevoke(cert, cuid, tokenReason, ipAddress, remoteUser);
+                boolean revokeCert = shouldRevoke(tokenRecord, cert, tokenReason, ipAddress, remoteUser);
 
                 if (!revokeCert) {
                     logMsg = "cert not to be revoked:" + cert.getSerialNumber();
