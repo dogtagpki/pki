@@ -38,7 +38,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.2.6
-Release:          18%{?dist}
+Release:          19%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -231,6 +231,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 ## END:    Manually-crafted patches for use with existing tarballs
 ## pki-core-10.2.6-18
 #Patch59:          pki-core-Fixed-pki-pkcs12-import-backward-compatibility.patch
+## pki-core-10.2.6-19
+#Patch60:          pki-core-Make-PKIInstance-and-PKISubsystem-hashable.patch
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -807,6 +809,7 @@ This package is a part of the PKI Core used by the Certificate System.
 #%patch57 -p1
 #%patch58 -p1
 #%patch59 -p1
+#%patch60 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -1161,6 +1164,10 @@ systemctl daemon-reload
 %endif # %{with server}
 
 %changelog
+* Thu Apr 21 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-19
+- PKI TRAC Ticket #2022 - pkispawn ignores 3rd party CA certs in
+  pki_clone_pkcs12_path (python hash fix)
+
 * Fri Apr  8 2016 Dogtag Team <pki-devel@redhat.com> 10.2.6-18
 - PKI TRAC Ticket #2257 - PKCS #12 backup does not contain trust attributes.
 
