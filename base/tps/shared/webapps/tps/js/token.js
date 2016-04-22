@@ -23,7 +23,7 @@
 var TokenStatus = {
     UNINITIALIZED       : "Uninitialized",
     ACTIVE              : "Active",
-    TEMP_LOST           : "Temporarily lost",
+    SUSPENDED           : "Temporarily lost/suspended",
     PERM_LOST           : "Permanently lost",
     DAMAGED             : "Physically damaged",
     TEMP_LOST_PERM_LOST : "Temporarily lost then permanently lost",

@@ -258,7 +258,7 @@ public class TokenRecord extends DBRecord {
                 return TokenStatus.DAMAGED;
 
             } else if ("onHold".equals(reason)) {
-                return TokenStatus.TEMP_LOST;
+                return TokenStatus.SUSPENDED;
             }
 
         } else if ("terminated".equals(status)) {

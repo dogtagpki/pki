@@ -51,7 +51,7 @@ public class TokenStatus {
     public final static int TOKEN_UNINITIALIZED       = 0;
     public final static int TOKEN_DAMAGED             = 1;
     public final static int TOKEN_PERM_LOST           = 2;
-    public final static int TOKEN_TEMP_LOST           = 3;
+    public final static int TOKEN_SUSPENDED           = 3;
     public final static int TOKEN_ACTIVE              = 4;
     public final static int TOKEN_TEMP_LOST_PERM_LOST = 5;
     public final static int TOKEN_TERMINATED          = 6;
@@ -59,7 +59,7 @@ public class TokenStatus {
     public final static TokenStatus UNINITIALIZED       = new TokenStatus("UNINITIALIZED", TOKEN_UNINITIALIZED);
     public final static TokenStatus DAMAGED             = new TokenStatus("DAMAGED", TOKEN_DAMAGED);
     public final static TokenStatus PERM_LOST           = new TokenStatus("PERM_LOST", TOKEN_PERM_LOST);
-    public final static TokenStatus TEMP_LOST           = new TokenStatus("TEMP_LOST", TOKEN_TEMP_LOST);
+    public final static TokenStatus SUSPENDED           = new TokenStatus("SUSPENDED", TOKEN_SUSPENDED);
     public final static TokenStatus ACTIVE              = new TokenStatus("ACTIVE", TOKEN_ACTIVE);
     public final static TokenStatus TEMP_LOST_PERM_LOST = new TokenStatus("TEMP_LOST_PERM_LOST", TOKEN_TEMP_LOST_PERM_LOST);
     public final static TokenStatus TERMINATED          = new TokenStatus("TERMINATED", TOKEN_TERMINATED);
@@ -135,6 +135,11 @@ public class TokenStatus {
     }
 
     public static TokenStatus valueOf(String name) {
+
+        if ("TEMP_LOST".equals(name)) {
+            System.err.println("WARNING: The token status " + name + " has been deprecated. Please use SUSPENDED instead.");
+            return SUSPENDED;
+        }
 
         TokenStatus status = instancesByName.get(name);
 

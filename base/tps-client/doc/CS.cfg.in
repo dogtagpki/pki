@@ -1485,7 +1485,7 @@ tokendb._067=#   - has transitions between the following states
 tokendb._068=#     UNINITIALIZED = 0,
 tokendb._069=#     DAMAGED = 1,
 tokendb._070=#     PERM_LOST = 2,
-tokendb._071=#     TEMP_LOST = 3,
+tokendb._071=#     SUSPENDED = 3,
 tokendb._072=#     ACTIVE = 4,
 tokendb._073=#     TEMP_LOST_PERM_LOST = 5,
 tokendb._074=#     TERMINATED = 6
@@ -1595,7 +1595,7 @@ tps._009=#   - token operations, like formatting and enrollment have transitions
 tps._010=#     UNINITIALIZED = 0,
 tps._011=#     DAMAGED = 1,
 tps._012=#     PERM_LOST = 2,
-tps._013=#     TEMP_LOST =3 ,
+tps._013=#     SUSPENDED = 3,
 tps._014=#     ACTIVE = 4,
 tps._015=#     TEMP_LOST_PERM_LOST = 5,
 tps._016=#     TERMINATED = 6

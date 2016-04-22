@@ -145,7 +145,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     /**
      * Return the allowed next states for a given token based on TPS configuration.
      *
-     * If the current state is TEMP_LOST, token will be allowed transition to either
+     * If the current state is SUSPENDED, token will be allowed transition to either
      * UNINITIALIZED or ACTIVE depending on whether the token has certificates.
      *
      * @param tokenRecord
@@ -156,7 +156,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         TokenStatus currentState = tokenRecord.getTokenStatus();
         Collection<TokenStatus> nextStates = allowedTransitions.get(currentState);
 
-        if (currentState == TokenStatus.TEMP_LOST) {
+        if (currentState == TokenStatus.SUSPENDED) {
 
             Collection<TokenStatus> ns = new LinkedHashSet<TokenStatus>();
 

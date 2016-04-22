@@ -98,7 +98,7 @@ public class TokenService extends PKIService implements TokenResource {
             break;
 
         case TokenStatus.TOKEN_ACTIVE:
-            if (tokenRecord.getTokenStatus() == TokenStatus.TEMP_LOST) {
+            if (tokenRecord.getTokenStatus() == TokenStatus.SUSPENDED) {
                 // unrevoke certs
                 tps.tdb.unRevokeCertsByCUID(tokenRecord.getId(), ipAddress, remoteUser);
             }
@@ -129,7 +129,7 @@ public class TokenService extends PKIService implements TokenResource {
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "destroyed", ipAddress, remoteUser);
             break;
 
-        case TokenStatus.TOKEN_TEMP_LOST:
+        case TokenStatus.TOKEN_SUSPENDED:
             tokenRecord.setStatus("lost");
             newStatus = "lost";
             tokenRecord.setReason("onHold");
