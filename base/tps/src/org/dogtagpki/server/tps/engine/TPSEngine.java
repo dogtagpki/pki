@@ -620,7 +620,7 @@ public class TPSEngine {
 
         }
 
-        String transition = oldState.toInt() + ":" + newState.toInt();
+        String transition = oldState.getValue() + ":" + newState.getValue();
 
         CMS.debug("TPSEngine.isOperationTransistionAllowed: checking for transition: " + transition);
 

@@ -18,41 +18,141 @@
 
 package com.netscape.certsrv.tps.token;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.netscape.certsrv.tps.token.TokenStatus.TokenStatusAdapter;
+
 
 /**
  * @author Endi S. Dewata
  */
-public enum TokenStatus {
+@XmlJavaTypeAdapter(TokenStatusAdapter.class)
+public class TokenStatus {
 
-    UNINITIALIZED(0),
-    DAMAGED(1),
-    PERM_LOST(2),
-    TEMP_LOST(3),
-    ACTIVE(4),
-    TEMP_LOST_PERM_LOST(5),
-    TERMINATED(6);
+    public static class TokenStatusAdapter extends XmlAdapter<String, TokenStatus> {
 
-    static Map<Integer, TokenStatus> map = new HashMap<Integer, TokenStatus>();
+        public String marshal(TokenStatus status) {
+            return status.name;
+        }
 
-    Integer value;
-
-    static {
-        for (TokenStatus state : TokenStatus.values()) {
-            map.put(state.value, state);
+        public TokenStatus unmarshal(String status) {
+            return TokenStatus.valueOf(status);
         }
     }
 
-    TokenStatus(Integer value) {
+    static Map<String, TokenStatus> instancesByName = new HashMap<String, TokenStatus>();
+    static Map<Integer, TokenStatus> instancesByValue = new HashMap<Integer, TokenStatus>();
+
+    public final static int TOKEN_UNINITIALIZED       = 0;
+    public final static int TOKEN_DAMAGED             = 1;
+    public final static int TOKEN_PERM_LOST           = 2;
+    public final static int TOKEN_TEMP_LOST           = 3;
+    public final static int TOKEN_ACTIVE              = 4;
+    public final static int TOKEN_TEMP_LOST_PERM_LOST = 5;
+    public final static int TOKEN_TERMINATED          = 6;
+
+    public final static TokenStatus UNINITIALIZED       = new TokenStatus("UNINITIALIZED", TOKEN_UNINITIALIZED);
+    public final static TokenStatus DAMAGED             = new TokenStatus("DAMAGED", TOKEN_DAMAGED);
+    public final static TokenStatus PERM_LOST           = new TokenStatus("PERM_LOST", TOKEN_PERM_LOST);
+    public final static TokenStatus TEMP_LOST           = new TokenStatus("TEMP_LOST", TOKEN_TEMP_LOST);
+    public final static TokenStatus ACTIVE              = new TokenStatus("ACTIVE", TOKEN_ACTIVE);
+    public final static TokenStatus TEMP_LOST_PERM_LOST = new TokenStatus("TEMP_LOST_PERM_LOST", TOKEN_TEMP_LOST_PERM_LOST);
+    public final static TokenStatus TERMINATED          = new TokenStatus("TERMINATED", TOKEN_TERMINATED);
+
+    String name;
+    Integer value;
+
+    public TokenStatus() {
+        // required for JAXB
+    }
+
+    TokenStatus(String name, Integer value) {
+        this.name = name;
+        this.value = value;
+
+        instancesByName.put(name, this);
+        instancesByValue.put(value, this);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getValue() {
+        return value;
+    }
+
+    public void setValue(Integer value) {
         this.value = value;
     }
 
-    public static TokenStatus fromInt(Integer value) {
-        return map.get(value);
+    public String toString() {
+        return name;
     }
 
-    public int toInt() {
-        return value.intValue();
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TokenStatus other = (TokenStatus) obj;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (value == null) {
+            if (other.value != null)
+                return false;
+        } else if (!value.equals(other.value))
+            return false;
+        return true;
+    }
+
+    public static Collection<TokenStatus> values() {
+        return instancesByName.values();
+    }
+
+    public static TokenStatus valueOf(String name) {
+
+        TokenStatus status = instancesByName.get(name);
+
+        if (status == null) {
+            throw new IllegalArgumentException("Invalid token status name: " + name);
+        }
+
+        return status;
+    }
+
+    public static TokenStatus fromInt(Integer value) {
+
+        TokenStatus status = instancesByValue.get(value);
+
+        if (status == null) {
+            throw new IllegalArgumentException("Invalid token status value: " + value);
+        }
+
+        return status;
     }
 }

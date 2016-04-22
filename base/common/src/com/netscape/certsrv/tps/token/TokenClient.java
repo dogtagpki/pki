@@ -45,7 +45,7 @@ public class TokenClient extends Client {
             String tokenID,
             String userID,
             String type,
-            String status,
+            TokenStatus status,
             Integer start,
             Integer size) {
 

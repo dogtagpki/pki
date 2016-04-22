@@ -90,14 +90,14 @@ public class TokenService extends PKIService implements TokenResource {
 
         auditModParams.put("UserID", tokenRecord.getUserID());
 
-        switch (tokenState) {
-        case UNINITIALIZED:
+        switch (tokenState.getValue()) {
+        case TokenStatus.TOKEN_UNINITIALIZED:
             tokenRecord.setStatus("uninitialized");
             newStatus = "uninitialized";
             tokenRecord.setReason(null);
             break;
 
-        case ACTIVE:
+        case TokenStatus.TOKEN_ACTIVE:
             if (tokenRecord.getTokenStatus() == TokenStatus.TEMP_LOST) {
                 // unrevoke certs
                 tps.tdb.unRevokeCertsByCUID(tokenRecord.getId(), ipAddress, remoteUser);
@@ -106,11 +106,10 @@ public class TokenService extends PKIService implements TokenResource {
             tokenRecord.setStatus("active");
             newStatus = "active";
             tokenRecord.setReason(null);
-
             break;
 
-        case PERM_LOST:
-        case TEMP_LOST_PERM_LOST:
+        case TokenStatus.TOKEN_PERM_LOST:
+        case TokenStatus.TOKEN_TEMP_LOST_PERM_LOST:
             tokenRecord.setStatus("lost");
             newStatus = "lost";
             tokenRecord.setReason("keyCompromise");
@@ -120,7 +119,7 @@ public class TokenService extends PKIService implements TokenResource {
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "keyCompromise", ipAddress, remoteUser);
             break;
 
-        case DAMAGED:
+        case TokenStatus.TOKEN_DAMAGED:
             tokenRecord.setStatus("lost");
             newStatus = "lost";
             tokenRecord.setReason("destroyed");
@@ -128,10 +127,9 @@ public class TokenService extends PKIService implements TokenResource {
 
             //revoke certs
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "destroyed", ipAddress, remoteUser);
-
             break;
 
-        case TEMP_LOST:
+        case TokenStatus.TOKEN_TEMP_LOST:
             tokenRecord.setStatus("lost");
             newStatus = "lost";
             tokenRecord.setReason("onHold");
@@ -141,7 +139,7 @@ public class TokenService extends PKIService implements TokenResource {
             tps.tdb.revokeCertsByCUID(tokenRecord.getId(), "onHold", ipAddress, remoteUser);
             break;
 
-        case TERMINATED:
+        case TokenStatus.TOKEN_TERMINATED:
             String reason = "terminated";
             String origStatus2 = tokenRecord.getStatus();
             String origReason2 = tokenRecord.getReason();
@@ -225,7 +223,7 @@ public class TokenService extends PKIService implements TokenResource {
             String tokenID,
             String userID,
             String type,
-            String status,
+            TokenStatus status,
             Integer start,
             Integer size) {
 
@@ -249,8 +247,8 @@ public class TokenService extends PKIService implements TokenResource {
             attributes.put("type", type);
         }
 
-        if (StringUtils.isNotEmpty(status)) {
-            attributes.put("status", status);
+        if (status != null) {
+            attributes.put("status", status.toString());
         }
 
         start = start == null ? 0 : start;
@@ -603,6 +601,7 @@ public class TokenService extends PKIService implements TokenResource {
                     "Token ID is null.");
             throw new BadRequestException("Token ID is null.");
         }
+
         auditModParams.put("tokenID", tokenID);
         if (tokenStatus == null) {
             auditConfigTokenGeneral(ILogger.FAILURE, method, null,

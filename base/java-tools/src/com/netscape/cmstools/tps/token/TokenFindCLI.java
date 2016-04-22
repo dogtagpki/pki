@@ -26,6 +26,7 @@ import org.apache.commons.cli.Option;
 
 import com.netscape.certsrv.tps.token.TokenCollection;
 import com.netscape.certsrv.tps.token.TokenData;
+import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
@@ -97,7 +98,12 @@ public class TokenFindCLI extends CLI {
         String tokenID = cmd.getOptionValue("token");
         String userID = cmd.getOptionValue("user");
         String type = cmd.getOptionValue("type");
-        String status = cmd.getOptionValue("status");
+        String statusStr = cmd.getOptionValue("status");
+
+        TokenStatus status = null;
+        if (statusStr != null) {
+            status = TokenStatus.valueOf(statusStr);
+        }
 
         String s = cmd.getOptionValue("start");
         Integer start = s == null ? null : Integer.valueOf(s);

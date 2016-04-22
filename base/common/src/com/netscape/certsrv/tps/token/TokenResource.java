@@ -48,7 +48,7 @@ public interface TokenResource {
             @QueryParam("tokenID") String tokenID,
             @QueryParam("userID") String userID,
             @QueryParam("type") String type,
-            @QueryParam("status") String status,
+            @QueryParam("status") TokenStatus status,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
